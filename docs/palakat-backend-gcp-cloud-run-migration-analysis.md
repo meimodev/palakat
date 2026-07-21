@@ -727,6 +727,17 @@ precisely.
 
 ### 10.3 ✅ The refactor is much cheaper than it looks — you already have two transports over one brain
 
+> **⚠️ CORRECTION (2026-07-21).** This section and §10.4 below are **wrong on a load-bearing point**, established
+> by reading the module files. The 27 controllers exist as *files* but **only 2 are registered** —
+> `HealthController` and `VerifyController`. Every other module (`FinanceModule`, `MembershipModule`,
+> `ReportModule`, 21 more) declares `providers:` and **no `controllers:` array**, so those 131 routes are
+> unreachable and have never served a request. Zero controllers carry a permission decorator.
+>
+> Two consequences: (1) **there is no live privilege-escalation bug** — §10.4's risk is *prospective*, appearing
+> only when those modules are registered; (2) dropping the socket is **not** a transport swap over an existing
+> surface — the REST surface must be built, with 131 routes of untested code as a starting draft. See
+> [`palakat-backend-gcp-cloud-run-migration-plan.md`](./palakat-backend-gcp-cloud-run-migration-plan.md) §1.
+
 The decisive structural fact:
 
 ```

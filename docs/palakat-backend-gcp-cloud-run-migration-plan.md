@@ -1,170 +1,188 @@
 # `palakat_backend` → GCP Cloud Run: Migration Plan (HTTP-only + FCM)
 
 **Date:** 2026-07-21
-**Decision taken:** the WebSocket is **removed** and handed off to **FCM**. Optimisation target is **price**.
 **Companion:** [`palakat-backend-gcp-cloud-run-migration-analysis.md`](./palakat-backend-gcp-cloud-run-migration-analysis.md) — the *whether*. This document is the *how*.
-**Supersedes for deployment:** [`palakat-backend-aws-ec2-cicd-deployment-guide.md`](./palakat-backend-aws-ec2-cicd-deployment-guide.md) once Phase 9 completes.
+**Supersedes for deployment:** [`palakat-backend-aws-ec2-cicd-deployment-guide.md`](./palakat-backend-aws-ec2-cicd-deployment-guide.md) once Phase 8 completes.
 
 ---
 
-## 0. What the decision changes
+## 0. Decisions taken
 
-The analysis priced Cloud Run **with** the socket at Rp 875.790/bulan — 2,3× the current EC2 box — because an
-instance holding any open WebSocket is billed as active, which defeats scale-to-zero. Removing the socket removes
-that floor. The target architecture is genuinely cheaper than what you run today:
+These are settled. The plan below implements them; it does not re-argue them.
 
-| Architecture | Monthly | vs. EC2 today |
-|---|---:|---:|
-| EC2 today (socket, always on) | Rp 378.029 | — |
-| Cloud Run **with** socket (the rejected option) | Rp 875.790 | +Rp 497.761 |
-| **Cloud Run HTTP-only + FCM, 180h active** | **Rp 226.810** | **−Rp 151.219** |
-| **Cloud Run HTTP-only + FCM, 90h active** | **Rp 162.800** | **−Rp 215.229** |
-| Single church (~200 users), HTTP-only | **Rp 0** | −Rp 378.029 |
-
-Plus two line items that disappear entirely: **Redis** (never needed without the Socket.IO adapter — saves the
-Rp 666.000/bulan Memorystore option outright) and **Pusher Beams** (§4 folds it into FCM, which is free).
-
-### 0.1 The sequencing consequence — this is the biggest change to the plan
-
-The previous draft migrated first and removed the socket later. **For a price target, that order is backwards.**
-
-Migrating first means paying the Rp 875.790/bulan socket-pinned rate for every month the client rewrite takes —
-and the client rewrite is the long pole, plausibly 2–3 months including app-store rollout. That is
-**~Rp 1,5 juta wasted** to arrive at the same place.
-
-**So: do the socket removal on EC2, where it costs nothing extra, and migrate only once the backend is
-HTTP-only.** EC2 charges Rp 378.029/bulan whether it is serving sockets or not. It is the free staging ground for
-the entire refactor.
-
-```
-Phases 0–6  ── on EC2, no infra cost change ──────────►  backend + client go HTTP-only
-Phases 7–9  ── migrate the finished thing ───────────►  Cloud Run, scale-to-zero
-Phase 10    ── tune ─────────────────────────────────►  price floor
-```
-
-### 0.2 One question still open
-
-| # | Question | Why it matters |
+| # | Decision | Consequence |
 |---|---|---|
-| Q1 | **Which region is the Supabase project in?** | Cloud Run must match it. Cross-cloud adds 5–15 ms per Prisma query *and* per-GiB egress. Singapore Supabase → `asia-southeast1`. Do not pick a region for client latency; the DB round-trip dominates. |
+| 1 | **WebSocket removed, handed to FCM** | Scale-to-zero becomes real. This is what makes Cloud Run cheaper than EC2. |
+| 2 | **Full REST parity** — not an RPC-over-HTTP shim | Phase 2 is **3–5 weeks**: register 24 dead modules, build the permission layer from nothing, close a 131→166 route gap. The largest single cost in this plan. |
+| 3 | **Database stays on Supabase**, Free tier, Southeast Asia | DB costs **Rp 0**. Total run cost is compute only. Free-tier ceilings become risks — §11. |
+| 4 | **Region `asia-southeast1`** (Singapore) | Matches Supabase's Southeast Asia region. DB round-trip stays intra-metro. |
+| 5 | **FCM topics + bare change signals** | No token registry. Content never leaves the authenticated path. |
+| 6 | **`min-instances=0`, cold starts accepted** | Cheapest possible. 2–5 s on the first request after idle. Reversible. |
+| 7 | **Hard `-breaking` update gate immediately** | Socket drains in days, not weeks. Ship midweek. |
+| 8 | **Birthday cron pinned to `Asia/Makassar`**, date-matching fixed | Behaviour change: notifications move from ~15:00 to 07:00 local. |
 
-Q2 (keep the socket?) and Q3 (staging?) are answered: **no socket**, and staging is now nearly free —
-`min-instances=0` on request-based billing costs approximately nothing when idle, so run one.
+### 0.1 What it costs
+
+The socket is why Cloud Run was 2,3× EC2 — an instance holding any open WebSocket bills as active, defeating
+scale-to-zero. Removing it removes that floor. With the database on Supabase Free, **compute is the entire bill**:
+
+| Architecture | Compute | Database | **Total** |
+|---|---:|---:|---:|
+| EC2 today (socket, always on) | Rp 378.029 | Rp 0 | **Rp 378.029** |
+| Cloud Run **with** socket (rejected) | Rp 875.790 | Rp 0 | **Rp 875.790** |
+| **Cloud Run HTTP-only + FCM, 180h active** | Rp 226.810 | Rp 0 | **Rp 226.810** |
+| **Cloud Run HTTP-only + FCM, 90h active** | Rp 162.800 | Rp 0 | **Rp 162.800** |
+| Single church (~200 users) | Rp 0 | Rp 0 | **Rp 0** |
+
+**Saving: Rp 151–215 ribu/bulan against today**, plus two line items deleted outright — **Redis** (never needed
+without the Socket.IO adapter; the Memorystore option was Rp 666.000/bulan) and **Pusher Beams** (folded into FCM,
+which is free).
+
+At 90 active-hours the free tier covers compute entirely and the bill is **only per-request charges**.
+
+### 0.2 Sequencing — the socket work happens on EC2
+
+Running the socket on Cloud Run costs the always-on rate for every month the refactor takes. EC2 charges
+Rp 378.029 whether it serves sockets or not, so it is the free staging ground. **Migrate last.**
+
+```
+Phases 0–5  ── on EC2, no infra cost change ──►  backend + client go HTTP-only
+Phases 6–8  ── migrate the finished thing ────►  Cloud Run, scale-to-zero
+Phase 9     ── tune ──────────────────────────►  price floor
+```
 
 ---
 
-## 1. What the code review changed about the estimate
+## 1. Two corrections to the existing analysis
 
-Six findings from reading the source. Together they make this refactor **materially cheaper than the analysis
-§10.8 assumed** — with one new risk that is more serious than anything in the original document.
+Both were load-bearing, and both are wrong. Established by reading the source.
 
-### 1.1 ✅ Every push already funnels through one service
+### 1.1 ❌ "27 REST controllers already exist, so this is a transport swap"
+
+Analysis §10.3's central claim. **False.**
+
+- 26 controller files exist, carrying **131 route decorators**.
+- **Only 2 are registered**: `HealthController` and `VerifyController`. Every other module — `FinanceModule`,
+  `MembershipModule`, `ReportModule` and 21 more — declares `providers:` and **no `controllers:` array at all**.
+- **Zero** controllers carry any permission decorator. The count across all 26 files is 0.
+
+So what exists is code that has never been wired, never been guarded, and never served a request. Phase 2 is not
+alignment work — it is building the REST surface, with 131 routes of untested code as a starting draft.
+
+### 1.2 ✅ There is no live privilege-escalation bug
+
+Analysis §10.4 and the previous draft of this plan both claimed the REST surface was reachable and
+under-protected. **It is not reachable.** Unregistered controllers serve nothing. `GET /api/v1/finance` returns
+404 today, not data.
+
+The risk is real but **prospective**: it appears the moment Phase 2 registers those modules. It is created by this
+migration, not inherited by it. That reframes it from "hotfix now" to "do not get Phase 2 wrong."
+
+---
+
+## 2. What the code review found in our favour
+
+Six findings that shrink the FCM half of the work.
+
+### 2.1 Every push funnels through one service
 
 `src/realtime/realtime-emitter.service.ts` is the **single seam**. All 14 `emitToRoom` call sites route through
-`RealtimeEmitterService.emitToRoom(room, event, payload)` (:53). The three higher-level helpers —
-`emitActivityEvent` (:107), `emitFinanceEvent` (:138), `emitApprovalLifecycleEvent` (:179) — all funnel into it.
+`RealtimeEmitterService.emitToRoom(room, event, payload)` (:53). The three helpers — `emitActivityEvent` (:107),
+`emitFinanceEvent` (:138), `emitApprovalLifecycleEvent` (:179) — all funnel into it. **The transport swap is a
+one-file reimplementation.** No caller changes.
 
-**Swapping the socket for FCM is a one-file reimplementation of that service.** No caller changes.
+### 2.2 Payloads are already FCM-shaped
 
-### 1.2 ✅ The payload shape is already an FCM data message
+Every helper builds `{ data: { ... } }` — literally the FCM data-message envelope. Only adaptation: **FCM data
+values must all be strings.**
 
-Every helper builds `{ data: { ... } }`. That is literally the FCM data-message envelope. The only adaptation
-needed: **FCM data values must all be strings**, so nested objects/arrays get `JSON.stringify`d.
+### 2.3 Room names are already valid FCM topics
 
-### 1.3 ✅ Room names are already valid FCM topics
+`pusher-beams.service.ts` formats interests as `church.{id}` (:191), `membership.{id}` (:167), `account.{id}`
+(:181), `church.{id}_bipra.{BIPRA}` (:155), `church.{id}_column.{id}` (:202), `membership.{id}.birthday` (:171).
+FCM topics permit `[a-zA-Z0-9-_.~%]+`. **Every name maps 1:1 with no renaming.**
 
-`pusher-beams.service.ts` formats interests as `church.{id}` (:191), `membership.{id}` (:167),
-`account.{id}` (:181), `church.{id}_bipra.{BIPRA}` (:155), `church.{id}_column.{id}` (:202),
-`membership.{id}.birthday` (:171). FCM topics permit `[a-zA-Z0-9-_.~%]+` — dots and underscores included.
-**Every existing name maps 1:1 to an FCM topic with no renaming.**
-
-### 1.4 ✅ FCM is already shipping in the Flutter app
+### 2.4 FCM already ships in the Flutter app
 
 `apps/palakat/pubspec.yaml:52` — `firebase_messaging: ^15.1.5  # Required for Pusher Beams FCM integration`.
-Pusher Beams delivers over FCM on Android, so **the token plumbing, `google-services.json`, APNs certificate and
-notification permission flow are already working in production.** The client-side push half of this migration is
-mostly already built. The analysis assumed it was greenfield.
+Beams delivers over FCM on Android, so token plumbing, `google-services.json`, the APNs certificate and the
+notification permission flow **already work in production**.
 
-### 1.5 ✅ The client RPC surface is confined to a repository layer
+### 2.5 Generated reports already go to Firebase Storage
 
-`packages/palakat_shared/lib/core/services/socket_service.dart` is the single transport, and **`http_service.dart`
-already sits beside it**. The ~150 RPC call sites live in **22 files** under
-`packages/palakat_shared/lib/core/repositories/`. The Flutter app mirrors the backend's structure: one brain, two
-transports. The UI layer does not touch the socket.
+`report.service.ts:2133` uploads via `firebaseAdmin.bucket()`. Reports are **not** served off local disk, so the
+tmpfs exposure is narrower than feared and report downloads never consume Cloud Run egress.
 
-The client rewrite is still the dominant cost, but it is a bounded, mechanical, file-by-file job in one directory
-— not an app-wide refactor.
+### 2.6 `emitToSocketId` has zero callers
 
-### 1.6 🔴 NEW RISK — FCM topics are client-subscribable; socket rooms were not
-
-**This is the most important finding in this document, and it is a security regression if handled naively.**
-
-Socket rooms are **server-controlled**: the server authenticates the connection, then decides which rooms that
-client joins. FCM topics are **client-controlled**: any app instance can call `subscribeToTopic('church.123')`
-and Firebase will deliver. **Firebase performs no authorization check on topic subscription.**
-
-Today's payloads carry real content — `entityTitle`, `actorName`, `financeType`, `affectedMembershipIds`,
-`resultingStatus`. Publishing those to `church.{id}` topics means **anyone who can guess a church ID receives that
-church's finance and approval activity.**
-
-**Mitigation (mandatory, and it is also the cheapest option):** FCM messages become **bare change signals** —
-entity type, entity id, event name, nothing else. The client receives the ping and **refetches over authenticated
-REST**, where the permission guards from Phase 1 apply.
-
-```ts
-// FCM payload: no content, just "something you care about changed"
-{ topic: `church.${churchId}`, data: { event: 'finance.updated', entityId: String(id) } }
-```
-
-This costs one extra REST call per event, keeps every authorization decision on the server, and stays well inside
-FCM's 4 KB data limit. Payload-bearing pushes are the anti-pattern here.
-
-> Note: **Pusher Beams interests have the same self-subscribe property**, so this exposure partially pre-exists
-> for the existing notification payloads. Phase 4 should fix both at once rather than porting the flaw across.
-
-If a future event genuinely must carry content, the alternative is **device-token targeting** — the server keeps a
-token registry and sends to specific devices via `sendEachForMulticast`. That restores server-side control at the
-cost of a token table, rotation handling, and per-device fan-out. **Do not build it unless a concrete requirement
-appears.**
+`realtime-emitter.service.ts:64`. Dead code — delete it.
 
 ---
 
-## 2. Phase map
+## 3. 🔴 The security constraint: FCM topics are client-subscribable
+
+**The most important design constraint in this migration.**
+
+Socket rooms are **server-controlled** — the server authenticates, then decides membership. FCM topics are
+**client-controlled**: any app instance can call `subscribeToTopic('church.123')` and **Firebase performs no
+authorization check.**
+
+Today's payloads carry `entityTitle`, `actorName`, `financeType`, `affectedMembershipIds`, `resultingStatus`.
+Published to `church.{id}` topics, **anyone guessing a church ID would receive that church's finance and approval
+activity.**
+
+**Therefore, mandatory:** FCM messages carry **event name and entity id only**. The client refetches over
+authenticated REST, where the Phase 2 permission guards apply.
+
+```ts
+// server — no content in the push
+{ topic: `church.${churchId}`, data: { event: 'finance.updated', entityId: String(id) } }
+
+// client — ping invalidates cache, refetch goes through the guard
+onMessage: (m) => invalidate(m.data['event'])   →   GET /finance/482   (JWT + PermissionsGuard)
+```
+
+Anyone subscribing to a topic they should not learns only that **something changed**.
+
+> **Pusher Beams interests have the same self-subscribe property**, so this exposure partially exists today for
+> notification payloads. Phase 4 fixes both at once rather than porting the flaw forward.
+
+---
+
+## 4. Phase map
 
 ```
 ON EC2 — no infrastructure cost change
-Phase 0   Correctness fixes            job-claim race, font, pool bound        ~1–2 days
-Phase 1   Permission parity            REST guards to match RPC  🔴 SECURITY   ~4–6 days
-Phase 2   REST completeness            fill controller gaps vs. 166 actions    ~2–3 days
-Phase 3   FCM push                     reimplement the emitter; retire Beams   ~2–3 days
-Phase 4   Event-driven jobs            kill the 10s poller  🔴 PRICE-CRITICAL  ~2 days
-Phase 5   Flutter client               22 repos socket→HTTP, topics, polling   ~2–4 weeks
-Phase 6   Drain + delete the socket    force-update gate, then delete code     ~2–4 weeks wall
+Phase 0   Correctness fixes           job-claim race, font, pool bound        ~1–2 days
+Phase 1   Permission layer            guard + decorator, built from nothing   ~1 week
+Phase 2   REST surface                register 24 modules, 131→166 routes     ~3–4 weeks  🔴 SECURITY
+Phase 3   Event-driven jobs           kill the 10s poller                     ~2 days     🔴 PRICE
+Phase 4   FCM push                    reimplement the emitter; retire Beams   ~2–3 days
+Phase 5   Flutter client + hard gate  22 repos → REST, topics, drain          ~2–4 weeks
 ─────────────────────────────────────────────────────────────────────────────────────────
-THEN MIGRATE — now cheap, because there is no socket to pin an instance
-Phase 7   Containerize + scaffolding   Dockerfile, registry, secrets, WIF      ~2 days
-Phase 8   Deploy HTTP-only             scale-to-zero config + CI/CD            ~1,5 days
-Phase 9   Cutover                      DNS, soak, decommission EC2             ~0,5 day
-Phase 10  Cost tuning                  right-size, split the report worker     ~1–2 days
+THEN MIGRATE — nothing pins an instance any more
+Phase 6   Containerize + scaffolding  Dockerfile, registry, secrets, WIF      ~2 days
+Phase 7   Deploy HTTP-only            scale-to-zero config + CI/CD            ~1,5 days
+Phase 8   Cutover                     DNS, soak, decommission EC2             ~0,5 day
+Phase 9   Cost tuning                 measure, then right-size                ~1–2 days
 ```
 
-Backend engineering: **~3 weeks**. Client: **2–4 weeks**, overlapping. Wall-clock is dominated by Phase 6 —
-waiting for app-store rollout and old installs to drain.
+Backend **4–6 weeks**, dominated by Phase 2. Client 2–4 weeks, overlapping from Phase 1's parity table onward.
+Migration itself is **under a week** — it is the smallest part of this project.
 
-**Phases 0, 1 and 4 are the ones that can hurt you.** The rest is mechanical.
+**Phases 2 and 3 are the ones that can hurt you.** Phase 2 ships a vulnerability if rushed; Phase 3 deletes the
+price case if done with a poller.
 
 ---
 
-## 3. Phase 0 — correctness fixes (do first, regardless)
+## 5. Phase 0 — correctness fixes
 
-Scale-to-zero and multi-instance both become real in this plan, so the single-process assumptions that EC2 hides
-must go first.
+Scale-to-zero and multi-instance both become real, so single-process assumptions must go first.
 
 ### 0.1 🔴 Atomic job claim in `ReportQueueService`
 
-`src/report/report-queue.service.ts:29` guards with `private isProcessing = false` (per-process); `:283`/`:296`
-claim a job as `findFirst` → separate `update`. Two instances claim the same job, render it twice, and every
-downstream side-effect fires twice.
+`report-queue.service.ts:29` guards with `private isProcessing = false` (per-process); `:283`/`:296` claim a job
+as `findFirst` → separate `update`. Two instances claim the same job and render it twice.
 
 ```ts
 const [job] = await this.prisma.$queryRaw<ReportJob[]>`
@@ -181,32 +199,27 @@ const [job] = await this.prisma.$queryRaw<ReportJob[]>`
 if (!job) return;
 ```
 
-Keep `isProcessing` as a *local* limiter — still correct for bounding one process to one job. It is simply no
-longer the correctness mechanism.
-
-Add a **stale-job reaper**: a job stuck in `PROCESSING` past N minutes never recovers today. On Cloud Run,
-instances die on every revision rollout and on every scale-to-zero, so this goes from rare to routine.
+Keep `isProcessing` as a *local* limiter. Add a **stale-job reaper** — a job stuck in `PROCESSING` never recovers
+today, and Cloud Run kills instances on every rollout and every scale-to-zero.
 
 **Verification:** integration test running two `processQueue()` calls concurrently against one PENDING row,
 asserting exactly one render.
 
 ### 0.2 🔴 Ship the PDF font
 
-`src/report/report-renderer.ts:7–14` probes six paths; the first five are host absolute paths present on Ubuntu
-EC2 and on **no** slim container base. `resolveUnicodeFontPath()` returns `undefined` and PDF rendering falls back
-to a non-Unicode core font **with no error and no log line**. Most Indonesian text is Latin-1, so it passes a
-smoke test and mangles glyphs later.
+`report-renderer.ts:7–14` probes six paths; the first five are host absolute paths present on Ubuntu EC2 and on
+**no** slim container base. `resolveUnicodeFontPath()` then returns `undefined` and PDF rendering silently falls
+back to a non-Unicode core font — **no error, no log line**. Most Indonesian text is Latin-1, so it passes a smoke
+test and mangles glyphs later.
 
 Verified path arithmetic: compiled output is `dist/src/report/report-renderer.js`, so `__dirname/../../assets` =
 `dist/assets`. `nest-cli.json` declares `"assets": ["assets/**/*"]` against `sourceRoot: "src"`, copying
 `src/assets/**` → `dist/assets/**`. `src/utils/gmim-letterhead.ts:104-105` already documents and depends on this
-exact layout. **Committing the TTF to `src/assets/fonts/NotoSans-Regular.ttf` works with no build change.**
+layout.
 
-Recommended: `apt-get install -y --no-install-recommends fonts-dejavu-core` in the Dockerfile (Phase 7) — no
-binary in git, and candidate #1 then resolves exactly as on EC2. Either way:
+Fix in the Dockerfile (`fonts-dejavu-core`, Phase 6) — and regardless:
 
 ```ts
-// report-renderer.ts — fail loud at boot, not silently at render time
 const UNICODE_FONT_PATH = resolveUnicodeFontPath();
 if (!UNICODE_FONT_PATH) {
   throw new Error('No Unicode font found — PDF export would silently mangle non-Latin-1 glyphs');
@@ -215,8 +228,9 @@ if (!UNICODE_FONT_PATH) {
 
 ### 0.3 🟠 Bound the Prisma pool
 
-`src/prisma.service.ts:19-21` builds `new Pool({ connectionString })` with no `max` — `pg`'s default of **10 per
-process**. With scale-to-zero the instance count is spiky by design.
+`prisma.service.ts:19-21` builds `new Pool({ connectionString })` with no `max` — `pg`'s default of **10 per
+process**. Scale-to-zero makes instance count spiky by design, and **Supabase Free has a low direct-connection
+ceiling** (§11, R4).
 
 ```ts
 const pool = new Pool({
@@ -228,102 +242,180 @@ const pool = new Pool({
 ```
 
 Route the service through **Supabase's transaction pooler (port 6543, `?pgbouncer=true`)**. That disables prepared
-statements — **run the full e2e suite against the pooler URL before cutover, not after**. Migrations keep the
-**direct** connection on 5432; PgBouncer transaction mode cannot run DDL reliably.
+statements — **run the full e2e suite against the pooler URL before cutover**. Migrations keep the **direct**
+connection on 5432; PgBouncer transaction mode cannot run DDL reliably.
 
-Scale-to-zero makes the pooler more important than it was: cold instances open fresh connections in bursts.
-
-### 0.4 🟡 Repo hygiene that will bite the Docker build
+### 0.4 🟡 Repo hygiene
 
 - `apps/palakat_backend/package-lock.json` and `apps/palakat_backend/pnpm-lock.yaml` are stale; the root
-  `pnpm-lock.yaml` is authoritative. Delete both or the build picks the wrong one.
-- `apps/palakat_backend/vercel.json` is a static-site config (SPA rewrites, COOP/COEP) sitting in the backend
-  package, used by nothing. Delete.
-- `RealtimeEmitterService.emitToSocketId` (:64) has **zero callers**. Dead code — delete it in Phase 3.
+  `pnpm-lock.yaml` is authoritative. Delete both or the Docker build picks the wrong one.
+- `apps/palakat_backend/vercel.json` is a static-site config used by nothing. Delete.
+- `RealtimeEmitterService.emitToSocketId` (:64) — zero callers. Delete.
 
 ---
 
-## 4. Phase 1 — permission parity 🔴 the security critical path
+## 6. Phase 1 — the permission layer
 
-**This is the phase that can ship a vulnerability. It cannot be rushed and it cannot be parallelised with the
-client work.**
+**Built from nothing.** No controller currently carries a permission decorator.
 
-The RPC path enforces fine-grained permissions:
+The RPC path is the specification. `requireAnyOperationPermission` (`rpc-router.service.ts:380`) resolves the
+caller's effective permissions and matches against an allow-list:
 
 ```ts
-// rpc-router.service.ts:2070
-case 'finance.list': {
-  const { user } = await this.requireAnyOperationPermission(client, [
-    'ops.finance.revenue.create', 'ops.finance.expense.create', 'ops.approval.finance',
-  ]);
-  …
+const user = this.requireUserId(client);                       // reads client.data.user only
+const res  = await this.churchPermissionPolicyService.getEffectivePermissions(user);
+const allowedPermission = permissions.find((p) => res?.data?.permissions.includes(p));
+if (!allowedPermission) throw new ForbiddenException('Insufficient permission');
+```
+
+Port that logic verbatim into a Nest guard. **Do not redesign the permission model during a transport
+migration** — behavioural parity is the goal; any improvement is a separate change with its own review.
+
+```ts
+@Injectable()
+export class PermissionsGuard implements CanActivate {
+  constructor(
+    private reflector: Reflector,
+    private policy: ChurchPermissionPolicyService,
+  ) {}
+
+  async canActivate(ctx: ExecutionContext): Promise<boolean> {
+    const required = this.reflector.get<string[]>(PERMISSIONS_KEY, ctx.getHandler());
+    if (!required?.length) return true;
+    const req = ctx.switchToHttp().getRequest();
+    const res: any = await this.policy.getEffectivePermissions(req.user);
+    const perms = res?.data?.permissions ?? [];
+    if (!required.some((p) => perms.includes(p))) {
+      throw new ForbiddenException('Insufficient permission');
+    }
+    req.churchId = res?.data?.churchId;      // RPC handlers rely on this
+    return true;
+  }
 }
 ```
 
-The REST path does not:
+Also needed:
 
-```ts
-// finance.controller.ts
-@Get()
-async findAll(@Query() query: FinanceListQueryDto, @Req() req: any) {
-  return this.financeService.findAll(query, req.user);   // @UseGuards(AuthGuard('jwt')) only
-}
+- **`churchId` resolution.** RPC returns it alongside the permission; handlers use it. The guard must attach it to
+  the request, including the `resolveRequesterChurchIdForUser` fallback path.
+- **Pagination.** `PaginationInterceptor` is **already registered globally** in `main.ts:33`. Check it against
+  `withPagination` / `normalizePaginatedList` before adding anything — the envelope must match byte-for-byte or
+  every Flutter model breaks subtly.
+
+**Deliverable: the parity table.** All 166 RPC actions, each mapped to its target route, HTTP verb, and exact
+permission set, transcribed from the `case` blocks. This table is the contract Phases 2 and 5 build against, and
+it is the review artefact. Produce it before writing controllers.
+
+---
+
+## 7. Phase 2 — the REST surface 🔴 the security critical path
+
+**3–4 weeks. The largest phase in the plan, and the one that can ship a vulnerability.**
+
+Per module, in dependency order:
+
+1. **Register the controller.** Add `controllers: [XController]` to the module — currently absent in 24 of 26.
+2. **Apply guards.** `@UseGuards(AuthGuard('jwt'), PermissionsGuard)` plus `@RequirePermissions(...)` per route,
+   transcribed from the parity table.
+3. **Close the route gap.** 131 decorators exist against 166 actions. Write what is missing; delete what has no
+   RPC counterpart rather than exposing an untested route.
+4. **Verify the response envelope** against the RPC path — pagination shape, error mapping (`mapErrorToRpc` has an
+   HTTP equivalent in `PrismaExceptionFilter`), and status codes.
+5. **Test.** Every permission-bearing route gets a test asserting an under-privileged token receives 403.
+
+Two actions are **not** mechanical ports:
+
+- **`file.upload.chunk`** streams over the socket via `createWriteStream`. Do not rebuild chunked upload over
+  HTTP. Issue a **signed Firebase Storage URL** and have the client upload directly — the bytes never touch Cloud
+  Run, which is simpler, safer, and cheaper (no request-seconds spent shuttling file data). `firebaseAdmin
+  .bucket()` is already wired (`report.service.ts:2133`).
+- **`document.generate`** is long-running. It must return a job id immediately, never block a request.
+
+**Gate — do not proceed to Phase 5 without all of:**
+
+- [ ] Parity table reviewed by someone who did not write it.
+- [ ] Under-privileged-token test green on every permission-bearing route.
+- [ ] No route registered that lacks either an explicit permission or a documented reason to be public.
+- [ ] The old RPC path still runs unchanged — it is the reference implementation until Phase 5 completes.
+
+---
+
+## 8. Phase 3 — event-driven jobs 🔴 the price-critical path
+
+**Get this wrong and the entire price case evaporates.**
+
+`report-queue.service.ts:268` runs `@Cron(CronExpression.EVERY_10_SECONDS)`. Two problems:
+
+1. On request-based billing, CPU is throttled outside request handling — **a `@Cron` timer is not a request**, so
+   it fires only opportunistically. Reports never finish. No error, no alert.
+2. Replacing it with a Cloud Scheduler poll means **the instance never scales to zero.** You would pay the
+   always-on rate *and* take cold-start latency. Worst of both.
+
+**A polling queue and scale-to-zero are incompatible.** The queue becomes event-driven.
+
+### 8.1 Report queue → Cloud Tasks
+
+```
+POST /report-jobs  ──►  create row  ──►  Cloud Tasks enqueue
+                                              │
+                                              ▼
+                              POST /internal/tasks/report/:id   (OIDC-authenticated)
 ```
 
-**Any authenticated user reaches `financeService.findAll` over REST today.** Pointing the Flutter client at the
-existing 27 controllers as-is ships a privilege-escalation bug across finance and probably other modules.
+- Cloud Tasks' free allowance comfortably covers this volume; expect **Rp 0**.
+- Set `--max-attempts` and `--max-concurrent-dispatches` to match `max-instances`.
+- Retries become Cloud Tasks' problem. The Phase 0.1 atomic claim ensures a retried task cannot double-render.
+- Keep a **once-daily** Scheduler sweep for orphaned rows whose task was lost. Daily, not minutely.
 
-Work:
+### 8.2 Birthday job → Cloud Scheduler, correctly zoned
 
-1. Extract `requireAnyOperationPermission` / `requireUserId` from `RpcRouterService` into a reusable Nest **guard**
-   with a `@RequirePermissions('ops.finance.…')` decorator.
-2. Extract `withPagination` / `normalizePaginatedList` into an interceptor — but **check for overlap first**:
-   `PaginationInterceptor` is already registered globally in `main.ts:33`. Do not add a second one.
-3. **Audit all 166 RPC actions against their controller counterpart, one by one.** Do not skip this because the
-   controllers "already exist" — they exist, they are not equivalent.
-4. Only then repoint the client.
+`birthday-notification.service.ts:15` is `@Cron('0 7 * * *')` with **no `timeZone` option**, and the handler
+derives `dateKey` from `new Date()`. Both use process-local time — **always UTC on Cloud Run**. So 07:00 means
+15:00 WITA, and the birthday calendar day rolls over at 08:00 local.
 
-**Deliverable: a checked-off table of 166 actions**, each mapped to a REST route with its permission set, reviewed
-by someone who did not write it. This table is the contract Phase 5 builds against.
+Fix both halves, per decision 8:
 
-**Gate:** an automated test asserting that every permission-bearing route rejects an under-privileged token. A
-manual audit without a regression test decays on the first refactor.
+```bash
+gcloud scheduler jobs create http birthday-notifications \
+  --schedule="0 7 * * *" --time-zone="Asia/Makassar" \
+  --uri="https://api.example.com/internal/cron/birthday" \
+  --oidc-service-account-email=palakat-invoker@PROJECT_ID.iam.gserviceaccount.com
+```
+
+The handler must derive month/day/`dateKey` in `Asia/Makassar` too — scheduling alone does not fix date-matching.
+
+**This changes observable behaviour**: notifications move from mid-afternoon to 07:00 local. Announce it.
+
+The job is **already idempotent** and needs no logic change — `schema.prisma:677` has `dedupeKey String? @unique`,
+and the service inserts first, catches Prisma `P2002`, and continues before sending. Keep that: Cloud Scheduler
+can double-deliver.
+
+> **Free-tier bonus:** Supabase pauses inactive Free projects. This daily job touches the database every day, so
+> it keeps the project active on its own. Do not remove it without checking §11 R6.
+
+### 8.3 Secure `/internal/*`
+
+These routes bypass user authentication by design, so a mistake is a full authorization bypass. Verify the
+Google-signed OIDC token's `aud` **and** `email` against the invoker service account. Exclude the prefix from the
+global `api/v1` prefix deliberately, as `main.ts:17-21` already does for `/health`.
 
 ---
 
-## 5. Phase 2 — REST completeness
+## 9. Phase 4 — FCM replaces the socket emitter
 
-With the parity table from Phase 1, fill the gaps. `RpcRouterService` makes **zero** direct Prisma calls and 143
-service delegations, so every action already has a service method behind it. The work is controller surface, not
-business logic — the service layer is untouched.
+### 9.1 Reimplement the one seam
 
-Watch for:
-
-- **File upload** — `file.upload.chunk` streams over the socket via `createWriteStream`. The REST equivalent is
-  multipart or resumable upload. This is the one action that is not a mechanical port. Prefer uploading directly
-  to Firebase Storage from the client with a server-issued signed URL — it removes the bytes from Cloud Run
-  entirely, which is both simpler and cheaper (no request-seconds spent shuttling file data).
-- **`document.generate`** — long-running; must return a job id immediately, not block a request.
-- **Pagination envelope** — RPC responses go through `normalizePaginatedList`. The REST envelope must match
-  byte-for-byte or every client model breaks subtly.
-
----
-
-## 6. Phase 3 — FCM replaces the socket emitter
-
-### 6.1 Reimplement the one seam
-
-`RealtimeEmitterService.emitToRoom` becomes an FCM topic publish. Callers do not change.
+Callers do not change. Per §3, the payload carries no content.
 
 ```ts
 // realtime-emitter.service.ts — same signature, different transport
 async emitToRoom(room: string, event: string, payload: unknown) {
   if (!room?.trim()) return;
-  // ponytail: bare change-signal only. Topics are client-subscribable (§1.6),
+  // ponytail: bare change-signal only. Topics are client-subscribable (§3),
   // so content never travels in the push — the client refetches over REST.
   const entityId = extractEntityId(payload);
   await this.firebase.messaging().send({
-    topic: room,                                  // church.12 / membership.5 — already FCM-legal
+    topic: room,                                   // church.12 / membership.5 — already FCM-legal
     data: { event, ...(entityId ? { entityId } : {}) },
     android: { priority: 'high' },
     apns: { payload: { aps: { 'content-available': 1 } } },
@@ -331,159 +423,108 @@ async emitToRoom(room: string, event: string, payload: unknown) {
 }
 ```
 
-`FirebaseAdminService` (`src/firebase/firebase-admin.service.ts:36`) already calls `initializeApp` with `cert(...)`
-and exposes `auth()` (:52) and `storage()` (:66). **Add a `messaging()` accessor** in the same shape, including
-the existing `isConfigured()` no-op fallback so tests and local dev keep working.
+`FirebaseAdminService` (`firebase-admin.service.ts:36`) already calls `initializeApp` with `cert(...)` and exposes
+`auth()` (:52) and `storage()` (:66). **Add `messaging()`** in the same shape, including the existing
+`isConfigured()` no-op fallback so tests and local dev keep working.
 
-### 6.2 Retire Pusher Beams in the same change
+### 9.2 Retire Pusher Beams
 
 Beams is a **paid vendor doing what FCM does free**, over FCM anyway on Android. `publishToInterests` has ~7 call
-sites and the interest formatters (§1.3) map straight to topics.
+sites and the formatters (§2.3) map straight to topics.
 
-- Replace `PusherBeamsService.publishToInterests(interests, payload)` with an FCM topic send.
-- Keep the formatter methods — they become the topic-name vocabulary. Move them out of `pusher-beams.service.ts`
-  into a `TopicsService` so nothing references a retired vendor by name.
-- Delete `@pusher/push-notifications-server`, `pusher_beams`, and the `pusher_beams_web_stub` package (which
-  exists solely to stub Beams on web — an entire workspace package that disappears).
+- Replace `publishToInterests(interests, payload)` with an FCM topic send.
+- Keep the formatter methods as the topic-name vocabulary, moved into a `TopicsService` so nothing references a
+  retired vendor by name.
+- Delete `@pusher/push-notifications-server`, `pusher_beams`, and the `pusher_beams_web_stub` workspace package
+  (which exists solely to stub Beams on web).
 - Drop `PUSHER_BEAMS_INSTANCE_ID` / `PUSHER_BEAMS_SECRET_KEY`.
 
-**Do this after** the FCM emitter is proven in production, not simultaneously. One transport change at a time.
+**Do this after** the FCM emitter is proven in production. One transport change at a time.
 
-### 6.3 The one category FCM cannot serve
+### 9.3 The category FCM cannot serve
 
-**FCM data messages are best-effort** — Android Doze and iOS background throttling may delay or batch them. Fine
-for notifications and admin banners. **Not** fine for `reportJob.*` progress ticks, which want sub-second liveness
-while a user watches a modal.
+FCM data messages are **best-effort** — Android Doze and iOS background throttling delay or batch them. Fine for
+notifications and banners. **Not** fine for `reportJob.*` progress ticks, which want sub-second liveness while a
+user watches a modal.
 
-Replacement: **poll `GET /report-jobs/:id` every 2 seconds while the progress modal is open.** Report generation is
-rare, user-initiated, and short. Thirty seconds of polling, occasionally, is nothing — and it deletes the only
-category that genuinely wanted a live channel.
+**Poll `GET /report-jobs/:id` every 2 seconds while the modal is open.** Report generation is rare,
+user-initiated, and short. That deletes the only category that genuinely wanted a live channel.
 
-| Realtime category | Sites | Replacement |
+| Category | Sites | Replacement |
 |---|---|---|
-| `notification.created/updated/deleted` | `notification.service.ts` :116, :441, :485 | FCM topic ping → client refetch |
-| `activity.*` / `finance.*` / `approval.*` banners | `rpc-router.service.ts` :3153, :3956 + emitter helpers | FCM topic ping → refetch, or refetch-on-focus |
-| `reportJob.*` progress | `report-queue.service.ts` :138, :305, :362, :375, :408 | 2-second polling while the modal is open |
+| `notification.created/updated/deleted` | `notification.service.ts` :116, :441, :485 | FCM ping → refetch |
+| `activity.*` / `finance.*` / `approval.*` | `rpc-router.service.ts` :3153, :3956 + emitter helpers | FCM ping → refetch, or refetch-on-focus |
+| `reportJob.*` progress | `report-queue.service.ts` :138, :305, :362, :375, :408 | 2-second polling while modal open |
 
 ---
 
-## 7. Phase 4 — event-driven jobs 🔴 the price-critical phase
+## 10. Phase 5 — Flutter client, then the hard gate
 
-**Get this wrong and the entire price argument collapses.**
+### 10.1 The client work
 
-`report-queue.service.ts:268` runs `@Cron(CronExpression.EVERY_10_SECONDS)`. Two independent problems:
+Structure is favourable: `socket_service.dart` is the single transport, **`http_service.dart` already sits beside
+it**, and the ~150 RPC call sites live in **22 files** under `packages/palakat_shared/lib/core/repositories/`.
+The UI layer never touches the socket.
 
-1. On request-based billing, CPU is throttled outside request handling — **a `@Cron` timer is not a request**, so
-   it fires only opportunistically. Reports never finish. No error, no alert.
-2. Naively replacing it with Cloud Scheduler hitting an endpoint every minute means **the instance never scales to
-   zero**. You would pay the always-on rate and get cold-start latency as a bonus — the worst of both models.
+1. **Re-point 22 repositories** onto REST routes, working from the Phase 1 parity table, one repository at a time.
+2. **Topic subscription** replaces room joins. On login/session restore, `subscribeToTopic` for `account.{id}`,
+   `membership.{id}`, `church.{id}`, and the column/bipra topics.
+   **`unsubscribeFromTopic` on logout and on church switch** — a missed unsubscribe leaks another church's pings
+   to that device permanently, and **there is no server-side revocation for topics**.
+3. **Handle bare signals.** `realtime_events_service.dart` stops merging payload content and instead invalidates
+   the relevant provider so the UI refetches. Simpler than today.
+4. **Report progress polling** — 2 s, only while the modal is open, hard stop on close plus a backstop timeout.
+5. **No new dependency** — `firebase_messaging` is already there (§2.4).
 
-**A polling queue and scale-to-zero are fundamentally incompatible.** The queue must become event-driven.
+**Price note:** every RPC that was one socket message becomes one **billable request**. At 24 juta requests/month
+that is Rp 162.800/bulan and it is the **largest line item in the target architecture — larger than CPU**. Cache
+aggressively, coalesce list refreshes, and do not refetch on every FCM ping if several arrive together.
 
-### 7.1 Report queue → Cloud Tasks
+### 10.2 The hard gate
 
-On report-job creation, enqueue a Cloud Task targeting an authenticated worker endpoint. No polling, no idle
-wake-ups, and lower latency than a 10-second tick.
+Per decision 7: ship the HTTP+FCM release as **`-breaking`** so old clients must update before continuing.
 
-```
-POST /report-jobs  ──►  create row  ──►  Cloud Tasks enqueue
-                                              │
-                                              ▼
-                                    POST /internal/tasks/report/:id   (OIDC-authenticated)
-```
+- **Ship midweek, never Friday or Saturday.** A hard gate landing before a Sunday concentrates every "I can't get
+  in" message onto your busiest morning.
+- Keep the socket running server-side through the gate release. It costs nothing on EC2 and it is the rollback.
+- **Watch Socket.IO connections by client version.** The gate makes this fast, not instant — a device offline for
+  a week still updates on its own schedule.
+- Have the support answer written before you ship: what the user sees, and what to tell someone who cannot update.
 
-- **Cloud Tasks free tier: 1 juta operations/month.** This will cost nothing.
-- Configure the queue with `--max-attempts` and `--max-concurrent-dispatches` matched to `max-instances`.
-- Retries are then Cloud Tasks' problem, not a cron loop's.
-- Keep the atomic claim from Phase 0.1 — a retried task must not double-render.
-- Keep a **once-daily** Scheduler sweep for orphans (rows whose task was lost). Once a day, not once a minute.
+### 10.3 Then delete the socket
 
-### 7.2 Birthday job → Cloud Scheduler
+Once connections reach zero:
 
-`birthday-notification.service.ts:15` — `@Cron('0 7 * * *')` becomes Cloud Scheduler → `POST
-/internal/cron/birthday` with OIDC auth. Once a day, one wake-up, negligible.
+- `realtime.gateway.ts`, `rpc-router.service.ts` (the largest file in the backend), `redis-io.adapter.ts`
+- `socket_service.dart`
+- deps: `@nestjs/websockets`, `@nestjs/platform-socket.io`, `@socket.io/redis-adapter`, `socket_io_client`
+- the `RedisIoAdapter` wiring in `main.ts:43-45`
 
-This job is **already idempotent** and needs no logic change: `schema.prisma:677` has `dedupeKey String? @unique`,
-and the service inserts first, catches Prisma `P2002`, and `continue`s before sending the push. It is the pattern
-Phase 0.1 was missing. Keep it — Cloud Scheduler can double-deliver.
+**Do not migrate to Cloud Run before this completes.** One month of socket on Cloud Run costs the full
+Rp 875.790.
 
-### 7.3 Secure the internal endpoints
-
-`/internal/*` must reject anything without a valid Google-signed OIDC token from the invoking service account.
-Verify the token's `aud` and `email`. These routes bypass user authentication by design, so a mistake here is a
-full authorization bypass. Exclude them from the global `api/v1` prefix deliberately, as `main.ts:17-21` already
-does for `/health`.
-
----
-
-## 8. Phase 5 — Flutter client
-
-The bounded, mechanical, long part. Structure is favourable (§1.5).
-
-1. **Transport swap.** 22 repository files under `packages/palakat_shared/lib/core/repositories/`, ~150 call
-   sites, from `socket_service.dart` to the existing `http_service.dart`. Work against the Phase 1 parity table,
-   one repository at a time.
-2. **Topic subscription** replaces room joins. On login/session restore, `subscribeToTopic` for the user's
-   `account.{id}`, `membership.{id}`, `church.{id}`, and column/bipra topics. **`unsubscribeFromTopic` on logout
-   and on church switch** — a missed unsubscribe leaks another church's notifications to a device forever, and
-   there is no server-side revocation for topics.
-3. **Handle bare change signals.** `realtime_events_service.dart` stops carrying payload content and instead
-   invalidates the relevant cache/provider so the UI refetches over REST. Simpler than today's payload merging.
-4. **Report progress polling** — 2 s interval, only while the modal is open, with a hard stop on close and a
-   backstop timeout.
-5. **`firebase_messaging` is already wired** (`apps/palakat/pubspec.yaml:52`) — no new dependency, no new
-   platform configuration.
-
-**Price note:** every RPC that was one socket message becomes one **billable Cloud Run request**. At 24 juta
-requests/month that is Rp 162.800/bulan, and it is the largest single line item in the target architecture —
-larger than CPU. Design the client to be less chatty than the socket was: cache aggressively, coalesce list
-refreshes, and do not refetch on every FCM ping if several arrive together. **Request count is the main price
-lever after migration.**
+**Deleting `rpc-router.service.ts` is the biggest maintenance win here** — one transport, one permission model,
+one place authorization lives.
 
 ---
 
-## 9. Phase 6 — drain the socket, then delete it
+## 11. Phase 6 — containerize + scaffolding
 
-**Installed apps do not update on your schedule.** Old versions hold sockets and will keep doing so for weeks.
-Cutting the socket server before they drain breaks working installs.
-
-1. **Ship both transports.** Backend keeps the gateway; new client releases use HTTP + FCM. Zero risk, since the
-   socket is already running.
-2. **Force the upgrade.** The repo already has a version-gated update mechanism driven by tag severity
-   (`-breaking` / `-recommended`, per the `push-deploy` workflow). Ship this release as **`-breaking`** so old
-   clients are gated into updating.
-3. **Measure the drain.** Log Socket.IO connections by client version. Wait until the tail is negligible —
-   expect **2–4 weeks**.
-4. **Then delete:** `realtime.gateway.ts`, `rpc-router.service.ts` (the single largest file in the backend),
-   `redis-io.adapter.ts`, `socket_service.dart`, and the `@nestjs/websockets` / `@nestjs/platform-socket.io` /
-   `@socket.io/redis-adapter` / `socket_io_client` dependencies.
-5. Remove the `RedisIoAdapter` wiring from `main.ts:43-45`.
-
-> **Do not migrate to Cloud Run before step 4 completes.** Running the socket on Cloud Run for even one month
-> costs the full Rp 875.790 always-on rate. On EC2 the drain period is free.
-
-**Deleting `rpc-router.service.ts` is the single biggest maintenance win in this plan** — one transport, one
-permission model, one place where authorization lives.
-
----
-
-## 10. Phase 7 — containerize + GCP scaffolding
-
-### 10.1 Build facts that constrain the Dockerfile
+### 11.1 Build facts that constrain the Dockerfile
 
 | Fact | Source | Consequence |
 |---|---|---|
-| pnpm workspace rooted at repo root | `pnpm-workspace.yaml` | **Build context is the repo root**, not `apps/palakat_backend`. |
-| `packageManager: pnpm@10.17.0` | `package.json:115` | Use corepack; do not `npm i -g pnpm`. |
-| CI uses Node 24 | existing workflow | Base `node:24-slim` — match production to CI. |
-| Prisma 7 `prisma-client` generator → `src/generated/prisma`, **untracked in git** | `schema.prisma:1-5`; `git ls-files` returns 0 | `prisma generate` **must** run in the build, before `nest build`. Output is TypeScript, compiled by `tsc` into `dist/`. |
-| `datasource db` has **no** `url` | `schema.prisma:7-9` | URL comes from `prisma.config.ts`. Needed for `migrate`, not runtime — `PrismaService` builds its own from env. |
-| `build` = `prisma generate && nest build`; `start:prod` = `node dist/src/main.js` | `package.json` | `CMD` is `node dist/src/main.js`. Do not wrap in pnpm. |
-| `postinstall: prisma generate` | `package.json` | Install with `--ignore-scripts` so layer caching works, then generate explicitly. |
-| No Rust query engine (driver adapter) | `prisma.service.ts` | Nothing to match to libc — `node:24-slim` is fine, Alpine is unnecessary risk. **Also the main reason cold starts are tolerable**, which now matters because scale-to-zero is the point. |
-| `app.listen(process.env.PORT \|\| 3000, '0.0.0.0')` | `main.ts` | Already Cloud Run compatible. Do not set `PORT` yourself. |
+| pnpm workspace at repo root | `pnpm-workspace.yaml` | **Build context is the repo root.** |
+| `packageManager: pnpm@10.17.0` | `package.json:115` | Use corepack. |
+| CI uses Node 24 | existing workflow | Base `node:24-slim`. |
+| Prisma 7 `prisma-client` generator → `src/generated/prisma`, **untracked** | `schema.prisma:1-5`; `git ls-files` returns 0 | `prisma generate` **must** run in the build before `nest build`. Output is TypeScript, compiled by `tsc`. |
+| `datasource db` has **no** `url` | `schema.prisma:7-9` | URL comes from `prisma.config.ts`; needed for `migrate`, not runtime. |
+| `build` = `prisma generate && nest build`; `start:prod` = `node dist/src/main.js` | `package.json` | `CMD` is `node dist/src/main.js`. |
+| `postinstall: prisma generate` | `package.json` | Install `--ignore-scripts` so caching works, then generate explicitly. |
+| No Rust query engine (driver adapter) | `prisma.service.ts` | `node:24-slim` is fine. **Also why cold starts are tolerable** — which now matters, since you accepted them. |
+| `app.listen(process.env.PORT \|\| 3000, '0.0.0.0')` | `main.ts` | Already Cloud Run compatible. Do not set `PORT`. |
 
-### 10.2 `apps/palakat_backend/Dockerfile`
+### 11.2 `apps/palakat_backend/Dockerfile`
 
 ```dockerfile
 # syntax=docker/dockerfile:1
@@ -524,10 +565,9 @@ USER node
 CMD ["node", "dist/src/main.js"]
 ```
 
-**Image size now matters more than it did.** With scale-to-zero, every cold start pulls and starts this image.
-Deleting the socket stack (`@nestjs/websockets`, `platform-socket.io`, `redis-adapter`, `@pusher/…`) in Phase 6
-shrinks it for free. If cold start exceeds ~3 s after that, prune dev dependencies with `pnpm deploy --filter` —
-**measure first** (Phase 10), do not pre-optimise.
+**Image size matters more now.** You accepted cold starts, so every scale-from-zero pulls and starts this image.
+Phase 5's deletions (socket stack, Pusher) shrink it for free. If cold start exceeds ~3 s afterwards, prune dev
+dependencies with `pnpm deploy --prod` — **measure first** (Phase 9).
 
 `.dockerignore` at repo root:
 
@@ -547,7 +587,7 @@ apps/palakat_backend/src/generated
 
 The last line matters: a stale local `src/generated/prisma` must never shadow the one built in the image.
 
-### 10.3 GCP scaffolding
+### 11.3 GCP scaffolding — `asia-southeast1`
 
 ```bash
 gcloud config set project PROJECT_ID
@@ -556,11 +596,11 @@ gcloud services enable run.googleapis.com artifactregistry.googleapis.com \
   cloudtasks.googleapis.com iamcredentials.googleapis.com
 
 gcloud artifacts repositories create palakat \
-  --repository-format=docker --location=REGION
+  --repository-format=docker --location=asia-southeast1
 ```
 
-Set an Artifact Registry **cleanup policy** immediately (keep 10 recent, delete untagged after 7 days). Without
-it storage grows forever at Rp 1.850/GB-bulan and nobody notices.
+Set an Artifact Registry **cleanup policy** immediately (keep 10 recent, delete untagged after 7 days), or storage
+grows forever at Rp 1.850/GB-bulan unnoticed.
 
 Three identities, kept separate:
 
@@ -570,27 +610,27 @@ Three identities, kept separate:
 | `palakat-invoker` (Scheduler + Tasks) | `roles/run.invoker` on the service |
 | `palakat-deployer` (GitHub Actions) | `roles/run.admin`, `roles/artifactregistry.writer`, `roles/iam.serviceAccountUser` |
 
-### 10.4 Configuration — the trap this project has
+### 11.4 Configuration — the trap this project has
 
-`src/app.module.ts:38-45` sets
+`app.module.ts:38-45` sets
 `ignoreEnvFile: !DOTENV_CONFIG_PATH && (NODE_ENV === 'production' || INVOCATION_ID !== undefined)`.
 
-**Set `NODE_ENV=production` and do NOT set `DOTENV_CONFIG_PATH`.** Then `@nestjs/config` reads only `process.env`
+**Set `NODE_ENV=production` and do NOT set `DOTENV_CONFIG_PATH`.** Then `@nestjs/config` reads only `process.env`,
 and the sectioned `[local]/[staging]/[production]` `.env` format that `prisma.config.ts` parses is bypassed
 entirely. That format exists for the EC2 file at `/etc/palakat/palakat_backend.env` and has no Cloud Run
 equivalent. `PALAKAT_ENV` becomes irrelevant once `DATABASE_URL` is a real environment variable. **It looks like
 something that needs porting; it does not.**
 
-Secrets, one per Secret Manager entry: `JWT_SECRET`, `DATABASE_URL`, `DATABASE_URL_DIRECT`, `HEALTH_PAGE_SECRET`,
-`APP_CLIENT_PASSWORD`, `FIREBASE_PRIVATE_KEY`, `SONG_DB_FILE_ID`. Pusher's two are **deleted** in Phase 3.
+Secrets, one per entry: `JWT_SECRET`, `DATABASE_URL`, `DATABASE_URL_DIRECT`, `HEALTH_PAGE_SECRET`,
+`APP_CLIENT_PASSWORD`, `FIREBASE_PRIVATE_KEY`, `SONG_DB_FILE_ID`. Pusher's two are deleted in Phase 4.
 
 > ⚠️ **`FIREBASE_PRIVATE_KEY` is the one that will break.** In the EC2 `.env` it is a single line with literal
 > `\n` escapes. Secret Manager will happily store a real multi-line PEM instead — a *different* string, producing
-> an opaque failure at `cert(...)` in `firebase-admin.service.ts:36`. **Store it byte-identical to the `.env`
-> line, escapes included.** This now matters more than before, because FCM delivery depends on it: a bad key
-> means *all* push silently stops, not just Firebase auth.
+> an opaque failure at `cert(...)` (`firebase-admin.service.ts:36`). **Store it byte-identical to the `.env` line,
+> escapes included.** This matters more now: FCM delivery depends on it, so a bad key means **all push silently
+> stops**, not just Firebase auth.
 
-Workload Identity Federation (the existing workflow already declares `permissions: id-token: write`):
+WIF — the existing workflow already declares `permissions: id-token: write`:
 
 ```bash
 gcloud iam workload-identity-pools providers create-oidc github-provider \
@@ -605,14 +645,14 @@ your project.
 
 ---
 
-## 11. Phase 8 — deploy HTTP-only, priced for scale-to-zero
+## 12. Phase 7 — deploy HTTP-only, priced for scale-to-zero
 
-### 11.1 Service configuration — the point of the whole exercise
+### 12.1 Service configuration
 
 ```bash
 gcloud run deploy palakat-backend \
-  --image=REGION-docker.pkg.dev/PROJECT_ID/palakat/backend:TAG \
-  --region=REGION \
+  --image=asia-southeast1-docker.pkg.dev/PROJECT_ID/palakat/backend:TAG \
+  --region=asia-southeast1 \
   --service-account=palakat-backend@PROJECT_ID.iam.gserviceaccount.com \
   --min-instances=0 \
   --max-instances=5 \
@@ -624,89 +664,82 @@ gcloud run deploy palakat-backend \
   --set-secrets=JWT_SECRET=JWT_SECRET:latest,DATABASE_URL=DATABASE_URL:latest,…
 ```
 
-Compare against the rejected socket configuration — this is where the money is:
+Against the rejected socket configuration — this is where the money is:
 
 | Setting | With socket (rejected) | HTTP-only (this plan) | Why |
 |---|---|---|---|
-| `min-instances` | 1 | **0** | Nothing pins an instance. This is the entire saving. |
-| CPU allocation | `--no-cpu-throttling` (always) | **request-based (default)** | Cron is gone (Phase 4), so nothing needs CPU between requests. |
-| `timeout` | 3600 s | **300 s** | No connections to hold. Long work is a Task, not a request. |
-| `session-affinity` | required | **off** | No sticky handshake. Affinity was best-effort anyway. |
-| `max-instances` | 1 (forced) | **5** | Safe now: atomic job claim (0.1), no in-memory socket adapter, no Redis. |
+| `min-instances` | 1 | **0** | Nothing pins an instance. The entire saving. |
+| CPU allocation | `--no-cpu-throttling` | **request-based (default)** | Cron is gone (Phase 3); nothing needs CPU between requests. |
+| `timeout` | 3600 s | **300 s** | No connections to hold. Long work is a Task. |
+| `session-affinity` | required | **off** | No sticky handshake. |
+| `max-instances` | 1 (forced) | **5** | Safe now: atomic claim, no in-memory socket adapter. |
 | Redis | mandatory at >1 instance | **none** | Rp 666.000/bulan line item deleted. |
 
-`--max-instances=5` is a **cost ceiling**, not a capacity target. A runaway default is how a Rp 200 ribu service
-becomes a Rp 10 juta one. Raise it deliberately, with a budget alert already in place.
+`--max-instances=5` is a **cost ceiling**, not a capacity target. Raise it deliberately, with a budget alert
+already in place.
 
-**Startup probe:** use the **default TCP probe**. `/health` sits behind `HealthSecretGuard`
-(`health-secret.guard.ts:29` requires an `x-health-secret` header), and header-bearing HTTP probes cannot be
-expressed in `gcloud run deploy` flags — they need `gcloud run services replace service.yaml`. TCP is sufficient
-because the app binds its port only after `PrismaService.$connect()` resolves.
+**Startup probe:** default **TCP**. `/health` sits behind `HealthSecretGuard` (`health-secret.guard.ts:29`
+requires `x-health-secret`), and header-bearing HTTP probes cannot be expressed in `gcloud run deploy` flags —
+they need `gcloud run services replace service.yaml`. TCP suffices because the app binds its port only after
+`PrismaService.$connect()` resolves.
 
-### 11.2 Migrations — a Cloud Run Job, never the container start
+**No pre-warm Scheduler job**, per decision 6. If Sunday latency proves annoying, adding one is a single
+`gcloud scheduler` command with no code change — the escape hatch stays open.
+
+### 12.2 Migrations — a Cloud Run Job, never container start
 
 ```bash
 gcloud run jobs create palakat-migrate \
-  --image=…:TAG --region=REGION \
+  --image=…:TAG --region=asia-southeast1 \
   --service-account=palakat-backend@PROJECT_ID.iam.gserviceaccount.com \
   --set-secrets=DATABASE_URL=DATABASE_URL_DIRECT:latest \
   --command=npx --args=prisma,migrate,deploy \
   --max-retries=0 --task-timeout=600
 ```
 
-1. **`DATABASE_URL_DIRECT`, not the pooler** — DDL needs port 5432. A separate secret holding a different URL.
-2. **`npx prisma migrate deploy`, not `pnpm run db:deploy`** — the npm script also runs `prisma generate`, which
-   is pointless in a runtime container.
-3. `prisma.config.ts` resolves `datasource.url` from `process.env` first, so no `.env` file need exist in the
-   image.
-4. **Never run the seed in production.** `FORCE_SEEDING=false`, and `db:push` (`--force-reset`) must not exist in
-   any pipeline that can reach production.
+1. **`DATABASE_URL_DIRECT`, not the pooler** — DDL needs port 5432.
+2. **`npx prisma migrate deploy`, not `pnpm run db:deploy`** — the script also runs `prisma generate`, pointless
+   in a runtime container.
+3. `prisma.config.ts` resolves `datasource.url` from `process.env` first, so no `.env` need exist in the image.
+4. **Never run the seed in production.** `FORCE_SEEDING=false`; `db:push` (`--force-reset`) must not exist in any
+   pipeline that can reach production.
+5. **Supabase Free has no automated backups** (§13 R2). `pg_dump` to a GCS bucket **before every migration run**,
+   as a pipeline step, not a habit.
 
-### 11.3 Scheduler and Tasks
+### 12.3 CI/CD
 
-```bash
-gcloud scheduler jobs create http birthday-notifications \
-  --schedule="0 7 * * *" --time-zone="Asia/Makassar" \
-  --uri="https://api.example.com/internal/cron/birthday" \
-  --oidc-service-account-email=palakat-invoker@PROJECT_ID.iam.gserviceaccount.com
-
-gcloud tasks queues create report-jobs \
-  --max-attempts=3 --max-concurrent-dispatches=5
-```
-
-Match `--time-zone` to the congregation's actual timezone — `0 7 * * *` in UTC is 15:00 WITA, which is not a
-birthday-notification hour.
-
-### 11.4 CI/CD
-
-The existing `.github/workflows/palakat-backend-deploy.yml` (~150 lines: temporary SG ingress, scp a tarball, ssh,
-build on the box, `db:deploy`, `systemctl restart`, health poll, revoke ingress) is **deleted**. Keep the
-`deploy-backend*` tag trigger so muscle memory survives.
+The existing workflow (~150 lines: temporary SG ingress, scp a tarball, ssh, build on the box, `db:deploy`,
+`systemctl restart`, health poll, revoke ingress) is **deleted**. Keep the `deploy-backend*` tag trigger.
 
 ```yaml
       - name: Build & push
         run: |
-          IMAGE="${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT }}/palakat/backend:${{ github.sha }}"
+          IMAGE="asia-southeast1-docker.pkg.dev/${{ vars.GCP_PROJECT }}/palakat/backend:${{ github.sha }}"
           docker build -f apps/palakat_backend/Dockerfile -t "$IMAGE" .
           docker push "$IMAGE"
           echo "IMAGE=$IMAGE" >> "$GITHUB_ENV"
+      - name: Backup before migrating        # Supabase Free has no automated backups
+        run: |
+          pg_dump "${{ secrets.DATABASE_URL_DIRECT }}" | gzip \
+            | gcloud storage cp - gs://palakat-db-backups/$(date +%Y%m%d%H%M%S).sql.gz
       - name: Migrate
         run: |
-          gcloud run jobs update palakat-migrate --image="$IMAGE" --region=$REGION
-          gcloud run jobs execute palakat-migrate --region=$REGION --wait
+          gcloud run jobs update palakat-migrate --image="$IMAGE" --region=asia-southeast1
+          gcloud run jobs execute palakat-migrate --region=asia-southeast1 --wait
       - name: Deploy (no traffic)
-        run: gcloud run deploy palakat-backend --image="$IMAGE" --region=$REGION --no-traffic --tag=candidate
+        run: gcloud run deploy palakat-backend --image="$IMAGE" --region=asia-southeast1 --no-traffic --tag=candidate
       - name: Smoke the candidate
         run: |
-          URL=$(gcloud run services describe palakat-backend --region=$REGION \
+          URL=$(gcloud run services describe palakat-backend --region=asia-southeast1 \
                  --format='value(status.traffic.filter("tag=candidate").url)')
           curl -fsS -H "x-health-secret: ${{ secrets.HEALTH_PAGE_SECRET }}" "$URL/health"
       - name: Promote
-        run: gcloud run services update-traffic palakat-backend --region=$REGION --to-latest
+        run: gcloud run services update-traffic palakat-backend --region=asia-southeast1 --to-latest
 ```
 
-Order matters: **migrate → deploy `--no-traffic` → smoke the tagged revision → promote.** The `--tag=candidate`
-URL lets you hit the new revision before any user does — something `systemctl restart` never allowed.
+Order matters: **backup → migrate → deploy `--no-traffic` → smoke the tagged revision → promote.** The
+`--tag=candidate` URL lets you hit the new revision before any user does — something `systemctl restart` never
+allowed.
 
 Migrations run *before* the new code takes traffic, so **every migration must be backward compatible with the
 running revision**. Expand/contract, never rename-in-place.
@@ -717,19 +750,17 @@ GitHub secret is not a revoked key.
 
 ---
 
-## 12. Phase 9 — cutover
+## 13. Phase 8 — cutover
 
-1. Deploy to Cloud Run against the **production** Supabase database, no DNS change. Both stacks run; EC2 serves
-   all clients.
+1. Deploy to Cloud Run against the **production** Supabase database, no DNS change. Both stacks run.
 2. Verify on the `run.app` URL: health, login, a REST call per module, a PDF export, one report job end-to-end
    **including its Cloud Task**, and one FCM delivery to a real device.
-3. **Verify cold start.** With `min-instances=0` the first request after idle pays 2–5 s. Measure it. If it is
-   unacceptable for the Sunday peak, see Phase 10.3 — do not reflexively set `min-instances=1` and give back the
-   entire saving.
-4. Watch the 07:00 Scheduler job fire **exactly once**, and confirm the daily orphan sweep runs.
-5. **Lower DNS TTL to 60 s at least 24 hours beforehand.** This is the step teams skip and then cannot roll back.
-6. Cut over. Do it **outside** a service.
-7. Soak **one full week including a Sunday** with EC2 still running and warm.
+3. **Measure cold start.** You accepted it — but measure it so the decision stays informed. If it is worse than
+   ~5 s, trim the image before considering `min-instances`.
+4. Watch the 07:00 **Asia/Makassar** Scheduler job fire exactly once, and confirm the daily orphan sweep runs.
+5. **Lower DNS TTL to 60 s at least 24 hours beforehand.** The step teams skip and then cannot roll back.
+6. Cut over — **outside** a service, and midweek.
+7. Soak **one full week including a Sunday**, EC2 still running and warm.
 8. Stop the EC2 instance (do not terminate). Wait another week. Then terminate and **release the Elastic IP** — an
    unattached EIP still bills.
 
@@ -738,18 +769,16 @@ GitHub secret is not a revoked key.
 | Failure | Action | Time |
 |---|---|---|
 | Bad revision | `gcloud run services update-traffic --to-revisions=PREVIOUS=100` | seconds |
-| Cloud Run broadly wrong | DNS back to EC2 (why it stays warm for a week) | ~60 s at TTL 60 |
-| Bad migration | **Forward-fix only.** There is no rollback for `migrate deploy`. | — |
-
-Snapshot Supabase immediately before the first production migration run.
+| Cloud Run broadly wrong | DNS back to EC2 (why it stays warm a week) | ~60 s at TTL 60 |
+| Bad migration | Restore the `pg_dump` from §12.2. **There is no `migrate deploy` rollback.** | minutes |
 
 ---
 
-## 13. Phase 10 — cost tuning
+## 14. Phase 9 — cost tuning
 
-Only after real traffic data exists. **Measure, then tune.**
+Measure first.
 
-### 13.1 Where the money actually goes
+### 14.1 Where the money goes
 
 At 4.000 users, 24 juta requests/month, 1 vCPU / 1 GiB:
 
@@ -758,85 +787,72 @@ At 4.000 users, 24 juta requests/month, 1 vCPU / 1 GiB:
 | CPU (net of 180.000 vCPU-s free) | $3.46 · Rp 64.010 | **$0 — free tier covers it** |
 | Memory (net of 360.000 GiB-s free) | $0 | $0 |
 | Requests (24 juta, net of 2 juta free) | $8.80 · Rp 162.800 | $8.80 · Rp 162.800 |
-| **Total** | **$12.26 · Rp 226.810** | **$8.80 · Rp 162.800** |
+| Database (Supabase Free) | Rp 0 | Rp 0 |
+| **Total** | **Rp 226.810** | **Rp 162.800** |
 
-**Requests dominate — not CPU.** That inverts the usual intuition and sets the priority: reducing request count
-beats any container tuning. Cache aggressively on the client, coalesce list refreshes, and do not refetch on every
-FCM ping.
+**Requests dominate — not CPU.** That inverts the usual intuition: reducing request count beats any container
+tuning. Cache aggressively on the client, coalesce list refreshes, do not refetch on every FCM ping.
 
-The free tier does real work here, unlike in the socket architecture where it covered 9,1% of an always-on vCPU.
-Break-even (compute entirely free): **50 h/bulan at 1 vCPU, 100 h/bulan at 0,5 vCPU**.
+Break-even for free compute: **50 h/bulan at 1 vCPU, 100 h/bulan at 0,5 vCPU.**
 
-### 13.2 Right-size, and consider splitting the report worker
+### 14.2 Right-size, and consider splitting the report worker
 
-The service must currently be sized for its **peak** workload — a large `pdfkit`/`exceljs` export — even though
-that happens rarely. Cloud Run's writable filesystem is **tmpfs charged against the memory limit**, so every byte
-of a generated report counts against RAM.
+The service is sized for its **peak** — a large `pdfkit`/`exceljs` export — though that is rare. Cloud Run's
+writable filesystem is tmpfs charged against the memory limit. Mitigating factor: **generated reports upload to
+Firebase Storage** (`report.service.ts:2133`), so files do not accumulate locally.
 
-**Optimisation:** move report rendering to a **separate Cloud Run Job** sized 2 vCPU / 2 GiB, triggered by the
-Cloud Task from Phase 4. The API service then drops to **0,5 vCPU / 512 MiB**, where 100 h/month of compute is
-free.
+**Optimisation:** move rendering into a separate Cloud Run **Job** at 2 vCPU / 2 GiB, triggered by the Phase 3
+Cloud Task. The API service then drops to **0,5 vCPU / 512 MiB**, where 100 h/month is free.
 
-| | Single service | Split (API + report Job) |
+| | Single service | Split |
 |---|---:|---:|
-| API compute, 90h | $0 (free tier) at 1 vCPU | $0 (free tier) at 0,5 vCPU, with 2× the headroom |
-| API compute, 180h | $3.46 · Rp 64.010 | **$0 — 180h at 0,5 vCPU is still near the allowance** |
-| Report rendering | shared, forces 1 GiB+ sizing | billed per run — minutes/month |
-| tmpfs OOM risk | real | **gone** — isolated in a job sized for it |
+| API compute, 90h | $0 at 1 vCPU | $0 at 0,5 vCPU, double the headroom |
+| API compute, 180h | Rp 64.010 | **~Rp 0** |
+| Report rendering | forces 1 GiB+ sizing always | billed per run — minutes/month |
+| tmpfs OOM risk | real | **isolated** |
 
-Saves on the order of **Rp 60 ribu/bulan** and removes risk R7 outright. **Do it only if the bill or an OOM
-justifies it** — it adds a component, and Phase 4's Cloud Task already provides the trigger, so it is cheap to
-add later.
+Saves ~Rp 60 ribu/bulan and removes R7. **Only if the bill or an OOM justifies it** — the Cloud Task trigger
+already exists, so it is cheap to add later.
 
-### 13.3 Cold start vs. `min-instances`
+### 14.3 Guardrails, day one
 
-`min-instances=1` costs **~Rp 875 ribu/bulan** and eliminates cold starts. That is the entire saving, spent.
-Cheaper options first:
-
-- **Pre-warm on a schedule.** Cloud Scheduler pings `/health` every 5 minutes from 07:30–12:00 Sunday. Instances
-  stay warm through the peak; the rest of the week scales to zero. Costs a few active-hours, not Rp 875 ribu.
-- **Trim the image** (Phase 6 already deletes the socket stack; `pnpm deploy --prod` prunes further).
-- **Startup CPU boost** — `--cpu-boost` accelerates bootstrap for a fraction of always-on cost.
-
-Prisma 7's driver adapter means no Rust engine binary to load, so NestJS bootstrap is the whole cold start. Measure
-it before spending anything.
-
-### 13.4 Guardrails, configured on day one
-
-- **Billing budget alert in USD** at 100% / 150% / 200%. Bills are USD; funding is likely IDR. Budget in IDR with
-  **10–15% FX headroom** (analysis §3.7). Carrying a smaller USD bill also means carrying less currency risk.
+- **Billing budget alert in USD** at 100 / 150 / 200%. Bills are USD, funding is IDR — budget with **10–15% FX
+  headroom**. A smaller USD bill also means less currency exposure.
 - **`max-instances` explicit**, never default.
 - **Artifact Registry cleanup policy.**
-- **Log-based alerts** on `Container called exit` and on Cloud Tasks dead-letter depth — with no cron loop, a
-  silently failing task queue is how reports stop without anyone noticing.
+- **Log-based alerts** on `Container called exit` and Cloud Tasks dead-letter depth — with no cron loop, a
+  silently failing queue is how reports stop without anyone noticing.
 - **Uptime check** on `/health` with the secret header (Cloud Monitoring uptime checks *do* support custom
-  headers, unlike startup probes). Doubles as a keep-warm ping.
+  headers, unlike startup probes).
+- **Supabase Free usage alerts** — §15 R2/R3.
 
 ---
 
-## 14. Risk register
+## 15. Risk register
 
 | # | Risk | Likelihood | Impact | Mitigation | Phase |
 |---|---|---|---|---|---|
-| R1 | **FCM topics are client-subscribable → cross-church data leak** | **High if payloads carry content** | **Confidentiality breach** | Bare change-signals only; client refetches over authenticated REST | 3 |
-| R2 | REST lacks the RPC permission checks → privilege escalation | **High if Phase 1 is rushed** | Finance data exposed to any authenticated user | Audit all 166 actions; automated under-privileged-token tests | 1 |
-| R3 | Polling cron survives into Cloud Run → scale-to-zero never happens | Medium | Price target missed entirely; pays always-on | Cloud Tasks (event-driven), not Scheduler polling | 4 |
-| R4 | Socket cut before old installs drain | Medium | Working installs break | Dual transport + `-breaking` update gate + measure the drain | 6 |
-| R5 | Duplicate report processing at >1 instance | Certain without the fix | Data correctness + double CPU | `FOR UPDATE SKIP LOCKED` + atomic claim | 0 |
-| R6 | `FIREBASE_PRIVATE_KEY` newline mangling in Secret Manager | High | **All push silently stops** | Store byte-identical to `.env`; assert on the parsed key at boot | 7 |
-| R7 | tmpfs OOM during a large export | Medium | Instance killed mid-render | 1 GiB minimum; split the report worker (13.2) | 8, 10 |
-| R8 | Topic unsubscribe missed on logout / church switch | Medium | Device keeps receiving another church's pings, permanently | Explicit unsubscribe; no server-side revocation exists | 5 |
-| R9 | PDF glyphs silently degrade on the slim base image | High if unaddressed | Corrupt reports found by users | `fonts-dejavu-core` + **startup assertion** | 0 |
-| R10 | Prepared statements break on PgBouncer | Medium | Runtime query failures | Full e2e against the pooler **before** cutover | 0 |
-| R11 | Request count higher than modelled | Medium | Requests are the dominant cost | Client-side caching; monitor request count as the primary price metric | 5, 10 |
-| R12 | Cold start hurts the Sunday peak | Medium | Poor UX at the worst moment | Scheduled pre-warm before `min-instances=1` | 10 |
-| R13 | Cross-cloud DB latency if regions mismatch | Certain if mismatched | +5–15 ms/query, compounds in report loops | Q1: match the Supabase region | 7 |
-| R14 | Non-backward-compatible migration during rollout | Medium | Old revision errors mid-deploy | Expand/contract; snapshot before first prod migration | 8 |
-| R15 | Runaway `max-instances` | Low | Rp 10 juta surprise | Explicit ceiling + budget alerts | 8, 10 |
+| R1 | **Phase 2 registers routes with wrong or missing permissions** | **High if rushed** | **Privilege escalation** — created by this migration, not inherited | Parity table reviewed independently; under-privileged-token test on every route | 2 |
+| R2 | **Supabase Free has no automated backups** | Certain | **Unrecoverable data loss on a bad migration** | `pg_dump` to GCS before every migration, as a pipeline step | 7 |
+| R3 | **Supabase Free size / egress ceilings** | Medium | Project throttled or suspended | **Check current Free limits on the dashboard** and set usage alerts. Cross-cloud queries count as Supabase egress | 0, 9 |
+| R4 | **Supabase Free connection ceiling vs. spiky scale-from-zero** | Medium | Connection refusals under load | `DATABASE_POOL_MAX=3`, transaction pooler, `max-instances=5` | 0, 7 |
+| R5 | FCM topics client-subscribable → cross-church leak | **High if payloads carry content** | **Confidentiality breach** | Bare change-signals only; refetch over authenticated REST | 4 |
+| R6 | Polling cron survives into Cloud Run | Medium | **Price case deleted** — instance never idles | Cloud Tasks, not a Scheduler poll | 3 |
+| R7 | Hard gate strands users who cannot update | **Medium — accepted** | Support load, locked-out users | Ship midweek; support answer written in advance; socket stays up through the gate | 5 |
+| R8 | Duplicate report processing at >1 instance | Certain without the fix | Correctness + double CPU | `FOR UPDATE SKIP LOCKED` | 0 |
+| R9 | `FIREBASE_PRIVATE_KEY` newline mangling | High | **All push silently stops** | Store byte-identical to `.env`; assert on the parsed key at boot | 6 |
+| R10 | PDF glyphs silently degrade | High if unaddressed | Corrupt reports found by users | `fonts-dejavu-core` + startup assertion | 0 |
+| R11 | Prepared statements break on PgBouncer | Medium | Runtime query failures | Full e2e against the pooler **before** cutover | 0 |
+| R12 | Request count above model | Medium | Requests are the dominant cost | Client caching; monitor request count as the primary price metric | 5, 9 |
+| R13 | Cold start hurts the Sunday peak | **Medium — accepted** | 2–5 s first request | Measure; trim image; pre-warm is one command if needed | 8, 9 |
+| R14 | Topic unsubscribe missed on logout / church switch | Medium | Device receives another church's pings permanently | Explicit unsubscribe; no server-side revocation exists | 5 |
+| R15 | tmpfs OOM during a large export | Low–Medium | Instance killed mid-render | 1 GiB minimum; reports already stream to Storage; split worker if needed | 7, 9 |
+| R16 | Non-backward-compatible migration during rollout | Medium | Old revision errors mid-deploy | Expand/contract; backup precedes every run | 7 |
+| R17 | Runaway `max-instances` | Low | Rp 10 juta surprise | Explicit ceiling + budget alerts | 7, 9 |
 
 ---
 
-## 15. Checklist
+## 16. Checklist
 
 ```
 ON EC2 — no cost change
@@ -844,63 +860,70 @@ Phase 0   [ ] atomic job claim + stale-job reaper + concurrency test
           [ ] font in image + startup assertion
           [ ] DATABASE_POOL_MAX; e2e green against the transaction pooler
           [ ] stale lockfiles, vercel.json, dead emitToSocketId removed
+          [ ] Supabase Free limits checked; usage alerts set
 
-Phase 1   [ ] @RequirePermissions guard extracted from RpcRouterService
-          [ ] all 166 actions audited into a reviewed parity table
-          [ ] under-privileged-token tests pass on every route   🔴 SECURITY GATE
+Phase 1   [ ] PermissionsGuard + @RequirePermissions, ported verbatim from RPC
+          [ ] churchId resolution attached to the request
+          [ ] PaginationInterceptor overlap checked before adding anything
+          [ ] PARITY TABLE: 166 actions → route + verb + permissions, reviewed
 
-Phase 2   [ ] controller gaps filled; pagination envelope byte-identical
-          [ ] file upload re-designed (signed URL direct to Storage)
+Phase 2   [ ] 24 modules registered with controllers                🔴 SECURITY GATE
+          [ ] every route guarded per the parity table
+          [ ] 131→166 route gap closed; orphan routes deleted, not exposed
+          [ ] response envelope byte-identical to RPC
+          [ ] under-privileged-token test green on every route
+          [ ] file upload → signed Firebase Storage URL, not chunked HTTP
 
-Phase 3   [ ] FirebaseAdminService.messaging() added
-          [ ] emitToRoom reimplemented — BARE SIGNALS ONLY, no payload content
-          [ ] Pusher Beams retired; deps + secrets + web stub package deleted
-          [ ] report progress → 2s polling
-
-Phase 4   [ ] report queue → Cloud Tasks (NOT a Scheduler poll)   🔴 PRICE GATE
-          [ ] birthday → Cloud Scheduler, correct timezone
+Phase 3   [ ] report queue → Cloud Tasks (NOT a Scheduler poll)     🔴 PRICE GATE
+          [ ] birthday → Scheduler --time-zone=Asia/Makassar
+          [ ] handler date-matching moved to Asia/Makassar too
           [ ] /internal/* verifies OIDC aud + email
           [ ] daily orphan sweep
 
-Phase 5   [ ] 22 repositories on http_service
-          [ ] topic subscribe AND unsubscribe on logout / church switch
-          [ ] FCM ping → cache invalidate → refetch
-          [ ] request count measured, not assumed
+Phase 4   [ ] FirebaseAdminService.messaging() added
+          [ ] emitToRoom → FCM, BARE SIGNALS ONLY, no payload content
+          [ ] Pusher Beams retired AFTER FCM proven; deps + secrets + web stub deleted
+          [ ] report progress → 2s polling
 
-Phase 6   [ ] dual transport shipped; drain measured by client version
-          [ ] -breaking update gate released
-          [ ] gateway, rpc-router, redis adapter, socket deps deleted
+Phase 5   [ ] 22 repositories on http_service, per the parity table
+          [ ] topic subscribe AND unsubscribe on logout / church switch
+          [ ] FCM ping → invalidate → refetch
+          [ ] -breaking gate shipped MIDWEEK; support answer written
+          [ ] socket connections drained to zero, then all socket code deleted
 
 THEN MIGRATE
-Phase 7   [ ] Dockerfile (context = repo root); .dockerignore excludes src/generated
-          [ ] APIs, registry + cleanup policy, three separate service accounts
+Phase 6   [ ] Dockerfile (context = repo root); .dockerignore excludes src/generated
+          [ ] asia-southeast1 everywhere; registry + cleanup policy
+          [ ] three separate service accounts
           [ ] FIREBASE_PRIVATE_KEY verified byte-identical
           [ ] WIF with --attribute-condition
 
-Phase 8   [ ] min=0, max=5, request-based, timeout 300, no affinity, no Redis
+Phase 7   [ ] min=0, max=5, request-based, timeout 300, no affinity, no Redis
+          [ ] pg_dump → GCS step precedes every migration
           [ ] migrations = Cloud Run Job on the DIRECT url
-          [ ] CI/CD: migrate → --no-traffic → smoke → promote
+          [ ] CI/CD: backup → migrate → --no-traffic → smoke → promote
           [ ] EC2/AWS secrets deleted AND SSH key revoked
 
-Phase 9   [ ] DNS TTL 60s, 24h ahead
+Phase 8   [ ] DNS TTL 60s, 24h ahead; cut over midweek
           [ ] cold start measured; Scheduler + Tasks verified end-to-end
           [ ] one-week soak with EC2 warm → stop → terminate → release EIP
 
-Phase 10  [ ] USD budget alert; IDR budget +15% headroom
-          [ ] max-instances explicit; dead-letter alerting
+Phase 9   [ ] USD budget alert; IDR budget +15% headroom
+          [ ] request count monitored as the primary price metric
           [ ] split report worker IF the bill or an OOM justifies it
 ```
 
 ---
 
-## 16. Bottom line
+## 17. Bottom line
 
 | Question | Answer |
 |---|---|
-| Is Cloud Run cheaper now? | **Yes** — Rp 163–227 ribu/bulan vs Rp 378 ribu on EC2, plus Redis and Pusher Beams deleted. The socket was the entire reason it was not. |
-| What is the hardest part? | **Phase 1**, the permission-parity audit. It is security work, not plumbing. |
-| What is the longest part? | **Phase 5–6**, the Flutter rewrite and the drain. Bounded to 22 repository files, but gated on app-store rollout. |
-| What single mistake costs the most? | Replacing the 10-second poller with a **Scheduler poll instead of Cloud Tasks** — the instance never idles and the whole price case evaporates. |
-| What single mistake is most dangerous? | Putting **content in FCM payloads**. Topics are client-subscribable; socket rooms were not. |
-| Why migrate last? | Running the socket on Cloud Run costs Rp 875.790/bulan. The drain period is free on EC2. |
+| Cheaper than today? | **Yes** — Rp 163–227 ribu/bulan vs Rp 378 ribu, database Rp 0 on Supabase Free. Redis and Pusher Beams deleted too. |
+| Biggest cost in the project? | **Phase 2**, 3–4 weeks. The REST surface is 131 unwired, unguarded, untested routes — not the "already exists" the analysis claimed. |
+| Most dangerous mistake? | Registering routes in Phase 2 without correct permissions. The vulnerability is **created by** this work, not inherited. |
+| Most expensive mistake? | Replacing the 10-second poller with a **Scheduler poll instead of Cloud Tasks** — the instance never idles and the price case evaporates. |
+| Most easily missed? | Putting **content in FCM payloads**. Topics are client-subscribable; socket rooms were not. |
+| Why migrate last? | The socket on Cloud Run costs Rp 875.790/bulan. The refactor is free on EC2. |
+| What is the real floor? | **Requests, not CPU** — Rp 162.800/bulan. Client caching is the main price lever after migration. |
 | Biggest non-cost win | Deleting `rpc-router.service.ts`: one transport, one permission model, one place authorization lives. |
