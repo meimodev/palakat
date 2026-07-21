@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ActivityType, Bipra } from '../generated/prisma/client';
+import { ActivityType, Bipra, FinancialType } from '../generated/prisma/client';
 import { PrismaService } from '../prisma.service';
 
 /**
@@ -88,6 +88,26 @@ export class ApproverResolverService {
     });
 
     return this._buildResult(genericRules, churchId);
+  }
+
+  /**
+   * Resolves approvers for a finance entry (revenue or expense) from the
+   * ApprovalRule rows tagged with the matching financialType. Shares the
+   * positions → memberships resolution (_buildResult) with activity resolution;
+   * only the rule-matching query differs.
+   */
+  async resolveFinanceApprovers(
+    churchId: number,
+    financialType: FinancialType,
+  ): Promise<ApproverResolutionResult> {
+    const rules = await this.prisma.approvalRule.findMany({
+      where: { churchId, financialType, active: true },
+      include: {
+        positions: { select: { id: true } },
+      },
+    });
+
+    return this._buildResult(rules, churchId);
   }
 
   private async _buildResult(

@@ -13,7 +13,7 @@ import { ChurchModule } from './church/church.module';
 import { ColumnModule } from './column/column.module';
 import { DocumentModule } from './document/document.module';
 import { PrismaExceptionFilter } from './exception.filter';
-import { ExpenseModule } from './expense/expense.module';
+import { FinanceEntryModule } from './finance-entry/finance-entry.module';
 import { FirebaseModule } from './firebase/firebase.module';
 import { FileModule } from './file/file.module';
 import { ArticleModule } from './article/article.module';
@@ -25,7 +25,6 @@ import { MembershipModule } from './membership/membership.module';
 import { NotificationModule } from './notification/notification.module';
 import { PrismaModule } from './prisma.module';
 import { ReportModule } from './report/report.module';
-import { RevenueModule } from './revenue/revenue.module';
 import { FinanceModule } from './finance/finance.module';
 import { RealtimeModule } from './realtime/realtime.module';
 import { VerifyModule } from './verify/verify.module';
@@ -58,8 +57,7 @@ const envFilePath = process.env.DOTENV_CONFIG_PATH?.trim();
     ColumnModule,
     MembershipPositionModule,
     LocationModule,
-    RevenueModule,
-    ExpenseModule,
+    FinanceEntryModule,
     FileModule,
     ReportModule,
     DocumentModule,

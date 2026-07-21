@@ -10,170 +10,136 @@ import {
   FinancialType,
 } from '../generated/prisma/client';
 import { CashMutationService } from '../cash/cash-mutation.service';
+import { ApproverResolverService } from '../activity/approver-resolver.service';
 import { PrismaService } from '../prisma.service';
 import { RealtimeEmitterService } from '../realtime/realtime-emitter.service';
-import { CreateRevenueDto } from './dto/create-revenue.dto';
-import { RevenueListQueryDto } from './dto/revenue-list.dto';
-import { UpdateRevenueDto } from './dto/update-revenue.dto';
+import { CreateFinanceEntryDto } from './dto/create-finance-entry.dto';
+import { FinanceEntryListQueryDto } from './dto/finance-entry-list.dto';
+import { UpdateFinanceEntryDto } from './dto/update-finance-entry.dto';
+import { financeEntryInclude } from './finance-entry.include';
 
+// Everything that varies between a revenue and an expense. Revenue and expense
+// were previously two byte-identical services; the only differences are the
+// values below, all derivable from the FinancialType kind.
+interface KindConfig {
+  noun: string; // singular, user-facing message noun
+  nounPlural: string;
+  model: string; // Prisma delegate: 'revenue' | 'expense'
+  approverModel: string; // 'revenueApprover' | 'expenseApprover'
+  approverFk: string; // FK column on the approver join: 'revenueId' | 'expenseId'
+  financeType: 'REVENUE' | 'EXPENSE'; // realtime event label
+  financialType: FinancialType;
+  referenceType: CashMutationReferenceType;
+  mutationType: CashMutationType; // IN for revenue, OUT for expense
+  approvalTitle: string;
+}
+
+/**
+ * FinanceEntryService — the single deep module behind revenue and expense.
+ * `kind` selects the four axes that differ (ledger direction, reference type,
+ * financial type, and the Prisma model/approver table); all behaviour is shared.
+ */
 @Injectable()
-export class RevenueService {
+export class FinanceEntryService {
   constructor(
     private prisma: PrismaService,
     @Inject(forwardRef(() => RealtimeEmitterService))
     private realtime: RealtimeEmitterService,
     private cashMutationService: CashMutationService,
+    private approverResolver: ApproverResolverService,
   ) {}
 
+  private kindConfig(kind: FinancialType): KindConfig {
+    if (kind === FinancialType.REVENUE) {
+      return {
+        noun: 'Revenue',
+        nounPlural: 'Revenues',
+        model: 'revenue',
+        approverModel: 'revenueApprover',
+        approverFk: 'revenueId',
+        financeType: 'REVENUE',
+        financialType: FinancialType.REVENUE,
+        referenceType: CashMutationReferenceType.REVENUE,
+        mutationType: CashMutationType.IN,
+        approvalTitle: 'Revenue approval',
+      };
+    }
+    return {
+      noun: 'Expense',
+      nounPlural: 'Expenses',
+      model: 'expense',
+      approverModel: 'expenseApprover',
+      approverFk: 'expenseId',
+      financeType: 'EXPENSE',
+      financialType: FinancialType.EXPENSE,
+      referenceType: CashMutationReferenceType.EXPENSE,
+      mutationType: CashMutationType.OUT,
+      approvalTitle: 'Expense approval',
+    };
+  }
+
+  // Ownership lookup lives in CashMutationService; the finance flow keeps its
+  // own 400 contract (the cash flow uses 404 for the same lookup).
   private async assertCashAccountOwnedByChurch(
     tx: any,
     churchId: number,
     cashAccountId: number,
   ) {
-    const exists = await tx.cashAccount.findFirst({
-      where: { id: cashAccountId, churchId },
-      select: { id: true },
+    const owned = await this.cashMutationService.isAccountOwnedByChurch({
+      churchId,
+      accountId: cashAccountId,
+      client: tx,
     });
-    if (!exists) {
+    if (!owned) {
       throw new BadRequestException(
         `Cash account ${cashAccountId} not found for church ${churchId}`,
       );
     }
   }
 
-  private emitRevenueFinanceEvent(
+  private emitFinanceEvent(
+    cfg: KindConfig,
     eventName: 'finance.created' | 'finance.updated' | 'finance.deleted',
-    revenue: any,
+    entry: any,
     updatedAt?: Date,
   ) {
-    if (
-      typeof revenue?.id !== 'number' ||
-      typeof revenue?.churchId !== 'number'
-    ) {
+    if (typeof entry?.id !== 'number' || typeof entry?.churchId !== 'number') {
       return;
     }
 
     this.realtime.emitFinanceEvent({
       eventName,
-      financeId: revenue.id,
-      financeType: 'REVENUE',
-      churchId: revenue.churchId,
-      activityId: revenue.activityId ?? revenue.activity?.id ?? null,
-      affectedMembershipIds: (revenue.approvers ?? []).map(
+      financeId: entry.id,
+      financeType: cfg.financeType,
+      churchId: entry.churchId,
+      activityId: entry.activityId ?? entry.activity?.id ?? null,
+      affectedMembershipIds: (entry.approvers ?? []).map(
         (approver: any) => approver.membershipId,
       ),
-      updatedAt: updatedAt ?? revenue.updatedAt,
+      updatedAt: updatedAt ?? entry.updatedAt,
     });
-  }
-
-  private buildRevenueInclude() {
-    return {
-      approvers: {
-        include: {
-          membership: {
-            include: {
-              account: {
-                select: {
-                  id: true,
-                  name: true,
-                  phone: true,
-                  dob: true,
-                },
-              },
-              membershipPositions: true,
-            },
-          },
-        },
-      },
-      activity: {
-        include: {
-          approvers: {
-            include: {
-              membership: {
-                include: {
-                  account: {
-                    select: {
-                      id: true,
-                      name: true,
-                      phone: true,
-                      dob: true,
-                    },
-                  },
-                  membershipPositions: true,
-                },
-              },
-            },
-          },
-          supervisor: {
-            include: {
-              account: {
-                select: {
-                  id: true,
-                  name: true,
-                  phone: true,
-                  dob: true,
-                },
-              },
-              membershipPositions: true,
-            },
-          },
-          location: true,
-        },
-      },
-      financialAccountNumber: true,
-      cashAccount: true,
-    };
-  }
-
-  private async resolveFinanceApproverMembershipIds(
-    churchId: number,
-  ): Promise<number[]> {
-    const rules = await (this.prisma as any).approvalRule.findMany({
-      where: {
-        churchId,
-        financialType: FinancialType.REVENUE,
-        active: true,
-      },
-      include: {
-        positions: { select: { id: true } },
-      },
-    });
-
-    const positionIds = new Set<number>();
-    for (const rule of rules) {
-      for (const position of rule.positions) {
-        positionIds.add(position.id);
-      }
-    }
-
-    if (positionIds.size === 0) return [];
-
-    const memberships = await (this.prisma as any).membership.findMany({
-      where: {
-        churchId,
-        membershipPositions: { some: { id: { in: Array.from(positionIds) } } },
-      },
-      select: { id: true },
-    });
-
-    return memberships.map((m: { id: number }) => m.id);
   }
 
   private async syncApprovers(
+    cfg: KindConfig,
     tx: any,
-    revenueId: number,
+    entryId: number,
     churchId: number,
   ): Promise<number[]> {
-    await tx.revenueApprover.deleteMany({ where: { revenueId } });
+    await tx[cfg.approverModel].deleteMany({
+      where: { [cfg.approverFk]: entryId },
+    });
 
-    const membershipIds =
-      await this.resolveFinanceApproverMembershipIds(churchId);
+    const { membershipIds } = await this.approverResolver.resolveFinanceApprovers(
+      churchId,
+      cfg.financialType,
+    );
 
     if (membershipIds.length === 0) return [];
 
-    await tx.revenueApprover.createMany({
+    await tx[cfg.approverModel].createMany({
       data: membershipIds.map((membershipId: number) => ({
-        revenueId,
+        [cfg.approverFk]: entryId,
         membershipId,
       })),
     });
@@ -181,17 +147,18 @@ export class RevenueService {
     return membershipIds;
   }
 
-  private emitRevenueApprovalRequiredEvent(
-    revenue: any,
+  private emitApprovalRequiredEvent(
+    cfg: KindConfig,
+    entry: any,
     membershipIds?: number[],
   ) {
     const affectedMembershipIds =
       membershipIds ??
-      (revenue?.approvers ?? []).map((approver: any) => approver.membershipId);
+      (entry?.approvers ?? []).map((approver: any) => approver.membershipId);
 
     if (
-      typeof revenue?.id !== 'number' ||
-      typeof revenue?.churchId !== 'number' ||
+      typeof entry?.id !== 'number' ||
+      typeof entry?.churchId !== 'number' ||
       !Array.isArray(affectedMembershipIds) ||
       affectedMembershipIds.length === 0
     ) {
@@ -200,14 +167,14 @@ export class RevenueService {
 
     this.realtime.emitApprovalLifecycleEvent({
       eventName: 'approval.required',
-      entityType: 'REVENUE',
-      entityId: revenue.id,
-      entityTitle: revenue.activity?.title ?? 'Revenue approval',
-      churchId: revenue.churchId,
+      entityType: cfg.financeType,
+      entityId: entry.id,
+      entityTitle: entry.activity?.title ?? cfg.approvalTitle,
+      churchId: entry.churchId,
       resultingStatus: 'UNCONFIRMED',
       isOverride: false,
       affectedMembershipIds,
-      updatedAt: revenue.updatedAt,
+      updatedAt: entry.updatedAt,
     });
   }
 
@@ -267,7 +234,8 @@ export class RevenueService {
     };
   }
 
-  async findAll(query: RevenueListQueryDto) {
+  async findAll(kind: FinancialType, query: FinanceEntryListQueryDto) {
+    const cfg = this.kindConfig(kind);
     const {
       churchId,
       search,
@@ -305,29 +273,26 @@ export class RevenueService {
       }
     }
 
-    const include = this.buildRevenueInclude();
-    const [total, revenues] = await (this.prisma as any).$transaction([
-      (this.prisma as any).revenue.count({ where }),
-      (this.prisma as any).revenue.findMany({
+    const [total, entries] = await (this.prisma as any).$transaction([
+      (this.prisma as any)[cfg.model].count({ where }),
+      (this.prisma as any)[cfg.model].findMany({
         where,
         take,
         skip,
         orderBy: { [sortBy]: sortOrder },
-        include,
+        include: financeEntryInclude,
       }),
     ]);
 
     let searchInfo = '';
-    if (search && revenues.length > 0) {
+    if (search && entries.length > 0) {
       const matchedFields = new Set<string>();
-      revenues.forEach((revenue: any) => {
-        if (
-          revenue.accountNumber?.toLowerCase().includes(search.toLowerCase())
-        ) {
+      entries.forEach((entry: any) => {
+        if (entry.accountNumber?.toLowerCase().includes(search.toLowerCase())) {
           matchedFields.add('accountNumber');
         }
         if (
-          revenue.activity?.title?.toLowerCase().includes(search.toLowerCase())
+          entry.activity?.title?.toLowerCase().includes(search.toLowerCase())
         ) {
           matchedFields.add('activity.title');
         }
@@ -338,26 +303,28 @@ export class RevenueService {
     }
 
     return {
-      message: `Revenues retrieved successfully${searchInfo}`,
-      data: revenues,
+      message: `${cfg.nounPlural} retrieved successfully${searchInfo}`,
+      data: entries,
       total,
     };
   }
 
-  async findOne(id: number) {
-    const revenue = await (this.prisma as any).revenue.findUniqueOrThrow({
+  async findOne(kind: FinancialType, id: number) {
+    const cfg = this.kindConfig(kind);
+    const entry = await (this.prisma as any)[cfg.model].findUniqueOrThrow({
       where: { id },
-      include: this.buildRevenueInclude(),
+      include: financeEntryInclude,
     });
     return {
-      message: 'Revenue retrieved successfully',
-      data: revenue,
+      message: `${cfg.noun} retrieved successfully`,
+      data: entry,
     };
   }
 
-  async remove(id: number) {
-    const revenue = await (this.prisma as any).$transaction(async (tx: any) => {
-      const deleted = await tx.revenue.delete({
+  async remove(kind: FinancialType, id: number) {
+    const cfg = this.kindConfig(kind);
+    const entry = await (this.prisma as any).$transaction(async (tx: any) => {
+      const deleted = await tx[cfg.model].delete({
         where: { id },
         include: {
           approvers: {
@@ -375,30 +342,32 @@ export class RevenueService {
 
       await this.cashMutationService.deleteMutationForReference(tx, {
         churchId: deleted.churchId,
-        referenceType: CashMutationReferenceType.REVENUE,
+        referenceType: cfg.referenceType,
         referenceId: deleted.id,
       });
 
       return deleted;
     });
 
-    this.emitRevenueFinanceEvent('finance.deleted', revenue, new Date());
+    this.emitFinanceEvent(cfg, 'finance.deleted', entry, new Date());
 
     return {
-      message: 'Revenue deleted successfully',
+      message: `${cfg.noun} deleted successfully`,
     };
   }
 
   async create(
-    createRevenueDto: CreateRevenueDto,
+    kind: FinancialType,
+    createDto: CreateFinanceEntryDto,
   ): Promise<{ message: string; data: any }> {
+    const cfg = this.kindConfig(kind);
     const {
       financialAccountNumberId,
       accountNumber,
       activityId,
       cashAccountId,
       ...rest
-    } = createRevenueDto;
+    } = createDto;
 
     const resolvedFinancialAccount = await this.resolveFinancialAccount(
       rest.churchId,
@@ -418,16 +387,11 @@ export class RevenueService {
         resolvedFinancialAccount.financialAccountNumberId;
     }
 
-    const include = this.buildRevenueInclude();
-    const revenue = await (this.prisma as any).$transaction(async (tx: any) => {
-      await this.assertCashAccountOwnedByChurch(
-        tx,
-        rest.churchId,
-        cashAccountId,
-      );
+    const entry = await (this.prisma as any).$transaction(async (tx: any) => {
+      await this.assertCashAccountOwnedByChurch(tx, rest.churchId, cashAccountId);
 
-      const createdRevenue = await tx.revenue.create({ data });
-      await this.syncApprovers(tx, createdRevenue.id, rest.churchId);
+      const created = await tx[cfg.model].create({ data });
+      await this.syncApprovers(cfg, tx, created.id, rest.churchId);
 
       const activityInfo = activityId
         ? await tx.activity.findUnique({
@@ -438,58 +402,56 @@ export class RevenueService {
 
       await this.cashMutationService.syncMutationForReference(tx, {
         churchId: rest.churchId,
-        referenceType: CashMutationReferenceType.REVENUE,
-        referenceId: createdRevenue.id,
-        type: CashMutationType.IN,
-        amount: createdRevenue.amount,
+        referenceType: cfg.referenceType,
+        referenceId: created.id,
+        type: cfg.mutationType,
+        amount: created.amount,
         cashAccountId,
-        happenedAt:
-          activityInfo?.date ?? createdRevenue.createdAt ?? new Date(),
+        happenedAt: activityInfo?.date ?? created.createdAt ?? new Date(),
         note: activityInfo?.title ?? null,
       });
 
-      return tx.revenue.findUniqueOrThrow({
-        where: { id: createdRevenue.id },
-        include,
+      return tx[cfg.model].findUniqueOrThrow({
+        where: { id: created.id },
+        include: financeEntryInclude,
       });
     });
 
-    this.emitRevenueFinanceEvent('finance.created', revenue);
-    this.emitRevenueApprovalRequiredEvent(revenue);
+    this.emitFinanceEvent(cfg, 'finance.created', entry);
+    this.emitApprovalRequiredEvent(cfg, entry);
 
     return {
-      message: 'Revenue created successfully',
-      data: revenue,
+      message: `${cfg.noun} created successfully`,
+      data: entry,
     };
   }
 
   async update(
+    kind: FinancialType,
     id: number,
-    updateRevenueDto: UpdateRevenueDto,
+    updateDto: UpdateFinanceEntryDto,
   ): Promise<{ message: string; data: any }> {
+    const cfg = this.kindConfig(kind);
     const {
       financialAccountNumberId,
       accountNumber,
       activityId,
       cashAccountId,
       ...rest
-    } = updateRevenueDto;
+    } = updateDto;
 
-    const currentRevenue = await (this.prisma as any).revenue.findUniqueOrThrow(
-      {
-        where: { id },
-        select: {
-          churchId: true,
-          financialAccountNumberId: true,
-          cashAccountId: true,
-          amount: true,
-        },
+    const current = await (this.prisma as any)[cfg.model].findUniqueOrThrow({
+      where: { id },
+      select: {
+        churchId: true,
+        financialAccountNumberId: true,
+        cashAccountId: true,
+        amount: true,
       },
-    );
+    });
 
-    const effectiveChurchId = rest.churchId ?? currentRevenue.churchId;
-    const effectiveCashAccountId =
-      cashAccountId ?? currentRevenue.cashAccountId;
+    const effectiveChurchId = rest.churchId ?? current.churchId;
+    const effectiveCashAccountId = cashAccountId ?? current.cashAccountId;
     const data: any = { ...rest, activityId };
     if (cashAccountId !== undefined) {
       data.cashAccountId = cashAccountId;
@@ -533,13 +495,11 @@ export class RevenueService {
       Object.prototype.hasOwnProperty.call(data, 'accountNumber') ||
       rest.churchId !== undefined;
 
-    const include = this.buildRevenueInclude();
     let refreshedApproverMembershipIds: number[] = [];
-    const revenue = await (this.prisma as any).$transaction(async (tx: any) => {
+    const entry = await (this.prisma as any).$transaction(async (tx: any) => {
       if (
         cashAccountId !== undefined ||
-        (rest.churchId !== undefined &&
-          rest.churchId !== currentRevenue.churchId)
+        (rest.churchId !== undefined && rest.churchId !== current.churchId)
       ) {
         await this.assertCashAccountOwnedByChurch(
           tx,
@@ -548,13 +508,14 @@ export class RevenueService {
         );
       }
 
-      const updatedRevenue = await tx.revenue.update({
+      const updated = await tx[cfg.model].update({
         where: { id },
         data,
       });
 
       if (shouldRefreshApprovers) {
         refreshedApproverMembershipIds = await this.syncApprovers(
+          cfg,
           tx,
           id,
           effectiveChurchId,
@@ -565,7 +526,7 @@ export class RevenueService {
         activityId !== undefined
           ? activityId
           : ((
-              await tx.revenue.findUnique({
+              await tx[cfg.model].findUnique({
                 where: { id },
                 select: { activityId: true },
               })
@@ -580,33 +541,29 @@ export class RevenueService {
 
       await this.cashMutationService.syncMutationForReference(tx, {
         churchId: effectiveChurchId,
-        referenceType: CashMutationReferenceType.REVENUE,
+        referenceType: cfg.referenceType,
         referenceId: id,
-        type: CashMutationType.IN,
-        amount: updatedRevenue.amount,
+        type: cfg.mutationType,
+        amount: updated.amount,
         cashAccountId: effectiveCashAccountId,
-        happenedAt:
-          activityInfo?.date ?? updatedRevenue.updatedAt ?? new Date(),
+        happenedAt: activityInfo?.date ?? updated.updatedAt ?? new Date(),
         note: activityInfo?.title ?? null,
       });
 
-      return tx.revenue.findUniqueOrThrow({
-        where: { id: updatedRevenue.id },
-        include,
+      return tx[cfg.model].findUniqueOrThrow({
+        where: { id: updated.id },
+        include: financeEntryInclude,
       });
     });
 
-    this.emitRevenueFinanceEvent('finance.updated', revenue);
+    this.emitFinanceEvent(cfg, 'finance.updated', entry);
     if (refreshedApproverMembershipIds.length > 0) {
-      this.emitRevenueApprovalRequiredEvent(
-        revenue,
-        refreshedApproverMembershipIds,
-      );
+      this.emitApprovalRequiredEvent(cfg, entry, refreshedApproverMembershipIds);
     }
 
     return {
-      message: 'Revenue updated successfully',
-      data: revenue,
+      message: `${cfg.noun} updated successfully`,
+      data: entry,
     };
   }
 }

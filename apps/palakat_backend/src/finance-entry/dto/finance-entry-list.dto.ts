@@ -7,7 +7,7 @@ import {
   TransformToEndOfDayUtc,
 } from '../../../common/transformers/utc-date.transformer';
 
-export class RevenueListQueryDto extends PaginationQueryDto {
+export class FinanceEntryListQueryDto extends PaginationQueryDto {
   @IsOptional()
   @Type(() => Number)
   @IsInt()

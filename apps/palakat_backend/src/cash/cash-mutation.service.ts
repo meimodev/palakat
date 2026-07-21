@@ -44,18 +44,33 @@ export class CashMutationService {
     return churchId;
   }
 
-  private async assertAccountOwnedByChurch(params: {
+  /**
+   * Single owner of the "does this cash account belong to this church" lookup.
+   * Callers pick their own failure semantics — CashMutationService throws 404,
+   * the finance flow throws 400 — but the query lives here only.
+   * Pass `client` to run inside a transaction.
+   */
+  async isAccountOwnedByChurch(params: {
     churchId: number;
     accountId: number;
     client?: any;
-  }) {
+  }): Promise<boolean> {
     const client = params.client ?? this.prisma;
     const exists = await client.cashAccount.findFirst({
       where: { id: params.accountId, churchId: params.churchId },
       select: { id: true },
     });
+    return !!exists;
+  }
 
-    if (!exists) throw new NotFoundException('Cash account not found');
+  async assertAccountOwnedByChurch(params: {
+    churchId: number;
+    accountId: number;
+    client?: any;
+  }) {
+    if (!(await this.isAccountOwnedByChurch(params))) {
+      throw new NotFoundException('Cash account not found');
+    }
   }
 
   /**

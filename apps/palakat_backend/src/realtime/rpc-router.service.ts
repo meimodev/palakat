@@ -21,8 +21,8 @@ import { ChurchService } from '../church/church.service';
 import { ChurchRequestService } from '../church-request/church-request.service';
 import { ColumnService } from '../column/column.service';
 import { DocumentService } from '../document/document.service';
-import { ExpenseService } from '../expense/expense.service';
 import { FileService } from '../file/file.service';
+import { FinanceEntryService } from '../finance-entry/finance-entry.service';
 import { FinanceService } from '../finance/finance.service';
 import { FinancialAccountNumberService } from '../financial-account-number/financial-account-number.service';
 import { LocationService } from '../location/location.service';
@@ -38,8 +38,8 @@ import { NotificationService } from '../notification/notification.service';
 import { PrismaService } from '../prisma.service';
 import { ReportQueueService } from '../report/report-queue.service';
 import { ReportService } from '../report/report.service';
-import { RevenueService } from '../revenue/revenue.service';
 import { FirebaseAdminService } from '../firebase/firebase-admin.service';
+import { FinancialType } from '../generated/prisma/client';
 import { ChurchPermissionPolicyService } from '../church-permission-policy/church-permission-policy.service';
 import { RpcRequest, RpcResponse } from './realtime.types';
 import { mapErrorToRpc } from './realtime.utils';
@@ -90,12 +90,8 @@ export class RpcRouterService {
     return this.moduleRef.get(FinanceService, { strict: false });
   }
 
-  private get revenueService(): RevenueService {
-    return this.moduleRef.get(RevenueService, { strict: false });
-  }
-
-  private get expenseService(): ExpenseService {
-    return this.moduleRef.get(ExpenseService, { strict: false });
+  private get financeEntryService(): FinanceEntryService {
+    return this.moduleRef.get(FinanceEntryService, { strict: false });
   }
 
   private get cashAccountService(): CashAccountService {
@@ -2219,7 +2215,10 @@ export class RpcRouterService {
         );
         const query = this.withPagination(payload) as any;
         query.churchId = churchId;
-        const res: any = await this.revenueService.findAll(query);
+        const res: any = await this.financeEntryService.findAll(
+          FinancialType.REVENUE,
+          query,
+        );
         return this.normalizePaginatedList(query, res);
       }
 
@@ -2231,7 +2230,10 @@ export class RpcRouterService {
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
-        const res: any = await this.revenueService.findOne(id);
+        const res: any = await this.financeEntryService.findOne(
+          FinancialType.REVENUE,
+          id,
+        );
         const recordChurchId = res?.data?.churchId;
         if (typeof recordChurchId !== 'number' || recordChurchId !== churchId) {
           throw new ForbiddenException('Invalid church scope');
@@ -2245,7 +2247,7 @@ export class RpcRouterService {
           'ops.finance.revenue.create',
         );
         payload.churchId = churchId;
-        return this.revenueService.create(payload);
+        return this.financeEntryService.create(FinancialType.REVENUE, payload);
       }
 
       case 'revenue.update': {
@@ -2265,7 +2267,7 @@ export class RpcRouterService {
 
         const dto = { ...(payload.dto ?? {}) };
         delete (dto as any).churchId;
-        return this.revenueService.update(id, dto);
+        return this.financeEntryService.update(FinancialType.REVENUE, id, dto);
       }
 
       case 'revenue.delete': {
@@ -2283,7 +2285,7 @@ export class RpcRouterService {
         });
         if (!exists) throw new ForbiddenException('Invalid church scope');
 
-        return this.revenueService.remove(id);
+        return this.financeEntryService.remove(FinancialType.REVENUE, id);
       }
 
       case 'expense.list': {
@@ -2293,7 +2295,10 @@ export class RpcRouterService {
         );
         const query = this.withPagination(payload) as any;
         query.churchId = churchId;
-        const res: any = await this.expenseService.findAll(query);
+        const res: any = await this.financeEntryService.findAll(
+          FinancialType.EXPENSE,
+          query,
+        );
         return this.normalizePaginatedList(query, res);
       }
 
@@ -2305,7 +2310,10 @@ export class RpcRouterService {
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
-        const res: any = await this.expenseService.findOne(id);
+        const res: any = await this.financeEntryService.findOne(
+          FinancialType.EXPENSE,
+          id,
+        );
         const recordChurchId = res?.data?.churchId;
         if (typeof recordChurchId !== 'number' || recordChurchId !== churchId) {
           throw new ForbiddenException('Invalid church scope');
@@ -2319,7 +2327,7 @@ export class RpcRouterService {
           'ops.finance.expense.create',
         );
         payload.churchId = churchId;
-        return this.expenseService.create(payload);
+        return this.financeEntryService.create(FinancialType.EXPENSE, payload);
       }
 
       case 'expense.update': {
@@ -2339,7 +2347,7 @@ export class RpcRouterService {
 
         const dto = { ...(payload.dto ?? {}) };
         delete (dto as any).churchId;
-        return this.expenseService.update(id, dto);
+        return this.financeEntryService.update(FinancialType.EXPENSE, id, dto);
       }
 
       case 'expense.delete': {
@@ -2357,7 +2365,7 @@ export class RpcRouterService {
         });
         if (!exists) throw new ForbiddenException('Invalid church scope');
 
-        return this.expenseService.remove(id);
+        return this.financeEntryService.remove(FinancialType.EXPENSE, id);
       }
 
       // ===== Cash =====
