@@ -43,7 +43,7 @@ describe('FinanceEntryService', () => {
   const mockCashMutation = {
     syncMutationForReference: jest.fn(),
     deleteMutationForReference: jest.fn(),
-    assertAccountOwnedByChurch: jest.fn(),
+    isAccountOwnedByChurch: jest.fn().mockResolvedValue(true),
   };
 
   const mockApproverResolver = {
@@ -125,11 +125,12 @@ describe('FinanceEntryService', () => {
       id: 5,
       accountNumber: 'ACC-1',
     });
-    // No approvers resolved by default.
+    // No approvers resolved by default; cash account owned by default.
     mockApproverResolver.resolveFinanceApprovers.mockResolvedValue({
       membershipIds: [],
       matchedRuleIds: [],
     });
+    mockCashMutation.isAccountOwnedByChurch.mockResolvedValue(true);
 
     mockPrisma.$transaction.mockImplementation(async (arg: any) => {
       if (typeof arg === 'function') return arg(mockTx);
@@ -204,11 +205,18 @@ describe('FinanceEntryService', () => {
       expect(res2.message).toBe('Expense created successfully');
     });
 
-    it('delegates cash-account ownership to CashMutationService', async () => {
+    it('checks cash-account ownership via CashMutationService', async () => {
       await service.create(FinancialType.REVENUE, baseCreateDto);
-      expect(mockCashMutation.assertAccountOwnedByChurch).toHaveBeenCalledWith(
+      expect(mockCashMutation.isAccountOwnedByChurch).toHaveBeenCalledWith(
         expect.objectContaining({ churchId: 1, accountId: 7, client: mockTx }),
       );
+    });
+
+    it('rejects an unowned cash account with 400 (finance contract)', async () => {
+      mockCashMutation.isAccountOwnedByChurch.mockResolvedValue(false);
+      await expect(
+        service.create(FinancialType.REVENUE, baseCreateDto),
+      ).rejects.toMatchObject({ status: 400 });
     });
   });
 
