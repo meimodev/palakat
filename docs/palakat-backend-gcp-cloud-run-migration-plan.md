@@ -57,7 +57,7 @@ re-argue them.
 | 4 | **Region `asia-southeast1`** (Singapore) | Matches Supabase's Southeast Asia region. DB round-trip stays intra-metro. |
 | 5 | **FCM topics + bare change signals** | No token registry. Content never leaves the authenticated path. |
 | 6 | **`min-instances=0`, cold starts accepted** | Cheapest possible. 2–5 s on the first request after idle. Reversible. |
-| 7 | **Hard `-breaking` update gate immediately** | Socket drains in days, not weeks. Ship midweek. |
+| 7 | ~~**Hard `-breaking` update gate immediately**~~ | **Superseded by decision 15.** The app has never been released and no update-gate mechanism exists. |
 | 8 | **Birthday cron pinned to `Asia/Makassar`**, date-matching fixed | Behaviour change: notifications move from ~15:00 to 07:00 local. |
 | 9 | **`Asia/Makassar` is app-wide, not per-church** | GMIM is a single Minahasa synod; no church sits in another Indonesian zone. `Church` gains no timezone column. Glossary term: **Church-local day** (`CONTEXT.md`). This resolves the WIB/WITA disagreement between this plan and [`palakat-backend-migration-plan.md`](./palakat-backend-migration-plan.md) in favour of WITA. |
 | 10 | **Under a "go", identity comes from the token and scope from the row** | Not a Cloud Run decision, but it constrains Phase 1: the guard's behaviour is the thing RLS would have to reproduce. [ADR-0001](./adr/0001-identity-from-jwt-scope-from-row.md). |
@@ -65,6 +65,12 @@ re-argue them.
 | 12 | **Free serves production until the first real congregation, then Pro** | Trigger is an onboarding event, not a usage threshold. Requires a *daily* `pg_dump` to GCS, not only the pre-migration one. |
 | 13 | **Push splits by category — content-free, not notification-free** | `notification.*` keeps an OS-rendered generic title/body; change signals stay data-only. Reverses §9.1's uniform data-only send. [ADR-0003](./adr/0003-push-splits-by-category.md). |
 | 14 | **Change signals invalidate; they never trigger a refetch** | Refetch happens when a screen is next viewed. This is the fan-out control that keeps decision 11's crossover where it is. |
+| 15 | **The hard `-breaking` gate is deleted** | `version: 1.0.0+1`, **zero `v*` tags — never released**, and no update-gate mechanism exists in the backend or the client. Decision 7 assumed tooling that does not exist to drain a client base that does not exist. Revisit only if launch precedes Phase 5. |
+| 16 | **Phase 8's cutover ceremony is kept in full, as a rehearsal** | Deliberately *not* symmetrical with 15: the gate needed unbuilt tooling, the soak needs only patience. A soak that finds nothing costs nothing, and the runbook gets learned while mistakes are free. |
+| 17 | **All 132 route decorators are deleted; every route is written from the parity table** | Coverage is uneven and the gaps sit where authority is highest (`admin`: 26 RPC actions vs 8 decorators) and the trust boundary widest (`file`: 11 vs 6). `finance-entry` has no controller at all. Uniform process beats per-module judgement on the phase that can ship a privilege escalation. |
+| 18 | **REST is deliberately stricter than RPC on input validation** | The global `ValidationPipe` is HTTP-only and the gateway has no `@UsePipes`, so **production validates ~4 of 166 actions**. Parity means permissions and success semantics — **not** porting the absence of validation. The parity table gains a request-shape column; the 54 DTOs become candidates to verify, not the source of truth. |
+| 19 | **Uploads: constrain at signing, verify at finalize** | Firebase Storage rules do **not** apply to GCS signed URLs, so enforcement is built explicitly on both sides. [ADR-0004](./adr/0004-upload-trust-boundary.md). |
+| 20 | **24 juta requests/bulan is a stress case, not a forecast** | It was derived from "2 hrs/day connected per user" — a socket-era assumption — and contradicts the same analysis's 200-user figure by 1,7× per user. A bottom-up estimate from real screen flows replaces it; measurement replaces both. |
 
 ### 0.1 What it costs
 
@@ -85,7 +91,12 @@ Here the migration is unambiguously better: free tier covers compute *and* datab
 deleted outright — **Redis** (never needed without the Socket.IO adapter; the Memorystore option was
 Rp 666.000/bulan) and **Pusher Beams** (folded into FCM, which is free).
 
-#### At the modelled scale — 4.000 users, 24 juta requests/bulan
+#### At the stress case — 4.000 users, 24 juta requests/bulan
+
+> ⚠️ **This is an upper bound, not a forecast** (decision 20). The 24 juta figure comes from the analysis's
+> "2 hrs/day connected per user" — a **socket-era** assumption for an architecture that no longer has a
+> persistent connection, and one that contradicts the same document's 200-user figure by 1,7× per user. A
+> bottom-up estimate from real screen flows replaces it; measurement replaces both.
 
 | Architecture | Compute | Database | **Total** |
 |---|---:|---:|---:|
@@ -307,7 +318,7 @@ Phase 1   Permission layer            guard + decorator, built from nothing   ~1
 Phase 2   REST surface                register 24 modules, 131→166 routes     ~3–4 weeks  🔴 SECURITY
 Phase 3   Event-driven jobs           kill the 10s poller                     ~2 days     🔴 PRICE
 Phase 4   FCM push                    reimplement the emitter; retire Beams   ~2–3 days
-Phase 5   Flutter client + hard gate  22 repos → REST, topics, drain          ~2–4 weeks
+Phase 5   Flutter client              22 repos → REST, topics (no gate)       ~2–4 weeks
 ─────────────────────────────────────────────────────────────────────────────────────────
 THEN MIGRATE — nothing pins an instance any more
 Phase 6   Containerize + scaffolding  Dockerfile, registry, secrets, WIF      ~2 days
@@ -464,9 +475,28 @@ Also needed:
   `withPagination` / `normalizePaginatedList` before adding anything — the envelope must match byte-for-byte or
   every Flutter model breaks subtly.
 
-**Deliverable: the parity table.** All 166 RPC actions, each mapped to its target route, HTTP verb, and exact
-permission set, transcribed from the `case` blocks. This table is the contract Phases 2 and 5 build against, and
-it is the review artefact. Produce it before writing controllers.
+**Deliverable: the parity table.** All 166 RPC actions, each mapped to **four** columns:
+
+| Column | Source | Note |
+|---|---|---|
+| Target route + HTTP verb | the `case` blocks | |
+| Exact permission set | `requireAnyOperationPermission` call sites | The security column. |
+| **Request shape** | **what the Flutter repositories actually send** | Per decision 18 — *not* the existing DTO files. |
+| Response envelope | the RPC return shape | Must match byte-for-byte or Flutter models break subtly. |
+
+Per decision 17 this table is not a cross-check against existing controllers — **it is the only source**. Every
+route in Phase 2 is written from it, and the 132 existing decorators are deleted.
+
+The request-shape column exists because of a trap decision 18 records: `main.ts:34` registers a global
+`ValidationPipe` that applies to **HTTP only** — the gateway declares no `@UsePipes`, and `rpc-router.service.ts`
+calls `validateDto` at just **4 of 166** actions. So registering a route silently puts it behind strict
+validation the socket never applied. Without this column those mismatches surface as 400s during Phase 5, one
+repository at a time, while the transport is also changing. With it, they are a design-time decision.
+
+The 54 DTO files (49 using `class-validator`) are **candidate implementations to verify against the table**, not
+evidence of anything — they were written for the path that has never served a request.
+
+Produce the table before writing controllers. It is the review artefact for Phase 2 and the spec for Phase 5.
 
 ---
 
@@ -474,23 +504,48 @@ it is the review artefact. Produce it before writing controllers.
 
 **3–4 weeks. The largest phase in the plan, and the one that can ship a vulnerability.**
 
-Per module, in dependency order:
+**Start by deleting all 27 controller files.** Per decision 17, the 132 existing decorators are not a draft to
+adopt — coverage is uneven and the gaps sit exactly where it matters: `admin` has 26 RPC actions against 8
+decorators, `file` 11 against 6, and `finance-entry` — the module `CONTEXT.md` treats as canonical — has no
+controller at all, while `FinanceController` exposes 2 of Finance's 7 actions. A plausible-looking route that
+survives review because it looked familiar is the failure mode this phase cannot afford.
 
-1. **Register the controller.** Add `controllers: [XController]` to the module — currently absent in 24 of 26.
-2. **Apply guards.** `@UseGuards(AuthGuard('jwt'), PermissionsGuard)` plus `@RequirePermissions(...)` per route,
-   transcribed from the parity table.
-3. **Close the route gap.** 131 decorators exist against 166 actions. Write what is missing; delete what has no
-   RPC counterpart rather than exposing an untested route.
-4. **Verify the response envelope** against the RPC path — pagination shape, error mapping (`mapErrorToRpc` has an
+Then, per module in dependency order:
+
+1. **Write the controller from the parity table.** Not from the deleted file, not from the RPC `case` block —
+   from the reviewed table.
+2. **Register it.** Add `controllers: [XController]` to the module — currently absent in 25 of 27.
+3. **Apply guards.** `@UseGuards(AuthGuard('jwt'), PermissionsGuard)` plus `@RequirePermissions(...)` per route,
+   transcribed from the table.
+4. **Bind the request shape.** Use the table's request-shape column, and keep the global `ValidationPipe` strict
+   (decision 18). Where an existing DTO matches the column, reuse it; where it does not, the table wins.
+5. **Verify the response envelope** against the RPC path — pagination shape, error mapping (`mapErrorToRpc` has an
    HTTP equivalent in `PrismaExceptionFilter`), and status codes.
-5. **Test.** Every permission-bearing route gets a test asserting an under-privileged token receives 403.
+6. **Test.** Every permission-bearing route gets a test asserting an under-privileged token receives 403.
 
 Two actions are **not** mechanical ports:
 
 - **`file.upload.chunk`** streams over the socket via `createWriteStream`. Do not rebuild chunked upload over
-  HTTP. Issue a **signed Firebase Storage URL** and have the client upload directly — the bytes never touch Cloud
-  Run, which is simpler, safer, and cheaper (no request-seconds spent shuttling file data). `firebaseAdmin
-  .bucket()` is already wired (`report.service.ts:2133`).
+  HTTP — the bytes would become billable request-seconds and tmpfs memory. Issue a **signed URL** and have the
+  client upload directly. `firebaseAdmin.bucket()` is already wired (`report.service.ts:2133`).
+
+  **But that deletes the enforcement point, and rules do not replace it.** Today the server checks
+  `session.receivedBytes` against `MAX_FILE_BYTES` (25 MB) / `MAX_ARTICLE_COVER_BYTES` (5 MB) as bytes arrive
+  (`rpc-router.service.ts:931`), requires `image/*` for covers (:842), and infers the extension itself.
+  A signed URL from `getSignedUrl()` is a **GCS** URL — **Firebase Storage security rules do not apply to it**.
+
+  Per decision 19 and [ADR-0004](./adr/0004-upload-trust-boundary.md), enforcement is rebuilt on both sides:
+
+  | Stage | Server does |
+  |---|---|
+  | **Sign** | binds `x-goog-content-length-range` + expected content type into the URL; chooses the storage path itself — the client never picks where its object lands |
+  | **Upload** | nothing — GCS rejects oversized or mistyped uploads on its own |
+  | **Finalize** | reads the object's **real** metadata from GCS, re-checks it, and only then writes the `FileManager` row |
+
+  Writing `FileManager` only after reading real metadata makes it impossible for the row and the object to
+  disagree — `sizeInKB` records what landed, not what was declared. Unfinalized objects are swept by the daily
+  orphan job from Phase 3, which stops being a nicety: an unfinalized object is now the *normal* representation
+  of a failed upload.
 - **`document.generate`** is long-running. It must return a job id immediately, never block a request.
 
 **Gate — do not proceed to Phase 5 without all of:**
@@ -684,20 +739,32 @@ once as a Cloud Run request and once as Supabase egress (§0.1). At 24 juta requ
 compute plus the Pro tier the egress forces. Requests are the **largest line item in the target architecture**,
 larger than CPU. Cache aggressively, coalesce list refreshes, and never refetch on a change signal.
 
-### 10.2 The hard gate
+### 10.2 ~~The hard gate~~ — deleted, there is nothing to drain
 
-Per decision 7: ship the HTTP+FCM release as **`-breaking`** so old clients must update before continuing.
+**Decision 15 removes this step entirely.** The earlier draft specified a `-breaking` release, a midweek ship
+window, a pre-written support answer, and watching Socket.IO connections by client version until they reached
+zero. All of it assumed installed clients. Checking:
 
-- **Ship midweek, never Friday or Saturday.** A hard gate landing before a Sunday concentrates every "I can't get
-  in" message onto your busiest morning.
-- Keep the socket running server-side through the gate release. It costs nothing on EC2 and it is the rollback.
-- **Watch Socket.IO connections by client version.** The gate makes this fast, not instant — a device offline for
-  a week still updates on its own schedule.
-- Have the support answer written before you ship: what the user sees, and what to tell someone who cannot update.
+| | |
+|---|---|
+| `apps/palakat/pubspec.yaml` | `version: 1.0.0+1` |
+| `git tag --list 'v*'` | **empty — never released** |
+| Update-gate mechanism | **none.** No version floor in the backend, no force-update check in Flutter; `package_info` appears only on the settings screen |
+| Codemagic trigger | `branch_patterns` (`main`, `develop`) — not tags |
+
+So there are no old clients to strand, and no mechanism with which to strand them. The HTTP+FCM client is simply
+**the first release**. R7 disappears with it.
+
+Keep the socket running server-side through the transition anyway — it costs nothing on EC2 and it is the
+rollback while you are re-pointing 21 repositories.
+
+> **Trigger to reinstate:** if launch happens before Phase 5 completes, this section comes back *and* the update
+> gate has to be built first. It is unbuilt work on no phase estimate — treat it as a real dependency, not a flag.
 
 ### 10.3 Then delete the socket
 
-Once connections reach zero:
+Once connections reach zero — which, per decision 15, means *once you stop connecting from your own dev builds*,
+not once a user population drains:
 
 - `realtime.gateway.ts`, `rpc-router.service.ts` (the largest file in the backend), `redis-io.adapter.ts`
 - `socket_service.dart`
@@ -963,6 +1030,12 @@ GitHub secret is not a revoked key.
 
 ## 13. Phase 8 — cutover
 
+> **Why this is kept in full while §10.2's gate was deleted.** Both were written for a user base that does not
+> exist, but they fail differently. The gate depended on tooling nobody has built; the ceremony below depends
+> only on patience. Per decision 16 it runs as a **rehearsal** — a soak that finds nothing costs nothing, and the
+> runbook gets learned while a mistake costs an afternoon rather than a congregation. Steps 5–8 protect nobody
+> today and are executed anyway, deliberately.
+
 1. Deploy to Cloud Run against the **production** Supabase database, no DNS change. Both stacks run.
 2. Verify on the `run.app` URL: health, login, a REST call per module, a PDF export, one report job end-to-end
    **including its Cloud Task**, and one FCM delivery to a real device.
@@ -991,7 +1064,8 @@ Measure first.
 
 ### 14.1 Where the money goes
 
-At 4.000 users, 24 juta requests/month, 1 vCPU / 1 GiB:
+At 4.000 users, 1 vCPU / 1 GiB, and the **24 juta stress case** — an upper bound carried from a socket-era
+assumption, not a forecast (decision 20, R20):
 
 | Line item | 180h active | 90h active |
 |---|---:|---:|
@@ -1056,7 +1130,8 @@ already exists, so it is cheap to add later.
 | R4 | **Supabase Free connection ceiling vs. spiky scale-from-zero** | Medium | Connection refusals under load | `DATABASE_POOL_MAX=3`, transaction pooler, `max-instances=5` | 0, 7 |
 | R5 | FCM topics client-subscribable → cross-church leak | **High if payloads carry content** | **Confidentiality breach** | Bare change-signals only; refetch over authenticated REST | 4 |
 | R6 | Polling cron survives into Cloud Run | Medium | **Price case deleted** — instance never idles | Cloud Tasks, not a Scheduler poll | 3 |
-| R7 | Hard gate strands users who cannot update | **Medium — accepted** | Support load, locked-out users | Ship midweek; support answer written in advance; socket stays up through the gate | 5 |
+| ~~R7~~ | ~~Hard gate strands users who cannot update~~ | **Retired** | — | Decision 15: never released, zero installs, no gate mechanism exists. Returns only if launch precedes Phase 5 | 5 |
+| R7b | **Update gate is unbuilt work assumed to be done** | Medium | Phase 5 blocks on tooling nobody has estimated | Only bites if launch precedes Phase 5 — treat as a dependency, not a flag | 5 |
 | R8 | Duplicate report processing at >1 instance | Certain without the fix | Correctness + double CPU | `FOR UPDATE SKIP LOCKED` | 0 |
 | R9 | `FIREBASE_PRIVATE_KEY` newline mangling | High | **All push silently stops** | Store byte-identical to `.env`; assert on the parsed key at boot | 6 |
 | R10 | PDF glyphs silently degrade | High if unaddressed | Corrupt reports found by users | `fonts-dejavu-core` + startup assertion | 0 |
@@ -1067,6 +1142,9 @@ already exists, so it is cheap to add later.
 | R15 | tmpfs OOM during a large export | Low–Medium | Instance killed mid-render | 1 GiB minimum; reports already stream to Storage; split worker if needed | 7, 9 |
 | R16 | Non-backward-compatible migration during rollout | Medium | Old revision errors mid-deploy | Expand/contract; backup precedes every run | 7 |
 | R17 | Runaway `max-instances` | Low | Rp 10 juta surprise | Explicit ceiling + budget alerts | 7, 9 |
+| R18 | **Validation drift** — REST rejects payloads the socket accepted | **High without the table's request-shape column** | 400s discovered per-repository during Phase 5, while transport is also changing | Decision 18: request shape sourced from the client and carried in the parity table; `ValidationPipe` stays strict deliberately | 1, 2, 5 |
+| R19 | **Unfinalized uploads** accumulate in the bucket | Medium | Storage cost; `FileManager` and storage disagree | [ADR-0004](./adr/0004-upload-trust-boundary.md): row written only after reading real GCS metadata; daily orphan sweep becomes load-bearing | 2, 3 |
+| R20 | **Request model is a socket-era guess** | **Certain — it is already known wrong** | The Free→Pro crossover (§0.1) is priced against a number derived from hours-connected | Decision 20: bottom-up estimate from screen flows; 24 juta relabelled a stress case; instrument day one | 0, 9 |
 
 ---
 
@@ -1078,7 +1156,8 @@ BEFORE #26 — permitted during the freeze (§0.0)
           [ ] atomic job claim FOR UPDATE SKIP LOCKED + concurrency test
           [ ] NotoSans-Regular.ttf committed to src/assets/fonts/ + startup assertion
           [ ] stale lockfiles, vercel.json, dead emitToSocketId removed
-          [ ] PARITY TABLE: 166 actions → route + verb + permissions, reviewed
+          [ ] PARITY TABLE: 166 actions → route + verb + permissions + REQUEST SHAPE
+          [ ] bottom-up request estimate from screen flows (replaces the 24 juta guess)
           [ ] Phase 6 scaffolding, if #27's worker justifies it early
 
 GATED ON #26 — everything below
@@ -1092,14 +1171,18 @@ Phase 0   [ ] atomic job claim + stale-job reaper + concurrency test
 Phase 1   [ ] PermissionsGuard + @RequirePermissions, ported verbatim from RPC
           [ ] churchId resolution attached to the request
           [ ] PaginationInterceptor overlap checked before adding anything
-          [ ] PARITY TABLE: 166 actions → route + verb + permissions, reviewed
+          [ ] PARITY TABLE: 166 actions → route + verb + permissions + request
+              shape (sourced from the CLIENT, not the untested DTOs), reviewed
 
-Phase 2   [ ] 24 modules registered with controllers                🔴 SECURITY GATE
-          [ ] every route guarded per the parity table
-          [ ] 131→166 route gap closed; orphan routes deleted, not exposed
+Phase 2   [ ] all 27 existing controller files DELETED first     🔴 SECURITY GATE
+          [ ] every route written from the table; 25 modules registered
+          [ ] every route guarded per the table
+          [ ] ValidationPipe left strict — REST is deliberately stricter than RPC
           [ ] response envelope byte-identical to RPC
           [ ] under-privileged-token test green on every route
-          [ ] file upload → signed Firebase Storage URL, not chunked HTTP
+          [ ] upload → signed URL with length+type bound at signing
+          [ ] upload → finalize endpoint verifies REAL GCS metadata before
+              writing FileManager; orphan sweep covers unfinalized objects
 
 Phase 3   [ ] report queue → Cloud Tasks (NOT a Scheduler poll)     🔴 PRICE GATE
           [ ] birthday → Scheduler --time-zone=Asia/Makassar
@@ -1118,8 +1201,8 @@ Phase 4   [ ] FirebaseAdminService.messaging() added
 Phase 5   [ ] 22 repositories on http_service, per the parity table
           [ ] topic subscribe AND unsubscribe on logout / church switch
           [ ] change signal → invalidate ONLY; refetch on next view, never on arrival
-          [ ] -breaking gate shipped MIDWEEK; support answer written
-          [ ] socket connections drained to zero, then all socket code deleted
+          [ ] NO -breaking gate — never released, nothing to drain (decision 15)
+          [ ] socket code deleted once your own dev builds stop connecting
 
 THEN MIGRATE
 Phase 6   [ ] Dockerfile (context = repo root); .dockerignore excludes src/generated
@@ -1154,6 +1237,7 @@ Phase 9   [ ] USD budget alert; IDR budget +15% headroom
 |---|---|
 | Is this approved? | **No.** It is the no-go branch of [#26](https://github.com/meimodev/palakat/issues/26), which is open. Implementing it answers #26 by accident. |
 | What would make it approved? | The Supabase port measuring beyond ~12–15 weeks solo at [#25](https://github.com/meimodev/palakat/issues/25). [ADR-0002](./adr/0002-effort-ceiling-and-meaning-of-no.md). |
+| What makes all of this cheap to get wrong? | **The app has never been released** — `1.0.0+1`, zero tags, no update gate anywhere. No users to strand, no data to lose, no rollback to rehearse under pressure. That is the enabling condition for every aggressive choice here, and it expires at launch. |
 | Is "no" free? | **No — 3–5 weeks marginal.** Phase 2 and the Flutter repositories are fork-specific, not shared work, whatever the handoff plan says. |
 | Cheaper than today? | **Only while small.** At launch scale Rp 0 vs Rp 378 ribu. At 4.000 users, Rp 625–689 ribu vs Rp 378 ribu — Supabase Free cannot carry 24 juta cross-cloud queries, and Pro alone costs more than the EC2 box. Redis and Pusher Beams are still deleted either way. |
 | Biggest cost in the project? | **Phase 2**, 3–4 weeks. The REST surface is 131 unwired, unguarded, untested routes — not the "already exists" the analysis claimed. |

@@ -191,6 +191,21 @@ and already in your dependency tree).
 
 ### 3.5 Lambda, priced for completeness
 
+> ⚠️ **Correction, 2026-07-22 — do not requote "24 juta requests/bulan" as a forecast.**
+>
+> The 24 juta figure below is derived from **"2 hrs/day connected per user"** — a *socket-era* traffic model.
+> It was subsequently carried into the HTTP-only Cloud Run costing as if it described HTTP request volume. It
+> does not: that architecture has no persistent connection, and change signals invalidate without refetching, so
+> the traffic shape it models no longer exists.
+>
+> It is also **internally inconsistent** with §7 of this document, which puts one congregation (~200 users) at
+> ~720 ribu requests/bulan — 3.600 per user, against 6.000 per user here. Same app, 1,7× apart.
+>
+> Treat 24 juta as a **stress-case upper bound**. This matters more than it did: Supabase Free allows 5 GB
+> egress, so the Free→Pro crossover sits near ~5 juta requests/bulan, and over-stating by 5× makes Pro look
+> mandatory when Free may carry the first several churches. See decision 20 and R20 in
+> [`palakat-backend-gcp-cloud-run-migration-plan.md`](./palakat-backend-gcp-cloud-run-migration-plan.md).
+
 Assumes API Gateway WebSocket, 2 hrs/day connected per user, 150 ms and 1 GB per RPC invocation:
 
 | Users | Conn-minutes | Messages | Invoke | Duration | **Total (USD)** | **Total (IDR)** |
