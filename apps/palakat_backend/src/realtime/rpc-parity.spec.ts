@@ -28,9 +28,12 @@ describe('parity table generator', () => {
     // Baselines are the hand-built table's. Phase 1.5 moves them on purpose;
     // anything else moving them is a security-posture change that should fail
     // here rather than land quietly.
-    expect(rows.filter((r) => !r.unguarded)).toHaveLength(43); // was 38, +5 approvalRule.*
-    expect(byGuard.requireUserId).toBe(89); // was 94, −5 approvalRule.*
-    expect(byGuard.requireSuperAdminOrClient).toBe(12); // 👑 super-admin
+    // 38 (hand table) +5 approvalRule.* +20 Phase 1.5b church-scoped writes
+    expect(rows.filter((r) => !r.unguarded)).toHaveLength(63);
+    // 94 (hand table) −5 approvalRule.* −22 Phase 1.5b (20 permission-bearing,
+    // 2 super-admin: location.create/.delete are national reference data)
+    expect(byGuard.requireUserId).toBe(67);
+    expect(byGuard.requireSuperAdminOrClient).toBe(14); // 👑 12 + location.create/.delete
     expect(byGuard.requireAuthAny).toBe(7); // 🔓 any-audience
     expect(byGuard.none).toBe(15); // ⚪ public (14) + service-scoped (1)
   });
@@ -58,6 +61,46 @@ describe('parity table generator', () => {
       const row = rows.find((r) => r.action === action)!;
       expect(row.guards).toContain('requireUserId');
       expect(row.guard).toBe('requireSuperAdminOrClient');
+    }
+  });
+
+  it('leaves the member-app writes ungated — a permission here breaks the app', () => {
+    // These four are reached from apps/palakat (the member app): joining a
+    // church, editing your own membership, your own profile, your own
+    // certificate request. Every other bare write is palakat_admin only, which
+    // is why Phase 1.5b could gate those on a leadership permission and not
+    // these. They need self-scoping in the service instead — a permission gate
+    // would lock ordinary members out of their own records.
+    for (const action of [
+      'membership.create',
+      'membership.update',
+      'account.update',
+      'document.update',
+    ]) {
+      const row = rows.find((r) => r.action === action)!;
+      expect(row.guard).toBe('requireUserId');
+      expect(row.permissions).toEqual([]);
+    }
+  });
+
+  it('gates every palakat_admin-only structural write', () => {
+    for (const [action, permission] of [
+      ['church.update', 'ops.church.manage'],
+      ['column.create', 'ops.church.manage'],
+      ['membershipPosition.delete', 'ops.church.manage'],
+      ['location.update', 'ops.church.manage'],
+      ['activity.delete', 'ops.activity.create'],
+      ['report.delete', 'ops.report.generate'],
+      ['account.create', 'ops.members.invite'],
+    ] as const) {
+      const row = rows.find((r) => r.action === action)!;
+      expect(row.permissions).toEqual([permission]);
+    }
+    // National reference data, and nothing calls create/delete.
+    for (const action of ['location.create', 'location.delete']) {
+      expect(rows.find((r) => r.action === action)!.guard).toBe(
+        'requireSuperAdminOrClient',
+      );
     }
   });
 

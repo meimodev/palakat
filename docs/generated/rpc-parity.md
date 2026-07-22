@@ -2,7 +2,7 @@
 
 # RPC → REST parity table (generated)
 
-**166 actions**, of which **123 are authenticated but unauthorized**.
+**166 actions**, of which **103 are authenticated but unauthorized**.
 
 The Guard and Permissions columns are transcribed from the AST and are
 authoritative. **Verb and Route are not generated** — they need judgement,
@@ -45,15 +45,15 @@ and a fresh agent read supplies it (ADR-0009).
 | `account.count` | `requireUserId` | 🔴 **none** | | |
 | `account.get` | `requireUserId` | 🔴 **none** | | |
 | `account.list` | `requireOperationPermission` | `ops.members.read` | | |
-| `account.create` | `requireUserId` | 🔴 **none** | | |
+| `account.create` | `requireOperationPermission` | `ops.members.invite` | | |
 | `member.create` | `requireOperationPermission` | `ops.members.invite` | | |
 | `account.update` | `requireUserId` | 🔴 **none** | | |
-| `account.delete` | `requireUserId` | 🔴 **none** | | |
+| `account.delete` | `requireOperationPermission` | `ops.members.invite` | | |
 | `membership.create` | `requireUserId` | 🔴 **none** | | |
 | `membership.list` | `requireOperationPermission` | `ops.members.read` | | |
 | `membership.get` | `requireUserId` | 🔴 **none** | | |
 | `membership.update` | `requireUserId` | 🔴 **none** | | |
-| `membership.delete` | `requireUserId` | 🔴 **none** | | |
+| `membership.delete` | `requireOperationPermission` | `ops.members.invite` | | |
 | `membershipInvitation.preview` | `requireOperationPermission` | `ops.members.invite` | | |
 | `membershipInvitation.create` | `requireOperationPermission` | `ops.members.invite` | | |
 | `membershipInvitation.myPending` | `requireUserId` | 🔴 **none** | | |
@@ -92,18 +92,18 @@ and a fresh agent read supplies it (ADR-0009).
 | `cashMutation.delete` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create` | | |
 | `report.list` | `requireUserId` | 🔴 **none** | | |
 | `report.get` | `requireUserId` | 🔴 **none** | | |
-| `report.create` | `requireUserId` | 🔴 **none** | | |
-| `report.update` | `requireUserId` | 🔴 **none** | | |
-| `report.delete` | `requireUserId` | 🔴 **none** | | |
+| `report.create` | `requireOperationPermission` | `ops.report.generate` | | |
+| `report.update` | `requireOperationPermission` | `ops.report.generate` | | |
+| `report.delete` | `requireOperationPermission` | `ops.report.generate` | | |
 | `report.generate` | `requireOperationPermission` | `ops.report.generate` | | |
 | `reportJob.list` | `requireUserId` | 🔴 **none** | | |
 | `reportJob.get` | `requireUserId` | 🔴 **none** | | |
 | `reportJob.cancel` | `requireUserId` | 🔴 **none** | | |
 | `document.list` | `requireUserId` | 🔴 **none** | | |
 | `document.get` | `requireUserId` | 🔴 **none** | | |
-| `document.create` | `requireUserId` | 🔴 **none** | | |
+| `document.create` | `requireOperationPermission` | `ops.church.manage` | | |
 | `document.update` | `requireUserId` | 🔴 **none** | | |
-| `document.delete` | `requireUserId` | 🔴 **none** | | |
+| `document.delete` | `requireOperationPermission` | `ops.church.manage` | | |
 | `document.generate` | `requireUserId` | 🔴 **none** | | |
 | `file.list` | `requireUserId` | 🔴 **none** | | |
 | `file.get` | `requireUserId` | 🔴 **none** | | |
@@ -116,7 +116,7 @@ and a fresh agent read supplies it (ADR-0009).
 | `file.download.init` | `requireUserId` | 🔴 **none** | | |
 | `file.download.chunk` | `requireUserId` | 🔴 **none** | | |
 | `file.download.complete` | `requireUserId` | 🔴 **none** | | |
-| `file.delete` | `requireUserId` | 🔴 **none** | | |
+| `file.delete` | `requireOperationPermission` | `ops.church.manage` | | |
 | `notifications.list` | `requireUserId` | 🔴 **none** | | |
 | `notifications.get` | `requireUserId` | 🔴 **none** | | |
 | `notifications.markRead` | `requireUserId` | 🔴 **none** | | |
@@ -126,23 +126,23 @@ and a fresh agent read supplies it (ADR-0009).
 | `churchPermissionPolicy.updateMe` | `requireUserId` | 🔴 **none** | | |
 | `church.get` | `requireUserId` | 🔴 **none** | | |
 | `church.create` | `requireSuperAdminOrClient` | 🔴 **none** | | |
-| `church.update` | `requireUserId` | 🔴 **none** | | |
+| `church.update` | `requireOperationPermission` | `ops.church.manage` | | |
 | `church.delete` | `requireSuperAdminOrClient` | 🔴 **none** | | |
 | `column.list` | `requireUserId` | 🔴 **none** | | |
 | `column.get` | `requireUserId` | 🔴 **none** | | |
-| `column.create` | `requireUserId` | 🔴 **none** | | |
-| `column.update` | `requireUserId` | 🔴 **none** | | |
-| `column.delete` | `requireUserId` | 🔴 **none** | | |
+| `column.create` | `requireOperationPermission` | `ops.church.manage` | | |
+| `column.update` | `requireOperationPermission` | `ops.church.manage` | | |
+| `column.delete` | `requireOperationPermission` | `ops.church.manage` | | |
 | `location.list` | `requireUserId` | 🔴 **none** | | |
 | `location.get` | `requireUserId` | 🔴 **none** | | |
-| `location.create` | `requireUserId` | 🔴 **none** | | |
-| `location.update` | `requireUserId` | 🔴 **none** | | |
-| `location.delete` | `requireUserId` | 🔴 **none** | | |
+| `location.create` | `requireSuperAdminOrClient` | 🔴 **none** | | |
+| `location.update` | `requireOperationPermission` | `ops.church.manage` | | |
+| `location.delete` | `requireSuperAdminOrClient` | 🔴 **none** | | |
 | `membershipPosition.list` | `requireUserId` | 🔴 **none** | | |
 | `membershipPosition.get` | `requireUserId` | 🔴 **none** | | |
-| `membershipPosition.create` | `requireUserId` | 🔴 **none** | | |
-| `membershipPosition.update` | `requireUserId` | 🔴 **none** | | |
-| `membershipPosition.delete` | `requireUserId` | 🔴 **none** | | |
+| `membershipPosition.create` | `requireOperationPermission` | `ops.church.manage` | | |
+| `membershipPosition.update` | `requireOperationPermission` | `ops.church.manage` | | |
+| `membershipPosition.delete` | `requireOperationPermission` | `ops.church.manage` | | |
 | `approvalRule.list` | `requireOperationPermission` | `ops.approvalRule.manage` | | |
 | `approvalRule.get` | `requireOperationPermission` | `ops.approvalRule.manage` | | |
 | `approvalRule.create` | `requireOperationPermission` | `ops.approvalRule.manage` | | |
@@ -150,7 +150,7 @@ and a fresh agent read supplies it (ADR-0009).
 | `approvalRule.delete` | `requireOperationPermission` | `ops.approvalRule.manage` | | |
 | `approver.list` | `requireUserId` | 🔴 **none** | | |
 | `approver.get` | `requireUserId` | 🔴 **none** | | |
-| `approver.create` | `requireUserId` | 🔴 **none** | | |
+| `approver.create` | `requireOperationPermission` | `ops.activity.create` | | |
 | `approver.update` | `requireUserId` | 🔴 **none** | | |
 | `approver.override` | `requireOperationPermission` | `ops.approval.activity.override` | | |
 | `financialAccountNumber.list` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create` | | |
@@ -170,8 +170,8 @@ and a fresh agent read supplies it (ADR-0009).
 | `activity.list` | `none` | 🔴 **none** | | |
 | `activity.get` | `requireUserId` | 🔴 **none** | | |
 | `activity.create` | `requireOperationPermission` | `ops.activity.create` | | |
-| `activity.update` | `requireUserId` | 🔴 **none** | | |
-| `activity.delete` | `requireUserId` | 🔴 **none** | | |
+| `activity.update` | `requireOperationPermission` | `ops.activity.create` | | |
+| `activity.delete` | `requireOperationPermission` | `ops.activity.create` | | |
 | `admin.songDb.upload.init` | `requireUserId` | 🔴 **none** | | |
 | `admin.songDb.upload.chunk` | `requireUserId` | 🔴 **none** | | |
 | `admin.songDb.upload.complete` | `requireUserId` | 🔴 **none** | | |

@@ -1104,7 +1104,7 @@ export class RpcRouterService {
       }
 
       case 'account.create': {
-        this.requireUserId(client);
+        await this.requireOperationPermission(client, 'ops.members.invite');
         const { membership, ...rest } = (payload ?? {}) as any;
         const data: any = {
           ...rest,
@@ -1204,7 +1204,7 @@ export class RpcRouterService {
       }
 
       case 'account.delete': {
-        this.requireUserId(client);
+        await this.requireOperationPermission(client, 'ops.members.invite');
         const id = payload.id as number;
         if (typeof id !== 'number') {
           throw new BadRequestException('id is required');
@@ -1247,7 +1247,7 @@ export class RpcRouterService {
       }
 
       case 'membership.delete': {
-        this.requireUserId(client);
+        await this.requireOperationPermission(client, 'ops.members.invite');
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
@@ -2506,12 +2506,12 @@ export class RpcRouterService {
       }
 
       case 'report.create': {
-        this.requireUserId(client);
+        await this.requireOperationPermission(client, 'ops.report.generate');
         return this.reportService.create(payload);
       }
 
       case 'report.update': {
-        this.requireUserId(client);
+        await this.requireOperationPermission(client, 'ops.report.generate');
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
@@ -2519,7 +2519,7 @@ export class RpcRouterService {
       }
 
       case 'report.delete': {
-        this.requireUserId(client);
+        await this.requireOperationPermission(client, 'ops.report.generate');
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
@@ -2575,7 +2575,7 @@ export class RpcRouterService {
       }
 
       case 'document.create': {
-        this.requireUserId(client);
+        await this.requireOperationPermission(client, 'ops.church.manage');
         return this.documentService.create(payload);
       }
 
@@ -2588,7 +2588,7 @@ export class RpcRouterService {
       }
 
       case 'document.delete': {
-        this.requireUserId(client);
+        await this.requireOperationPermission(client, 'ops.church.manage');
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
@@ -3085,7 +3085,7 @@ export class RpcRouterService {
       }
 
       case 'file.delete': {
-        this.requireUserId(client);
+        await this.requireOperationPermission(client, 'ops.church.manage');
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
@@ -3189,7 +3189,7 @@ export class RpcRouterService {
       }
 
       case 'church.update': {
-        this.requireUserId(client);
+        await this.requireOperationPermission(client, 'ops.church.manage');
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
@@ -3221,12 +3221,12 @@ export class RpcRouterService {
       }
 
       case 'column.create': {
-        this.requireUserId(client);
+        await this.requireOperationPermission(client, 'ops.church.manage');
         return this.columnService.create(payload);
       }
 
       case 'column.update': {
-        this.requireUserId(client);
+        await this.requireOperationPermission(client, 'ops.church.manage');
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
@@ -3234,7 +3234,7 @@ export class RpcRouterService {
       }
 
       case 'column.delete': {
-        this.requireUserId(client);
+        await this.requireOperationPermission(client, 'ops.church.manage');
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
@@ -3258,12 +3258,12 @@ export class RpcRouterService {
       }
 
       case 'location.create': {
-        this.requireUserId(client);
+        this.requireSuperAdminOrClient(client);
         return this.locationService.create(payload);
       }
 
       case 'location.update': {
-        this.requireUserId(client);
+        await this.requireOperationPermission(client, 'ops.church.manage');
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
@@ -3271,7 +3271,7 @@ export class RpcRouterService {
       }
 
       case 'location.delete': {
-        this.requireUserId(client);
+        this.requireSuperAdminOrClient(client);
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
@@ -3295,13 +3295,13 @@ export class RpcRouterService {
       }
 
       case 'membershipPosition.create': {
-        this.requireUserId(client);
+        await this.requireOperationPermission(client, 'ops.church.manage');
         const dto = validateDto(CreateMembershipPositionDto, payload);
         return this.membershipPositionService.create(dto);
       }
 
       case 'membershipPosition.update': {
-        this.requireUserId(client);
+        await this.requireOperationPermission(client, 'ops.church.manage');
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
@@ -3310,7 +3310,7 @@ export class RpcRouterService {
       }
 
       case 'membershipPosition.delete': {
-        this.requireUserId(client);
+        await this.requireOperationPermission(client, 'ops.church.manage');
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
@@ -3396,7 +3396,7 @@ export class RpcRouterService {
       }
 
       case 'approver.create': {
-        this.requireUserId(client);
+        await this.requireOperationPermission(client, 'ops.activity.create');
         return this.approverService.create(payload);
       }
 
@@ -3641,7 +3641,7 @@ export class RpcRouterService {
       }
 
       case 'activity.update': {
-        this.requireUserId(client);
+        await this.requireOperationPermission(client, 'ops.activity.create');
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
@@ -3649,7 +3649,7 @@ export class RpcRouterService {
       }
 
       case 'activity.delete': {
-        this.requireUserId(client);
+        await this.requireOperationPermission(client, 'ops.activity.create');
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');

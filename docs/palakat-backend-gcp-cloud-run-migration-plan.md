@@ -107,9 +107,26 @@ can reach the write without an identity. **Generalise the shape, not the instanc
 identity parameter whose absence silences the check is fail-open by omission.** A sweep found exactly
 one other, `churchRequest.findAll`, tracked separately.
 
+[#57](https://github.com/meimodev/palakat/issues/57) then gated **22 of the 26 bare church-scoped
+writes**, taking the router from 123 to 103 actions without a permission check. One new permission
+key, `ops.church.manage` (the church's own structure — profile, columns, positions, location,
+documents, files), with the same default positions as `ops.approvalRule.manage`; the rest reuse
+`ops.activity.create`, `ops.report.generate` and `ops.members.invite`. `location.create`/`.delete`
+went to super-admin as national reference data.
+
+> ⚠️ **The parity table names actions, not audiences — and that decides the answer.** The four writes
+> #57 could *not* gate (`membership.create`, `membership.update`, `account.update`,
+> `document.update`) are the ones the **member app** calls: joining a church, editing your own
+> membership, profile, certificate. A leadership permission on those locks members out of their own
+> records, and on `membership.create` it is circular. They need self-scoping instead —
+> [#63](https://github.com/meimodev/palakat/issues/63). Two rows can look identical in the table and
+> have opposite correct answers. **Phase 2 writes REST routes from this table; the audience is not in
+> it.** Callers live in `packages/palakat_shared/lib/core/repositories`, not `apps/*/lib` — a sweep of
+> the app trees reports almost everything uncalled and is wrong.
+
 Remaining, split off [#45](https://github.com/meimodev/palakat/issues/45) and blocking it:
-[#57](https://github.com/meimodev/palakat/issues/57) bare writes → permissions ·
 [#58](https://github.com/meimodev/palakat/issues/58) bare reads → service scoping ·
+[#63](https://github.com/meimodev/palakat/issues/63) the four member-app writes → self-scoping ·
 [#60](https://github.com/meimodev/palakat/issues/60) the `ops.approval.finance` widening decision ·
 [#61](https://github.com/meimodev/palakat/issues/61) the `GET /church-request` read leak.
 
@@ -1630,7 +1647,10 @@ Phase 1.5 [x] ops.approvalRule.manage enforced; `unchecked: []`
 Phase 1.5 [x] #59 — read all 27 scoped-arg actions; all 27 enforce, none moved
 Phase 1.5 [x] approver.update self-check made fail-CLOSED (was skipped when the
               requester was absent; PATCH /approver/:id passed none)
-Phase 1.5 [ ] the 56 bare actions: #57 writes, #58 reads              🔴 SECURITY GATE
+Phase 1.5 [x] #57 — 22 of 26 bare writes gated; new ops.church.manage;
+              123 → 103 actions without a permission check
+Phase 1.5 [ ] the bare reads: #58                                    🔴 SECURITY GATE
+Phase 1.5 [ ] #63 — the 4 member-app writes need self-scoping, not a permission
 Phase 1.5 [ ] #61 — GET /church-request returns every request, all churches
 Phase 1.5 [ ] #60 — decide the ops.approval.finance widening
               (correct as-is / needs permission / needs church-scoping)
