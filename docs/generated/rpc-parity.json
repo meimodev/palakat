@@ -1,8 +1,8 @@
 {
   "summary": {
     "total": 166,
-    "unguarded": 123,
-    "trulyUnguarded": 111,
+    "unguarded": 103,
+    "trulyUnguarded": 91,
     "inlineGuarded": 24,
     "phantom": [
       "ops.approval.finance"
@@ -373,12 +373,14 @@
     },
     {
       "action": "account.create",
-      "guard": "requireUserId",
+      "guard": "requireOperationPermission",
       "guards": [
-        "requireUserId"
+        "requireOperationPermission"
       ],
-      "permissions": [],
-      "unguarded": true,
+      "permissions": [
+        "ops.members.invite"
+      ],
+      "unguarded": false,
       "inlineGuard": false,
       "line": 1106
     },
@@ -408,12 +410,14 @@
     },
     {
       "action": "account.delete",
-      "guard": "requireUserId",
+      "guard": "requireOperationPermission",
       "guards": [
-        "requireUserId"
+        "requireOperationPermission"
       ],
-      "permissions": [],
-      "unguarded": true,
+      "permissions": [
+        "ops.members.invite"
+      ],
+      "unguarded": false,
       "inlineGuard": false,
       "line": 1206
     },
@@ -465,12 +469,14 @@
     },
     {
       "action": "membership.delete",
-      "guard": "requireUserId",
+      "guard": "requireOperationPermission",
       "guards": [
-        "requireUserId"
+        "requireOperationPermission"
       ],
-      "permissions": [],
-      "unguarded": true,
+      "permissions": [
+        "ops.members.invite"
+      ],
+      "unguarded": false,
       "inlineGuard": false,
       "line": 1249
     },
@@ -961,34 +967,40 @@
     },
     {
       "action": "report.create",
-      "guard": "requireUserId",
+      "guard": "requireOperationPermission",
       "guards": [
-        "requireUserId"
+        "requireOperationPermission"
       ],
-      "permissions": [],
-      "unguarded": true,
+      "permissions": [
+        "ops.report.generate"
+      ],
+      "unguarded": false,
       "inlineGuard": false,
       "line": 2508
     },
     {
       "action": "report.update",
-      "guard": "requireUserId",
+      "guard": "requireOperationPermission",
       "guards": [
-        "requireUserId"
+        "requireOperationPermission"
       ],
-      "permissions": [],
-      "unguarded": true,
+      "permissions": [
+        "ops.report.generate"
+      ],
+      "unguarded": false,
       "inlineGuard": false,
       "line": 2513
     },
     {
       "action": "report.delete",
-      "guard": "requireUserId",
+      "guard": "requireOperationPermission",
       "guards": [
-        "requireUserId"
+        "requireOperationPermission"
       ],
-      "permissions": [],
-      "unguarded": true,
+      "permissions": [
+        "ops.report.generate"
+      ],
+      "unguarded": false,
       "inlineGuard": false,
       "line": 2521
     },
@@ -1062,12 +1074,14 @@
     },
     {
       "action": "document.create",
-      "guard": "requireUserId",
+      "guard": "requireOperationPermission",
       "guards": [
-        "requireUserId"
+        "requireOperationPermission"
       ],
-      "permissions": [],
-      "unguarded": true,
+      "permissions": [
+        "ops.church.manage"
+      ],
+      "unguarded": false,
       "inlineGuard": false,
       "line": 2577
     },
@@ -1084,12 +1098,14 @@
     },
     {
       "action": "document.delete",
-      "guard": "requireUserId",
+      "guard": "requireOperationPermission",
       "guards": [
-        "requireUserId"
+        "requireOperationPermission"
       ],
-      "permissions": [],
-      "unguarded": true,
+      "permissions": [
+        "ops.church.manage"
+      ],
+      "unguarded": false,
       "inlineGuard": false,
       "line": 2590
     },
@@ -1225,12 +1241,14 @@
     },
     {
       "action": "file.delete",
-      "guard": "requireUserId",
+      "guard": "requireOperationPermission",
       "guards": [
-        "requireUserId"
+        "requireOperationPermission"
       ],
-      "permissions": [],
-      "unguarded": true,
+      "permissions": [
+        "ops.church.manage"
+      ],
+      "unguarded": false,
       "inlineGuard": false,
       "line": 3087
     },
@@ -1335,12 +1353,14 @@
     },
     {
       "action": "church.update",
-      "guard": "requireUserId",
+      "guard": "requireOperationPermission",
       "guards": [
-        "requireUserId"
+        "requireOperationPermission"
       ],
-      "permissions": [],
-      "unguarded": true,
+      "permissions": [
+        "ops.church.manage"
+      ],
+      "unguarded": false,
       "inlineGuard": false,
       "line": 3191
     },
@@ -1379,34 +1399,40 @@
     },
     {
       "action": "column.create",
-      "guard": "requireUserId",
+      "guard": "requireOperationPermission",
       "guards": [
-        "requireUserId"
+        "requireOperationPermission"
       ],
-      "permissions": [],
-      "unguarded": true,
+      "permissions": [
+        "ops.church.manage"
+      ],
+      "unguarded": false,
       "inlineGuard": false,
       "line": 3223
     },
     {
       "action": "column.update",
-      "guard": "requireUserId",
+      "guard": "requireOperationPermission",
       "guards": [
-        "requireUserId"
+        "requireOperationPermission"
       ],
-      "permissions": [],
-      "unguarded": true,
+      "permissions": [
+        "ops.church.manage"
+      ],
+      "unguarded": false,
       "inlineGuard": false,
       "line": 3228
     },
     {
       "action": "column.delete",
-      "guard": "requireUserId",
+      "guard": "requireOperationPermission",
       "guards": [
-        "requireUserId"
+        "requireOperationPermission"
       ],
-      "permissions": [],
-      "unguarded": true,
+      "permissions": [
+        "ops.church.manage"
+      ],
+      "unguarded": false,
       "inlineGuard": false,
       "line": 3236
     },
@@ -1434,9 +1460,9 @@
     },
     {
       "action": "location.create",
-      "guard": "requireUserId",
+      "guard": "requireSuperAdminOrClient",
       "guards": [
-        "requireUserId"
+        "requireSuperAdminOrClient"
       ],
       "permissions": [],
       "unguarded": true,
@@ -1445,20 +1471,22 @@
     },
     {
       "action": "location.update",
-      "guard": "requireUserId",
+      "guard": "requireOperationPermission",
       "guards": [
-        "requireUserId"
+        "requireOperationPermission"
       ],
-      "permissions": [],
-      "unguarded": true,
+      "permissions": [
+        "ops.church.manage"
+      ],
+      "unguarded": false,
       "inlineGuard": false,
       "line": 3265
     },
     {
       "action": "location.delete",
-      "guard": "requireUserId",
+      "guard": "requireSuperAdminOrClient",
       "guards": [
-        "requireUserId"
+        "requireSuperAdminOrClient"
       ],
       "permissions": [],
       "unguarded": true,
@@ -1489,34 +1517,40 @@
     },
     {
       "action": "membershipPosition.create",
-      "guard": "requireUserId",
+      "guard": "requireOperationPermission",
       "guards": [
-        "requireUserId"
+        "requireOperationPermission"
       ],
-      "permissions": [],
-      "unguarded": true,
+      "permissions": [
+        "ops.church.manage"
+      ],
+      "unguarded": false,
       "inlineGuard": false,
       "line": 3297
     },
     {
       "action": "membershipPosition.update",
-      "guard": "requireUserId",
+      "guard": "requireOperationPermission",
       "guards": [
-        "requireUserId"
+        "requireOperationPermission"
       ],
-      "permissions": [],
-      "unguarded": true,
+      "permissions": [
+        "ops.church.manage"
+      ],
+      "unguarded": false,
       "inlineGuard": false,
       "line": 3303
     },
     {
       "action": "membershipPosition.delete",
-      "guard": "requireUserId",
+      "guard": "requireOperationPermission",
       "guards": [
-        "requireUserId"
+        "requireOperationPermission"
       ],
-      "permissions": [],
-      "unguarded": true,
+      "permissions": [
+        "ops.church.manage"
+      ],
+      "unguarded": false,
       "inlineGuard": false,
       "line": 3312
     },
@@ -1609,12 +1643,14 @@
     },
     {
       "action": "approver.create",
-      "guard": "requireUserId",
+      "guard": "requireOperationPermission",
       "guards": [
-        "requireUserId"
+        "requireOperationPermission"
       ],
-      "permissions": [],
-      "unguarded": true,
+      "permissions": [
+        "ops.activity.create"
+      ],
+      "unguarded": false,
       "inlineGuard": false,
       "line": 3398
     },
@@ -1851,23 +1887,27 @@
     },
     {
       "action": "activity.update",
-      "guard": "requireUserId",
+      "guard": "requireOperationPermission",
       "guards": [
-        "requireUserId"
+        "requireOperationPermission"
       ],
-      "permissions": [],
-      "unguarded": true,
+      "permissions": [
+        "ops.activity.create"
+      ],
+      "unguarded": false,
       "inlineGuard": false,
       "line": 3643
     },
     {
       "action": "activity.delete",
-      "guard": "requireUserId",
+      "guard": "requireOperationPermission",
       "guards": [
-        "requireUserId"
+        "requireOperationPermission"
       ],
-      "permissions": [],
-      "unguarded": true,
+      "permissions": [
+        "ops.activity.create"
+      ],
+      "unguarded": false,
       "inlineGuard": false,
       "line": 3651
     },

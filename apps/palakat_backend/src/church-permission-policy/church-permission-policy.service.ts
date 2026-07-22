@@ -14,7 +14,8 @@ export type OperationPermissionKey =
   | 'ops.finance.expense.create'
   | 'ops.approval.activity.override'
   | 'ops.approval.finance.override'
-  | 'ops.approvalRule.manage';
+  | 'ops.approvalRule.manage'
+  | 'ops.church.manage';
 
 type GrantMode = 'positionsAny';
 
@@ -40,6 +41,7 @@ const ALL_PERMISSIONS: OperationPermissionKey[] = [
   'ops.approval.activity.override',
   'ops.approval.finance.override',
   'ops.approvalRule.manage',
+  'ops.church.manage',
 ];
 
 const DEFAULT_POSITION_NAMES: Record<OperationPermissionKey, string[]> = {
@@ -68,6 +70,17 @@ const DEFAULT_POSITION_NAMES: Record<OperationPermissionKey, string[]> = {
   'ops.approval.activity.override': ['Ketua Jemaat', 'Admin Gereja'],
   'ops.approval.finance.override': ['Ketua Jemaat', 'Admin Gereja'],
   'ops.approvalRule.manage': [
+    'Ketua Jemaat',
+    'Admin Gereja',
+    'Ketua Majelis',
+    'Sekretaris',
+    'Pengurus Harian',
+  ],
+  // The church's own structure — its profile, columns, positions, location,
+  // documents and files. Every caller is palakat_admin; the member app never
+  // reaches these. Same default holders as approvalRule.manage, which is the
+  // other "administer the church itself" capability.
+  'ops.church.manage': [
     'Ketua Jemaat',
     'Admin Gereja',
     'Ketua Majelis',
@@ -138,23 +151,16 @@ export class ChurchPermissionPolicyService {
   private buildEmptyPolicy(): ChurchPermissionPolicyV1 {
     return {
       version: POLICY_VERSION,
-      grants: {
-        'ops.activity.create': { mode: 'positionsAny', positionIds: [] },
-        'ops.members.read': { mode: 'positionsAny', positionIds: [] },
-        'ops.members.invite': { mode: 'positionsAny', positionIds: [] },
-        'ops.report.generate': { mode: 'positionsAny', positionIds: [] },
-        'ops.finance.revenue.create': { mode: 'positionsAny', positionIds: [] },
-        'ops.finance.expense.create': { mode: 'positionsAny', positionIds: [] },
-        'ops.approval.activity.override': {
-          mode: 'positionsAny',
-          positionIds: [],
-        },
-        'ops.approval.finance.override': {
-          mode: 'positionsAny',
-          positionIds: [],
-        },
-        'ops.approvalRule.manage': { mode: 'positionsAny', positionIds: [] },
-      },
+      // Derived from ALL_PERMISSIONS rather than hand-listed. It *was* hand-
+      // listed, and adding ops.church.manage is what exposed it — a new key
+      // silently missing from the empty policy is a grant that cannot be
+      // configured. Deriving it makes that unrepresentable.
+      grants: Object.fromEntries(
+        ALL_PERMISSIONS.map((key) => [
+          key,
+          { mode: 'positionsAny', positionIds: [] },
+        ]),
+      ) as Record<OperationPermissionKey, PermissionGrant>,
     };
   }
 

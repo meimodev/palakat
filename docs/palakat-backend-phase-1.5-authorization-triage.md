@@ -128,24 +128,55 @@ deserves an explicit yes.
 | `membershipInvitation.myPending` | Keyed to the caller. |
 | `approver.list` | Explicitly forces `query.churchId` to the requester's own church and rejects mismatches. The model to copy. |
 
-### Bucket 2 — needs a permission (the real work)
+### Bucket 2 — needs a permission ✅ done (#57), except four
 
-Church-scoped writes where a permission already exists or obviously should.
+Church-scoped writes. **26 actions. 22 gated, 4 could not be.**
 
-| Actions | Proposed permission |
-|---|---|
-| ~~`approvalRule.*`~~ | **done** — `ops.approvalRule.manage`, closes Finding 2. |
-| `location.create`, `.update`, `.delete` | **super-admin** — national reference data; reads stay open (bucket 1). |
-| `church.update` | church-management permission |
-| `column.create`, `.update`, `.delete` | church-scoped write |
-| `membership.create`, `.update`, `.delete` | `ops.members.invite` / a members-manage permission |
-| `account.create`, `.update`, `.delete` | members-manage; `account` is the person record behind a membership |
-| `membershipPosition.create`, `.update`, `.delete` | church-scoped write |
-| `activity.update`, `.delete` | `ops.activity.create`'s manage counterpart |
-| `document.create`, `.update`, `.delete` | church-scoped write |
-| `report.create`, `.update`, `.delete` | `ops.report.generate`'s counterpart |
-| `approver.create` | approver-manage; pairs with `approver.delete`, which decision 36 builds in Phase 2 |
-| `file.delete` | church-scoped write |
+Before assigning anything, the callers were traced — the clients speak RPC through
+`packages/palakat_shared/lib/core/repositories`, **not** through `apps/*/lib`, so a first sweep over
+the app trees reported 25 of 26 uncalled. That was wrong, and acting on it would have gated the
+member app's own screens. Re-run against the shared package, 20 of 26 are live.
+
+| Actions | Guard applied | Caller |
+|---|---|---|
+| ~~`approvalRule.*`~~ | `ops.approvalRule.manage` | done earlier, closes Finding 2 |
+| `church.update`, `column.*`, `membershipPosition.*`, `location.update`, `document.create`, `document.delete`, `file.delete` | **`ops.church.manage`** (new) | `palakat_admin` |
+| `activity.update`, `activity.delete`, `approver.create` | `ops.activity.create` | `palakat_admin` |
+| `report.create`, `.update`, `.delete` | `ops.report.generate` | `palakat_admin` |
+| `account.create`, `account.delete`, `membership.delete` | `ops.members.invite` | `palakat_admin` |
+| `location.create`, `location.delete` | **super-admin** | uncalled — national reference data |
+| `membership.create`, `membership.update`, `account.update`, `document.update` | ⛔ **none — see below** | **`palakat`, the member app** |
+
+One new permission key rather than six. `ops.church.manage` covers the church's own structure —
+profile, columns, positions, location, documents, files — and takes the same default positions as
+`ops.approvalRule.manage`, the other "administer the church itself" capability. The rest reuse
+existing keys: a holder of `ops.activity.create` may now also update and delete activities, which is
+a widening of that key's meaning but not of its holder set, and every one of these actions was
+reachable by *any* signed-in account before.
+
+Adding the key surfaced a latent bug: `buildEmptyPolicy()` hand-listed all nine permissions, so a new
+one would have been silently absent from every empty policy — a grant that cannot be configured. It
+now derives from `ALL_PERMISSIONS`.
+
+## 🔴 Finding 5 — four of the bare writes belong to the member app
+
+`membership.create`, `membership.update`, `account.update` and `document.update` are called from
+`apps/palakat`: joining a church, editing your own membership, your own profile, your own certificate
+request. **A leadership permission on any of them locks ordinary members out of their own records**,
+and on `membership.create` it is circular — that action *is* how a user joins.
+
+They need **self-scoping in the service**, not a permission. `account.update` and `document.update`
+are called by both apps, so the rule is compound — your own row always, someone else's only with the
+members-manage permission — a shape that exists nowhere in the codebase yet. Tracked as
+[#63](https://github.com/meimodev/palakat/issues/63).
+
+`rpc-parity.spec.ts` pins all four as deliberately ungated, so a later well-meaning "finish the
+bucket" commit fails the suite instead of breaking church-joining in production.
+
+**The general lesson, which is the third one this phase has produced about the parity table: it names
+actions, not audiences.** Two actions can look identical in the table and have opposite correct
+answers because different apps call them. Phase 2 writes REST routes from this table — the audience
+is not in it.
 
 ### Bucket 3 — needs church-scoping in the service, not a permission
 
