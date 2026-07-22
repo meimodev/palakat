@@ -178,18 +178,59 @@ actions, not audiences.** Two actions can look identical in the table and have o
 answers because different apps call them. Phase 2 writes REST routes from this table — the audience
 is not in it.
 
-### Bucket 3 — needs church-scoping in the service, not a permission
+### Bucket 3 — needs church-scoping ✅ done (#58), except two
 
-Reads that should return *your church's* rows rather than any row whose id you can guess. Adding a
-permission here would be the wrong fix: the caller is entitled to read these, just not all of them.
+Reads that should return *your church's* rows rather than any row whose id you can guess. A
+permission would be the wrong fix — the caller is entitled to read these, just not all of them.
 
-`account.count`, `account.get`, `membership.get`, `church.list`, `church.get`, `column.list`,
-`column.get`, `membershipPosition.list`, `membershipPosition.get`, `approvalRule.list`,
-`approvalRule.get`, `document.list`, `document.get`, `report.list`, `report.get`, `file.list`,
-`file.get`, `activity.get`, `approver.get`
+**17 actions. 15 scoped, 2 deliberately left open.**
 
-> `approvalRule.list` / `.get` appear in both bucket 2 and bucket 3 — they need the permission
-> *and* the scoping. Listed in each because the two changes land in different layers.
+| Actions | Treatment |
+|---|---|
+| `account.count`, `membershipPosition.list`, `document.list`, `report.list`, `file.list` | query forced to the requester's church |
+| `church.get`, `column.get`, `membershipPosition.get`, `document.get`, `report.get`, `file.get`, `activity.get`, `approver.get` | fetched row's church compared to the requester's |
+| `account.get`, `membership.get` | **compound** — your own row always, someone else's only within your church |
+| `church.list`, `column.list` | ⛔ **stay open — see below** |
+
+The decision lives in `src/realtime/church-scoping.ts` as two pure functions, tested directly. It is
+in the router rather than the services because `approver.list` — the one read that already got this
+right — does it there, and because one code path reaches every list service.
+
+**Conventions settled, since the ticket asked for one and not a case-by-case:**
+
+- **A list rejects a foreign `churchId`, it does not silently substitute your own.** Overwriting
+  answers a question the caller did not ask and hides that the real answer was "no".
+- **A get compares the fetched row and throws `Forbidden`.** This confirms the row exists, which is a
+  weak enumeration oracle — accepted deliberately, because it matches the six existing
+  `Invalid church context` sites, and uniformity across two doors is worth more here than closing an
+  oracle over "does church 4 have a column with id 12".
+- **An unscopeable row fails closed.** `Column`, `Membership` and `MembershipPosition` all declare
+  `churchId` nullable, so a row genuinely can carry none. It is refused, not waved through.
+
+## 🔴 Finding 6 — two of the reads are the onboarding pickers
+
+`church.list` and `column.list` are `dialog_church_picker_widget` and `dialog_column_picker_widget`
+in the member app. **A user picks their church and column before they have a membership**, so
+scoping either to "the requester's church" is circular in exactly the way gating
+`membership.create` was in #57. They stay open, and that is now a recorded reason rather than an
+omission. Sensitivity is low: a church name and a column name.
+
+This is the second time in two tickets that the correct answer for an action was decided by *which
+app calls it*. The pattern is now established well enough to state plainly: **for any action in this
+phase, trace the caller before choosing the guard.**
+
+## 🟠 Finding 7 — two scoping holes that looked like scoping
+
+Found while wiring the above, both worth recording because neither is visible from the router:
+
+- **`report.list` already received the auth context** and passed it to `getReports`, which used it
+  only for an optional `mine` filter. The identity was accepted and then ignored for scoping — the
+  precise shape [#59](https://github.com/meimodev/palakat/issues/59) went looking for.
+- **`getFiles` had no `churchId` at all** — not on the DTO, not in the `where`. Forcing a `churchId`
+  into the query would have set a field the service ignores. **Setting a field a service does not
+  read is a guard that only looks like one**, so the DTO and the `where` clause were both given one.
+
+Every list service used here was checked for this before being trusted.
 
 ### Needs verification, not fixing (the 29 scoped-arg)
 

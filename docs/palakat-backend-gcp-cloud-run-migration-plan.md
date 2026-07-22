@@ -124,8 +124,20 @@ went to super-admin as national reference data.
 > it.** Callers live in `packages/palakat_shared/lib/core/repositories`, not `apps/*/lib` — a sweep of
 > the app trees reports almost everything uncalled and is wrong.
 
+[#58](https://github.com/meimodev/palakat/issues/58) then church-scoped **15 of the 17 bare reads** —
+lists forced onto the requester's church, gets compared against the fetched row, `account.get` and
+`membership.get` compound (your own row always, someone else's only within your church). The decision
+is two pure functions in `src/realtime/church-scoping.ts`, tested directly, **because the parity table
+cannot see scoping at all** — the count stays at 103 whether this work exists or not. Tests are the
+only evidence it does.
+
+> ⚠️ **`church.list` and `column.list` stay open, deliberately.** They are the member app's
+> onboarding pickers — a user chooses their church and column *before* having a membership, so
+> scoping either to "the requester's church" is circular in exactly the way gating
+> `membership.create` was. Second time in two tickets that the caller decided the answer: **trace the
+> caller before choosing the guard.**
+
 Remaining, split off [#45](https://github.com/meimodev/palakat/issues/45) and blocking it:
-[#58](https://github.com/meimodev/palakat/issues/58) bare reads → service scoping ·
 [#63](https://github.com/meimodev/palakat/issues/63) the four member-app writes → self-scoping ·
 [#60](https://github.com/meimodev/palakat/issues/60) the `ops.approval.finance` widening decision ·
 [#61](https://github.com/meimodev/palakat/issues/61) the `GET /church-request` read leak.
@@ -1649,8 +1661,9 @@ Phase 1.5 [x] approver.update self-check made fail-CLOSED (was skipped when the
               requester was absent; PATCH /approver/:id passed none)
 Phase 1.5 [x] #57 — 22 of 26 bare writes gated; new ops.church.manage;
               123 → 103 actions without a permission check
-Phase 1.5 [ ] the bare reads: #58                                    🔴 SECURITY GATE
-Phase 1.5 [ ] #63 — the 4 member-app writes need self-scoping, not a permission
+Phase 1.5 [x] #58 — 15 of 17 bare reads church-scoped; church.list/column.list
+              stay open (onboarding pickers); church-scoping.ts + tests
+Phase 1.5 [ ] #63 — the 4 member-app writes need self-scoping, not a permission  🔴 SECURITY GATE
 Phase 1.5 [ ] #61 — GET /church-request returns every request, all churches
 Phase 1.5 [ ] #60 — decide the ops.approval.finance widening
               (correct as-is / needs permission / needs church-scoping)

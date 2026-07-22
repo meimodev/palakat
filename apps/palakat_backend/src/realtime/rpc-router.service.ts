@@ -22,6 +22,7 @@ import { ChurchRequestService } from '../church-request/church-request.service';
 import { ColumnService } from '../column/column.service';
 import { resolveRequesterChurchId } from '../church-permission-policy/resolve-requester-church-id';
 import { canJoinRoom, RoomScope } from './room-authorization';
+import { assertRowInChurch, scopeQueryToChurch } from './church-scoping';
 import { DocumentService } from '../document/document.service';
 import { FileService } from '../file/file.service';
 import { FinanceEntryService } from '../finance-entry/finance-entry.service';
@@ -358,6 +359,51 @@ export class RpcRouterService {
   ): Promise<number> {
     // Shared with PermissionsGuard so the two authorization doors cannot drift.
     return resolveRequesterChurchId(this.prisma, userId);
+  }
+
+  /**
+   * Force a list query onto the requester's own church.
+   *
+   * A supplied `churchId` is rejected rather than silently overwritten — a
+   * caller asking for another church's rows is making a request the answer to
+   * which is "no", and quietly returning their own church's rows instead would
+   * hide that. This is `approver.list`'s rule, generalised: it was the only
+   * read that already got this right.
+   *
+   * Every list service this is used with was checked to actually honour
+   * `churchId` in its `where` clause. `getFiles` did not, and was given one —
+   * setting a field the service ignores is a guard that only looks like one.
+   */
+  private async scopeListToRequesterChurch(
+    user: { userId: number },
+    query: any,
+  ): Promise<any> {
+    return scopeQueryToChurch(
+      query ?? {},
+      await this.resolveRequesterChurchIdForUser(user.userId),
+    );
+  }
+
+  /**
+   * Assert a fetched row belongs to the requester's church.
+   *
+   * Takes the row's already-resolved `churchId` rather than the row, because
+   * where the church lives differs per entity — `Activity` reaches it through
+   * `supervisor`, `Approver` through `activity.supervisor`, and `Account` has
+   * no church of its own at all. Passing it explicitly at each call site keeps
+   * that visible instead of hiding it behind a lookup table.
+   *
+   * A non-numeric `churchId` fails closed: an unscopeable row is refused, not
+   * waved through.
+   */
+  private async assertInRequesterChurch(
+    user: { userId: number },
+    churchId: unknown,
+  ): Promise<void> {
+    assertRowInChurch(
+      churchId,
+      await this.resolveRequesterChurchIdForUser(user.userId),
+    );
   }
 
   private async requireOperationPermission(
@@ -1073,12 +1119,14 @@ export class RpcRouterService {
 
       // ===== Account =====
       case 'account.count': {
-        this.requireUserId(client);
-        return this.accountService.count(payload);
+        const user = this.requireUserId(client);
+        return this.accountService.count(
+          await this.scopeListToRequesterChurch(user, payload ?? {}),
+        );
       }
 
       case 'account.get': {
-        this.requireUserId(client);
+        const user = this.requireUserId(client);
         const id = payload.id as string;
         if (!id || typeof id !== 'string') {
           throw new BadRequestException('id is required');
@@ -1088,7 +1136,17 @@ export class RpcRouterService {
           !isNaN(numericId) && numericId.toString() === id
             ? { accountId: numericId }
             : { phone: id };
-        return this.accountService.findOne(identifier);
+        const res: any = await this.accountService.findOne(identifier);
+        // Your own record always — the member app fetches it by account id.
+        // Anyone else's only within your church, which is what palakat_admin
+        // does. An Account has no church of its own; its membership carries it.
+        if (res?.data?.id !== user.userId) {
+          await this.assertInRequesterChurch(
+            user,
+            res?.data?.membership?.churchId,
+          );
+        }
+        return res;
       }
 
       case 'account.list': {
@@ -1231,11 +1289,16 @@ export class RpcRouterService {
       }
 
       case 'membership.get': {
-        this.requireUserId(client);
+        const user = this.requireUserId(client);
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
-        return this.membershipService.findOne(id);
+        const res: any = await this.membershipService.findOne(id);
+        // Own membership always; another member's only within your church.
+        if (res?.data?.accountId !== user.userId) {
+          await this.assertInRequesterChurch(user, res?.data?.churchId);
+        }
+        return res;
       }
 
       case 'membership.update': {
@@ -2481,8 +2544,14 @@ export class RpcRouterService {
       }
 
       case 'report.list': {
-        this.requireUserId(client);
-        const query = this.withPagination(payload) as any;
+        const user = this.requireUserId(client);
+        // getReports already took the auth context, but used it only for the
+        // optional `mine` filter — the identity was accepted and then ignored
+        // for scoping, which reads like a guard and is not one.
+        const query = await this.scopeListToRequesterChurch(
+          user,
+          this.withPagination(payload) as any,
+        );
         const res: any = await this.reportService.getReports(
           query,
           this.getAuthContext(client),
@@ -2498,11 +2567,13 @@ export class RpcRouterService {
       }
 
       case 'report.get': {
-        this.requireUserId(client);
+        const user = this.requireUserId(client);
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
-        return this.reportService.findOne(id);
+        const res: any = await this.reportService.findOne(id);
+        await this.assertInRequesterChurch(user, res?.data?.churchId);
+        return res;
       }
 
       case 'report.create': {
@@ -2560,18 +2631,23 @@ export class RpcRouterService {
 
       // ===== Document =====
       case 'document.list': {
-        this.requireUserId(client);
-        const query = this.withPagination(payload) as any;
+        const user = this.requireUserId(client);
+        const query = await this.scopeListToRequesterChurch(
+          user,
+          this.withPagination(payload) as any,
+        );
         const res: any = await this.documentService.getDocuments(query);
         return this.normalizePaginatedList(query, res);
       }
 
       case 'document.get': {
-        this.requireUserId(client);
+        const user = this.requireUserId(client);
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
-        return this.documentService.findOne(id);
+        const res: any = await this.documentService.findOne(id);
+        await this.assertInRequesterChurch(user, res?.data?.churchId);
+        return res;
       }
 
       case 'document.create': {
@@ -2602,18 +2678,23 @@ export class RpcRouterService {
 
       // ===== File Manager (temporary; WS streaming will replace resolveDownloadUrl/proxy) =====
       case 'file.list': {
-        this.requireUserId(client);
-        const query = this.withPagination(payload) as any;
+        const user = this.requireUserId(client);
+        const query = await this.scopeListToRequesterChurch(
+          user,
+          this.withPagination(payload) as any,
+        );
         const res: any = await this.fileService.getFiles(query);
         return this.normalizePaginatedList(query, res);
       }
 
       case 'file.get': {
-        this.requireUserId(client);
+        const user = this.requireUserId(client);
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
-        return this.fileService.findOne(id);
+        const res: any = await this.fileService.findOne(id);
+        await this.assertInRequesterChurch(user, res?.data?.churchId);
+        return res;
       }
 
       case 'file.finalize': {
@@ -3176,10 +3257,13 @@ export class RpcRouterService {
       }
 
       case 'church.get': {
-        this.requireUserId(client);
+        const user = this.requireUserId(client);
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
+        // A church row's own id is the churchId. church.list stays open — see
+        // the triage: it is the onboarding church picker.
+        await this.assertInRequesterChurch(user, id);
         return this.churchService.findOne(id);
       }
 
@@ -3213,11 +3297,13 @@ export class RpcRouterService {
       }
 
       case 'column.get': {
-        this.requireUserId(client);
+        const user = this.requireUserId(client);
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
-        return this.columnService.findOne(id);
+        const res: any = await this.columnService.findOne(id);
+        await this.assertInRequesterChurch(user, res?.data?.churchId);
+        return res;
       }
 
       case 'column.create': {
@@ -3280,18 +3366,23 @@ export class RpcRouterService {
 
       // ===== Membership Positions =====
       case 'membershipPosition.list': {
-        this.requireUserId(client);
-        const query = this.withPagination(payload) as any;
+        const user = this.requireUserId(client);
+        const query = await this.scopeListToRequesterChurch(
+          user,
+          this.withPagination(payload) as any,
+        );
         const res: any = await this.membershipPositionService.findAll(query);
         return this.normalizePaginatedList(query, res);
       }
 
       case 'membershipPosition.get': {
-        this.requireUserId(client);
+        const user = this.requireUserId(client);
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
-        return this.membershipPositionService.findOne(id);
+        const res: any = await this.membershipPositionService.findOne(id);
+        await this.assertInRequesterChurch(user, res?.data?.churchId);
+        return res;
       }
 
       case 'membershipPosition.create': {
@@ -3388,11 +3479,16 @@ export class RpcRouterService {
       }
 
       case 'approver.get': {
-        this.requireUserId(client);
+        const user = this.requireUserId(client);
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
-        return this.approverService.findOne(id);
+        const res: any = await this.approverService.findOne(id);
+        await this.assertInRequesterChurch(
+          user,
+          res?.data?.activity?.supervisor?.churchId,
+        );
+        return res;
       }
 
       case 'approver.create': {
@@ -3622,11 +3718,17 @@ export class RpcRouterService {
       }
 
       case 'activity.get': {
-        this.requireUserId(client);
+        const user = this.requireUserId(client);
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
-        return this.activitiesService.findOne(id);
+        const res: any = await this.activitiesService.findOne(id);
+        // An Activity reaches its church through its supervisor membership.
+        await this.assertInRequesterChurch(
+          user,
+          res?.data?.supervisor?.churchId,
+        );
+        return res;
       }
 
       case 'activity.create': {

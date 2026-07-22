@@ -19,6 +19,7 @@ export class FileService {
   async getFiles(query: FileListQueryDto) {
     const {
       search,
+      churchId,
       skip,
       take,
       sortBy = 'createdAt',
@@ -26,6 +27,9 @@ export class FileService {
     } = query;
 
     const where: Prisma.FileManagerWhereInput = {};
+    if (typeof churchId === 'number') {
+      where.churchId = churchId;
+    }
     if (search && search.length >= 3) {
       (where as any).OR = [
         { path: { contains: search, mode: 'insensitive' } },
