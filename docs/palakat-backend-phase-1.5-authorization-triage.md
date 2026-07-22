@@ -335,11 +335,34 @@ Twelve controllers never reference the requester at all: `account`, `approval-ru
 `membership`, `verify`, `health`. Most are harmless because the service resolves the requester itself
 and throws when absent — every `resolveRequesterChurchId` in the codebase opens with
 `if (!userId) throw` — so those routes fail closed. The dangerous ones are where enforcement is
-*conditional* on a parameter the controller omits. A sweep for that shape found exactly two:
-`approver.service.update` (fixed here) and `churchRequest.findAll`, whose `requesterId` comes from
-the **query string** rather than the caller, so `GET /church-request` returns every church request
-with its contact name, phone and address. That one is a read leak on a separate door and is tracked
-as its own ticket.
+*conditional* on a parameter the controller omits. A sweep for that shape found exactly one:
+`approver.service.update`, fixed here.
+
+> ### ❌ Retracted — `churchRequest.findAll` was reported as a second instance. It is not.
+>
+> `ChurchRequestService.findAll` does filter on a `requesterId` that comes from the **query string**
+> rather than the caller, and on that basis it was filed as a read leak
+> ([#61](https://github.com/meimodev/palakat/issues/61)). **The claim was wrong.** Every door onto
+> that method is restricted to `SUPER_ADMIN`:
+>
+> | Door | Guard |
+> |---|---|
+> | `GET /church-request` | `@UseGuards(RolesGuard)` + `@Roles('SUPER_ADMIN')` on the handler |
+> | `GET /church-request/:id` | same |
+> | `GET /admin/church-requests` | class-level `@Roles('SUPER_ADMIN')` |
+> | `admin.churchRequest.list` / `.get` | `requireSuperAdminOrClient` |
+>
+> The query-string `requesterId` is a **filter for an administrator**, not a scope for a member. The
+> member-facing routes are `POST /church-request` and `GET /church-request/my-request`, both keyed to
+> `req.user.userId`, and the RPC equivalents `churchRequest.create` / `churchRequest.my` — which
+> bucket 1 already recorded as correct.
+>
+> **How the error was made, since it is the same one this document warns about twice:** the finding
+> came from reading the *service call site* — `churchRequestService.findAll(query)` on line 37 of the
+> controller — without reading the decorators immediately above it. That is precisely the mistake
+> that produced the nine redundant `admin.*` guards earlier in this phase. **A guard the reader skips
+> looks exactly like a guard that is not there**, and the reader here was the same one who wrote that
+> sentence.
 
 Phase 2 deletes all 27 controllers, which closes this door by construction — but only when it lands.
 
