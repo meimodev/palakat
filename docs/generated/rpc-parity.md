@@ -2,7 +2,7 @@
 
 # RPC → REST parity table (generated)
 
-**166 actions**, of which **128 are authenticated but unauthorized**.
+**166 actions**, of which **123 are authenticated but unauthorized**.
 
 The Guard and Permissions columns are transcribed from the AST and are
 authoritative. **Verb and Route are not generated** — they need judgement,
@@ -143,11 +143,11 @@ and a fresh agent read supplies it (ADR-0009).
 | `membershipPosition.create` | `requireUserId` | 🔴 **none** | | |
 | `membershipPosition.update` | `requireUserId` | 🔴 **none** | | |
 | `membershipPosition.delete` | `requireUserId` | 🔴 **none** | | |
-| `approvalRule.list` | `requireUserId` | 🔴 **none** | | |
-| `approvalRule.get` | `requireUserId` | 🔴 **none** | | |
-| `approvalRule.create` | `requireUserId` | 🔴 **none** | | |
-| `approvalRule.update` | `requireUserId` | 🔴 **none** | | |
-| `approvalRule.delete` | `requireUserId` | 🔴 **none** | | |
+| `approvalRule.list` | `requireOperationPermission` | `ops.approvalRule.manage` | | |
+| `approvalRule.get` | `requireOperationPermission` | `ops.approvalRule.manage` | | |
+| `approvalRule.create` | `requireOperationPermission` | `ops.approvalRule.manage` | | |
+| `approvalRule.update` | `requireOperationPermission` | `ops.approvalRule.manage` | | |
+| `approvalRule.delete` | `requireOperationPermission` | `ops.approvalRule.manage` | | |
 | `approver.list` | `requireUserId` | 🔴 **none** | | |
 | `approver.get` | `requireUserId` | 🔴 **none** | | |
 | `approver.create` | `requireUserId` | 🔴 **none** | | |
@@ -185,4 +185,4 @@ and a fresh agent read supplies it (ADR-0009).
 
 **Unchecked** — defined and never checked. Either dead, or the matching actions are under-guarded:
 
-- `ops.approvalRule.manage`
+- _none_

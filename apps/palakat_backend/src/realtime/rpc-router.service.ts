@@ -21,6 +21,7 @@ import { ChurchService } from '../church/church.service';
 import { ChurchRequestService } from '../church-request/church-request.service';
 import { ColumnService } from '../column/column.service';
 import { resolveRequesterChurchId } from '../church-permission-policy/resolve-requester-church-id';
+import { canJoinRoom, RoomScope } from './room-authorization';
 import { DocumentService } from '../document/document.service';
 import { FileService } from '../file/file.service';
 import { FinanceEntryService } from '../finance-entry/finance-entry.service';
@@ -327,6 +328,29 @@ export class RpcRouterService {
       throw new BadRequestException('User does not have a membership');
     }
     return membership.id;
+  }
+
+  /**
+   * The rooms this account is entitled to, expressed as the ids that may appear
+   * in a room name. A user with no membership still gets their own
+   * `account.{id}` and the global room, so sign-up flows keep working.
+   */
+  private async resolveRoomScopeForUser(userId: number): Promise<RoomScope> {
+    const membership = await (this.prisma as any).membership.findUnique({
+      where: { accountId: userId },
+      select: {
+        id: true,
+        churchId: true,
+        columnId: true,
+        column: { select: { churchId: true } },
+      },
+    });
+    return {
+      accountId: userId,
+      membershipId: membership?.id ?? null,
+      churchId: membership?.churchId ?? membership?.column?.churchId ?? null,
+      columnId: membership?.columnId ?? null,
+    };
   }
 
   private async resolveRequesterChurchIdForUser(
@@ -708,10 +732,14 @@ export class RpcRouterService {
       }
 
       case 'sub.join': {
-        this.requireUserId(client);
+        const user = this.requireUserId(client);
         const room = payload.room as string;
         if (!room || room.trim().length === 0) {
           throw new BadRequestException('room is required');
+        }
+        const scope = await this.resolveRoomScopeForUser(user.userId);
+        if (!canJoinRoom(room, scope)) {
+          throw new ForbiddenException('Not entitled to this room');
         }
         client.join(room);
         return { message: 'OK', data: { room } };
@@ -3291,14 +3319,14 @@ export class RpcRouterService {
 
       // ===== Approval Rules =====
       case 'approvalRule.list': {
-        this.requireUserId(client);
+        await this.requireOperationPermission(client, 'ops.approvalRule.manage');
         const query = this.withPagination(payload) as any;
         const res: any = await this.approvalRuleService.getApprovalRules(query);
         return this.normalizePaginatedList(query, res);
       }
 
       case 'approvalRule.get': {
-        this.requireUserId(client);
+        await this.requireOperationPermission(client, 'ops.approvalRule.manage');
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
@@ -3306,13 +3334,13 @@ export class RpcRouterService {
       }
 
       case 'approvalRule.create': {
-        this.requireUserId(client);
+        await this.requireOperationPermission(client, 'ops.approvalRule.manage');
         const dto = validateDto(CreateApprovalRuleDto, payload);
         return this.approvalRuleService.create(dto);
       }
 
       case 'approvalRule.update': {
-        this.requireUserId(client);
+        await this.requireOperationPermission(client, 'ops.approvalRule.manage');
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
@@ -3321,7 +3349,7 @@ export class RpcRouterService {
       }
 
       case 'approvalRule.delete': {
-        this.requireUserId(client);
+        await this.requireOperationPermission(client, 'ops.approvalRule.manage');
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');

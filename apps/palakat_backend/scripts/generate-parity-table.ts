@@ -64,6 +64,14 @@ export interface ParityRow {
   permissions: string[];
   /** True when the case is authenticated but carries no permission check. */
   unguarded: boolean;
+  /**
+   * The case authorizes by hand rather than through a helper — an inline
+   * `role !== 'SUPER_ADMIN'` test, or its own `ForbiddenException`. Phase 1.5's
+   * triage found 11 of these hiding inside the "94 unguarded" figure, including
+   * every `admin.*` action, so a row flagged here is guarded and the helper
+   * column simply cannot say so.
+   */
+  inlineGuard: boolean;
   line: number;
 }
 
@@ -142,6 +150,15 @@ function inspectCaseBody(clause: ts.CaseClause): {
   return { guard, guards: seen, permissions };
 }
 
+/**
+ * Authorization written inline instead of through a helper. The generator reads
+ * helpers, so without this a hand-rolled check reads as no check at all — which
+ * over-reports the hardening work and, worse, invites a "fix" that adds a
+ * redundant guard to code that was already correct.
+ */
+const INLINE_GUARD =
+  /SUPER_ADMIN|ForbiddenException|Insufficient (permission|role)|\brole\s*[!=]==/;
+
 export function generateRows(routerFile = ROUTER): ParityRow[] {
   const sf = parse(routerFile);
   const caseBlock = findDispatchSwitch(sf);
@@ -157,6 +174,13 @@ export function generateRows(routerFile = ROUTER): ParityRow[] {
     if (clause.statements.length === 0) continue;
 
     const { guard, guards, permissions } = inspectCaseBody(clause);
+    const bodyText = clause.statements
+      .map((s) => s.getText())
+      .join('\n')
+      .split('\n')
+      .filter((l) => !/requireUserId\(client\)/.test(l))
+      .join('\n');
+    const inlineGuard = INLINE_GUARD.test(bodyText);
     for (const c of pending) {
       const action = ts.isStringLiteral(c.expression)
         ? c.expression.text
@@ -167,6 +191,7 @@ export function generateRows(routerFile = ROUTER): ParityRow[] {
         guards,
         permissions,
         unguarded: !(PERMISSION_HELPERS as readonly string[]).includes(guard),
+        inlineGuard,
         line: sf.getLineAndCharacterOfPosition(c.getStart()).line + 1,
       });
     }
@@ -200,6 +225,10 @@ export function analyse(rows: ParityRow[], defined: string[]) {
   return {
     total: rows.length,
     unguarded: rows.filter((r) => r.unguarded).length,
+    /** No helper permission AND no inline check — the actual hardening backlog. */
+    trulyUnguarded: rows.filter((r) => r.unguarded && !r.inlineGuard).length,
+    /** Authorized by hand; the helper column cannot show it. */
+    inlineGuarded: rows.filter((r) => r.inlineGuard).length,
     /** Passed in an allow-list and never defined — the clause is dead. */
     phantom: [...referenced].filter((p) => !defined.includes(p)).sort(),
     /** Defined and never checked — either dead, or something is under-guarded. */
