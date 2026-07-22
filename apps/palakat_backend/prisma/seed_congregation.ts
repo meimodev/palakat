@@ -253,8 +253,6 @@ async function cleanDatabase() {
     p.report.deleteMany(),
     p.document.deleteMany(),
     p.fileManager.deleteMany(),
-    p.songPart.deleteMany(),
-    p.song.deleteMany(),
     p.approvalRule.deleteMany(),
     p.membershipPosition.deleteMany(),
     p.membershipInvitation.deleteMany(),
