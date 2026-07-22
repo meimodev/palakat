@@ -53,7 +53,7 @@ without opening the tracker first.
 | **1** Permission layer + generated parity table | ✅ merged | [#55](https://github.com/meimodev/palakat/pull/55) · `f76313d` |
 | **1.5** Authorization hardening | 🔄 **in progress** — triage done, first tranche in review | [#45](https://github.com/meimodev/palakat/issues/45), [#56](https://github.com/meimodev/palakat/pull/56) |
 | **2** REST surface | ⛔ blocked on 1.5 | [#46](https://github.com/meimodev/palakat/issues/46) |
-| **4** FCM push | 🔄 **in progress** — §9.1 seam swapped, content allow-list in; §9.2 (retire Beams) deliberately deferred | [#47](https://github.com/meimodev/palakat/issues/47) |
+| **4** FCM push | 🔄 **in progress** — §9.1 seam swapped, content allow-list in. **Emits on both transports**: nothing calls `subscribeToTopic` until Phase 5, so FCM-only would publish to nobody. §9.2 (retire Beams) deliberately deferred | [#47](https://github.com/meimodev/palakat/issues/47) |
 | **5**–**9**, **3b** | ⛔ blocked, in plan order | [#48](https://github.com/meimodev/palakat/issues/48)–[#53](https://github.com/meimodev/palakat/issues/53) |
 | Daily `pg_dump` (decision 21 — *not* a phase, and overdue) | 🔄 **written, not yet running** — workflow + restore rehearsal merged; needs a bucket, a WIF provider and one connection string. Setup: [`palakat-db-backup.md`](./palakat-db-backup.md) | [#42](https://github.com/meimodev/palakat/issues/42) |
 
@@ -1160,6 +1160,29 @@ drops precisely when the app is killed.
 `auth()` (:52) and `storage()` (:66). **Add `messaging()`** in the same shape, including the existing
 `isConfigured()` no-op fallback so tests and local dev keep working.
 
+> #### 🔴 The gap between Phase 4 and Phase 5 — dual-emit, and why it was nearly missed
+>
+> **Nothing in the repo calls `subscribeToTopic`.** Phase 4 moves the backend to FCM topics; Phase 5's checklist
+> is where "topic subscribe AND unsubscribe" lives. Between those two phases the backend publishes to topics with
+> **no subscribers at all**, and the first cut of §9.1 dropped the socket emit — so live updates in
+> `palakat_admin` would have died the next time anyone tagged `deploy-backend*`. Seven files there consume
+> `realtimeEventProvider`, and it has served production since 2026-03-20 (decision 21).
+>
+> **Nothing would have failed.** The backend publishes happily to an empty topic; the only symptom is an admin
+> screen that quietly stops updating. Same shape as Phase 1.5's "guards that only look like guards" and as the
+> backup work's silent-failure modes: **the success path and the dead path are byte-identical unless something
+> checks that a message reached somebody.**
+>
+> So `emitToRoom` now emits on **both** transports, and `realtime-emitter.service.spec.ts` pins that. The socket
+> half carries the full payload and the push half stays stripped — no new exposure, because the socket path is
+> authenticated and room-authorized (#56), which is the posture these payloads already had. **Delete the socket
+> half in Phase 5.**
+>
+> **And a correction to §10.1 while we are here:** `firebase_messaging` appears in **`apps/palakat` only**.
+> `palakat_admin` — the one client actually deployed — is Flutter **web** running the Pusher Beams *web* SDK, so
+> "subscribe to topics" is not one job repeated three times. Web needs FCM JS with a service worker and a VAPID
+> key, which is a different piece of work from mobile topic subscription and is not currently costed anywhere.
+>
 > #### ✅ Shipped — with the stripping pulled out of the seam
 >
 > One difference from the sketch above, and it is the difference that matters. The sketch computes the
@@ -1791,6 +1814,11 @@ Phase 4   [x] FirebaseAdminService.messaging() added
 Phase 5   [ ] THREE clients: 22 shared repos + palakat_admin (2) +
               palakat_super_admin (5). ~180 call sites, not 138
           [ ] topic subscribe AND unsubscribe on logout / church switch
+              NOT one job x3: firebase_messaging is in apps/palakat ONLY.
+              palakat_admin is Flutter WEB on the Beams web SDK — needs FCM JS
+              + service worker + VAPID key. Not costed anywhere yet.
+          [ ] THEN delete the dual-emit socket half in emitToRoom, and only
+              then. Until clients subscribe, FCM-only = publishing to nobody.
           [ ] change signal → invalidate ONLY; refetch on next view, never on arrival
           [ ] NO -breaking gate — never released, nothing to drain (decision 15)
           [ ] socket code deleted once your own dev builds stop connecting
