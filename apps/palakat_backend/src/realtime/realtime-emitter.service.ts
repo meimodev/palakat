@@ -56,9 +56,8 @@ export class RealtimeEmitterService {
   }
 
   /**
-   * Phase 4. Same signature, different transport: this publishes to an FCM
-   * topic instead of a socket room. Room names were already valid topic names
-   * (§2.3), so nothing is renamed.
+   * Phase 4. Publishes to an FCM topic — and, for now, still to the socket room.
+   * Room names were already valid topic names (§2.3), so nothing is renamed.
    *
    * `payload` is deliberately still `unknown` and deliberately still accepted
    * from callers that pass entity rows — `push-payload.ts` strips it down to
@@ -67,6 +66,26 @@ export class RealtimeEmitterService {
    *
    * Never rejects. A push is a hint that a read is due; a failed hint must not
    * roll back the write that earned it.
+   *
+   * ## Why both transports, for now
+   *
+   * **Nothing in the repo calls `subscribeToTopic`.** Publishing to FCM topics
+   * that have no subscribers delivers to nobody, and the first version of this
+   * method dropped the socket emit — which would have silently killed live
+   * updates in `palakat_admin` the next time anyone tagged a backend deploy.
+   * Seven files there consume `realtimeEventProvider`, and it has been serving
+   * production since 2026-03-20 (decision 21).
+   *
+   * The plan splits Phase 4 (backend transport) from Phase 5 (client subscribe),
+   * which leaves a window where the backend has moved and the clients have not.
+   * Dual-emit is what makes that window survivable. It adds no exposure: the
+   * socket path is authenticated and room-authorized (#56), which is the posture
+   * these payloads already had.
+   *
+   * **Delete the socket half in Phase 5**, once the clients subscribe to topics —
+   * and note that `palakat_admin` is Flutter *web* with no `firebase_messaging`
+   * dependency at all, so "subscribe to topics" is not one job across the
+   * clients (§10.1).
    */
   emitToRoom(room: string, event: string, payload: unknown): void {
     if (!room || room.trim().length === 0) return;
@@ -79,24 +98,29 @@ export class RealtimeEmitterService {
           `Failed to publish ${event} to topic ${room}: ${error?.message}`,
         );
       });
+
+    // Transitional — see above. Delete with Phase 5.
+    this.emitToSocketRoom(room, event, payload);
   }
 
   /**
-   * Report-job progress stays on the socket, and is the one category that does.
+   * The socket transport, with the full payload. Two callers, for two reasons.
    *
+   * **`report-queue.service.ts` calls it directly, and permanently for now.**
    * FCM data messages are best-effort — Android Doze and iOS background
    * throttling batch and delay them. That is the right trade for "something
    * changed, read it when you next look", and the wrong one for a progress bar
-   * a user is actively watching (§9.3).
+   * a user is actively watching (§9.3). Those payloads also carry whole
+   * `ReportJob` and `Report` rows, which the push allow-list would strip to an
+   * id anyway. §9.3 replaces them with 2-second polling in Phase 5.
    *
-   * These payloads also carry whole `ReportJob` and `Report` rows, which the
-   * push allow-list would strip to an id anyway.
+   * **`emitToRoom` calls it transitionally**, because nothing subscribes to FCM
+   * topics yet — see the note there.
    *
-   * §9.3 replaces this with 2-second polling of the report-job endpoint in
-   * Phase 5. Delete this method — and the socket gateway with it — once that
-   * lands; it is the last thing holding the socket open.
+   * When both of those land, this method and the socket gateway go together.
+   * It is the last thing holding the socket open.
    */
-  emitProgressToRoom(room: string, event: string, payload: unknown): void {
+  emitToSocketRoom(room: string, event: string, payload: unknown): void {
     if (!room || room.trim().length === 0) return;
 
     const server = this.gateway.server;

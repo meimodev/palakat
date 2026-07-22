@@ -139,13 +139,9 @@ export class ReportQueueService implements OnModuleInit {
     this.logger.log(`Report job ${job.id} created for user ${userId}`);
 
     try {
-      this.realtime.emitProgressToRoom(
-        `account.${userId}`,
-        'reportJob.created',
-        {
-          data: job,
-        },
-      );
+      this.realtime.emitToSocketRoom(`account.${userId}`, 'reportJob.created', {
+        data: job,
+      });
     } catch {}
 
     return {
@@ -366,7 +362,7 @@ export class ReportQueueService implements OnModuleInit {
     this.lastErrorMessage = undefined;
 
     try {
-      this.realtime.emitProgressToRoom(
+      this.realtime.emitToSocketRoom(
         `account.${job.requestedById}`,
         'reportJob.updated',
         {
@@ -423,7 +419,7 @@ export class ReportQueueService implements OnModuleInit {
       });
 
       try {
-        this.realtime.emitProgressToRoom(
+        this.realtime.emitToSocketRoom(
           `account.${job.requestedById}`,
           'reportJob.updated',
           {
@@ -436,7 +432,7 @@ export class ReportQueueService implements OnModuleInit {
             },
           },
         );
-        this.realtime.emitProgressToRoom(
+        this.realtime.emitToSocketRoom(
           `account.${job.requestedById}`,
           'report.ready',
           {
@@ -469,7 +465,7 @@ export class ReportQueueService implements OnModuleInit {
       this.lastErrorMessage = error.message || 'Unknown error';
 
       try {
-        this.realtime.emitProgressToRoom(
+        this.realtime.emitToSocketRoom(
           `account.${job.requestedById}`,
           'reportJob.updated',
           {

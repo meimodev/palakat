@@ -44,7 +44,7 @@ describe('ReportQueueService', () => {
 
   const mockRealtime: any = {
     emitToRoom: jest.fn(),
-    emitProgressToRoom: jest.fn(),
+    emitToSocketRoom: jest.fn(),
   };
 
   beforeEach(async () => {
