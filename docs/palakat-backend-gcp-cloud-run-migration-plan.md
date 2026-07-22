@@ -1,6 +1,6 @@
 # `palakat_backend` → GCP Cloud Run: Migration Plan (HTTP-only + FCM)
 
-**Date:** 2026-07-21 · **Revised:** 2026-07-22 (approved — #26 answered, see §0.0)
+**Date:** 2026-07-21 · **Revised:** 2026-07-22 (approved — #26 answered, see §0.0; scope grilled — see §0.05)
 **Companion:** [`palakat-backend-gcp-cloud-run-migration-analysis.md`](./palakat-backend-gcp-cloud-run-migration-analysis.md) — the *whether*, now historical. This document is the *how*, and it is the single live plan for the backend migration.
 **Supersedes for deployment:** the current EC2 + GitHub Actions deployment, once Phase 8 completes.
 
@@ -27,13 +27,54 @@ three platforms rather than one. Consolidation was the driver, and it never arri
 > `palakat_admin` is live, so the daily `pg_dump` starts now.
 
 Effort framing retained from the grilling session of 2026-07-21 — see
-[ADR-0002](./adr/0002-effort-ceiling-and-meaning-of-no.md):
+[ADR-0002](./adr/0002-effort-ceiling-and-meaning-of-no.md). **It is now historical**: it judged the
+Supabase port, and that fork is closed. The live bar is §0.05's.
 
 | | |
 |---|---|
-| **Effort ceiling for the alternative** | ~12–15 weeks solo FTE for the Supabase port. Beyond it, #26 is a no. |
+| **Effort ceiling for the alternative** | ~12–15 weeks solo FTE for the Supabase port. Beyond it, #26 is a no. **Expired with the fork.** |
 | **What "no" commits to** | This plan in full — socket deleted, REST surface built, Cloud Run. Not "stay as we are". |
-| **Marginal cost of "no"** | **8–12 weeks** beyond genuinely shared work (decision 23 — the earlier 3–5 omitted the client work). So the ceiling is now roughly a **1× bar, not 3×**, and a "no" is materially more likely. |
+| **Marginal cost of "no"** | **8–12 weeks** beyond genuinely shared work (decision 23 — the earlier 3–5 omitted the client work). Re-derived to **~10–14 weeks** by §0.05. |
+
+---
+
+## 0.05 Scope grilling, 2026-07-22 — the freeze, the bar, and eight scope answers
+
+A grilling session after approval walked the plan's open branches. Eleven decisions, recorded as
+decisions 26–36 in §0 and as three ADRs. Four of them change the shape of the work, so they are
+summarised here rather than left to be discovered in the decision table.
+
+**1. `palakat` does not launch until this plan completes** — [ADR-0007](./adr/0007-release-freeze-and-the-14-week-bar.md).
+Every aggressive choice here rests on being unreleased. Launching mid-plan reinstates §10.2's hard
+gate, which depends on update-gate tooling that does not exist.
+
+**2. The bar on this plan is 14 weeks**, with a named descope ladder — same ADR. ADR-0002's ceiling
+judged the *other* branch and expired when the fork closed; with the freeze in place, **this plan's
+duration is the launch delay**, and that had no bar at all.
+
+> Descope ladder, in order: **`palakat_super_admin`** (33 call sites, never deployed, nothing depends
+> on it), then **the 31 uncalled routes** (decision 27 put them in; they are the cheapest thing to
+> take back out).
+
+**3. The 94 unguarded actions are fixed on the RPC path *before* Phase 2** —
+[ADR-0008](./adr/0008-authorization-hardening-precedes-transport.md). §6 said port verbatim; ADR-0006
+said fix them. Both could not hold. Decisive: under verbatim parity **94 of 166 routes are not
+permission-bearing**, so Phase 2's exit gate has nothing to assert against 57% of the surface and
+goes green while covering the minority.
+
+**4. The parity table is generated and CI-asserted, not human-reviewed** —
+[ADR-0009](./adr/0009-parity-table-is-generated-not-reviewed.md). The gate said *"reviewed by someone
+who did not write it"*; there is one developer. The security-critical columns are transcription, and
+a program transcribes without drift.
+
+Two answers deliberately run against a recommendation, recorded so they are not re-argued as
+oversights:
+
+- **Decision 27** ports all 166 actions including the 31 nothing calls, against the parity table's own
+  *"delete candidates, not port candidates."* Uniform process was preferred over per-action judgement
+  on the phase that can ship a privilege escalation. They are second on the descope ladder.
+- **Decision 35** lets the EC2 guide's deletion stand rather than keeping it until Phase 8. §13's
+  rollback ladder carries the retrieval command instead.
 
 > ⚠️ **"Pre-launch" is not uniform, and this plan leans on it heavily.** `palakat` (mobile) has never been
 > released — zero `v*` tags. `palakat_super_admin` has never been deployed — no workflow runs. But
@@ -103,6 +144,17 @@ re-argue them.
 | 23 | **The no-go branch costs 8–12 weeks, not 4–5** | [ADR-0002](./adr/0002-effort-ceiling-and-meaning-of-no.md) named the Flutter work fork-specific and then omitted it from the total. Ceiling stays 12–15 weeks as a **calendar** limit — so it is now a **~1× bar, not 3×**, and a "no" is materially more likely. |
 | 24 | **`/internal/*` runs as a second, IAM-protected Cloud Run service** | Same image, `--no-allow-unauthenticated`. Replaces hand-verifying `aud`+`email` on a public service. [ADR-0005](./adr/0005-internal-endpoints-separate-service.md). |
 | 25 | **`BIPRA` and `Column` enter the glossary** | Both appear in FCM topic names (`church.{id}_bipra.{BIPRA}`, `church.{id}_column.{id}`) and neither is decodable from the repo. `Column` collides with "table column" in documents full of DDL. |
+| 26 | **The full plan stands, Phases 0→9** | The fork closing did not reopen the scope. ADR-0002 defined "no" as this plan in full, and that commitment survives the fork it was written for. |
+| 27 | **All 166 actions are ported, including the 31 nothing calls** | Uniform process over per-action judgement, extending decision 17. Runs against the parity table's own "delete candidates, not port candidates" — accepted knowingly, and they sit second on §0.05's descope ladder. |
+| 28 | **`palakat` does not launch until this plan completes** | [ADR-0007](./adr/0007-release-freeze-and-the-14-week-bar.md). Decision 15 holds, R7 stays retired, R7b stays dormant. Launch is downstream of Phase 9. |
+| 29 | **14-week bar on this plan, with a named descope ladder** | [ADR-0007](./adr/0007-release-freeze-and-the-14-week-bar.md). ADR-0002's ceiling judged the other branch and expired with the fork; the freeze makes this plan's duration the launch delay. |
+| 30 | **Rate limiting on the public auth surface, in Phase 2** | Five unauthenticated password endpoints go on a public URL. `ThrottlerModule` global, `@Throttle` tightened on `/auth/*`. Credential stuffing is also a billing event under `min-instances=0`. |
+| 31 | **The 94 unguarded actions are fixed on RPC before Phase 2** | [ADR-0008](./adr/0008-authorization-hardening-precedes-transport.md). New Phase 1.5. Without it Phase 2's security gate covers 72 of 166 routes and reports green. |
+| 32 | **The parity table is generated from the AST and asserted in CI** | [ADR-0009](./adr/0009-parity-table-is-generated-not-reviewed.md). Replaces a review gate a solo dev cannot satisfy. A fresh agent reads the judgement columns the generator cannot check. |
+| 33 | **Phase 3 splits — 3a on EC2, 3b at migration** | Every mechanism in Phase 3 is GCP, and the plan placed it on EC2. Only the birthday timezone fix pays off on EC2, and it needs no GCP at all. |
+| 34 | **The bottom-up request estimate is dropped** | Decision 20 asked for one; decisions 12 and 14 made it gate nothing, and it would model a client layer Phase 5 rewrites. Instrument from day one instead — R20's own mitigation. |
+| 35 | **The EC2 deployment guide stays deleted** | Against the recommendation to keep it until Phase 8. §13's rollback ladder carries the `git show` retrieval command so the runbook is findable without knowing it existed. |
+| 36 | **`approver.delete` and the three `churchLetterhead.*` routes are built** | Four client calls hit `default: throw Unknown action` today. `ChurchLetterheadService` exists and is unreachable; per-church letterheads are a wanted feature. An approver who cannot be removed is an authorization problem. |
 
 ### 0.1 What it costs
 
@@ -369,29 +421,38 @@ conflating them is what hid this.
 
 ```
 ON EC2 — no infrastructure cost change
-Phase 0   Correctness fixes           job-claim race, font, pool bound        ~1–2 days
-Phase 1   Permission layer            guard + decorator, built from nothing   ~1 week
-Phase 2   REST surface                register 24 modules, 131→166 routes     ~3–4 weeks  🔴 SECURITY
-Phase 3   Event-driven jobs           kill the 10s poller                     ~2 days     🔴 PRICE
+Phase 0   Correctness fixes           reaper, atomic claim, font, pool bound  ✅ done (#35)
+Phase 3a  Birthday timezone           @Cron timeZone + handler in WITA        ~1 hour
+Phase 1   Permission layer            guard + GENERATED parity table          ~1 week
+Phase 1.5 Authorization hardening     triage + fix the 94, on the RPC path    ~1–2 weeks  🔴 SECURITY
+Phase 2   REST surface                delete 27 controllers, write 166 + 4    ~3–4 weeks  🔴 SECURITY
 Phase 4   FCM push                    reimplement the emitter; retire Beams   ~2–3 days
 Phase 5   Flutter clients (×3)        ~180 call sites → REST, topics          ~3–6 weeks
 ─────────────────────────────────────────────────────────────────────────────────────────
 THEN MIGRATE — nothing pins an instance any more
 Phase 6   Containerize + scaffolding  Dockerfile, registry, secrets, WIF      ~2 days
+Phase 3b  Event-driven jobs           Cloud Tasks, Scheduler, /internal svc   ~2 days     🔴 PRICE
 Phase 7   Deploy HTTP-only            scale-to-zero config + CI/CD            ~1,5 days
 Phase 8   Cutover                     DNS, soak, decommission EC2             ~0,5 day
 Phase 9   Cost tuning                 measure, then right-size                ~1–2 days
 ```
 
-Backend **5–7 weeks**, dominated by Phase 2 (now delete-all-and-rewrite). Clients **3–6 weeks** across *three*
-apps, overlapping from Phase 1's parity table onward. Migration itself is **under a week** — it is the smallest
-part of this project.
+Backend **6–9 weeks**, dominated by Phase 2 (delete-all-and-rewrite) with Phase 1.5 ahead of it. Clients
+**3–6 weeks** across *three* apps, overlapping from Phase 1's parity table onward. Migration itself is **under a
+week** — it is the smallest part of this project.
 
-**Marginal cost of the no-go branch: 8–12 weeks** (Phase 2 + Phase 5 + Phases 7–9; Phase 6 is shared per #27).
-Decision 23 corrects the 4–5 weeks quoted in [ADR-0002](./adr/0002-effort-ceiling-and-meaning-of-no.md), which
-named the client work fork-specific and then left it out of the sum.
+**Total: ~10–14 weeks, and the bar is 14** (decision 29, [ADR-0007](./adr/0007-release-freeze-and-the-14-week-bar.md)).
+That re-derives decision 23's 8–12 by adding Phase 1.5, the parity-table generator, throttling and four new
+routes. ADR-0002's 12–15 week ceiling judged the *Supabase* branch and expired with the fork; do not read the two
+numbers as a comparison.
 
-**Phases 2 and 3 are the ones that can hurt you.** Phase 2 ships a vulnerability if rushed; Phase 3 deletes the
+**Two phases moved, and why.** Phase 3 was listed under `ON EC2` while every mechanism in it — Cloud Tasks,
+Cloud Scheduler, an IAM-protected second service — is GCP, which Phase 6 builds three phases later. It splits
+(decision 33): **3a** is the birthday timezone fix, a live defect needing no GCP, done now; **3b** is everything
+else, after Phase 6. Nothing is lost by waiting — the 10-second poller is only a problem on request-based
+billing, so it costs nothing on EC2.
+
+**Phases 1.5, 2 and 3b are the ones that can hurt you.** 1.5 and 2 ship a vulnerability if rushed; 3b deletes the
 price case if done with a poller.
 
 ---
@@ -559,6 +620,61 @@ evidence of anything — they were written for the path that has never served a 
 
 Produce the table before writing controllers. It is the review artefact for Phase 2 and the spec for Phase 5.
 
+**Generate it, do not write it** (decision 32, [ADR-0009](./adr/0009-parity-table-is-generated-not-reviewed.md)).
+The Guard and Permissions columns are transcription from source, and a program transcribes without drift. Two
+pieces:
+
+1. A generator that walks `rpc-router.service.ts` and emits, per `case`, the guard helper used and the exact
+   allow-list passed to `requireAnyOperationPermission` / `requireOperationPermission`.
+2. A CI check asserting every registered route's `@RequirePermissions` set equals its RPC case's allow-list.
+   Mismatch fails the build.
+
+This exists because the gate it replaces — *"reviewed by someone who did not write it"* — cannot be satisfied by
+a solo dev, and because Phase 1.5 rewrites 94 of those rows. A hand-maintained table is stale the moment that
+lands; a generated one is not. The Verb/Route columns and Phase 1.5's triage buckets still need judgement — get
+that from a fresh agent read, which is the closest available thing to the reviewer the gate asked for.
+
+The generator is a **build dependency of Phase 2**. It must exist before controllers are written, not alongside
+them.
+
+---
+
+## 6.5 Phase 1.5 — fix the 94 unguarded actions, on the RPC path 🔴
+
+**1–2 weeks. New — decision 31, [ADR-0008](./adr/0008-authorization-hardening-precedes-transport.md).**
+
+The parity table found **94 of 166 actions authenticated but unauthorized**: any signed-in user of any church can
+invoke them. §6 above says port the permission model verbatim; ADR-0006 says fix the 94. Both cannot hold, and
+the tie-breaker is Phase 2's own exit gate — *"under-privileged-token test green on every permission-bearing
+route."* Under verbatim parity **94 of 166 routes are not permission-bearing**, so the gate asserts nothing
+against 57% of the surface and reports green having covered the minority.
+
+So the redesign finishes *before* the transport migration rather than during or after it. On the RPC path there
+is one surface, a live reference implementation, existing tests, and no interaction with route registration,
+guards, envelopes or validation changing at the same time.
+
+**Triage first — roughly a day — into three buckets:**
+
+| Bucket | Example | Work |
+|---|---|---|
+| Correct as authenticated-only | `location.list` — reference data | none; record why |
+| Needs a permission | church-scoped writes | the real work |
+| Needs church-scoping in the service, not a permission | own-records reads | service layer |
+
+Only buckets 2 and 3 cost anything. The output populates the parity table's Permissions column, which is what
+makes Phase 2 pure transcription.
+
+**Fold in the two dead-permission findings** rather than tracking them separately:
+
+- `ops.approval.finance` is passed in the allow-lists at `rpc-router.service.ts:2075` and `:2096` and is **never
+  defined** — the policy service has only `ops.approval.finance.override`. Those clauses are dead.
+- `ops.approvalRule.manage` is defined in `ALL_PERMISSIONS` and **never checked**. Either it is dead, or the
+  approval-rule actions are under-guarded. The triage decides which.
+
+> ⚠️ **This changes RPC behaviour while three clients still speak RPC.** A call that worked yesterday returns 403
+> today. Under decision 28's release freeze that costs dev-build friction and nothing else — which is exactly
+> why it is cheap now and stops being cheap at launch.
+
 ---
 
 ## 7. Phase 2 — the REST surface 🔴 the security critical path
@@ -583,6 +699,49 @@ Then, per module in dependency order:
 5. **Verify the response envelope** against the RPC path — pagination shape, error mapping (`mapErrorToRpc` has an
    HTTP equivalent in `PrismaExceptionFilter`), and status codes.
 6. **Test.** Every permission-bearing route gets a test asserting an under-privileged token receives 403.
+   After Phase 1.5 that is every route bar the deliberately public ones — which is the point of doing 1.5 first.
+
+**All 166 actions are ported, including the 31 no client calls** (decision 27). The parity table recommends the
+opposite — *"delete candidates, not port candidates — a guarded route for an action nothing invokes is attack
+surface with no user-visible function"* — and that recommendation was heard and declined: uniform process beats
+per-action judgement on the phase that can ship a privilege escalation. The 31 are second on §0.05's descope
+ladder if the 14-week bar comes under pressure.
+
+**Four routes have no RPC counterpart to port** (decision 36). Four client calls hit the router's
+`default: throw Unknown action` today, so they fail at runtime on the socket:
+
+| Client call | Client site | Server today |
+|---|---|---|
+| `approver.delete` | `approver_repository.dart:127` | list/get/create/update/override exist — no delete |
+| `churchLetterhead.getMe` | `church_letterhead_repository.dart:28` | no `churchLetterhead.*` case at all |
+| `churchLetterhead.updateMe` | `church_letterhead_repository.dart:47` | ″ |
+| `churchLetterhead.setLogo` | `church_letterhead_repository.dart:116` | ″ |
+
+`ChurchLetterheadService` exists in the backend and is **never referenced by the router**, so per-church
+letterhead customisation is written and unreachable. Build all four. `approver.delete` is not a nicety: a church
+that can add an approver but never remove one keeps approval rights with a member who has left the role.
+
+### 7.1 Rate limiting — new in this phase
+
+Decision 30. This plan's security story is entirely **authorization**; authentication abuse is unaddressed
+anywhere in it. That was survivable behind a Socket.IO handshake. Phase 2 puts **five unauthenticated password
+endpoints on a public URL** with predictable paths:
+
+| Route | |
+|---|---|
+| `POST /auth/sign-in` | identifier + password → user token. No client calls it. |
+| `POST /auth/admin-sign-in` | identifier + password → admin token. No client calls it. |
+| `POST /auth/super-admin-sign-in` | phone + password → super-admin token. **Is** called. |
+| `POST /auth/refresh` | refresh token → new tokens. No client calls it. |
+| `POST /auth/signing-client` | static `APP_CLIENT_USERNAME` / `APP_CLIENT_PASSWORD` → client token |
+
+`ThrottlerModule` registered globally with a loose default, `@Throttle` tightened over the `/auth/*` cluster.
+Nothing custom, no Redis — per-instance counters are weak at `max-instances=5` and strictly better than nothing,
+and Cloud Armor can harden it later without rework.
+
+Note the second-order effect: with `min-instances=0` and request billing, a credential-stuffing run is also a
+**billing event** — it scales instances and Supabase egress. R17 prices a runaway `max-instances` as an accident;
+this is the deliberate version.
 
 Two actions are **not** mechanical ports:
 
@@ -611,8 +770,13 @@ Two actions are **not** mechanical ports:
 
 **Gate — do not proceed to Phase 5 without all of:**
 
-- [ ] Parity table reviewed by someone who did not write it.
-- [ ] Under-privileged-token test green on every permission-bearing route.
+- [ ] Parity table **generated** from source, and the CI permission-diff check green (decision 32). The old
+      "reviewed by someone who did not write it" is unsatisfiable solo — see [ADR-0009](./adr/0009-parity-table-is-generated-not-reviewed.md).
+- [ ] Fresh-agent read of the Verb/Route columns and Phase 1.5's triage buckets — the judgement the generator
+      cannot make.
+- [ ] Under-privileged-token test green on every permission-bearing route. **Phase 1.5 closed, so this now
+      covers the surface rather than 72 of 166 routes.**
+- [ ] `/auth/*` throttled (§7.1).
 - [ ] No route registered that lacks either an explicit permission or a documented reason to be public.
 - [ ] The old RPC path still runs unchanged — it is the reference implementation until Phase 5 completes.
 
@@ -621,6 +785,22 @@ Two actions are **not** mechanical ports:
 ## 8. Phase 3 — event-driven jobs 🔴 the price-critical path
 
 **Get this wrong and the entire price case evaporates.**
+
+> **This phase splits (decision 33).** Earlier drafts listed it under `ON EC2`, but every mechanism below is
+> GCP — Cloud Tasks, Cloud Scheduler, an IAM-protected second Cloud Run service — and Phase 6 builds that
+> scaffolding three phases later. It could not run where it was placed.
+>
+> | | | When |
+> |---|---|---|
+> | **3a** | Birthday timezone: `@Cron('0 7 * * *', { timeZone: 'Asia/Makassar' })` **and** handler date-matching in WITA | **Now, on EC2.** ~1 hour |
+> | **3b** | §8.1 Cloud Tasks, §8.2 Scheduler, §8.3 `/internal` service | After Phase 6 |
+>
+> 3a is a live defect — the job fires at the wrong local hour today, on the box currently serving. It needs no
+> GCP at all. 3b has no value before the container exists: the 10-second poller is only a problem on
+> request-based billing, so it costs nothing on EC2 and stays until migration.
+>
+> ⚠️ §8.2's note that the daily birthday job keeps a Free Supabase project from pausing (R3b) is moot on EC2.
+> **Verify the Scheduler job actually fires** after migration before relying on it for that.
 
 `report-queue.service.ts:268` runs `@Cron(CronExpression.EVERY_10_SECONDS)`. Two problems:
 
@@ -1169,6 +1349,7 @@ GitHub secret is not a revoked key.
 |---|---|---|
 | Bad revision | `gcloud run services update-traffic --to-revisions=PREVIOUS=100` | seconds |
 | Cloud Run broadly wrong | DNS back to EC2 (why it stays warm a week) | ~60 s at TTL 60 |
+| ↳ *need the EC2 runbook?* | It was deleted on consolidation (decision 35). `git show 1ee2a96^:docs/palakat-backend-aws-ec2-cicd-deployment-guide.md` | seconds |
 | Bad migration | Restore the `pg_dump` from §12.2. **There is no `migrate deploy` rollback.** | minutes |
 
 ---
@@ -1259,55 +1440,68 @@ already exists, so it is cheap to add later.
 | R17 | Runaway `max-instances` | Low | Rp 10 juta surprise | Explicit ceiling + budget alerts | 7, 9 |
 | R18 | **Validation drift** — REST rejects payloads the socket accepted | **High without the table's request-shape column** | 400s discovered per-repository during Phase 5, while transport is also changing | Decision 18: request shape sourced from the client and carried in the parity table; `ValidationPipe` stays strict deliberately | 1, 2, 5 |
 | R19 | **Unfinalized uploads** accumulate in the bucket | Medium | Storage cost; `FileManager` and storage disagree | [ADR-0004](./adr/0004-upload-trust-boundary.md): row written only after reading real GCS metadata; daily orphan sweep becomes load-bearing | 2, 3 |
-| R20 | **Request model is a socket-era guess** | **Certain — it is already known wrong** | The Free→Pro crossover (§0.1) is priced against a number derived from hours-connected | Decision 20: bottom-up estimate from screen flows; 24 juta relabelled a stress case; instrument day one | 0, 9 |
+| R20 | **Request model is a socket-era guess** | **Certain — it is already known wrong** | The Free→Pro crossover (§0.1) is priced against a number derived from hours-connected | ~~Bottom-up estimate from screen flows~~ **dropped, decision 34** — it gates nothing (decision 12's trigger is an event, `max-instances` is a cost ceiling) and would model a client layer Phase 5 rewrites. 24 juta relabelled a stress case; **instrument day one** and let measurement replace both numbers | 9 |
 | R21 | **Two admin clients missing from the Phase 5 estimate** | **Certain — already found** | ~42 call sites and two apps priced at zero; `palakat_admin` is live, so it breaks visibly | Decision 22: three clients, ~180 call sites, Phase 5 re-sized to 3–6 weeks | 5 |
 | R22 | **Ceiling and no-go cost were misaligned** | **Certain — already found** | #26 would have been judged against a 3× bar that is really ~1× | Decision 23: no-go is 8–12 weeks; ADR-0002 amended in place rather than silently corrected | — |
-| R23 | `/internal/*` reachable on the public service | Low after decision 24 | Full authorization bypass | Second IAM-protected service ([ADR-0005](./adr/0005-internal-endpoints-separate-service.md)) **plus** an explicit test that the public service does not serve the prefix | 3, 7 |
+| R23 | `/internal/*` reachable on the public service | Low after decision 24 | Full authorization bypass | Second IAM-protected service ([ADR-0005](./adr/0005-internal-endpoints-separate-service.md)) **plus** an explicit test that the public service does not serve the prefix | 3b, 7 |
+| R24 | **Phase 2's security gate passes while covering 57% of the surface** | **Certain under verbatim parity** | 94 auth-only routes registered; the under-privileged-token test has nothing to assert on them and reports green | Decision 31 / [ADR-0008](./adr/0008-authorization-hardening-precedes-transport.md): Phase 1.5 fixes the 94 on RPC **before** Phase 2, so the gate covers the surface | 1.5, 2 |
+| R25 | **Credential stuffing against the public auth routes** | Medium once Phase 2 registers them | Account compromise, **and a billing event** — it scales instances and Supabase egress under `min-instances=0` | Decision 30: `ThrottlerModule` global, `@Throttle` on `/auth/*` (§7.1). Cloud Armor later if it is not enough | 2 |
+| R26 | **Phase 1.5 is an unmeasured block on the critical path** | Medium | 1–2 weeks is a triage-informed guess; the ~1½–2½ weeks it adds is what moved 8–12 to ~10–14 | Triage the 94 into three buckets first (~1 day) — only two buckets cost anything. If the triage says otherwise, the 14-week bar and its descope ladder are the control | 1.5 |
+| R27 | **Launch imposed before the plan completes** | Low under decision 28, **not zero** | Decisions 12, 15, 16 all reverse at once; §10.2's gate returns and its tooling is unbuilt | [ADR-0007](./adr/0007-release-freeze-and-the-14-week-bar.md) makes the freeze explicit rather than assumed. If it is overridden, the update gate is built **first**, and the ADR is void | 5 |
 
 ---
 
 ## 16. Checklist
 
 ```
-BEFORE #26 — permitted during the freeze (§0.0)
-          [ ] stale-job reaper (the live defect) + reclaim test
-          [ ] atomic job claim FOR UPDATE SKIP LOCKED + concurrency test
-          [ ] NotoSans-Regular.ttf committed to src/assets/fonts/ + startup assertion
-          [ ] stale lockfiles, vercel.json, dead emitToSocketId removed
-          [ ] PARITY TABLE: 166 actions → route + verb + permissions + REQUEST SHAPE
-          [ ] bottom-up request estimate from screen flows (replaces the 24 juta guess)
-          [ ] Phase 6 scaffolding, if #27's worker justifies it early
+DONE — shipped in #35
+          [x] stale-job reaper (the live defect) + reclaim test
+          [x] atomic job claim FOR UPDATE SKIP LOCKED + concurrency test
+          [x] NotoSans-Regular.ttf committed to src/assets/fonts/ + startup assertion
+          [x] stale lockfiles, vercel.json, dead emitToSocketId removed
 
-GATED ON #26 — everything below
+RELEASE FREEZE IN FORCE until Phase 9 closes — decision 28, ADR-0007
+BAR: 14 weeks. Descope ladder: palakat_super_admin, then the 31 uncalled routes
+
 ON EC2 — no cost change
-Phase 0   [ ] atomic job claim + stale-job reaper + concurrency test
-          [ ] font in image + startup assertion
-          [ ] DATABASE_POOL_MAX; e2e green against the transaction pooler
-          [ ] stale lockfiles, vercel.json, dead emitToSocketId removed
+Phase 0   [ ] DATABASE_POOL_MAX; e2e green against the transaction pooler
           [ ] Supabase Free limits checked; usage alerts set
+          [ ] daily pg_dump → GCS starting NOW — palakat_admin is already live
 
-Phase 1   [ ] PermissionsGuard + @RequirePermissions, ported verbatim from RPC
+Phase 3a  [ ] birthday @Cron gains { timeZone: 'Asia/Makassar' }        ~1 hour
+          [ ] handler date-matching moved to Asia/Makassar too
+          [ ] announce it — notifications move from ~15:00 to 07:00 local
+
+Phase 1   [ ] PARITY TABLE GENERATOR: walks rpc-router.service.ts, emits guard
+              + exact allow-list per case                    (ADR-0009)
+          [ ] CI CHECK: @RequirePermissions per route == RPC allow-list
+          [ ] PermissionsGuard + @RequirePermissions, ported verbatim from RPC
           [ ] churchId resolution attached to the request
           [ ] PaginationInterceptor overlap checked before adding anything
-          [ ] PARITY TABLE: 166 actions → route + verb + permissions + request
-              shape (sourced from the CLIENT, not the untested DTOs), reviewed
+          [ ] request-shape column sourced from the CLIENT, not the untested DTOs
+
+Phase 1.5 [ ] triage the 94 auth-only actions into 3 buckets   🔴 SECURITY GATE
+              (correct as-is / needs permission / needs church-scoping)
+          [ ] fix buckets 2 and 3 ON THE RPC PATH, before any controller exists
+          [ ] ops.approval.finance — referenced, never defined: remove or define
+          [ ] ops.approvalRule.manage — defined, never checked: dead, or the
+              approval-rule actions are under-guarded. Decide which
+          [ ] regenerate the table; CI check green
 
 Phase 2   [ ] all 27 existing controller files DELETED first     🔴 SECURITY GATE
-          [ ] every route written from the table; 25 modules registered
+          [ ] every route written from the GENERATED table; 25 modules registered
+          [ ] all 166 actions ported, incl. the 31 nothing calls (decision 27)
+          [ ] 4 NEW routes: approver.delete + churchLetterhead getMe/updateMe/
+              setLogo — client calls that throw Unknown action today
+          [ ] ThrottlerModule global; @Throttle tightened on /auth/*
           [ ] every route guarded per the table
           [ ] ValidationPipe left strict — REST is deliberately stricter than RPC
           [ ] response envelope byte-identical to RPC
           [ ] under-privileged-token test green on every route
+          [ ] fresh-agent read of Verb/Route + the 1.5 triage buckets
           [ ] upload → signed URL with length+type bound at signing
           [ ] upload → finalize endpoint verifies REAL GCS metadata before
               writing FileManager; orphan sweep covers unfinalized objects
-
-Phase 3   [ ] report queue → Cloud Tasks (NOT a Scheduler poll)     🔴 PRICE GATE
-          [ ] birthday → Scheduler --time-zone=Asia/Makassar
-          [ ] handler date-matching moved to Asia/Makassar too
-          [ ] /internal/* on a SEPARATE service, --no-allow-unauthenticated
-          [ ] test: /internal/* NOT reachable on the public service
-          [ ] daily orphan sweep
 
 Phase 4   [ ] FirebaseAdminService.messaging() added
           [ ] emitToRoom → FCM, NO ENTITY CONTENT in any push
@@ -1331,6 +1525,13 @@ Phase 6   [ ] Dockerfile (context = repo root); .dockerignore excludes src/gener
           [ ] FIREBASE_PRIVATE_KEY verified byte-identical
           [ ] WIF with --attribute-condition
 
+Phase 3b  [ ] report queue → Cloud Tasks (NOT a Scheduler poll)     🔴 PRICE GATE
+          [ ] birthday → Scheduler --time-zone=Asia/Makassar, replacing 3a's @Cron
+          [ ] VERIFY it fires — R3b's anti-idle-pause depends on it
+          [ ] /internal/* on a SEPARATE service, --no-allow-unauthenticated
+          [ ] test: /internal/* NOT reachable on the public service
+          [ ] daily orphan sweep
+
 Phase 7   [ ] min=0, max=5, request-based, timeout 300, no affinity, no Redis
           [ ] palakat-internal deployed from the SAME image, IAM-bound
           [ ] pg_dump → GCS step precedes every migration
@@ -1345,9 +1546,12 @@ Phase 8   [ ] DNS TTL 60s, 24h ahead; cut over midweek
 Phase 9   [ ] USD budget alert; IDR budget +15% headroom
           [ ] request count monitored as the primary price metric
           [ ] Supabase egress monitored as the SECOND price metric — 5 GB Free ceiling
-          [ ] daily pg_dump → GCS starting NOW — palakat_admin is already live
           [ ] Pro provisioned when the first real congregation onboards
           [ ] split report worker IF the bill or an OOM justifies it
+          [ ] NO bottom-up request estimate — measure instead (decision 34)
+
+THEN, AND ONLY THEN
+          [ ] lift the release freeze; palakat 1.0.0 ships          (ADR-0007)
 ```
 
 ---
@@ -1356,15 +1560,16 @@ Phase 9   [ ] USD budget alert; IDR budget +15% headroom
 
 | Question | Answer |
 |---|---|
-| Is this approved? | **No.** It is the no-go branch of [#26](https://github.com/meimodev/palakat/issues/26), which is open. Implementing it answers #26 by accident. |
-| What would make it approved? | The Supabase port measuring beyond ~12–15 weeks solo at [#25](https://github.com/meimodev/palakat/issues/25). [ADR-0002](./adr/0002-effort-ceiling-and-meaning-of-no.md). |
-| What makes all of this cheap to get wrong? | **The app has never been released** — `1.0.0+1`, zero tags, no update gate anywhere. No users to strand, no data to lose, no rollback to rehearse under pressure. That is the enabling condition for every aggressive choice here, and it expires at launch. |
-| Is "no" free? | **No — 3–5 weeks marginal.** Phase 2 and the Flutter repositories are fork-specific, not shared work, whatever the handoff plan says. |
+| Is this approved? | **Yes.** [#26](https://github.com/meimodev/palakat/issues/26) answered no-go on removing NestJS; [ADR-0006](./adr/0006-no-go-on-removing-nestjs.md) ratified it 2026-07-22. Scope grilled and confirmed the same day — §0.05. |
+| How long, and what if it runs over? | **~10–14 weeks, bar at 14** ([ADR-0007](./adr/0007-release-freeze-and-the-14-week-bar.md)). Over the bar, shed `palakat_super_admin` first, then the 31 uncalled routes. ADR-0002's 12–15 weeks judged the *Supabase* branch and expired with the fork — not a comparison. |
+| What makes all of this cheap to get wrong? | **The app has never been released** — `1.0.0+1`, zero tags, no update gate anywhere. No users to strand, no data to lose, no rollback to rehearse under pressure. That is the enabling condition for every aggressive choice here, and it expires at launch — which is why launch is frozen behind Phase 9 (decision 28). |
+| What does the freeze cost? | The plan's duration **is** the launch delay. That is the trade accepted in ADR-0007, and the 14-week bar is the control on it. |
 | Cheaper than today? | **Only while small.** At launch scale Rp 0 vs Rp 378 ribu. At 4.000 users, Rp 625–689 ribu vs Rp 378 ribu — Supabase Free cannot carry 24 juta cross-cloud queries, and Pro alone costs more than the EC2 box. Redis and Pusher Beams are still deleted either way. |
-| Biggest cost in the project? | **Phase 2**, 3–4 weeks. The REST surface is 131 unwired, unguarded, untested routes — not the "already exists" the analysis claimed. |
-| Most dangerous mistake? | Registering routes in Phase 2 without correct permissions. The vulnerability is **created by** this work, not inherited. |
+| Biggest cost in the project? | **Phase 2**, 3–4 weeks, now preceded by **Phase 1.5**, 1–2 weeks. The REST surface is 131 unwired, unguarded, untested routes — not the "already exists" the analysis claimed. |
+| Most dangerous mistake? | Registering routes in Phase 2 without correct permissions. The vulnerability is **created by** this work, not inherited. Its quiet twin: **letting the gate pass while it covers 57% of the surface** — which is what Phase 1.5 exists to prevent ([ADR-0008](./adr/0008-authorization-hardening-precedes-transport.md)). |
 | Most expensive mistake? | Replacing the 10-second poller with a **Scheduler poll instead of Cloud Tasks** — the instance never idles and the price case evaporates. |
 | Most easily missed? | Putting **content in FCM payloads**. Topics are client-subscribable; socket rooms were not. Its twin: over-correcting to data-only everywhere, which **deletes tray notifications** for backgrounded apps — content-free, not notification-free ([ADR-0003](./adr/0003-push-splits-by-category.md)). |
 | Why migrate last? | The socket on Cloud Run costs Rp 875.790/bulan. The refactor is free on EC2. |
 | What is the real floor? | **Requests, not CPU** — and they now bill twice, as Cloud Run requests *and* Supabase egress. Client caching plus invalidate-only change signals (§9.4) is the main price lever after migration, and the thing keeping the Free→Pro crossover distant. |
 | Biggest non-cost win | Deleting `rpc-router.service.ts`: one transport, one permission model, one place authorization lives. |
+| What survives the migration itself? | The **CI permission-diff check** ([ADR-0009](./adr/0009-parity-table-is-generated-not-reviewed.md)). When the RPC router is deleted the diff loses its left-hand side and degrades to asserting every registered route carries an explicit permission or a recorded exemption. Keep that half — it is the only artefact here that keeps paying after Phase 9. |

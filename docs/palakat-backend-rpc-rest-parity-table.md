@@ -2,7 +2,14 @@
 
 **Generated** 2026-07-22 from `apps/palakat_backend/src/realtime/rpc-router.service.ts` at `afb6007`, cross-referenced against every `.rpc(` call site in `packages/palakat_shared`, `apps/palakat`, `apps/palakat_admin` and `apps/palakat_super_admin`.
 
-**Status: draft — needs independent review.** Phase 2's security gate requires review by someone who did not write this. The **Guard** and **Permissions** columns are transcribed from source and are the ones that matter; **Verb** and **Route** are mechanical proposals and are the least trustworthy part of this document.
+> **Status: superseded as a gate, retained as a finding.** [ADR-0009](./adr/0009-parity-table-is-generated-not-reviewed.md)
+> replaces the *"reviewed by someone who did not write it"* gate — unsatisfiable with one developer — with a
+> generator plus a CI check that asserts each route's `@RequirePermissions` set equals its RPC allow-list.
+> This hand-written table is also **about to go stale**: [ADR-0008](./adr/0008-authorization-hardening-precedes-transport.md)
+> rewrites 94 of its rows in Phase 1.5. Treat the table below as **the findings that motivated both ADRs**, and
+> the generated output as the artefact Phase 2 is written from.
+
+The **Guard** and **Permissions** columns are transcribed from source and are the ones that matter; **Verb** and **Route** are mechanical proposals and are the least trustworthy part of this document. The **Findings** section is prose reasoning, not transcription — a generator cannot reproduce it, so it stays.
 
 ---
 
