@@ -772,7 +772,7 @@ Scale-to-zero and multi-instance both become real, so single-process assumptions
 
 **All of §5 ships during the freeze** — these are defects on either branch. See §0.0.
 
-### 0.1 🔴 Stale-job reaper (live) + atomic job claim (latent)
+### 0.1 ✅ Stale-job reaper (live) + atomic job claim (latent) — shipped in [#35](https://github.com/meimodev/palakat/pull/35)
 
 Two separate defects, ranked correctly per §1.3.
 
@@ -806,7 +806,7 @@ Keep `isProcessing` as a *local* limiter.
 **Verification:** integration test running two `processQueue()` calls concurrently against one PENDING row,
 asserting exactly one render. Plus a test that a `PROCESSING` row older than the threshold is reclaimed.
 
-### 0.2 🔴 Ship the PDF font
+### 0.2 ✅ Ship the PDF font — shipped in [#35](https://github.com/meimodev/palakat/pull/35)
 
 `report-renderer.ts:7–14` probes six paths; the first five are host absolute paths present on Ubuntu EC2 and on
 **no** slim container base. `resolveUnicodeFontPath()` then returns `undefined` and PDF rendering silently falls
@@ -858,7 +858,7 @@ Route the service through **Supabase's transaction pooler (port 6543, `?pgbounce
 statements — **run the full e2e suite against the pooler URL before cutover**. Migrations keep the **direct**
 connection on 5432; PgBouncer transaction mode cannot run DDL reliably.
 
-### 0.4 🟡 Repo hygiene
+### 0.4 ✅ Repo hygiene — shipped in [#35](https://github.com/meimodev/palakat/pull/35)
 
 - `apps/palakat_backend/package-lock.json` and `apps/palakat_backend/pnpm-lock.yaml` are stale; the root
   `pnpm-lock.yaml` is authoritative. Delete both or the Docker build picks the wrong one.
@@ -970,7 +970,7 @@ them.
 
 ---
 
-## 6.5 Phase 1.5 — fix the 94 unguarded actions, on the RPC path 🔴
+## 6.5 Phase 1.5 — fix the 94 unguarded actions, on the RPC path 🔄 code complete
 
 **1–2 weeks. New — decision 31, [ADR-0008](./adr/0008-authorization-hardening-precedes-transport.md).**
 
