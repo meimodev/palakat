@@ -1,8 +1,8 @@
 # `palakat_backend` → GCP Cloud Run: Migration Plan (HTTP-only + FCM)
 
 **Date:** 2026-07-21 · **Revised:** 2026-07-22 (approved — #26 answered, see §0.0)
-**Companion:** [`palakat-backend-gcp-cloud-run-migration-analysis.md`](./palakat-backend-gcp-cloud-run-migration-analysis.md) — the *whether*. This document is the *how*.
-**Supersedes for deployment:** [`palakat-backend-aws-ec2-cicd-deployment-guide.md`](./palakat-backend-aws-ec2-cicd-deployment-guide.md) once Phase 8 completes.
+**Companion:** [`palakat-backend-gcp-cloud-run-migration-analysis.md`](./palakat-backend-gcp-cloud-run-migration-analysis.md) — the *whether*, now historical. This document is the *how*, and it is the single live plan for the backend migration.
+**Supersedes for deployment:** the current EC2 + GitHub Actions deployment, once Phase 8 completes.
 
 ---
 
@@ -11,8 +11,11 @@
 **[#26](https://github.com/meimodev/palakat/issues/26) is answered: no-go on removing NestJS.** See
 [ADR-0006](./adr/0006-no-go-on-removing-nestjs.md), 2026-07-22. This document is no longer gated.
 
-Per [`palakat-backend-migration-plan.md`](./palakat-backend-migration-plan.md) there were two migrations
-on the table, and Cloud Run was the **no-go** branch. It is now simply the plan.
+There were two migrations on the table — a Supabase port that removed NestJS, and this one, which keeps
+it — and Cloud Run was the **no-go** branch. It is now simply the plan. The handoff document that held both
+branches open (`palakat-backend-migration-plan.md`) was deleted on consolidation; its verdict lives in
+ADR-0006, its effort framing in [ADR-0002](./adr/0002-effort-ceiling-and-meaning-of-no.md), and its measured
+baseline in §0.3 below.
 
 The decisive finding was that a "go" would not have removed GCP: report generation cannot run on Edge
 Functions ([#17](https://github.com/meimodev/palakat/issues/17)) and the surviving Node worker lands on
@@ -83,7 +86,7 @@ re-argue them.
 | 6 | **`min-instances=0`, cold starts accepted** | Cheapest possible. 2–5 s on the first request after idle. Reversible. |
 | 7 | ~~**Hard `-breaking` update gate immediately**~~ | **Superseded by decision 15.** The app has never been released and no update-gate mechanism exists. |
 | 8 | **Birthday cron pinned to `Asia/Makassar`**, date-matching fixed | Behaviour change: notifications move from ~15:00 to 07:00 local. |
-| 9 | **`Asia/Makassar` is app-wide, not per-church** | GMIM is a single Minahasa synod; no church sits in another Indonesian zone. `Church` gains no timezone column. Glossary term: **Church-local day** (`CONTEXT.md`). This resolves the WIB/WITA disagreement between this plan and [`palakat-backend-migration-plan.md`](./palakat-backend-migration-plan.md) in favour of WITA. |
+| 9 | **`Asia/Makassar` is app-wide, not per-church** | GMIM is a single Minahasa synod; no church sits in another Indonesian zone. `Church` gains no timezone column. Glossary term: **Church-local day** (`CONTEXT.md`). The superseded handoff plan said WIB; this resolves that disagreement in favour of WITA. |
 | 10 | **Under a "go", identity comes from the token and scope from the row** | Not a Cloud Run decision, but it constrains Phase 1: the guard's behaviour is the thing RLS would have to reproduce. [ADR-0001](./adr/0001-identity-from-jwt-scope-from-row.md). |
 | 11 | **There is no single cost number — two scales and a crossover** | Free tier covers launch scale and nothing like the modelled load. §0.1 and §14.1 are priced twice. **At target scale this migration is not a saving.** |
 | 12 | **Free serves production until the first real congregation, then Pro** | Trigger is an onboarding event, not a usage threshold. Requires a *daily* `pg_dump` to GCS, not only the pre-migration one. |
@@ -159,11 +162,11 @@ requests/bulan**, or **≈800–1.600 users** at this plan's own 6.000 requests/
 
 Decision 14 is what keeps the crossover where it is. See §9.4.
 
-> **Reconciling with [`palakat-backend-migration-plan.md`](./palakat-backend-migration-plan.md).** That document
-> quotes Rp 383.912/bulan and states plainly that Cloud Run *does not* beat EC2 on cost. Both figures are right.
-> It prices Cloud Run **with the socket still attached**; this plan prices it **with the socket deleted**. The
-> whole saving is decision 1. If the socket survives for any reason, revert to the other document's number and
-> the cost case for migrating disappears with it.
+> **Reconciling with the older figure of Rp 383.912/bulan**, quoted by the now-deleted handoff plan and by
+> [the analysis](./palakat-backend-gcp-cloud-run-migration-analysis.md), alongside the plain statement that
+> Cloud Run *does not* beat EC2 on cost. Both figures are right. Those price Cloud Run **with the socket still
+> attached**; this plan prices it **with the socket deleted**. The whole saving is decision 1. If the socket
+> survives for any reason, revert to that number and the cost case for migrating disappears with it.
 
 ### 0.2 Sequencing — the socket work happens on EC2
 
@@ -176,8 +179,8 @@ Phases 6–8  ── migrate the finished thing ────►  Cloud Run, scal
 Phase 9     ── tune ──────────────────────────►  price floor
 ```
 
-**"On EC2" does not mean "shared with the Supabase branch."** The handoff plan's "nothing gets wasted"
-framing is wrong in two places, and the correction is what sets the ceiling in [ADR-0002](./adr/0002-effort-ceiling-and-meaning-of-no.md):
+**"On EC2" does not mean "shared with the Supabase branch."** The deleted handoff plan's "nothing gets wasted"
+framing was wrong in two places, and the correction is what sets the ceiling in [ADR-0002](./adr/0002-effort-ceiling-and-meaning-of-no.md):
 
 | Phase | Shared with a "go"? | |
 |---|---|---|
@@ -189,6 +192,30 @@ framing is wrong in two places, and the correction is what sets the ceiling in [
 | 4 FCM | ✅ yes | Pusher Beams retires either way. |
 | 5 client repositories | ❌ no | Different URLs, payload shapes and auth headers per branch. Move them **once**, after #26 — two `-breaking` gates is two support events. |
 | 6 scaffolding | ✅ yes | Per [#27](https://github.com/meimodev/palakat/issues/27), the report worker lands on Cloud Run under either verdict. |
+
+### 0.3 Baseline — measured, do not re-derive
+
+Measured 2026-07-21 against map [#14](https://github.com/meimodev/palakat/issues/14), and carried here from the
+deleted handoff plan. The effort figures in §0.0 and the phase estimates below rest on these numbers. **Re-measure
+only if you suspect drift** — do not spend a session recounting them.
+
+| | |
+|---|---|
+| Backend | 26k LOC TS (excl. generated), 30 modules, **27 controllers, 132 route decorators** |
+| Second API surface | `src/realtime/rpc-router.service.ts` — **4,009 lines, 166 socket RPC actions**, incl. 25 MB chunked upload over WS |
+| Data | 40 Prisma models, ~700-line schema, **85 `$transaction`/raw-SQL sites across 29 files** |
+| Authorisation | own JWT (`aud` = user/admin/super-admin), bcrypt, Firebase phone verify, `RolesGuard`, **`church-permission-policy.service.ts` 499 lines**, plus per-service checks |
+| Scheduled | birthday notifications `0 7 * * *`; report queue poll every 10 s |
+| Heavy compute | `report.service.ts` **2,221 lines**, pdfkit + exceljs |
+| Health | `health.service.ts` 436 lines, secret-guarded controller |
+| External | Firebase Storage (files) + Firebase Auth (phone), Pusher Beams (push), Redis (socket.io adapter), Supabase (Postgres — **already**) |
+| Flutter data layer | **~21 retrofit repositories** (43 files incl. `.g.dart`) in `packages/palakat_shared/lib/core/repositories/`, `socket_service.dart` **786 lines**, `http_service.dart` 393 lines |
+| Tests | 22 `*.spec.ts` + fast-check property suite in `test/property/` |
+
+> ⚠️ Phase 0 has since landed ([#35](https://github.com/meimodev/palakat/pull/35)): stale-job reaper, atomic
+> `SKIP LOCKED` claim, bundled PDF font, dead-code deletions. Line counts in the table predate it. The
+> structural figures — 166 actions, 132 decorators, 40 models, ~21 repositories — are unchanged and are the
+> ones the phases are sized against.
 
 ---
 

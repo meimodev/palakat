@@ -8,7 +8,7 @@ At every scale modeled (5 to 200 churches), a full Supabase port comes out **rou
 
 ## 1. Current stack cost, itemized
 
-Grounded in `docs/palakat-backend-aws-ec2-cicd-deployment-guide.md` and `apps/palakat_backend/package.json`. Where the guide is silent, the assumption is stated inline.
+Grounded in the EC2 + GitHub Actions deployment and `apps/palakat_backend/package.json`. Where the deployment is silent, the assumption is stated inline.
 
 | Item | Monthly cost | Basis / assumption |
 |---|---|---|
@@ -120,4 +120,4 @@ There is no production telemetry to pin this down pre-launch. Before treating "c
 - Firebase phone-number verification pricing (Indonesia tiers): https://firebase.google.com/docs/phone-number-verification/pricing (read 2026-07-21)
 - Pusher Beams pricing: https://pusher.com/beams/pricing/ (read 2026-07-21)
 - Vercel pricing: https://vercel.com/pricing (read 2026-07-21)
-- Repo: `docs/palakat-backend-aws-ec2-cicd-deployment-guide.md`, `apps/palakat_backend/package.json`, `apps/palakat_backend/prisma/schema.prisma`, `apps/palakat_backend/src/realtime/rpc-router.service.ts` (RPC action surface inspected directly, 2026-07-21)
+- Repo: the EC2 deployment workflow, `apps/palakat_backend/package.json`, `apps/palakat_backend/prisma/schema.prisma`, `apps/palakat_backend/src/realtime/rpc-router.service.ts` (RPC action surface inspected directly, 2026-07-21)
