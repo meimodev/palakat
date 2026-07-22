@@ -55,7 +55,7 @@ without opening the tracker first.
 | **2** REST surface | ⛔ blocked on 1.5 | [#46](https://github.com/meimodev/palakat/issues/46) |
 | **4** FCM push | 🔄 **in progress** — §9.1 seam swapped, content allow-list in; §9.2 (retire Beams) deliberately deferred | [#47](https://github.com/meimodev/palakat/issues/47) |
 | **5**–**9**, **3b** | ⛔ blocked, in plan order | [#48](https://github.com/meimodev/palakat/issues/48)–[#53](https://github.com/meimodev/palakat/issues/53) |
-| Daily `pg_dump` (decision 21 — *not* a phase, and overdue) | 🟢 **unstarted, needs GCS credentials** | [#42](https://github.com/meimodev/palakat/issues/42) |
+| Daily `pg_dump` (decision 21 — *not* a phase, and overdue) | 🔄 **written, not yet running** — workflow + restore rehearsal merged; needs a bucket, a WIF provider and one connection string. Setup: [`palakat-db-backup.md`](./palakat-db-backup.md) | [#42](https://github.com/meimodev/palakat/issues/42) |
 
 ### What Phase 1 built, that Phase 2 depends on
 
@@ -1715,7 +1715,14 @@ BAR: 14 weeks. Descope ladder: palakat_super_admin, then the 31 uncalled routes
 ON EC2 — no cost change
 Phase 0   [ ] DATABASE_POOL_MAX; e2e green against the transaction pooler
           [ ] Supabase Free limits checked; usage alerts set
-          [ ] daily pg_dump → GCS starting NOW — palakat_admin is already live
+          [~] daily pg_dump → GCS starting NOW — palakat_admin is already live
+              workflow + restore rehearsal written (docs/palakat-db-backup.md).
+              [ ] bucket + lifecycle + WIF provider created
+              [ ] DATABASE_URL_SESSION set — the SESSION pooler, not the direct
+                  URL (IPv6-only, runners are v4) and not 6543 (txn mode breaks
+                  pg_dump). Both are on 5432; the hostname is the tell.
+              [ ] restore-rehearsal.sh has PASSED once. UNTIL THEN THERE IS NO
+                  BACKUP — only an untested hypothesis about one.
 
 Phase 3a  [ ] birthday @Cron gains { timeZone: 'Asia/Makassar' }        ~1 hour
           [ ] handler date-matching moved to Asia/Makassar too
