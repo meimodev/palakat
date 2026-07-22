@@ -1,5 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { FirebaseAdminService } from '../firebase/firebase-admin.service';
 import { RealtimeGateway } from './realtime.gateway';
+import { buildPushMessage } from './push-payload';
 
 type ActivityRealtimeEventName =
   | 'activity.created'
@@ -22,7 +24,10 @@ export type ApprovalLifecycleEventName =
 export class RealtimeEmitterService {
   private readonly logger = new Logger(RealtimeEmitterService.name);
 
-  constructor(private readonly gateway: RealtimeGateway) {}
+  constructor(
+    private readonly gateway: RealtimeGateway,
+    private readonly firebase: FirebaseAdminService,
+  ) {}
 
   private normalizeUpdatedAt(value: unknown): string | undefined {
     if (value instanceof Date) {
@@ -50,7 +55,48 @@ export class RealtimeEmitterService {
     return Array.from(ids);
   }
 
-  emitToRoom(room: string, event: string, payload: unknown) {
+  /**
+   * Phase 4. Same signature, different transport: this publishes to an FCM
+   * topic instead of a socket room. Room names were already valid topic names
+   * (§2.3), so nothing is renamed.
+   *
+   * `payload` is deliberately still `unknown` and deliberately still accepted
+   * from callers that pass entity rows — `push-payload.ts` strips it down to
+   * the allow-list. Narrowing the type here instead would push the callers to
+   * pre-strip, which is thirteen places to get it right rather than one.
+   *
+   * Never rejects. A push is a hint that a read is due; a failed hint must not
+   * roll back the write that earned it.
+   */
+  emitToRoom(room: string, event: string, payload: unknown): void {
+    if (!room || room.trim().length === 0) return;
+
+    void this.firebase
+      .messaging()
+      .send(buildPushMessage(room, event, payload))
+      .catch((error) => {
+        this.logger.error(
+          `Failed to publish ${event} to topic ${room}: ${error?.message}`,
+        );
+      });
+  }
+
+  /**
+   * Report-job progress stays on the socket, and is the one category that does.
+   *
+   * FCM data messages are best-effort — Android Doze and iOS background
+   * throttling batch and delay them. That is the right trade for "something
+   * changed, read it when you next look", and the wrong one for a progress bar
+   * a user is actively watching (§9.3).
+   *
+   * These payloads also carry whole `ReportJob` and `Report` rows, which the
+   * push allow-list would strip to an id anyway.
+   *
+   * §9.3 replaces this with 2-second polling of the report-job endpoint in
+   * Phase 5. Delete this method — and the socket gateway with it — once that
+   * lands; it is the last thing holding the socket open.
+   */
+  emitProgressToRoom(room: string, event: string, payload: unknown): void {
     if (!room || room.trim().length === 0) return;
 
     const server = this.gateway.server;

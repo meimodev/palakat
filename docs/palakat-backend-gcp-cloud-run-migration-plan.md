@@ -53,7 +53,7 @@ without opening the tracker first.
 | **1** Permission layer + generated parity table | ✅ merged | [#55](https://github.com/meimodev/palakat/pull/55) · `f76313d` |
 | **1.5** Authorization hardening | 🔄 **in progress** — triage done, first tranche in review | [#45](https://github.com/meimodev/palakat/issues/45), [#56](https://github.com/meimodev/palakat/pull/56) |
 | **2** REST surface | ⛔ blocked on 1.5 | [#46](https://github.com/meimodev/palakat/issues/46) |
-| **4** FCM push | 🟢 takeable now — independent of Phase 2 | [#47](https://github.com/meimodev/palakat/issues/47) |
+| **4** FCM push | 🔄 **in progress** — §9.1 seam swapped, content allow-list in; §9.2 (retire Beams) deliberately deferred | [#47](https://github.com/meimodev/palakat/issues/47) |
 | **5**–**9**, **3b** | ⛔ blocked, in plan order | [#48](https://github.com/meimodev/palakat/issues/48)–[#53](https://github.com/meimodev/palakat/issues/53) |
 | Daily `pg_dump` (decision 21 — *not* a phase, and overdue) | 🟢 **unstarted, needs GCS credentials** | [#42](https://github.com/meimodev/palakat/issues/42) |
 
@@ -466,10 +466,36 @@ Six findings that shrink the FCM half of the work.
 `emitFinanceEvent` (:138), `emitApprovalLifecycleEvent` (:179) — all funnel into it. **The transport swap is a
 one-file reimplementation.** No caller changes.
 
+> #### ✅ Confirmed on execution, with one correction to "no caller changes"
+>
+> The seam is real and it held: eleven direct call sites plus the three helpers, and the helpers do
+> funnel through `emitToRoom`, so the transport swap was indeed one file.
+>
+> **But "no caller changes" contradicts §9.3**, which routes `reportJob.*` progress to polling rather
+> than to FCM. Those five sites in `report-queue.service.ts` cannot ride the new transport — best-effort
+> delivery is wrong for a progress bar someone is watching — so they moved to a second method,
+> `emitProgressToRoom`, which keeps the old socket behaviour verbatim. Nine of the fourteen changed
+> transport with no caller edit; five changed method name and kept their transport. §9.3 was always
+> going to force that; §2.1 just did not carry the qualifier.
+>
+> Naming those five explicitly (rather than branching on the event name inside `emitToRoom`) is what
+> makes them greppable when Phase 5's polling lands and the socket gateway can finally be deleted.
+
 ### 2.2 Payloads are already FCM-shaped
 
 Every helper builds `{ data: { ... } }` — literally the FCM data-message envelope. Only adaptation: **FCM data
 values must all be strings.**
+
+> #### ⚠️ Correction — true of the three helpers, false of the direct call sites
+>
+> `permissions.updated` (`rpc-router.service.ts:3246`) emits `{ churchId, policyUpdatedAt }` and
+> `songDb.updated` (:4064) emits `{ fileId, updatedAt, sizeInKB }` — bare objects with no `data`
+> wrapper at all. So `extractEntityId` probes `payload.data ?? payload` rather than assuming the
+> envelope.
+>
+> This is the same shape of error as §2.1's: **a claim checked against the three helpers and then
+> generalised to all fourteen sites.** The seam abstraction is real, which is exactly what makes it
+> easy to describe the callers by what the seam does rather than by what they pass.
 
 ### 2.3 Room names are already valid FCM topics
 
@@ -488,9 +514,18 @@ notification permission flow **already work in production**.
 `report.service.ts:2133` uploads via `firebaseAdmin.bucket()`. Reports are **not** served off local disk, so the
 tmpfs exposure is narrower than feared and report downloads never consume Cloud Run egress.
 
-### 2.6 `emitToSocketId` has zero callers
+### 2.6 ❌ Retracted — `emitToSocketId` does not exist
 
-`realtime-emitter.service.ts:64`. Dead code — delete it.
+**This section said `emitToSocketId` was dead code at `realtime-emitter.service.ts:64` and should be deleted.
+There is no such method.** It was deleted in Phase 0 ([#35](https://github.com/meimodev/palakat/pull/35)),
+before this plan's Phase 4 section was written; the finding survived into the plan and then into ticket
+[#47](https://github.com/meimodev/palakat/issues/47) as a work item that had already been done.
+
+Harmless here — the cost was one grep. But it is worth naming the mechanism, because the plan is now long
+enough for it to recur: **a finding recorded against a line number ages badly.** `:64` was true when
+observed and became someone else's code four merges later. The findings that have survived this document's
+revisions are the ones that name a symbol and a reason; the ones that have needed retracting cited a
+position.
 
 ---
 
@@ -587,7 +622,7 @@ Phase 3a  Birthday timezone           @Cron timeZone + handler in WITA        �
 Phase 1   Permission layer            guard + GENERATED parity table          ✅ done (#55)
 Phase 1.5 Authorization hardening     triage done; 56 bare actions to fix     🔄 in progress 🔴 SECURITY
 Phase 2   REST surface                delete 27 controllers, write 166 + 4    ~3–4 weeks  🔴 SECURITY
-Phase 4   FCM push                    reimplement the emitter; retire Beams   ~2–3 days   🟢 takeable now
+Phase 4   FCM push                    emitter swapped; Beams retire deferred  🔄 in progress
 Phase 5   Flutter clients (×3)        ~180 call sites → REST, topics          ~3–6 weeks
 ─────────────────────────────────────────────────────────────────────────────────────────
 THEN MIGRATE — nothing pins an instance any more
@@ -1124,6 +1159,30 @@ drops precisely when the app is killed.
 `FirebaseAdminService` (`firebase-admin.service.ts:36`) already calls `initializeApp` with `cert(...)` and exposes
 `auth()` (:52) and `storage()` (:66). **Add `messaging()`** in the same shape, including the existing
 `isConfigured()` no-op fallback so tests and local dev keep working.
+
+> #### ✅ Shipped — with the stripping pulled out of the seam
+>
+> One difference from the sketch above, and it is the difference that matters. The sketch computes the
+> message inline in `emitToRoom`, which puts the security rule inside a method that also does I/O and
+> therefore needs Firebase mocked to test. **The allow-list moved to `src/realtime/push-payload.ts`** as a
+> pure function, matching `room-authorization.ts` and `church-scoping.ts` — the pattern Phase 1.5 settled
+> on for exactly this reason: *the decision is the part worth testing, and it should be testable without
+> standing anything up.*
+>
+> `push-payload.spec.ts` asserts the rule the way it actually has to hold — not "the message has these
+> fields" but **"no value from the payload appears anywhere in the serialized message except the id"**,
+> checked against a real approval payload and a real `notification.created` payload carrying a whole
+> Notification row with its Activity `include`d. A future emitter that adds a field fails there.
+>
+> Two judgement calls not in the sketch:
+>
+> - **Only `notification.created` draws an OS banner.** The sketch keys on `event.startsWith('notification.')`,
+>   which would render "Ada pemberitahuan baru" for `notification.updated` (mark-as-read) and
+>   `notification.deleted` (dismissal) — announcing news for the acts of consuming and dismissing news.
+>   Those two travel as change signals.
+> - **`emitToRoom` never rejects and never returns a promise the callers must handle.** Every call site
+>   already wrapped it in a bare `try {} catch {}`, which tells you what the callers think a failed push is
+>   worth. A push is a hint that a read is due; it must not roll back the write that earned it.
 
 ### 9.2 Retire Pusher Beams
 
@@ -1708,13 +1767,19 @@ Phase 2   [ ] all 27 existing controller files DELETED first     🔴 SECURITY G
           [ ] upload → finalize endpoint verifies REAL GCS metadata before
               writing FileManager; orphan sweep covers unfinalized objects
 
-Phase 4   [ ] FirebaseAdminService.messaging() added
-          [ ] emitToRoom → FCM, NO ENTITY CONTENT in any push
-          [ ] notification.* keeps an OS-rendered GENERIC title/body — verify on a
-              KILLED app, both platforms. No onBackgroundMessage handler added.
-          [ ] change signals (activity/finance/approval) data-only
+Phase 4   [x] FirebaseAdminService.messaging() added
+          [x] emitToRoom → FCM, NO ENTITY CONTENT in any push
+              (allow-list is push-payload.ts; the spec asserts no payload value
+               reaches the wire, not merely that the right fields are present)
+          [x] notification.* keeps an OS-rendered GENERIC title/body
+          [ ] ...verified on a KILLED app, BOTH PLATFORMS — needs a device, not CI.
+              THE ONE THING PHASE 4 CANNOT SELF-CERTIFY. Do not tick from a green suite.
+          [x] no onBackgroundMessage handler added
+          [x] change signals (activity/finance/approval) data-only
           [ ] Pusher Beams retired AFTER FCM proven; deps + secrets + web stub deleted
-          [ ] report progress → 2s polling
+              (deliberately NOT done — §9.2 says one transport change at a time)
+          [~] report progress → 2s polling: backend side parked on emitProgressToRoom
+              (still socket). The polling itself is client work, Phase 5.
 
 Phase 5   [ ] THREE clients: 22 shared repos + palakat_admin (2) +
               palakat_super_admin (5). ~180 call sites, not 138

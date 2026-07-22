@@ -42,7 +42,10 @@ describe('ReportQueueService', () => {
     publishToInterests: jest.fn().mockResolvedValue(undefined),
   };
 
-  const mockRealtime: any = { emitToRoom: jest.fn() };
+  const mockRealtime: any = {
+    emitToRoom: jest.fn(),
+    emitProgressToRoom: jest.fn(),
+  };
 
   beforeEach(async () => {
     jest.clearAllMocks();

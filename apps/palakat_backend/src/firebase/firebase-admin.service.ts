@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { App, cert, getApps, initializeApp } from 'firebase-admin/app';
 import { Auth, getAuth } from 'firebase-admin/auth';
+import { getMessaging, Messaging } from 'firebase-admin/messaging';
 import { getStorage, Storage } from 'firebase-admin/storage';
 
 @Injectable()
@@ -68,6 +69,20 @@ export class FirebaseAdminService {
       return {} as any;
     }
     return getStorage(this.app!);
+  }
+
+  /**
+   * Same unconfigured-fallback shape as `auth()` and `bucket()`: local dev and
+   * tests run without Firebase credentials, and a push that cannot be sent must
+   * not take the write that triggered it down with it.
+   */
+  messaging(): Messaging {
+    if (!this.configured) {
+      return {
+        send: async () => 'push-disabled',
+      } as any;
+    }
+    return getMessaging(this.app!);
   }
 
   bucket(bucketName?: string): any {
