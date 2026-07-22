@@ -219,6 +219,43 @@ This is the second time in two tickets that the correct answer for an action was
 app calls it*. The pattern is now established well enough to state plainly: **for any action in this
 phase, trace the caller before choosing the guard.**
 
+## 🔴 Finding 8 — `membership.create` could not have worked, and the fix is the guard
+
+The member app's join screen sends `{churchId, columnId, baptize, sidi}` and **no `accountId`**.
+`membership.create` passed that payload straight to `prisma.membership.create`, and `accountId` is a
+required, `@unique` column. Every join through this action failed on a missing field.
+
+`accountId` is now taken from the authenticated caller and any value the client sent is discarded.
+That is simultaneously:
+
+- **the authorization fix** — a membership is the link between an account and a church, so whoever
+  names the `accountId` decides who gets enrolled; and
+- **the repair** — the field the client never sent is now supplied by the server.
+
+A second membership is refused with `Conflict` rather than a raw Prisma constraint error, matching
+what `membershipInvitation.respond` already did.
+
+Worth noting for its own sake: **an action can be both unguarded and broken.** The parity table
+reports reachability, not whether the code behind it runs. #57's caller trace found this action live
+in the client and marked it must-not-gate; only reading the payload against the schema showed it had
+never worked.
+
+## Phase 1.5e — the four member-app writes (#63)
+
+| Action | Rule | Why not the obvious one |
+|---|---|---|
+| `membership.create` | `accountId` derived from the caller | see Finding 8 |
+| `membership.update` | self-only | `apps/palakat` is the sole caller — no admin path to keep open. `accountId` is stripped, since re-pointing a membership is the same act as creating one |
+| `account.update` | **compound** — own row always, else same church | called by *both* apps, so a flat rule cannot serve it |
+| `document.update` | church-scoped | a `Document` has **no owner column** — only `churchId` and an optional activity — so "your own document" is not expressible |
+
+All four are enforced **in the service, not the router**, following `approver.update` from
+[#59](https://github.com/meimodev/palakat/issues/59): each has a REST controller that reaches the
+same method, and guarding only the router leaves that door open. The controllers now pass `req.user`.
+
+Making the parameter required rather than optional is deliberate — TypeScript then enumerated all
+eight call sites, which is how the four controller doors were found rather than remembered.
+
 ## 🟠 Finding 7 — two scoping holes that looked like scoping
 
 Found while wiring the above, both worth recording because neither is visible from the router:

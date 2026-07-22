@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { Prisma } from '../generated/prisma/client';
 import { AccountListQueryDto } from './dto/account-list.dto';
@@ -388,7 +388,43 @@ export class AccountService {
     }
   }
 
-  async update(id: number, updateAccountDto: Prisma.AccountUpdateInput) {
+  /**
+   * Your own account always; anyone else's only within your church.
+   *
+   * Both apps call this — `apps/palakat` for the signed-in user's own profile,
+   * `palakat_admin` for other members — so a flat rule cannot serve it. The
+   * church half is enforced here rather than only in the router because the
+   * REST controller is a second door onto this method, and `approver.update`
+   * already showed what happens when only one door is guarded.
+   */
+  async update(
+    id: number,
+    updateAccountDto: Prisma.AccountUpdateInput,
+    user: { userId: number },
+  ) {
+    if (typeof user?.userId !== 'number') {
+      throw new ForbiddenException('Requester identity is required');
+    }
+
+    if (id !== user.userId) {
+      const [requester, target] = await Promise.all([
+        this.prisma.membership.findUnique({
+          where: { accountId: user.userId },
+          select: { churchId: true },
+        }),
+        this.prisma.membership.findUnique({
+          where: { accountId: id },
+          select: { churchId: true },
+        }),
+      ]);
+      if (
+        typeof requester?.churchId !== 'number' ||
+        requester.churchId !== target?.churchId
+      ) {
+        throw new ForbiddenException('Not entitled to this record');
+      }
+    }
+
     // Allow flexible payloads that may include a simplified membership object
     // and transform them into Prisma nested update/upsert shapes.
     const { membership: rawMembership, ...accountData } =

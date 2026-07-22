@@ -1240,7 +1240,7 @@ export class RpcRouterService {
       }
 
       case 'account.update': {
-        this.requireUserId(client);
+        const user = this.requireUserId(client);
         const id = payload.id as number;
         if (typeof id !== 'number') {
           throw new BadRequestException('id is required');
@@ -1258,7 +1258,7 @@ export class RpcRouterService {
         if (cleaned.dob && !cleaned.dob.toString().endsWith('Z')) {
           cleaned.dob = new Date(cleaned.dob.toString() + 'Z');
         }
-        return this.accountService.update(id, cleaned);
+        return this.accountService.update(id, cleaned, user);
       }
 
       case 'account.delete': {
@@ -1272,8 +1272,8 @@ export class RpcRouterService {
 
       // ===== Membership =====
       case 'membership.create': {
-        this.requireUserId(client);
-        return this.membershipService.create(payload);
+        const user = this.requireUserId(client);
+        return this.membershipService.create(payload, user);
       }
 
       case 'membership.list': {
@@ -1302,11 +1302,11 @@ export class RpcRouterService {
       }
 
       case 'membership.update': {
-        this.requireUserId(client);
+        const user = this.requireUserId(client);
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
-        return this.membershipService.update(id, payload.dto ?? {});
+        return this.membershipService.update(id, payload.dto ?? {}, user);
       }
 
       case 'membership.delete': {
@@ -2656,11 +2656,11 @@ export class RpcRouterService {
       }
 
       case 'document.update': {
-        this.requireUserId(client);
+        const user = this.requireUserId(client);
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
-        return this.documentService.update(id, payload.dto ?? {});
+        return this.documentService.update(id, payload.dto ?? {}, user);
       }
 
       case 'document.delete': {

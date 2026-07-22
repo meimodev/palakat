@@ -137,8 +137,22 @@ only evidence it does.
 > `membership.create` was. Second time in two tickets that the caller decided the answer: **trace the
 > caller before choosing the guard.**
 
+[#63](https://github.com/meimodev/palakat/issues/63) then closed the last of the 56: the four
+member-app writes. `membership.create` derives `accountId` from the caller, `membership.update` is
+self-only, `document.update` is church-scoped (a `Document` has no owner column), and `account.update`
+is compound — own row always, someone else's only within your church — because it is the one action
+both apps call. **All four are enforced in the service, not the router**, following `approver.update`:
+each has a REST controller onto the same method, and guarding only the router leaves that door open.
+
+> 🔴 **`membership.create` had never worked.** The join screen sends no `accountId`, which is a
+> required `@unique` column, so every join through it failed on a missing field. Deriving the id from
+> the caller is simultaneously the guard and the repair. **An action can be both unguarded and
+> broken** — the parity table reports reachability, not whether the code behind it runs.
+
+**The 56 bare actions are now done: 22 gated, 15 scoped, 4 self-scoped, 15 recorded as correctly
+open.** What remains of Phase 1.5 is two decisions, not code.
+
 Remaining, split off [#45](https://github.com/meimodev/palakat/issues/45) and blocking it:
-[#63](https://github.com/meimodev/palakat/issues/63) the four member-app writes → self-scoping ·
 [#60](https://github.com/meimodev/palakat/issues/60) the `ops.approval.finance` widening decision ·
 [#61](https://github.com/meimodev/palakat/issues/61) the `GET /church-request` read leak.
 
@@ -1663,7 +1677,10 @@ Phase 1.5 [x] #57 — 22 of 26 bare writes gated; new ops.church.manage;
               123 → 103 actions without a permission check
 Phase 1.5 [x] #58 — 15 of 17 bare reads church-scoped; church.list/column.list
               stay open (onboarding pickers); church-scoping.ts + tests
-Phase 1.5 [ ] #63 — the 4 member-app writes need self-scoping, not a permission  🔴 SECURITY GATE
+Phase 1.5 [x] #63 — 4 member-app writes self-scoped IN THE SERVICE (REST door
+              too); membership.create derives accountId, which also repairs it
+Phase 1.5 [x] all 56 bare actions closed: 22 gated, 15 scoped, 4 self-scoped,
+              15 recorded correctly-open                      🔴 SECURITY GATE
 Phase 1.5 [ ] #61 — GET /church-request returns every request, all churches
 Phase 1.5 [ ] #60 — decide the ops.approval.finance widening
               (correct as-is / needs permission / needs church-scoping)
