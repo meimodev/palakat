@@ -3,6 +3,35 @@ import { Cron } from '@nestjs/schedule';
 import { PrismaService } from '../prisma.service';
 import { PusherBeamsService } from './pusher-beams.service';
 
+/**
+ * The single timezone every church-local day is resolved in. GMIM is one
+ * Minahasa synod, so this is app-wide rather than per-church — `Church` carries
+ * no timezone column. See decision 9 in the Cloud Run migration plan.
+ */
+export const CHURCH_TIME_ZONE = 'Asia/Makassar';
+
+/**
+ * The calendar date in {@link CHURCH_TIME_ZONE} at the given instant. The cron
+ * pin alone is not enough: `getMonth()`/`getDate()` read the *server's* zone,
+ * which is UTC, so an 07:00 WITA firing resolved to the previous calendar day.
+ */
+export function churchLocalDate(now: Date): {
+  year: number;
+  month: number;
+  day: number;
+  dateKey: string;
+} {
+  // ponytail: en-CA formats as YYYY-MM-DD, so the dateKey is the format output
+  const dateKey = new Intl.DateTimeFormat('en-CA', {
+    timeZone: CHURCH_TIME_ZONE,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(now);
+  const [year, month, day] = dateKey.split('-').map(Number);
+  return { year, month, day, dateKey };
+}
+
 @Injectable()
 export class BirthdayNotificationService {
   private readonly logger = new Logger(BirthdayNotificationService.name);
@@ -12,12 +41,9 @@ export class BirthdayNotificationService {
     private pusherBeams: PusherBeamsService,
   ) {}
 
-  @Cron('0 7 * * *')
+  @Cron('0 7 * * *', { timeZone: CHURCH_TIME_ZONE })
   async sendDailyBirthdayNotifications(): Promise<void> {
-    const now = new Date();
-    const month = now.getMonth() + 1;
-    const day = now.getDate();
-    const dateKey = `${now.getFullYear()}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    const { month, day, dateKey } = churchLocalDate(new Date());
 
     try {
       const churches = await this.prisma.church.findMany({
