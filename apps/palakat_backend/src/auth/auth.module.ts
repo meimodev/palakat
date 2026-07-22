@@ -6,9 +6,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientStrategy } from './strategies/client.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { RolesGuard } from './roles.guard';
+import { PermissionsGuard } from './permissions.guard';
+import { ChurchPermissionPolicyModule } from '../church-permission-policy/church-permission-policy.module';
 
 @Module({
   imports: [
+    ChurchPermissionPolicyModule,
     ConfigModule,
     PassportModule,
     JwtModule.registerAsync({
@@ -20,7 +23,13 @@ import { RolesGuard } from './roles.guard';
       inject: [ConfigService],
     }),
   ],
-  providers: [AuthService, ClientStrategy, JwtStrategy, RolesGuard],
-  exports: [PassportModule, JwtModule, AuthService],
+  providers: [
+    AuthService,
+    ClientStrategy,
+    JwtStrategy,
+    RolesGuard,
+    PermissionsGuard,
+  ],
+  exports: [PassportModule, JwtModule, AuthService, PermissionsGuard],
 })
 export class AuthModule {}
