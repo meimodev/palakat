@@ -1,0 +1,136 @@
+name: Daily database backup
+
+# Supabase Free has no automated backups worth the name (§13 R2), and
+# `palakat_admin` has been serving production since 2026-03-20 (decision 21).
+# So this is the only copy of the live database that exists.
+#
+# It runs on GitHub Actions rather than Cloud Scheduler on purpose: the plan
+# says this starts *now*, and Cloud Scheduler, Cloud Run jobs and the GCP
+# project itself do not exist until Phase 6. Waiting for the migration to
+# protect against the migration is backwards. Move it to Scheduler in Phase 3b
+# if it is still wanted there; nothing here assumes it stays.
+
+on:
+  schedule:
+    # 18:00 UTC = 02:00 WITA, the quiet end of the church day.
+    - cron: '0 18 * * *'
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Why this manual run (recorded in the object metadata)'
+        required: false
+        default: 'manual'
+
+permissions:
+  contents: read
+  id-token: write # Workload Identity Federation — no long-lived key in a secret.
+
+concurrency:
+  group: db-backup
+  cancel-in-progress: false
+
+jobs:
+  dump:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Dump
+        env:
+          # MUST be the session pooler (port 5432), not the transaction pooler
+          # (6543) and not the direct connection. Two independent reasons:
+          #   - the transaction pooler cannot hold the session state pg_dump
+          #     needs, so the dump fails or comes out inconsistent;
+          #   - Supabase direct connections are IPv6-only on Free, and GitHub's
+          #     hosted runners have no IPv6, so a direct URL simply times out.
+          # See docs/palakat-db-backup.md.
+          DATABASE_URL_SESSION: ${{ secrets.DATABASE_URL_SESSION }}
+          PG_MAJOR: ${{ vars.SUPABASE_PG_MAJOR || '17' }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${DATABASE_URL_SESSION}" ]; then
+            echo "::error::DATABASE_URL_SESSION is not set. See docs/palakat-db-backup.md."
+            exit 1
+          fi
+
+          # pg_dump refuses to run against a server newer than itself, and the
+          # runner's bundled client tracks Ubuntu, not Supabase. Pin the client
+          # to an image instead of hoping the two stay in step.
+          docker run --rm -i \
+            -e PGCONNECT_TIMEOUT=30 \
+            -v "${PWD}:/out" \
+            "postgres:${PG_MAJOR}-alpine" \
+            pg_dump \
+              --no-owner --no-privileges \
+              --format=custom \
+              --file=/out/dump.pgc \
+              "${DATABASE_URL_SESSION}"
+
+      # A backup that silently produces an empty file is worse than no backup,
+      # because it looks like protection. Nothing is uploaded until it has been
+      # opened and found to contain the schema we expect.
+      - name: Verify the dump before it is allowed near the bucket
+        env:
+          PG_MAJOR: ${{ vars.SUPABASE_PG_MAJOR || '17' }}
+        run: |
+          set -euo pipefail
+
+          bytes=$(stat -c%s dump.pgc)
+          echo "dump size: ${bytes} bytes"
+          if [ "${bytes}" -lt 51200 ]; then
+            echo "::error::Dump is ${bytes} bytes — too small to be this schema. Refusing to upload."
+            exit 1
+          fi
+
+          # pg_restore --list both proves the archive is readable and gives us
+          # the table of contents to assert against.
+          docker run --rm -v "${PWD}:/out" "postgres:${PG_MAJOR}-alpine" \
+            pg_restore --list /out/dump.pgc > toc.txt
+
+          # Tables that must exist for the dump to be worth keeping. If a
+          # migration renames one of these, this job fails and someone reads
+          # this comment — which is the intended behaviour, not a nuisance.
+          for table in Account Membership Church Activity Notification; do
+            if ! grep -qi "TABLE DATA public \"\?${table}\"\?" toc.txt; then
+              echo "::error::Dump has no data for table ${table}. Refusing to upload."
+              exit 1
+            fi
+          done
+
+          echo "verified: $(wc -l < toc.txt) archive entries"
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_BACKUP_SERVICE_ACCOUNT }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Upload to GCS
+        env:
+          BUCKET: ${{ vars.GCS_BACKUP_BUCKET }}
+          REASON: ${{ inputs.reason || 'scheduled' }}
+        run: |
+          set -euo pipefail
+          stamp=$(date -u +%Y/%m/%dT%H%M%SZ)
+          dest="gs://${BUCKET}/daily/${stamp}.pgc"
+
+          gcloud storage cp dump.pgc "${dest}" \
+            --custom-metadata="git-sha=${GITHUB_SHA},run-id=${GITHUB_RUN_ID},reason=${REASON}"
+
+          echo "### Backup uploaded" >> "$GITHUB_STEP_SUMMARY"
+          echo "\`${dest}\` — $(stat -c%s dump.pgc) bytes" >> "$GITHUB_STEP_SUMMARY"
+
+      # Retention is a bucket lifecycle rule, not a step here — see
+      # docs/palakat-db-backup.md. The consequence worth knowing: lifecycle
+      # deletes by age and cannot tell a good backup from the last one
+      # standing. If this job fails silently for the whole retention window,
+      # everything ages out. That is what the next step exists to prevent.
+      - name: Fail loudly
+        if: failure()
+        run: |
+          echo "::error::Daily backup FAILED. This is the only copy of the production database."
+          echo "Supabase Free has no automated backups. Do not let this sit." >> "$GITHUB_STEP_SUMMARY"
