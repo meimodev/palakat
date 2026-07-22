@@ -53,7 +53,7 @@ Supabase port, and that fork is closed. The live bar is §0.05's.
 >
 > The setup it needs is item 1 of **§0.02**, along with everything else currently waiting on a human.
 
-**Last updated: 2026-07-22.** Execution is tracked on a wayfinder map,
+**Last updated: 2026-07-23.** Execution is tracked on a wayfinder map,
 **[#41](https://github.com/meimodev/palakat/issues/41)**, with one ticket per phase. This section is
 the summary; the map is the live index and the tickets hold the detail. **Update this section
 whenever a phase moves** — a session that reads only this document must be able to pick up work
@@ -61,10 +61,10 @@ without opening the tracker first.
 
 | Phase | State | Where |
 |---|---|---|
-| **0** Correctness fixes | ✅ merged | [#35](https://github.com/meimodev/palakat/pull/35) |
+| **0** Correctness fixes | ✅ merged. Pool bound later (§0.3); one item left and it needs a credential — §0.02 | [#35](https://github.com/meimodev/palakat/pull/35) |
 | **3a** Birthday timezone | ✅ merged | [#54](https://github.com/meimodev/palakat/pull/54) · `d26576c` |
 | **1** Permission layer + generated parity table | ✅ merged | [#55](https://github.com/meimodev/palakat/pull/55) · `f76313d` |
-| **1.5** Authorization hardening | 🔄 **in progress** — triage done, first tranche in review | [#45](https://github.com/meimodev/palakat/issues/45), [#56](https://github.com/meimodev/palakat/pull/56) |
+| **1.5** Authorization hardening | 🔄 **code complete** — all 56 bare actions closed (22 gated, 15 scoped, 4 self-scoped, 15 correctly open). Only the [#60](https://github.com/meimodev/palakat/issues/60) decision remains, §0.02 item 2 | [#45](https://github.com/meimodev/palakat/issues/45), [#56](https://github.com/meimodev/palakat/pull/56)–[#63](https://github.com/meimodev/palakat/issues/63) |
 | **2** REST surface | ⛔ blocked on 1.5 | [#46](https://github.com/meimodev/palakat/issues/46) |
 | **4** FCM push | 🔄 **in progress** — §9.1 seam swapped, content allow-list in. **Emits on both transports**: nothing calls `subscribeToTopic` until Phase 5, so FCM-only would publish to nobody. §9.2 (retire Beams) deliberately deferred | [#47](https://github.com/meimodev/palakat/issues/47) |
 | **5**–**9**, **3b** | ⛔ blocked, in plan order | [#48](https://github.com/meimodev/palakat/issues/48)–[#53](https://github.com/meimodev/palakat/issues/53) |
@@ -257,6 +257,15 @@ the whole sequencing rule is one transport change at a time.
 
 ### Also outstanding, not blocking anything
 
+- **Announce the birthday-notification time change.** The cron has been pinned to `Asia/Makassar`
+  since [#54](https://github.com/meimodev/palakat/pull/54), so birthday notifications now arrive at
+  **07:00 local instead of ~15:00**. That is an observable behaviour change for every `penatua` and
+  `diaken` receiving them, and the code half is already merged — only telling people is outstanding
+  (§8.2).
+- **Run the e2e suite against the transaction pooler URL.** The pool is now bounded (§0.3), but the
+  other half of that checklist line needs a real pooler connection string, which is a credential an
+  agent does not hold. PgBouncer transaction mode **disables prepared statements**, so this is the run
+  that finds out whether anything in the suite depends on them — before cutover, not during.
 - **Supabase Free usage alerts** — Phase 0 checklist, never ticked. Free's ceilings (500 MB database,
   50.000 MAU, pause after a week idle) are §13 R3b; the birthday cron prevents the idle pause, nothing
   watches the rest.
@@ -821,20 +830,29 @@ if (!UNICODE_FONT_PATH) {
 }
 ```
 
-### 0.3 🟠 Bound the Prisma pool
+### 0.3 ✅ Bound the Prisma pool — shipped, with one correction
 
-`prisma.service.ts:19-21` builds `new Pool({ connectionString })` with no `max` — `pg`'s default of **10 per
+`prisma.service.ts` built `new Pool({ connectionString })` with no `max` — `pg`'s default of **10 per
 process**. Scale-to-zero makes instance count spiky by design, and **Supabase Free has a low direct-connection
-ceiling** (§11, R4).
+ceiling** (§11, R4), so the real ceiling is 10 × however many instances are warm.
+
+Now bounded, with `DATABASE_POOL_MAX` in `.env.example` and a spec on the parsing:
 
 ```ts
 const pool = new Pool({
   connectionString,
-  max: Number(process.env.DATABASE_POOL_MAX ?? 3),
+  max: resolvePoolMax(process.env.DATABASE_POOL_MAX), // default 3
   idleTimeoutMillis: 30_000,
   connectionTimeoutMillis: 10_000,
 });
 ```
+
+> ⚠️ **Correction to this plan's own snippet.** It said `Number(process.env.DATABASE_POOL_MAX ?? 3)`.
+> `??` only catches `undefined` — so an **unset** variable gives `Number(undefined)` = `NaN`, and an
+> **empty** one (`DATABASE_POOL_MAX=` in an env file, which is how half of `.env.example` is written)
+> gives `0`. A pool of `NaN` or `0` is a service that starts, accepts requests, and can never answer
+> one. `resolvePoolMax` parses and rejects anything that is not a positive integer. **Same shape as
+> every other bug on this map: the broken path and the working path look identical at a glance.**
 
 Route the service through **Supabase's transaction pooler (port 6543, `?pgbouncer=true`)**. That disables prepared
 statements — **run the full e2e suite against the pooler URL before cutover**. Migrations keep the **direct**
@@ -1156,11 +1174,18 @@ POST /report-jobs  ──►  create row  ──►  Cloud Tasks enqueue
 
 ### 8.2 Birthday job → Cloud Scheduler, correctly zoned
 
-`birthday-notification.service.ts:15` is `@Cron('0 7 * * *')` with **no `timeZone` option**, and the handler
-derives `dateKey` from `new Date()`. Both use process-local time — **always UTC on Cloud Run**. So 07:00 means
-15:00 WITA, and the birthday calendar day rolls over at 08:00 local.
+> ✅ **Both code halves already shipped in [#54](https://github.com/meimodev/palakat/pull/54)** — this
+> section describes work that is done, and was left unticked on the §16 checklist for months after the
+> fact. The cron carries `{ timeZone: CHURCH_TIME_ZONE }` and the handler resolves the day through
+> `churchLocalDate()`, which formats in `Asia/Makassar` via `Intl.DateTimeFormat('en-CA')` and is
+> covered by three tests including the pre-midnight rollover. **What remains here is the Cloud
+> Scheduler move (Phase 3b) and telling users the time changed (§0.02).**
 
-Fix both halves, per decision 8:
+`birthday-notification.service.ts:15` was `@Cron('0 7 * * *')` with **no `timeZone` option**, and the handler
+derived `dateKey` from `new Date()`. Both used process-local time — **always UTC on Cloud Run**. So 07:00 meant
+15:00 WITA, and the birthday calendar day rolled over at 08:00 local.
+
+Both halves, per decision 8:
 
 ```bash
 gcloud scheduler jobs create http birthday-notifications \
@@ -1850,7 +1875,11 @@ BAR: 14 weeks. Descope ladder: palakat_super_admin, then the 31 uncalled routes
 ON EC2 — no cost change
           >>> EVERY UNTICKED HUMAN STEP BELOW IS COLLECTED IN §0.02 <<<
 
-Phase 0   [ ] DATABASE_POOL_MAX; e2e green against the transaction pooler
+Phase 0   [x] DATABASE_POOL_MAX bounds the pool (was pg's default 10/process);
+              parsed, not Number(env ?? 3) — unset is NaN, empty is 0, and a
+              pool of 0 serves nothing. resolvePoolMax + spec
+          [ ] e2e green against the transaction pooler — needs the pooler URL,
+              and txn mode disables prepared statements             (§0.02)
           [ ] Supabase Free limits checked; usage alerts set        (§0.02)
           [~] daily pg_dump → GCS starting NOW — palakat_admin is already live
               workflow + restore rehearsal written (docs/palakat-db-backup.md).
@@ -1861,9 +1890,11 @@ Phase 0   [ ] DATABASE_POOL_MAX; e2e green against the transaction pooler
               [ ] restore-rehearsal.sh has PASSED once. UNTIL THEN THERE IS NO
                   BACKUP — only an untested hypothesis about one.
 
-Phase 3a  [ ] birthday @Cron gains { timeZone: 'Asia/Makassar' }        ~1 hour
-          [ ] handler date-matching moved to Asia/Makassar too
+Phase 3a  [x] birthday @Cron gains { timeZone: 'Asia/Makassar' }        (#54)
+          [x] handler date-matching moved to Asia/Makassar too — churchLocalDate
+              via Intl 'en-CA'; 3 tests incl. the pre-midnight rollover   (#54)
           [ ] announce it — notifications move from ~15:00 to 07:00 local
+                                                                    (§0.02)
 
 Phase 1   [ ] PARITY TABLE GENERATOR: walks rpc-router.service.ts, emits guard
               + exact allow-list per case                    (ADR-0009)
