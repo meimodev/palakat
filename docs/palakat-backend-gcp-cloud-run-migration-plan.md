@@ -1,6 +1,6 @@
 # `palakat_backend` → GCP Cloud Run: Migration Plan (HTTP-only + FCM)
 
-**Date:** 2026-07-21 · **Revised:** 2026-07-22 (approved — see §0.0; scope grilled — see §0.05; **execution status — see §0.01**)
+**Date:** 2026-07-21 · **Revised:** 2026-07-23 (approved — see §0.0; scope grilled — see §0.05; **execution status — see §0.01**; 🙋 **manual steps waiting on a human — see §0.02**)
 **Companion:** [`palakat-backend-gcp-cloud-run-migration-analysis.md`](./palakat-backend-gcp-cloud-run-migration-analysis.md) — the *whether*, now historical. This document is the *how*, and it is the single live plan for the backend migration.
 **Supersedes for deployment:** the current EC2 + GitHub Actions deployment, once Phase 8 completes.
 
@@ -50,6 +50,8 @@ Supabase port, and that fork is closed. The live bar is §0.05's.
 > This is not a Phase 4 problem or a Phase 2 problem, which is why it is stated here rather than in either:
 > **#42 gates every schema change in the project.** The first thing it caught was
 > [#72](https://github.com/meimodev/palakat/issues/72), which needs a device-token table.
+>
+> The setup it needs is item 1 of **§0.02**, along with everything else currently waiting on a human.
 
 **Last updated: 2026-07-22.** Execution is tracked on a wayfinder map,
 **[#41](https://github.com/meimodev/palakat/issues/41)**, with one ticket per phase. This section is
@@ -167,8 +169,99 @@ open.** What remains of Phase 1.5 is two decisions, not code.
 
 Remaining, split off [#45](https://github.com/meimodev/palakat/issues/45) and blocking it:
 **one decision** — [#60](https://github.com/meimodev/palakat/issues/60), the `ops.approval.finance`
-widening. ([#61](https://github.com/meimodev/palakat/issues/61) was closed as a false positive: the
+widening (§0.02 item 2). ([#61](https://github.com/meimodev/palakat/issues/61) was closed as a false positive: the
 `GET /church-request` "leak" is `SUPER_ADMIN`-only on all four of its doors.)
+
+---
+
+## 0.02 🙋 Manual steps waiting on a human — **all remaining work is behind this list**
+
+**Last updated: 2026-07-23.** Nothing on this list can be done by an agent: it needs credentials an
+agent does not hold, a device an agent cannot touch, or a judgement call about who may see money.
+Every open ticket is blocked on one of these four items. **Ordered by how much each unblocks.**
+
+---
+
+### 1. 🔴 Set up the database backup — [#42](https://github.com/meimodev/palakat/issues/42)
+
+**Unblocks: every schema migration in the project** (§0.01), which means [#72](https://github.com/meimodev/palakat/issues/72)
+and anything in Phase 2 that touches the schema. It is also the only item here that is pure setup with
+no decision in it, and the only one where the *current* state is dangerous rather than merely stalled:
+`palakat_admin` has served production since 2026-03-20 and **there is no copy of that database anywhere.**
+
+Full commands in [`palakat-db-backup.md`](./palakat-db-backup.md). Summary:
+
+| Kind | Name | Notes |
+|---|---|---|
+| GCS bucket | `palakat-db-backups` | `asia-southeast1`, uniform access, public-access-prevention, lifecycle Delete @ 30d |
+| Service account | `palakat-db-backup@…` | `roles/storage.objectCreator` — **not** `objectAdmin`; it may add backups, never delete them |
+| WIF provider | pool `github`, provider `github` | **`--attribute-condition` is not optional** — without it any GitHub repo on earth can mint a token for this account |
+| Repo variable | `GCS_BACKUP_BUCKET` | |
+| Repo variable | `GCP_WIF_PROVIDER` | `projects/<NUMBER>/locations/global/workloadIdentityPools/github/providers/github` |
+| Repo variable | `GCP_BACKUP_SERVICE_ACCOUNT` | |
+| Repo **secret** | `DATABASE_URL_SESSION` | 🔴 **the session pooler** — see below |
+| Then run | `./scripts/restore-rehearsal.sh gs://…/<stamp>.pgc` | **#42 is not done until this passes once** |
+
+> 🔴 **The connection string is the part that goes wrong.** Supabase gives three URLs and only one works:
+> the **session pooler** (`aws-0-<region>.pooler.supabase.com`). The direct URL is IPv6-only on Free and
+> GitHub's runners have no IPv6; the transaction pooler (6543) cannot hold the session state `pg_dump`
+> needs. **The direct URL and the session pooler are both on 5432**, so the port does not tell you which
+> you have — the hostname does.
+
+> ⚠️ **Do not mute the failed-workflow emails.** Retention is a lifecycle rule, which deletes by age and
+> cannot tell a good backup from the last one standing. Thirty days of quiet failure empties the bucket.
+> The loud failure *is* the safety mechanism.
+
+---
+
+### 2. 🔴 Decide the `ops.approval.finance` widening — [#60](https://github.com/meimodev/palakat/issues/60)
+
+**Unblocks: Phase 1.5 → Phase 2** ([#46](https://github.com/meimodev/palakat/issues/46)), the largest
+remaining block of work.
+
+`ops.approval.finance` is a dead clause — the parity checker still reports it as a phantom on every run.
+Correcting it **widens** finance read access to approvers. That is the only change in Phase 1.5 that
+grants rather than removes, on a finance read path, under a release freeze; every other change tightened,
+and tightening is safe to do unilaterally. **This is not.**
+
+The question is whether `.override` was what was meant (a one-word fix) or whether a new permission
+should be defined with its own default positions (a policy change).
+
+---
+
+### 3. Decide how `palakat_admin` gets push — [#72](https://github.com/meimodev/palakat/issues/72)
+
+**Unblocks: §9.2 (retiring Pusher Beams), Phase 5 ([#48](https://github.com/meimodev/palakat/issues/48)),
+and removing the transitional dual-emit** from `emitToRoom`. Also blocked *by* item 1, since it needs a
+device-token table.
+
+Three shapes: a server-side token registry (full FCM, new model and endpoint); keep Beams for web only
+(cheapest, keeps a paid vendor and two push systems); or web keeps the socket permanently.
+
+> ⚠️ **The third is the default-by-drift option and it is the expensive one.** "Leave the socket for web"
+> is the path of least resistance at every individual step, and a held-open socket is exactly what
+> prevents scale-to-zero in Phases 7–8 — the migration's main cost win.
+
+---
+
+### 4. Verify push on a killed app, both platforms — part of [#47](https://github.com/meimodev/palakat/issues/47)
+
+**Needs a physical device. CI cannot certify it and a green test suite is not evidence for it.** This is
+the one thing Phase 4 cannot self-certify, which is why its checklist box is deliberately left unticked.
+
+Check that a `notification.created` push draws an OS notification with the app **killed** (not
+backgrounded) on Android and iOS, and that tapping it opens the app. Do this *before* §9.2 retires Beams —
+the whole sequencing rule is one transport change at a time.
+
+---
+
+### Also outstanding, not blocking anything
+
+- **Supabase Free usage alerts** — Phase 0 checklist, never ticked. Free's ceilings (500 MB database,
+  50.000 MAU, pause after a week idle) are §13 R3b; the birthday cron prevents the idle pause, nothing
+  watches the rest.
+- **Everything from Phase 6 onward** — GCP project, Artifact Registry, service accounts, deploy WIF,
+  secrets. Not listed here because it is not blocking today; §14 and the Phase 6 checklist hold it.
 
 ---
 
@@ -1755,11 +1848,13 @@ RELEASE FREEZE IN FORCE until Phase 9 closes — decision 28, ADR-0007
 BAR: 14 weeks. Descope ladder: palakat_super_admin, then the 31 uncalled routes
 
 ON EC2 — no cost change
+          >>> EVERY UNTICKED HUMAN STEP BELOW IS COLLECTED IN §0.02 <<<
+
 Phase 0   [ ] DATABASE_POOL_MAX; e2e green against the transaction pooler
-          [ ] Supabase Free limits checked; usage alerts set
+          [ ] Supabase Free limits checked; usage alerts set        (§0.02)
           [~] daily pg_dump → GCS starting NOW — palakat_admin is already live
               workflow + restore rehearsal written (docs/palakat-db-backup.md).
-              [ ] bucket + lifecycle + WIF provider created
+              [ ] bucket + lifecycle + WIF provider created        (§0.02 item 1)
               [ ] DATABASE_URL_SESSION set — the SESSION pooler, not the direct
                   URL (IPv6-only, runners are v4) and not 6543 (txn mode breaks
                   pg_dump). Both are on 5432; the hostname is the tell.
@@ -1822,7 +1917,8 @@ Phase 4   [x] FirebaseAdminService.messaging() added
                reaches the wire, not merely that the right fields are present)
           [x] notification.* keeps an OS-rendered GENERIC title/body
           [ ] ...verified on a KILLED app, BOTH PLATFORMS — needs a device, not CI.
-              THE ONE THING PHASE 4 CANNOT SELF-CERTIFY. Do not tick from a green suite.
+              THE ONE THING PHASE 4 CANNOT SELF-CERTIFY. Do not tick from a green
+              suite. (§0.02 item 4)
           [x] no onBackgroundMessage handler added
           [x] change signals (activity/finance/approval) data-only
           [ ] Pusher Beams retired AFTER FCM proven; deps + secrets + web stub deleted
