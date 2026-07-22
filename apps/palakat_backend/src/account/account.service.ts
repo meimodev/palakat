@@ -193,6 +193,10 @@ export class AccountService {
         membership: {
           select: {
             id: true,
+            // Selected so the caller can be church-scoped against it. Without
+            // it the only church on the row is `column.churchId`, which is
+            // absent for a member who has no column yet.
+            churchId: true,
             columnId: true,
             baptize: true,
             sidi: true,
