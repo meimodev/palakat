@@ -1,20 +1,29 @@
 # `palakat_backend` → GCP Cloud Run: Migration Plan (HTTP-only + FCM)
 
-**Date:** 2026-07-21 · **Revised:** 2026-07-21 (grilling session — see §0.0)
+**Date:** 2026-07-21 · **Revised:** 2026-07-22 (approved — #26 answered, see §0.0)
 **Companion:** [`palakat-backend-gcp-cloud-run-migration-analysis.md`](./palakat-backend-gcp-cloud-run-migration-analysis.md) — the *whether*. This document is the *how*.
 **Supersedes for deployment:** [`palakat-backend-aws-ec2-cicd-deployment-guide.md`](./palakat-backend-aws-ec2-cicd-deployment-guide.md) once Phase 8 completes.
 
 ---
 
-## 0.0 🛑 Status: not approved. This is the NO-GO branch of an open fork.
+## 0.0 ✅ Status: approved. The fork is closed and this is the surviving branch.
 
-**Nothing in this document is implemented until [#26](https://github.com/meimodev/palakat/issues/26) is answered.**
+**[#26](https://github.com/meimodev/palakat/issues/26) is answered: no-go on removing NestJS.** See
+[ADR-0006](./adr/0006-no-go-on-removing-nestjs.md), 2026-07-22. This document is no longer gated.
 
-Per [`palakat-backend-migration-plan.md`](./palakat-backend-migration-plan.md), there are two migrations
-on the table and Cloud Run is the **no-go** branch. Choosing to implement this plan is materially the same
-act as answering #26 "no". #26 is open, along with #14, #15, #16, #23, #24, #25, #27 and #28.
+Per [`palakat-backend-migration-plan.md`](./palakat-backend-migration-plan.md) there were two migrations
+on the table, and Cloud Run was the **no-go** branch. It is now simply the plan.
 
-Settled by the grilling session of 2026-07-21 — see
+The decisive finding was that a "go" would not have removed GCP: report generation cannot run on Edge
+Functions ([#17](https://github.com/meimodev/palakat/issues/17)) and the surviving Node worker lands on
+Cloud Run Jobs ([#27](https://github.com/meimodev/palakat/issues/27)), so the port would have ended with
+three platforms rather than one. Consolidation was the driver, and it never arrived.
+
+> **What this does *not* license.** Approval settles the destination, not the sequencing. Every decision
+> in §0 and every risk in §13 stands unchanged, and the "pre-launch" caveat below is unchanged —
+> `palakat_admin` is live, so the daily `pg_dump` starts now.
+
+Effort framing retained from the grilling session of 2026-07-21 — see
 [ADR-0002](./adr/0002-effort-ceiling-and-meaning-of-no.md):
 
 | | |
@@ -31,24 +40,31 @@ Settled by the grilling session of 2026-07-21 — see
 > onboarding event. If that pilot becomes a real congregation, decisions 12, 16 and ADR-0002 all need revisiting
 > together.
 
-### What may be worked on before #26
+### The freeze is lifted
 
-**Frozen:** everything with a transport or permission opinion. Phases 2, 5, 7, 8, 9 in their entirety.
+Nothing here is gated any more. Phases 2, 5, 7, 8 and 9 — frozen until now because they carry a transport
+or permission opinion — are open.
 
-**Permitted, because it ships nothing and is 100% reused on either branch:**
+Work already banked while the fork was open, all of which was chosen for being verdict-independent and
+none of which is wasted:
 
-- The **Phase 1 parity table** (§6). It is planning, not code, and it is the stated input to
-  [#24](https://github.com/meimodev/palakat/issues/24), the gate most likely to produce the "no".
+| Done | Where |
+|---|---|
+| Phase 1 parity table — all 166 RPC actions mapped to verb + route + guard | [`…-rpc-rest-parity-table.md`](./palakat-backend-rpc-rest-parity-table.md) ([#33](https://github.com/meimodev/palakat/pull/33)) |
+| Stale-job reaper, atomic `SKIP LOCKED` claim, bundled PDF font, dead-code deletions | [#35](https://github.com/meimodev/palakat/pull/35) |
+| RLS feasibility evidence — kept as the record of *why*, and the input if this is reopened | [`…-rls-feasibility.md`](./palakat-backend-rls-feasibility.md) ([#34](https://github.com/meimodev/palakat/pull/34)) |
 
-**Permitted, because they are defects independent of the verdict** (see §5 and §1.3):
+**Carried in from the closed fork as new Phase 2 scope:** the parity table found **94 of 166 actions
+authenticated but unauthorized**, plus a phantom permission (`ops.approval.finance`, referenced and never
+defined), an unchecked one (`ops.approvalRule.manage`), and four client calls with no server handler. That
+is a live security finding, not a migration artifact — it does not go away by staying on Nest, and the REST
+surface must not be built on top of it unexamined.
 
-- Stale-job reaper, atomic job claim + concurrency test, the committed PDF font, and the dead-code deletions.
-
-**Permitted, because [#27](https://github.com/meimodev/palakat/issues/27) makes it shared:** report
-generation cannot run on Deno ([#17](https://github.com/meimodev/palakat/issues/17)), so a Node worker
-survives on Cloud Run under *either* verdict. Phase 6 scaffolding (§11) is therefore not no-go-only work.
-Accept the consequence openly: **a "go" does not remove GCP from the stack**, and the ops-burden argument
-for the Supabase port shrinks accordingly.
+**Phase 6 was never no-go-only work.** Report generation cannot run on Deno
+([#17](https://github.com/meimodev/palakat/issues/17)), so a Node worker survives on Cloud Run
+([#27](https://github.com/meimodev/palakat/issues/27)) under either verdict — the observation that
+**a "go" would not have removed GCP** is precisely what decided
+[#26](https://github.com/meimodev/palakat/issues/26). See [ADR-0006](./adr/0006-no-go-on-removing-nestjs.md).
 
 ---
 
