@@ -6,6 +6,7 @@ import {
   BadRequestException,
   Inject,
   forwardRef,
+  OnModuleInit,
 } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { PrismaService } from '../prisma.service';
@@ -23,8 +24,11 @@ import {
 import { ReportGenerateDto } from './dto/report-generate.dto';
 import { ReportJobListQueryDto } from './dto/report-job-list.dto';
 
+/** A job left in PROCESSING for longer than this is assumed abandoned. */
+const STALE_JOB_MS = 15 * 60 * 1000;
+
 @Injectable()
-export class ReportQueueService {
+export class ReportQueueService implements OnModuleInit {
   private readonly logger = new Logger(ReportQueueService.name);
   private isProcessing = false;
   private lastAttemptedAt?: string;
@@ -265,6 +269,69 @@ export class ReportQueueService {
     };
   }
 
+  /**
+   * A restart mid-render leaves a job in PROCESSING with nothing to recover it.
+   * Boot is exactly when that happened, so sweep before serving anything.
+   */
+  async onModuleInit(): Promise<void> {
+    await this.reapStaleJobs();
+  }
+
+  /**
+   * Fail jobs abandoned in PROCESSING — the process that claimed them is gone.
+   *
+   * ponytail: fails rather than requeues. Requeue-once needs an `attempts`
+   * column, and without one a job that reliably crashes the process would loop
+   * forever. A visible FAILED beats an invisible spinner; the user re-requests.
+   */
+  @Cron(CronExpression.EVERY_30_MINUTES)
+  async reapStaleJobs(): Promise<number> {
+    const cutoff = new Date(Date.now() - STALE_JOB_MS);
+    try {
+      const { count } = await this.prisma.reportJob.updateMany({
+        where: {
+          status: ReportJobStatus.PROCESSING,
+          updatedAt: { lt: cutoff },
+        },
+        data: {
+          status: ReportJobStatus.FAILED,
+          errorMessage: 'Abandoned while processing — the worker did not finish',
+        },
+      });
+
+      if (count > 0) {
+        this.logger.warn(`Reaped ${count} stale report job(s)`);
+      }
+      return count;
+    } catch (e: any) {
+      this.logger.error(`Stale-job reaper failed: ${e?.message ?? e}`, e?.stack);
+      return 0;
+    }
+  }
+
+  /**
+   * Claim one PENDING job atomically, so two instances cannot render the same
+   * report twice. SKIP LOCKED makes concurrent claimers take different rows
+   * rather than queue behind each other.
+   */
+  private async claimNextJob(): Promise<any | undefined> {
+    const rows = await this.prisma.$queryRaw<any[]>`
+      UPDATE "ReportJob"
+      SET status = 'PROCESSING'::"ReportJobStatus",
+          progress = 10,
+          "updatedAt" = NOW()
+      WHERE id = (
+        SELECT id FROM "ReportJob"
+        WHERE status = 'PENDING'::"ReportJobStatus"
+        ORDER BY "createdAt" ASC
+        LIMIT 1
+        FOR UPDATE SKIP LOCKED
+      )
+      RETURNING *
+    `;
+    return rows?.[0];
+  }
+
   @Cron(CronExpression.EVERY_10_SECONDS)
   async processQueue() {
     if (this.isProcessing) {
@@ -280,10 +347,7 @@ export class ReportQueueService {
   }
 
   async processNextJob(): Promise<void> {
-    const job = await this.prisma.reportJob.findFirst({
-      where: { status: ReportJobStatus.PENDING },
-      orderBy: { createdAt: 'asc' },
-    });
+    const job = await this.claimNextJob();
 
     if (!job) {
       return;
@@ -292,14 +356,6 @@ export class ReportQueueService {
     this.logger.log(`Processing report job ${job.id}`);
     this.lastAttemptedAt = new Date().toISOString();
     this.lastErrorMessage = undefined;
-
-    await this.prisma.reportJob.update({
-      where: { id: job.id },
-      data: {
-        status: ReportJobStatus.PROCESSING,
-        progress: 10,
-      },
-    });
 
     try {
       this.realtime.emitToRoom(
