@@ -166,10 +166,73 @@ Each passes `user` or a caller-derived id. Confirmed guarded: `churchPermissionP
 `notifications.*`, `finance.approval.*`, `approver.list`, `app.home.get`, `auth.*`, `churchRequest.*`,
 `articles.like/unlike`, `membershipInvitation.myPending`.
 
-Still to verify — the service receives `user` but enforcement is unread:
-`membershipInvitation.respond`, `finance.approver.update`, `reportJob.list/get/cancel`,
-`document.generate`, `file.finalize`, `file.upload.init/complete`, `file.download.init`,
-`approver.update`.
+**All eleven were read in Phase 1.5d (#59). Verdicts below.**
+
+| Action | Enforces? | How |
+|---|---|---|
+| `membershipInvitation.respond` | ✅ | `invitation.inviteeId !== user.userId` → `Forbidden` |
+| `finance.approver.update` | ✅ | church scope **and** `currentApprover.membershipId !== requesterMembershipId` |
+| `reportJob.list` | ✅ | `where: { requestedById: userId }` |
+| `reportJob.get` | ✅ | `job.requestedById !== userId` → `Forbidden` |
+| `reportJob.cancel` | ✅ | `job.requestedById !== userId` → `Forbidden` |
+| `document.generate` | ✅ | `document.churchId !== resolveRequesterChurchId(user)` |
+| `file.finalize` | ✅ | membership church must equal `dto.churchId`; path prefix pinned to it |
+| `file.upload.init` | ✅ | same church check, in the router before any bucket work |
+| `file.upload.complete` | ✅ | `session.socketId !== socketId` — the session *is* the capability |
+| `file.download.init` | ✅ | deliberate public exception for the shared song DB; everything else requires a membership whose `churchId` matches the file |
+| `approver.update` | ⚠️ **on the RPC path only** — see below |
+
+Nothing moves to 1.5b or 1.5c. The scoped-arg population is real scoping, not decoration.
+
+## 🔴 Finding 4 — `approver.update` enforced on one door and not the other
+
+The RPC case resolved the caller's `membershipId` and passed it in, and the service compared it. But
+the parameter was optional and the comparison was wrapped in it:
+
+```ts
+async update(id, dto, requesterMembershipId?: number) {
+  if (typeof requesterMembershipId === 'number') {   // ← the whole check
+    …
+    if (existing.membershipId !== requesterMembershipId) throw new ForbiddenException(…);
+  }
+  return prisma.approver.update({ where: { id }, data: { status: dto.status } });
+}
+```
+
+`ApproverController.update` — `PATCH /approver/:id`, behind `AuthGuard('jwt')` and nothing else —
+called `approverService.update(id, dto)` with **no third argument**. The condition was false, the
+check was skipped, and any signed-in account could set any approver row's status by id: approving or
+rejecting activities and documents on behalf of other people, in other churches. Approval forgery,
+and it drives `maybeAutoGenerateLinkedDocument`, so a forged approval can mint a certificate.
+
+Fixed by moving the resolution *into* the service — it now derives the requester from `user` itself
+and refuses when there is none, so no caller can reach the update without an identity. Both doors
+now go through the same comparison.
+
+**The general shape, which is worth more than the instance: an optional identity parameter whose
+absence silences the check.** Fail-open by omission. A caller that forgets to pass it gets a
+successful write, not an error. Every such parameter should refuse rather than skip.
+
+### 🔴 Second limit of the parity table — it only walks one of the two doors
+
+Recorded next to the "helpers, not authorization" limit, because Phase 2 leans on this table:
+
+**The generator walks the RPC `handle()` switch. The 27 REST controllers are a second, independent
+door into the same services, and the table cannot see them at all.** `approver.update` is the proof —
+guarded in the switch the table reads, unguarded in the controller it does not.
+
+Twelve controllers never reference the requester at all: `account`, `approval-rule`, `approver`,
+`church`, `column`, `document`, `financial-account-number`, `location`, `membership-position`,
+`membership`, `verify`, `health`. Most are harmless because the service resolves the requester itself
+and throws when absent — every `resolveRequesterChurchId` in the codebase opens with
+`if (!userId) throw` — so those routes fail closed. The dangerous ones are where enforcement is
+*conditional* on a parameter the controller omits. A sweep for that shape found exactly two:
+`approver.service.update` (fixed here) and `churchRequest.findAll`, whose `requesterId` comes from
+the **query string** rather than the caller, so `GET /church-request` returns every church request
+with its contact name, phone and address. That one is a read leak on a separate door and is tracked
+as its own ticket.
+
+Phase 2 deletes all 27 controllers, which closes this door by construction — but only when it lands.
 
 ---
 

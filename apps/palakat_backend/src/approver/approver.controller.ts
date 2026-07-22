@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport/dist/auth.guard';
@@ -40,8 +41,9 @@ export class ApproverController {
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateApproverDto: UpdateApproverDto,
+    @Req() req: any,
   ) {
-    return this.approverService.update(id, updateApproverDto);
+    return this.approverService.update(id, updateApproverDto, req.user);
   }
 
   @Delete(':id')

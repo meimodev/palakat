@@ -75,6 +75,13 @@ without opening the tracker first.
 > and, until Phase 1.5 taught it to, could not see an inline `if (auth?.role !== 'SUPER_ADMIN')`.
 > **A guard it cannot see reads exactly like a guard that is not there.** Rows now carry
 > `inlineGuard`, and the summary separates `trulyUnguarded` from `unguarded` — use the former.
+>
+> ⚠️ **It also walks only one of the two doors.** The generator reads the RPC `handle()` switch. The
+> 27 REST controllers reach the same services independently and are invisible to it. Phase 1.5d found
+> `approver.update` guarded in the switch the table reads and **unguarded** in the controller it does
+> not — `PATCH /approver/:id` let any signed-in account set any approver's status. Phase 2 deletes all
+> 27 controllers, which closes this door by construction; until it lands, a green table is a statement
+> about the RPC surface alone.
 
 ### What Phase 1.5 has established so far
 
@@ -84,17 +91,27 @@ It mixes three populations — see [`…-phase-1.5-authorization-triage.md`](./p
 | | Count | |
 |---|---:|---|
 | Inline-guarded | 11 | Authorizes by hand rather than via a helper. Guarded. **Not work.** |
-| Scoped-arg | 27 | Passes `user` or a caller-derived id; several demonstrably enforce in the service. Verify, don't fix. |
+| Scoped-arg | 27 | Passes `user` or a caller-derived id. **All read (#59): all 27 enforce. Not work.** |
 | **Bare** | **56** | No helper, no inline check, nothing caller-derived reaches the service. **No layer can be enforcing anything.** |
 
-Done: `sub.join` room authorization (§3.1), and `ops.approvalRule.manage` now enforced on all five
-`approvalRule.*` actions — that finding is closed, and the generator proves it with `unchecked: []`.
+Done: `sub.join` room authorization (§3.1); `ops.approvalRule.manage` now enforced on all five
+`approvalRule.*` actions — that finding is closed, and the generator proves it with `unchecked: []`;
+and [#59](https://github.com/meimodev/palakat/issues/59), which read all 27 scoped-arg actions and
+found every one of them genuinely enforcing. **Nothing moved out of the 27, so the backlog is still
+exactly the 56 bare actions.**
+
+#59 did find one hole, on a door the parity table does not walk — `approver.service.update` took an
+**optional** requester id and ran its self-only check only `if (typeof … === 'number')`, and
+`PATCH /approver/:id` passed nothing. Fixed by resolving the requester inside the service so no caller
+can reach the write without an identity. **Generalise the shape, not the instance: an optional
+identity parameter whose absence silences the check is fail-open by omission.** A sweep found exactly
+one other, `churchRequest.findAll`, tracked separately.
 
 Remaining, split off [#45](https://github.com/meimodev/palakat/issues/45) and blocking it:
 [#57](https://github.com/meimodev/palakat/issues/57) bare writes → permissions ·
 [#58](https://github.com/meimodev/palakat/issues/58) bare reads → service scoping ·
-[#59](https://github.com/meimodev/palakat/issues/59) verify the 27 ·
-[#60](https://github.com/meimodev/palakat/issues/60) the `ops.approval.finance` widening decision.
+[#60](https://github.com/meimodev/palakat/issues/60) the `ops.approval.finance` widening decision ·
+[#61](https://github.com/meimodev/palakat/issues/61) the `GET /church-request` read leak.
 
 ---
 
@@ -1610,7 +1627,11 @@ Phase 1   [ ] PARITY TABLE GENERATOR: walks rpc-router.service.ts, emits guard
 Phase 1.5 [x] triage the 94 auth-only actions → 11 inline / 27 scoped / 56 bare
 Phase 1.5 [x] sub.join room authorization (§3.1 — was a live leak)
 Phase 1.5 [x] ops.approvalRule.manage enforced; `unchecked: []`
-Phase 1.5 [ ] the 56 bare actions: #57 writes, #58 reads, #59 verify 27   🔴 SECURITY GATE
+Phase 1.5 [x] #59 — read all 27 scoped-arg actions; all 27 enforce, none moved
+Phase 1.5 [x] approver.update self-check made fail-CLOSED (was skipped when the
+              requester was absent; PATCH /approver/:id passed none)
+Phase 1.5 [ ] the 56 bare actions: #57 writes, #58 reads              🔴 SECURITY GATE
+Phase 1.5 [ ] #61 — GET /church-request returns every request, all churches
 Phase 1.5 [ ] #60 — decide the ops.approval.finance widening
               (correct as-is / needs permission / needs church-scoping)
           [ ] fix buckets 2 and 3 ON THE RPC PATH, before any controller exists

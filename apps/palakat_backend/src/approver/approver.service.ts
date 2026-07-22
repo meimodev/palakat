@@ -436,15 +436,39 @@ export class ApproverService {
     };
   }
 
+  private async resolveRequesterMembershipId(user?: any): Promise<number> {
+    const userId = user?.userId;
+    if (!userId) {
+      throw new ForbiddenException('Requester identity is required');
+    }
+
+    const membership = await (this.prisma as any).membership.findUnique({
+      where: { accountId: userId },
+      select: { id: true },
+    });
+
+    if (!membership?.id) {
+      throw new BadRequestException('User does not have a membership');
+    }
+
+    return membership.id;
+  }
+
   /**
    * Normal self-update: requester can only update their own approver record.
-   * The requesterMembershipId must match the approver's membershipId.
+   *
+   * The requester is resolved here rather than passed in. It used to be an
+   * optional id and the self-only check ran only `if (typeof … === 'number')`,
+   * so `PATCH /approver/:id` — which passed nothing — skipped it entirely and
+   * any signed-in account could set any approver's status. Absent identity is
+   * a refusal, not a bypass.
    */
   async update(
     id: number,
     updateApproverDto: UpdateApproverDto,
-    requesterMembershipId?: number,
+    user: { userId: number },
   ): Promise<{ message: string; data: any }> {
+    const requesterMembershipId = await this.resolveRequesterMembershipId(user);
     const approverInclude = {
       activity: {
         include: {
@@ -492,19 +516,17 @@ export class ApproverService {
     };
 
     // First load the record to enforce self-only constraint
-    if (typeof requesterMembershipId === 'number') {
-      const existing = await (this.prisma as any).approver.findUnique({
-        where: { id },
-        select: { membershipId: true },
-      });
-      if (!existing) {
-        throw new NotFoundException('Approver not found');
-      }
-      if (existing.membershipId !== requesterMembershipId) {
-        throw new ForbiddenException(
-          'You can only update your own approver record',
-        );
-      }
+    const existing = await (this.prisma as any).approver.findUnique({
+      where: { id },
+      select: { membershipId: true },
+    });
+    if (!existing) {
+      throw new NotFoundException('Approver not found');
+    }
+    if (existing.membershipId !== requesterMembershipId) {
+      throw new ForbiddenException(
+        'You can only update your own approver record',
+      );
     }
 
     const approver = await (this.prisma as any).approver.update({

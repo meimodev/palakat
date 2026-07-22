@@ -6,7 +6,11 @@
  */
 
 import { Test, TestingModule } from '@nestjs/testing';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { ApproverService } from './approver.service';
 import { PrismaService } from '../prisma.service';
 import { NotificationService } from '../notification/notification.service';
@@ -271,13 +275,25 @@ describe('ApproverService', () => {
       ...mockApprover,
       status: 'APPROVED' as ApprovalStatus,
     };
+    const self = { userId: 1 };
+
+    beforeEach(() => {
+      // The caller owns approver 1; the self-only check is exercised in its
+      // own describe below.
+      mockPrismaService.membership.findUnique.mockResolvedValue({ id: 1 });
+      mockPrismaService.approver.findUnique.mockResolvedValue({
+        membershipId: 1,
+      });
+    });
 
     it('should update approver status', async () => {
       mockPrismaService.approver.update.mockResolvedValue(updatedApprover);
 
-      const result = await service.update(1, {
-        status: 'APPROVED' as ApprovalStatus,
-      });
+      const result = await service.update(
+        1,
+        { status: 'APPROVED' as ApprovalStatus },
+        self,
+      );
 
       expect(result.message).toBe('Approver updated successfully');
       expect(result.data.status).toBe('APPROVED');
@@ -354,9 +370,7 @@ describe('ApproverService', () => {
         data: {},
       });
 
-      await service.update(1, {
-        status: 'APPROVED' as ApprovalStatus,
-      });
+      await service.update(1, { status: 'APPROVED' as ApprovalStatus }, self);
 
       expect(mockDocumentService.generate).toHaveBeenCalledWith(
         {
@@ -385,9 +399,7 @@ describe('ApproverService', () => {
         },
       });
 
-      await service.update(1, {
-        status: 'APPROVED' as ApprovalStatus,
-      });
+      await service.update(1, { status: 'APPROVED' as ApprovalStatus }, self);
 
       expect(mockDocumentService.generate).not.toHaveBeenCalled();
     });
@@ -398,8 +410,54 @@ describe('ApproverService', () => {
       );
 
       await expect(
-        service.update(999, { status: 'APPROVED' as ApprovalStatus }),
+        service.update(999, { status: 'APPROVED' as ApprovalStatus }, self),
       ).rejects.toThrow();
+    });
+  });
+
+  describe('update — self-only scoping', () => {
+    it.each([undefined, null, {}, { userId: undefined }])(
+      'refuses to update when the caller carries no identity (%p)',
+      async (caller) => {
+        // PATCH /approver/:id passed no requester at all, and the self-only
+        // check was wrapped in `if (typeof … === 'number')`, so it was skipped
+        // and any signed-in account could set any approver's status.
+        await expect(
+          service.update(1, { status: 'APPROVED' as ApprovalStatus }, caller as any),
+        ).rejects.toThrow(ForbiddenException);
+        expect(mockPrismaService.approver.update).not.toHaveBeenCalled();
+      },
+    );
+
+    it("refuses to update another member's approver record", async () => {
+      mockPrismaService.membership.findUnique.mockResolvedValue({ id: 2 });
+      mockPrismaService.approver.findUnique.mockResolvedValue({
+        membershipId: 1,
+      });
+
+      await expect(
+        service.update(1, { status: 'APPROVED' as ApprovalStatus }, {
+          userId: 2,
+        }),
+      ).rejects.toThrow(ForbiddenException);
+      expect(mockPrismaService.approver.update).not.toHaveBeenCalled();
+    });
+
+    it('updates the caller’s own approver record', async () => {
+      mockPrismaService.membership.findUnique.mockResolvedValue({ id: 1 });
+      mockPrismaService.approver.findUnique.mockResolvedValue({
+        membershipId: 1,
+      });
+      mockPrismaService.approver.update.mockResolvedValue(mockApprover);
+
+      const result = await service.update(
+        1,
+        { status: 'APPROVED' as ApprovalStatus },
+        { userId: 1 },
+      );
+
+      expect(result.message).toBe('Approver updated successfully');
+      expect(mockPrismaService.approver.update).toHaveBeenCalled();
     });
   });
 
