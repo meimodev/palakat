@@ -40,18 +40,24 @@ Supabase port, and that fork is closed. The live bar is §0.05's.
 
 ## 0.01 ⏱️ Where the work actually is — read this first
 
-> ### 🔴 No schema migrations until [#42](https://github.com/meimodev/palakat/issues/42) is running
+> ### 🟡 Schema migrations are unblocked — `palakat_admin` holds no real data
 >
 > Risk R2 (§13) is *"unrecoverable data loss on a bad migration"*, rated **Certain**, and its only stated
 > mitigation is a `pg_dump` before every migration. That dump is **written and not running** — it needs a
-> bucket and one connection string. Until it does, every `prisma migrate` against production is R2 with
-> its mitigation removed.
+> bucket and one connection string.
 >
-> This is not a Phase 4 problem or a Phase 2 problem, which is why it is stated here rather than in either:
-> **#42 gates every schema change in the project.** The first thing it caught was
-> [#72](https://github.com/meimodev/palakat/issues/72), which needs a device-token table.
+> 🟢 **Correction, 2026-07-23 (owner).** `palakat_admin` has been live since 2026-03-20 but **the data in
+> it is not real** — no congregation depends on any row of it today. R2's *likelihood* is unchanged; its
+> *blast radius* is currently near zero, and a risk whose consequence is "restore a database nobody was
+> using" is not the same risk the paragraph above describes. **So schema migrations are no longer gated
+> on #42**, and [#72](https://github.com/meimodev/palakat/issues/72)'s device-token table can proceed.
 >
-> The setup it needs is item 1 of **§0.02**, along with everything else currently waiting on a human.
+> 🔴 **The gate returns the moment real data lands, and that moment will not announce itself.** This
+> exemption is a statement about the *contents* of the database, not about the quality of the migration
+> path — nothing in the code, the CI, or a `prisma migrate` run can tell that the contents changed. The
+> first real congregation onboarded silently restores R2 to full severity while every marker in this
+> document still reads green. **Land #42 before that onboarding, not after it** — it stays item 1 of
+> §0.02 for exactly this reason, and it is the one item here whose cost goes *up* the longer it waits.
 
 **Last updated: 2026-07-23.** Execution is tracked on a wayfinder map,
 **[#41](https://github.com/meimodev/palakat/issues/41)**, with one ticket per phase. This section is
@@ -64,11 +70,12 @@ without opening the tracker first.
 | **0** Correctness fixes | ✅ merged. Pool bound later (§0.3); one item left and it needs a credential — §0.02 | [#35](https://github.com/meimodev/palakat/pull/35) |
 | **3a** Birthday timezone | ✅ merged | [#54](https://github.com/meimodev/palakat/pull/54) · `d26576c` |
 | **1** Permission layer + generated parity table | ✅ merged | [#55](https://github.com/meimodev/palakat/pull/55) · `f76313d` |
-| **1.5** Authorization hardening | 🔄 **code complete** — all 56 bare actions closed (22 gated, 15 scoped, 4 self-scoped, 15 correctly open). Only the [#60](https://github.com/meimodev/palakat/issues/60) decision remains, §0.02 item 2 | [#45](https://github.com/meimodev/palakat/issues/45), [#56](https://github.com/meimodev/palakat/pull/56)–[#63](https://github.com/meimodev/palakat/issues/63) |
-| **2** REST surface | ⛔ blocked on 1.5 | [#46](https://github.com/meimodev/palakat/issues/46) |
+| **1.5** Authorization hardening | ✅ **done** — all 56 bare actions closed (22 gated, 15 scoped, 4 self-scoped, 15 correctly open), and [#60](https://github.com/meimodev/palakat/issues/60) decided 2026-07-23: `.override` on `finance.list`/`.get`/`.overview`. `0 phantom · 0 unchecked` | [#45](https://github.com/meimodev/palakat/issues/45), [#56](https://github.com/meimodev/palakat/pull/56)–[#63](https://github.com/meimodev/palakat/issues/63) |
+| **2** REST surface | 🟢 **unblocked** — 1.5 closed. Next work in plan order | [#46](https://github.com/meimodev/palakat/issues/46) |
 | **4** FCM push | 🔄 **in progress** — §9.1 seam swapped, content allow-list in. **Emits on both transports**: nothing calls `subscribeToTopic` until Phase 5, so FCM-only would publish to nobody. §9.2 (retire Beams) deliberately deferred | [#47](https://github.com/meimodev/palakat/issues/47) |
+| **5** Flutter client | ⛔ blocked on 4, but [#72](https://github.com/meimodev/palakat/issues/72) is now decided: `palakat_admin` gets **no push**, its socket is replaced by a polled change-version endpoint (§9.5, §0.02 item 3) | [#48](https://github.com/meimodev/palakat/issues/48) |
 | **5**–**9**, **3b** | ⛔ blocked, in plan order | [#48](https://github.com/meimodev/palakat/issues/48)–[#53](https://github.com/meimodev/palakat/issues/53) |
-| Daily `pg_dump` (decision 21 — *not* a phase, and overdue) | 🔄 **written, not yet running** — workflow + restore rehearsal merged; needs a bucket, a WIF provider and one connection string. Setup: [`palakat-db-backup.md`](./palakat-db-backup.md) | [#42](https://github.com/meimodev/palakat/issues/42) |
+| Daily `pg_dump` (decision 21 — *not* a phase) | 🔄 **written, not yet running** — workflow + restore rehearsal merged; needs a bucket, a WIF provider and one connection string. **No longer gates migrations** — the database holds no real data (§0.01); deadline is the first real congregation. Setup: [`palakat-db-backup.md`](./palakat-db-backup.md) | [#42](https://github.com/meimodev/palakat/issues/42) |
 
 ### What Phase 1 built, that Phase 2 depends on
 
@@ -165,29 +172,48 @@ each has a REST controller onto the same method, and guarding only the router le
 > broken** — the parity table reports reachability, not whether the code behind it runs.
 
 **The 56 bare actions are now done: 22 gated, 15 scoped, 4 self-scoped, 15 recorded as correctly
-open.** What remains of Phase 1.5 is two decisions, not code.
+open.**
 
-Remaining, split off [#45](https://github.com/meimodev/palakat/issues/45) and blocking it:
-**one decision** — [#60](https://github.com/meimodev/palakat/issues/60), the `ops.approval.finance`
-widening (§0.02 item 2). ([#61](https://github.com/meimodev/palakat/issues/61) was closed as a false positive: the
+[#60](https://github.com/meimodev/palakat/issues/60) was then decided on 2026-07-23 —
+`ops.approval.finance` → `ops.approval.finance.override` on `finance.list`, `finance.get` **and
+`finance.overview`** — which **closes Phase 1.5 and unblocks Phase 2**. The generator now reports
+`0 phantom · 0 unchecked`. The full reasoning, including the two things #60 asserted that turned out to
+be false, is §0.02 item 2. ([#61](https://github.com/meimodev/palakat/issues/61) was closed as a false positive: the
 `GET /church-request` "leak" is `SUPER_ADMIN`-only on all four of its doors.)
+
+> ⚠️ **The lesson #60 leaves for Phase 2, which reads routes off this same table.** The ticket was
+> written from a grep of one permission name, and it named two call sites. The third — `finance.overview`
+> — was broken by the *absence* of that name, so no grep for it could find it, and the parity table
+> cannot see an audience either (see the warning above). **The table tells you where a permission is;
+> it cannot tell you where one is missing.**
 
 ---
 
 ## 0.02 🙋 Manual steps waiting on a human — **all remaining work is behind this list**
 
-**Last updated: 2026-07-23.** Nothing on this list can be done by an agent: it needs credentials an
-agent does not hold, a device an agent cannot touch, or a judgement call about who may see money.
-Every open ticket is blocked on one of these four items. **Ordered by how much each unblocks.**
+**Last updated: 2026-07-23.** This list was four blocking items. **Items 2 and 3 were decided in a
+grilling session on 2026-07-23 and are kept here as the record of what was decided and why** — both
+overturned a premise the ticket had stated as fact, which is worth reading before trusting a similar
+framing elsewhere in this document.
+
+**What is still waiting on a human: items 1 and 4 only** — a credential an agent does not hold, and a
+physical device an agent cannot touch. Neither blocks code today. Everything else is now agent-executable
+work in plan order. **Ordered by how much each unblocks.**
 
 ---
 
-### 1. 🔴 Set up the database backup — [#42](https://github.com/meimodev/palakat/issues/42)
+### 1. 🟡 Set up the database backup — [#42](https://github.com/meimodev/palakat/issues/42)
 
-**Unblocks: every schema migration in the project** (§0.01), which means [#72](https://github.com/meimodev/palakat/issues/72)
-and anything in Phase 2 that touches the schema. It is also the only item here that is pure setup with
-no decision in it, and the only one where the *current* state is dangerous rather than merely stalled:
-`palakat_admin` has served production since 2026-03-20 and **there is no copy of that database anywhere.**
+**No longer blocks anything** (§0.01): `palakat_admin` has been live since 2026-03-20, but the owner
+confirmed on 2026-07-23 that **the data in it is not real**, so a bad migration today loses nothing a
+congregation depends on. Schema migrations, including [#72](https://github.com/meimodev/palakat/issues/72)'s
+device-token table, may proceed without this.
+
+It stays item 1 anyway, and it is still the only item here that is pure setup with no decision in it.
+**Its deadline is now the first real congregation, which is a date nobody will file a ticket for.**
+Every other item on this list gets *cheaper* or stays flat while it waits; this one is the single item
+whose cost rises the longer it sits, because the window in which "lose the whole database" is an
+acceptable outcome closes silently and without a build failure.
 
 Full commands in [`palakat-db-backup.md`](./palakat-db-backup.md). Summary:
 
@@ -214,33 +240,68 @@ Full commands in [`palakat-db-backup.md`](./palakat-db-backup.md). Summary:
 
 ---
 
-### 2. 🔴 Decide the `ops.approval.finance` widening — [#60](https://github.com/meimodev/palakat/issues/60)
+### 2. ✅ DECIDED 2026-07-23 — the `ops.approval.finance` widening — [#60](https://github.com/meimodev/palakat/issues/60)
 
-**Unblocks: Phase 1.5 → Phase 2** ([#46](https://github.com/meimodev/palakat/issues/46)), the largest
-remaining block of work.
+**Phase 1.5 is closed and Phase 2 ([#46](https://github.com/meimodev/palakat/issues/46)) is unblocked.**
+`0 phantom · 0 unchecked`, and `pnpm parity:check` reports `permission parity OK`.
 
-`ops.approval.finance` is a dead clause — the parity checker still reports it as a phantom on every run.
-Correcting it **widens** finance read access to approvers. That is the only change in Phase 1.5 that
-grants rather than removes, on a finance read path, under a release freeze; every other change tightened,
-and tightening is safe to do unilaterally. **This is not.**
+**Decision: correct the clause to `ops.approval.finance.override`, on three sites — `finance.list`,
+`finance.get` and `finance.overview`.** Church-wide finance read is deliberately widened to
+`Ketua Jemaat` and `Admin Gereja`.
 
-The question is whether `.override` was what was meant (a one-word fix) or whether a new permission
-should be defined with its own default positions (a policy change).
+> 🔴 **The grilling found the ticket's premise was wrong, and the real bug was worse.** #60 said a typo
+> "has been excluding approvers from reading the finance records they are asked to approve." It has not.
+> Approvers read their queue through **`finance.approval.list` + `finance.approval.get`**, which scope by
+> `membershipId` (`finance.service.ts:168`) and work correctly. That path is untouched by this decision.
+>
+> What the dead clause actually broke is on the other app. `ops.approval.finance.override` is held by
+> exactly `Ketua Jemaat` and `Admin Gereja`, and **neither holds either finance-create permission**. So
+> in `palakat_admin`: Finance screen → `finance.list` → **Forbidden**. Dashboard → `finance.overview` →
+> **Forbidden**. They could never reach `finance_detail_drawer.dart`, *which is the only place their
+> override power is exposed*. **The override capability was unreachable through its own UI**, and no
+> client-side permission gating exists, so it failed as a runtime error rather than a hidden menu.
+> `Ketua Majelis`/`Sekretaris`/`Pengurus Harian` hold the create permissions, so it worked for them —
+> which is why this survived.
+
+> ⚠️ **`finance.overview` is outside #60's literal text and had to be included.** It carried no
+> `ops.approval.finance` clause at all, so fixing only the two sites the ticket names would have left the
+> admin dashboard and the overview header still throwing Forbidden for the same two positions. **A ticket
+> scoped from a grep of one permission name missed the site that never mentioned it.**
+
+Rejected: defining a new `ops.finance.read`. It separates "may read finance" from "may override an
+approval", which nothing has asked for — revisit only if someone needs read *without* override.
 
 ---
 
-### 3. Decide how `palakat_admin` gets push — [#72](https://github.com/meimodev/palakat/issues/72)
+### 3. ✅ DECIDED 2026-07-23 — how `palakat_admin` gets push — [#72](https://github.com/meimodev/palakat/issues/72)
 
-**Unblocks: §9.2 (retiring Pusher Beams), Phase 5 ([#48](https://github.com/meimodev/palakat/issues/48)),
-and removing the transitional dual-emit** from `emitToRoom`. Also blocked *by* item 1, since it needs a
-device-token table.
+**Decision: it does not. `palakat_admin` needs in-app live refresh only, not background OS push.**
+No device-token registry, no VAPID key, no service worker, no Pusher bill. The transport is replaced by
+**polling a cheap per-church change-version endpoint (~30s), invalidate-then-read per §9.4.**
 
-Three shapes: a server-side token registry (full FCM, new model and endpoint); keep Beams for web only
-(cheapest, keeps a paid vendor and two push systems); or web keeps the socket permanently.
+> 🔴 **`palakat_admin` web push has never worked, so the ticket's cost comparison was false.** #72 framed
+> "keep Beams for web only" as *cheapest, keeps a paid vendor*. There is nothing to keep — **four**
+> independent pieces are missing:
+>
+> | | Evidence |
+> |---|---|
+> | Registration is a stub | `auth_controller.dart:63` — body is `return;` |
+> | Deregistration is a stub | `auth_controller.dart:102` — body is `return;` |
+> | SDK never loaded | `web/index.html` has no Beams script, so the JS-interop target `PusherPushNotifications` is `undefined` |
+> | No push handler | `web/service-worker.js` is **0 bytes** |
+>
+> Both stubs carry `**Validates: Requirements 4.2/4.4**` doc comments. **Same shape as
+> `membership.create`: code present, doc comment confident, path dead.** Choosing "keep Beams" would have
+> meant *building* Beams at the same cost as building FCM, and paying a vendor for it.
 
-> ⚠️ **The third is the default-by-drift option and it is the expensive one.** "Leave the socket for web"
-> is the path of least resistance at every individual step, and a held-open socket is exactly what
-> prevents scale-to-zero in Phases 7–8 — the migration's main cost win.
+What `palakat_admin` actually has today is **in-app live refresh over the socket** — six
+`ref.listen(realtimeEventProvider, …)` sites (approvals, activity, report, finance overview, finance
+data). That is a different capability from background push, and the plan had been treating them as one.
+
+> 🔴 **A live decision-14 violation, found on the way.** `finance_data_controller.dart:58` runs
+> `Future.microtask(_fetchEntries)` on every matching realtime event — an **eager full refetch**, which is
+> exactly the amplifier §9.4 forbids and prices at ~6 GB/month from one church. It must become
+> invalidate-only as part of the transport swap. See §9.5.
 
 ---
 
@@ -343,6 +404,11 @@ authenticated but unauthorized**, plus a phantom permission (`ops.approval.finan
 defined), an unchecked one (`ops.approvalRule.manage`), and four client calls with no server handler. That
 is a live security finding, not a migration artifact — it does not go away by staying on Nest, and the REST
 surface must not be built on top of it unexamined.
+
+> ✅ **All resolved as of 2026-07-23.** Phase 1.5 closed the 94 (§6.5); the phantom and the unchecked
+> permission are decided and corrected (§0.02 item 2, [#60](https://github.com/meimodev/palakat/issues/60));
+> the four handler-less calls are tracked in the parity doc. The generator now reports
+> `0 phantom · 0 unchecked`, and Phase 2 is unblocked.
 
 **Phase 6 was never no-go-only work.** Report generation cannot run on Deno
 ([#17](https://github.com/meimodev/palakat/issues/17)), so a Node worker survives on Cloud Run
@@ -772,7 +838,7 @@ Scale-to-zero and multi-instance both become real, so single-process assumptions
 
 **All of §5 ships during the freeze** — these are defects on either branch. See §0.0.
 
-### 0.1 🔴 Stale-job reaper (live) + atomic job claim (latent)
+### 0.1 ✅ Stale-job reaper (live) + atomic job claim (latent) — shipped in [#35](https://github.com/meimodev/palakat/pull/35)
 
 Two separate defects, ranked correctly per §1.3.
 
@@ -806,7 +872,7 @@ Keep `isProcessing` as a *local* limiter.
 **Verification:** integration test running two `processQueue()` calls concurrently against one PENDING row,
 asserting exactly one render. Plus a test that a `PROCESSING` row older than the threshold is reclaimed.
 
-### 0.2 🔴 Ship the PDF font
+### 0.2 ✅ Ship the PDF font — shipped in [#35](https://github.com/meimodev/palakat/pull/35)
 
 `report-renderer.ts:7–14` probes six paths; the first five are host absolute paths present on Ubuntu EC2 and on
 **no** slim container base. `resolveUnicodeFontPath()` then returns `undefined` and PDF rendering silently falls
@@ -858,7 +924,7 @@ Route the service through **Supabase's transaction pooler (port 6543, `?pgbounce
 statements — **run the full e2e suite against the pooler URL before cutover**. Migrations keep the **direct**
 connection on 5432; PgBouncer transaction mode cannot run DDL reliably.
 
-### 0.4 🟡 Repo hygiene
+### 0.4 ✅ Repo hygiene — shipped in [#35](https://github.com/meimodev/palakat/pull/35)
 
 - `apps/palakat_backend/package-lock.json` and `apps/palakat_backend/pnpm-lock.yaml` are stale; the root
   `pnpm-lock.yaml` is authoritative. Delete both or the Docker build picks the wrong one.
@@ -970,7 +1036,7 @@ them.
 
 ---
 
-## 6.5 Phase 1.5 — fix the 94 unguarded actions, on the RPC path 🔴
+## 6.5 Phase 1.5 — fix the 94 unguarded actions, on the RPC path ✅ done
 
 **1–2 weeks. New — decision 31, [ADR-0008](./adr/0008-authorization-hardening-precedes-transport.md).**
 
@@ -1008,12 +1074,12 @@ rather than silently ignoring it.
   which horn: **the approval-rule actions were under-guarded**, not the permission dead. All five
   `approvalRule.*` now require it ([#56](https://github.com/meimodev/palakat/pull/56)), and the
   generator reports `unchecked: []`.
-- `ops.approval.finance` is passed at `rpc-router.service.ts:2075` and `:2096` and is **never
-  defined** — only `ops.approval.finance.override` exists, so those clauses are dead. **Still open,
-  deliberately** ([#60](https://github.com/meimodev/palakat/issues/60)): the comment above the call
-  says *"Allow finance creators OR finance approvers to read detail"*, so correcting it **widens**
-  finance read access. It is the only widening in this phase, and every other change here tightens.
-  Tightening is safe to do unilaterally under the freeze; this is not.
+- `ops.approval.finance` was passed in the `finance.list`/`finance.get` allow-lists and **never
+  defined**, so those clauses were dead. **Decided and corrected 2026-07-23**
+  ([#60](https://github.com/meimodev/palakat/issues/60)): changed to `ops.approval.finance.override` on
+  `finance.list`, `finance.get` **and `finance.overview`**, deliberately widening church-wide finance
+  read to `Ketua Jemaat` and `Admin Gereja` — who otherwise get Forbidden on `palakat_admin`'s finance
+  screen, the only UI their override power is reachable from. Full reasoning in §0.02 item 2.
 
 **Also fixed here, and not previously in this plan's scope:** `sub.join` accepted any room name —
 see §3.1. That was a live cross-church data leak, and it falsified §3's original framing.
@@ -1390,6 +1456,35 @@ between the two columns of §0.1 arriving early or late.
 
 §10.1 step 3 is written against this rule. Eager refetch is the amplifier — do not reintroduce it as an
 optimisation.
+
+### 9.5 `palakat_admin` gets no push — decided [#72](https://github.com/meimodev/palakat/issues/72), 2026-07-23
+
+**`palakat_admin` is Flutter web, and it needs in-app live refresh, not background OS notifications.**
+No device-token registry, no VAPID key, no service worker, no Pusher Beams. This deletes §9.2's remaining
+work and the transitional dual-emit in `emitToRoom` — see §0.02 item 3 for the evidence, including the
+four independent reasons Beams web has never worked despite the code being present.
+
+**Replacement transport: poll a per-church change-version endpoint.**
+
+| | |
+|---|---|
+| Endpoint | `GET /church/:id/change-version` → `{ version: <n> }`, ~20 bytes |
+| Version source | derived from `MAX(updatedAt)` across the church's tables — **no schema change, so this does not wait on [#42](https://github.com/meimodev/palakat/issues/42)** |
+| Client | poll ~30s **while the tab has focus**; stop when hidden |
+| On change | mark providers stale — **do not refetch** (§9.4). The read happens on next view |
+| Cost | ~2 req/min per working admin, **0 at night** → the instance scales to zero |
+
+This follows §9.3's precedent exactly: a bounded poll replaces a live channel, and the channel that
+justified holding a socket open turns out to want only a staleness bit.
+
+> 🔴 **Fix the eager refetch during this swap, not after.** `finance_data_controller.dart:58` currently
+> runs `Future.microtask(_fetchEntries)` on every matching realtime event. Porting that pattern onto the
+> poll would fire a full list refetch every 30 seconds per admin — strictly worse than the socket it
+> replaces. **The poll returns a version, and a version change invalidates. Nothing else.**
+
+> ⚠️ **The socket cannot be deleted until this lands.** Six `ref.listen(realtimeEventProvider, …)` sites
+> in `palakat_admin` depend on it (approvals, activity, report, finance overview, finance data). §10.3
+> deletes the socket; that step now has an admin-web prerequisite it did not have before.
 
 ---
 
@@ -1881,7 +1976,9 @@ Phase 0   [x] DATABASE_POOL_MAX bounds the pool (was pg's default 10/process);
           [ ] e2e green against the transaction pooler — needs the pooler URL,
               and txn mode disables prepared statements             (§0.02)
           [ ] Supabase Free limits checked; usage alerts set        (§0.02)
-          [~] daily pg_dump → GCS starting NOW — palakat_admin is already live
+          [~] daily pg_dump → GCS — palakat_admin is live but holds NO REAL DATA
+              (owner, 2026-07-23), so this no longer gates migrations. Deadline
+              is the first real congregation, which ships no build failure
               workflow + restore rehearsal written (docs/palakat-db-backup.md).
               [ ] bucket + lifecycle + WIF provider created        (§0.02 item 1)
               [ ] DATABASE_URL_SESSION set — the SESSION pooler, not the direct
@@ -1919,13 +2016,28 @@ Phase 1.5 [x] #63 — 4 member-app writes self-scoped IN THE SERVICE (REST door
 Phase 1.5 [x] all 56 bare actions closed: 22 gated, 15 scoped, 4 self-scoped,
               15 recorded correctly-open                      🔴 SECURITY GATE
 Phase 1.5 [x] #61 — RETRACTED, false positive: all four doors are SUPER_ADMIN
-Phase 1.5 [ ] #60 — decide the ops.approval.finance widening
-              (correct as-is / needs permission / needs church-scoping)
-          [ ] fix buckets 2 and 3 ON THE RPC PATH, before any controller exists
-          [ ] ops.approval.finance — referenced, never defined: remove or define
-          [ ] ops.approvalRule.manage — defined, never checked: dead, or the
-              approval-rule actions are under-guarded. Decide which
-          [ ] regenerate the table; CI check green
+Phase 1.5 [x] #60 — DECIDED 2026-07-23: ops.approval.finance -> .override on
+              finance.list, finance.get AND finance.overview. The third is not
+              in #60 — it broke by the ABSENCE of the name the ticket grepped.
+              Widens church-wide finance read to Ketua Jemaat + Admin Gereja,
+              who otherwise get Forbidden on palakat_admin's finance screen,
+              the only place their override power is reachable  🔴 SECURITY GATE
+          [x] fix buckets 2 and 3 ON THE RPC PATH, before any controller exists
+          [x] ops.approval.finance — resolved: corrected, not removed
+          [x] ops.approvalRule.manage — resolved: actions were under-guarded
+          [x] regenerate the table; CI check green
+              166 actions · 103 unguarded · 0 phantom · 0 unchecked
+              PHASE 1.5 CLOSED -> PHASE 2 UNBLOCKED
+
+Phase 5   [x] #72 — DECIDED 2026-07-23: palakat_admin gets NO push. It needs
+              in-app live refresh, not OS notifications. No token registry,
+              no VAPID, no service worker, no Pusher bill                (§9.5)
+          [ ] GET /church/:id/change-version — derived from MAX(updatedAt),
+              no schema change, so it does not wait on #42
+          [ ] admin polls it ~30s while focused; version change INVALIDATES
+          [ ] fix finance_data_controller.dart:58 — eager _fetchEntries on
+              every event violates decision 14 TODAY. Invalidate-only  (§9.4)
+          [ ] only then delete the socket — 6 admin listeners depend on it
 
 Phase 2   [ ] all 27 existing controller files DELETED first     🔴 SECURITY GATE
           [ ] every route written from the GENERATED table; 25 modules registered

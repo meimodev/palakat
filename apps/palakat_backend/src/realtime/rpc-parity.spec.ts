@@ -109,14 +109,18 @@ describe('parity table generator', () => {
     expect(row.permissions).toEqual([
       'ops.finance.revenue.create',
       'ops.finance.expense.create',
-      'ops.approval.finance',
+      'ops.approval.finance.override',
     ]);
   });
 
-  it('finds the phantom permission, and shows the unchecked one is now checked', () => {
-    // ops.approval.finance is still a dead clause — correcting it to
-    // .override would *widen* finance read access, so it waits for a yes.
-    expect(summary.phantom).toEqual(['ops.approval.finance']);
+  it('has no phantom permission left, and shows the unchecked one is now checked', () => {
+    // #60 answered: ops.approval.finance was corrected to .override on
+    // finance.list, finance.get and finance.overview, deliberately widening
+    // church-wide finance read to Ketua Jemaat / Admin Gereja. Without it
+    // those two positions could not open palakat_admin's finance screen at
+    // all, so the override power they hold was unreachable through its
+    // own UI.
+    expect(summary.phantom).toEqual([]);
     // ops.approvalRule.manage was "defined and never checked". Phase 1.5
     // resolved which horn: the approval-rule actions were under-guarded.
     expect(summary.unchecked).toEqual([]);

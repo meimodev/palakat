@@ -4,9 +4,7 @@
     "unguarded": 103,
     "trulyUnguarded": 91,
     "inlineGuarded": 24,
-    "phantom": [
-      "ops.approval.finance"
-    ],
+    "phantom": [],
     "unchecked": []
   },
   "rows": [
@@ -592,7 +590,7 @@
       "permissions": [
         "ops.finance.revenue.create",
         "ops.finance.expense.create",
-        "ops.approval.finance"
+        "ops.approval.finance.override"
       ],
       "unguarded": false,
       "inlineGuard": false,
@@ -607,7 +605,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2157
+      "line": 2166
     },
     {
       "action": "finance.get",
@@ -618,11 +616,11 @@
       "permissions": [
         "ops.finance.revenue.create",
         "ops.finance.expense.create",
-        "ops.approval.finance"
+        "ops.approval.finance.override"
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2166
+      "line": 2175
     },
     {
       "action": "finance.approval.get",
@@ -633,7 +631,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2189
+      "line": 2199
     },
     {
       "action": "finance.overview",
@@ -643,11 +641,12 @@
       ],
       "permissions": [
         "ops.finance.revenue.create",
-        "ops.finance.expense.create"
+        "ops.finance.expense.create",
+        "ops.approval.finance.override"
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2212
+      "line": 2222
     },
     {
       "action": "finance.approver.update",
@@ -658,7 +657,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2220
+      "line": 2235
     },
     {
       "action": "finance.approver.override",
@@ -671,7 +670,7 @@
       ],
       "unguarded": false,
       "inlineGuard": true,
-      "line": 2243
+      "line": 2258
     },
     {
       "action": "revenue.list",
@@ -684,7 +683,7 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2286
+      "line": 2301
     },
     {
       "action": "revenue.get",
@@ -697,7 +696,7 @@
       ],
       "unguarded": false,
       "inlineGuard": true,
-      "line": 2300
+      "line": 2315
     },
     {
       "action": "revenue.create",
@@ -710,7 +709,7 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2319
+      "line": 2334
     },
     {
       "action": "revenue.update",
@@ -723,7 +722,7 @@
       ],
       "unguarded": false,
       "inlineGuard": true,
-      "line": 2328
+      "line": 2343
     },
     {
       "action": "revenue.delete",
@@ -736,7 +735,7 @@
       ],
       "unguarded": false,
       "inlineGuard": true,
-      "line": 2348
+      "line": 2363
     },
     {
       "action": "expense.list",
@@ -749,7 +748,7 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2366
+      "line": 2381
     },
     {
       "action": "expense.get",
@@ -762,7 +761,7 @@
       ],
       "unguarded": false,
       "inlineGuard": true,
-      "line": 2380
+      "line": 2395
     },
     {
       "action": "expense.create",
@@ -775,7 +774,7 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2399
+      "line": 2414
     },
     {
       "action": "expense.update",
@@ -788,7 +787,7 @@
       ],
       "unguarded": false,
       "inlineGuard": true,
-      "line": 2408
+      "line": 2423
     },
     {
       "action": "expense.delete",
@@ -801,7 +800,7 @@
       ],
       "unguarded": false,
       "inlineGuard": true,
-      "line": 2428
+      "line": 2443
     },
     {
       "action": "cashAccount.list",
@@ -815,7 +814,7 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2447
+      "line": 2462
     },
     {
       "action": "cashAccount.get",
@@ -829,7 +828,7 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2457
+      "line": 2472
     },
     {
       "action": "cashAccount.create",
@@ -843,7 +842,7 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2468
+      "line": 2483
     },
     {
       "action": "cashAccount.update",
@@ -857,7 +856,7 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2476
+      "line": 2491
     },
     {
       "action": "cashAccount.delete",
@@ -871,7 +870,7 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2487
+      "line": 2502
     },
     {
       "action": "cashMutation.list",
@@ -885,7 +884,7 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2498
+      "line": 2513
     },
     {
       "action": "cashMutation.get",
@@ -899,7 +898,7 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2508
+      "line": 2523
     },
     {
       "action": "cashMutation.create",
@@ -913,7 +912,7 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2519
+      "line": 2534
     },
     {
       "action": "cashMutation.transfer",
@@ -927,7 +926,7 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2527
+      "line": 2542
     },
     {
       "action": "cashMutation.delete",
@@ -941,7 +940,7 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2535
+      "line": 2550
     },
     {
       "action": "report.list",
@@ -952,7 +951,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2546
+      "line": 2561
     },
     {
       "action": "report.get",
@@ -963,7 +962,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2569
+      "line": 2584
     },
     {
       "action": "report.create",
@@ -976,7 +975,7 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2579
+      "line": 2594
     },
     {
       "action": "report.update",
@@ -989,7 +988,7 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2584
+      "line": 2599
     },
     {
       "action": "report.delete",
@@ -1002,7 +1001,7 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2592
+      "line": 2607
     },
     {
       "action": "report.generate",
@@ -1015,7 +1014,7 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2600
+      "line": 2615
     },
     {
       "action": "reportJob.list",
@@ -1026,7 +1025,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2608
+      "line": 2623
     },
     {
       "action": "reportJob.get",
@@ -1037,7 +1036,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2616
+      "line": 2631
     },
     {
       "action": "reportJob.cancel",
@@ -1048,7 +1047,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2624
+      "line": 2639
     },
     {
       "action": "document.list",
@@ -1059,7 +1058,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2633
+      "line": 2648
     },
     {
       "action": "document.get",
@@ -1070,7 +1069,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2643
+      "line": 2658
     },
     {
       "action": "document.create",
@@ -1083,7 +1082,7 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2653
+      "line": 2668
     },
     {
       "action": "document.update",
@@ -1094,7 +1093,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2658
+      "line": 2673
     },
     {
       "action": "document.delete",
@@ -1107,7 +1106,7 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2666
+      "line": 2681
     },
     {
       "action": "document.generate",
@@ -1118,7 +1117,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2674
+      "line": 2689
     },
     {
       "action": "file.list",
@@ -1129,7 +1128,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2680
+      "line": 2695
     },
     {
       "action": "file.get",
@@ -1140,7 +1139,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2690
+      "line": 2705
     },
     {
       "action": "file.finalize",
@@ -1151,7 +1150,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2700
+      "line": 2715
     },
     {
       "action": "file.upload.init",
@@ -1162,7 +1161,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2705
+      "line": 2720
     },
     {
       "action": "file.upload.chunk",
@@ -1173,7 +1172,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2786
+      "line": 2801
     },
     {
       "action": "file.upload.complete",
@@ -1184,7 +1183,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2840
+      "line": 2855
     },
     {
       "action": "file.upload.abort",
@@ -1195,7 +1194,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2896
+      "line": 2911
     },
     {
       "action": "public.songDb.meta",
@@ -1204,7 +1203,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2913
+      "line": 2928
     },
     {
       "action": "file.download.init",
@@ -1215,7 +1214,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2972
+      "line": 2987
     },
     {
       "action": "file.download.chunk",
@@ -1226,7 +1225,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3103
+      "line": 3118
     },
     {
       "action": "file.download.complete",
@@ -1237,7 +1236,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3143
+      "line": 3158
     },
     {
       "action": "file.delete",
@@ -1250,7 +1249,7 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3168
+      "line": 3183
     },
     {
       "action": "notifications.list",
@@ -1261,7 +1260,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3177
+      "line": 3192
     },
     {
       "action": "notifications.get",
@@ -1272,7 +1271,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3196
+      "line": 3211
     },
     {
       "action": "notifications.markRead",
@@ -1283,7 +1282,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3205
+      "line": 3220
     },
     {
       "action": "notifications.delete",
@@ -1294,7 +1293,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3214
+      "line": 3229
     },
     {
       "action": "church.list",
@@ -1305,7 +1304,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3224
+      "line": 3239
     },
     {
       "action": "churchPermissionPolicy.getMe",
@@ -1316,7 +1315,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3232
+      "line": 3247
     },
     {
       "action": "churchPermissionPolicy.updateMe",
@@ -1327,7 +1326,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3237
+      "line": 3252
     },
     {
       "action": "church.get",
@@ -1338,7 +1337,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3259
+      "line": 3274
     },
     {
       "action": "church.create",
@@ -1349,7 +1348,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3270
+      "line": 3285
     },
     {
       "action": "church.update",
@@ -1362,7 +1361,7 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3275
+      "line": 3290
     },
     {
       "action": "church.delete",
@@ -1373,7 +1372,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3283
+      "line": 3298
     },
     {
       "action": "column.list",
@@ -1384,7 +1383,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3292
+      "line": 3307
     },
     {
       "action": "column.get",
@@ -1395,7 +1394,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3299
+      "line": 3314
     },
     {
       "action": "column.create",
@@ -1408,7 +1407,7 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3309
+      "line": 3324
     },
     {
       "action": "column.update",
@@ -1421,7 +1420,7 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3314
+      "line": 3329
     },
     {
       "action": "column.delete",
@@ -1434,7 +1433,7 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3322
+      "line": 3337
     },
     {
       "action": "location.list",
@@ -1445,7 +1444,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3331
+      "line": 3346
     },
     {
       "action": "location.get",
@@ -1456,7 +1455,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3338
+      "line": 3353
     },
     {
       "action": "location.create",
@@ -1467,7 +1466,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3346
+      "line": 3361
     },
     {
       "action": "location.update",
@@ -1480,7 +1479,7 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3351
+      "line": 3366
     },
     {
       "action": "location.delete",
@@ -1491,7 +1490,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3359
+      "line": 3374
     },
     {
       "action": "membershipPosition.list",
@@ -1502,7 +1501,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3368
+      "line": 3383
     },
     {
       "action": "membershipPosition.get",
@@ -1513,7 +1512,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3378
+      "line": 3393
     },
     {
       "action": "membershipPosition.create",
@@ -1526,7 +1525,7 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3388
+      "line": 3403
     },
     {
       "action": "membershipPosition.update",
@@ -1539,7 +1538,7 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3394
+      "line": 3409
     },
     {
       "action": "membershipPosition.delete",
@@ -1552,7 +1551,7 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3403
+      "line": 3418
     },
     {
       "action": "approvalRule.list",
@@ -1565,7 +1564,7 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3412
+      "line": 3427
     },
     {
       "action": "approvalRule.get",
@@ -1578,7 +1577,7 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3419
+      "line": 3434
     },
     {
       "action": "approvalRule.create",
@@ -1591,7 +1590,7 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3427
+      "line": 3442
     },
     {
       "action": "approvalRule.update",
@@ -1604,7 +1603,7 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3433
+      "line": 3448
     },
     {
       "action": "approvalRule.delete",
@@ -1617,7 +1616,7 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3442
+      "line": 3457
     },
     {
       "action": "approver.list",
@@ -1628,7 +1627,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": true,
-      "line": 3451
+      "line": 3466
     },
     {
       "action": "approver.get",
@@ -1639,7 +1638,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3481
+      "line": 3496
     },
     {
       "action": "approver.create",
@@ -1652,7 +1651,7 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3494
+      "line": 3509
     },
     {
       "action": "approver.update",
@@ -1663,7 +1662,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3499
+      "line": 3514
     },
     {
       "action": "approver.override",
@@ -1676,7 +1675,7 @@
       ],
       "unguarded": false,
       "inlineGuard": true,
-      "line": 3509
+      "line": 3524
     },
     {
       "action": "financialAccountNumber.list",
@@ -1690,7 +1689,7 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3545
+      "line": 3560
     },
     {
       "action": "financialAccountNumber.available",
@@ -1704,7 +1703,7 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3559
+      "line": 3574
     },
     {
       "action": "financialAccountNumber.get",
@@ -1718,7 +1717,7 @@
       ],
       "unguarded": false,
       "inlineGuard": true,
-      "line": 3574
+      "line": 3589
     },
     {
       "action": "financialAccountNumber.create",
@@ -1732,7 +1731,7 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3590
+      "line": 3605
     },
     {
       "action": "financialAccountNumber.update",
@@ -1746,7 +1745,7 @@
       ],
       "unguarded": false,
       "inlineGuard": true,
-      "line": 3601
+      "line": 3616
     },
     {
       "action": "financialAccountNumber.delete",
@@ -1760,7 +1759,7 @@
       ],
       "unguarded": false,
       "inlineGuard": true,
-      "line": 3622
+      "line": 3637
     },
     {
       "action": "churchRequest.create",
@@ -1771,7 +1770,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3643
+      "line": 3658
     },
     {
       "action": "churchRequest.my",
@@ -1782,7 +1781,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3648
+      "line": 3663
     },
     {
       "action": "admin.churchRequest.list",
@@ -1793,7 +1792,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3653
+      "line": 3668
     },
     {
       "action": "admin.churchRequest.get",
@@ -1804,7 +1803,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3660
+      "line": 3675
     },
     {
       "action": "admin.churchRequest.update",
@@ -1815,7 +1814,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3668
+      "line": 3683
     },
     {
       "action": "admin.churchRequest.delete",
@@ -1826,7 +1825,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3676
+      "line": 3691
     },
     {
       "action": "admin.churchRequest.approve",
@@ -1838,7 +1837,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3684
+      "line": 3699
     },
     {
       "action": "admin.churchRequest.reject",
@@ -1850,7 +1849,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3697
+      "line": 3712
     },
     {
       "action": "activity.list",
@@ -1859,7 +1858,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3711
+      "line": 3726
     },
     {
       "action": "activity.get",
@@ -1870,7 +1869,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3720
+      "line": 3735
     },
     {
       "action": "activity.create",
@@ -1883,7 +1882,7 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3734
+      "line": 3749
     },
     {
       "action": "activity.update",
@@ -1896,7 +1895,7 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3745
+      "line": 3760
     },
     {
       "action": "activity.delete",
@@ -1909,7 +1908,7 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3753
+      "line": 3768
     },
     {
       "action": "admin.songDb.upload.init",
@@ -1920,7 +1919,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": true,
-      "line": 3761
+      "line": 3776
     },
     {
       "action": "admin.songDb.upload.chunk",
@@ -1931,7 +1930,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": true,
-      "line": 3892
+      "line": 3907
     },
     {
       "action": "admin.songDb.upload.complete",
@@ -1942,7 +1941,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": true,
-      "line": 3954
+      "line": 3969
     },
     {
       "action": "admin.songDb.upload.abort",
@@ -1953,7 +1952,7 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": true,
-      "line": 4086
+      "line": 4101
     }
   ]
 }
