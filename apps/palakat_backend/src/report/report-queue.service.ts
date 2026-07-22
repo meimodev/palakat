@@ -139,9 +139,13 @@ export class ReportQueueService implements OnModuleInit {
     this.logger.log(`Report job ${job.id} created for user ${userId}`);
 
     try {
-      this.realtime.emitToRoom(`account.${userId}`, 'reportJob.created', {
-        data: job,
-      });
+      this.realtime.emitProgressToRoom(
+        `account.${userId}`,
+        'reportJob.created',
+        {
+          data: job,
+        },
+      );
     } catch {}
 
     return {
@@ -295,7 +299,8 @@ export class ReportQueueService implements OnModuleInit {
         },
         data: {
           status: ReportJobStatus.FAILED,
-          errorMessage: 'Abandoned while processing — the worker did not finish',
+          errorMessage:
+            'Abandoned while processing — the worker did not finish',
         },
       });
 
@@ -304,7 +309,10 @@ export class ReportQueueService implements OnModuleInit {
       }
       return count;
     } catch (e: any) {
-      this.logger.error(`Stale-job reaper failed: ${e?.message ?? e}`, e?.stack);
+      this.logger.error(
+        `Stale-job reaper failed: ${e?.message ?? e}`,
+        e?.stack,
+      );
       return 0;
     }
   }
@@ -358,7 +366,7 @@ export class ReportQueueService implements OnModuleInit {
     this.lastErrorMessage = undefined;
 
     try {
-      this.realtime.emitToRoom(
+      this.realtime.emitProgressToRoom(
         `account.${job.requestedById}`,
         'reportJob.updated',
         {
@@ -415,7 +423,7 @@ export class ReportQueueService implements OnModuleInit {
       });
 
       try {
-        this.realtime.emitToRoom(
+        this.realtime.emitProgressToRoom(
           `account.${job.requestedById}`,
           'reportJob.updated',
           {
@@ -428,7 +436,7 @@ export class ReportQueueService implements OnModuleInit {
             },
           },
         );
-        this.realtime.emitToRoom(
+        this.realtime.emitProgressToRoom(
           `account.${job.requestedById}`,
           'report.ready',
           {
@@ -461,7 +469,7 @@ export class ReportQueueService implements OnModuleInit {
       this.lastErrorMessage = error.message || 'Unknown error';
 
       try {
-        this.realtime.emitToRoom(
+        this.realtime.emitProgressToRoom(
           `account.${job.requestedById}`,
           'reportJob.updated',
           {
