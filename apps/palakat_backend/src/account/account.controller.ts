@@ -9,6 +9,7 @@ import {
   ParseIntPipe,
   Delete,
   Param,
+  Req,
   // Patch,
   // Param,
   // Delete,
@@ -78,6 +79,7 @@ export class AccountController {
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateAccountDto: Prisma.AccountUpdateInput,
+    @Req() req: any,
   ) {
     const transformed = transformToIdArrays(updateAccountDto, [
       'column',
@@ -92,7 +94,7 @@ export class AccountController {
       cleaned.dob = new Date(cleaned.dob.toString() + 'Z');
     }
 
-    return this.accountService.update(id, cleaned);
+    return this.accountService.update(id, cleaned, req.user);
   }
 
   @Delete(':id')

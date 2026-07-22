@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { DocumentService } from './document.service';
@@ -44,7 +45,8 @@ export class DocumentController {
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDocumentDto: Prisma.DocumentUpdateInput,
+    @Req() req: any,
   ) {
-    return this.documentService.update(id, updateDocumentDto);
+    return this.documentService.update(id, updateDocumentDto, req.user);
   }
 }

@@ -1,7 +1,9 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { createHash, randomBytes, randomUUID } from 'crypto';
 import {
@@ -606,7 +608,30 @@ export class DocumentService {
     };
   }
 
-  async update(id: number, updateDocumentDto: Prisma.DocumentUpdateInput) {
+  /**
+   * Church-scoped rather than self-scoped: a `Document` has no owner column at
+   * all, only `churchId` and an optional linked activity, so "your own
+   * document" is not expressible. Both callers — the member app's certificate
+   * screen and palakat_admin — act within their own church, so the church is
+   * the scope that fits the data and keeps them working.
+   */
+  async update(
+    id: number,
+    updateDocumentDto: Prisma.DocumentUpdateInput,
+    user: { userId: number },
+  ) {
+    const churchId = await this.resolveRequesterChurchId(user);
+    const existing = await this.prisma.document.findUnique({
+      where: { id },
+      select: { churchId: true },
+    });
+    if (!existing) {
+      throw new NotFoundException('Document not found');
+    }
+    if (existing.churchId !== churchId) {
+      throw new ForbiddenException('Not entitled to this record');
+    }
+
     const payload: any = { ...updateDocumentDto };
     const hasCertificateType = Object.prototype.hasOwnProperty.call(
       payload,

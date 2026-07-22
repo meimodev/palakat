@@ -1,4 +1,10 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { MembershipListQueryDto } from './dto/membership-list.dto';
 
@@ -6,9 +12,39 @@ import { MembershipListQueryDto } from './dto/membership-list.dto';
 export class MembershipService {
   constructor(private prisma: PrismaService) {}
 
+  /**
+   * The caller's own membership. `accountId` is taken from the authenticated
+   * user and any value the client sent is discarded — a membership is the link
+   * between an account and a church, so letting the payload name the account
+   * is letting the caller enrol somebody else.
+   *
+   * This also repairs the flow: the member app's join screen sends only
+   * `{churchId, columnId, baptize, sidi}`, and `accountId` is a required column,
+   * so every create through it failed on a missing field. Deriving the id is
+   * both the guard and the fix.
+   */
   async create(
     createMembershipDto: any,
+    user: { userId: number },
   ): Promise<{ message: string; data: any }> {
+    const accountId = user?.userId;
+    if (typeof accountId !== 'number') {
+      throw new ForbiddenException('Requester identity is required');
+    }
+
+    // One membership per account — the column is @unique, and
+    // membershipInvitation.respond already refuses on the same grounds. Without
+    // this the caller gets a raw Prisma constraint error.
+    const existing = await (this.prisma as any).membership.findUnique({
+      where: { accountId },
+      select: { id: true },
+    });
+    if (existing?.id) {
+      throw new ConflictException('User already has a membership');
+    }
+
+    createMembershipDto = { ...createMembershipDto, accountId };
+
     if (!createMembershipDto?.columnId && !createMembershipDto?.churchId) {
       throw new BadRequestException('Either columnId or churchId is required');
     }
@@ -140,10 +176,36 @@ export class MembershipService {
     };
   }
 
+  /**
+   * Self-only. `apps/palakat` is the sole caller — the same join screen, editing
+   * a membership that already exists — so there is no administrative path to
+   * keep open here. `accountId` is stripped from the payload for the same
+   * reason it is derived in `create`: re-pointing a membership at another
+   * account is the same act as creating one for them.
+   */
   async update(
     id: number,
     updateMembershipDto: any,
+    user: { userId: number },
   ): Promise<{ message: string; data: any }> {
+    if (typeof user?.userId !== 'number') {
+      throw new ForbiddenException('Requester identity is required');
+    }
+
+    const existing = await (this.prisma as any).membership.findUnique({
+      where: { id },
+      select: { accountId: true },
+    });
+    if (!existing) {
+      throw new NotFoundException('Membership not found');
+    }
+    if (existing.accountId !== user.userId) {
+      throw new ForbiddenException('You can only update your own membership');
+    }
+
+    const { accountId: _ignored, ...rest } = updateMembershipDto ?? {};
+    updateMembershipDto = rest;
+
     if (updateMembershipDto?.columnId != null) {
       const column = await (this.prisma as any).column.findUnique({
         where: { id: updateMembershipDto.columnId },

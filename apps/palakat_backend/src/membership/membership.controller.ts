@@ -9,6 +9,7 @@ import {
   ParseIntPipe,
   UseGuards,
   Query,
+  Req,
 } from '@nestjs/common';
 import { MembershipService } from './membership.service';
 import { Prisma } from '../generated/prisma/client';
@@ -21,8 +22,11 @@ export class MembershipController {
   constructor(private readonly membershipService: MembershipService) {}
 
   @Post()
-  async create(@Body() createMembershipDto: Prisma.MembershipCreateInput) {
-    return this.membershipService.create(createMembershipDto);
+  async create(
+    @Body() createMembershipDto: Prisma.MembershipCreateInput,
+    @Req() req: any,
+  ) {
+    return this.membershipService.create(createMembershipDto, req.user);
   }
 
   @Get()
@@ -39,8 +43,9 @@ export class MembershipController {
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateMembershipDto: Prisma.MembershipUpdateInput,
+    @Req() req: any,
   ) {
-    return this.membershipService.update(id, updateMembershipDto);
+    return this.membershipService.update(id, updateMembershipDto, req.user);
   }
 
   @Delete(':id')
