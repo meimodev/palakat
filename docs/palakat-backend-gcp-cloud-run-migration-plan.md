@@ -104,8 +104,10 @@ exactly the 56 bare actions.**
 **optional** requester id and ran its self-only check only `if (typeof … === 'number')`, and
 `PATCH /approver/:id` passed nothing. Fixed by resolving the requester inside the service so no caller
 can reach the write without an identity. **Generalise the shape, not the instance: an optional
-identity parameter whose absence silences the check is fail-open by omission.** A sweep found exactly
-one other, `churchRequest.findAll`, tracked separately.
+identity parameter whose absence silences the check is fail-open by omission.** A sweep found no
+other instance. (`churchRequest.findAll` was filed as a second one and **retracted** — every door onto
+it is `SUPER_ADMIN`-only; see the triage. The finding came from reading a service call site without
+the decorators above it, which is the same mistake that produced nine redundant `admin.*` guards.)
 
 [#57](https://github.com/meimodev/palakat/issues/57) then gated **22 of the 26 bare church-scoped
 writes**, taking the router from 123 to 103 actions without a permission check. One new permission
@@ -153,8 +155,9 @@ each has a REST controller onto the same method, and guarding only the router le
 open.** What remains of Phase 1.5 is two decisions, not code.
 
 Remaining, split off [#45](https://github.com/meimodev/palakat/issues/45) and blocking it:
-[#60](https://github.com/meimodev/palakat/issues/60) the `ops.approval.finance` widening decision ·
-[#61](https://github.com/meimodev/palakat/issues/61) the `GET /church-request` read leak.
+**one decision** — [#60](https://github.com/meimodev/palakat/issues/60), the `ops.approval.finance`
+widening. ([#61](https://github.com/meimodev/palakat/issues/61) was closed as a false positive: the
+`GET /church-request` "leak" is `SUPER_ADMIN`-only on all four of its doors.)
 
 ---
 
@@ -1681,7 +1684,7 @@ Phase 1.5 [x] #63 — 4 member-app writes self-scoped IN THE SERVICE (REST door
               too); membership.create derives accountId, which also repairs it
 Phase 1.5 [x] all 56 bare actions closed: 22 gated, 15 scoped, 4 self-scoped,
               15 recorded correctly-open                      🔴 SECURITY GATE
-Phase 1.5 [ ] #61 — GET /church-request returns every request, all churches
+Phase 1.5 [x] #61 — RETRACTED, false positive: all four doors are SUPER_ADMIN
 Phase 1.5 [ ] #60 — decide the ops.approval.finance widening
               (correct as-is / needs permission / needs church-scoping)
           [ ] fix buckets 2 and 3 ON THE RPC PATH, before any controller exists
