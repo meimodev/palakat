@@ -3405,15 +3405,9 @@ export class RpcRouterService {
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
-        // Resolve requester's membershipId to enforce self-only scoping
-        const requesterMembershipId = await this.resolveMembershipIdForUser(
-          user.userId,
-        );
-        return this.approverService.update(
-          id,
-          payload.dto ?? {},
-          requesterMembershipId,
-        );
+        // Self-only scoping is enforced in the service, which resolves the
+        // requester itself so the REST door cannot reach it without one.
+        return this.approverService.update(id, payload.dto ?? {}, user);
       }
 
       case 'approver.override': {
