@@ -63,11 +63,11 @@ and a fresh agent read supplies it (ADR-0009).
 | `admin.membershipInvitation.approve` | `requireUserId` | 🔴 **none** | | |
 | `admin.membershipInvitation.reject` | `requireUserId` | 🔴 **none** | | |
 | `admin.membershipInvitation.delete` | `requireUserId` | 🔴 **none** | | |
-| `finance.list` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create`<br>`ops.approval.finance` | | |
+| `finance.list` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create`<br>`ops.approval.finance.override` | | |
 | `finance.approval.list` | `requireUserId` | 🔴 **none** | | |
-| `finance.get` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create`<br>`ops.approval.finance` | | |
+| `finance.get` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create`<br>`ops.approval.finance.override` | | |
 | `finance.approval.get` | `requireUserId` | 🔴 **none** | | |
-| `finance.overview` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create` | | |
+| `finance.overview` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create`<br>`ops.approval.finance.override` | | |
 | `finance.approver.update` | `requireUserId` | 🔴 **none** | | |
 | `finance.approver.override` | `requireOperationPermission` | `ops.approval.finance.override` | | |
 | `revenue.list` | `requireOperationPermission` | `ops.finance.revenue.create` | | |
@@ -181,7 +181,7 @@ and a fresh agent read supplies it (ADR-0009).
 
 **Phantom** — referenced in an allow-list, never defined in `ALL_PERMISSIONS`. The clause is dead:
 
-- `ops.approval.finance`
+- _none_
 
 **Unchecked** — defined and never checked. Either dead, or the matching actions are under-guarded:
 

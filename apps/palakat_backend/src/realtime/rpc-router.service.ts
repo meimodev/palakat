@@ -2143,11 +2143,20 @@ export class RpcRouterService {
 
       // ===== Finance / Revenue / Expense =====
       case 'finance.list': {
-        // Allow finance creators OR finance approvers to read standalone entries
+        // Finance creators OR finance approvers. `ops.approval.finance` was
+        // passed here and never defined, so the approver half was dead and
+        // `Ketua Jemaat`/`Admin Gereja` — the only holders of the override —
+        // got Forbidden on palakat_admin's finance screen, which is the one
+        // screen their override power is reachable from (#60).
+        //
+        // NOT the approver read path: approvers see their own queue through
+        // finance.approval.list/get, which scope by membershipId. This is
+        // church-wide finance read, deliberately widened to the two override
+        // positions.
         const { user } = await this.requireAnyOperationPermission(client, [
           'ops.finance.revenue.create',
           'ops.finance.expense.create',
-          'ops.approval.finance',
+          'ops.approval.finance.override',
         ]);
         const query = this.withPagination(payload) as any;
         const res: any = await this.financeService.findAll(query, user);
@@ -2164,11 +2173,12 @@ export class RpcRouterService {
       }
 
       case 'finance.get': {
-        // Allow finance creators OR finance approvers to read detail
+        // Same widening as finance.list (#60). Approvers reading an entry they
+        // are assigned to use finance.approval.get, not this.
         const { user } = await this.requireAnyOperationPermission(client, [
           'ops.finance.revenue.create',
           'ops.finance.expense.create',
-          'ops.approval.finance',
+          'ops.approval.finance.override',
         ]);
         const getFinanceId = payload.id as number;
         const getFinanceType = (payload.financeType ?? payload.type) as
@@ -2210,9 +2220,14 @@ export class RpcRouterService {
       }
 
       case 'finance.overview': {
+        // Carried no approver clause at all, so widening only list/get would
+        // have left palakat_admin's dashboard and overview header throwing
+        // Forbidden for the same two positions. Outside #60's literal text,
+        // inside its intent (#60 decision, 2026-07-23).
         const { user } = await this.requireAnyOperationPermission(client, [
           'ops.finance.revenue.create',
           'ops.finance.expense.create',
+          'ops.approval.finance.override',
         ]);
         return this.financeService.getOverview(user);
       }
