@@ -40,18 +40,24 @@ Supabase port, and that fork is closed. The live bar is §0.05's.
 
 ## 0.01 ⏱️ Where the work actually is — read this first
 
-> ### 🔴 No schema migrations until [#42](https://github.com/meimodev/palakat/issues/42) is running
+> ### 🟡 Schema migrations are unblocked — `palakat_admin` holds no real data
 >
 > Risk R2 (§13) is *"unrecoverable data loss on a bad migration"*, rated **Certain**, and its only stated
 > mitigation is a `pg_dump` before every migration. That dump is **written and not running** — it needs a
-> bucket and one connection string. Until it does, every `prisma migrate` against production is R2 with
-> its mitigation removed.
+> bucket and one connection string.
 >
-> This is not a Phase 4 problem or a Phase 2 problem, which is why it is stated here rather than in either:
-> **#42 gates every schema change in the project.** The first thing it caught was
-> [#72](https://github.com/meimodev/palakat/issues/72), which needs a device-token table.
+> 🟢 **Correction, 2026-07-23 (owner).** `palakat_admin` has been live since 2026-03-20 but **the data in
+> it is not real** — no congregation depends on any row of it today. R2's *likelihood* is unchanged; its
+> *blast radius* is currently near zero, and a risk whose consequence is "restore a database nobody was
+> using" is not the same risk the paragraph above describes. **So schema migrations are no longer gated
+> on #42**, and [#72](https://github.com/meimodev/palakat/issues/72)'s device-token table can proceed.
 >
-> The setup it needs is item 1 of **§0.02**, along with everything else currently waiting on a human.
+> 🔴 **The gate returns the moment real data lands, and that moment will not announce itself.** This
+> exemption is a statement about the *contents* of the database, not about the quality of the migration
+> path — nothing in the code, the CI, or a `prisma migrate` run can tell that the contents changed. The
+> first real congregation onboarded silently restores R2 to full severity while every marker in this
+> document still reads green. **Land #42 before that onboarding, not after it** — it stays item 1 of
+> §0.02 for exactly this reason, and it is the one item here whose cost goes *up* the longer it waits.
 
 **Last updated: 2026-07-23.** Execution is tracked on a wayfinder map,
 **[#41](https://github.com/meimodev/palakat/issues/41)**, with one ticket per phase. This section is
@@ -68,7 +74,7 @@ without opening the tracker first.
 | **2** REST surface | ⛔ blocked on 1.5 | [#46](https://github.com/meimodev/palakat/issues/46) |
 | **4** FCM push | 🔄 **in progress** — §9.1 seam swapped, content allow-list in. **Emits on both transports**: nothing calls `subscribeToTopic` until Phase 5, so FCM-only would publish to nobody. §9.2 (retire Beams) deliberately deferred | [#47](https://github.com/meimodev/palakat/issues/47) |
 | **5**–**9**, **3b** | ⛔ blocked, in plan order | [#48](https://github.com/meimodev/palakat/issues/48)–[#53](https://github.com/meimodev/palakat/issues/53) |
-| Daily `pg_dump` (decision 21 — *not* a phase, and overdue) | 🔄 **written, not yet running** — workflow + restore rehearsal merged; needs a bucket, a WIF provider and one connection string. Setup: [`palakat-db-backup.md`](./palakat-db-backup.md) | [#42](https://github.com/meimodev/palakat/issues/42) |
+| Daily `pg_dump` (decision 21 — *not* a phase) | 🔄 **written, not yet running** — workflow + restore rehearsal merged; needs a bucket, a WIF provider and one connection string. **No longer gates migrations** — the database holds no real data (§0.01); deadline is the first real congregation. Setup: [`palakat-db-backup.md`](./palakat-db-backup.md) | [#42](https://github.com/meimodev/palakat/issues/42) |
 
 ### What Phase 1 built, that Phase 2 depends on
 
@@ -178,16 +184,23 @@ widening (§0.02 item 2). ([#61](https://github.com/meimodev/palakat/issues/61) 
 
 **Last updated: 2026-07-23.** Nothing on this list can be done by an agent: it needs credentials an
 agent does not hold, a device an agent cannot touch, or a judgement call about who may see money.
-Every open ticket is blocked on one of these four items. **Ordered by how much each unblocks.**
+Every open ticket is blocked on one of items 2–4; **item 1 no longer blocks anything** but is kept at
+the top because its deadline is external and unannounced. **Ordered by how much each unblocks.**
 
 ---
 
-### 1. 🔴 Set up the database backup — [#42](https://github.com/meimodev/palakat/issues/42)
+### 1. 🟡 Set up the database backup — [#42](https://github.com/meimodev/palakat/issues/42)
 
-**Unblocks: every schema migration in the project** (§0.01), which means [#72](https://github.com/meimodev/palakat/issues/72)
-and anything in Phase 2 that touches the schema. It is also the only item here that is pure setup with
-no decision in it, and the only one where the *current* state is dangerous rather than merely stalled:
-`palakat_admin` has served production since 2026-03-20 and **there is no copy of that database anywhere.**
+**No longer blocks anything** (§0.01): `palakat_admin` has been live since 2026-03-20, but the owner
+confirmed on 2026-07-23 that **the data in it is not real**, so a bad migration today loses nothing a
+congregation depends on. Schema migrations, including [#72](https://github.com/meimodev/palakat/issues/72)'s
+device-token table, may proceed without this.
+
+It stays item 1 anyway, and it is still the only item here that is pure setup with no decision in it.
+**Its deadline is now the first real congregation, which is a date nobody will file a ticket for.**
+Every other item on this list gets *cheaper* or stays flat while it waits; this one is the single item
+whose cost rises the longer it sits, because the window in which "lose the whole database" is an
+acceptable outcome closes silently and without a build failure.
 
 Full commands in [`palakat-db-backup.md`](./palakat-db-backup.md). Summary:
 
@@ -1881,7 +1894,9 @@ Phase 0   [x] DATABASE_POOL_MAX bounds the pool (was pg's default 10/process);
           [ ] e2e green against the transaction pooler — needs the pooler URL,
               and txn mode disables prepared statements             (§0.02)
           [ ] Supabase Free limits checked; usage alerts set        (§0.02)
-          [~] daily pg_dump → GCS starting NOW — palakat_admin is already live
+          [~] daily pg_dump → GCS — palakat_admin is live but holds NO REAL DATA
+              (owner, 2026-07-23), so this no longer gates migrations. Deadline
+              is the first real congregation, which ships no build failure
               workflow + restore rehearsal written (docs/palakat-db-backup.md).
               [ ] bucket + lifecycle + WIF provider created        (§0.02 item 1)
               [ ] DATABASE_URL_SESSION set — the SESSION pooler, not the direct
