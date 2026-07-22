@@ -1,5 +1,10 @@
 # Can church permissions and approval rules be expressed as RLS?
 
+> **Historical.** Superseded by [ADR-0006](./adr/0006-no-go-on-removing-nestjs.md) (2026-07-22) — no-go on
+> removing NestJS, so no RLS is being written. Kept as the record of *why*, and as the input if that verdict
+> is ever reopened. **Not a plan, do not action.**
+> **Current plan:** [`palakat-backend-gcp-cloud-run-migration-plan.md`](./palakat-backend-gcp-cloud-run-migration-plan.md).
+
 Answer to [#24](../../issues/24). Everything below was **executed** against a
 local Supabase stack (Postgres 17.6) with the real Prisma schema loaded, not
 reasoned about on paper. Runnable artefacts live in [`docs/spike/rls/`](./spike/rls/):

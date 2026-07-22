@@ -1,5 +1,13 @@
 # Porting `palakat_backend` to GCP Cloud Run — Drawbacks, Cost, and Performance Analysis
 
+> **Historical.** The question this document asks is answered: [ADR-0006](./adr/0006-no-go-on-removing-nestjs.md)
+> (2026-07-22) closed the fork in favour of Cloud Run. Kept as the evidence behind that verdict — **not a plan,
+> do not action.**
+> ⚠️ **Two of its load-bearing claims were later found wrong** — see
+> [migration plan §1](./palakat-backend-gcp-cloud-run-migration-plan.md#1-two-corrections-to-the-existing-analysis)
+> before relying on anything here about the REST surface or the job-claim race.
+> **Current plan:** [`palakat-backend-gcp-cloud-run-migration-plan.md`](./palakat-backend-gcp-cloud-run-migration-plan.md).
+
 **Date:** 2026-07-21
 **Scope:** `apps/palakat_backend` (NestJS 10, Prisma 7 + Postgres, Socket.IO, in-process cron)
 **Question asked:** should we move off AWS to GCP Cloud Run, and how does that compare to AWS Lambda on cost and performance?
@@ -14,8 +22,7 @@ Two corrections before any comparison is meaningful.
 
 ### 0.1 You are not on Lambda. You are on EC2.
 
-The only AWS deployment design in this repo is
-[`docs/palakat-backend-aws-ec2-cicd-deployment-guide.md`](./palakat-backend-aws-ec2-cicd-deployment-guide.md):
+The only AWS deployment design in this repo is the EC2 + GitHub Actions setup:
 a **single EC2 instance** running `systemd` + Nginx, with **Supabase Postgres** as the database and GitHub
 Actions for CI/CD. There is no `serverless.yml`, no SAM template, no CDK app, no Lambda handler, no
 `@vendia/serverless-express` adapter anywhere in the tree. `grep -riE 'aws|lambda|serverless'` across
@@ -664,7 +671,7 @@ Rates verified 2026-07-21.
 - Lambda per-GB-second figures ($0.0000166667 x86 / $0.0000133334 Arm) cross-checked against
   [CloudZero's 2026 Lambda pricing guide](https://www.cloudzero.com/blog/lambda-pricing/) because AWS renders
   its own rate tables in JavaScript and they are not machine-readable.
-- Repo evidence: `docs/palakat-backend-aws-ec2-cicd-deployment-guide.md`, `src/realtime/*`,
+- Repo evidence: the EC2 deployment workflow, `src/realtime/*`,
   `src/report/report-queue.service.ts`, `src/notification/birthday-notification.service.ts`,
   `src/prisma.service.ts`, `src/app.module.ts`, `package.json`.
 
