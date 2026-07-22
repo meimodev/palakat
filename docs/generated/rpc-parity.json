@@ -1,0 +1,1743 @@
+{
+  "summary": {
+    "total": 166,
+    "unguarded": 128,
+    "phantom": [
+      "ops.approval.finance"
+    ],
+    "unchecked": [
+      "ops.approvalRule.manage"
+    ]
+  },
+  "rows": [
+    {
+      "action": "ping",
+      "guard": "none",
+      "guards": [],
+      "permissions": [],
+      "unguarded": true,
+      "line": 515
+    },
+    {
+      "action": "app.home.get",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 518
+    },
+    {
+      "action": "auth.attach",
+      "guard": "none",
+      "guards": [],
+      "permissions": [],
+      "unguarded": true,
+      "line": 607
+    },
+    {
+      "action": "auth.signIn",
+      "guard": "none",
+      "guards": [],
+      "permissions": [],
+      "unguarded": true,
+      "line": 610
+    },
+    {
+      "action": "auth.adminSignIn",
+      "guard": "none",
+      "guards": [],
+      "permissions": [],
+      "unguarded": true,
+      "line": 616
+    },
+    {
+      "action": "auth.superAdminSignIn",
+      "guard": "none",
+      "guards": [],
+      "permissions": [],
+      "unguarded": true,
+      "line": 622
+    },
+    {
+      "action": "auth.validatePhone",
+      "guard": "none",
+      "guards": [],
+      "permissions": [],
+      "unguarded": true,
+      "line": 628
+    },
+    {
+      "action": "auth.refresh",
+      "guard": "none",
+      "guards": [],
+      "permissions": [],
+      "unguarded": true,
+      "line": 631
+    },
+    {
+      "action": "auth.signOut",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 647
+    },
+    {
+      "action": "auth.changePassword",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 652
+    },
+    {
+      "action": "auth.permissions.get",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 660
+    },
+    {
+      "action": "auth.signingClient",
+      "guard": "none",
+      "guards": [],
+      "permissions": [],
+      "unguarded": true,
+      "line": 665
+    },
+    {
+      "action": "auth.syncClaims",
+      "guard": "none",
+      "guards": [],
+      "permissions": [],
+      "unguarded": true,
+      "line": 684
+    },
+    {
+      "action": "auth.firebaseSignIn",
+      "guard": "none",
+      "guards": [],
+      "permissions": [],
+      "unguarded": true,
+      "line": 689
+    },
+    {
+      "action": "auth.firebaseRegister",
+      "guard": "none",
+      "guards": [],
+      "permissions": [],
+      "unguarded": true,
+      "line": 697
+    },
+    {
+      "action": "sub.join",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 710
+    },
+    {
+      "action": "sub.leave",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 720
+    },
+    {
+      "action": "articles.list",
+      "guard": "none",
+      "guards": [],
+      "permissions": [],
+      "unguarded": true,
+      "line": 731
+    },
+    {
+      "action": "articles.get",
+      "guard": "none",
+      "guards": [],
+      "permissions": [],
+      "unguarded": true,
+      "line": 737
+    },
+    {
+      "action": "articles.like",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 745
+    },
+    {
+      "action": "articles.unlike",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 754
+    },
+    {
+      "action": "admin.articles.list",
+      "guard": "requireAuthAny",
+      "guards": [
+        "requireAuthAny"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 764
+    },
+    {
+      "action": "admin.articles.get",
+      "guard": "requireAuthAny",
+      "guards": [
+        "requireAuthAny"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 774
+    },
+    {
+      "action": "admin.articles.create",
+      "guard": "requireAuthAny",
+      "guards": [
+        "requireAuthAny"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 786
+    },
+    {
+      "action": "admin.articles.update",
+      "guard": "requireAuthAny",
+      "guards": [
+        "requireAuthAny"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 791
+    },
+    {
+      "action": "admin.articles.cover.upload.init",
+      "guard": "requireSuperAdminOrClient",
+      "guards": [
+        "requireSuperAdminOrClient"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 804
+    },
+    {
+      "action": "admin.articles.cover.upload.chunk",
+      "guard": "requireSuperAdminOrClient",
+      "guards": [
+        "requireSuperAdminOrClient"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 886
+    },
+    {
+      "action": "admin.articles.cover.upload.complete",
+      "guard": "requireSuperAdminOrClient",
+      "guards": [
+        "requireSuperAdminOrClient"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 940
+    },
+    {
+      "action": "admin.articles.cover.upload.abort",
+      "guard": "requireSuperAdminOrClient",
+      "guards": [
+        "requireSuperAdminOrClient"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 1002
+    },
+    {
+      "action": "admin.articles.publish",
+      "guard": "requireAuthAny",
+      "guards": [
+        "requireAuthAny"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 1019
+    },
+    {
+      "action": "admin.articles.unpublish",
+      "guard": "requireAuthAny",
+      "guards": [
+        "requireAuthAny"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 1028
+    },
+    {
+      "action": "admin.articles.archive",
+      "guard": "requireAuthAny",
+      "guards": [
+        "requireAuthAny"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 1037
+    },
+    {
+      "action": "account.count",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 1047
+    },
+    {
+      "action": "account.get",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 1052
+    },
+    {
+      "action": "account.list",
+      "guard": "requireOperationPermission",
+      "guards": [
+        "requireOperationPermission"
+      ],
+      "permissions": [
+        "ops.members.read"
+      ],
+      "unguarded": false,
+      "line": 1066
+    },
+    {
+      "action": "account.create",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 1078
+    },
+    {
+      "action": "member.create",
+      "guard": "requireOperationPermission",
+      "guards": [
+        "requireOperationPermission"
+      ],
+      "permissions": [
+        "ops.members.invite"
+      ],
+      "unguarded": false,
+      "line": 1098
+    },
+    {
+      "action": "account.update",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 1156
+    },
+    {
+      "action": "account.delete",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 1178
+    },
+    {
+      "action": "membership.create",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 1188
+    },
+    {
+      "action": "membership.list",
+      "guard": "requireOperationPermission",
+      "guards": [
+        "requireOperationPermission"
+      ],
+      "permissions": [
+        "ops.members.read"
+      ],
+      "unguarded": false,
+      "line": 1193
+    },
+    {
+      "action": "membership.get",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 1205
+    },
+    {
+      "action": "membership.update",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 1213
+    },
+    {
+      "action": "membership.delete",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 1221
+    },
+    {
+      "action": "membershipInvitation.preview",
+      "guard": "requireOperationPermission",
+      "guards": [
+        "requireOperationPermission"
+      ],
+      "permissions": [
+        "ops.members.invite"
+      ],
+      "unguarded": false,
+      "line": 1230
+    },
+    {
+      "action": "membershipInvitation.create",
+      "guard": "requireOperationPermission",
+      "guards": [
+        "requireOperationPermission"
+      ],
+      "permissions": [
+        "ops.members.invite"
+      ],
+      "unguarded": false,
+      "line": 1374
+    },
+    {
+      "action": "membershipInvitation.myPending",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 1527
+    },
+    {
+      "action": "membershipInvitation.respond",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 1565
+    },
+    {
+      "action": "admin.membershipInvitation.list",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 1740
+    },
+    {
+      "action": "admin.membershipInvitation.get",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 1826
+    },
+    {
+      "action": "admin.membershipInvitation.approve",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 1869
+    },
+    {
+      "action": "admin.membershipInvitation.reject",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 1973
+    },
+    {
+      "action": "admin.membershipInvitation.delete",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 2038
+    },
+    {
+      "action": "finance.list",
+      "guard": "requireAnyOperationPermission",
+      "guards": [
+        "requireAnyOperationPermission"
+      ],
+      "permissions": [
+        "ops.finance.revenue.create",
+        "ops.finance.expense.create",
+        "ops.approval.finance"
+      ],
+      "unguarded": false,
+      "line": 2054
+    },
+    {
+      "action": "finance.approval.list",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 2066
+    },
+    {
+      "action": "finance.get",
+      "guard": "requireAnyOperationPermission",
+      "guards": [
+        "requireAnyOperationPermission"
+      ],
+      "permissions": [
+        "ops.finance.revenue.create",
+        "ops.finance.expense.create",
+        "ops.approval.finance"
+      ],
+      "unguarded": false,
+      "line": 2075
+    },
+    {
+      "action": "finance.approval.get",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 2098
+    },
+    {
+      "action": "finance.overview",
+      "guard": "requireAnyOperationPermission",
+      "guards": [
+        "requireAnyOperationPermission"
+      ],
+      "permissions": [
+        "ops.finance.revenue.create",
+        "ops.finance.expense.create"
+      ],
+      "unguarded": false,
+      "line": 2121
+    },
+    {
+      "action": "finance.approver.update",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 2129
+    },
+    {
+      "action": "finance.approver.override",
+      "guard": "requireOperationPermission",
+      "guards": [
+        "requireOperationPermission"
+      ],
+      "permissions": [
+        "ops.approval.finance.override"
+      ],
+      "unguarded": false,
+      "line": 2152
+    },
+    {
+      "action": "revenue.list",
+      "guard": "requireOperationPermission",
+      "guards": [
+        "requireOperationPermission"
+      ],
+      "permissions": [
+        "ops.finance.revenue.create"
+      ],
+      "unguarded": false,
+      "line": 2195
+    },
+    {
+      "action": "revenue.get",
+      "guard": "requireOperationPermission",
+      "guards": [
+        "requireOperationPermission"
+      ],
+      "permissions": [
+        "ops.finance.revenue.create"
+      ],
+      "unguarded": false,
+      "line": 2209
+    },
+    {
+      "action": "revenue.create",
+      "guard": "requireOperationPermission",
+      "guards": [
+        "requireOperationPermission"
+      ],
+      "permissions": [
+        "ops.finance.revenue.create"
+      ],
+      "unguarded": false,
+      "line": 2228
+    },
+    {
+      "action": "revenue.update",
+      "guard": "requireOperationPermission",
+      "guards": [
+        "requireOperationPermission"
+      ],
+      "permissions": [
+        "ops.finance.revenue.create"
+      ],
+      "unguarded": false,
+      "line": 2237
+    },
+    {
+      "action": "revenue.delete",
+      "guard": "requireOperationPermission",
+      "guards": [
+        "requireOperationPermission"
+      ],
+      "permissions": [
+        "ops.finance.revenue.create"
+      ],
+      "unguarded": false,
+      "line": 2257
+    },
+    {
+      "action": "expense.list",
+      "guard": "requireOperationPermission",
+      "guards": [
+        "requireOperationPermission"
+      ],
+      "permissions": [
+        "ops.finance.expense.create"
+      ],
+      "unguarded": false,
+      "line": 2275
+    },
+    {
+      "action": "expense.get",
+      "guard": "requireOperationPermission",
+      "guards": [
+        "requireOperationPermission"
+      ],
+      "permissions": [
+        "ops.finance.expense.create"
+      ],
+      "unguarded": false,
+      "line": 2289
+    },
+    {
+      "action": "expense.create",
+      "guard": "requireOperationPermission",
+      "guards": [
+        "requireOperationPermission"
+      ],
+      "permissions": [
+        "ops.finance.expense.create"
+      ],
+      "unguarded": false,
+      "line": 2308
+    },
+    {
+      "action": "expense.update",
+      "guard": "requireOperationPermission",
+      "guards": [
+        "requireOperationPermission"
+      ],
+      "permissions": [
+        "ops.finance.expense.create"
+      ],
+      "unguarded": false,
+      "line": 2317
+    },
+    {
+      "action": "expense.delete",
+      "guard": "requireOperationPermission",
+      "guards": [
+        "requireOperationPermission"
+      ],
+      "permissions": [
+        "ops.finance.expense.create"
+      ],
+      "unguarded": false,
+      "line": 2337
+    },
+    {
+      "action": "cashAccount.list",
+      "guard": "requireAnyOperationPermission",
+      "guards": [
+        "requireAnyOperationPermission"
+      ],
+      "permissions": [
+        "ops.finance.revenue.create",
+        "ops.finance.expense.create"
+      ],
+      "unguarded": false,
+      "line": 2356
+    },
+    {
+      "action": "cashAccount.get",
+      "guard": "requireAnyOperationPermission",
+      "guards": [
+        "requireAnyOperationPermission"
+      ],
+      "permissions": [
+        "ops.finance.revenue.create",
+        "ops.finance.expense.create"
+      ],
+      "unguarded": false,
+      "line": 2366
+    },
+    {
+      "action": "cashAccount.create",
+      "guard": "requireAnyOperationPermission",
+      "guards": [
+        "requireAnyOperationPermission"
+      ],
+      "permissions": [
+        "ops.finance.revenue.create",
+        "ops.finance.expense.create"
+      ],
+      "unguarded": false,
+      "line": 2377
+    },
+    {
+      "action": "cashAccount.update",
+      "guard": "requireAnyOperationPermission",
+      "guards": [
+        "requireAnyOperationPermission"
+      ],
+      "permissions": [
+        "ops.finance.revenue.create",
+        "ops.finance.expense.create"
+      ],
+      "unguarded": false,
+      "line": 2385
+    },
+    {
+      "action": "cashAccount.delete",
+      "guard": "requireAnyOperationPermission",
+      "guards": [
+        "requireAnyOperationPermission"
+      ],
+      "permissions": [
+        "ops.finance.revenue.create",
+        "ops.finance.expense.create"
+      ],
+      "unguarded": false,
+      "line": 2396
+    },
+    {
+      "action": "cashMutation.list",
+      "guard": "requireAnyOperationPermission",
+      "guards": [
+        "requireAnyOperationPermission"
+      ],
+      "permissions": [
+        "ops.finance.revenue.create",
+        "ops.finance.expense.create"
+      ],
+      "unguarded": false,
+      "line": 2407
+    },
+    {
+      "action": "cashMutation.get",
+      "guard": "requireAnyOperationPermission",
+      "guards": [
+        "requireAnyOperationPermission"
+      ],
+      "permissions": [
+        "ops.finance.revenue.create",
+        "ops.finance.expense.create"
+      ],
+      "unguarded": false,
+      "line": 2417
+    },
+    {
+      "action": "cashMutation.create",
+      "guard": "requireAnyOperationPermission",
+      "guards": [
+        "requireAnyOperationPermission"
+      ],
+      "permissions": [
+        "ops.finance.revenue.create",
+        "ops.finance.expense.create"
+      ],
+      "unguarded": false,
+      "line": 2428
+    },
+    {
+      "action": "cashMutation.transfer",
+      "guard": "requireAnyOperationPermission",
+      "guards": [
+        "requireAnyOperationPermission"
+      ],
+      "permissions": [
+        "ops.finance.revenue.create",
+        "ops.finance.expense.create"
+      ],
+      "unguarded": false,
+      "line": 2436
+    },
+    {
+      "action": "cashMutation.delete",
+      "guard": "requireAnyOperationPermission",
+      "guards": [
+        "requireAnyOperationPermission"
+      ],
+      "permissions": [
+        "ops.finance.revenue.create",
+        "ops.finance.expense.create"
+      ],
+      "unguarded": false,
+      "line": 2444
+    },
+    {
+      "action": "report.list",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 2455
+    },
+    {
+      "action": "report.get",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 2472
+    },
+    {
+      "action": "report.create",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 2480
+    },
+    {
+      "action": "report.update",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 2485
+    },
+    {
+      "action": "report.delete",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 2493
+    },
+    {
+      "action": "report.generate",
+      "guard": "requireOperationPermission",
+      "guards": [
+        "requireOperationPermission"
+      ],
+      "permissions": [
+        "ops.report.generate"
+      ],
+      "unguarded": false,
+      "line": 2501
+    },
+    {
+      "action": "reportJob.list",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 2509
+    },
+    {
+      "action": "reportJob.get",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 2517
+    },
+    {
+      "action": "reportJob.cancel",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 2525
+    },
+    {
+      "action": "document.list",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 2534
+    },
+    {
+      "action": "document.get",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 2541
+    },
+    {
+      "action": "document.create",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 2549
+    },
+    {
+      "action": "document.update",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 2554
+    },
+    {
+      "action": "document.delete",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 2562
+    },
+    {
+      "action": "document.generate",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 2570
+    },
+    {
+      "action": "file.list",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 2576
+    },
+    {
+      "action": "file.get",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 2583
+    },
+    {
+      "action": "file.finalize",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 2591
+    },
+    {
+      "action": "file.upload.init",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 2596
+    },
+    {
+      "action": "file.upload.chunk",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 2677
+    },
+    {
+      "action": "file.upload.complete",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 2731
+    },
+    {
+      "action": "file.upload.abort",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 2787
+    },
+    {
+      "action": "public.songDb.meta",
+      "guard": "none",
+      "guards": [],
+      "permissions": [],
+      "unguarded": true,
+      "line": 2804
+    },
+    {
+      "action": "file.download.init",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 2863
+    },
+    {
+      "action": "file.download.chunk",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 2994
+    },
+    {
+      "action": "file.download.complete",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3034
+    },
+    {
+      "action": "file.delete",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3059
+    },
+    {
+      "action": "notifications.list",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3068
+    },
+    {
+      "action": "notifications.get",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3087
+    },
+    {
+      "action": "notifications.markRead",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3096
+    },
+    {
+      "action": "notifications.delete",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3105
+    },
+    {
+      "action": "church.list",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3115
+    },
+    {
+      "action": "churchPermissionPolicy.getMe",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3123
+    },
+    {
+      "action": "churchPermissionPolicy.updateMe",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3128
+    },
+    {
+      "action": "church.get",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3150
+    },
+    {
+      "action": "church.create",
+      "guard": "requireSuperAdminOrClient",
+      "guards": [
+        "requireSuperAdminOrClient"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3158
+    },
+    {
+      "action": "church.update",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3163
+    },
+    {
+      "action": "church.delete",
+      "guard": "requireSuperAdminOrClient",
+      "guards": [
+        "requireSuperAdminOrClient"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3171
+    },
+    {
+      "action": "column.list",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3180
+    },
+    {
+      "action": "column.get",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3187
+    },
+    {
+      "action": "column.create",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3195
+    },
+    {
+      "action": "column.update",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3200
+    },
+    {
+      "action": "column.delete",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3208
+    },
+    {
+      "action": "location.list",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3217
+    },
+    {
+      "action": "location.get",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3224
+    },
+    {
+      "action": "location.create",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3232
+    },
+    {
+      "action": "location.update",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3237
+    },
+    {
+      "action": "location.delete",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3245
+    },
+    {
+      "action": "membershipPosition.list",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3254
+    },
+    {
+      "action": "membershipPosition.get",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3261
+    },
+    {
+      "action": "membershipPosition.create",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3269
+    },
+    {
+      "action": "membershipPosition.update",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3275
+    },
+    {
+      "action": "membershipPosition.delete",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3284
+    },
+    {
+      "action": "approvalRule.list",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3293
+    },
+    {
+      "action": "approvalRule.get",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3300
+    },
+    {
+      "action": "approvalRule.create",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3308
+    },
+    {
+      "action": "approvalRule.update",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3314
+    },
+    {
+      "action": "approvalRule.delete",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3323
+    },
+    {
+      "action": "approver.list",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3332
+    },
+    {
+      "action": "approver.get",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3362
+    },
+    {
+      "action": "approver.create",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3370
+    },
+    {
+      "action": "approver.update",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3375
+    },
+    {
+      "action": "approver.override",
+      "guard": "requireOperationPermission",
+      "guards": [
+        "requireOperationPermission"
+      ],
+      "permissions": [
+        "ops.approval.activity.override"
+      ],
+      "unguarded": false,
+      "line": 3391
+    },
+    {
+      "action": "financialAccountNumber.list",
+      "guard": "requireAnyOperationPermission",
+      "guards": [
+        "requireAnyOperationPermission"
+      ],
+      "permissions": [
+        "ops.finance.revenue.create",
+        "ops.finance.expense.create"
+      ],
+      "unguarded": false,
+      "line": 3427
+    },
+    {
+      "action": "financialAccountNumber.available",
+      "guard": "requireAnyOperationPermission",
+      "guards": [
+        "requireAnyOperationPermission"
+      ],
+      "permissions": [
+        "ops.finance.revenue.create",
+        "ops.finance.expense.create"
+      ],
+      "unguarded": false,
+      "line": 3441
+    },
+    {
+      "action": "financialAccountNumber.get",
+      "guard": "requireAnyOperationPermission",
+      "guards": [
+        "requireAnyOperationPermission"
+      ],
+      "permissions": [
+        "ops.finance.revenue.create",
+        "ops.finance.expense.create"
+      ],
+      "unguarded": false,
+      "line": 3456
+    },
+    {
+      "action": "financialAccountNumber.create",
+      "guard": "requireAnyOperationPermission",
+      "guards": [
+        "requireAnyOperationPermission"
+      ],
+      "permissions": [
+        "ops.finance.revenue.create",
+        "ops.finance.expense.create"
+      ],
+      "unguarded": false,
+      "line": 3472
+    },
+    {
+      "action": "financialAccountNumber.update",
+      "guard": "requireAnyOperationPermission",
+      "guards": [
+        "requireAnyOperationPermission"
+      ],
+      "permissions": [
+        "ops.finance.revenue.create",
+        "ops.finance.expense.create"
+      ],
+      "unguarded": false,
+      "line": 3483
+    },
+    {
+      "action": "financialAccountNumber.delete",
+      "guard": "requireAnyOperationPermission",
+      "guards": [
+        "requireAnyOperationPermission"
+      ],
+      "permissions": [
+        "ops.finance.revenue.create",
+        "ops.finance.expense.create"
+      ],
+      "unguarded": false,
+      "line": 3504
+    },
+    {
+      "action": "churchRequest.create",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3525
+    },
+    {
+      "action": "churchRequest.my",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3530
+    },
+    {
+      "action": "admin.churchRequest.list",
+      "guard": "requireSuperAdminOrClient",
+      "guards": [
+        "requireSuperAdminOrClient"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3535
+    },
+    {
+      "action": "admin.churchRequest.get",
+      "guard": "requireSuperAdminOrClient",
+      "guards": [
+        "requireSuperAdminOrClient"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3542
+    },
+    {
+      "action": "admin.churchRequest.update",
+      "guard": "requireSuperAdminOrClient",
+      "guards": [
+        "requireSuperAdminOrClient"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3550
+    },
+    {
+      "action": "admin.churchRequest.delete",
+      "guard": "requireSuperAdminOrClient",
+      "guards": [
+        "requireSuperAdminOrClient"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3558
+    },
+    {
+      "action": "admin.churchRequest.approve",
+      "guard": "requireSuperAdminOrClient",
+      "guards": [
+        "requireUserId",
+        "requireSuperAdminOrClient"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3566
+    },
+    {
+      "action": "admin.churchRequest.reject",
+      "guard": "requireSuperAdminOrClient",
+      "guards": [
+        "requireUserId",
+        "requireSuperAdminOrClient"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3579
+    },
+    {
+      "action": "activity.list",
+      "guard": "none",
+      "guards": [],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3593
+    },
+    {
+      "action": "activity.get",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3602
+    },
+    {
+      "action": "activity.create",
+      "guard": "requireOperationPermission",
+      "guards": [
+        "requireOperationPermission"
+      ],
+      "permissions": [
+        "ops.activity.create"
+      ],
+      "unguarded": false,
+      "line": 3610
+    },
+    {
+      "action": "activity.update",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3621
+    },
+    {
+      "action": "activity.delete",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3629
+    },
+    {
+      "action": "admin.songDb.upload.init",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3637
+    },
+    {
+      "action": "admin.songDb.upload.chunk",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3768
+    },
+    {
+      "action": "admin.songDb.upload.complete",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3830
+    },
+    {
+      "action": "admin.songDb.upload.abort",
+      "guard": "requireUserId",
+      "guards": [
+        "requireUserId"
+      ],
+      "permissions": [],
+      "unguarded": true,
+      "line": 3962
+    }
+  ]
+}

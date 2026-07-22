@@ -12,6 +12,7 @@ import { PrismaService } from '../prisma.service';
 import { NotificationService } from '../notification/notification.service';
 import { ApprovalStatus } from '../generated/prisma/client';
 import { DocumentService } from '../document/document.service';
+import { RealtimeEmitterService } from '../realtime/realtime-emitter.service';
 
 describe('ApproverService', () => {
   let service: ApproverService;
@@ -68,6 +69,17 @@ describe('ApproverService', () => {
     generate: jest.fn(),
   };
 
+  // ApproverService took a RealtimeEmitterService dependency and this spec was
+  // never updated, so the whole suite failed to construct. Phase 4 replaces the
+  // emitter's transport with FCM behind the same seam, and this mock is the
+  // seam — it should keep working unchanged through that swap.
+  const mockRealtimeEmitterService = {
+    emitActivityEvent: jest.fn(),
+    emitApprovalLifecycleEvent: jest.fn(),
+    emitFinanceEvent: jest.fn(),
+    emitToRoom: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -75,6 +87,10 @@ describe('ApproverService', () => {
         { provide: PrismaService, useValue: mockPrismaService },
         { provide: DocumentService, useValue: mockDocumentService },
         { provide: NotificationService, useValue: mockNotificationService },
+        {
+          provide: RealtimeEmitterService,
+          useValue: mockRealtimeEmitterService,
+        },
       ],
     }).compile();
 

@@ -1,0 +1,54 @@
+name: Palakat Backend CI
+
+# The permission-parity gate (ADR-0009). It replaces a review step a solo
+# developer cannot satisfy — "reviewed by someone who did not write it" — so it
+# has to run on every change to the backend, not on a deploy tag.
+on:
+  pull_request:
+    paths:
+      - 'apps/palakat_backend/**'
+      - 'docs/generated/rpc-parity.json'
+      - '.github/workflows/palakat-backend-ci.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/palakat_backend/**'
+      - 'docs/generated/rpc-parity.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: palakat-backend-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.17.0
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Fails if a route's @RequirePermissions drifts from its RPC allow-list,
+      # or if the committed parity table is stale.
+      - name: Permission parity
+        run: pnpm --dir apps/palakat_backend run parity:check
+
+      - name: Unit tests
+        run: pnpm --dir apps/palakat_backend run test

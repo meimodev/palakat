@@ -20,6 +20,7 @@ import { CashMutationService } from '../cash/cash-mutation.service';
 import { ChurchService } from '../church/church.service';
 import { ChurchRequestService } from '../church-request/church-request.service';
 import { ColumnService } from '../column/column.service';
+import { resolveRequesterChurchId } from '../church-permission-policy/resolve-requester-church-id';
 import { DocumentService } from '../document/document.service';
 import { FileService } from '../file/file.service';
 import { FinanceEntryService } from '../finance-entry/finance-entry.service';
@@ -331,25 +332,8 @@ export class RpcRouterService {
   private async resolveRequesterChurchIdForUser(
     userId: number,
   ): Promise<number> {
-    const membership = await (this.prisma as any).membership.findUnique({
-      where: { accountId: userId },
-      select: {
-        churchId: true,
-        column: {
-          select: {
-            churchId: true,
-          },
-        },
-      },
-    });
-
-    const churchId = membership?.churchId ?? membership?.column?.churchId;
-    if (!churchId) {
-      throw new BadRequestException(
-        'Account does not have an active membership',
-      );
-    }
-    return churchId;
+    // Shared with PermissionsGuard so the two authorization doors cannot drift.
+    return resolveRequesterChurchId(this.prisma, userId);
   }
 
   private async requireOperationPermission(
