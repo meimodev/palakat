@@ -19,17 +19,33 @@ describe('parity table generator', () => {
     expect(rows).toHaveLength(166);
   });
 
-  it('reproduces the hand-built table bucket for bucket', () => {
+  it('tracks the authorization posture, hand-table baseline in the margin', () => {
     const byGuard = rows.reduce<Record<string, number>>((acc, r) => {
       acc[r.guard] = (acc[r.guard] ?? 0) + 1;
       return acc;
     }, {});
 
-    expect(rows.filter((r) => !r.unguarded)).toHaveLength(38); // 🔐 permission
-    expect(byGuard.requireUserId).toBe(94); // 🔑 authenticated, no authorization
+    // Baselines are the hand-built table's. Phase 1.5 moves them on purpose;
+    // anything else moving them is a security-posture change that should fail
+    // here rather than land quietly.
+    expect(rows.filter((r) => !r.unguarded)).toHaveLength(43); // was 38, +5 approvalRule.*
+    expect(byGuard.requireUserId).toBe(89); // was 94, −5 approvalRule.*
     expect(byGuard.requireSuperAdminOrClient).toBe(12); // 👑 super-admin
     expect(byGuard.requireAuthAny).toBe(7); // 🔓 any-audience
     expect(byGuard.none).toBe(15); // ⚪ public (14) + service-scoped (1)
+  });
+
+  it('separates inline-guarded cases from genuinely unguarded ones', () => {
+    // The nine admin.* actions authorize with a hand-written role check. Before
+    // the generator knew that, they read as holes and a redundant "fix" for all
+    // nine was written. trulyUnguarded is the number Phase 1.5 works against.
+    for (const action of [
+      'admin.membershipInvitation.approve',
+      'admin.songDb.upload.init',
+    ]) {
+      expect(rows.find((r) => r.action === action)!.inlineGuard).toBe(true);
+    }
+    expect(summary.trulyUnguarded).toBeLessThan(summary.unguarded);
   });
 
   it('takes the strongest guard when a case calls several', () => {
@@ -54,9 +70,13 @@ describe('parity table generator', () => {
     ]);
   });
 
-  it('finds the phantom and unchecked permissions the plan names', () => {
+  it('finds the phantom permission, and shows the unchecked one is now checked', () => {
+    // ops.approval.finance is still a dead clause — correcting it to
+    // .override would *widen* finance read access, so it waits for a yes.
     expect(summary.phantom).toEqual(['ops.approval.finance']);
-    expect(summary.unchecked).toEqual(['ops.approvalRule.manage']);
+    // ops.approvalRule.manage was "defined and never checked". Phase 1.5
+    // resolved which horn: the approval-rule actions were under-guarded.
+    expect(summary.unchecked).toEqual([]);
   });
 
   it('groups fall-through cases under the guard of the body they reach', () => {

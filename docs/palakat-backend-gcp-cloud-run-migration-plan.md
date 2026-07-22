@@ -1,6 +1,6 @@
 # `palakat_backend` → GCP Cloud Run: Migration Plan (HTTP-only + FCM)
 
-**Date:** 2026-07-21 · **Revised:** 2026-07-22 (approved — #26 answered, see §0.0; scope grilled — see §0.05)
+**Date:** 2026-07-21 · **Revised:** 2026-07-22 (approved — see §0.0; scope grilled — see §0.05; **execution status — see §0.01**)
 **Companion:** [`palakat-backend-gcp-cloud-run-migration-analysis.md`](./palakat-backend-gcp-cloud-run-migration-analysis.md) — the *whether*, now historical. This document is the *how*, and it is the single live plan for the backend migration.
 **Supersedes for deployment:** the current EC2 + GitHub Actions deployment, once Phase 8 completes.
 
@@ -35,6 +35,66 @@ Supabase port, and that fork is closed. The live bar is §0.05's.
 | **Effort ceiling for the alternative** | ~12–15 weeks solo FTE for the Supabase port. Beyond it, #26 is a no. **Expired with the fork.** |
 | **What "no" commits to** | This plan in full — socket deleted, REST surface built, Cloud Run. Not "stay as we are". |
 | **Marginal cost of "no"** | **8–12 weeks** beyond genuinely shared work (decision 23 — the earlier 3–5 omitted the client work). Re-derived to **~10–14 weeks** by §0.05. |
+
+---
+
+## 0.01 ⏱️ Where the work actually is — read this first
+
+**Last updated: 2026-07-22.** Execution is tracked on a wayfinder map,
+**[#41](https://github.com/meimodev/palakat/issues/41)**, with one ticket per phase. This section is
+the summary; the map is the live index and the tickets hold the detail. **Update this section
+whenever a phase moves** — a session that reads only this document must be able to pick up work
+without opening the tracker first.
+
+| Phase | State | Where |
+|---|---|---|
+| **0** Correctness fixes | ✅ merged | [#35](https://github.com/meimodev/palakat/pull/35) |
+| **3a** Birthday timezone | ✅ merged | [#54](https://github.com/meimodev/palakat/pull/54) · `d26576c` |
+| **1** Permission layer + generated parity table | ✅ merged | [#55](https://github.com/meimodev/palakat/pull/55) · `f76313d` |
+| **1.5** Authorization hardening | 🔄 **in progress** — triage done, first tranche in review | [#45](https://github.com/meimodev/palakat/issues/45), [#56](https://github.com/meimodev/palakat/pull/56) |
+| **2** REST surface | ⛔ blocked on 1.5 | [#46](https://github.com/meimodev/palakat/issues/46) |
+| **4** FCM push | 🟢 takeable now — independent of Phase 2 | [#47](https://github.com/meimodev/palakat/issues/47) |
+| **5**–**9**, **3b** | ⛔ blocked, in plan order | [#48](https://github.com/meimodev/palakat/issues/48)–[#53](https://github.com/meimodev/palakat/issues/53) |
+| Daily `pg_dump` (decision 21 — *not* a phase, and overdue) | 🟢 **unstarted, needs GCS credentials** | [#42](https://github.com/meimodev/palakat/issues/42) |
+
+### What Phase 1 built, that Phase 2 depends on
+
+- `PermissionsGuard` (`src/auth/permissions.guard.ts`) — a verbatim port of the RPC path's
+  `requireAnyOperationPermission`, **including** attaching `churchId` to the request and the fallback
+  to resolving it from the membership. §6's code sketch omits that fallback; the shipped guard has it,
+  and the guard is the reference, not the sketch.
+- `@RequirePermissions(...)` and `@RpcAction('<action>')` (`src/auth/`). Every Phase 2 route carries both.
+- **`pnpm parity:generate`** → `docs/generated/rpc-parity.{json,md}`. Generated, never hand-edited.
+- **`pnpm parity:check`** — CI gate (`.github/workflows/palakat-backend-ci.yml`, the repo's first
+  PR-triggered CI). Fails if the committed table is stale, or if a route's `@RequirePermissions`
+  disagrees with its RPC allow-list. It also prints **`n/166` actions claimed by a REST route**,
+  which is Phase 2's completeness measure.
+
+> ⚠️ **The parity table sees helpers, not authorization.** It reads `requireOperationPermission` and
+> friends. It cannot see a guard inside a service (`ChurchPermissionPolicyService.assertCanManagePolicy`)
+> and, until Phase 1.5 taught it to, could not see an inline `if (auth?.role !== 'SUPER_ADMIN')`.
+> **A guard it cannot see reads exactly like a guard that is not there.** Rows now carry
+> `inlineGuard`, and the summary separates `trulyUnguarded` from `unguarded` — use the former.
+
+### What Phase 1.5 has established so far
+
+**The "94 unguarded actions" figure is a router-level measurement and should not be planned against.**
+It mixes three populations — see [`…-phase-1.5-authorization-triage.md`](./palakat-backend-phase-1.5-authorization-triage.md):
+
+| | Count | |
+|---|---:|---|
+| Inline-guarded | 11 | Authorizes by hand rather than via a helper. Guarded. **Not work.** |
+| Scoped-arg | 27 | Passes `user` or a caller-derived id; several demonstrably enforce in the service. Verify, don't fix. |
+| **Bare** | **56** | No helper, no inline check, nothing caller-derived reaches the service. **No layer can be enforcing anything.** |
+
+Done: `sub.join` room authorization (§3.1), and `ops.approvalRule.manage` now enforced on all five
+`approvalRule.*` actions — that finding is closed, and the generator proves it with `unchecked: []`.
+
+Remaining, split off [#45](https://github.com/meimodev/palakat/issues/45) and blocking it:
+[#57](https://github.com/meimodev/palakat/issues/57) bare writes → permissions ·
+[#58](https://github.com/meimodev/palakat/issues/58) bare reads → service scoping ·
+[#59](https://github.com/meimodev/palakat/issues/59) verify the 27 ·
+[#60](https://github.com/meimodev/palakat/issues/60) the `ops.approval.finance` widening decision.
 
 ---
 
@@ -94,9 +154,13 @@ none of which is wasted:
 
 | Done | Where |
 |---|---|
-| Phase 1 parity table — all 166 RPC actions mapped to verb + route + guard | [`…-rpc-rest-parity-table.md`](./palakat-backend-rpc-rest-parity-table.md) ([#33](https://github.com/meimodev/palakat/pull/33)) |
+| Phase 1 parity table — all 166 RPC actions mapped to verb + route + guard. **Superseded by the generated table** (§0.01); kept as the human-derived baseline the generator was validated against | [`…-rpc-rest-parity-table.md`](./palakat-backend-rpc-rest-parity-table.md) ([#33](https://github.com/meimodev/palakat/pull/33)) |
 | Stale-job reaper, atomic `SKIP LOCKED` claim, bundled PDF font, dead-code deletions | [#35](https://github.com/meimodev/palakat/pull/35) |
 | RLS feasibility evidence — kept as the record of *why*, and the input if this is reopened | [`…-rls-feasibility.md`](./palakat-backend-rls-feasibility.md) ([#34](https://github.com/meimodev/palakat/pull/34)) |
+
+> ⚠️ **The 94 has since been re-derived to 56** by Phase 1.5's triage — see §0.01 and §6.5. The
+> paragraphs below are kept as written because they record why Phase 1.5 exists; **do not size the
+> work from them.**
 
 **Carried in from the closed fork as new Phase 2 scope:** the parity table found **94 of 166 actions
 authenticated but unauthorized**, plus a phantom permission (`ops.approval.finance`, referenced and never
@@ -371,9 +435,43 @@ tmpfs exposure is narrower than feared and report downloads never consume Cloud 
 
 **The most important design constraint in this migration.**
 
-Socket rooms are **server-controlled** — the server authenticates, then decides membership. FCM topics are
-**client-controlled**: any app instance can call `subscribeToTopic('church.123')` and **Firebase performs no
-authorization check.**
+FCM topics are **client-controlled**: any app instance can call `subscribeToTopic('church.123')` and
+**Firebase performs no authorization check.**
+
+> ### 3.1 ❌ Correction — socket rooms were *not* server-controlled either
+>
+> **Earlier drafts of this section opened by contrasting "server-controlled" socket rooms with
+> client-controlled FCM topics. That contrast was false**, and it mattered: it framed this whole
+> constraint as something FCM *introduces*.
+>
+> `sub.join` took the room name straight from the payload and joined it:
+>
+> ```ts
+> case 'sub.join': {
+>   this.requireUserId(client);
+>   const room = payload.room as string;
+>   if (!room || room.trim().length === 0) throw new BadRequestException('room is required');
+>   client.join(room);          // ← no membership check of any kind
+> ```
+>
+> Any authenticated user could join `church.{any id}` and receive exactly the payloads listed below —
+> `entityTitle`, `actorName`, `financeType`, `affectedMembershipIds`, `resultingStatus`. The client
+> named the room and the server obeyed.
+>
+> Three consequences, none of which change this plan's direction:
+>
+> 1. **The mandate below is still right**, and now has a second, independent justification.
+> 2. **The exposure was live, not prospective** — and `palakat_admin` is deployed (decision 21).
+> 3. **Phase 4 closes this exposure rather than opening it.** Read the rest of §3 that way.
+>
+> Fixed in Phase 1.5 ([#56](https://github.com/meimodev/palakat/pull/56)): `sub.join` now checks the
+> requested room against the caller's own account, membership, church and column, as an **allow-list**
+> over the grammar `pusher-beams.service.ts` defines (`src/realtime/room-authorization.ts`). A
+> deny-list on a name the caller composes is not defensible.
+>
+> The same lesson applies to the FCM design: `subscribeToTopic` is client-side and has **no** server to
+> refuse it, so the content rule below is the only control. That is why it is a mandate and not a
+> preference.
 
 Today's payloads carry `entityTitle`, `actorName`, `financeType`, `affectedMembershipIds`, `resultingStatus`.
 Published to `church.{id}` topics, **anyone guessing a church ID would receive that church's finance and approval
@@ -422,11 +520,11 @@ conflating them is what hid this.
 ```
 ON EC2 — no infrastructure cost change
 Phase 0   Correctness fixes           reaper, atomic claim, font, pool bound  ✅ done (#35)
-Phase 3a  Birthday timezone           @Cron timeZone + handler in WITA        ~1 hour
-Phase 1   Permission layer            guard + GENERATED parity table          ~1 week
-Phase 1.5 Authorization hardening     triage + fix the 94, on the RPC path    ~1–2 weeks  🔴 SECURITY
+Phase 3a  Birthday timezone           @Cron timeZone + handler in WITA        ✅ done (#54)
+Phase 1   Permission layer            guard + GENERATED parity table          ✅ done (#55)
+Phase 1.5 Authorization hardening     triage done; 56 bare actions to fix     🔄 in progress 🔴 SECURITY
 Phase 2   REST surface                delete 27 controllers, write 166 + 4    ~3–4 weeks  🔴 SECURITY
-Phase 4   FCM push                    reimplement the emitter; retire Beams   ~2–3 days
+Phase 4   FCM push                    reimplement the emitter; retire Beams   ~2–3 days   🟢 takeable now
 Phase 5   Flutter clients (×3)        ~180 call sites → REST, topics          ~3–6 weeks
 ─────────────────────────────────────────────────────────────────────────────────────────
 THEN MIGRATE — nothing pins an instance any more
@@ -549,9 +647,22 @@ connection on 5432; PgBouncer transaction mode cannot run DDL reliably.
 
 ---
 
-## 6. Phase 1 — the permission layer
+## 6. Phase 1 — the permission layer ✅ done ([#55](https://github.com/meimodev/palakat/pull/55))
 
-**Built from nothing.** No controller currently carries a permission decorator.
+> **This section is now historical.** The shipped code is the reference, not the sketch below:
+> `src/auth/permissions.guard.ts`, `permissions.decorator.ts`, `rpc-action.decorator.ts`,
+> `scripts/generate-parity-table.ts`, `scripts/check-permission-parity.ts`. See §0.01 for what
+> Phase 2 consumes.
+>
+> ⚠️ **The `PermissionsGuard` sketch below is subtly wrong and was not shipped as written.** It does
+> `req.churchId = res?.data?.churchId` and stops. But `getEffectivePermissions` returns
+> `churchId: null` for an elevated role with no membership row, so the RPC helper falls back to
+> `resolveRequesterChurchIdForUser`. Dropping that fallback 500s exactly the accounts with the most
+> authority. The shipped guard keeps it, via
+> `src/church-permission-policy/resolve-requester-church-id.ts`, which the RPC router now shares so
+> the two authorization doors cannot drift.
+
+**Built from nothing.** No controller carried a permission decorator.
 
 The RPC path is the specification. `requireAnyOperationPermission` (`rpc-router.service.ts:380`) resolves the
 caller's effective permissions and matches against an allow-list:
@@ -653,23 +764,39 @@ So the redesign finishes *before* the transport migration rather than during or 
 is one surface, a live reference implementation, existing tests, and no interaction with route registration,
 guards, envelopes or validation changing at the same time.
 
-**Triage first — roughly a day — into three buckets:**
+**✅ The triage is done** — [`…-phase-1.5-authorization-triage.md`](./palakat-backend-phase-1.5-authorization-triage.md),
+[#45](https://github.com/meimodev/palakat/issues/45). It changed the size of this phase, so read its
+result before planning against the paragraph above.
 
-| Bucket | Example | Work |
-|---|---|---|
-| Correct as authenticated-only | `location.list` — reference data | none; record why |
-| Needs a permission | church-scoped writes | the real work |
-| Needs church-scoping in the service, not a permission | own-records reads | service layer |
+**94 was a router-level count and mixes three populations:**
 
-Only buckets 2 and 3 cost anything. The output populates the parity table's Permissions column, which is what
-makes Phase 2 pure transcription.
+| Population | Count | Work |
+|---|---:|---|
+| **Inline-guarded** — hand-written role check instead of a helper | 11 | **none** — guarded; the generator simply could not see it |
+| **Scoped-arg** — passes `user` or a caller-derived id | 27 | verify the service enforces ([#59](https://github.com/meimodev/palakat/issues/59)) |
+| **Bare** — nothing caller-derived reaches the service | **56** | the real work ([#57](https://github.com/meimodev/palakat/issues/57), [#58](https://github.com/meimodev/palakat/issues/58)) |
 
-**Fold in the two dead-permission findings** rather than tracking them separately:
+Within the 56, the original three buckets still apply: correct as authenticated-only (`location.list`
+— reference data; record why), needs a permission (church-scoped writes → #57), needs church-scoping
+in the service rather than a permission (own-records reads → #58). `approver.list` is the model for
+the third — it forces `query.churchId` to the requester's own church and **rejects** a mismatch
+rather than silently ignoring it.
 
-- `ops.approval.finance` is passed in the allow-lists at `rpc-router.service.ts:2075` and `:2096` and is **never
-  defined** — the policy service has only `ops.approval.finance.override`. Those clauses are dead.
-- `ops.approvalRule.manage` is defined in `ALL_PERMISSIONS` and **never checked**. Either it is dead, or the
-  approval-rule actions are under-guarded. The triage decides which.
+**The two dead-permission findings, resolved:**
+
+- `ops.approvalRule.manage` was defined in `ALL_PERMISSIONS` and never checked. The triage decided
+  which horn: **the approval-rule actions were under-guarded**, not the permission dead. All five
+  `approvalRule.*` now require it ([#56](https://github.com/meimodev/palakat/pull/56)), and the
+  generator reports `unchecked: []`.
+- `ops.approval.finance` is passed at `rpc-router.service.ts:2075` and `:2096` and is **never
+  defined** — only `ops.approval.finance.override` exists, so those clauses are dead. **Still open,
+  deliberately** ([#60](https://github.com/meimodev/palakat/issues/60)): the comment above the call
+  says *"Allow finance creators OR finance approvers to read detail"*, so correcting it **widens**
+  finance read access. It is the only widening in this phase, and every other change here tightens.
+  Tightening is safe to do unilaterally under the freeze; this is not.
+
+**Also fixed here, and not previously in this plan's scope:** `sub.join` accepted any room name —
+see §3.1. That was a live cross-church data leak, and it falsified §3's original framing.
 
 > ⚠️ **This changes RPC behaviour while three clients still speak RPC.** A call that worked yesterday returns 403
 > today. Under decision 28's release freeze that costs dev-build friction and nothing else — which is exactly
@@ -1480,7 +1607,11 @@ Phase 1   [ ] PARITY TABLE GENERATOR: walks rpc-router.service.ts, emits guard
           [ ] PaginationInterceptor overlap checked before adding anything
           [ ] request-shape column sourced from the CLIENT, not the untested DTOs
 
-Phase 1.5 [ ] triage the 94 auth-only actions into 3 buckets   🔴 SECURITY GATE
+Phase 1.5 [x] triage the 94 auth-only actions → 11 inline / 27 scoped / 56 bare
+Phase 1.5 [x] sub.join room authorization (§3.1 — was a live leak)
+Phase 1.5 [x] ops.approvalRule.manage enforced; `unchecked: []`
+Phase 1.5 [ ] the 56 bare actions: #57 writes, #58 reads, #59 verify 27   🔴 SECURITY GATE
+Phase 1.5 [ ] #60 — decide the ops.approval.finance widening
               (correct as-is / needs permission / needs church-scoping)
           [ ] fix buckets 2 and 3 ON THE RPC PATH, before any controller exists
           [ ] ops.approval.finance — referenced, never defined: remove or define
