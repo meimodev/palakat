@@ -40,6 +40,17 @@ Supabase port, and that fork is closed. The live bar is §0.05's.
 
 ## 0.01 ⏱️ Where the work actually is — read this first
 
+> ### 🔴 No schema migrations until [#42](https://github.com/meimodev/palakat/issues/42) is running
+>
+> Risk R2 (§13) is *"unrecoverable data loss on a bad migration"*, rated **Certain**, and its only stated
+> mitigation is a `pg_dump` before every migration. That dump is **written and not running** — it needs a
+> bucket and one connection string. Until it does, every `prisma migrate` against production is R2 with
+> its mitigation removed.
+>
+> This is not a Phase 4 problem or a Phase 2 problem, which is why it is stated here rather than in either:
+> **#42 gates every schema change in the project.** The first thing it caught was
+> [#72](https://github.com/meimodev/palakat/issues/72), which needs a device-token table.
+
 **Last updated: 2026-07-22.** Execution is tracked on a wayfinder map,
 **[#41](https://github.com/meimodev/palakat/issues/41)**, with one ticket per phase. This section is
 the summary; the map is the live index and the tickets hold the detail. **Update this section
@@ -1179,9 +1190,17 @@ drops precisely when the app is killed.
 > half in Phase 5.**
 >
 > **And a correction to §10.1 while we are here:** `firebase_messaging` appears in **`apps/palakat` only**.
-> `palakat_admin` — the one client actually deployed — is Flutter **web** running the Pusher Beams *web* SDK, so
-> "subscribe to topics" is not one job repeated three times. Web needs FCM JS with a service worker and a VAPID
-> key, which is a different piece of work from mobile topic subscription and is not currently costed anywhere.
+> `palakat_admin` — the one client actually deployed — is Flutter **web** running the Pusher Beams *web* SDK, and
+> carries **no Firebase dependency at all**, not even `firebase_core`. So "subscribe to topics" is not one job
+> repeated three times.
+>
+> It is worse than a missing dependency: **the FCM web SDK has no topic-subscription API.** `subscribeToTopic`
+> exists in the mobile SDKs and in the Admin SDK, not in the JS one. The web path is necessarily *client obtains a
+> registration token → sends it to our server → server subscribes it* — which needs an endpoint and a **table of
+> device tokens that does not exist** (27 models, none for tokens). That is uncosted, it gates §9.2, and per the
+> banner in §0.01 it cannot even begin until #42 is running.
+>
+> Tracked as [#72](https://github.com/meimodev/palakat/issues/72).
 >
 > #### ✅ Shipped — with the stripping pulled out of the seam
 >
