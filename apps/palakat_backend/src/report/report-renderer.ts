@@ -4,13 +4,18 @@ import * as ExcelJS from 'exceljs';
 import * as fs from 'fs';
 import * as path from 'path';
 
+// The bundled font comes first on purpose: host paths differ between the EC2
+// box, a slim container and a laptop, and a miss here degrades PDF output
+// silently rather than failing. Both layouts are listed because `__dirname`
+// is dist/src/report once compiled and src/report under ts-node.
 const UNICODE_FONT_CANDIDATES = [
+  path.join(__dirname, '../../assets/fonts/NotoSans-Regular.ttf'), // dist/assets
+  path.join(__dirname, '../assets/fonts/NotoSans-Regular.ttf'), // src/assets
   '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
   '/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf',
   '/usr/share/fonts/noto/NotoSans-Regular.ttf',
   '/System/Library/Fonts/Supplemental/Arial Unicode MS.ttf',
   '/System/Library/Fonts/Helvetica.ttc',
-  path.join(__dirname, '../../assets/fonts/NotoSans-Regular.ttf'),
 ];
 
 function resolveUnicodeFontPath(): string | undefined {
@@ -25,6 +30,16 @@ function resolveUnicodeFontPath(): string | undefined {
 }
 
 const _unicodeFontPath = resolveUnicodeFontPath();
+
+// Fail loudly at startup. Without a Unicode font pdfkit falls back to a core
+// font and mangles non-Latin-1 glyphs with no error and no log line — most
+// Indonesian text is Latin-1, so it passes a smoke test and corrupts later.
+if (!_unicodeFontPath) {
+  throw new Error(
+    'No Unicode font found — PDF export would silently mangle non-Latin-1 glyphs. ' +
+      `Looked in: ${UNICODE_FONT_CANDIDATES.join(', ')}`,
+  );
+}
 
 const BRAND_PRIMARY_HEX = '#921573';
 const BRAND_SECONDARY_HEX = '#6B1D84';
