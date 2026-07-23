@@ -36,53 +36,14 @@ class ApprovalDetailController extends _$ApprovalDetailController {
       socket.connectionStatusListenable.removeListener(onSocketStatusChanged);
     });
 
-    ref.listen(realtimeEventProvider, (_, next) {
-      final event = next.asData?.value;
-      if (event == null) {
-        return;
-      }
-
-      final eventActivityId = _extractActivityId(event);
-      if (eventActivityId != activityId) {
-        return;
-      }
-
-      if (event.name == 'activity.updated') {
-        Future.microtask(() => fetch(activityId));
-      }
-
-      if (event.name == 'activity.deleted') {
-        state = state.copyWith(
-          activity: null,
-          loadingScreen: false,
-          isActionLoading: false,
-          errorMessage: null,
-        );
-      }
-    });
+    // Phase 5 §10.1 step 3 / §9.4: change signals invalidate, they do not
+    // refetch. This controller is autoDispose, so the activity is re-read when
+    // the detail screen is next viewed — never eagerly on a push. The socket
+    // reconnect catch-up above stays (one-shot re-read after being offline).
 
     // Schedule fetch after provider initialization completes
     Future.microtask(() => fetch(activityId));
     return const ApprovalDetailState();
-  }
-
-  int? _extractActivityId(RealtimeEvent event) {
-    if (event.name != 'activity.updated' && event.name != 'activity.deleted') {
-      return null;
-    }
-
-    final data = event.payload['data'];
-    if (data is Map<String, dynamic>) {
-      final value = data['activityId'];
-      return value is int ? value : int.tryParse('$value');
-    }
-
-    if (data is Map) {
-      final value = data['activityId'];
-      return value is int ? value : int.tryParse('$value');
-    }
-
-    return null;
   }
 
   /// Fetch activity details from the API
