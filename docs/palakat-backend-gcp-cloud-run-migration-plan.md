@@ -1185,8 +1185,9 @@ Two actions are **not** mechanical ports:
 
 - [ ] Parity table **generated** from source, and the CI permission-diff check green (decision 32). The old
       "reviewed by someone who did not write it" is unsatisfiable solo — see [ADR-0009](./adr/0009-parity-table-is-generated-not-reviewed.md).
-- [ ] Fresh-agent read of the Verb/Route columns and Phase 1.5's triage buckets — the judgement the generator
-      cannot make.
+- [x] **Verb/Route** read done — recorded in [`scripts/route-map.json`](../apps/palakat_backend/scripts/route-map.json)
+      and merged into the generated table by the generator (coverage of all 166 asserted, drift fails the build).
+      Still open: Phase 1.5's triage-bucket read, the other judgement the generator cannot make.
 - [ ] Under-privileged-token test green on every permission-bearing route. **Phase 1.5 closed, so this now
       covers the surface rather than 72 of 166 routes.**
 - [ ] `/auth/*` throttled (§7.1).

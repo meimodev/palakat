@@ -15,6 +15,20 @@ describe('parity table generator', () => {
   const rows = generateRows();
   const summary = analyse(rows, definedPermissions());
 
+  it('gives every action a route-map verdict — a route, or a null with a reason', () => {
+    // mergeRouteMap throws if route-map.json drifts from the router, so reaching
+    // here proves coverage. This asserts the shape: a real HTTP route, or an
+    // explicit `null` that carries the note saying why it is not one.
+    for (const r of rows) {
+      if (r.verb === null) {
+        expect(r.route).toBeNull();
+        expect(r.note).toBeTruthy();
+      } else {
+        expect(r.route).toMatch(/^\//);
+      }
+    }
+  });
+
   it('finds every RPC action', () => {
     expect(rows).toHaveLength(166);
   });
