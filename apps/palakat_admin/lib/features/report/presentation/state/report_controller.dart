@@ -1,12 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:palakat_admin/constants.dart';
+import 'package:palakat_admin/core/services/church_change_version_poller.dart';
 import 'package:palakat_admin/models.dart';
 import 'package:palakat_admin/utils.dart';
 import 'package:palakat_admin/repositories.dart';
 import 'package:palakat_admin/features/auth/application/auth_controller.dart';
 import 'package:palakat_admin/features/report/presentation/state/report_screen_state.dart';
 import 'package:palakat_shared/core/models/report_job.dart';
-import 'package:palakat_shared/services.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'report_controller.g.dart';
@@ -20,14 +22,11 @@ class ReportController extends _$ReportController {
     _searchDebouncer = Debouncer(delay: const Duration(milliseconds: 300));
     ref.onDispose(() => _searchDebouncer.dispose());
 
-    ref.listen(realtimeEventProvider, (_, next) {
-      final e = next.asData?.value;
-      if (e == null) return;
-
-      if (e.name == 'reportJob.created' ||
-          e.name == 'reportJob.updated' ||
-          e.name == 'report.ready') {
-        Future.microtask(refresh);
+    // Phase 5 §9.5 / §9.4: a change signal invalidates, it does not refetch.
+    // The admin's refresh tap advances the seen version; only then re-read.
+    ref.listen(seenChangeVersionProvider, (previous, next) {
+      if (previous != null && next != previous) {
+        unawaited(refresh());
       }
     });
 

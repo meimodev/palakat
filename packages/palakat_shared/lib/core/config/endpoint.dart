@@ -14,6 +14,11 @@ class Endpoints {
   static const String churches = '/church';
   static String church({required int churchId}) => '/church/$churchId';
 
+  /// Phase 5 §9.5: the palakat_admin poll transport — an opaque per-church
+  /// version the client diffs to know when to mark its data stale.
+  static String churchChangeVersion({required int churchId}) =>
+      '/church/$churchId/change-version';
+
   // Location
   static String location({required int locationId}) => '/location/$locationId';
 

@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:palakat_admin/constants.dart';
+import 'package:palakat_admin/core/services/church_change_version_poller.dart';
 import 'package:palakat_admin/features/activity/presentation/state/activity_screen_state.dart';
 import 'package:palakat_admin/features/auth/application/auth_controller.dart';
 import 'package:palakat_admin/models.dart';
@@ -43,17 +46,12 @@ class ActivityController extends _$ActivityController {
       _searchDebouncer.dispose();
     });
 
-    ref.listen(realtimeEventProvider, (_, next) {
-      final event = next.asData?.value;
-      if (event == null) {
-        return;
+    // Phase 5 §9.5 / §9.4: a change signal invalidates, it does not refetch.
+    // The admin's refresh tap advances the seen version; only then re-read.
+    ref.listen(seenChangeVersionProvider, (previous, next) {
+      if (previous != null && next != previous && !_isDisposed) {
+        unawaited(refresh());
       }
-
-      if (!_shouldRefreshForRealtimeEvent(event)) {
-        return;
-      }
-
-      Future.microtask(_fetchActivities);
     });
 
     final initial = const ActivityScreenState();
@@ -76,37 +74,6 @@ class ActivityController extends _$ActivityController {
         ?.id;
   }
 
-  Map<String, dynamic>? _extractEventData(RealtimeEvent event) {
-    final data = event.payload['data'];
-    if (data is Map<String, dynamic>) {
-      return data;
-    }
-    if (data is Map) {
-      return data.map((key, value) => MapEntry(key.toString(), value));
-    }
-    return null;
-  }
-
-  bool _shouldRefreshForRealtimeEvent(RealtimeEvent event) {
-    if (event.name != 'activity.created' &&
-        event.name != 'activity.updated' &&
-        event.name != 'activity.deleted') {
-      return false;
-    }
-
-    final churchId = _currentChurchId;
-    if (churchId == null) {
-      return false;
-    }
-
-    final eventData = _extractEventData(event);
-    final eventChurchId = eventData?['churchId'];
-    final normalizedChurchId = eventChurchId is int
-        ? eventChurchId
-        : int.tryParse('$eventChurchId');
-
-    return normalizedChurchId == churchId;
-  }
 
   Future<void> _fetchActivities() async {
     if (_isDisposed) return;

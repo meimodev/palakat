@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:palakat_admin/constants.dart';
+import 'package:palakat_admin/core/services/church_change_version_poller.dart';
 import 'package:palakat_admin/features/auth/application/auth_controller.dart';
 import 'package:palakat_admin/features/finance/presentation/state/finance_data_state.dart';
 import 'package:palakat_admin/models.dart';
@@ -44,17 +47,15 @@ class FinanceDataController extends _$FinanceDataController {
       _searchDebouncer.dispose();
     });
 
-    ref.listen(realtimeEventProvider, (_, next) {
-      final event = next.asData?.value;
-      if (event == null) {
-        return;
+    // Phase 5 §9.5 / §9.4: a change signal invalidates, it does not refetch.
+    // The poll marks data stale; the admin's refresh tap advances the seen
+    // version, and only then do we re-read — never eagerly per event/tick,
+    // which was the fan-out amplifier the cost model forbids. Filters are
+    // preserved because refresh() re-fetches the current view.
+    ref.listen(seenChangeVersionProvider, (previous, next) {
+      if (previous != null && next != previous && !_isDisposed) {
+        unawaited(refresh());
       }
-
-      if (!_shouldRefreshForRealtimeEvent(event)) {
-        return;
-      }
-
-      Future.microtask(_fetchEntries);
     });
 
     final initial = const FinanceDataState();
@@ -72,38 +73,6 @@ class FinanceDataController extends _$FinanceDataController {
         .membership
         ?.church
         ?.id;
-  }
-
-  Map<String, dynamic>? _extractEventData(RealtimeEvent event) {
-    final data = event.payload['data'];
-    if (data is Map<String, dynamic>) {
-      return data;
-    }
-    if (data is Map) {
-      return data.map((key, value) => MapEntry(key.toString(), value));
-    }
-    return null;
-  }
-
-  bool _shouldRefreshForRealtimeEvent(RealtimeEvent event) {
-    if (event.name != 'finance.created' &&
-        event.name != 'finance.updated' &&
-        event.name != 'finance.deleted') {
-      return false;
-    }
-
-    final churchId = _currentChurchId;
-    if (churchId == null) {
-      return false;
-    }
-
-    final eventData = _extractEventData(event);
-    final eventChurchId = eventData?['churchId'];
-    final normalizedChurchId = eventChurchId is int
-        ? eventChurchId
-        : int.tryParse('$eventChurchId');
-
-    return normalizedChurchId == churchId;
   }
 
   Future<void> _fetchEntries() async {

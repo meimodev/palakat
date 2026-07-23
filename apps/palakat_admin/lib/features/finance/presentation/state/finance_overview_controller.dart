@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:palakat_admin/core/services/church_change_version_poller.dart';
 import 'package:palakat_admin/features/auth/application/auth_controller.dart';
 import 'package:palakat_admin/models.dart';
 import 'package:palakat_admin/repositories.dart';
@@ -36,17 +39,12 @@ class FinanceOverviewController extends Notifier<FinanceOverviewState> {
       socket.connectionStatusListenable.removeListener(onSocketStatusChanged);
     });
 
-    ref.listen(realtimeEventProvider, (_, next) {
-      final event = next.asData?.value;
-      if (event == null) {
-        return;
+    // Phase 5 §9.5 / §9.4: a change signal invalidates, it does not refetch.
+    // The admin's refresh tap advances the seen version; only then re-read.
+    ref.listen(seenChangeVersionProvider, (previous, next) {
+      if (previous != null && next != previous) {
+        unawaited(refresh());
       }
-
-      if (!_shouldRefreshForRealtimeEvent(event)) {
-        return;
-      }
-
-      Future.microtask(_fetch);
     });
 
     final initial = const FinanceOverviewState();
@@ -62,38 +60,6 @@ class FinanceOverviewController extends Notifier<FinanceOverviewState> {
         .membership
         ?.church
         ?.id;
-  }
-
-  Map<String, dynamic>? _extractEventData(RealtimeEvent event) {
-    final data = event.payload['data'];
-    if (data is Map<String, dynamic>) {
-      return data;
-    }
-    if (data is Map) {
-      return data.map((key, value) => MapEntry(key.toString(), value));
-    }
-    return null;
-  }
-
-  bool _shouldRefreshForRealtimeEvent(RealtimeEvent event) {
-    if (event.name != 'finance.created' &&
-        event.name != 'finance.updated' &&
-        event.name != 'finance.deleted') {
-      return false;
-    }
-
-    final churchId = _currentChurchId;
-    if (churchId == null) {
-      return false;
-    }
-
-    final eventData = _extractEventData(event);
-    final eventChurchId = eventData?['churchId'];
-    final normalizedChurchId = eventChurchId is int
-        ? eventChurchId
-        : int.tryParse('$eventChurchId');
-
-    return normalizedChurchId == churchId;
   }
 
   Future<void> _fetch() async {
