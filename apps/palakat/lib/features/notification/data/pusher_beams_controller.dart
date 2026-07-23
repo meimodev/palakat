@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/core/services/in_app_notification_service.dart';
 import 'package:palakat/core/services/notification_display_service_provider.dart';
+import 'package:palakat/core/services/fcm_topic_service.dart';
 import 'package:palakat/core/services/pusher_beams_mobile_service.dart';
 import 'package:palakat/core/widgets/in_app_notification/in_app_notification_banner.dart';
 import 'package:palakat_shared/core/extension/account_extension.dart';
@@ -34,6 +35,15 @@ class PusherBeamsController extends _$PusherBeamsController {
   PusherBeamsMobileService? _service;
 
   InAppNotificationService? _inAppNotificationService;
+
+  /// FCM topic subscriptions run alongside Pusher Beams (migration plan §10.1
+  /// step 2). Beams delivers via its interests; this delivers via the FCM
+  /// topics Phase 4 now dual-emits to. Same names, same lifecycle.
+  final FcmTopicService _fcmTopics = FcmTopicService();
+
+  /// The FCM topics actually subscribed last, so logout / church switch can
+  /// unsubscribe them — FCM has no "list my subscriptions" API.
+  List<String> _subscribedFcmTopics = const [];
 
   /// Flag to track if interests have been registered for the current session
   bool _hasRegisteredInterests = false;
@@ -185,6 +195,17 @@ class PusherBeamsController extends _$PusherBeamsController {
     _log('Subscribing to interests...');
     await _service!.subscribeToInterests(interests);
 
+    // FCM topics (§10.1 step 2). On a church/membership switch, drop the
+    // previous church's topics first — a missed unsubscribe leaks another
+    // church's pings to this device permanently, and topics have no
+    // server-side revocation.
+    if (_registeredMembershipId != null &&
+        _registeredMembershipId != membershipId) {
+      await _fcmTopics.unsubscribe(_subscribedFcmTopics);
+    }
+    await _fcmTopics.subscribe(interests);
+    _subscribedFcmTopics = List.of(interests);
+
     // Verify interests were registered
     final registeredInterests = await _service!.getSubscribedInterests();
     _log(
@@ -248,8 +269,15 @@ class PusherBeamsController extends _$PusherBeamsController {
 
     if (enabled) {
       await _service!.subscribeToInterests([interest]);
+      await _fcmTopics.subscribe([interest]);
+      if (!_subscribedFcmTopics.contains(interest)) {
+        _subscribedFcmTopics = [..._subscribedFcmTopics, interest];
+      }
     } else {
       await _service!.unsubscribeFromInterests([interest]);
+      await _fcmTopics.unsubscribe([interest]);
+      _subscribedFcmTopics =
+          _subscribedFcmTopics.where((t) => t != interest).toList();
     }
   }
 
@@ -486,6 +514,11 @@ class PusherBeamsController extends _$PusherBeamsController {
     }
 
     _log('Unregistering all interests');
+
+    // Drop FCM topics while the token is still live — clearAllState() below
+    // deletes the FCM token (which would strand any leftover subscriptions).
+    await _fcmTopics.unsubscribe(_subscribedFcmTopics);
+    _subscribedFcmTopics = const [];
 
     // Get current interests for logging before clearing
     final currentInterests = await _service!.getSubscribedInterests();
