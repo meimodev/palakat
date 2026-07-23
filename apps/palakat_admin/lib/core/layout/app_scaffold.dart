@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:palakat_admin/core/services/church_change_version_poller.dart';
 import 'package:palakat_admin/features/auth/application/auth_controller.dart';
 import 'package:palakat_shared/palakat_shared.dart' hide Column;
 
@@ -19,9 +20,57 @@ class AppScaffold extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const SizedBox.shrink(key: ValueKey('content_placeholder')),
+          const _StaleDataBanner(),
           child,
         ],
+      ),
+    );
+  }
+}
+
+/// Phase 5 §9.5: shown when the change-version poll finds church data newer
+/// than the admin has acknowledged. Tapping marks it seen, which drives the
+/// mounted data controller to re-read (§9.4 — a change signal never refetches
+/// on its own; the admin's tap is the read).
+class _StaleDataBanner extends ConsumerWidget {
+  const _StaleDataBanner();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (!ref.watch(hasStaleDataProvider)) {
+      return const SizedBox.shrink(key: ValueKey('content_placeholder'));
+    }
+    final scheme = Theme.of(context).colorScheme;
+    return Material(
+      color: scheme.secondaryContainer,
+      child: InkWell(
+        onTap: () {
+          ref
+              .read(seenChangeVersionProvider.notifier)
+              .set(ref.read(latestChangeVersionProvider));
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: Row(
+            children: [
+              Icon(Icons.sync, size: 18, color: scheme.onSecondaryContainer),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Data has changed — tap to refresh',
+                  style: TextStyle(color: scheme.onSecondaryContainer),
+                ),
+              ),
+              Text(
+                'Refresh',
+                style: TextStyle(
+                  color: scheme.onSecondaryContainer,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

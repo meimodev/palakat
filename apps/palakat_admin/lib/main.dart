@@ -18,6 +18,7 @@ import 'package:palakat_shared/core/theme/theme.dart';
 
 import 'core/layout/app_scaffold.dart';
 import 'core/services/admin_approval_realtime_listener.dart';
+import 'core/services/church_change_version_poller.dart';
 import 'core/navigation/page_transitions.dart';
 import 'features/account/presentation/screens/account_screen.dart';
 import 'features/activity/presentation/screens/activity_screen.dart';
@@ -98,7 +99,9 @@ class PalakatAdminApp extends ConsumerWidget {
         builder: (context, child) => FocusTraversalGroup(
           policy: WidgetOrderTraversalPolicy(),
           child: AdminApprovalRealtimeListener(
-            child: FileTransferProgressBanner(child: child),
+            child: ChurchChangeVersionPoller(
+              child: FileTransferProgressBanner(child: child),
+            ),
           ),
         ),
         // Localization configuration - Requirements: 1.2, 1.4
