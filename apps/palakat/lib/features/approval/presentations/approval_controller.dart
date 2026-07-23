@@ -47,72 +47,15 @@ class ApprovalController extends _$ApprovalController {
       socket.connectionStatusListenable.removeListener(onSocketStatusChanged);
     });
 
-    ref.listen(realtimeEventProvider, (_, next) {
-      final event = next.asData?.value;
-      if (event == null) {
-        return;
-      }
-
-      if (!_shouldRefreshForRealtimeEvent(event)) {
-        return;
-      }
-
-      Future.microtask(_refreshFirstPageFromRealtime);
-    });
+    // Phase 5 §10.1 step 3 / §9.4: change signals invalidate, they do not
+    // refetch. This controller is autoDispose, so the approval list is re-read
+    // when the screen is next viewed (or on pull-to-refresh) — never eagerly on
+    // a push. The socket reconnect catch-up above stays: it is a one-shot
+    // correctness re-read after being offline, not the per-event fan-out.
 
     final initialState = _createInitialState();
     Future.microtask(fetchData);
     return initialState;
-  }
-
-  bool _isActivityEventName(String eventName) {
-    return eventName == 'activity.created' ||
-        eventName == 'activity.updated' ||
-        eventName == 'activity.deleted';
-  }
-
-  bool _isFinanceEventName(String eventName) {
-    return eventName == 'finance.created' ||
-        eventName == 'finance.updated' ||
-        eventName == 'finance.deleted';
-  }
-
-  Map<String, dynamic>? _extractEventData(RealtimeEvent event) {
-    final data = event.payload['data'];
-    if (data is Map<String, dynamic>) {
-      return data;
-    }
-    if (data is Map) {
-      return data.map((key, value) => MapEntry(key.toString(), value));
-    }
-    return null;
-  }
-
-  List<int> _extractAffectedMembershipIds(RealtimeEvent event) {
-    final data = _extractEventData(event);
-    final rawIds = data?['affectedMembershipIds'];
-    if (rawIds is! List) {
-      return const [];
-    }
-
-    return rawIds
-        .map((value) => value is int ? value : int.tryParse('$value'))
-        .whereType<int>()
-        .toList(growable: false);
-  }
-
-  bool _shouldRefreshForRealtimeEvent(RealtimeEvent event) {
-    if (!_isActivityEventName(event.name) && !_isFinanceEventName(event.name)) {
-      return false;
-    }
-
-    final membershipId = state.membership?.id;
-    if (membershipId == null) {
-      return false;
-    }
-
-    final affectedMembershipIds = _extractAffectedMembershipIds(event);
-    return affectedMembershipIds.contains(membershipId);
   }
 
   Future<void> _refreshFirstPageFromRealtime() async {

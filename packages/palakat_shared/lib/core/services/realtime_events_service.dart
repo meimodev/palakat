@@ -28,29 +28,18 @@ class RealtimeEventsService {
     if (_initialized) return;
     _initialized = true;
 
+    // Phase 5 §10.1 step 3 / §9.4: change signals invalidate — they do not
+    // refetch. The data controllers (operations, approval, approval detail) are
+    // autoDispose, so a change to church-scoped data is re-read when the screen
+    // is next viewed, not on the push. That means the church data-change signals
+    // (activity.*, finance.*, approval.*, reportJob.*, report.ready,
+    // permissions.updated) no longer need to reach the app as payloads at all —
+    // forwarding them here only tempted an eager refetch. Two paths remain:
+    //   - notification.* → the OS/in-app notification path (content on tap),
+    //   - songDb.updated → the global song database staleness flag.
     _listen('notification.created');
     _listen('notification.updated');
     _listen('notification.deleted');
-
-    _listen('activity.created');
-    _listen('activity.updated');
-    _listen('activity.deleted');
-
-    _listen('finance.created');
-    _listen('finance.updated');
-    _listen('finance.deleted');
-
-    _listen('approval.required');
-    _listen('approval.approved');
-    _listen('approval.rejected');
-    _listen('approval.override.approved');
-    _listen('approval.override.rejected');
-
-    _listen('reportJob.created');
-    _listen('reportJob.updated');
-    _listen('report.ready');
-
-    _listen('permissions.updated');
 
     _listen('songDb.updated');
   }

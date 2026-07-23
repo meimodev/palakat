@@ -54,26 +54,10 @@ class OperationsController extends _$OperationsController {
       fetchData();
     });
 
-    ref.listen(realtimeEventProvider, (_, next) {
-      final e = next.asData?.value;
-      if (e == null) return;
-
-      if (e.name == 'reportJob.created' ||
-          e.name == 'reportJob.updated' ||
-          e.name == 'report.ready') {
-        Future.microtask(() => fetchReportData());
-      }
-
-      if (e.name == 'finance.created' ||
-          e.name == 'finance.updated' ||
-          e.name == 'finance.deleted') {
-        Future.microtask(() => fetchRecentFinanceEntries());
-      }
-
-      if (e.name == 'permissions.updated') {
-        Future.microtask(() => fetchMembership());
-      }
-    });
+    // Phase 5 §10.1 step 3 / §9.4: change signals invalidate, they do not
+    // refetch. This controller is autoDispose, so its data is re-read when the
+    // screen is next viewed (or on pull-to-refresh) — never eagerly on a push,
+    // which is the fan-out control the cost model depends on.
 
     return const OperationsState();
   }
