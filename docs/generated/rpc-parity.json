@@ -15,7 +15,10 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 585
+      "line": 585,
+      "verb": null,
+      "route": null,
+      "note": "liveness only — GET /health already covers it; not ported"
     },
     {
       "action": "app.home.get",
@@ -26,7 +29,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 588
+      "line": 588,
+      "verb": "GET",
+      "route": "/app/home/:id"
     },
     {
       "action": "auth.attach",
@@ -35,7 +40,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 677
+      "line": 677,
+      "verb": "POST",
+      "route": "/auth/attach"
     },
     {
       "action": "auth.signIn",
@@ -44,7 +51,10 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 680
+      "line": 680,
+      "verb": "POST",
+      "route": "/auth/sign-in",
+      "note": "unauthenticated — throttle (§7.1)"
     },
     {
       "action": "auth.adminSignIn",
@@ -53,7 +63,10 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 686
+      "line": 686,
+      "verb": "POST",
+      "route": "/auth/admin-sign-in",
+      "note": "unauthenticated — throttle (§7.1)"
     },
     {
       "action": "auth.superAdminSignIn",
@@ -62,7 +75,10 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 692
+      "line": 692,
+      "verb": "POST",
+      "route": "/auth/super-admin-sign-in",
+      "note": "unauthenticated — throttle (§7.1)"
     },
     {
       "action": "auth.validatePhone",
@@ -71,7 +87,10 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 698
+      "line": 698,
+      "verb": "POST",
+      "route": "/auth/validate-phone",
+      "note": "unauthenticated — throttle (§7.1)"
     },
     {
       "action": "auth.refresh",
@@ -80,7 +99,10 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 701
+      "line": 701,
+      "verb": "POST",
+      "route": "/auth/refresh",
+      "note": "unauthenticated — throttle (§7.1)"
     },
     {
       "action": "auth.signOut",
@@ -91,7 +113,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 717
+      "line": 717,
+      "verb": "POST",
+      "route": "/auth/sign-out"
     },
     {
       "action": "auth.changePassword",
@@ -102,7 +126,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 722
+      "line": 722,
+      "verb": "POST",
+      "route": "/auth/change-password"
     },
     {
       "action": "auth.permissions.get",
@@ -113,7 +139,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 730
+      "line": 730,
+      "verb": "GET",
+      "route": "/auth/permissions/:id"
     },
     {
       "action": "auth.signingClient",
@@ -122,7 +150,10 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 735
+      "line": 735,
+      "verb": "POST",
+      "route": "/auth/signing-client",
+      "note": "unauthenticated — throttle (§7.1)"
     },
     {
       "action": "auth.syncClaims",
@@ -131,7 +162,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 754
+      "line": 754,
+      "verb": "POST",
+      "route": "/auth/sync-claims"
     },
     {
       "action": "auth.firebaseSignIn",
@@ -140,7 +173,10 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 759
+      "line": 759,
+      "verb": "POST",
+      "route": "/auth/firebase-sign-in",
+      "note": "unauthenticated — throttle (§7.1)"
     },
     {
       "action": "auth.firebaseRegister",
@@ -149,7 +185,10 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 767
+      "line": 767,
+      "verb": "POST",
+      "route": "/auth/firebase-register",
+      "note": "unauthenticated — throttle (§7.1)"
     },
     {
       "action": "sub.join",
@@ -160,7 +199,10 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": true,
-      "line": 780
+      "line": 780,
+      "verb": null,
+      "route": null,
+      "note": "socket room join — replaced by FCM topic subscribe on the client (Phase 5 §10.1 step 2, #77); no HTTP route"
     },
     {
       "action": "sub.leave",
@@ -171,7 +213,10 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 794
+      "line": 794,
+      "verb": null,
+      "route": null,
+      "note": "socket room leave — replaced by FCM topic unsubscribe on the client (Phase 5 §10.1 step 2, #77); no HTTP route"
     },
     {
       "action": "articles.list",
@@ -180,7 +225,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 805
+      "line": 805,
+      "verb": "GET",
+      "route": "/articles"
     },
     {
       "action": "articles.get",
@@ -189,7 +236,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 811
+      "line": 811,
+      "verb": "GET",
+      "route": "/articles/:id"
     },
     {
       "action": "articles.like",
@@ -200,7 +249,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 819
+      "line": 819,
+      "verb": "POST",
+      "route": "/articles/:id/like"
     },
     {
       "action": "articles.unlike",
@@ -211,7 +262,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 828
+      "line": 828,
+      "verb": "POST",
+      "route": "/articles/:id/unlike"
     },
     {
       "action": "admin.articles.list",
@@ -222,7 +275,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 838
+      "line": 838,
+      "verb": "GET",
+      "route": "/admin/articles"
     },
     {
       "action": "admin.articles.get",
@@ -233,7 +288,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 848
+      "line": 848,
+      "verb": "GET",
+      "route": "/admin/articles/:id"
     },
     {
       "action": "admin.articles.create",
@@ -244,7 +301,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 860
+      "line": 860,
+      "verb": "POST",
+      "route": "/admin/articles"
     },
     {
       "action": "admin.articles.update",
@@ -255,7 +314,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 865
+      "line": 865,
+      "verb": "PATCH",
+      "route": "/admin/articles/:id"
     },
     {
       "action": "admin.articles.cover.upload.init",
@@ -266,7 +327,10 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 878
+      "line": 878,
+      "verb": "POST",
+      "route": "/admin/articles/:id/cover/upload/sign",
+      "note": "signed-URL rework — §7 / ADR-0004; do not rebuild chunked upload over HTTP"
     },
     {
       "action": "admin.articles.cover.upload.chunk",
@@ -277,7 +341,10 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 960
+      "line": 960,
+      "verb": null,
+      "route": null,
+      "note": "removed by signed-URL rework — §7 / ADR-0004; client PUTs bytes straight to GCS"
     },
     {
       "action": "admin.articles.cover.upload.complete",
@@ -288,7 +355,10 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 1014
+      "line": 1014,
+      "verb": null,
+      "route": null,
+      "note": "folds into the finalize step of the signed-URL rework — §7 / ADR-0004"
     },
     {
       "action": "admin.articles.cover.upload.abort",
@@ -299,7 +369,10 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 1076
+      "line": 1076,
+      "verb": null,
+      "route": null,
+      "note": "unfinalized objects are swept by the orphan job — §7 / Phase 3; no HTTP abort"
     },
     {
       "action": "admin.articles.publish",
@@ -310,7 +383,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 1093
+      "line": 1093,
+      "verb": "POST",
+      "route": "/admin/articles/:id/publish"
     },
     {
       "action": "admin.articles.unpublish",
@@ -321,7 +396,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 1102
+      "line": 1102,
+      "verb": "POST",
+      "route": "/admin/articles/:id/unpublish"
     },
     {
       "action": "admin.articles.archive",
@@ -332,7 +409,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 1111
+      "line": 1111,
+      "verb": "POST",
+      "route": "/admin/articles/:id/archive"
     },
     {
       "action": "account.count",
@@ -343,7 +422,10 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 1121
+      "line": 1121,
+      "verb": "GET",
+      "route": "/account/count",
+      "note": "read — GET, not the RPC's POST"
     },
     {
       "action": "account.get",
@@ -354,7 +436,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 1128
+      "line": 1128,
+      "verb": "GET",
+      "route": "/account/:id"
     },
     {
       "action": "account.list",
@@ -367,7 +451,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 1152
+      "line": 1152,
+      "verb": "GET",
+      "route": "/account"
     },
     {
       "action": "account.create",
@@ -380,7 +466,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 1164
+      "line": 1164,
+      "verb": "POST",
+      "route": "/account"
     },
     {
       "action": "member.create",
@@ -393,7 +481,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 1184
+      "line": 1184,
+      "verb": "POST",
+      "route": "/member"
     },
     {
       "action": "account.update",
@@ -404,7 +494,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 1242
+      "line": 1242,
+      "verb": "PATCH",
+      "route": "/account/:id"
     },
     {
       "action": "account.delete",
@@ -417,7 +509,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 1264
+      "line": 1264,
+      "verb": "DELETE",
+      "route": "/account/:id"
     },
     {
       "action": "membership.create",
@@ -428,7 +522,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 1274
+      "line": 1274,
+      "verb": "POST",
+      "route": "/membership"
     },
     {
       "action": "membership.list",
@@ -441,7 +537,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 1279
+      "line": 1279,
+      "verb": "GET",
+      "route": "/membership"
     },
     {
       "action": "membership.get",
@@ -452,7 +550,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 1291
+      "line": 1291,
+      "verb": "GET",
+      "route": "/membership/:id"
     },
     {
       "action": "membership.update",
@@ -463,7 +563,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 1304
+      "line": 1304,
+      "verb": "PATCH",
+      "route": "/membership/:id"
     },
     {
       "action": "membership.delete",
@@ -476,7 +578,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 1312
+      "line": 1312,
+      "verb": "DELETE",
+      "route": "/membership/:id"
     },
     {
       "action": "membershipInvitation.preview",
@@ -489,7 +593,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 1321
+      "line": 1321,
+      "verb": "GET",
+      "route": "/membership-invitation/preview"
     },
     {
       "action": "membershipInvitation.create",
@@ -502,7 +608,9 @@
       ],
       "unguarded": false,
       "inlineGuard": true,
-      "line": 1465
+      "line": 1465,
+      "verb": "POST",
+      "route": "/membership-invitation"
     },
     {
       "action": "membershipInvitation.myPending",
@@ -513,7 +621,10 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 1618
+      "line": 1618,
+      "verb": "GET",
+      "route": "/membership-invitation/my-pending",
+      "note": "read — GET, not the RPC's POST"
     },
     {
       "action": "membershipInvitation.respond",
@@ -524,7 +635,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": true,
-      "line": 1656
+      "line": 1656,
+      "verb": "POST",
+      "route": "/membership-invitation/respond"
     },
     {
       "action": "admin.membershipInvitation.list",
@@ -535,7 +648,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": true,
-      "line": 1831
+      "line": 1831,
+      "verb": "GET",
+      "route": "/admin/membership-invitation"
     },
     {
       "action": "admin.membershipInvitation.get",
@@ -546,7 +661,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": true,
-      "line": 1917
+      "line": 1917,
+      "verb": "GET",
+      "route": "/admin/membership-invitation/:id"
     },
     {
       "action": "admin.membershipInvitation.approve",
@@ -557,7 +674,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": true,
-      "line": 1960
+      "line": 1960,
+      "verb": "POST",
+      "route": "/admin/membership-invitation/:id/approve"
     },
     {
       "action": "admin.membershipInvitation.reject",
@@ -568,7 +687,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": true,
-      "line": 2064
+      "line": 2064,
+      "verb": "POST",
+      "route": "/admin/membership-invitation/:id/reject"
     },
     {
       "action": "admin.membershipInvitation.delete",
@@ -579,7 +700,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": true,
-      "line": 2129
+      "line": 2129,
+      "verb": "DELETE",
+      "route": "/admin/membership-invitation/:id"
     },
     {
       "action": "finance.list",
@@ -594,7 +717,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2145
+      "line": 2145,
+      "verb": "GET",
+      "route": "/finance"
     },
     {
       "action": "finance.approval.list",
@@ -605,7 +730,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2166
+      "line": 2166,
+      "verb": "GET",
+      "route": "/finance/approval"
     },
     {
       "action": "finance.get",
@@ -620,7 +747,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2175
+      "line": 2175,
+      "verb": "GET",
+      "route": "/finance/:id"
     },
     {
       "action": "finance.approval.get",
@@ -631,7 +760,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2199
+      "line": 2199,
+      "verb": "GET",
+      "route": "/finance/approval/:id"
     },
     {
       "action": "finance.overview",
@@ -646,7 +777,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2222
+      "line": 2222,
+      "verb": "GET",
+      "route": "/finance/overview"
     },
     {
       "action": "finance.approver.update",
@@ -657,7 +790,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2235
+      "line": 2235,
+      "verb": "PATCH",
+      "route": "/finance/approver/:id"
     },
     {
       "action": "finance.approver.override",
@@ -670,7 +805,9 @@
       ],
       "unguarded": false,
       "inlineGuard": true,
-      "line": 2258
+      "line": 2258,
+      "verb": "POST",
+      "route": "/finance/approver/override"
     },
     {
       "action": "revenue.list",
@@ -683,7 +820,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2301
+      "line": 2301,
+      "verb": "GET",
+      "route": "/revenue"
     },
     {
       "action": "revenue.get",
@@ -696,7 +835,9 @@
       ],
       "unguarded": false,
       "inlineGuard": true,
-      "line": 2315
+      "line": 2315,
+      "verb": "GET",
+      "route": "/revenue/:id"
     },
     {
       "action": "revenue.create",
@@ -709,7 +850,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2334
+      "line": 2334,
+      "verb": "POST",
+      "route": "/revenue"
     },
     {
       "action": "revenue.update",
@@ -722,7 +865,9 @@
       ],
       "unguarded": false,
       "inlineGuard": true,
-      "line": 2343
+      "line": 2343,
+      "verb": "PATCH",
+      "route": "/revenue/:id"
     },
     {
       "action": "revenue.delete",
@@ -735,7 +880,9 @@
       ],
       "unguarded": false,
       "inlineGuard": true,
-      "line": 2363
+      "line": 2363,
+      "verb": "DELETE",
+      "route": "/revenue/:id"
     },
     {
       "action": "expense.list",
@@ -748,7 +895,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2381
+      "line": 2381,
+      "verb": "GET",
+      "route": "/expense"
     },
     {
       "action": "expense.get",
@@ -761,7 +910,9 @@
       ],
       "unguarded": false,
       "inlineGuard": true,
-      "line": 2395
+      "line": 2395,
+      "verb": "GET",
+      "route": "/expense/:id"
     },
     {
       "action": "expense.create",
@@ -774,7 +925,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2414
+      "line": 2414,
+      "verb": "POST",
+      "route": "/expense"
     },
     {
       "action": "expense.update",
@@ -787,7 +940,9 @@
       ],
       "unguarded": false,
       "inlineGuard": true,
-      "line": 2423
+      "line": 2423,
+      "verb": "PATCH",
+      "route": "/expense/:id"
     },
     {
       "action": "expense.delete",
@@ -800,7 +955,9 @@
       ],
       "unguarded": false,
       "inlineGuard": true,
-      "line": 2443
+      "line": 2443,
+      "verb": "DELETE",
+      "route": "/expense/:id"
     },
     {
       "action": "cashAccount.list",
@@ -814,7 +971,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2462
+      "line": 2462,
+      "verb": "GET",
+      "route": "/cash-account"
     },
     {
       "action": "cashAccount.get",
@@ -828,7 +987,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2472
+      "line": 2472,
+      "verb": "GET",
+      "route": "/cash-account/:id"
     },
     {
       "action": "cashAccount.create",
@@ -842,7 +1003,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2483
+      "line": 2483,
+      "verb": "POST",
+      "route": "/cash-account"
     },
     {
       "action": "cashAccount.update",
@@ -856,7 +1019,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2491
+      "line": 2491,
+      "verb": "PATCH",
+      "route": "/cash-account/:id"
     },
     {
       "action": "cashAccount.delete",
@@ -870,7 +1035,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2502
+      "line": 2502,
+      "verb": "DELETE",
+      "route": "/cash-account/:id"
     },
     {
       "action": "cashMutation.list",
@@ -884,7 +1051,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2513
+      "line": 2513,
+      "verb": "GET",
+      "route": "/cash-mutation"
     },
     {
       "action": "cashMutation.get",
@@ -898,7 +1067,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2523
+      "line": 2523,
+      "verb": "GET",
+      "route": "/cash-mutation/:id"
     },
     {
       "action": "cashMutation.create",
@@ -912,7 +1083,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2534
+      "line": 2534,
+      "verb": "POST",
+      "route": "/cash-mutation"
     },
     {
       "action": "cashMutation.transfer",
@@ -926,7 +1099,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2542
+      "line": 2542,
+      "verb": "POST",
+      "route": "/cash-mutation/transfer"
     },
     {
       "action": "cashMutation.delete",
@@ -940,7 +1115,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2550
+      "line": 2550,
+      "verb": "DELETE",
+      "route": "/cash-mutation/:id"
     },
     {
       "action": "report.list",
@@ -951,7 +1128,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2561
+      "line": 2561,
+      "verb": "GET",
+      "route": "/report"
     },
     {
       "action": "report.get",
@@ -962,7 +1141,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2584
+      "line": 2584,
+      "verb": "GET",
+      "route": "/report/:id"
     },
     {
       "action": "report.create",
@@ -975,7 +1156,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2594
+      "line": 2594,
+      "verb": "POST",
+      "route": "/report"
     },
     {
       "action": "report.update",
@@ -988,7 +1171,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2599
+      "line": 2599,
+      "verb": "PATCH",
+      "route": "/report/:id"
     },
     {
       "action": "report.delete",
@@ -1001,7 +1186,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2607
+      "line": 2607,
+      "verb": "DELETE",
+      "route": "/report/:id"
     },
     {
       "action": "report.generate",
@@ -1014,7 +1201,10 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2615
+      "line": 2615,
+      "verb": "POST",
+      "route": "/report/generate",
+      "note": "async — returns a job id immediately, never blocks the request (§7); progress via reportJob.* polling (§9.3)"
     },
     {
       "action": "reportJob.list",
@@ -1025,7 +1215,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2623
+      "line": 2623,
+      "verb": "GET",
+      "route": "/report-job"
     },
     {
       "action": "reportJob.get",
@@ -1036,7 +1228,10 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2631
+      "line": 2631,
+      "verb": "GET",
+      "route": "/report-job/:id",
+      "note": "the report-progress poll target (Phase 5 §10.1 step 4)"
     },
     {
       "action": "reportJob.cancel",
@@ -1047,7 +1242,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2639
+      "line": 2639,
+      "verb": "POST",
+      "route": "/report-job/:id/cancel"
     },
     {
       "action": "document.list",
@@ -1058,7 +1255,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2648
+      "line": 2648,
+      "verb": "GET",
+      "route": "/document"
     },
     {
       "action": "document.get",
@@ -1069,7 +1268,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2658
+      "line": 2658,
+      "verb": "GET",
+      "route": "/document/:id"
     },
     {
       "action": "document.create",
@@ -1082,7 +1283,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2668
+      "line": 2668,
+      "verb": "POST",
+      "route": "/document"
     },
     {
       "action": "document.update",
@@ -1093,7 +1296,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2673
+      "line": 2673,
+      "verb": "PATCH",
+      "route": "/document/:id"
     },
     {
       "action": "document.delete",
@@ -1106,7 +1311,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 2681
+      "line": 2681,
+      "verb": "DELETE",
+      "route": "/document/:id"
     },
     {
       "action": "document.generate",
@@ -1117,7 +1324,10 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2689
+      "line": 2689,
+      "verb": "POST",
+      "route": "/document/generate",
+      "note": "long-running — returns a job id immediately, never blocks the request (§7)"
     },
     {
       "action": "file.list",
@@ -1128,7 +1338,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2695
+      "line": 2695,
+      "verb": "GET",
+      "route": "/file"
     },
     {
       "action": "file.get",
@@ -1139,7 +1351,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2705
+      "line": 2705,
+      "verb": "GET",
+      "route": "/file/:id"
     },
     {
       "action": "file.finalize",
@@ -1150,7 +1364,10 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2715
+      "line": 2715,
+      "verb": "POST",
+      "route": "/file/finalize",
+      "note": "signed-URL rework — §7 / ADR-0004; reads the object's real GCS metadata, then writes the FileManager row"
     },
     {
       "action": "file.upload.init",
@@ -1161,7 +1378,10 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2720
+      "line": 2720,
+      "verb": "POST",
+      "route": "/file/upload/sign",
+      "note": "signed-URL rework — §7 / ADR-0004; issues a size/type-bound signed GCS URL, does not accept bytes"
     },
     {
       "action": "file.upload.chunk",
@@ -1172,7 +1392,10 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2801
+      "line": 2801,
+      "verb": null,
+      "route": null,
+      "note": "removed by signed-URL rework — §7 / ADR-0004; client PUTs bytes straight to GCS"
     },
     {
       "action": "file.upload.complete",
@@ -1183,7 +1406,10 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2855
+      "line": 2855,
+      "verb": null,
+      "route": null,
+      "note": "folds into file.finalize — §7 / ADR-0004"
     },
     {
       "action": "file.upload.abort",
@@ -1194,7 +1420,10 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2911
+      "line": 2911,
+      "verb": null,
+      "route": null,
+      "note": "unfinalized objects are swept by the orphan job — §7 / Phase 3; no HTTP abort"
     },
     {
       "action": "public.songDb.meta",
@@ -1203,7 +1432,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2928
+      "line": 2928,
+      "verb": "GET",
+      "route": "/public/song-db/meta"
     },
     {
       "action": "file.download.init",
@@ -1214,7 +1445,10 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 2987
+      "line": 2987,
+      "verb": "POST",
+      "route": "/file/:id/download/sign",
+      "note": "signed-URL rework — §7 / ADR-0004; issues a signed GCS download URL"
     },
     {
       "action": "file.download.chunk",
@@ -1225,7 +1459,10 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3118
+      "line": 3118,
+      "verb": null,
+      "route": null,
+      "note": "removed by signed-URL rework — §7 / ADR-0004; client GETs bytes straight from GCS"
     },
     {
       "action": "file.download.complete",
@@ -1236,7 +1473,10 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3158
+      "line": 3158,
+      "verb": null,
+      "route": null,
+      "note": "no server step once download is a signed GCS URL — §7 / ADR-0004"
     },
     {
       "action": "file.delete",
@@ -1249,7 +1489,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3183
+      "line": 3183,
+      "verb": "DELETE",
+      "route": "/file/:id"
     },
     {
       "action": "notifications.list",
@@ -1260,7 +1502,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3192
+      "line": 3192,
+      "verb": "GET",
+      "route": "/notifications"
     },
     {
       "action": "notifications.get",
@@ -1271,7 +1515,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3211
+      "line": 3211,
+      "verb": "GET",
+      "route": "/notifications/:id"
     },
     {
       "action": "notifications.markRead",
@@ -1282,7 +1528,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3220
+      "line": 3220,
+      "verb": "PATCH",
+      "route": "/notifications/mark-read"
     },
     {
       "action": "notifications.delete",
@@ -1293,7 +1541,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3229
+      "line": 3229,
+      "verb": "DELETE",
+      "route": "/notifications/:id"
     },
     {
       "action": "church.list",
@@ -1304,7 +1554,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3239
+      "line": 3239,
+      "verb": "GET",
+      "route": "/church"
     },
     {
       "action": "churchPermissionPolicy.getMe",
@@ -1315,7 +1567,10 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3247
+      "line": 3247,
+      "verb": "GET",
+      "route": "/church-permission-policy/me",
+      "note": "read of the caller's own policy — GET /me, not the RPC's POST /get-me"
     },
     {
       "action": "churchPermissionPolicy.updateMe",
@@ -1326,7 +1581,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3252
+      "line": 3252,
+      "verb": "PATCH",
+      "route": "/church-permission-policy/me"
     },
     {
       "action": "church.get",
@@ -1337,7 +1594,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3274
+      "line": 3274,
+      "verb": "GET",
+      "route": "/church/:id"
     },
     {
       "action": "church.create",
@@ -1348,7 +1607,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3285
+      "line": 3285,
+      "verb": "POST",
+      "route": "/church"
     },
     {
       "action": "church.update",
@@ -1361,7 +1622,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3290
+      "line": 3290,
+      "verb": "PATCH",
+      "route": "/church/:id"
     },
     {
       "action": "church.delete",
@@ -1372,7 +1635,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3298
+      "line": 3298,
+      "verb": "DELETE",
+      "route": "/church/:id"
     },
     {
       "action": "column.list",
@@ -1383,7 +1648,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3307
+      "line": 3307,
+      "verb": "GET",
+      "route": "/column"
     },
     {
       "action": "column.get",
@@ -1394,7 +1661,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3314
+      "line": 3314,
+      "verb": "GET",
+      "route": "/column/:id"
     },
     {
       "action": "column.create",
@@ -1407,7 +1676,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3324
+      "line": 3324,
+      "verb": "POST",
+      "route": "/column"
     },
     {
       "action": "column.update",
@@ -1420,7 +1691,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3329
+      "line": 3329,
+      "verb": "PATCH",
+      "route": "/column/:id"
     },
     {
       "action": "column.delete",
@@ -1433,7 +1706,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3337
+      "line": 3337,
+      "verb": "DELETE",
+      "route": "/column/:id"
     },
     {
       "action": "location.list",
@@ -1444,7 +1719,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3346
+      "line": 3346,
+      "verb": "GET",
+      "route": "/location"
     },
     {
       "action": "location.get",
@@ -1455,7 +1732,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3353
+      "line": 3353,
+      "verb": "GET",
+      "route": "/location/:id"
     },
     {
       "action": "location.create",
@@ -1466,7 +1745,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3361
+      "line": 3361,
+      "verb": "POST",
+      "route": "/location"
     },
     {
       "action": "location.update",
@@ -1479,7 +1760,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3366
+      "line": 3366,
+      "verb": "PATCH",
+      "route": "/location/:id"
     },
     {
       "action": "location.delete",
@@ -1490,7 +1773,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3374
+      "line": 3374,
+      "verb": "DELETE",
+      "route": "/location/:id"
     },
     {
       "action": "membershipPosition.list",
@@ -1501,7 +1786,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3383
+      "line": 3383,
+      "verb": "GET",
+      "route": "/membership-position"
     },
     {
       "action": "membershipPosition.get",
@@ -1512,7 +1799,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3393
+      "line": 3393,
+      "verb": "GET",
+      "route": "/membership-position/:id"
     },
     {
       "action": "membershipPosition.create",
@@ -1525,7 +1814,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3403
+      "line": 3403,
+      "verb": "POST",
+      "route": "/membership-position"
     },
     {
       "action": "membershipPosition.update",
@@ -1538,7 +1829,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3409
+      "line": 3409,
+      "verb": "PATCH",
+      "route": "/membership-position/:id"
     },
     {
       "action": "membershipPosition.delete",
@@ -1551,7 +1844,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3418
+      "line": 3418,
+      "verb": "DELETE",
+      "route": "/membership-position/:id"
     },
     {
       "action": "approvalRule.list",
@@ -1564,7 +1859,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3427
+      "line": 3427,
+      "verb": "GET",
+      "route": "/approval-rule"
     },
     {
       "action": "approvalRule.get",
@@ -1577,7 +1874,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3434
+      "line": 3434,
+      "verb": "GET",
+      "route": "/approval-rule/:id"
     },
     {
       "action": "approvalRule.create",
@@ -1590,7 +1889,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3442
+      "line": 3442,
+      "verb": "POST",
+      "route": "/approval-rule"
     },
     {
       "action": "approvalRule.update",
@@ -1603,7 +1904,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3448
+      "line": 3448,
+      "verb": "PATCH",
+      "route": "/approval-rule/:id"
     },
     {
       "action": "approvalRule.delete",
@@ -1616,7 +1919,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3457
+      "line": 3457,
+      "verb": "DELETE",
+      "route": "/approval-rule/:id"
     },
     {
       "action": "approver.list",
@@ -1627,7 +1932,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": true,
-      "line": 3466
+      "line": 3466,
+      "verb": "GET",
+      "route": "/approver"
     },
     {
       "action": "approver.get",
@@ -1638,7 +1945,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3496
+      "line": 3496,
+      "verb": "GET",
+      "route": "/approver/:id"
     },
     {
       "action": "approver.create",
@@ -1651,7 +1960,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3509
+      "line": 3509,
+      "verb": "POST",
+      "route": "/approver"
     },
     {
       "action": "approver.update",
@@ -1662,7 +1973,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3514
+      "line": 3514,
+      "verb": "PATCH",
+      "route": "/approver/:id"
     },
     {
       "action": "approver.override",
@@ -1675,7 +1988,9 @@
       ],
       "unguarded": false,
       "inlineGuard": true,
-      "line": 3524
+      "line": 3524,
+      "verb": "POST",
+      "route": "/approver/override"
     },
     {
       "action": "financialAccountNumber.list",
@@ -1689,7 +2004,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3560
+      "line": 3560,
+      "verb": "GET",
+      "route": "/financial-account-number"
     },
     {
       "action": "financialAccountNumber.available",
@@ -1703,7 +2020,10 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3574
+      "line": 3574,
+      "verb": "GET",
+      "route": "/financial-account-number/available",
+      "note": "read — GET with a query, not the RPC's POST"
     },
     {
       "action": "financialAccountNumber.get",
@@ -1717,7 +2037,9 @@
       ],
       "unguarded": false,
       "inlineGuard": true,
-      "line": 3589
+      "line": 3589,
+      "verb": "GET",
+      "route": "/financial-account-number/:id"
     },
     {
       "action": "financialAccountNumber.create",
@@ -1731,7 +2053,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3605
+      "line": 3605,
+      "verb": "POST",
+      "route": "/financial-account-number"
     },
     {
       "action": "financialAccountNumber.update",
@@ -1745,7 +2069,9 @@
       ],
       "unguarded": false,
       "inlineGuard": true,
-      "line": 3616
+      "line": 3616,
+      "verb": "PATCH",
+      "route": "/financial-account-number/:id"
     },
     {
       "action": "financialAccountNumber.delete",
@@ -1759,7 +2085,9 @@
       ],
       "unguarded": false,
       "inlineGuard": true,
-      "line": 3637
+      "line": 3637,
+      "verb": "DELETE",
+      "route": "/financial-account-number/:id"
     },
     {
       "action": "churchRequest.create",
@@ -1770,7 +2098,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3658
+      "line": 3658,
+      "verb": "POST",
+      "route": "/church-request"
     },
     {
       "action": "churchRequest.my",
@@ -1781,7 +2111,10 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3663
+      "line": 3663,
+      "verb": "GET",
+      "route": "/church-request/my",
+      "note": "read — GET, not the RPC's POST"
     },
     {
       "action": "admin.churchRequest.list",
@@ -1792,7 +2125,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3668
+      "line": 3668,
+      "verb": "GET",
+      "route": "/admin/church-request"
     },
     {
       "action": "admin.churchRequest.get",
@@ -1803,7 +2138,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3675
+      "line": 3675,
+      "verb": "GET",
+      "route": "/admin/church-request/:id"
     },
     {
       "action": "admin.churchRequest.update",
@@ -1814,7 +2151,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3683
+      "line": 3683,
+      "verb": "PATCH",
+      "route": "/admin/church-request/:id"
     },
     {
       "action": "admin.churchRequest.delete",
@@ -1825,7 +2164,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3691
+      "line": 3691,
+      "verb": "DELETE",
+      "route": "/admin/church-request/:id"
     },
     {
       "action": "admin.churchRequest.approve",
@@ -1837,7 +2178,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3699
+      "line": 3699,
+      "verb": "POST",
+      "route": "/admin/church-request/:id/approve"
     },
     {
       "action": "admin.churchRequest.reject",
@@ -1849,7 +2192,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3712
+      "line": 3712,
+      "verb": "POST",
+      "route": "/admin/church-request/:id/reject"
     },
     {
       "action": "activity.list",
@@ -1858,7 +2203,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3726
+      "line": 3726,
+      "verb": "GET",
+      "route": "/activity"
     },
     {
       "action": "activity.get",
@@ -1869,7 +2216,9 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": false,
-      "line": 3735
+      "line": 3735,
+      "verb": "GET",
+      "route": "/activity/:id"
     },
     {
       "action": "activity.create",
@@ -1882,7 +2231,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3749
+      "line": 3749,
+      "verb": "POST",
+      "route": "/activity"
     },
     {
       "action": "activity.update",
@@ -1895,7 +2246,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3760
+      "line": 3760,
+      "verb": "PATCH",
+      "route": "/activity/:id"
     },
     {
       "action": "activity.delete",
@@ -1908,7 +2261,9 @@
       ],
       "unguarded": false,
       "inlineGuard": false,
-      "line": 3768
+      "line": 3768,
+      "verb": "DELETE",
+      "route": "/activity/:id"
     },
     {
       "action": "admin.songDb.upload.init",
@@ -1919,7 +2274,10 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": true,
-      "line": 3776
+      "line": 3776,
+      "verb": "POST",
+      "route": "/admin/song-db/upload/sign",
+      "note": "signed-URL rework — §7 / ADR-0004; do not rebuild chunked upload over HTTP"
     },
     {
       "action": "admin.songDb.upload.chunk",
@@ -1930,7 +2288,10 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": true,
-      "line": 3907
+      "line": 3907,
+      "verb": null,
+      "route": null,
+      "note": "removed by signed-URL rework — §7 / ADR-0004; client PUTs bytes straight to GCS"
     },
     {
       "action": "admin.songDb.upload.complete",
@@ -1941,7 +2302,10 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": true,
-      "line": 3969
+      "line": 3969,
+      "verb": null,
+      "route": null,
+      "note": "folds into the finalize step of the signed-URL rework — §7 / ADR-0004"
     },
     {
       "action": "admin.songDb.upload.abort",
@@ -1952,7 +2316,46 @@
       "permissions": [],
       "unguarded": true,
       "inlineGuard": true,
-      "line": 4101
+      "line": 4101,
+      "verb": null,
+      "route": null,
+      "note": "unfinalized objects are swept by the orphan job — §7 / Phase 3; no HTTP abort"
+    }
+  ],
+  "extraRoutes": [
+    {
+      "action": "approver.delete",
+      "verb": "DELETE",
+      "route": "/approver/:id",
+      "permissions": [
+        "ops.activity.create"
+      ],
+      "note": "no RPC counterpart (decision 36 / §7). Client calls it at approver_repository.dart:127. Gated like approver.create — a church that can add an approver must be able to remove one."
+    },
+    {
+      "action": "churchLetterhead.getMe",
+      "verb": "GET",
+      "route": "/church-letterhead/me",
+      "permissions": [],
+      "note": "no RPC counterpart (decision 36 / §7). ChurchLetterheadService exists but is unreachable. Read of the caller's own church letterhead — auth-only."
+    },
+    {
+      "action": "churchLetterhead.updateMe",
+      "verb": "PATCH",
+      "route": "/church-letterhead/me",
+      "permissions": [
+        "ops.church.manage"
+      ],
+      "note": "no RPC counterpart (decision 36 / §7). Church-config write — gated like church.update."
+    },
+    {
+      "action": "churchLetterhead.setLogo",
+      "verb": "PUT",
+      "route": "/church-letterhead/me/logo",
+      "permissions": [
+        "ops.church.manage"
+      ],
+      "note": "no RPC counterpart (decision 36 / §7). Church-config write — gated like church.update."
     }
   ]
 }

@@ -5,177 +5,191 @@
 **166 actions**, of which **103 are authenticated but unauthorized**.
 
 The Guard and Permissions columns are transcribed from the AST and are
-authoritative. **Verb and Route are not generated** — they need judgement,
-and a fresh agent read supplies it (ADR-0009).
+authoritative. **Verb and Route come from `scripts/route-map.json`** — the
+judgement a program cannot make (ADR-0009), merged in here. A `—` verb means
+the action does not become an HTTP route; the Notes column says why.
 
-| Action | Guard | Permissions (any-of) | Verb | Route |
+| Action | Guard | Permissions (any-of) | Verb | Route | Notes |
+|---|---|---|---|---|---|
+| `ping` | `none` | 🔴 **none** | — | — | liveness only — GET /health already covers it; not ported |
+| `app.home.get` | `requireUserId` | 🔴 **none** | `GET` | `/app/home/:id` |  |
+| `auth.attach` | `none` | 🔴 **none** | `POST` | `/auth/attach` |  |
+| `auth.signIn` | `none` | 🔴 **none** | `POST` | `/auth/sign-in` | unauthenticated — throttle (§7.1) |
+| `auth.adminSignIn` | `none` | 🔴 **none** | `POST` | `/auth/admin-sign-in` | unauthenticated — throttle (§7.1) |
+| `auth.superAdminSignIn` | `none` | 🔴 **none** | `POST` | `/auth/super-admin-sign-in` | unauthenticated — throttle (§7.1) |
+| `auth.validatePhone` | `none` | 🔴 **none** | `POST` | `/auth/validate-phone` | unauthenticated — throttle (§7.1) |
+| `auth.refresh` | `none` | 🔴 **none** | `POST` | `/auth/refresh` | unauthenticated — throttle (§7.1) |
+| `auth.signOut` | `requireUserId` | 🔴 **none** | `POST` | `/auth/sign-out` |  |
+| `auth.changePassword` | `requireUserId` | 🔴 **none** | `POST` | `/auth/change-password` |  |
+| `auth.permissions.get` | `requireUserId` | 🔴 **none** | `GET` | `/auth/permissions/:id` |  |
+| `auth.signingClient` | `none` | 🔴 **none** | `POST` | `/auth/signing-client` | unauthenticated — throttle (§7.1) |
+| `auth.syncClaims` | `none` | 🔴 **none** | `POST` | `/auth/sync-claims` |  |
+| `auth.firebaseSignIn` | `none` | 🔴 **none** | `POST` | `/auth/firebase-sign-in` | unauthenticated — throttle (§7.1) |
+| `auth.firebaseRegister` | `none` | 🔴 **none** | `POST` | `/auth/firebase-register` | unauthenticated — throttle (§7.1) |
+| `sub.join` | `requireUserId` | 🔴 **none** | — | — | socket room join — replaced by FCM topic subscribe on the client (Phase 5 §10.1 step 2, #77); no HTTP route |
+| `sub.leave` | `requireUserId` | 🔴 **none** | — | — | socket room leave — replaced by FCM topic unsubscribe on the client (Phase 5 §10.1 step 2, #77); no HTTP route |
+| `articles.list` | `none` | 🔴 **none** | `GET` | `/articles` |  |
+| `articles.get` | `none` | 🔴 **none** | `GET` | `/articles/:id` |  |
+| `articles.like` | `requireUserId` | 🔴 **none** | `POST` | `/articles/:id/like` |  |
+| `articles.unlike` | `requireUserId` | 🔴 **none** | `POST` | `/articles/:id/unlike` |  |
+| `admin.articles.list` | `requireAuthAny` | 🔴 **none** | `GET` | `/admin/articles` |  |
+| `admin.articles.get` | `requireAuthAny` | 🔴 **none** | `GET` | `/admin/articles/:id` |  |
+| `admin.articles.create` | `requireAuthAny` | 🔴 **none** | `POST` | `/admin/articles` |  |
+| `admin.articles.update` | `requireAuthAny` | 🔴 **none** | `PATCH` | `/admin/articles/:id` |  |
+| `admin.articles.cover.upload.init` | `requireSuperAdminOrClient` | 🔴 **none** | `POST` | `/admin/articles/:id/cover/upload/sign` | signed-URL rework — §7 / ADR-0004; do not rebuild chunked upload over HTTP |
+| `admin.articles.cover.upload.chunk` | `requireSuperAdminOrClient` | 🔴 **none** | — | — | removed by signed-URL rework — §7 / ADR-0004; client PUTs bytes straight to GCS |
+| `admin.articles.cover.upload.complete` | `requireSuperAdminOrClient` | 🔴 **none** | — | — | folds into the finalize step of the signed-URL rework — §7 / ADR-0004 |
+| `admin.articles.cover.upload.abort` | `requireSuperAdminOrClient` | 🔴 **none** | — | — | unfinalized objects are swept by the orphan job — §7 / Phase 3; no HTTP abort |
+| `admin.articles.publish` | `requireAuthAny` | 🔴 **none** | `POST` | `/admin/articles/:id/publish` |  |
+| `admin.articles.unpublish` | `requireAuthAny` | 🔴 **none** | `POST` | `/admin/articles/:id/unpublish` |  |
+| `admin.articles.archive` | `requireAuthAny` | 🔴 **none** | `POST` | `/admin/articles/:id/archive` |  |
+| `account.count` | `requireUserId` | 🔴 **none** | `GET` | `/account/count` | read — GET, not the RPC's POST |
+| `account.get` | `requireUserId` | 🔴 **none** | `GET` | `/account/:id` |  |
+| `account.list` | `requireOperationPermission` | `ops.members.read` | `GET` | `/account` |  |
+| `account.create` | `requireOperationPermission` | `ops.members.invite` | `POST` | `/account` |  |
+| `member.create` | `requireOperationPermission` | `ops.members.invite` | `POST` | `/member` |  |
+| `account.update` | `requireUserId` | 🔴 **none** | `PATCH` | `/account/:id` |  |
+| `account.delete` | `requireOperationPermission` | `ops.members.invite` | `DELETE` | `/account/:id` |  |
+| `membership.create` | `requireUserId` | 🔴 **none** | `POST` | `/membership` |  |
+| `membership.list` | `requireOperationPermission` | `ops.members.read` | `GET` | `/membership` |  |
+| `membership.get` | `requireUserId` | 🔴 **none** | `GET` | `/membership/:id` |  |
+| `membership.update` | `requireUserId` | 🔴 **none** | `PATCH` | `/membership/:id` |  |
+| `membership.delete` | `requireOperationPermission` | `ops.members.invite` | `DELETE` | `/membership/:id` |  |
+| `membershipInvitation.preview` | `requireOperationPermission` | `ops.members.invite` | `GET` | `/membership-invitation/preview` |  |
+| `membershipInvitation.create` | `requireOperationPermission` | `ops.members.invite` | `POST` | `/membership-invitation` |  |
+| `membershipInvitation.myPending` | `requireUserId` | 🔴 **none** | `GET` | `/membership-invitation/my-pending` | read — GET, not the RPC's POST |
+| `membershipInvitation.respond` | `requireUserId` | 🔴 **none** | `POST` | `/membership-invitation/respond` |  |
+| `admin.membershipInvitation.list` | `requireUserId` | 🔴 **none** | `GET` | `/admin/membership-invitation` |  |
+| `admin.membershipInvitation.get` | `requireUserId` | 🔴 **none** | `GET` | `/admin/membership-invitation/:id` |  |
+| `admin.membershipInvitation.approve` | `requireUserId` | 🔴 **none** | `POST` | `/admin/membership-invitation/:id/approve` |  |
+| `admin.membershipInvitation.reject` | `requireUserId` | 🔴 **none** | `POST` | `/admin/membership-invitation/:id/reject` |  |
+| `admin.membershipInvitation.delete` | `requireUserId` | 🔴 **none** | `DELETE` | `/admin/membership-invitation/:id` |  |
+| `finance.list` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create`<br>`ops.approval.finance.override` | `GET` | `/finance` |  |
+| `finance.approval.list` | `requireUserId` | 🔴 **none** | `GET` | `/finance/approval` |  |
+| `finance.get` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create`<br>`ops.approval.finance.override` | `GET` | `/finance/:id` |  |
+| `finance.approval.get` | `requireUserId` | 🔴 **none** | `GET` | `/finance/approval/:id` |  |
+| `finance.overview` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create`<br>`ops.approval.finance.override` | `GET` | `/finance/overview` |  |
+| `finance.approver.update` | `requireUserId` | 🔴 **none** | `PATCH` | `/finance/approver/:id` |  |
+| `finance.approver.override` | `requireOperationPermission` | `ops.approval.finance.override` | `POST` | `/finance/approver/override` |  |
+| `revenue.list` | `requireOperationPermission` | `ops.finance.revenue.create` | `GET` | `/revenue` |  |
+| `revenue.get` | `requireOperationPermission` | `ops.finance.revenue.create` | `GET` | `/revenue/:id` |  |
+| `revenue.create` | `requireOperationPermission` | `ops.finance.revenue.create` | `POST` | `/revenue` |  |
+| `revenue.update` | `requireOperationPermission` | `ops.finance.revenue.create` | `PATCH` | `/revenue/:id` |  |
+| `revenue.delete` | `requireOperationPermission` | `ops.finance.revenue.create` | `DELETE` | `/revenue/:id` |  |
+| `expense.list` | `requireOperationPermission` | `ops.finance.expense.create` | `GET` | `/expense` |  |
+| `expense.get` | `requireOperationPermission` | `ops.finance.expense.create` | `GET` | `/expense/:id` |  |
+| `expense.create` | `requireOperationPermission` | `ops.finance.expense.create` | `POST` | `/expense` |  |
+| `expense.update` | `requireOperationPermission` | `ops.finance.expense.create` | `PATCH` | `/expense/:id` |  |
+| `expense.delete` | `requireOperationPermission` | `ops.finance.expense.create` | `DELETE` | `/expense/:id` |  |
+| `cashAccount.list` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create` | `GET` | `/cash-account` |  |
+| `cashAccount.get` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create` | `GET` | `/cash-account/:id` |  |
+| `cashAccount.create` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create` | `POST` | `/cash-account` |  |
+| `cashAccount.update` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create` | `PATCH` | `/cash-account/:id` |  |
+| `cashAccount.delete` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create` | `DELETE` | `/cash-account/:id` |  |
+| `cashMutation.list` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create` | `GET` | `/cash-mutation` |  |
+| `cashMutation.get` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create` | `GET` | `/cash-mutation/:id` |  |
+| `cashMutation.create` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create` | `POST` | `/cash-mutation` |  |
+| `cashMutation.transfer` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create` | `POST` | `/cash-mutation/transfer` |  |
+| `cashMutation.delete` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create` | `DELETE` | `/cash-mutation/:id` |  |
+| `report.list` | `requireUserId` | 🔴 **none** | `GET` | `/report` |  |
+| `report.get` | `requireUserId` | 🔴 **none** | `GET` | `/report/:id` |  |
+| `report.create` | `requireOperationPermission` | `ops.report.generate` | `POST` | `/report` |  |
+| `report.update` | `requireOperationPermission` | `ops.report.generate` | `PATCH` | `/report/:id` |  |
+| `report.delete` | `requireOperationPermission` | `ops.report.generate` | `DELETE` | `/report/:id` |  |
+| `report.generate` | `requireOperationPermission` | `ops.report.generate` | `POST` | `/report/generate` | async — returns a job id immediately, never blocks the request (§7); progress via reportJob.* polling (§9.3) |
+| `reportJob.list` | `requireUserId` | 🔴 **none** | `GET` | `/report-job` |  |
+| `reportJob.get` | `requireUserId` | 🔴 **none** | `GET` | `/report-job/:id` | the report-progress poll target (Phase 5 §10.1 step 4) |
+| `reportJob.cancel` | `requireUserId` | 🔴 **none** | `POST` | `/report-job/:id/cancel` |  |
+| `document.list` | `requireUserId` | 🔴 **none** | `GET` | `/document` |  |
+| `document.get` | `requireUserId` | 🔴 **none** | `GET` | `/document/:id` |  |
+| `document.create` | `requireOperationPermission` | `ops.church.manage` | `POST` | `/document` |  |
+| `document.update` | `requireUserId` | 🔴 **none** | `PATCH` | `/document/:id` |  |
+| `document.delete` | `requireOperationPermission` | `ops.church.manage` | `DELETE` | `/document/:id` |  |
+| `document.generate` | `requireUserId` | 🔴 **none** | `POST` | `/document/generate` | long-running — returns a job id immediately, never blocks the request (§7) |
+| `file.list` | `requireUserId` | 🔴 **none** | `GET` | `/file` |  |
+| `file.get` | `requireUserId` | 🔴 **none** | `GET` | `/file/:id` |  |
+| `file.finalize` | `requireUserId` | 🔴 **none** | `POST` | `/file/finalize` | signed-URL rework — §7 / ADR-0004; reads the object's real GCS metadata, then writes the FileManager row |
+| `file.upload.init` | `requireUserId` | 🔴 **none** | `POST` | `/file/upload/sign` | signed-URL rework — §7 / ADR-0004; issues a size/type-bound signed GCS URL, does not accept bytes |
+| `file.upload.chunk` | `requireUserId` | 🔴 **none** | — | — | removed by signed-URL rework — §7 / ADR-0004; client PUTs bytes straight to GCS |
+| `file.upload.complete` | `requireUserId` | 🔴 **none** | — | — | folds into file.finalize — §7 / ADR-0004 |
+| `file.upload.abort` | `requireUserId` | 🔴 **none** | — | — | unfinalized objects are swept by the orphan job — §7 / Phase 3; no HTTP abort |
+| `public.songDb.meta` | `none` | 🔴 **none** | `GET` | `/public/song-db/meta` |  |
+| `file.download.init` | `requireUserId` | 🔴 **none** | `POST` | `/file/:id/download/sign` | signed-URL rework — §7 / ADR-0004; issues a signed GCS download URL |
+| `file.download.chunk` | `requireUserId` | 🔴 **none** | — | — | removed by signed-URL rework — §7 / ADR-0004; client GETs bytes straight from GCS |
+| `file.download.complete` | `requireUserId` | 🔴 **none** | — | — | no server step once download is a signed GCS URL — §7 / ADR-0004 |
+| `file.delete` | `requireOperationPermission` | `ops.church.manage` | `DELETE` | `/file/:id` |  |
+| `notifications.list` | `requireUserId` | 🔴 **none** | `GET` | `/notifications` |  |
+| `notifications.get` | `requireUserId` | 🔴 **none** | `GET` | `/notifications/:id` |  |
+| `notifications.markRead` | `requireUserId` | 🔴 **none** | `PATCH` | `/notifications/mark-read` |  |
+| `notifications.delete` | `requireUserId` | 🔴 **none** | `DELETE` | `/notifications/:id` |  |
+| `church.list` | `requireUserId` | 🔴 **none** | `GET` | `/church` |  |
+| `churchPermissionPolicy.getMe` | `requireUserId` | 🔴 **none** | `GET` | `/church-permission-policy/me` | read of the caller's own policy — GET /me, not the RPC's POST /get-me |
+| `churchPermissionPolicy.updateMe` | `requireUserId` | 🔴 **none** | `PATCH` | `/church-permission-policy/me` |  |
+| `church.get` | `requireUserId` | 🔴 **none** | `GET` | `/church/:id` |  |
+| `church.create` | `requireSuperAdminOrClient` | 🔴 **none** | `POST` | `/church` |  |
+| `church.update` | `requireOperationPermission` | `ops.church.manage` | `PATCH` | `/church/:id` |  |
+| `church.delete` | `requireSuperAdminOrClient` | 🔴 **none** | `DELETE` | `/church/:id` |  |
+| `column.list` | `requireUserId` | 🔴 **none** | `GET` | `/column` |  |
+| `column.get` | `requireUserId` | 🔴 **none** | `GET` | `/column/:id` |  |
+| `column.create` | `requireOperationPermission` | `ops.church.manage` | `POST` | `/column` |  |
+| `column.update` | `requireOperationPermission` | `ops.church.manage` | `PATCH` | `/column/:id` |  |
+| `column.delete` | `requireOperationPermission` | `ops.church.manage` | `DELETE` | `/column/:id` |  |
+| `location.list` | `requireUserId` | 🔴 **none** | `GET` | `/location` |  |
+| `location.get` | `requireUserId` | 🔴 **none** | `GET` | `/location/:id` |  |
+| `location.create` | `requireSuperAdminOrClient` | 🔴 **none** | `POST` | `/location` |  |
+| `location.update` | `requireOperationPermission` | `ops.church.manage` | `PATCH` | `/location/:id` |  |
+| `location.delete` | `requireSuperAdminOrClient` | 🔴 **none** | `DELETE` | `/location/:id` |  |
+| `membershipPosition.list` | `requireUserId` | 🔴 **none** | `GET` | `/membership-position` |  |
+| `membershipPosition.get` | `requireUserId` | 🔴 **none** | `GET` | `/membership-position/:id` |  |
+| `membershipPosition.create` | `requireOperationPermission` | `ops.church.manage` | `POST` | `/membership-position` |  |
+| `membershipPosition.update` | `requireOperationPermission` | `ops.church.manage` | `PATCH` | `/membership-position/:id` |  |
+| `membershipPosition.delete` | `requireOperationPermission` | `ops.church.manage` | `DELETE` | `/membership-position/:id` |  |
+| `approvalRule.list` | `requireOperationPermission` | `ops.approvalRule.manage` | `GET` | `/approval-rule` |  |
+| `approvalRule.get` | `requireOperationPermission` | `ops.approvalRule.manage` | `GET` | `/approval-rule/:id` |  |
+| `approvalRule.create` | `requireOperationPermission` | `ops.approvalRule.manage` | `POST` | `/approval-rule` |  |
+| `approvalRule.update` | `requireOperationPermission` | `ops.approvalRule.manage` | `PATCH` | `/approval-rule/:id` |  |
+| `approvalRule.delete` | `requireOperationPermission` | `ops.approvalRule.manage` | `DELETE` | `/approval-rule/:id` |  |
+| `approver.list` | `requireUserId` | 🔴 **none** | `GET` | `/approver` |  |
+| `approver.get` | `requireUserId` | 🔴 **none** | `GET` | `/approver/:id` |  |
+| `approver.create` | `requireOperationPermission` | `ops.activity.create` | `POST` | `/approver` |  |
+| `approver.update` | `requireUserId` | 🔴 **none** | `PATCH` | `/approver/:id` |  |
+| `approver.override` | `requireOperationPermission` | `ops.approval.activity.override` | `POST` | `/approver/override` |  |
+| `financialAccountNumber.list` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create` | `GET` | `/financial-account-number` |  |
+| `financialAccountNumber.available` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create` | `GET` | `/financial-account-number/available` | read — GET with a query, not the RPC's POST |
+| `financialAccountNumber.get` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create` | `GET` | `/financial-account-number/:id` |  |
+| `financialAccountNumber.create` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create` | `POST` | `/financial-account-number` |  |
+| `financialAccountNumber.update` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create` | `PATCH` | `/financial-account-number/:id` |  |
+| `financialAccountNumber.delete` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create` | `DELETE` | `/financial-account-number/:id` |  |
+| `churchRequest.create` | `requireUserId` | 🔴 **none** | `POST` | `/church-request` |  |
+| `churchRequest.my` | `requireUserId` | 🔴 **none** | `GET` | `/church-request/my` | read — GET, not the RPC's POST |
+| `admin.churchRequest.list` | `requireSuperAdminOrClient` | 🔴 **none** | `GET` | `/admin/church-request` |  |
+| `admin.churchRequest.get` | `requireSuperAdminOrClient` | 🔴 **none** | `GET` | `/admin/church-request/:id` |  |
+| `admin.churchRequest.update` | `requireSuperAdminOrClient` | 🔴 **none** | `PATCH` | `/admin/church-request/:id` |  |
+| `admin.churchRequest.delete` | `requireSuperAdminOrClient` | 🔴 **none** | `DELETE` | `/admin/church-request/:id` |  |
+| `admin.churchRequest.approve` | `requireSuperAdminOrClient` | 🔴 **none** | `POST` | `/admin/church-request/:id/approve` |  |
+| `admin.churchRequest.reject` | `requireSuperAdminOrClient` | 🔴 **none** | `POST` | `/admin/church-request/:id/reject` |  |
+| `activity.list` | `none` | 🔴 **none** | `GET` | `/activity` |  |
+| `activity.get` | `requireUserId` | 🔴 **none** | `GET` | `/activity/:id` |  |
+| `activity.create` | `requireOperationPermission` | `ops.activity.create` | `POST` | `/activity` |  |
+| `activity.update` | `requireOperationPermission` | `ops.activity.create` | `PATCH` | `/activity/:id` |  |
+| `activity.delete` | `requireOperationPermission` | `ops.activity.create` | `DELETE` | `/activity/:id` |  |
+| `admin.songDb.upload.init` | `requireUserId` | 🔴 **none** | `POST` | `/admin/song-db/upload/sign` | signed-URL rework — §7 / ADR-0004; do not rebuild chunked upload over HTTP |
+| `admin.songDb.upload.chunk` | `requireUserId` | 🔴 **none** | — | — | removed by signed-URL rework — §7 / ADR-0004; client PUTs bytes straight to GCS |
+| `admin.songDb.upload.complete` | `requireUserId` | 🔴 **none** | — | — | folds into the finalize step of the signed-URL rework — §7 / ADR-0004 |
+| `admin.songDb.upload.abort` | `requireUserId` | 🔴 **none** | — | — | unfinalized objects are swept by the orphan job — §7 / Phase 3; no HTTP abort |
+
+## Routes with no RPC counterpart
+
+Four client calls hit the router's `default: throw Unknown action` today (decision 36 / §7).
+They have no AST row to transcribe, so their permissions are a route-map judgement, not a
+generated allow-list — the CI parity check treats them as documented exemptions.
+
+| Action | Verb | Route | Permissions | Notes |
 |---|---|---|---|---|
-| `ping` | `none` | 🔴 **none** | | |
-| `app.home.get` | `requireUserId` | 🔴 **none** | | |
-| `auth.attach` | `none` | 🔴 **none** | | |
-| `auth.signIn` | `none` | 🔴 **none** | | |
-| `auth.adminSignIn` | `none` | 🔴 **none** | | |
-| `auth.superAdminSignIn` | `none` | 🔴 **none** | | |
-| `auth.validatePhone` | `none` | 🔴 **none** | | |
-| `auth.refresh` | `none` | 🔴 **none** | | |
-| `auth.signOut` | `requireUserId` | 🔴 **none** | | |
-| `auth.changePassword` | `requireUserId` | 🔴 **none** | | |
-| `auth.permissions.get` | `requireUserId` | 🔴 **none** | | |
-| `auth.signingClient` | `none` | 🔴 **none** | | |
-| `auth.syncClaims` | `none` | 🔴 **none** | | |
-| `auth.firebaseSignIn` | `none` | 🔴 **none** | | |
-| `auth.firebaseRegister` | `none` | 🔴 **none** | | |
-| `sub.join` | `requireUserId` | 🔴 **none** | | |
-| `sub.leave` | `requireUserId` | 🔴 **none** | | |
-| `articles.list` | `none` | 🔴 **none** | | |
-| `articles.get` | `none` | 🔴 **none** | | |
-| `articles.like` | `requireUserId` | 🔴 **none** | | |
-| `articles.unlike` | `requireUserId` | 🔴 **none** | | |
-| `admin.articles.list` | `requireAuthAny` | 🔴 **none** | | |
-| `admin.articles.get` | `requireAuthAny` | 🔴 **none** | | |
-| `admin.articles.create` | `requireAuthAny` | 🔴 **none** | | |
-| `admin.articles.update` | `requireAuthAny` | 🔴 **none** | | |
-| `admin.articles.cover.upload.init` | `requireSuperAdminOrClient` | 🔴 **none** | | |
-| `admin.articles.cover.upload.chunk` | `requireSuperAdminOrClient` | 🔴 **none** | | |
-| `admin.articles.cover.upload.complete` | `requireSuperAdminOrClient` | 🔴 **none** | | |
-| `admin.articles.cover.upload.abort` | `requireSuperAdminOrClient` | 🔴 **none** | | |
-| `admin.articles.publish` | `requireAuthAny` | 🔴 **none** | | |
-| `admin.articles.unpublish` | `requireAuthAny` | 🔴 **none** | | |
-| `admin.articles.archive` | `requireAuthAny` | 🔴 **none** | | |
-| `account.count` | `requireUserId` | 🔴 **none** | | |
-| `account.get` | `requireUserId` | 🔴 **none** | | |
-| `account.list` | `requireOperationPermission` | `ops.members.read` | | |
-| `account.create` | `requireOperationPermission` | `ops.members.invite` | | |
-| `member.create` | `requireOperationPermission` | `ops.members.invite` | | |
-| `account.update` | `requireUserId` | 🔴 **none** | | |
-| `account.delete` | `requireOperationPermission` | `ops.members.invite` | | |
-| `membership.create` | `requireUserId` | 🔴 **none** | | |
-| `membership.list` | `requireOperationPermission` | `ops.members.read` | | |
-| `membership.get` | `requireUserId` | 🔴 **none** | | |
-| `membership.update` | `requireUserId` | 🔴 **none** | | |
-| `membership.delete` | `requireOperationPermission` | `ops.members.invite` | | |
-| `membershipInvitation.preview` | `requireOperationPermission` | `ops.members.invite` | | |
-| `membershipInvitation.create` | `requireOperationPermission` | `ops.members.invite` | | |
-| `membershipInvitation.myPending` | `requireUserId` | 🔴 **none** | | |
-| `membershipInvitation.respond` | `requireUserId` | 🔴 **none** | | |
-| `admin.membershipInvitation.list` | `requireUserId` | 🔴 **none** | | |
-| `admin.membershipInvitation.get` | `requireUserId` | 🔴 **none** | | |
-| `admin.membershipInvitation.approve` | `requireUserId` | 🔴 **none** | | |
-| `admin.membershipInvitation.reject` | `requireUserId` | 🔴 **none** | | |
-| `admin.membershipInvitation.delete` | `requireUserId` | 🔴 **none** | | |
-| `finance.list` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create`<br>`ops.approval.finance.override` | | |
-| `finance.approval.list` | `requireUserId` | 🔴 **none** | | |
-| `finance.get` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create`<br>`ops.approval.finance.override` | | |
-| `finance.approval.get` | `requireUserId` | 🔴 **none** | | |
-| `finance.overview` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create`<br>`ops.approval.finance.override` | | |
-| `finance.approver.update` | `requireUserId` | 🔴 **none** | | |
-| `finance.approver.override` | `requireOperationPermission` | `ops.approval.finance.override` | | |
-| `revenue.list` | `requireOperationPermission` | `ops.finance.revenue.create` | | |
-| `revenue.get` | `requireOperationPermission` | `ops.finance.revenue.create` | | |
-| `revenue.create` | `requireOperationPermission` | `ops.finance.revenue.create` | | |
-| `revenue.update` | `requireOperationPermission` | `ops.finance.revenue.create` | | |
-| `revenue.delete` | `requireOperationPermission` | `ops.finance.revenue.create` | | |
-| `expense.list` | `requireOperationPermission` | `ops.finance.expense.create` | | |
-| `expense.get` | `requireOperationPermission` | `ops.finance.expense.create` | | |
-| `expense.create` | `requireOperationPermission` | `ops.finance.expense.create` | | |
-| `expense.update` | `requireOperationPermission` | `ops.finance.expense.create` | | |
-| `expense.delete` | `requireOperationPermission` | `ops.finance.expense.create` | | |
-| `cashAccount.list` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create` | | |
-| `cashAccount.get` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create` | | |
-| `cashAccount.create` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create` | | |
-| `cashAccount.update` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create` | | |
-| `cashAccount.delete` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create` | | |
-| `cashMutation.list` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create` | | |
-| `cashMutation.get` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create` | | |
-| `cashMutation.create` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create` | | |
-| `cashMutation.transfer` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create` | | |
-| `cashMutation.delete` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create` | | |
-| `report.list` | `requireUserId` | 🔴 **none** | | |
-| `report.get` | `requireUserId` | 🔴 **none** | | |
-| `report.create` | `requireOperationPermission` | `ops.report.generate` | | |
-| `report.update` | `requireOperationPermission` | `ops.report.generate` | | |
-| `report.delete` | `requireOperationPermission` | `ops.report.generate` | | |
-| `report.generate` | `requireOperationPermission` | `ops.report.generate` | | |
-| `reportJob.list` | `requireUserId` | 🔴 **none** | | |
-| `reportJob.get` | `requireUserId` | 🔴 **none** | | |
-| `reportJob.cancel` | `requireUserId` | 🔴 **none** | | |
-| `document.list` | `requireUserId` | 🔴 **none** | | |
-| `document.get` | `requireUserId` | 🔴 **none** | | |
-| `document.create` | `requireOperationPermission` | `ops.church.manage` | | |
-| `document.update` | `requireUserId` | 🔴 **none** | | |
-| `document.delete` | `requireOperationPermission` | `ops.church.manage` | | |
-| `document.generate` | `requireUserId` | 🔴 **none** | | |
-| `file.list` | `requireUserId` | 🔴 **none** | | |
-| `file.get` | `requireUserId` | 🔴 **none** | | |
-| `file.finalize` | `requireUserId` | 🔴 **none** | | |
-| `file.upload.init` | `requireUserId` | 🔴 **none** | | |
-| `file.upload.chunk` | `requireUserId` | 🔴 **none** | | |
-| `file.upload.complete` | `requireUserId` | 🔴 **none** | | |
-| `file.upload.abort` | `requireUserId` | 🔴 **none** | | |
-| `public.songDb.meta` | `none` | 🔴 **none** | | |
-| `file.download.init` | `requireUserId` | 🔴 **none** | | |
-| `file.download.chunk` | `requireUserId` | 🔴 **none** | | |
-| `file.download.complete` | `requireUserId` | 🔴 **none** | | |
-| `file.delete` | `requireOperationPermission` | `ops.church.manage` | | |
-| `notifications.list` | `requireUserId` | 🔴 **none** | | |
-| `notifications.get` | `requireUserId` | 🔴 **none** | | |
-| `notifications.markRead` | `requireUserId` | 🔴 **none** | | |
-| `notifications.delete` | `requireUserId` | 🔴 **none** | | |
-| `church.list` | `requireUserId` | 🔴 **none** | | |
-| `churchPermissionPolicy.getMe` | `requireUserId` | 🔴 **none** | | |
-| `churchPermissionPolicy.updateMe` | `requireUserId` | 🔴 **none** | | |
-| `church.get` | `requireUserId` | 🔴 **none** | | |
-| `church.create` | `requireSuperAdminOrClient` | 🔴 **none** | | |
-| `church.update` | `requireOperationPermission` | `ops.church.manage` | | |
-| `church.delete` | `requireSuperAdminOrClient` | 🔴 **none** | | |
-| `column.list` | `requireUserId` | 🔴 **none** | | |
-| `column.get` | `requireUserId` | 🔴 **none** | | |
-| `column.create` | `requireOperationPermission` | `ops.church.manage` | | |
-| `column.update` | `requireOperationPermission` | `ops.church.manage` | | |
-| `column.delete` | `requireOperationPermission` | `ops.church.manage` | | |
-| `location.list` | `requireUserId` | 🔴 **none** | | |
-| `location.get` | `requireUserId` | 🔴 **none** | | |
-| `location.create` | `requireSuperAdminOrClient` | 🔴 **none** | | |
-| `location.update` | `requireOperationPermission` | `ops.church.manage` | | |
-| `location.delete` | `requireSuperAdminOrClient` | 🔴 **none** | | |
-| `membershipPosition.list` | `requireUserId` | 🔴 **none** | | |
-| `membershipPosition.get` | `requireUserId` | 🔴 **none** | | |
-| `membershipPosition.create` | `requireOperationPermission` | `ops.church.manage` | | |
-| `membershipPosition.update` | `requireOperationPermission` | `ops.church.manage` | | |
-| `membershipPosition.delete` | `requireOperationPermission` | `ops.church.manage` | | |
-| `approvalRule.list` | `requireOperationPermission` | `ops.approvalRule.manage` | | |
-| `approvalRule.get` | `requireOperationPermission` | `ops.approvalRule.manage` | | |
-| `approvalRule.create` | `requireOperationPermission` | `ops.approvalRule.manage` | | |
-| `approvalRule.update` | `requireOperationPermission` | `ops.approvalRule.manage` | | |
-| `approvalRule.delete` | `requireOperationPermission` | `ops.approvalRule.manage` | | |
-| `approver.list` | `requireUserId` | 🔴 **none** | | |
-| `approver.get` | `requireUserId` | 🔴 **none** | | |
-| `approver.create` | `requireOperationPermission` | `ops.activity.create` | | |
-| `approver.update` | `requireUserId` | 🔴 **none** | | |
-| `approver.override` | `requireOperationPermission` | `ops.approval.activity.override` | | |
-| `financialAccountNumber.list` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create` | | |
-| `financialAccountNumber.available` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create` | | |
-| `financialAccountNumber.get` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create` | | |
-| `financialAccountNumber.create` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create` | | |
-| `financialAccountNumber.update` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create` | | |
-| `financialAccountNumber.delete` | `requireAnyOperationPermission` | `ops.finance.revenue.create`<br>`ops.finance.expense.create` | | |
-| `churchRequest.create` | `requireUserId` | 🔴 **none** | | |
-| `churchRequest.my` | `requireUserId` | 🔴 **none** | | |
-| `admin.churchRequest.list` | `requireSuperAdminOrClient` | 🔴 **none** | | |
-| `admin.churchRequest.get` | `requireSuperAdminOrClient` | 🔴 **none** | | |
-| `admin.churchRequest.update` | `requireSuperAdminOrClient` | 🔴 **none** | | |
-| `admin.churchRequest.delete` | `requireSuperAdminOrClient` | 🔴 **none** | | |
-| `admin.churchRequest.approve` | `requireSuperAdminOrClient` | 🔴 **none** | | |
-| `admin.churchRequest.reject` | `requireSuperAdminOrClient` | 🔴 **none** | | |
-| `activity.list` | `none` | 🔴 **none** | | |
-| `activity.get` | `requireUserId` | 🔴 **none** | | |
-| `activity.create` | `requireOperationPermission` | `ops.activity.create` | | |
-| `activity.update` | `requireOperationPermission` | `ops.activity.create` | | |
-| `activity.delete` | `requireOperationPermission` | `ops.activity.create` | | |
-| `admin.songDb.upload.init` | `requireUserId` | 🔴 **none** | | |
-| `admin.songDb.upload.chunk` | `requireUserId` | 🔴 **none** | | |
-| `admin.songDb.upload.complete` | `requireUserId` | 🔴 **none** | | |
-| `admin.songDb.upload.abort` | `requireUserId` | 🔴 **none** | | |
+| `approver.delete` | `DELETE` | `/approver/:id` | `ops.activity.create` | no RPC counterpart (decision 36 / §7). Client calls it at approver_repository.dart:127. Gated like approver.create — a church that can add an approver must be able to remove one. |
+| `churchLetterhead.getMe` | `GET` | `/church-letterhead/me` | 🔑 auth-only | no RPC counterpart (decision 36 / §7). ChurchLetterheadService exists but is unreachable. Read of the caller's own church letterhead — auth-only. |
+| `churchLetterhead.updateMe` | `PATCH` | `/church-letterhead/me` | `ops.church.manage` | no RPC counterpart (decision 36 / §7). Church-config write — gated like church.update. |
+| `churchLetterhead.setLogo` | `PUT` | `/church-letterhead/me/logo` | `ops.church.manage` | no RPC counterpart (decision 36 / §7). Church-config write — gated like church.update. |
 
 ## Permission findings
 
