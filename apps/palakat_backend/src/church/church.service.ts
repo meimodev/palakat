@@ -159,6 +159,58 @@ export class ChurchService {
     };
   }
 
+  /**
+   * Phase 5 §9.5: an opaque per-church staleness signal for palakat_admin's
+   * poll transport (replacing its socket). The value is the max `updatedAt`
+   * (epoch millis) across the church-scoped tables the admin watches. It only
+   * has to *change* when relevant data changes — the client compares it to the
+   * previous value and, on a change, marks its providers stale (§9.4). No schema
+   * change: Activity and the approver tables carry no direct churchId, so they
+   * scope through their relations.
+   *
+   * ponytail: 12 indexed MAX(updatedAt) aggregates per poll (~2 req/min per
+   * admin). Cheap and correct; if poll volume ever dominates, collapse to one
+   * raw `GREATEST()` query.
+   */
+  async getChangeVersion(churchId: number): Promise<{ version: number }> {
+    const byChurch = { churchId };
+    const activityByChurch = {
+      OR: [{ supervisor: { churchId } }, { column: { churchId } }],
+    };
+    const max = { _max: { updatedAt: true as const } };
+
+    const results = await Promise.all([
+      this.prisma.revenue.aggregate({ ...max, where: byChurch }),
+      this.prisma.expense.aggregate({ ...max, where: byChurch }),
+      this.prisma.cashMutation.aggregate({ ...max, where: byChurch }),
+      this.prisma.cashAccount.aggregate({ ...max, where: byChurch }),
+      this.prisma.report.aggregate({ ...max, where: byChurch }),
+      this.prisma.membership.aggregate({ ...max, where: byChurch }),
+      this.prisma.document.aggregate({ ...max, where: byChurch }),
+      this.prisma.approvalRule.aggregate({ ...max, where: byChurch }),
+      this.prisma.activity.aggregate({ ...max, where: activityByChurch }),
+      this.prisma.approver.aggregate({
+        ...max,
+        where: { activity: activityByChurch },
+      }),
+      this.prisma.revenueApprover.aggregate({
+        ...max,
+        where: { revenue: byChurch },
+      }),
+      this.prisma.expenseApprover.aggregate({
+        ...max,
+        where: { expense: byChurch },
+      }),
+    ]);
+
+    const version = results.reduce((latest, result) => {
+      const updatedAt = result._max.updatedAt?.getTime() ?? 0;
+      return updatedAt > latest ? updatedAt : latest;
+    }, 0);
+
+    return { version };
+  }
+
   async remove(id: number) {
     await this.prisma.church.delete({
       where: { id },

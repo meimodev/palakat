@@ -27,6 +27,13 @@ export class ChurchController {
     return this.churchService.getChurches(query);
   }
 
+  // Phase 5 §9.5: the palakat_admin poll transport. Returns only an opaque
+  // version number (~20 bytes), no church content — jwt auth is sufficient.
+  @Get(':id/change-version')
+  async getChangeVersion(@Param('id', ParseIntPipe) id: number) {
+    return this.churchService.getChangeVersion(id);
+  }
+
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number) {
     return this.churchService.findOne(id);
