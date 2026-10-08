@@ -78,3 +78,5 @@ Thumbs.db
 
 #windsurf
 .windsurf/
+.claude/
+.serena/
