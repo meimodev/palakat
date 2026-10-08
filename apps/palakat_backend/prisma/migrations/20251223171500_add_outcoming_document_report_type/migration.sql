@@ -1,2 +1,0 @@
--- AlterEnum
-ALTER TYPE "ReportGenerateType" ADD VALUE 'OUTCOMING_DOCUMENT';

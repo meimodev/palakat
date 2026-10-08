@@ -1,8 +1,0 @@
-packages:
-  - apps/palakat_backend
-  - packages/node/*
-
-ignoredBuiltDependencies:
-  - '@prisma/engines'
-  - esbuild
-  - prisma
