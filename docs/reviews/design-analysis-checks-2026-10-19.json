@@ -1,0 +1,174 @@
+{
+  "review_date": "2026-10-19",
+  "documents": {
+    "GMIM_Treasurer_Domain_Model_Posting_Rules_State_Machines_and_Report_Pack_Data_Mapping_v2.0.md": {
+      "lines": 1521,
+      "bytes": 273299,
+      "sha256": "37918b2a5ea82561abd6ce6b6198edc7b17272e317c12f3dcca2754ffb320e5e",
+      "json_blocks": 3
+    },
+    "GMIM_Treasurer_MVP_Design_Specification_and_Rulebook_v5.0.md": {
+      "lines": 4588,
+      "bytes": 434870,
+      "sha256": "22d102754572254e96ea9ecc9de1a34c795a1d8f1d3cb7c1b7c2810ea2e533ee",
+      "json_blocks": 3
+    }
+  },
+  "catalog_checks": [
+    {
+      "file": "GMIM_Treasurer_Domain_Model_Posting_Rules_State_Machines_and_Report_Pack_Data_Mapping_v2.0.md",
+      "kind": "PENDAPATAN",
+      "rows": 131,
+      "roots": 6,
+      "branches": 23,
+      "leaves": 108,
+      "readable_table_matches_json_with_nbsp_display_escape": true,
+      "acyclic_parent_level_family_checks": true,
+      "source_postability_null": true,
+      "source_proposal_matches_topology": true,
+      "production_codes_unique": true,
+      "production_overrides": []
+    },
+    {
+      "file": "GMIM_Treasurer_Domain_Model_Posting_Rules_State_Machines_and_Report_Pack_Data_Mapping_v2.0.md",
+      "kind": "BELANJA",
+      "rows": 158,
+      "roots": 6,
+      "branches": 29,
+      "leaves": 129,
+      "readable_table_matches_json_with_nbsp_display_escape": true,
+      "acyclic_parent_level_family_checks": true,
+      "source_postability_null": true,
+      "source_proposal_matches_topology": true,
+      "production_codes_unique": true,
+      "production_overrides": [
+        {
+          "id": "B113",
+          "source_code": "2.3.08.02",
+          "production_code": "2.3.02.02"
+        }
+      ]
+    },
+    {
+      "file": "GMIM_Treasurer_MVP_Design_Specification_and_Rulebook_v5.0.md",
+      "kind": "PENDAPATAN",
+      "rows": 131,
+      "roots": 6,
+      "branches": 23,
+      "leaves": 108,
+      "readable_table_matches_json_with_nbsp_display_escape": true,
+      "acyclic_parent_level_family_checks": true,
+      "source_postability_null": true,
+      "source_proposal_matches_topology": true,
+      "production_codes_unique": true,
+      "production_overrides": []
+    },
+    {
+      "file": "GMIM_Treasurer_MVP_Design_Specification_and_Rulebook_v5.0.md",
+      "kind": "BELANJA",
+      "rows": 158,
+      "roots": 6,
+      "branches": 29,
+      "leaves": 129,
+      "readable_table_matches_json_with_nbsp_display_escape": true,
+      "acyclic_parent_level_family_checks": true,
+      "source_postability_null": true,
+      "source_proposal_matches_topology": true,
+      "production_codes_unique": true,
+      "production_overrides": [
+        {
+          "id": "B113",
+          "source_code": "2.3.08.02",
+          "production_code": "2.3.02.02"
+        }
+      ]
+    }
+  ],
+  "duplicate_json_blocks_byte_identical": true,
+  "master_rule_sequence_1_to_775_complete": true,
+  "engineering_ids_complete": {
+    "GMIM_Treasurer_Domain_Model_Posting_Rules_State_Machines_and_Report_Pack_Data_Mapping_v2.0.md": true,
+    "GMIM_Treasurer_MVP_Design_Specification_and_Rulebook_v5.0.md": true
+  },
+  "report_ids_complete": {
+    "GMIM_Treasurer_Domain_Model_Posting_Rules_State_Machines_and_Report_Pack_Data_Mapping_v2.0.md": true,
+    "GMIM_Treasurer_MVP_Design_Specification_and_Rulebook_v5.0.md": true
+  },
+  "worked_fixture": {
+    "C": 12500000,
+    "A": 0,
+    "L": 500000,
+    "N": 12000000,
+    "I": 4000000,
+    "E": 2000000,
+    "Tin": 2000000,
+    "Tout": 1500000,
+    "all_three_bridges_hold": true,
+    "corrected_C": 12600000,
+    "corrected_E": 1900000,
+    "corrected_N": 12100000
+  },
+  "ai_thresholds": {
+    "cap": 150000,
+    "warning": 105000,
+    "conservation": 135000
+  },
+  "engineering_body_comparison_summary": {
+    "sections_compared": 13,
+    "sections_equal_after_heading_and_reference_normalization": 11,
+    "sections_with_editorial_intro_differences": [
+      12,
+      14
+    ],
+    "material_policy_drift_found_in_compared_bodies": false
+  },
+  "contract_counterexamples": {
+    "out_of_order_close": {
+      "cutover_opening": 1000,
+      "october_income_at_november_close": 100,
+      "november_income": 50,
+      "frozen_november_closing": 1150,
+      "later_posted_october_income": 200,
+      "eventual_october_closing": 1300,
+      "current_ledger_november_closing": 1350,
+      "difference_from_frozen_november": 200
+    },
+    "shared_account_fund_perimeter": {
+      "whole_account": 1000,
+      "fund_a": 600,
+      "fund_b": 400,
+      "f01_fund_a_closing": 600,
+      "f10_if_whole_account_used": 1000,
+      "mismatch": 400
+    },
+    "case_date_order": {
+      "advance_issue_effective_day": 20,
+      "issue": 1000,
+      "settlement_effective_day": 10,
+      "settlement": 600,
+      "eventual_case_balance": 400,
+      "balance_on_day_10": -600
+    },
+    "concurrent_case_use": {
+      "starting_outstanding": 1000,
+      "request_a": 700,
+      "request_b": 700,
+      "individually_valid": true,
+      "combined_outstanding": -400
+    },
+    "concurrent_evidence_consumption": {
+      "document_supported_amount": 1000,
+      "accepted_advance_spending": 700,
+      "reimbursement": 700,
+      "unsupported_excess_if_both_accepted": 400
+    }
+  },
+  "review_validation": {
+    "findings": 16,
+    "high_priority": 4,
+    "medium_priority": 10,
+    "documentation": 2,
+    "all_source_references_resolve": true,
+    "source_documents_unchanged": true
+  }
+}
