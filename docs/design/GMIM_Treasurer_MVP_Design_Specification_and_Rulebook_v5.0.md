@@ -28,7 +28,7 @@ The exports show hierarchy through indentation but contain **no explicit `parent
 | **Proposed continuation detail** | Useful concrete implementation proposal beyond supplied decisions | Remains proposed |
 | **Unresolved / source gap** | Exact detail not present in available sources | Resolve rather than guess |
 
-The recovered design/rulebook and approved rounds 1–6 establish the product baseline. Section 19 supplies the approved engineering contract: logical records, posting recipes, guards and report datasets. The approved settings in 0.5 supersede old proposal wording, including modified D07. Fictional financial examples remain illustrative; actual church thresholds/percentages/signatures and original-form bindings remain explicit configuration/source gaps. Pinned OpenRouter IDs are approved; runtime provider availability is checked without changing the policy.
+The recovered design/rulebook and approved rounds 1–6 establish the product baseline. Section 19 supplies the approved engineering contract: logical records, posting recipes, guards and report datasets. The approved settings in S section 1 (see 0.5) supersede old proposal wording, including modified D07. Fictional financial examples remain illustrative; actual church thresholds/percentages/signatures and original-form bindings remain explicit configuration/source gaps. Pinned OpenRouter IDs are approved; runtime provider availability is checked without changing the policy.
 
 ### 0.2 Coverage and remaining gaps
 
@@ -48,7 +48,7 @@ The recovered design/rulebook and approved rounds 1–6 establish the product ba
 | Warta, mandatory masking, roles, Operator, delegation, funds, Panitia and member lifecycle | Recovered; accepted future-platform constraints |
 | Aggregate-only attendance, permissions/lifecycles/corrections and notifications with no quiet hours | Recovered |
 | Recognition/posting matrix, reversals, suspense, numbering, imports and matching | Approved V1 engineering contract in section 19, including final CLOSED state |
-| Deployment settings, thresholds, exceptions, recovery targets and live AI route IDs | Managed cloud/recovery/export/AI settings approved in 0.5; actual church thresholds remain configurable |
+| Deployment settings, thresholds, exceptions, recovery targets and live AI route IDs | Managed cloud/recovery/export/AI settings approved in S section 1; actual church thresholds remain configurable |
 
 ### 0.3 Source editions, precedence and references
 
@@ -62,92 +62,17 @@ Preserve compatible requirements across all sources. Treasurer-first and explici
 
 **Cleanup edit (7 November 2026, no policy change):** removed duplicated material, with git commit `1962b27` holding the full prior text. Section 19 (a near-verbatim copy of S sections 1–15, differing only in heading level and a few introductory words) is replaced by a section map to S. The readable catalog tables (Appendix C.1–C.2) and the duplicate JSON snapshots (Appendix D) are removed; the JSON in S Appendix B is the single copy and was byte-identical. Appendix C.3–C.4 and section 18.5, which only restated status or described a chat storage location, are removed. Three overview blocks that said they were superseded by S are removed: the 4.2 domain-record table, the 12.2 report-mapping table and the five 13.5 AI paragraphs that were word-for-word copies of S section 12 (13.5 now points to 0.5 and S section 12). Revision history above is condensed. M-rules, Appendix A (L293–L342), Appendix B (C01–C20) and Appendix C.5 are unchanged.
 
+**Amendment (7 November 2026):** the user, acting as product owner, decided RD01–RD13 (and the product part of EC06) from the readiness addendum. The decisions are applied in S (new register "Product-owner decisions — 7 November 2026" and tagged edits in sections 3–8, 11, 13 and 15, plus rules E052–E060) and, for this document, in 0.5 (now a pointer to S), 1.2, 8.2, 9.3, 10.2, 10.4, 14.5, 17.1 and master rule M277. No other M-rule text changed. The policy register and derivation that 0.5 duplicated now live only in S; this removes P's only fenced JSON block, which was identical to the S copy.
+
 **Version 5.0 (8 October 2026):** Incorporated approved rounds 1–6; corrected the reviewed production B113 code while preserving both source catalogs/snapshots exactly; adopted D01–D12 with irreversible D07 and permanent retention of used master versions; settled approval/evidence/transit/backup/export/AI settings; rewrote all post-close correction assumptions in workflows, engineering rules, examples, report fields and acceptance requirements. Original Handover 4.0 and Standalone 1.0 files remain unchanged.
 
-**Versions 2.0–4.0 (summary):** 2.0 added the complete 775-rule master and recovered adoption, approval, offering, reporting, permission and lifecycle decisions. 3.0 read both classification exports and embedded all 289 source rows with exact codes, source-derived parent maps, provenance and machine-readable catalogs, flagging the Belanja `2.3.08.02` display-parent discrepancy. 4.0 added the formal engineering contract (now S): glossary and logical schema, posting recipes, state machines, cutover/close algorithms, integer cash/advance/transit bridges, the fourteen report datasets, layout binding, worked arithmetic and E001–E046 (5.0 adds E047–E051).
+**Versions 2.0–4.0 (summary):** 2.0 added the complete 775-rule master and recovered adoption, approval, offering, reporting, permission and lifecycle decisions. 3.0 read both classification exports and embedded all 289 source rows with exact codes, source-derived parent maps, provenance and machine-readable catalogs, flagging the Belanja `2.3.08.02` display-parent discrepancy. 4.0 added the formal engineering contract (now S): glossary and logical schema, posting recipes, state machines, cutover/close algorithms, integer cash/advance/transit bridges, the fourteen report datasets, layout binding, worked arithmetic and E001–E046 (5.0 adds E047–E051; the 7 November 2026 amendment adds E052–E060).
 
 ### 0.5 Approved rounds 1–6 baseline
 
-**Authority:** User decisions in **Next Steps After Docs**, conversation `6ac62014-70cc-83ec-acb6-4134bf1b9bc1`, consolidated in the final approved-decision summary and incorporated at the user's request on 8 October 2026. These are approved product policies; they are not claims that the original GMIM forms or source exports contained them. This register supersedes conflicting earlier proposal/status wording. The source snapshots remain evidence, separate from the approved production definitions.
+The approved rounds 1–6 policy register, the D07 control boundary, the activation-versus-approval note and the approved production-master derivation (with its JSON definition) are held once, in **S section 1**. P no longer carries a copy: in this document, "0.5" means that S text. The two copies were identical when this section was replaced on 7 November 2026; the former P text is in git commit `8491445`.
 
-| Round / area | Approved policy |
-|---|---|
-| 1 — Production master | Retain all 289 rows (131 Pendapatan, 158 Belanja). Preserve source code `2.3.08.02`; production Belanja B113 uses `2.3.02.02`, name `Kemitraan / Jemaat Mitra`, parent B110 / `2.3.02.00`. Record old/new values, source row/cells, reason and approving decision. |
-| 1 — Postability | Detail leaves are postable by default; group/family parents are nonpostable by default. A parent requires explicit authorized enablement. Derive concrete booleans from the explicit hierarchy, never from `.00` or numeric prefixes. No parent enablement has been specified for this baseline. |
-| 1 — Activation | First production master becomes effective on the first day of the first production accounting month. The actual month is a workspace deployment value, not the source filename date. Later versions activate at a period boundary; no retroactive reinterpretation. |
-| 2 — D01–D12 | Approved as defined in the decision table, with D07 replaced by irreversible close and D11 retaining every used master version permanently. |
-| 3A — Approval modes | MVP supports `NOT_REQUIRED` and `EXTERNAL`; `IN_APP` is a future collaboration mode, not an MVP dependency. |
-| 3B — Thresholds | Amount thresholds are configurable per church/Fund policy; no universal rupiah approval threshold is invented. |
-| 3C — Maker/checker | Configurable and off by default for solo use. When enabled, maker and checker must be distinct humans; multiple roles/logins belonging to one person do not satisfy the rule. |
-| 3D — External declaration | Structured declared approver identity/role, approval date, method, notes and supporting reference/evidence where required; recorded actor remains distinct. Bind the declaration to the transaction's material revision/digest; material edits invalidate it. |
-| 3E — Evidence timing | Required evidence may remain missing/uploaded/pending verification during the OPEN month, including after finalization. Resolve to `VERIFIED` or explicitly authorized `EXCEPTION_ACCEPTED` before close. A church may strengthen posting-time requirements. |
-| 3F — Evidence defaults | Evidence is required by default for core spending and settlement cases: direct expenses, reimbursements, accepted advance spending and transit/centralization remittances. Evidence requirements for other transaction types are configured by church policy; required cash/bank reconciliation observations remain mandatory. |
-| 3G — Solo verification | Solo Treasurer may verify evidence where church policy permits; a universal second reviewer is not imposed. |
-| 3H — Evidence exceptions | Only an authorized human may explicitly accept an exception, with reason, authority, actor/time and the affected evidence/transaction link. AI, upload success and technical administration grant no exception authority. |
-| 3I — Open advances | Valid, explained outstanding advances may carry forward across month-end. They are disclosed and do not automatically block close; missing required proof, unexplained/negative balances or a configured overdue restriction do. |
-| 3J — Advance due dates | Configurable per church/case policy; no universal settlement deadline is imposed. |
-| 4A — Ownership | Every relevant collection/allocation uses explicit `OWNED`, `CUSTODY` or `SPLIT`. A code or recipient does not establish ownership. Split components sum to the one physical collection. |
-| 4B — Allocation | Centralization percentages, fixed amounts, manual allocations, retained shares and rounding are versioned authorized church configuration; never hard-coded. |
-| 4C — Beneficiary | A custody/transit allocation cannot finalize without an identified beneficiary/destination obligation. |
-| 4D — Presentation | MVP main reports use `ECONOMIC_WITH_TRANSIT_SCHEDULE`: economic Pendapatan/Belanja totals plus a separate Dana Transit schedule. Gross bridge measures remain available as labeled controls. A gross main-form adapter requires a future explicit policy amendment after form review. |
-| 4E — Transit carry-forward | Valid, explained positive transit liabilities may carry forward. Negative cases, over-remittance, unknown beneficiaries, unexplained differences, missing required proof and unresolved policy-required overdue remittances block close. |
-| 4F–4G — Owned contributions / no duplication | Contributions from church-owned money are economic Belanja. Custody collection/remittance are liability movements, excluded from economic income/expense. Each rupiah receives one ownership treatment; never count the same component twice. |
-| 5A — Deployment | Managed cloud, server-authoritative finalization, numbering, reconciliation and close; no church self-hosting or offline financial finalization in MVP. |
-| 5B — Security | Encrypted transport and database/storage at rest; evidence private by default; credentials/API keys server-side; tenant + role + Scope checks on reads, writes, downloads, exports and AI queries; high-privilege session revocation. Technical administration does not confer financial authority. |
-| 5C — Backup set | Database, actual evidence objects, report snapshot datasets, rendered official reports, master/template/policy versions and required encryption/key-recovery material. |
-| 5D — Recovery defaults | RPO **1 hour**, RTO **8 hours**, **7-day point-in-time recovery**, **35 daily backups**, **12 monthly recovery snapshots**. These are product/operational defaults, not GMIM legal-record-retention rules. |
-| 5E — Restore verification | Full restore test at least quarterly and before/after major infrastructure or database migrations; verify financial integrity and evidence/report accessibility. |
-| 5F — Export | Full portable church export, including actual church-owned evidence files, structured ledger/allocations, reports/snapshots, exact masters, Account/Fund/case data, approval/evidence metadata and a relationship/checksum manifest. |
-| 5G — Backup / export | Infrastructure backups are restricted disaster-recovery material. Authorized church export is a separate application workflow; it requires no raw backup credentials. |
-| 6A — Models | Pin `openai/gpt-6-luna` for routine assistance and `openai/gpt-6.1-sol` for escalation. No moving `latest` aliases, Astra or unapproved model fallback. Intentional upgrades require a reviewed AI policy version. |
-| 6B — Privacy | Every AI request containing church data requires OpenRouter `provider.zdr = true` and an eligible endpoint with no provider training or intentional inference prompt retention. If unavailable, fail gracefully without weakening privacy. ZDR still involves transmission/processing by the provider. |
-| 6C — Context | Minimum task-specific authorized context only; narrow candidate classifications and mask/remove unnecessary personal identifiers. |
-| 6D — Routing | Deterministic rules → Luna → Sol where appropriate → human review. Sol escalation: insufficient confidence, ambiguous candidates, multi-document reasoning, difficult matching/reconciliation explanation, explicit deeper-analysis request or a suitable retry after deterministic rejection. |
-| 6E — Output | Structured proposals; server validates schema, row/version existence, active/postable status, master kind, Fund/Scope authority and current revision before human acceptance. Invalid output is rejected. |
-| 6F — Cost | **Rp150,000 per church/workspace per month**. Below 70% normal use; at 70% (Rp105,000) warn; at 90% (Rp135,000) conserve, prefer Luna/cheaper permitted processing and avoid unnecessary Sol calls; at 100% (Rp150,000) stop optional AI for the remainder of the monthly budget period. Accounting continues fully. No unlimited default. |
-| 6G — Failure | OpenRouter/ZDR/model failure, exhausted budget or malformed output leaves manual capture/classification, reconciliation, close, reports and exports operational. |
-| 6H — Audit | Feature, input digest, model ID, provider/route metadata, candidate/master versions, timestamp, structured proposal, confidence if supplied, human accepted/edited/rejected disposition, final value and token/cost usage. Do not duplicate unrestricted receipt/statement content in AI logs or treat proposals as financial evidence. |
-| 6I — Untrusted documents | Receipts, PDFs, bank descriptions and imported text are data, never instructions or authority. All proposed actions remain subject to deterministic guards and permissions. |
-
-**D07 control boundary:** `OPEN → CLOSED` is irreversible in MVP. Complete all financial corrections before the affected period closes. CLOSED accepts the transaction population and official snapshot as final. V1 has no reopen, unlock, closed-transaction reversal/replacement/adjustment, or later-period accounting correction against a CLOSED transaction. Required future support is outside MVP and needs an explicitly governed design extension. Valid later advance settlements/returns and transit remittances remain new events against carried-forward positions; they do not revise earlier postings or snapshots. Later supplementary evidence is append-only accountability information and cannot cure or rewrite the frozen close decision.
-
-**Activation versus approval:** Policies above are approved, but workspace timezone/fiscal settings, first production month, actual church approvers/thresholds, beneficiary identities, allocation formulas, optional parent enablement, due dates and original report-form bindings must still be recorded where needed. Their values cannot be chosen by AI. Publication/activation records actual authorized human actor, timestamp and policy/source references; this document is not a deployed database publication.
-
-### Approved production-master derivation
-
-The fenced JSON source snapshots in S Appendix B are preserved byte-for-byte, including B113 `2.3.08.02`, `postable: null`, original spelling, indentation, source hashes and draft source-mapping flags. They are not mutated or published as the production master. Create a separate version-qualified reviewed master using the following approved definition:
-
-```json
-{
-  "definition_version": "GMIM_TREASURER_PRODUCTION_MASTER_R1_2026-10-08",
-  "decision_source": "6ac62014-70cc-83ec-acb6-4134bf1b9bc1",
-  "status": "APPROVED_FOR_PUBLICATION",
-  "source_catalog_row_counts": {"PENDAPATAN": 131, "BELANJA": 158},
-  "retain_all_source_rows": true,
-  "preserve_source_snapshots": true,
-  "hierarchy": "explicit source-indentation parent map retained",
-  "postability": {"leaf_default": true, "parent_default": false, "parent_overrides": []},
-  "effective_from_rule": "FIRST_DAY_OF_FIRST_PRODUCTION_ACCOUNTING_MONTH",
-  "later_activation_rule": "PERIOD_BOUNDARY",
-  "used_version_deletion": "PROHIBITED_PERMANENTLY",
-  "corrections": [{
-    "kind": "BELANJA",
-    "source_row_id": "B113",
-    "source_row": "113",
-    "source_cells": "Sheet0!B114:C114",
-    "source_code": "2.3.08.02",
-    "production_code": "2.3.02.02",
-    "name": "Kemitraan / Jemaat Mitra",
-    "parent_id": "B110",
-    "parent_code": "2.3.02.00",
-    "reason": "Authorized correction of anomalous source code to match reviewed hierarchy"
-  }]
-}
-```
-
-Derivation is deterministic: copy every source row with its source provenance; preserve the explicit parent/family/order/label mapping; apply only the B113 production-code override; assign explicit postability from actual child relationships (237 leaves true, 52 branch/root rows false, unless a later authorized parent override is recorded). Preserve `source_code`, raw label and source flags separately from the reviewed production `code` and resolved validation status. Validate uniqueness, all parent references, absence of cycles, six roots per kind and unchanged 131/158 counts. Record the correction decision and old/new values; do not propagate the unresolved source anomaly flag as an unresolved production blocker after its authorized resolution. Do not normalize other codes or labels. The production report F06/export uses `2.3.02.02`; source appendices continue to display `2.3.08.02`.
-
-Assign actual immutable publication-version IDs by kind and deployment dates/actor metadata at activation. The first effective date is the first day of the chosen production accounting month, including when a later-in-month cutover is explicitly used. Retain every used version forever: a version referenced by any finalized transaction, report snapshot or historical dependency can never be deleted. Archival/deactivation only removes availability for new work; it preserves version-qualified rows, provenance and historical reproduction. Operational backup expiry is not authority to delete financial/master history.
+The register covers rounds 1 (production master, postability, activation), 2 (D01–D12), 3A–3J (approval and evidence), 4A–4G (ownership, allocation and transit), 5A–5G (deployment, security, backup and export) and 6A–6I (AI). The product-owner decisions of 7 November 2026 (RD01–RD13) are recorded in the same S section and in the readiness addendum.
 
 ## 1. Product vision and adoption strategy
 
@@ -178,6 +103,8 @@ Value must not depend on BPMJ, Penatua, Syamas, BIPRA leaders, members or Paniti
 | **Level 3 — Unit Treasurers** | Bendahara Kolom, BIPRA or Panitia participates | Submit transactions, evidence, settlement information and financial reports in scoped workspaces | Fund ownership and scoped governance remain explicit |
 | **Level 4 — Digital Approval Workflow** | Authorized Penatua, Syamas, BPMJ, BIPRA/Panitia leaders and other approvers join | Approve financial requests in-app | Enforce permissions and applicable maker/checker/self-approval restrictions |
 | **Level 5 — Full Church Platform** | Broader modules progressively activate | Member self-service, Warta, services, lifecycle, inventory, attendance and announcements | Publication/privacy and organizational authority rules remain effective |
+
+**First Treasurer (RD07).** The first Treasurer is established from a recorded church authorization that names the nominee and the authorizing person or role. A designated human onboarding reviewer verifies it before the financial capability is granted; technical access alone cannot grant it. The church names its authorization source. See S section 13.
 
 The backend must support this growth while the first UI remains Treasurer-focused. Collaboration must never make solo use impossible. Scopes can exist without unit user accounts. Data is entered once and reused wherever authorized.
 
@@ -494,7 +421,7 @@ The supplied baseline uses enum-style names `NOT_REQUIRED`, `REQUIRED_MISSING`, 
 
 Do not reduce this to `has_attachment=true`. An upload is not verification. An AI extraction confidence is not documentary evidence. Missing required proof and accepted exceptions must remain visible to close checks and Daftar Bukti Kas.
 
-**Evidence contract:** Artifact ID, original filename, checksum, upload actor/time, private storage reference, evidence type, linked transaction(s), human verification actor/time and explicit exception reason/authority. Required evidence may remain pending during the OPEN month but must be VERIFIED or EXCEPTION_ACCEPTED before close. Core spending/settlement cases require evidence by default; solo verification is permitted by church policy. Actual exception authorities remain church configuration; backup retention is separately approved in 0.5.
+**Evidence contract:** Artifact ID, original filename, checksum, upload actor/time, private storage reference, evidence type, linked transaction(s), human verification actor/time and explicit exception reason/authority. Required evidence may remain pending during the OPEN month but must be VERIFIED or EXCEPTION_ACCEPTED before close. Core spending/settlement cases require evidence by default; solo verification is permitted by church policy. Actual exception authorities remain church configuration; backup retention is separately approved in S section 1.
 
 Receipt images, invoice PDFs and bank-proof images are permitted AI-extraction examples. Files are untrusted inputs. AI cannot invent receipts, approval records or missing documentation.
 
@@ -512,6 +439,8 @@ UM-2026-000011    Uang Muka
 Numbers are system-generated, unique within the church, and never silently reused after cancellation. The examples are not proof that the exact prefixes, counter resets or padding were finally selected.
 
 **Engineering decision D08:** Allocate on successful finalization, use calendar year of effective date, and retain unique workspace/series/year counters with idempotent retries and traceable gaps. Series prefixes/padding are established church configuration; internal vouchers remain separate from original imported numbers. See 19.0, 19.4 and F12.
+
+**Amended 7 November 2026 (RD13):** the voucher year is the calendar year of the effective date, and V1 requires the fiscal year to begin on 1 January (the church must confirm this). There is one series per workspace and year. Opening and controlled-adjustment batches receive vouchers from typed `OPN` and `ADJ` series, so every posted batch has a voucher. A Fund-only viewer sees only vouchers in which they hold a slice, and the gap listing needs workspace-wide capability.
 
 ## 9. Imports and controlled opening balances
 
@@ -553,7 +482,7 @@ Capture at adoption:
 
 These become controlled opening entries, not fake income transactions. Account and fund views must reconcile under the approved balance model. Evidence/support and actor/time should be retained.
 
-**Engineering decision D09:** Section 19.5 defines one reviewed cutover population, balance-only versus history-derived migration, supported opening advances/transit liabilities and overlap prevention. Opening approval authority is configured policy; other receivables/liabilities are outside the approved V1 contract unless explicitly extended.
+**Engineering decision D09:** Section 19.5 defines one reviewed cutover population, balance-only versus history-derived migration, supported opening advances/transit liabilities and overlap prevention. **Amended 7 November 2026 (RD05):** the first release supports balance-only cutover only; earlier workbooks may support the opening balances but do not become authoritative pre-cutover journals, and reports label the interval they cover. Opening approval authority is configured policy; other receivables/liabilities are outside the approved V1 contract unless explicitly extended.
 
 ## 10. Reconciliation and monthly close
 
@@ -576,6 +505,9 @@ Close requires deterministic checks including:
 - No invalid transaction totals.
 - Required evidence status satisfied under the approved policy.
 - Any other applicable governed blockers resolved.
+- Every earlier period closed (RD01): close is one church-wide action in chronological order, including months with no activity, and a Fund-only role cannot close.
+- No DRAFT or REVIEWED transaction and no staged import row dated in the period (RD09): each is finalized, cancelled or redated into a later OPEN period.
+- A current readiness attestation for each Fund with activity or a balance, once scoped preparers exist (RD12); the workspace Treasurer may waive a missing one with a recorded reason.
 
 AI can list and explain problems but cannot close a period. After close, the period is locked.
 
@@ -590,6 +522,8 @@ Allow capturing known money movement without forcing a guessed Mata Anggaran. Ma
 ### 10.4 Final close and correction boundary
 
 **Approved amended D07:** `OPEN → CLOSED` is irreversible in MVP. Complete financial corrections before the affected period closes; after successful close its transaction population and official snapshot are accepted as final. There is no reopen/unlock, post-close reversal/replacement/adjustment, or later-period accounting correction against a CLOSED transaction. Authorized administrators, imports and AI have no bypass. A future governed extension would require explicit design and approval.
+
+**Added 7 November 2026 (RD08):** before close the application shows the final checks, the reporting coverage and the irreversible consequence, and records the closer's explicit confirmation. A later discovery is recorded as an incident (period, records, facts, reconciliation impact, responsible officer, escalation outcome, with narrative and financial resolution recorded separately). An incident never changes a CLOSED journal or snapshot, hides a difference or unblocks a close. The pilot Treasurer has not yet accepted that some discoveries may prevent later reconciliation or close under V1. See S sections 4.3 and 6.4.
 
 Eligible OPEN-period corrections preserve original postings and append reviewed linked compensating/replacement events. Their target and every affected original/dependency period must be OPEN, checked atomically with finalization and close. New later settlements/returns/remittances against valid carried-forward advances/transit are ordinary new events, not revisions to CLOSED postings. See 19.3.3 and E027.
 
@@ -685,7 +619,7 @@ This is a source-derived **draft explicit hierarchy**, not an invented code-pref
 
 **Approved production postability defaults (source proposal preserved separately):** Detail leaves → `true`; group/family rows → `false`. This approved default permits `.00` leaves, for example Pendapatan `1.3.51.00` “PERSEMBAHAN PERSEPULUHAN” and Belanja `1.1.00.00` “SENTRALISASI KE SINODE”. It is not a `.00`-suffix rule. A branch may be postable under approved policy; the candidate `false` must then be explicitly changed and both its direct and descendant postings included without duplication.
 
-The source has no true/false posting flag. Accordingly the machine-readable records use **`postable: null`** plus a separate **`postable_proposal` boolean**. Source maps retain `mapping_status: DRAFT_SOURCE_INDENTATION`. The approved production derivation in 0.5 creates separate version-qualified reviewed rows with concrete postability and the B113 override, then records publication/activation metadata. Do not rewrite source eligibility or publish the source snapshot in place.
+The source has no true/false posting flag. Accordingly the machine-readable records use **`postable: null`** plus a separate **`postable_proposal` boolean**. Source maps retain `mapping_status: DRAFT_SOURCE_INDENTATION`. The approved production derivation in S section 1 creates separate version-qualified reviewed rows with concrete postability and the B113 override, then records publication/activation metadata. Do not rewrite source eligibility or publish the source snapshot in place.
 
 ### 11.7 Source irregularities retained without correction
 
@@ -889,7 +823,7 @@ Audit relevant material suggestions with model, suggestion, confidence, confirma
 
 ### 13.5 Privacy, validated output, cost and failure
 
-The approved AI integration, context minimization, structured-proposal validation, Rp150,000 monthly cap (70/90/100% behavior), audit logging and failure behavior are specified once, in 0.5 (rounds 6A–6I) and S section 12. They are not repeated here.
+The approved AI integration, context minimization, structured-proposal validation, Rp150,000 monthly cap (70/90/100% behavior), audit logging and failure behavior are specified once, in S section 1 (rounds 6A–6I) and S section 12. They are not repeated here.
 
 ## 14. Confirmed wider-platform roadmap and privacy architecture
 
@@ -937,7 +871,7 @@ Lifecycle events include **Birth, Registration, Kolom movement, Incoming transfe
 
 **Birth:** A formal event, not an ordinary profile edit. Parents/household may submit; verification precedes authoritative registration as required. Create an individual person linked to household and appropriate Kolom; update statistics. Birth does not imply baptism, Sidi or another sacramental/church status. Later service workflows reuse that child record. Birth information does not automatically become public Warta content.
 
-**Death:** Confirm status `DECEASED` rather than delete the person. Preserve family, membership, role, donation, transaction, service and audit history. Confirmation disables login, stops personal notifications, removes active approval authority, ends/suspends active roles, flags leadership vacancies, reroutes pending workflows and updates household statistics. A Treasurer's death triggers critical operational review. Never automatically appoint a replacement or transfer financial access. Funeral/pastoral workflows may follow; health/cause-of-death information is not automatically public.
+**Death:** Confirm status `DECEASED` rather than delete the person. Preserve family, membership, role, donation, transaction, service and audit history. Confirmation disables login, stops personal notifications, removes active approval authority, ends/suspends active roles, flags leadership vacancies, reroutes pending workflows and updates household statistics. A Treasurer's death triggers critical operational review. Never automatically appoint a replacement or transfer financial access. A replacement Treasurer needs new church authorization verified by a designated human reviewer, an audited grant and revocation of the displaced person's access (RD07, S section 13). Funeral/pastoral workflows may follow; health/cause-of-death information is not automatically public.
 
 **Kolom movement:** Retain dated assignments and effective date; support individual, whole-household and selected-family-member transfer. Members/households may initiate with source/destination verification as required. Leadership roles do not automatically move; Penatua/Syamas movement triggers leadership review. Historical financial transactions retain original scope; future applicable transactions use new scope from effective date.
 
@@ -1057,7 +991,7 @@ Export should be usable outside the app: machine-readable ledger/line data, exac
 
 ## 16. Consolidated master rulebook — all 775 supplied rules
 
-This is the user-supplied **Consolidated Master Rulebook**, embedded in full. Rule order/numbering and source subsections are retained. Identified round 1–6 amendments below change incompatible wording; all other rules retain source text. Source subsection headings are demoted one level to fit the document. The unchanged predecessor and recorded source hashes preserve original provenance. Refer to these as **Master rule N** (`M001…M775`). These numbers are independent from Legacy AI rules 293–342 in Appendix A and Controls C01–C20 in Appendix B.
+This is the user-supplied **Consolidated Master Rulebook**, embedded in full. Rule order/numbering and source subsections are retained. Identified round 1–6 amendments below change incompatible wording, and M277 carries one amendment of 7 November 2026 (RD06); all other rules retain source text. Source subsection headings are demoted one level to fit the document. The unchanged predecessor and recorded source hashes preserve original provenance. Refer to these as **Master rule N** (`M001…M775`). These numbers are independent from Legacy AI rules 293–342 in Appendix A and Controls C01–C20 in Appendix B.
 
 The previous handover's H001–H110 synthesis is replaced by this recovered current master. Future-platform rules remain future constraints; their inclusion does not extend the Treasurer MVP scope beyond the explicit deferrals.
 
@@ -1700,7 +1634,7 @@ The previous handover's H001–H110 synthesis is replaced by this recovered curr
 
 276. Parent/postable status must not be inferred only from `.00` suffix.
 
-277. Historical transactions retain the classification version effective when they were posted.
+277. Historical transactions retain the classification version in effect on their effective (business) date, not on the date they were posted. **[Amended: RD06 / 7 November 2026.]**
 
 278. A future Mata Anggaran version must not mutate historical classifications.
 
@@ -2843,7 +2777,7 @@ The previous handover's H001–H110 synthesis is replaced by this recovered curr
 
 The current design, all 775 rules and both full classification row exports are now incorporated. The supplied classification catalogs remove the previous missing-row blocker.
 
-Policy decisions from rounds 1–6 are complete. Implementation still records the actual first production month and activation actor, creates the approved derived production masters, establishes needed church-specific thresholds/approvers/beneficiaries/formulas/due dates, and verifies deployed controls. Original GMIM report forms remain the external source gap: obtain page/cell/field/signature mappings and the exact accountability annex inventory. Source classification files do not supply those printable layouts.
+Policy decisions from rounds 1–6 are complete. Implementation still records the actual first production month and activation actor, creates the approved derived production masters, establishes needed church-specific thresholds/approvers/beneficiaries/formulas/due dates, and verifies deployed controls. Product decisions RD01–RD13 of 7 November 2026 are decided; their open conditions are listed in S section 15. Original GMIM report forms remain the external source gap: obtain page/cell/field/signature mappings and the exact accountability annex inventory. Source classification files do not supply those printable layouts.
 
 ### 17.2 Formalized design and remaining gates
 
@@ -2870,6 +2804,7 @@ These are proposed acceptance scenarios, not a requirement to build a particular
 13. AI provider/quota/extraction/notification failures leave manual accounting usable.
 14. Centralization observations do not double count a collection/remittance.
 15. A restored backup can reproduce the ledger and official report snapshots.
+16. The cases for the 7 November 2026 decisions are in S section 15, and executable fixtures are in `docs/design/test-vectors/`.
 
 ### 17.4 Confirmed build priority
 
@@ -3146,7 +3081,7 @@ FINALIZED → REVERSED only while all affected periods remain OPEN`. Reports, ba
 
 ## Appendix C. Full Mata Anggaran source catalogs
 
-The full readable catalog tables formerly in C.1–C.2 were removed on 7 November 2026. The machine-readable catalogs in Appendix B of the companion engineering specification `GMIM_Treasurer_Domain_Model_Posting_Rules_State_Machines_and_Report_Pack_Data_Mapping_v2.0.md` carry every source row, exact code string, raw label with indentation, source cells and source-derived parent map. Source `postable` stays `null` there. Approved production eligibility is defined in 0.5 and the approved production-master derivation, not in the source snapshots. Former C.3 and C.4, which only pointed to section 19, were removed with them.
+The full readable catalog tables formerly in C.1–C.2 were removed on 7 November 2026. The machine-readable catalogs in Appendix B of the companion engineering specification `GMIM_Treasurer_Domain_Model_Posting_Rules_State_Machines_and_Report_Pack_Data_Mapping_v2.0.md` carry every source row, exact code string, raw label with indentation, source cells and source-derived parent map. Source `postable` stays `null` there. Approved production eligibility is defined in S section 1 and the approved production-master derivation, not in the source snapshots. Former C.3 and C.4, which only pointed to section 19, were removed with them.
 
 ### C.5 Fidelity notes and unresolved source tensions
 

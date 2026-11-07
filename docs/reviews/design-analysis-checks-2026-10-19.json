@@ -265,5 +265,99 @@
       "conserve_90": 135000,
       "cap": 150000
     }
+  },
+  "post_amendment": {
+    "checked_on": "2026-11-07",
+    "basis": "files in the working tree after the 7 November 2026 amendment (RD01-RD13, EC06 product part). Compared with git commit 8491445 (post-cleanup) and 1962b27 (reviewed). Original XLS files and predecessor editions are not in the repository and were not re-verified",
+    "files": {
+      "GMIM_Treasurer_MVP_Design_Specification_and_Rulebook_v5.0.md": {
+        "lines": 3097,
+        "bytes": 165015,
+        "sha256": "8f2e3e5fa8ebc9c0410d4a152f83bd56b17c6b92043a6478fa002c4411cb3776",
+        "json_blocks": 0
+      },
+      "GMIM_Treasurer_Domain_Model_Posting_Rules_State_Machines_and_Report_Pack_Data_Mapping_v2.0.md": {
+        "lines": 1290,
+        "bytes": 268950,
+        "sha256": "23229b8f001799f30880bc7b3c5601ef32b8181c88f7493136843f58e3dcef50",
+        "json_blocks": 3
+      }
+    },
+    "s_json_blocks_identical_to_git_1962b27": true,
+    "p_fenced_json_blocks": 0,
+    "p_removed_derivation_block_identical_to_s_copy": true,
+    "catalog_checks": [
+      {
+        "kind": "PENDAPATAN",
+        "rows": 131,
+        "unique_ids": true,
+        "roots": 6,
+        "parents_valid": true,
+        "level_is_parent_plus_one": true,
+        "acyclic_and_family_consistent": true,
+        "branches": 23,
+        "leaves": 108,
+        "source_postable_all_null": true,
+        "proposal_matches_topology": true,
+        "source_codes_unique": true,
+        "production_codes_unique": true,
+        "production_overrides": {},
+        "display_order_sequential": true
+      },
+      {
+        "kind": "BELANJA",
+        "rows": 158,
+        "unique_ids": true,
+        "roots": 6,
+        "parents_valid": true,
+        "level_is_parent_plus_one": true,
+        "acyclic_and_family_consistent": true,
+        "branches": 29,
+        "leaves": 129,
+        "source_postable_all_null": true,
+        "proposal_matches_topology": true,
+        "source_codes_unique": true,
+        "production_codes_unique": true,
+        "production_overrides": {
+          "B113": "2.3.02.02"
+        },
+        "display_order_sequential": true
+      }
+    ],
+    "derived_postability": {
+      "postable_leaves": 237,
+      "nonpostable_branches": 52,
+      "total": 289
+    },
+    "rules": {
+      "master_rules_present": 775,
+      "first": 1,
+      "last": 775,
+      "in_order_no_repeats": true
+    },
+    "master_rules_changed_since_8491445": [
+      "M277"
+    ],
+    "ids_present_in_S": {
+      "D": true,
+      "F": true,
+      "RC": true,
+      "E_001_to_060": true
+    },
+    "arithmetic_vectors_checked": [
+      "A01",
+      "A02",
+      "A03",
+      "A04",
+      "A05",
+      "A06",
+      "A07"
+    ],
+    "ai_cap": {
+      "warn_70": 105000,
+      "conserve_90": 135000,
+      "cap": 150000
+    },
+    "not_checked": "No application exists. The behavior vectors (B01-B36) are fixtures, not run against code."
   }
 }

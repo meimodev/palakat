@@ -6,7 +6,7 @@ Method: S sections 1–15 were read in full, with R and A. P was checked only by
 
 **Checked, no inconsistency:** RPO/RTO/PITR numbers, AI cap thresholds, D07 wording and the IN_APP deferral agree between P and S. The three balance equations and the worked example reconcile.
 
-Status of every item: **PROPOSED**. Each maps to a decision (RD09–RD13) or engineering contract (EC06–EC08) in the addendum. None is approved policy.
+Status of every item when written: **PROPOSED**. Each maps to a decision (RD09–RD13) or engineering contract (EC06–EC08) in the addendum. Later on 7 November 2026 the user decided RD09–RD13 and the product part of EC06, and those decisions were applied to S and P (see the addendum decision log). EC06's engineering design, EC07 and EC08 remain open.
 
 ## N01 — Medium/High: cases are single-Fund but allocations are multi-Fund
 
@@ -111,4 +111,17 @@ Not re-verified, because the files are not in this repository:
 Remaining overlap, left on purpose:
 
 - P sections 1–15 and the section 16 rules cover the same ground in different words. A similarity check found no near-verbatim repeats, so they are two preserved source documents rather than copies. M-numbers are cited elsewhere, so section 16 stays.
-- P section 0.5 and S's approved policy register carry the same rounds 1–6 policy. S is meant to be self-contained, so both stay for now. Make one of them canonical when the follow-up contract is published (R2/O01).
+- ~~P section 0.5 and S's approved policy register carry the same rounds 1–6 policy.~~ Resolved the same day: S section 1 is the canonical copy and P section 0.5 now points to it (see the amendment verification below).
+
+## Post-amendment verification
+
+After the product decisions were applied (7 November 2026) the same checks were re-run. Values are in `design-analysis-checks-2026-10-19.json` under `post_amendment`.
+
+Passed:
+
+- The three fenced JSON blocks in S are still identical to git commit `1962b27`. P no longer has a fenced block: the one it had (the production-master derivation) was identical to S's copy and was removed with P section 0.5's duplicate register.
+- Both catalogs: 131 and 158 rows, six roots each, valid parents, branch/leaf counts 23/108 and 29/129, 237 postable leaves and 52 nonpostable branches, unique production codes after the B113 override.
+- Master rules M001–M775 are present once each, in order. Only M277 changed (RD06). D01–D12, F01–F14, RC01–RC16 and E001–E060 are present in S.
+- The arithmetic fixtures A01–A07 in `docs/design/test-vectors/` recompute exactly, including the worked example, the OPEN-period correction, the Fund ownership transfer, the two EC06 rejects and the proposed refund. A deliberate one-rupiah change to an expected value made the checker fail.
+
+Not verified: the behavior fixtures B01–B36 have not run against code, because no application exists. The sources listed under "Not re-verified" above are still not in the repository.
