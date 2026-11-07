@@ -96,9 +96,9 @@ Common ground, taken from S and not repeated per entry: one application and one 
 
 **Design**
 
-1. **Acknowledgement rule.** Return success only after the database reports the commit durable under its synchronous-durability setting, replicated to a standby in a second availability zone. Never acknowledge from a queue or an asynchronous path.
+1. **Acknowledgement rule.** Return success only after the database reports the commit durable under its synchronous-durability setting. If a synchronous standby exists, wait for it as well. Never acknowledge from a queue or an asynchronous path. (The chosen stack, Supabase, has no synchronous standby, so durability beyond the primary comes from continuous log archiving; see the stack decision.)
 2. **Hash chain.** Each workspace keeps `chain_hash = H(previous chain_hash ‖ batch_hash)` per posted batch. Every acknowledgement returns a receipt: workspace, posting sequence, batch or close id, content hash. The close manifest records the chain head at the cutoff.
-3. **Close writes an archive first.** A close runs: validate and lock, build the snapshot, write a *close archive* to write-once storage (the period's batches, legs, allocations, vouchers, the idempotency record, the snapshot datasets and manifest, with their hashes), then commit the database transaction, then acknowledge. An archive without a matching commit is harmless and is labeled uncommitted by its hash. A close is the only irreversible event (D07), so it is the one place where the acknowledgement may depend on a second store.
+3. **Close writes an archive first.** A close runs in three steps. *Prepare:* compute the snapshot and the *close archive* content (the period's batches, legs, allocations, vouchers, the idempotency record, the snapshot datasets and manifest, with their hashes) and return a state hash covering the period's population. *Archive:* write the archive to write-once storage. *Commit-if-unchanged:* in one database transaction, re-check that the population still matches the state hash, then commit the close, then acknowledge. If the population changed in between, abort and run the close again. S allows no persistent "checking" state (section 5.5), so a version check stands in for a lock held across the archive write. An archive without a matching commit is harmless and is labeled uncommitted by its hash. A close is the only irreversible event (D07), so it is the one place where the acknowledgement may depend on a second store.
 4. **Daily external copy.** Once a day, and at each close, copy every workspace's latest chain head to the same write-once storage. This is asynchronous and not in the acknowledgement path.
 5. **Recovery with a write fence.** After any restore, every workspace stays read-only until these checks pass:
    a. Restore the base backup and replay archived logs as far forward as they go. Never stop at an older snapshot when later logs exist.
@@ -109,7 +109,7 @@ Common ground, taken from S and not repeated per entry: one application and one 
    f. Only then lift the fence.
 6. **Retries.** The idempotency record is written in the same transaction as its effects, so it exists exactly when the effects exist. After a restore, a retry whose effects survived returns the original result. A retry whose effects were lost executes once.
 
-**Limit to accept knowingly.** An ordinary finalization acknowledged in the last moments before a total loss of the database and its standby can be lost, up to the approved RPO of 1 hour, and is found only by the receipt or external-copy checks in step 5e. A close cannot be lost this way, because of step 3.
+**Limit to accept knowingly.** An ordinary finalization acknowledged in the last moments before a total loss of the database can be lost, up to the approved RPO of 1 hour (about 2 minutes in the worst case with Supabase point-in-time recovery), and is found only by the receipt or external-copy checks in step 5e. A close cannot be lost this way, because of step 3.
 
 **Acceptance (restore drill)**
 
@@ -123,8 +123,8 @@ Common ground, taken from S and not repeated per entry: one application and one 
 **Decisions for the designer**
 
 - Is a close allowed to depend on write-once storage being available (step 3)? Recommended yes: closes are rare, and a delayed close is acceptable.
-- Standby replication in a second availability zone (recommended) or a single zone with continuous log archiving only. The latter widens the loss window.
-- Hosting vendor and region layout for the standby and the write-once store. This draft names none.
+- ~~Standby replication or log archiving only~~ Settled by the stack decision (8 November 2026): Supabase has no synchronous standby, so this design uses continuous log archiving only.
+- ~~Hosting vendor~~ Settled: Supabase and Vercel. The write-once store is a Vercel Blob store, separate from the Supabase project. Its write-once property is enforced by our code and tokens, because Vercel Blob documents no object lock. Accept that, or later swap the target for a store with provider-enforced immutability.
 
 ## EC05 — Portable export
 
