@@ -213,7 +213,7 @@ Option (b) conflicts with pseudonymization, so this choice shapes snapshot desig
 
 ## 3. Engineering contracts to complete
 
-Owner for EC01–EC08: **implementation designer**. Status: **OPEN — required design deliverables**. These complete existing guarantees; any discovered change to product behavior returns to the product owner. Database tables, framework and deployment vendor are engineering choices.
+Owner for EC01–EC08: **implementation designer**. Status: **OPEN — required design deliverables**. Draft designs for all eight, awaiting the designer's approval, are in [engineering-contracts-draft-2026-11-07.md](engineering-contracts-draft-2026-11-07.md); none is approved and none is in S yet. These complete existing guarantees; any discovered change to product behavior returns to the product owner. Database tables, framework and deployment vendor are engineering choices.
 
 | ID / evidence | Required artifact and acceptance | Blocks |
 |---|---|---|
