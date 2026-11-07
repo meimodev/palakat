@@ -255,6 +255,8 @@ Absence of an optional threshold or due-date restriction must be an explicit per
 2. **First complete finance path:** approved opening, one receipt and one expense, required evidence/external declaration, reconciliation, chronological close and a basic snapshot report/export. Include audit, idempotency, authorization and integer arithmetic from the first posting. This is an implementation milestone, not the complete MVP.
 3. **Expand:** advances, transit, reimbursements, transfers, multi-component collections and staged imports; finish F01–F14 PDF/Excel/print and full portable export, then optional AI. Preserve the baseline's explicit deferrals and later collaboration roadmap.
 
+A slice-by-slice version of this order, with the contracts and fixtures each slice needs, is in [build-plan-2026-11-07.md](build-plan-2026-11-07.md).
+
 Resolve RD10 and EC06 before the first posting code, because they change the posting contract. Resolve RD11 before snapshot design. Resolve RD09 and RD12 before close design. RD13, EC07 and EC08 are small and can follow.
 
 Before implementing each affected path, resolve its RD/EC entries and write the corresponding acceptance examples. Before production, record the required church values, visually verify report files, run the S section 15 acceptance cases plus this addendum's examples, and demonstrate restore/export integrity. Passing document checks is not application validation.
