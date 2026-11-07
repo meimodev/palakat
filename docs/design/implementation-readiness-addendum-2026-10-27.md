@@ -19,7 +19,7 @@ References:
 
 ## 2. Product decision register
 
-Every entry is **PROPOSED / awaiting product-owner decision** unless it appears in the decision log below. Each decision record must capture the selected behavior, any change from the recommendation, decision authority and date. Update the affected contract explicitly after approval; do not infer approval from this document's presence.
+Every entry is **PROPOSED / awaiting product-owner decision** unless it appears in the decision log below. As of 2026-11-07 all thirteen RD entries are in the log: twelve decided and RD11 partly decided. The EC entries remain OPEN apart from the product part of EC06. Each decision record must capture the selected behavior, any change from the recommendation, decision authority and date. Update the affected contract explicitly after approval; do not infer approval from this document's presence.
 
 | ID | Decision | Review coverage | Blocks |
 |---|---|---|---|
@@ -49,6 +49,12 @@ Every entry is **PROPOSED / awaiting product-owner decision** unless it appears 
 | RD09 | Open drafts, reviewed transactions and staged rows dated in the period block close until finalized, cancelled or redated, as recommended | None | The user, acting as product owner | 2026-11-07 | Pending: S sections 6.4 and 8/F12 |
 | RD11 (snapshot part) | Frozen report data holds the Party ID and names are resolved when rendering, as recommended. Counsel's determination on the personal-data law, the retention rule for already-generated PDFs, and the pseudonymization action itself remain open | None | The user, acting as product owner | 2026-11-07 | Pending: S sections 3, 7.1, 8/F03, 8/F12 and 13 |
 | RD13 | Voucher year = calendar year with a required 1 January fiscal-year start; one series per workspace and year; typed `OPN` and `ADJ` series for opening and adjustment batches; Fund-only viewers see only vouchers in which they hold a slice, as recommended. The 1 January start is the user's assumption and still needs the church's confirmation | None | The user, acting as product owner | 2026-11-07 | Pending: D08 in S section 1; S sections 3 and 8/F12 |
+| RD02 | Fund-slice representation with separate entitlement for whole-voucher content, other-Fund allocations, original files and whole-Account observations; same representation on every surface, as recommended | None | The user, acting as product owner | 2026-11-07 | Pending: S sections 3, 8/F10–F12 and 13 |
+| RD03 | Production may launch on an explicitly selected, reviewed default template covering F01–F14 with all eight proposed F14 annexes; no output claims to match original church forms, as recommended | None | The user, acting as product owner | 2026-11-07 | Pending: S sections 6.4, 8/F14, 11 and 15 |
+| RD04 | A genuine supplier refund reduces current-period Belanja and a genuine donor return reduces current-period Pendapatan, as new events linked to the original; fees are separate; uncertain chargebacks stay unsupported, as recommended. The exact event table (legs, classifications, proof, limits, report placement) is still to be written | None | The user, acting as product owner | 2026-11-07 | Pending: S sections 4.2, 4.3, 7.2 and 8 |
+| RD07 | Recorded church authorization naming nominee and authorizing person, verified by a designated human onboarding reviewer; recovery restores the same person, replacement needs new authorization and audited grant, emergency revocation allowed, as recommended. The church must still name its authorization source | None | The user, acting as product owner | 2026-11-07 | Pending: S sections 1, 3 and 13; P sections 1.2 and 14.5 |
+| RD08 | Keep irreversible close (D07). Before close show the final checks and irreversible consequence and record explicit confirmation. For later discoveries keep an incident (period, records, facts, reconciliation impact, responsible officer, escalation outcome), with narrative and financial resolution recorded separately; an incident never hides a difference or unblocks a close, as recommended. The operational consequence is not yet accepted by the pilot Treasurer | None | The user, acting as product owner | 2026-11-07 | Pending: S sections 4.3, 6.4 and 7.2 |
+| RD12 | Per-Fund readiness attestation at a cutoff, invalidated by later changes in that Fund; close needs a current attestation for every Fund with activity or a balance; the workspace Treasurer may waive a missing one with a recorded reason, never covering arithmetic or security blockers; applies only once scoped preparers exist, as recommended | None | The user, acting as product owner | 2026-11-07 | Pending: S sections 6.4 and 13 |
 
 ### RD01 — One church-wide close in chronological order
 
@@ -60,6 +66,8 @@ Every entry is **PROPOSED / awaiting product-owner decision** unless it appears 
 
 ### RD02 — Explicit Fund slices and separate attachment entitlement
 
+**Status: DECIDED 2026-11-07 as recommended (see decision log). Contract amendment pending.**
+
 **Recommendation:** a restricted view contains only authorized allocation amounts and permitted metadata. Whole-voucher totals, free text, actor details, other-Fund allocations and original attachments require explicit entitlement; voucher identity may support traceability without disclosing restricted content. Whole-Account observations, statement lines and matching totals require Account-wide reconciliation permission. A Fund view receives its own book balance and a permitted reconciliation status/reference; restricted observation fields are absent with an explanation. Never invent a Fund-specific observed bank balance.
 
 Use the same representation for screens, search, AI context, PDF/Excel, direct downloads and portable exports. Shared files require separate access decisions; partial financial access does not grant the original file. Restricted report artifacts must be generated for the permitted population rather than exposing an unrestricted snapshot file.
@@ -68,11 +76,15 @@ Use the same representation for screens, search, AI context, PDF/Excel, direct d
 
 ### RD03 — Reviewed default reports may launch
 
+**Status: DECIDED 2026-11-07 as recommended (see decision log). Contract amendment pending.**
+
 **Recommendation:** allow production with an explicitly selected, reviewed default template covering F01–F14, accepted by an authorized church officer. Propose all eight canonical F14 annexes in S section 8 as the default inventory; empty annexes are explicitly marked as having no applicable records. Original church forms are required before claiming a verified match to those forms, rather than for every deployment. Signature names/roles remain authorized configuration; a printed signature block is not approval.
 
 **Acceptance:** a church without original forms has a deterministic reviewed-default launch path; no output claims verified original-form compatibility. Check sample PDF/Excel output, totals and negative/zero/null behavior before template activation. S sections 6.4, 8/F14, 11 and 15.
 
 ### RD04 — Enumerate new money events separately from corrections
+
+**Status: DECIDED 2026-11-07 as recommended (see decision log). The approved event table is still to be written before refunds are implemented. Contract amendment pending.**
 
 **Recommendation for review:** a genuine supplier refund/recovery reduces current-period economic Belanja; a genuine return to a donor reduces current-period economic Pendapatan. Both use the actual current money movement, an eligible current-period classification and provenance to the earlier event. Neither reverses a CLOSED batch. Fees are separate expenses. Chargebacks with uncertain ownership or obligations remain unsupported until their exact event recipe is approved.
 
@@ -102,6 +114,8 @@ Policy changes take effect at a future period boundary by default. Do not retroa
 
 ### RD07 — Audited onboarding and manual succession
 
+**Status: DECIDED 2026-11-07 as recommended (see decision log). The church-named authorization source remains a configuration value. Contract amendment pending.**
+
 **Recommendation:** establish the first Treasurer from a recorded church authorization naming the nominee and authorizing church role/person. A designated human onboarding reviewer verifies that evidence before granting the financial capability. Technical access alone cannot grant it. The church must name its legitimate authorization source; the product must not invent a universal ecclesiastical approver.
 
 Account recovery re-establishes the same person's identity; replacing the Treasurer requires new church authorization, an audited grant and revocation of displaced access/sessions. Suspected compromise may trigger immediate revocation while succession is pending. No replacement inherits financial approvals or can rewrite history.
@@ -109,6 +123,8 @@ Account recovery re-establishes the same person's identity; replacing the Treasu
 **Acceptance:** first activation and loss of the sole Treasurer both have a documented, auditable path without giving infrastructure staff unilateral financial authority. S sections 1, 3 and 13; P sections 1.2 and 14.5.
 
 ### RD08 — Incident handling preserves irreversible close
+
+**Status: DECIDED 2026-11-07 as recommended (see decision log). Do not label the operational consequence resolved until the pilot Treasurer has also accepted that some discoveries may prevent later reconciliation or close under V1. Contract amendment pending.**
 
 **Recommendation:** retain approved D07. Before close, show the final checks, reporting coverage and irreversible consequence, and record explicit human confirmation. For a later discovered omission/error, retain an incident with affected period/records, supporting facts, reconciliation impact, responsible officer and escalation outcome. Record narrative resolution separately from financial resolution; an incident does not erase an unexplained difference or unblock close by itself.
 
@@ -149,6 +165,8 @@ Option (b) conflicts with pseudonymization, so this choice shapes snapshot desig
 **Acceptance:** after pseudonymization of a Party, all report totals and snapshot hashes are unchanged and no restricted view reveals the former identity under option (a). S sections 3, 8/F03, 8/F12 and 13; D11; R2/N06.
 
 ### RD12 — Per-Fund readiness attestation
+
+**Status: DECIDED 2026-11-07 as recommended (see decision log). Contract amendment pending.**
 
 **Recommendation:** for each Fund, a scoped preparer records readiness for a month at a posting cutoff. Later changes in that Fund invalidate the attestation, using the same rule as reconciliation confirmation. Close requires a current attestation for every Fund with activity or a balance. The workspace Treasurer may waive a missing attestation with a recorded reason. A waiver never covers hard arithmetic, tenant or security blockers (S section 6.4).
 
