@@ -19,7 +19,7 @@ References:
 
 ## 2. Product decision register
 
-All thirteen entries are **PROPOSED / awaiting product-owner decision**. Each decision record must capture the selected behavior, any change from the recommendation, decision authority and date. Update the affected contract explicitly after approval; do not infer approval from this document's presence.
+Every entry is **PROPOSED / awaiting product-owner decision** unless it appears in the decision log below. Each decision record must capture the selected behavior, any change from the recommendation, decision authority and date. Update the affected contract explicitly after approval; do not infer approval from this document's presence.
 
 | ID | Decision | Review coverage | Blocks |
 |---|---|---|---|
@@ -37,7 +37,22 @@ All thirteen entries are **PROPOSED / awaiting product-owner decision**. Each de
 | RD12 | Per-Fund readiness before church-wide close | N09 (R2) | Close workflow for unit Treasurers |
 | RD13 | Voucher series, visibility and year basis | N04, N05 (R2) | First finalization in a series; fiscal configuration |
 
+**Decision log.** Entries decided so far. "Contract amendment" is the explicit update of S and P that the decision requires; this addendum does not itself amend either source specification.
+
+| ID | Selected behavior | Change from recommendation | Decided by | Date | Contract amendment |
+|---|---|---|---|---|---|
+| RD05 | Balance-only cutover for the first release, as recommended | None | The user, acting as product owner | 2026-11-07 | Pending: S sections 4.1 and 6.1–6.2 |
+| RD06 | Resolve master and policy versions by business date, as recommended | None | The user, acting as product owner | 2026-11-07 | Pending: S sections 3–5 and 12; P rule M277 |
+| RD10 | Explicit `allowed_effect_kinds` per published master row, as recommended; this extends the approved 289-row derivation | None | The user, acting as product owner | 2026-11-07 | Pending: S sections 1 (derivation), 3, 4.2, 7.3 and 7.4 |
+| EC06 (product part) | One case = one Fund, and per-Fund balance for every batch except Fund ownership transfer and opening, as recommended | None | The user, acting as product owner | 2026-11-07 | Pending: S sections 3 and 4.1; the engineering design (EC06) is still open |
+| RD01 | One church-wide close in chronological order, including empty months; a Fund-only role cannot close, as recommended | None | The user, acting as product owner | 2026-11-07 | Pending: S sections 3, 6.1, 6.4 and 7.1 |
+| RD09 | Open drafts, reviewed transactions and staged rows dated in the period block close until finalized, cancelled or redated, as recommended | None | The user, acting as product owner | 2026-11-07 | Pending: S sections 6.4 and 8/F12 |
+| RD11 (snapshot part) | Frozen report data holds the Party ID and names are resolved when rendering, as recommended. Counsel's determination on the personal-data law, the retention rule for already-generated PDFs, and the pseudonymization action itself remain open | None | The user, acting as product owner | 2026-11-07 | Pending: S sections 3, 7.1, 8/F03, 8/F12 and 13 |
+| RD13 | Voucher year = calendar year with a required 1 January fiscal-year start; one series per workspace and year; typed `OPN` and `ADJ` series for opening and adjustment batches; Fund-only viewers see only vouchers in which they hold a slice, as recommended. The 1 January start is the user's assumption and still needs the church's confirmation | None | The user, acting as product owner | 2026-11-07 | Pending: D08 in S section 1; S sections 3 and 8/F12 |
+
 ### RD01 — One church-wide close in chronological order
+
+**Status: DECIDED 2026-11-07 as recommended (see decision log). Contract amendment pending.**
 
 **Recommendation:** one authorized workspace-level close freezes every Fund and relevant Account for the month. A Fund-only role cannot close the workspace; its reports are permitted projections of the same frozen inputs. Close every month from cutover in order, including empty months. The first partial month starts at cutover; subsequent openings bind to the preceding final closing. Empty months still require applicable observations and checks. No posting may change an opening already accepted by a later CLOSED month.
 
@@ -67,6 +82,8 @@ The approved event table must name each supported type, debit/credit legs, eligi
 
 ### RD05 — Balance-only cutover for the first release
 
+**Status: DECIDED 2026-11-07 as recommended (see decision log). Contract amendment pending.**
+
 **Recommendation:** launch with reviewed liquid, advance and transit opening schedules. Earlier workbooks may support those balances but do not become authoritative pre-cutover journals. Ordinary imports remain available for supported events on/after cutover. Label reports as covering the available interval; no claim of complete pre-cutover month or YTD activity.
 
 This narrows the currently stated historical-migration alternative and therefore requires explicit approval. If authoritative history is required at launch, specify its interval, earlier opening, master eligibility, historical posting authority, period states and available reports before implementing that route.
@@ -74,6 +91,8 @@ This narrows the currently stated historical-migration alternative and therefore
 **Acceptance:** supporting history cannot add a second opening or bypass cutover/master guards. A mid-month start labels its actual coverage. S sections 4.1 and 6.1–6.2.
 
 ### RD06 — Resolve financial versions by business date
+
+**Status: DECIDED 2026-11-07 as recommended (see decision log). Contract amendment pending.**
 
 **Recommendation:** ordinary entries use the published master and financial approval/evidence policy versions effective on their business date. Authorization is checked when each action occurs. Deactivation does not invalidate legitimate earlier OPEN-period capture. All applicable Fund restrictions must pass; incompatible policies block the transaction rather than selecting a permissive rule.
 
@@ -99,11 +118,15 @@ Do not label the operational consequence resolved until the product owner and pi
 
 ### RD09 — Open drafts and staged rows block close
 
+**Status: DECIDED 2026-11-07 as recommended (see decision log). Contract amendment pending.**
+
 **Recommendation:** a DRAFT or REVIEWED transaction, or a staged import row, with an effective date inside the closing period is a hard close blocker. The user clears each item by finalizing it, cancelling it, or redating it into a later OPEN period. Redating is a material edit: it resets review and needs a reason. Show the blockers through the existing nonofficial draft attention annex (S section 8/F12). After close, finalizing a stranded item is rejected with an explanatory message.
 
 **Acceptance:** close fails and lists every such item; after close, finalizing a draft dated in the closed period is rejected with no journal, voucher or sequence effect. S sections 3, 6.4 and 8/F12; R2/N02.
 
 ### RD10 — Explicit effect eligibility per master row
+
+**Status: DECIDED 2026-11-07 as recommended (see decision log), including the extension of the approved derivation. Contract amendment pending.**
 
 **Recommendation:** each published master row carries `allowed_effect_kinds` (`ECONOMIC`, `TRANSIT` or `BOTH`), set explicitly by an authorized human at publication. Never infer it from the family-6 code prefix (E011). Posting validates that a CUSTODY allocation uses a row that allows `TRANSIT` and an OWNED allocation uses a row that allows `ECONOMIC`. Until the church configures a row's value, CUSTODY posting against it is blocked; other work continues.
 
@@ -112,6 +135,8 @@ This adds an attribute to the approved 289-row derivation, which currently sets 
 **Acceptance:** a custody collection on an ordinary offering row is rejected; F05/F07 `direct_transit` contains only rows that allow `TRANSIT`. S sections 3, 4.2, 7.3 and 7.4; E011; R2/N03.
 
 ### RD11 — Personal data: retention basis and pseudonymization
+
+**Status: PARTLY DECIDED 2026-11-07. Decided: snapshots hold the Party ID and resolve names at render time (option (a)). Still open: counsel's determination, the retention rule for already-generated PDF/Excel files that contain names, and the pseudonymization action.**
 
 **Recommendation:** obtain counsel's determination of whether Indonesia's personal data protection law (UU PDP, 2022) applies and which retention basis covers financial records. This addendum makes no legal conclusion. Independent of that answer:
 
@@ -130,6 +155,8 @@ Option (b) conflicts with pseudonymization, so this choice shapes snapshot desig
 **Acceptance:** close lists each Fund without a current attestation; a waiver is audited; a Fund-A preparer can attest Fund A but cannot close the workspace. Builds on RD01. S sections 6.4 and 13; R2/N09.
 
 ### RD13 — Voucher series, visibility and year basis
+
+**Status: DECIDED 2026-11-07 as recommended (see decision log). The 1 January fiscal-year start is an assumption until the church confirms it; the church-configuration row stays NOT YET RECORDED. Contract amendment pending.**
 
 **Recommendation:**
 
@@ -151,7 +178,7 @@ Owner for EC01–EC08: **implementation designer**. Status: **OPEN — required 
 | EC03 / F10 | Define stable money components with Account, amount/direction, payment reference and allocation membership. Specify header/component/allocation and owned/custody sum rules. A 600 cash + 400 bank collection produces exactly two physical movements and 1,000 allocated money. Noncash settlement and ownership-only transfers retain their distinct recipes. | Multi-Account capture and posting model |
 | EC04 / F04 | Select and document a durable commit/recovery mechanism covering journals, vouchers, idempotency records, audit, close manifests and required evidence/snapshot dependencies. Define when success is acknowledged and how recovery verifies the latest acknowledged state before writes resume. Demonstrate restoration from before an acknowledged close without losing that close or duplicating a retry. Preserve approved recovery targets; changing the guarantee requires policy approval. | Production durability/recovery architecture |
 | EC05 / F14 | Give each portable export a manifest ID, consistent read cutoff and enumerated immutable file versions. Define current accountability versus frozen report status, retained file availability and incomplete-package behavior. Concurrent posting/upload cannot produce broken references; retries package the same population. Missing required files prevent a complete/success claim. | Full portable export implementation |
-| EC06 / N01 | Add to S section 4.1 the invariant that, except for the Fund ownership transfer and opening, every batch balances per `fund_id` across all targets. Keep one case = one Fund; an advance issue with allocations in several Funds creates one case per Fund. Settlement, return and remittance allocations must use the case's Fund; a different Fund requires a Fund ownership transfer first. The posting module asserts per-Fund balance in the same transaction. Confirming "one case = one Fund" is a product-owner decision. Acceptance: an advance issued from Fund A and settled with Fund B expense is rejected, as is a Fund B cash remittance against a Fund A case. | Posting module; advance and transit settlement |
+| EC06 / N01 | Add to S section 4.1 the invariant that, except for the Fund ownership transfer and opening, every batch balances per `fund_id` across all targets. Keep one case = one Fund; an advance issue with allocations in several Funds creates one case per Fund. Settlement, return and remittance allocations must use the case's Fund; a different Fund requires a Fund ownership transfer first. The posting module asserts per-Fund balance in the same transaction. The product decision "one case = one Fund" was confirmed on 2026-11-07 (see decision log); the engineering design below remains OPEN. Acceptance: an advance issued from Fund A and settled with Fund B expense is rejected, as is a Fund B cash remittance against a Fund A case. | Posting module; advance and transit settlement |
 | EC07 / N07 | Add a `REJECTED` decision, with a required reason, to the evidence-link decision log (S section 5.3). Status falls back to `REQUIRED_MISSING` when no valid link remains; the rejection stays in audit and in the UI. Acceptance: rejecting a receipt records who, when and why, keeps the close blocker, and leaves prior verification history intact. | Evidence model |
 | EC08 / N08 | Store a reviewed IDR-per-provider-currency rate in each AI policy version, with its date and the authorized officer who set it. Do not fetch a live rate. Record the rate version on each usage record and use the same rate for the pre-request reservation. Acceptance: two concurrent requests cannot together exceed the Rp150,000 cap under the active rate. | AI cost metering |
 
