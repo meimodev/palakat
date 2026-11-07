@@ -1,7 +1,7 @@
 # GMIM Treasurer — Domain Model, Posting Rules, State Machines & Report Pack Data Mapping
 
 **Document version:** Standalone 2.0 — approved rounds 1–6 baseline  
-**Date:** 8 October 2026  
+**Date:** 8 October 2026 (cleanup edit 7 November 2026: readable catalog tables removed as duplicates of Appendix B; no policy change; prior text in git commit `1962b27`)  
 **Derived from:** Standalone 1.0 / engineering edition 4.0, amended by approved rounds 1–6  
 **Predecessor SHA-256:** `9e709f2d10964d559782baf9dccb26f3cb292fd0c18072f22e43c33d175598d7`  
 **Decision conversation:** Next Steps After Docs, `6ac62014-70cc-83ec-acb6-4134bf1b9bc1`  
@@ -27,12 +27,12 @@ This document can be handed over on its own for the Treasurer finance model and 
 - 13. Security, audit, backup/export and future-platform seams
 - 14. Consolidated engineering rulebook supplement
 - 15. Verification and remaining implementation gates
-- Appendix A. Complete readable Mata Anggaran catalogs
+- Appendix A. Mata Anggaran source catalogs (pointer; tables removed)
 - Appendix B. Complete machine-readable source snapshots
 
 ## 1. Status, scope and decision boundary
 
-This standalone specification formalizes the recovered product requirements into one implementable Treasurer finance contract. It contains the domain records, posting rules, state transitions, calculations and all fourteen GMIM report dataset mappings. Appendix A embeds the complete readable source classifications; Appendix B embeds their full machine-readable source snapshots. The companion product design/rulebook retains the broader roadmap and all 775 accumulated master rules. D01–D12 below are now approved product decisions, with replaced D07 and permanent retention under D11. The policy register attributes this approval to the decision conversation; it does not misattribute it to the source exports or original GMIM forms.
+This standalone specification formalizes the recovered product requirements into one implementable Treasurer finance contract. It contains the domain records, posting rules, state transitions, calculations and all fourteen GMIM report dataset mappings. Appendix B embeds the complete machine-readable source snapshots; the readable tables formerly in Appendix A were removed as duplicates. The companion product design/rulebook retains the broader roadmap and all 775 accumulated master rules. D01–D12 below are now approved product decisions, with replaced D07 and permanent retention under D11. The policy register attributes this approval to the decision conversation; it does not misattribute it to the source exports or original GMIM forms.
 
 The semantic mapping of all fourteen Report Pack components is specified here: authoritative inputs, inclusion rules, row grain, fields, calculations, classification rollups, drill-down and controls. **Physical mapping to a particular original GMIM form is not verified:** neither `.xls` source contains report cells, signatures or page layouts. The layout adapter in 11 therefore has deliberately unbound destinations. A developer can build the ledger and deterministic report datasets from this contract, but must not describe a church-specific printed form as verified until its original form is supplied and mapped.
 
@@ -103,7 +103,7 @@ Approved defaults are in the policy register. Church-specific threshold values, 
 
 ### Approved production-master derivation
 
-The embedded source catalogs and fenced JSON snapshots are preserved byte-for-byte, including B113 `2.3.08.02`, `postable: null`, original spelling, indentation, source hashes and draft source-mapping flags. They are not mutated or published as the production master. Create a separate version-qualified reviewed master using the following approved definition:
+The fenced JSON source snapshots in Appendix B are preserved byte-for-byte, including B113 `2.3.08.02`, `postable: null`, original spelling, indentation, source hashes and draft source-mapping flags. They are not mutated or published as the production master. Create a separate version-qualified reviewed master using the following approved definition:
 
 ```json
 {
@@ -852,320 +852,14 @@ Mandatory application acceptance cases include: a draft cannot change an officia
 
 These are future application acceptance requirements. This document-only revision verifies their consistency and preserved source data; it does not claim that a production implementation has passed them.
 
-**Current edition verification (8 October 2026): PASS.** Original artifact SHA-256 values are unchanged; both readable source catalogs and both fenced source JSON snapshots are byte-for-byte preserved in each revised file. Verified 131/158 rows, six roots per kind, valid acyclic parent references, unique derived production codes, only B113 code override, 237 default postable leaves and 52 nonpostable parents. D01–D12, F01–F14 and E001–E051 are complete; the companion master retains M001–M775 in order with only its five declared rule amendments. OPEN-period example arithmetic and Rp105,000/Rp135,000/Rp150,000 cost thresholds reconcile. Retired post-close correction instructions/fields are absent from active policy, workflow, example and acceptance text. The CLOSED correction scenario requires rejection and retains the accepted original values. These are document, provenance and arithmetic checks, not production application tests.
+**Current edition verification (8 October 2026): PASS.** Original artifact SHA-256 values are unchanged; both fenced source JSON snapshots are byte-for-byte preserved. (The readable catalog tables checked at that date were removed on 7 November 2026 as duplicates of the JSON; the JSON was not changed.) Verified 131/158 rows, six roots per kind, valid acyclic parent references, unique derived production codes, only B113 code override, 237 default postable leaves and 52 nonpostable parents. D01–D12, F01–F14 and E001–E051 are complete; the companion master retains M001–M775 in order with only its five declared rule amendments. OPEN-period example arithmetic and Rp105,000/Rp135,000/Rp150,000 cost thresholds reconcile. Retired post-close correction instructions/fields are absent from active policy, workflow, example and acceptance text. The CLOSED correction scenario requires rejection and retains the accepted original values. These are document, provenance and arithmetic checks, not production application tests.
 
-**Historical verification provenance:** The predecessor recorded PASS for its integer-journal, rollup, source-fidelity and then-proposed correction fixture. That fixture included a November correction against a closed October transaction; this behavior is expressly retired by amended D07 and is not an acceptance case for this edition. Original files preserve the historical claim. Current-edition checks below validate source preservation and policy/document consistency; no production application is built or tested by this document revision.
 
 **Continuation instruction:** use the approved policy baseline and engineering contract; preserve source snapshots and original provenance, record deployment/configuration and any future amendments explicitly, and obtain original forms before claiming verified print bindings. Do not describe a source-derived value or unbound cell as historical GMIM approval.
 
-## Appendix A. Complete Mata Anggaran source catalogs
+## Appendix A. Mata Anggaran source catalogs
 
-These tables preserve every source row, exact code string and label body. Full decoded label cells, including original leading nonbreaking-space indentation, are retained in Appendix B. Source data-row number is the `#` column; spreadsheet row is one greater. Root code identifies the family. IDs are snapshot-local and must be qualified by master version.
-
-**Every Postable proposal value below preserves the original source-derived proposal, not exported fact.** Source `postable` stays `null`. Approved production eligibility is defined separately by the policy register; do not mutate this table or snapshot. Explicit parent maps derive from original label indentation/order as recorded in the preserved snapshot metadata and the approved production-master derivation. Proposed family/group = `false`, proposed detail = `true`; an approved direct-postable parent can override that proposal. No suffix, code-prefix or typo normalization is performed.
-
-### A.1 Pendapatan — 131 source rows / 6 families
-
-**Source version:** `ALFA_OMEGA_RINEGETAN_TONDANO_II_PENDAPATAN_20261007_SOURCE` — source snapshot, not a published active master.
-
-| # / ID | Exact code | Exact label body | Parent ID / exact code | Level | Postable proposal |
-|---|---|---|---|---:|---|
-| 1 / P001 | `1.0.00.00` | KEESAAN / PERSEKUTUAN (KOINONIA) | ROOT | 0 | false |
-| 2 / P002 | `1.3.01.00` | PERSEMBAHAN IBADAH KOMPELKA BIPRA | P001 / `1.0.00.00` | 1 | false |
-| 3 / P003 | `1.3.01.01` | Pria/ Kaum Bapa Jemaat | P002 / `1.3.01.00` | 2 | true |
-| 4 / P004 | `1.3.01.02` | Wanita/ Kaum Ibu | P002 / `1.3.01.00` | 2 | true |
-| 5 / P005 | `1.3.01.03` | Pemuda Jemaat | P002 / `1.3.01.00` | 2 | true |
-| 6 / P006 | `1.3.01.04` | Remaja Jemaat | P002 / `1.3.01.00` | 2 | true |
-| 7 / P007 | `1.3.01.05` | Anak Sekolah Minggu | P002 / `1.3.01.00` | 2 | true |
-| 8 / P008 | `1.3.01.06` | Rabu Gembira Anak Sekolah Minggu | P002 / `1.3.01.00` | 2 | true |
-| 9 / P009 | `1.3.01.07` | Guru-guru Sekolah Minggu | P002 / `1.3.01.00` | 2 | true |
-| 10 / P010 | `1.3.50.00` | PERSEMBAHAN IBADAH MINGGU | P001 / `1.0.00.00` | 1 | false |
-| 11 / P011 | `1.3.50.01` | Subuh | P010 / `1.3.50.00` | 2 | true |
-| 12 / P012 | `1.3.50.02` | Pagi | P010 / `1.3.50.00` | 2 | true |
-| 13 / P013 | `1.3.50.03` | Malam | P010 / `1.3.50.00` | 2 | true |
-| 14 / P014 | `1.3.51.00` | PERSEMBAHAN PERSEPULUHAN | P001 / `1.0.00.00` | 1 | true |
-| 15 / P015 | `1.3.53.00` | PERSEMBAHAN IBADAH KOLOM | P001 / `1.0.00.00` | 1 | false |
-| 16 / P016 | `1.3.53.01` | Persembahan Ibadah Jemaat | P015 / `1.3.53.00` | 2 | true |
-| 17 / P017 | `1.3.53.02` | Persembahan Ibadah Pria/Kaum Bapa | P015 / `1.3.53.00` | 2 | true |
-| 18 / P018 | `1.3.53.03` | Ibadah Ibadah Wanita/ Kaum Ibu | P015 / `1.3.53.00` | 2 | true |
-| 19 / P019 | `1.3.53.04` | Persembahan Ibadah Pemuda | P015 / `1.3.53.00` | 2 | true |
-| 20 / P020 | `1.3.53.05` | Persembahan Ibadah Remaja | P015 / `1.3.53.00` | 2 | true |
-| 21 / P021 | `1.3.53.06` | Persembahan Ibadah Anak/ Sekolah Minggu | P015 / `1.3.53.00` | 2 | true |
-| 22 / P022 | `1.3.53.07.00` | Persembahan Ibadah Keluarga | P015 / `1.3.53.00` | 2 | false |
-| 23 / P023 | `1.3.53.07.01` | Ibadah Syukur HUT Kelahiran | P022 / `1.3.53.07.00` | 3 | true |
-| 24 / P024 | `1.3.53.07.02` | Ibadah Syukur HUT Pernikahan | P022 / `1.3.53.07.00` | 3 | true |
-| 25 / P025 | `1.3.53.07.03` | Ibadah Syukur Keluarga Lainnya | P022 / `1.3.53.07.00` | 3 | true |
-| 26 / P026 | `1.3.53.08` | Ibadah Pengucapan Syukur Kolom | P015 / `1.3.53.00` | 2 | true |
-| 27 / P027 | `1.3.54.00` | PERSEMBAHAN IBADAH HARI RAYA | P001 / `1.0.00.00` | 1 | false |
-| 28 / P028 | `1.3.54.01` | Persembahan Ibadah Tahun Baru I | P027 / `1.3.54.00` | 2 | true |
-| 29 / P029 | `1.3.54.02` | Persembahan Ibadah Tahun Baru II | P027 / `1.3.54.00` | 2 | true |
-| 30 / P030 | `1.3.54.03` | Persembahan Ibadah Jumat Agung | P027 / `1.3.54.00` | 2 | true |
-| 31 / P031 | `1.3.54.04` | Persembahan Ibadah Paskah I | P027 / `1.3.54.00` | 2 | true |
-| 32 / P032 | `1.3.54.05` | Persembahan Ibadah Paskah II | P027 / `1.3.54.00` | 2 | true |
-| 33 / P033 | `1.3.54.06` | Persembahan Ibadah Hari Kenaikan | P027 / `1.3.54.00` | 2 | true |
-| 34 / P034 | `1.3.54.07` | Persembahan Hari Pentakosta | P027 / `1.3.54.00` | 2 | true |
-| 35 / P035 | `1.3.54.08` | Persembahan Ibadah Hari Natal I | P027 / `1.3.54.00` | 2 | true |
-| 36 / P036 | `1.3.54.09` | Persembahan Ibadah Hari Natal&nbsp; II | P027 / `1.3.54.00` | 2 | true |
-| 37 / P037 | `1.3.54.10` | Persembahan Ibadah Akhir Tahun | P027 / `1.3.54.00` | 2 | true |
-| 38 / P038 | `1.3.55.00` | PERSEMBAHAN IBADAH PERJAMUAN KUDUS | P001 / `1.0.00.00` | 1 | false |
-| 39 / P039 | `1.3.55.01` | Perjamuan Kudus Jumat Agung | P038 / `1.3.55.00` | 2 | true |
-| 40 / P040 | `1.3.55.02` | Perjamuan Kudus Tengah Tahun | P038 / `1.3.55.00` | 2 | true |
-| 41 / P041 | `1.3.55.03` | Perjamuan Kudus Sedunia | P038 / `1.3.55.00` | 2 | true |
-| 42 / P042 | `1.3.55.04` | Perjamuan Kudus Akhir Tahun | P038 / `1.3.55.00` | 2 | true |
-| 43 / P043 | `1.3.56.00` | PERSEMBAHAN MINGGU PERTAMA JANUARI | P001 / `1.0.00.00` | 1 | true |
-| 44 / P044 | `1.3.57.00` | PERSEMBAHAN IBADAH PENGUCAPAN SYUKUR JEMAAT | P001 / `1.0.00.00` | 1 | true |
-| 45 / P045 | `1.3.58.00` | PERSEMBAHAN IBADAH PENEGUHAN DAN PEMBERKATAN NIKAH | P001 / `1.0.00.00` | 1 | true |
-| 46 / P046 | `1.3.59.00` | PERSEMBAHAN IBADAH KATEKISASI | P001 / `1.0.00.00` | 1 | true |
-| 47 / P047 | `1.3.60.00` | PERSEMBAHAN IBADAH PA/KONVEN PELAYAN KHUSUS | P001 / `1.0.00.00` | 1 | true |
-| 48 / P048 | `1.3.61.00` | PERSEMBAHAN IBADAH SIDANG MAJELIS JEMAAT | P001 / `1.0.00.00` | 1 | true |
-| 49 / P049 | `1.3.62.00` | PERSEMBAHAN IBADAH ORGANISASI / RUKUN | P001 / `1.0.00.00` | 1 | true |
-| 50 / P050 | `1.3.63.00` | PERSEMBAHAN IBADAH KOMISI GEREJA | P001 / `1.0.00.00` | 1 | true |
-| 51 / P051 | `1.3.64.00` | PERSEMBAHAN IBADAH HUT | P001 / `1.0.00.00` | 1 | false |
-| 52 / P052 | `1.3.64.01` | Persembahan HUT PI dan Pendidikan Kristen GMIM | P051 / `1.3.64.00` | 2 | true |
-| 53 / P053 | `1.3.64.02` | Persembahan HUT GMIM Bersinode | P051 / `1.3.64.00` | 2 | true |
-| 54 / P054 | `1.3.64.03` | Persembahan HUT Jemaat | P051 / `1.3.64.00` | 2 | true |
-| 55 / P055 | `1.3.64.04` | Persembahan HUT Pria/ Kaum Bapa | P051 / `1.3.64.00` | 2 | true |
-| 56 / P056 | `1.3.64.05` | Persembahan HUT Wanita/ Kaum Ibu | P051 / `1.3.64.00` | 2 | true |
-| 57 / P057 | `1.3.64.06` | Persembahan HUT Pemuda/ Remaja | P051 / `1.3.64.00` | 2 | true |
-| 58 / P058 | `1.3.64.07` | Persembahan&nbsp; HUT ASM/GSM | P051 / `1.3.64.00` | 2 | true |
-| 59 / P059 | `1.3.65.00` | PERSEMBAHAN IBADAH MENYAMBUT NATAL | P001 / `1.0.00.00` | 1 | false |
-| 60 / P060 | `1.3.65.01` | Persembahan Ibadah Menyambut Natal Kolom | P059 / `1.3.65.00` | 2 | true |
-| 61 / P061 | `1.3.65.02` | Persembahan Ibadah Menyambut Natal Keluarga | P059 / `1.3.65.00` | 2 | true |
-| 62 / P062 | `1.3.65.03` | Persembahan Ibadah Menyambut Natal Jemaat | P059 / `1.3.65.00` | 2 | true |
-| 63 / P063 | `1.3.65.04` | Persembahan Ibadah Menyambut Natal Pria/ Kaum Bapa | P059 / `1.3.65.00` | 2 | true |
-| 64 / P064 | `1.3.65.05` | Persembahan Ibadah Menyambut Natal Wanita/ Kaum Ibu | P059 / `1.3.65.00` | 2 | true |
-| 65 / P065 | `1.3.65.06` | Persembahan Ibadah Menyambut Natal Pemuda | P059 / `1.3.65.00` | 2 | true |
-| 66 / P066 | `1.3.65.07` | Persembahan Ibadah Menyambut Natal Remaja | P059 / `1.3.65.00` | 2 | true |
-| 67 / P067 | `1.3.65.08` | Persembahan Ibadah Menyambut Natal ASM | P059 / `1.3.65.00` | 2 | true |
-| 68 / P068 | `1.3.65.09` | Persembahan Ibadah Menyambut Natal GSM | P059 / `1.3.65.00` | 2 | true |
-| 69 / P069 | `1.3.65.10` | Persembahan Ibadah Menyambut Natal Pelayan Khusus | P059 / `1.3.65.00` | 2 | true |
-| 70 / P070 | `1.3.65.11` | Persembahan Ibadah Menyambut Natal Organisasi/ Rukun | P059 / `1.3.65.00` | 2 | true |
-| 71 / P071 | `1.3.66.00` | SAMPUL-SAMPUL | P001 / `1.0.00.00` | 1 | false |
-| 72 / P072 | `1.3.66.01` | Sampul Syukur HUT Kelahiran | P071 / `1.3.66.00` | 2 | true |
-| 73 / P073 | `1.3.66.02` | Sampul Syukur HUT Pernikahan | P071 / `1.3.66.00` | 2 | true |
-| 74 / P074 | `1.3.66.03` | Sampul Syukur Pemberkatan/ Peneguhan Nikah | P071 / `1.3.66.00` | 2 | true |
-| 75 / P075 | `1.3.66.04` | Sampul Syukur Baptisan Kudus | P071 / `1.3.66.00` | 2 | true |
-| 76 / P076 | `1.3.66.05` | Sampul Syukur Perjamuan Kudus | P071 / `1.3.66.00` | 2 | true |
-| 77 / P077 | `1.3.66.06` | Sampul Syukur Peneguhan Sidi | P071 / `1.3.66.00` | 2 | true |
-| 78 / P078 | `1.3.66.07` | Sampul Syukur Tahun Baru | P071 / `1.3.66.00` | 2 | true |
-| 79 / P079 | `1.3.66.08` | Sampul Syukur Paskah | P071 / `1.3.66.00` | 2 | true |
-| 80 / P080 | `1.3.66.09` | Sampul Syukur HUT PI dan Pendidikan Kristen GMIM | P071 / `1.3.66.00` | 2 | true |
-| 81 / P081 | `1.3.66.10` | Sampul Syukur HUT GMIM Bersinode | P071 / `1.3.66.00` | 2 | true |
-| 82 / P082 | `1.3.66.11` | Sampul Syukur Natal | P071 / `1.3.66.00` | 2 | true |
-| 83 / P083 | `1.3.66.12` | Sampul Syukur Pengucapan Syukur | P071 / `1.3.66.00` | 2 | true |
-| 84 / P084 | `1.3.66.13` | Sampul Syukur Lainnya | P071 / `1.3.66.00` | 2 | true |
-| 85 / P085 | `1.3.80.00` | USAHA-USAHA | P001 / `1.0.00.00` | 1 | false |
-| 86 / P086 | `1.3.80.01` | Usaha Komisi Pengembagan Sumber Daya (PSD) | P085 / `1.3.80.00` | 2 | true |
-| 87 / P087 | `1.3.80.02` | Usaha Komisi Kerja Lainnya | P085 / `1.3.80.00` | 2 | true |
-| 88 / P088 | `1.3.80.03` | Hasil Penyewaan Aula, Kursi, dll | P085 / `1.3.80.00` | 2 | true |
-| 89 / P089 | `2.0.00.00` | KESAKSIAN DAN KERJASAMA (MARTURIA) | ROOT | 0 | false |
-| 90 / P090 | `2.3.01.00` | USAHA KOMISI KPDP | P089 / `2.0.00.00` | 1 | false |
-| 91 / P091 | `2.3.01.01` | Persembahan Ibadah KPI | P090 / `2.3.01.00` | 2 | true |
-| 92 / P092 | `2.3.50.00` | PERSEMBAHAN IBADAH KHUSUS | P089 / `2.0.00.00` | 1 | false |
-| 93 / P093 | `2.3.50.01` | Persembahan Ibadah HUT Kemerdekaan RI | P092 / `2.3.50.00` | 2 | true |
-| 94 / P094 | `2.3.50.02` | Persembahan Ibadh HUT GPI | P092 / `2.3.50.00` | 2 | true |
-| 95 / P095 | `2.3.50.03` | Persembahan HUT Sinode Am Suluteng | P092 / `2.3.50.00` | 2 | true |
-| 96 / P096 | `2.3.50.04` | Persembahan Ibadah HUT PGI / Hari Oikumene | P092 / `2.3.50.00` | 2 | true |
-| 97 / P097 | `2.3.50.05` | Persembahan Ibadah Hari Alkitab | P092 / `2.3.50.00` | 2 | true |
-| 98 / P098 | `2.3.50.06` | Persembahan Ibadah Hari Doa Sedunia | P092 / `2.3.50.00` | 2 | true |
-| 99 / P099 | `3.0.00.00` | DIAKONIA | ROOT | 0 | false |
-| 100 / P100 | `3.3.01.00` | KESEHATAN | P099 / `3.0.00.00` | 1 | false |
-| 101 / P101 | `3.3.01.50` | Usaha Komisi Kesehatan Jemaat | P100 / `3.3.01.00` | 2 | true |
-| 102 / P102 | `3.3.01.60` | Iuran Dana Sehat Anggota Jemaat | P100 / `3.3.01.00` | 2 | true |
-| 103 / P103 | `3.3.02.00` | PENDIDIKAN | P099 / `3.0.00.00` | 1 | false |
-| 104 / P104 | `3.3.02.50` | Usaha Komisi Pendidikan | P103 / `3.3.02.00` | 2 | true |
-| 105 / P105 | `3.3.03.01` | DANA DUKA | P099 / `3.0.00.00` | 1 | true |
-| 106 / P106 | `3.3.04.00` | DANA BENCANA ALAM | P099 / `3.0.00.00` | 1 | true |
-| 107 / P107 | `3.3.05.00` | PERSEMBAHAN IBADAH NATURA | P099 / `3.0.00.00` | 1 | true |
-| 108 / P108 | `3.3.06.00` | PERSEMBAHAN PUASA DIAKONAL | P099 / `3.0.00.00` | 1 | true |
-| 109 / P109 | `4.0.00.00` | DANA PEMBANGUNAN | ROOT | 0 | false |
-| 110 / P110 | `4.3.60.00` | USAHA KOMISI / PANITIA PEMBANGUNAN | P109 / `4.0.00.00` | 1 | true |
-| 111 / P111 | `4.3.61.00` | HASIL PENGGALANGAN DANA PEMBANGUNAN DARI KOLOM-KOLOM | P109 / `4.0.00.00` | 1 | true |
-| 112 / P112 | `4.3.62.00` | HASIL PENGGALANGAN DANA PEMBANGUNAN OLEH BPMJ | P109 / `4.0.00.00` | 1 | true |
-| 113 / P113 | `4.3.63.00` | SUMBANGAN BANTUAN KHUSUS UNTUK PEMBANGUNAN DARI PEMERINTAH ATAU SWASTA | P109 / `4.0.00.00` | 1 | true |
-| 114 / P114 | `4.3.64.00` | SAMPUL PEMBANGUNAN | P109 / `4.0.00.00` | 1 | true |
-| 115 / P115 | `5.0.00.00` | PENDAPATAN LAINNYA | ROOT | 0 | false |
-| 116 / P116 | `5.3.60.00` | PARTISIPASI / SUMBANGAN | P115 / `5.0.00.00` | 1 | false |
-| 117 / P117 | `5.3.60.01` | Gereja dan Lembaga Kristen (Dalam dan Luar Negeri) | P116 / `5.3.60.00` | 2 | true |
-| 118 / P118 | `5.3.60.02` | Pemerintah | P116 / `5.3.60.00` | 2 | true |
-| 119 / P119 | `5.3.60.03` | Swasta | P116 / `5.3.60.00` | 2 | true |
-| 120 / P120 | `5.3.70.00` | USAHA BPMJ | P115 / `5.0.00.00` | 1 | true |
-| 121 / P121 | `5.3.80.00` | JASA BANK | P115 / `5.0.00.00` | 1 | true |
-| 122 / P122 | `5.3.90.00` | PENDAPATAN LAIN-LAIN | P115 / `5.0.00.00` | 1 | true |
-| 123 / P123 | `6.0.00.00` | DANA TRANSIT | ROOT | 0 | false |
-| 124 / P124 | `6.3.50.00` | PUNDI EXTRA | P123 / `6.0.00.00` | 1 | false |
-| 125 / P125 | `6.3.50.01` | Pundi Extra untuk SMS / SMST | P124 / `6.3.50.00` | 2 | true |
-| 126 / P126 | `6.3.50.02` | Pundi Extra untuk Kegiatan Wilayah | P124 / `6.3.50.00` | 2 | true |
-| 127 / P127 | `6.3.50.03` | Pundi Extra untuk Kegiatan Lainnya | P124 / `6.3.50.00` | 2 | true |
-| 128 / P128 | `6.3.51.00` | KARTU PARTISIPASI / MAPALUS | P123 / `6.0.00.00` | 1 | false |
-| 129 / P129 | `6.3.51.01` | Kartu Kawan Panitia SMS / SMST | P128 / `6.3.51.00` | 2 | true |
-| 130 / P130 | `6.3.51.02` | Kartu Kawan untuk Kegiatan Khusus Lainnya | P128 / `6.3.51.00` | 2 | true |
-| 131 / P131 | `6.3.52.00` | DANA-DANA KEGIATAN SINODAL LAINNYA | P123 / `6.0.00.00` | 1 | true |
-
-### A.2 Belanja — 158 source rows / 6 families
-
-**Source version:** `ALFA_OMEGA_RINEGETAN_TONDANO_II_BELANJA_20261007_SOURCE` — source snapshot, not a published active master.
-
-| # / ID | Exact code | Exact label body | Parent ID / exact code | Level | Postable proposal |
-|---|---|---|---|---:|---|
-| 1 / B001 | `1.0.00.00` | KEESAAN / PERSEKUTUAN (KOINONIA) | ROOT | 0 | false |
-| 2 / B002 | `1.1.00.00` | SENTRALISASI KE SINODE | B001 / `1.0.00.00` | 1 | true |
-| 3 / B003 | `1.2.00.00` | SENTRALISASI KE WILAYAH | B001 / `1.0.00.00` | 1 | true |
-| 4 / B004 | `1.3.00.00` | REALISASI DALAM JEMAAT | B001 / `1.0.00.00` | 1 | false |
-| 5 / B005 | `1.3.01.00` | Komisi Pelayanan KATEGORIAL | B004 / `1.3.00.00` | 2 | false |
-| 6 / B006 | `1.3.01.01` | Pria/Kaum Bapa | B005 / `1.3.01.00` | 3 | true |
-| 7 / B007 | `1.3.01.02` | Wanita/Kaum Ibu | B005 / `1.3.01.00` | 3 | true |
-| 8 / B008 | `1.3.01.03` | Pemuda | B005 / `1.3.01.00` | 3 | true |
-| 9 / B009 | `1.3.01.04` | Remaja | B005 / `1.3.01.00` | 3 | true |
-| 10 / B010 | `1.3.01.05` | Anak | B005 / `1.3.01.00` | 3 | true |
-| 11 / B011 | `1.3.02.00` | Gaji / Tunjuangan Pekerja Gereja | B004 / `1.3.00.00` | 2 | false |
-| 12 / B012 | `1.3.02.01` | Tunjangan Fungsional Ketua Jemaat | B011 / `1.3.02.00` | 3 | true |
-| 13 / B013 | `1.3.02.02` | Tunjangan Fungsional Pendeta Jemaat | B011 / `1.3.02.00` | 3 | true |
-| 14 / B014 | `1.3.02.03` | Tunjangan Fungsional Guru Agama | B011 / `1.3.02.00` | 3 | true |
-| 15 / B015 | `1.3.02.04` | Gaji Pegawai Tata Usaha | B011 / `1.3.02.00` | 3 | true |
-| 16 / B016 | `1.3.02.05` | Honor Kostor | B011 / `1.3.02.00` | 3 | true |
-| 17 / B017 | `1.3.02.06` | Honor Pendeta Jemaat Non Pekerja GMIM | B011 / `1.3.02.00` | 3 | true |
-| 18 / B018 | `1.3.02.07` | Honor Vicaris Pendeta | B011 / `1.3.02.00` | 3 | true |
-| 19 / B019 | `1.3.03.00` | Tunjangan Struktural BPMJ | B004 / `1.3.00.00` | 2 | false |
-| 20 / B020 | `1.3.03.01` | Ketua BPMJ | B019 / `1.3.03.00` | 3 | true |
-| 21 / B021 | `1.3.03.02` | Wakil Ketua BPMJ | B019 / `1.3.03.00` | 3 | true |
-| 22 / B022 | `1.3.03.03` | Sekretaris BPMJ | B019 / `1.3.03.00` | 3 | true |
-| 23 / B023 | `1.3.03.04` | Bendahara BPMJ | B019 / `1.3.03.00` | 3 | true |
-| 24 / B024 | `1.3.03.05` | Anggota BPMJ | B019 / `1.3.03.00` | 3 | true |
-| 25 / B025 | `1.3.04.00` | Tunjangan Hari Raya Pekerja GMIM | B004 / `1.3.00.00` | 2 | false |
-| 26 / B026 | `1.3.04.01` | Ketua BPMJ | B025 / `1.3.04.00` | 3 | true |
-| 27 / B027 | `1.3.04.02` | Wakil Ketua BPMJ | B025 / `1.3.04.00` | 3 | true |
-| 28 / B028 | `1.3.04.03` | Sekretaris BPMJ | B025 / `1.3.04.00` | 3 | true |
-| 29 / B029 | `1.3.04.04` | Bendahara BPMJ | B025 / `1.3.04.00` | 3 | true |
-| 30 / B030 | `1.3.04.05` | Anggota BPMJ | B025 / `1.3.04.00` | 3 | true |
-| 31 / B031 | `1.3.04.06` | Majelelis Non BPMJ | B025 / `1.3.04.00` | 3 | true |
-| 32 / B032 | `1.3.04.07` | Pendeta Jemaat/ Vicaris Pendeta | B025 / `1.3.04.00` | 3 | true |
-| 33 / B033 | `1.3.04.08` | Guru Agama | B025 / `1.3.04.00` | 3 | true |
-| 34 / B034 | `1.3.04.09` | Pegawai Tata Usaha | B025 / `1.3.04.00` | 3 | true |
-| 35 / B035 | `1.3.04.10` | Kostor | B025 / `1.3.04.00` | 3 | true |
-| 36 / B036 | `1.3.05.00` | Biaya Khadim | B004 / `1.3.00.00` | 2 | false |
-| 37 / B037 | `1.3.05.01` | Khadim Jemaat | B036 / `1.3.05.00` | 3 | true |
-| 38 / B038 | `1.3.05.02` | Khadim Wilayah | B036 / `1.3.05.00` | 3 | true |
-| 39 / B039 | `1.3.05.03` | Khadim Sinode | B036 / `1.3.05.00` | 3 | true |
-| 40 / B040 | `1.3.05.04` | Khadim Ibadah Hari Raya | B036 / `1.3.05.00` | 3 | true |
-| 41 / B041 | `1.3.05.05` | Khadim Baptisan, Sidi, Perjamuan, Pernikahan | B036 / `1.3.05.00` | 3 | true |
-| 42 / B042 | `1.3.05.06` | Khadim Khusus | B036 / `1.3.05.00` | 3 | true |
-| 43 / B043 | `1.3.05.07` | Khadim Natura | B036 / `1.3.05.00` | 3 | true |
-| 44 / B044 | `1.3.06.00` | Pemain Musik | B004 / `1.3.00.00` | 2 | false |
-| 45 / B045 | `1.3.06.01` | Pemain Keyboard Ibadah Hari Minggu | B044 / `1.3.06.00` | 3 | true |
-| 46 / B046 | `1.3.06.02` | Tim Musik / Kelompok Nyanyi Ibadah Hari Raya | B044 / `1.3.06.00` | 3 | true |
-| 47 / B047 | `1.3.06.03` | Pemain Keyboard Ibadah Hari Khusus | B044 / `1.3.06.00` | 3 | true |
-| 48 / B048 | `1.3.06.04` | Tim Pelayanan Ibadah Natura | B044 / `1.3.06.00` | 3 | true |
-| 49 / B049 | `1.3.07.00` | Biaya Kelengkapan Kantor / Ibadah | B004 / `1.3.00.00` | 2 | false |
-| 50 / B050 | `1.3.07.01` | Liturgi / Pengadaan Materi / Surat / Foto Copy | B049 / `1.3.07.00` | 3 | true |
-| 51 / B051 | `1.3.07.02` | Pundi, Stola, Kain Mimbar, Lilin, dll | B049 / `1.3.07.00` | 3 | true |
-| 52 / B052 | `1.3.07.03` | Sampul-Sampul (Syukur / HUT / Persepuluhan, dll) | B049 / `1.3.07.00` | 3 | true |
-| 53 / B053 | `1.3.07.04` | Biaya Roti dan Anggur Perjamuan | B049 / `1.3.07.00` | 3 | true |
-| 54 / B054 | `1.3.07.05` | Alat/ Perlengkapan Kantor (Kertas, Tinta, dll) | B049 / `1.3.07.00` | 3 | true |
-| 55 / B055 | `1.3.07.06` | Konsumsi Ringan di Kantor Jemaat | B049 / `1.3.07.00` | 3 | true |
-| 56 / B056 | `1.3.08.00` | Pengadaan Bacaan | B004 / `1.3.00.00` | 2 | false |
-| 57 / B057 | `1.3.08.01` | Bina Ibu (Upus Ni Mama) | B056 / `1.3.08.00` | 3 | true |
-| 58 / B058 | `1.3.08.02` | Bina Bapak (Pelita) | B056 / `1.3.08.00` | 3 | true |
-| 59 / B059 | `1.3.08.03` | Bina Pemuda (Obor) | B056 / `1.3.08.00` | 3 | true |
-| 60 / B060 | `1.3.08.04` | Bina Remaja | B056 / `1.3.08.00` | 3 | true |
-| 61 / B061 | `1.3.08.05` | Bina Anak | B056 / `1.3.08.00` | 3 | true |
-| 62 / B062 | `1.3.08.06` | MTPJ | B056 / `1.3.08.00` | 3 | true |
-| 63 / B063 | `1.3.08.07` | RHK | B056 / `1.3.08.00` | 3 | true |
-| 64 / B064 | `1.3.08.08` | Koran, Majalah / Dodoku | B056 / `1.3.08.00` | 3 | true |
-| 65 / B065 | `1.3.09.00` | Biaya Rapat / Konsultasi / Konven | B004 / `1.3.00.00` | 2 | false |
-| 66 / B066 | `1.3.09.01` | Konsumsi Rapat Kerja BPMJ | B065 / `1.3.09.00` | 3 | true |
-| 67 / B067 | `1.3.09.02` | Konsumsi Sidang Majelis Jemaat | B065 / `1.3.09.00` | 3 | true |
-| 68 / B068 | `1.3.09.03` | Konsumsi Sidang Tahunan | B065 / `1.3.09.00` | 3 | true |
-| 69 / B069 | `1.3.09.04` | Rapat Sidi Jemaat | B065 / `1.3.09.00` | 3 | true |
-| 70 / B070 | `1.3.09.05` | Konsultasi dengan BPW/ Sinode | B065 / `1.3.09.00` | 3 | true |
-| 71 / B071 | `1.3.09.06` | Sidang Majelis Sinode Tahunan (SMST) | B065 / `1.3.09.00` | 3 | true |
-| 72 / B072 | `1.3.09.07` | Sidang Majelis Sinode (SMS / SMSI) | B065 / `1.3.09.00` | 3 | true |
-| 73 / B073 | `1.3.09.08` | Sidang Tahunan Wilayah | B065 / `1.3.09.00` | 3 | true |
-| 74 / B074 | `1.3.09.09` | Rapat Kerja Wilayah | B065 / `1.3.09.00` | 3 | true |
-| 75 / B075 | `1.3.09.10` | Rapat Kerja Ketua-Ketua Jemaat Se Sinode | B065 / `1.3.09.00` | 3 | true |
-| 76 / B076 | `1.3.09.11` | Rapat Kerja KSB Se Sinode | B065 / `1.3.09.00` | 3 | true |
-| 77 / B077 | `1.3.09.12` | Konve Komisi Kerja Wilayah / Sinode | B065 / `1.3.09.00` | 3 | true |
-| 78 / B078 | `1.3.09.13` | Konven Pendeta dan Guru Agama | B065 / `1.3.09.00` | 3 | true |
-| 79 / B079 | `1.3.09.14` | Konven Penatua dan Syamas Wilayah / Sinode | B065 / `1.3.09.00` | 3 | true |
-| 80 / B080 | `1.3.09.15` | Konven Kostor | B065 / `1.3.09.00` | 3 | true |
-| 81 / B081 | `1.3.10.00` | Biaya Pembekalan / Pelatihan: | B004 / `1.3.00.00` | 2 | false |
-| 82 / B082 | `1.3.10.01` | Pembekalan Pelayan Khusus | B081 / `1.3.10.00` | 3 | true |
-| 83 / B083 | `1.3.10.02` | Pembekalan Komisi Kerja | B081 / `1.3.10.00` | 3 | true |
-| 84 / B084 | `1.3.10.03` | Pembekalan Perbendaharaan | B081 / `1.3.10.00` | 3 | true |
-| 85 / B085 | `1.3.10.04` | Pembekalan Anggota Jemaat | B081 / `1.3.10.00` | 3 | true |
-| 86 / B086 | `1.3.10.05` | Katekisasi Calon Sidi Jemaat | B081 / `1.3.10.00` | 3 | true |
-| 87 / B087 | `1.3.11.00` | Rekening - Rekening | B004 / `1.3.00.00` | 2 | false |
-| 88 / B088 | `1.3.11.01` | Listrik | B087 / `1.3.11.00` | 3 | true |
-| 89 / B089 | `1.3.11.02` | Air Minum (PAM) | B087 / `1.3.11.00` | 3 | true |
-| 90 / B090 | `1.3.11.03` | Telepon | B087 / `1.3.11.00` | 3 | true |
-| 91 / B091 | `1.3.12.00` | Transportasi | B004 / `1.3.00.00` | 2 | false |
-| 92 / B092 | `1.3.12.01` | BBM | B091 / `1.3.12.00` | 3 | true |
-| 93 / B093 | `1.3.12.02` | Sewa Kendaraan | B091 / `1.3.12.00` | 3 | true |
-| 94 / B094 | `1.3.12.03` | Perjalanan Dinas (Tiket, Airport, Tax Akomodasi, Uang Makan) | B091 / `1.3.12.00` | 3 | true |
-| 95 / B095 | `1.3.13.00` | Perawatan / Pemeliharaan Inventaris | B004 / `1.3.00.00` | 2 | false |
-| 96 / B096 | `1.3.13.01` | Onderdil / service / Oli Kendaraan | B095 / `1.3.13.00` | 3 | true |
-| 97 / B097 | `1.3.13.02` | Surat Kendaraan (STNK / Pajak) | B095 / `1.3.13.00` | 3 | true |
-| 98 / B098 | `1.3.13.03` | Surat Tanah / Bangunan (Sertifikat, Akta, IMB, PBB) | B095 / `1.3.13.00` | 3 | true |
-| 99 / B099 | `1.3.13.04` | Perbaikan Peralatan / Perlengkapan Inventaris | B095 / `1.3.13.00` | 3 | true |
-| 100 / B100 | `1.3.13.05` | Perbaikan / Pemeliharaan Bangunan | B095 / `1.3.13.00` | 3 | true |
-| 101 / B101 | `1.3.14.00` | Pengawasan / Pemeriksaan | B004 / `1.3.00.00` | 2 | false |
-| 102 / B102 | `1.3.14.01` | Biaya Pelayanan BPPJ | B101 / `1.3.14.00` | 3 | true |
-| 103 / B103 | `1.3.14.02` | Biaya Pelayanan BPPW / BPPS | B101 / `1.3.14.00` | 3 | true |
-| 104 / B104 | `1.3.15.00` | Biaya Pelaksanaan Pemilihan Pelsus | B004 / `1.3.00.00` | 2 | true |
-| 105 / B105 | `2.0.00.00` | KESAKSIAN DAN KERJASAMA (MARTURIA) | ROOT | 0 | false |
-| 106 / B106 | `2.3.01.00` | Kegiatan KPDP | B105 / `2.0.00.00` | 1 | false |
-| 107 / B107 | `2.3.01.01` | Kebaktian Penyegaran Iman (KPI) | B106 / `2.3.01.00` | 2 | true |
-| 108 / B108 | `2.3.01.02` | Pekabaran Injil Keluar | B106 / `2.3.01.00` | 2 | true |
-| 109 / B109 | `2.3.01.03` | Biaya Perkunjungan Pelayanan | B106 / `2.3.01.00` | 2 | true |
-| 110 / B110 | `2.3.02.00` | Hubungan Kerjasama | B105 / `2.0.00.00` | 1 | false |
-| 111 / B111 | `2.3.02.01` | Tenaga Utusan Gerejawi | B110 / `2.3.02.00` | 2 | true |
-| 112 / B112 | `2.3.02.03` | Kerjasama dengan Jemaat / Lembaga / Gereja Lain | B110 / `2.3.02.00` | 2 | true |
-| 113 / B113 | `2.3.08.02` | Kemitraan / Jemaat Mitra | B110 / `2.3.02.00` | 2 | true |
-| 114 / B114 | `3.0.00.00` | DIAKONIA | ROOT | 0 | false |
-| 115 / B115 | `3.3.01.00` | Kesehatan | B114 / `3.0.00.00` | 1 | false |
-| 116 / B116 | `3.3.01.01` | Dana Sehat Keluarga Pekerja GMIM di Jemaat | B115 / `3.3.01.00` | 2 | true |
-| 117 / B117 | `3.3.01.02` | Dana Sehat Keluarga Pendeta / Guru Agama Non Pekerja GMIM | B115 / `3.3.01.00` | 2 | true |
-| 118 / B118 | `3.3.01.03` | Dana Sehat Pelayan Khusus Non Pendeta / Guru Agama | B115 / `3.3.01.00` | 2 | true |
-| 119 / B119 | `3.3.01.04` | Dana Sehat Anggota Jemaat | B115 / `3.3.01.00` | 2 | true |
-| 120 / B120 | `3.3.02.00` | Pendidikan | B114 / `3.0.00.00` | 1 | false |
-| 121 / B121 | `3.3.02.01` | Tunjangan / Honor Guru | B120 / `3.3.02.00` | 2 | true |
-| 122 / B122 | `3.3.02.02` | Honor Penjaga Sekolah | B120 / `3.3.02.00` | 2 | true |
-| 123 / B123 | `3.3.02.03` | Biaya Operasional Sekolah | B120 / `3.3.02.00` | 2 | true |
-| 124 / B124 | `3.3.02.04` | Beasiswa Pendidikan Anggota Jemaat | B120 / `3.3.02.00` | 2 | true |
-| 125 / B125 | `3.3.02.05` | Beasiswa Pendidikan Non Anggota Jemaat | B120 / `3.3.02.00` | 2 | true |
-| 126 / B126 | `3.3.03.00` | Diakonia Duka | B114 / `3.0.00.00` | 1 | false |
-| 127 / B127 | `3.3.03.01` | Dana Duka | B126 / `3.3.03.00` | 2 | true |
-| 128 / B128 | `3.3.03.02` | Karangan Bunga Kedukaan | B126 / `3.3.03.00` | 2 | true |
-| 129 / B129 | `3.3.04.00` | Bantuan Bencana Alam | B114 / `3.0.00.00` | 1 | true |
-| 130 / B130 | `3.3.05.00` | Diakonia Hasil Ibadah Natura | B114 / `3.0.00.00` | 1 | true |
-| 131 / B131 | `3.3.06.00` | Puasa Diakonal | B114 / `3.0.00.00` | 1 | true |
-| 132 / B132 | `3.3.40.00` | Pemupukan Dana Abadi | B114 / `3.0.00.00` | 1 | true |
-| 133 / B133 | `4.0.00.00` | PEMBANGUNAN / INVENTARIS GEREJA | ROOT | 0 | false |
-| 134 / B134 | `4.03.03.00` | Pembangunan Gedung, Kantor / Konsistori, Pastori Gereja | B133 / `4.0.00.00` | 1 | true |
-| 135 / B135 | `4.3.01.00` | Pembelian / Pengadaan Perlengkapan Dan Peralatan | B133 / `4.0.00.00` | 1 | false |
-| 136 / B136 | `4.3.01.01` | Gedung Gereja (Kursi/Bangku, Mimbar, Meja, Lemari, Saund System, LCD Projector, dll) | B135 / `4.3.01.00` | 2 | true |
-| 137 / B137 | `4.3.01.02` | Aula ( Kursi, Meja, Sound System, dll) | B135 / `4.3.01.00` | 2 | true |
-| 138 / B138 | `4.3.01.03` | Kantor / Konsistori (Kursi, Meja, Lemari, Tempat Tidur, dll) | B135 / `4.3.01.00` | 2 | true |
-| 139 / B139 | `4.3.01.04` | Pastori (Kursi, Meja, Lemari, Tempat Tidur, dll) | B135 / `4.3.01.00` | 2 | true |
-| 140 / B140 | `4.3.02.00` | Pengadaan Kendaraan (Sepeda, Sepeda Motor, Mobil, Perahu, Perahu Motor) | B133 / `4.0.00.00` | 1 | true |
-| 141 / B141 | `4.3.04.00` | Pembangunan Gedung / Perlengkapan Sekolah | B133 / `4.0.00.00` | 1 | true |
-| 142 / B142 | `4.3.05.00` | Pengadaan Kintal | B133 / `4.0.00.00` | 1 | true |
-| 143 / B143 | `4.3.06.00` | Sewa Kontrak Bangunan | B133 / `4.0.00.00` | 1 | true |
-| 144 / B144 | `4.3.07.00` | Pengadaan Tenda | B133 / `4.0.00.00` | 1 | true |
-| 145 / B145 | `5.0.00.00` | PENGELUARAN LAINNYA | ROOT | 0 | false |
-| 146 / B146 | `5.03.02.00` | Biaya Lembur | B145 / `5.0.00.00` | 1 | true |
-| 147 / B147 | `5.03.03.00` | Biaya Administrasi Bank | B145 / `5.0.00.00` | 1 | true |
-| 148 / B148 | `5.3.01.00` | Biaya Tamu Gereja | B145 / `5.0.00.00` | 1 | true |
-| 149 / B149 | `5.3.90.00` | Biaya Lain-lain | B145 / `5.0.00.00` | 1 | true |
-| 150 / B150 | `6.0.00.00` | DANA TRANSIT | ROOT | 0 | false |
-| 151 / B151 | `6.3.50.00` | Penyaluran Pundi Extra | B150 / `6.0.00.00` | 1 | false |
-| 152 / B152 | `6.3.50.01` | Pundi Extra untuk SMS / SMST | B151 / `6.3.50.00` | 2 | true |
-| 153 / B153 | `6.3.50.02` | Pundi Extra untuk Kegiatan Wilayah | B151 / `6.3.50.00` | 2 | true |
-| 154 / B154 | `6.3.50.03` | Pundi Extra untuk Kegiatan Lainnya | B151 / `6.3.50.00` | 2 | true |
-| 155 / B155 | `6.3.51.00` | Penyaluran Kartu Partisipasi / Mapalus | B150 / `6.0.00.00` | 1 | false |
-| 156 / B156 | `6.3.51.01` | Kartu Kawan Panitia SMS / SMST | B155 / `6.3.51.00` | 2 | true |
-| 157 / B157 | `6.3.51.02` | Kartu Kawan untuk Kegiatan Khusus Lainnya | B155 / `6.3.51.00` | 2 | true |
-| 158 / B158 | `6.3.52.00` | Penyaluran Dana-Dana Kegiatan Sinodal lainnya | B150 / `6.0.00.00` | 1 | true |
+The readable catalog tables formerly here (131 Pendapatan and 158 Belanja rows) were removed on 7 November 2026. They were derived from, and agreed with, the JSON in Appendix B, which is now the single copy. To read a table, render Appendix B: `code`, `name`, `parent_id`, `level`, `postable` (always `null`) and `postable_proposal` give the same columns. Source `postable` is `null` in the snapshots; approved production eligibility is defined only by the production-master derivation in section 1.
 
 ## Appendix B. Machine-readable source snapshots and explicit draft mappings
 

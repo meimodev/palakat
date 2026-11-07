@@ -170,5 +170,100 @@
     "documentation": 2,
     "all_source_references_resolve": true,
     "source_documents_unchanged": true
+  },
+  "note_2026_11_07": "Everything above this key describes the two files as reviewed on 2026-10-19 (git commit 1962b27, hashes match). The design files were cleaned up on 2026-11-07: P section 19, P's catalog tables/JSON and S's readable tables were removed as duplicates. The P entries in catalog_checks and the readable_table_matches_* fields therefore no longer apply. Current values are in post_cleanup.",
+  "post_cleanup": {
+    "checked_on": "2026-11-07",
+    "basis": "cleaned files in working tree after the 7 November 2026 cleanup; original XLS files and predecessor editions are not in the repository and were not re-verified",
+    "files": {
+      "GMIM_Treasurer_MVP_Design_Specification_and_Rulebook_v5.0.md": {
+        "lines": 3163,
+        "bytes": 173978,
+        "sha256": "6d6121294c9f108284cea38c55695e84171f8cd04558fa59be2cff6c5e40fecc",
+        "json_blocks": 1
+      },
+      "GMIM_Treasurer_Domain_Model_Posting_Rules_State_Machines_and_Report_Pack_Data_Mapping_v2.0.md": {
+        "lines": 1216,
+        "bytes": 245910,
+        "sha256": "863bab152a10b5913510374936204571742afeacce40e0c94308b3287cb83c0e",
+        "json_blocks": 3
+      }
+    },
+    "s_json_blocks_identical_to_git_1962b27": true,
+    "catalog_checks": [
+      {
+        "kind": "PENDAPATAN",
+        "rows": 131,
+        "unique_ids": true,
+        "roots": 6,
+        "parents_valid": true,
+        "level_is_parent_plus_one": true,
+        "acyclic_and_family_consistent": true,
+        "branches": 23,
+        "leaves": 108,
+        "source_postable_all_null": true,
+        "proposal_matches_topology": true,
+        "source_codes_unique": true,
+        "production_codes_unique": true,
+        "production_overrides": {},
+        "display_order_sequential": true
+      },
+      {
+        "kind": "BELANJA",
+        "rows": 158,
+        "unique_ids": true,
+        "roots": 6,
+        "parents_valid": true,
+        "level_is_parent_plus_one": true,
+        "acyclic_and_family_consistent": true,
+        "branches": 29,
+        "leaves": 129,
+        "source_postable_all_null": true,
+        "proposal_matches_topology": true,
+        "source_codes_unique": true,
+        "production_codes_unique": true,
+        "production_overrides": {
+          "B113": "2.3.02.02"
+        },
+        "display_order_sequential": true
+      }
+    ],
+    "derived_postability": {
+      "postable_leaves": 237,
+      "nonpostable_branches": 52,
+      "total": 289
+    },
+    "rules": {
+      "master_rules_present": 775,
+      "first": 1,
+      "last": 775,
+      "in_order_no_repeats": true
+    },
+    "ids_present_in_S": {
+      "D": true,
+      "F": true,
+      "RC": true,
+      "E": true
+    },
+    "worked_example": {
+      "C_close": 12500000,
+      "A_close": 0,
+      "L_close": 500000,
+      "N_close": 12000000,
+      "I": 4000000,
+      "E": 2000000,
+      "economic_bridge": 12500000,
+      "gross_bridge": 12500000,
+      "open_period_correction": {
+        "E": 1900000,
+        "C": 12600000,
+        "N": 12100000
+      }
+    },
+    "ai_cap": {
+      "warn_70": 105000,
+      "conserve_90": 135000,
+      "cap": 150000
+    }
   }
 }

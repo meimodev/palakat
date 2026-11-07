@@ -1,6 +1,8 @@
 # Design review — 19 October 2026
 
-Reviewed both documents in `docs/design`: the MVP specification v5.0 (**P**) and standalone engineering specification v2.0 (**S**), totaling **6,109 lines**. This is a review of the written contracts and embedded data, not an audit of a running application or an assessment of financial/legal compliance.
+Reviewed both documents in `docs/design`: the MVP specification v5.0 (**P**) and standalone engineering specification v2.0 (**S**), totaling **6,109 lines**. > **Note (7 November 2026):** the two design files were cleaned up after this review. Links below were re-pointed to the cleaned files by matching each target line's text; two targets no longer exist and were re-aimed (`p-storage` to the cleanup record, `p-remaining` from the removed Appendix C.4 to section 17.2). Source hashes in the checks JSON still describe the reviewed files at git commit `1962b27`; post-cleanup values are in that JSON's `post_cleanup` block. P section 19 is now a map to S, and the readable catalog tables and duplicate JSON in P were removed.
+
+This is a review of the written contracts and embedded data, not an audit of a running application or an assessment of financial/legal compliance.
 
 **Assessment:** The main financial model is coherent: Account, Fund, Scope and classification remain separate; advances and custody money have explicit bridges; posting is atomic; report calculations are deterministic. The documents are strong as a policy archive. They are less complete as an implementation contract: several decisions needed to preserve those invariants are still implicit, despite statements that only deployment/configuration work remains.
 
@@ -181,7 +183,7 @@ M073–M077 say only FINALIZED transactions affect reports, while an original's 
 **F16 — Low: provenance claims cannot all be reproduced from this repository**  
 Type: evidence-packaging gap. Evidence: [predecessor identity][p-predecessor], [source hashes][p-hashes], [old storage description][p-storage], [edition PASS claim][s-verification].
 
-Only the two design Markdown files are tracked as design/source artifacts in this checkout. The original XLS exports, predecessor editions and prior verification materials named by the documents are absent. Embedded data makes the catalogs usable, but does not reproduce the original XLS byte hashes or prove predecessor preservation. P's storage description also refers to a prior chat's outputs folder rather than this repository.
+Only the two design Markdown files are tracked as design/source artifacts in this checkout. The original XLS exports, predecessor editions and prior verification materials named by the documents are absent. Embedded data makes the catalogs usable, but does not reproduce the original XLS byte hashes or prove predecessor preservation. P's storage description also refers to a prior chat's outputs folder rather than this repository. (That section, 18.5, was removed in the 7 November 2026 cleanup; its link now points at the cleanup record.)
 
 **Recommended cleanup:** Add a repository-oriented source manifest identifying available embedded evidence, archived artifacts and externally held files. If originals are available and appropriate to retain, archive them immutably with hashes; otherwise mark historical verification claims as inherited, with current checks separately recorded. Do not imply that the current review reverified absent originals.
 
@@ -270,28 +272,28 @@ Keep future-platform clarification in its own backlog. In particular, publicatio
 [s-policy-config]: /Users/edotanod/Projects/palakat/docs/design/GMIM_Treasurer_Domain_Model_Posting_Rules_State_Machines_and_Report_Pack_Data_Mapping_v2.0.md:54
 [s-approval]: /Users/edotanod/Projects/palakat/docs/design/GMIM_Treasurer_Domain_Model_Posting_Rules_State_Machines_and_Report_Pack_Data_Mapping_v2.0.md:302
 [s-ai-validation]: /Users/edotanod/Projects/palakat/docs/design/GMIM_Treasurer_Domain_Model_Posting_Rules_State_Machines_and_Report_Pack_Data_Mapping_v2.0.md:737
-[p-m277]: /Users/edotanod/Projects/palakat/docs/design/GMIM_Treasurer_MVP_Design_Specification_and_Rulebook_v5.0.md:1753
+[p-m277]: /Users/edotanod/Projects/palakat/docs/design/GMIM_Treasurer_MVP_Design_Specification_and_Rulebook_v5.0.md:1703
 [s-config-values]: /Users/edotanod/Projects/palakat/docs/design/GMIM_Treasurer_Domain_Model_Posting_Rules_State_Machines_and_Report_Pack_Data_Mapping_v2.0.md:102
-[p-adoption]: /Users/edotanod/Projects/palakat/docs/design/GMIM_Treasurer_MVP_Design_Specification_and_Rulebook_v5.0.md:174
-[p-death]: /Users/edotanod/Projects/palakat/docs/design/GMIM_Treasurer_MVP_Design_Specification_and_Rulebook_v5.0.md:990
+[p-adoption]: /Users/edotanod/Projects/palakat/docs/design/GMIM_Treasurer_MVP_Design_Specification_and_Rulebook_v5.0.md:172
+[p-death]: /Users/edotanod/Projects/palakat/docs/design/GMIM_Treasurer_MVP_Design_Specification_and_Rulebook_v5.0.md:940
 [s-template]: /Users/edotanod/Projects/palakat/docs/design/GMIM_Treasurer_Domain_Model_Posting_Rules_State_Machines_and_Report_Pack_Data_Mapping_v2.0.md:708
 [s-gates]: /Users/edotanod/Projects/palakat/docs/design/GMIM_Treasurer_Domain_Model_Posting_Rules_State_Machines_and_Report_Pack_Data_Mapping_v2.0.md:823
-[p-template-rules]: /Users/edotanod/Projects/palakat/docs/design/GMIM_Treasurer_MVP_Design_Specification_and_Rulebook_v5.0.md:1881
+[p-template-rules]: /Users/edotanod/Projects/palakat/docs/design/GMIM_Treasurer_MVP_Design_Specification_and_Rulebook_v5.0.md:1831
 [s-serialization]: /Users/edotanod/Projects/palakat/docs/design/GMIM_Treasurer_Domain_Model_Posting_Rules_State_Machines_and_Report_Pack_Data_Mapping_v2.0.md:639
 [s-evidence]: /Users/edotanod/Projects/palakat/docs/design/GMIM_Treasurer_Domain_Model_Posting_Rules_State_Machines_and_Report_Pack_Data_Mapping_v2.0.md:316
-[p-finalized]: /Users/edotanod/Projects/palakat/docs/design/GMIM_Treasurer_MVP_Design_Specification_and_Rulebook_v5.0.md:1278
-[p-formula]: /Users/edotanod/Projects/palakat/docs/design/GMIM_Treasurer_MVP_Design_Specification_and_Rulebook_v5.0.md:1682
+[p-finalized]: /Users/edotanod/Projects/palakat/docs/design/GMIM_Treasurer_MVP_Design_Specification_and_Rulebook_v5.0.md:1228
+[p-formula]: /Users/edotanod/Projects/palakat/docs/design/GMIM_Treasurer_MVP_Design_Specification_and_Rulebook_v5.0.md:1632
 [s-dates]: /Users/edotanod/Projects/palakat/docs/design/GMIM_Treasurer_Domain_Model_Posting_Rules_State_Machines_and_Report_Pack_Data_Mapping_v2.0.md:262
-[p-tensions]: /Users/edotanod/Projects/palakat/docs/design/GMIM_Treasurer_MVP_Design_Specification_and_Rulebook_v5.0.md:4230
-[p-predecessor]: /Users/edotanod/Projects/palakat/docs/design/GMIM_Treasurer_MVP_Design_Specification_and_Rulebook_v5.0.md:3000
-[p-hashes]: /Users/edotanod/Projects/palakat/docs/design/GMIM_Treasurer_MVP_Design_Specification_and_Rulebook_v5.0.md:2989
-[p-storage]: /Users/edotanod/Projects/palakat/docs/design/GMIM_Treasurer_MVP_Design_Specification_and_Rulebook_v5.0.md:2981
+[p-tensions]: /Users/edotanod/Projects/palakat/docs/design/GMIM_Treasurer_MVP_Design_Specification_and_Rulebook_v5.0.md:3151
+[p-predecessor]: /Users/edotanod/Projects/palakat/docs/design/GMIM_Treasurer_MVP_Design_Specification_and_Rulebook_v5.0.md:2946
+[p-hashes]: /Users/edotanod/Projects/palakat/docs/design/GMIM_Treasurer_MVP_Design_Specification_and_Rulebook_v5.0.md:2935
+[p-storage]: /Users/edotanod/Projects/palakat/docs/design/GMIM_Treasurer_MVP_Design_Specification_and_Rulebook_v5.0.md:63
 [s-verification]: /Users/edotanod/Projects/palakat/docs/design/GMIM_Treasurer_Domain_Model_Posting_Rules_State_Machines_and_Report_Pack_Data_Mapping_v2.0.md:855
 [s-d07]: /Users/edotanod/Projects/palakat/docs/design/GMIM_Treasurer_Domain_Model_Posting_Rules_State_Machines_and_Report_Pack_Data_Mapping_v2.0.md:100
 [s-adjustments]: /Users/edotanod/Projects/palakat/docs/design/GMIM_Treasurer_Domain_Model_Posting_Rules_State_Machines_and_Report_Pack_Data_Mapping_v2.0.md:260
-[p-build-order]: /Users/edotanod/Projects/palakat/docs/design/GMIM_Treasurer_MVP_Design_Specification_and_Rulebook_v5.0.md:2924
+[p-build-order]: /Users/edotanod/Projects/palakat/docs/design/GMIM_Treasurer_MVP_Design_Specification_and_Rulebook_v5.0.md:2874
 [s-logical]: /Users/edotanod/Projects/palakat/docs/design/GMIM_Treasurer_Domain_Model_Posting_Rules_State_Machines_and_Report_Pack_Data_Mapping_v2.0.md:180
 [s-modules]: /Users/edotanod/Projects/palakat/docs/design/GMIM_Treasurer_Domain_Model_Posting_Rules_State_Machines_and_Report_Pack_Data_Mapping_v2.0.md:712
-[p-remaining]: /Users/edotanod/Projects/palakat/docs/design/GMIM_Treasurer_MVP_Design_Specification_and_Rulebook_v5.0.md:4226
+[p-remaining]: /Users/edotanod/Projects/palakat/docs/design/GMIM_Treasurer_MVP_Design_Specification_and_Rulebook_v5.0.md:2848
 [checks]: /Users/edotanod/Projects/palakat/docs/reviews/design-analysis-checks-2026-10-19.json
 
