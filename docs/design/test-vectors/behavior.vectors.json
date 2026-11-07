@@ -1,0 +1,203 @@
+{
+  "format": "palakat-behavior-vectors/1",
+  "note": "Scenario fixtures for the product decisions of 7 November 2026. Each vector gives a state, one command and the required outcome. 'effects: NONE' means no journal, voucher, voucher-counter, posting_sequence, case-balance or snapshot change. Names such as EARLIER_PERIOD_OPEN are fixture labels, not an API contract. Status DECIDED = the rule is in S; PROPOSED = awaiting approval and must not be implemented yet.",
+  "vectors": [
+    {"id": "B01", "title": "November cannot close while October is OPEN", "status": "DECIDED", "refs": ["RD01", "S 6.4 step 1"],
+     "given": {"periods": {"2026-10": "OPEN", "2026-11": "OPEN"}, "actor": "WORKSPACE_TREASURER"},
+     "when": {"command": "ClosePeriod", "period": "2026-11"},
+     "then": {"outcome": "REJECT", "blocker": "EARLIER_PERIOD_OPEN", "effects": "NONE"}},
+
+    {"id": "B02", "title": "A Fund-only role cannot close the workspace", "status": "DECIDED", "refs": ["RD01", "RD12"],
+     "given": {"periods": {"2026-10": "OPEN"}, "actor": "FUND_A_PREPARER", "funds_with_activity": ["A", "B"]},
+     "when": {"command": "ClosePeriod", "period": "2026-10"},
+     "then": {"outcome": "REJECT", "blocker": "NO_WORKSPACE_CLOSE_CAPABILITY", "effects": "NONE", "fund_b_frozen": false}},
+
+    {"id": "B03", "title": "No earlier-dated posting can change an accepted opening", "status": "DECIDED", "refs": ["RD01", "S 7.1"],
+     "given": {"periods": {"2026-10": "CLOSED", "2026-11": "CLOSED", "2026-12": "OPEN"}, "draft": {"effective_date": "2026-10-20", "state": "REVIEWED"}},
+     "when": {"command": "FinalizeTransaction", "recorded_in": "2026-12"},
+     "then": {"outcome": "REJECT", "blocker": "PERIOD_CLOSED", "effects": "NONE", "november_opening_unchanged": true}},
+
+    {"id": "B04", "title": "An empty month still closes, in order", "status": "DECIDED", "refs": ["RD01", "S 6.1"],
+     "given": {"periods": {"2026-11": "CLOSED", "2026-12": "OPEN", "2027-01": "OPEN"}, "activity": {"2026-12": "none"}, "observations_present": true},
+     "when": [{"command": "ClosePeriod", "period": "2027-01"}, {"command": "ClosePeriod", "period": "2026-12"}],
+     "then": [{"outcome": "REJECT", "blocker": "EARLIER_PERIOD_OPEN"}, {"outcome": "ACCEPT", "snapshot": "created with zero activity", "opening_of_2027-01": "equals closing of 2026-12"}]},
+
+    {"id": "B05", "title": "Open drafts, reviewed transactions and staged rows block close", "status": "DECIDED", "refs": ["RD09", "R2/N02", "S 6.4 step 3"],
+     "given": {"periods": {"2026-10": "OPEN"}, "items": [
+       {"id": "d1", "kind": "DRAFT", "effective_date": "2026-10-28"},
+       {"id": "d2", "kind": "REVIEWED", "effective_date": "2026-10-30"},
+       {"id": "s1", "kind": "STAGED_ROW", "effective_date": "2026-10-15"},
+       {"id": "d3", "kind": "DRAFT", "effective_date": "2026-11-02"}]},
+     "when": {"command": "ClosePeriod", "period": "2026-10"},
+     "then": {"outcome": "REJECT", "blocker": "OPEN_ITEMS_IN_PERIOD", "lists": ["d1", "d2", "s1"], "does_not_list": ["d3"], "effects": "NONE", "shown_in": "F12 draft attention annex"}},
+
+    {"id": "B06", "title": "A draft dated in a CLOSED period cannot be finalized", "status": "DECIDED", "refs": ["RD09", "S 5.1"],
+     "given": {"periods": {"2026-10": "CLOSED"}, "draft": {"effective_date": "2026-10-30", "state": "REVIEWED"}},
+     "when": {"command": "FinalizeTransaction"},
+     "then": {"outcome": "REJECT", "blocker": "PERIOD_CLOSED", "message": "explains the period is closed and the draft must be cancelled or redated", "effects": "NONE"}},
+
+    {"id": "B07", "title": "Redating clears the blocker and resets review", "status": "DECIDED", "refs": ["RD09", "S 5.1"],
+     "given": {"periods": {"2026-10": "OPEN", "2026-11": "OPEN"}, "draft": {"effective_date": "2026-10-28", "state": "REVIEWED"}},
+     "when": [{"command": "RedateDraft", "to": "2026-11-02", "reason": null}, {"command": "RedateDraft", "to": "2026-11-02", "reason": "Invoice dated November"}],
+     "then": [{"outcome": "REJECT", "blocker": "REASON_REQUIRED"}, {"outcome": "ACCEPT", "state": "DRAFT", "review_invalidated": true, "reason_in_audit": true, "october_close_blocked_by_this_draft": false}]},
+
+    {"id": "B08", "title": "Custody collection on an ordinary offering row is rejected", "status": "DECIDED", "refs": ["RD10", "R2/N03", "E011"],
+     "given": {"master_row": {"id": "P-offering", "postable": true, "allowed_effect_kinds": "ECONOMIC"}, "allocation": {"ownership": "CUSTODY", "beneficiary": "known"}},
+     "when": {"command": "FinalizeTransaction"},
+     "then": {"outcome": "REJECT", "blocker": "EFFECT_KIND_NOT_ALLOWED", "effects": "NONE"}},
+
+    {"id": "B09", "title": "Custody collection on a TRANSIT row posts", "status": "DECIDED", "refs": ["RD10"],
+     "given": {"master_row": {"id": "P-transit", "postable": true, "allowed_effect_kinds": "TRANSIT"}, "allocation": {"ownership": "CUSTODY", "beneficiary": "known"}},
+     "when": {"command": "FinalizeTransaction"},
+     "then": {"outcome": "ACCEPT", "effect_kind": "TRANSIT", "economic_income": 0}},
+
+    {"id": "B10", "title": "A row with no allowed_effect_kinds accepts owned posting and blocks custody", "status": "DECIDED", "refs": ["RD10", "S 1 effect eligibility"],
+     "note": "Interpretation recorded in S: an unset value is treated as ECONOMIC only. The product owner has not confirmed this reading separately.",
+     "given": {"master_row": {"id": "P-unset", "postable": true, "allowed_effect_kinds": null}},
+     "when": [{"command": "FinalizeTransaction", "allocation": {"ownership": "OWNED"}}, {"command": "FinalizeTransaction", "allocation": {"ownership": "CUSTODY", "beneficiary": "known"}}],
+     "then": [{"outcome": "ACCEPT", "effect_kind": "ECONOMIC"}, {"outcome": "REJECT", "blocker": "EFFECT_KIND_NOT_ALLOWED", "effects": "NONE"}]},
+
+    {"id": "B11", "title": "direct_transit contains only rows that allow TRANSIT", "status": "DECIDED", "refs": ["RD10", "S 8 F05/F07"],
+     "given": {"posted_effects": [
+       {"row": "P-offering", "allowed": "ECONOMIC", "effect_kind": "ECONOMIC", "amount": 100},
+       {"row": "P-transit", "allowed": "TRANSIT", "effect_kind": "TRANSIT", "amount": 40}]},
+     "when": {"command": "BuildReport", "component": "F05"},
+     "then": {"outcome": "ACCEPT", "direct_transit_rows": ["P-transit"], "direct_economic_rows": ["P-offering"]}},
+
+    {"id": "B12", "title": "An advance issued across two Funds creates one case per Fund", "status": "DECIDED", "refs": ["EC06", "S 4.1 invariant 9"],
+     "given": {"cash_in_account": 1000},
+     "when": {"command": "IssueAdvance", "recipient": "R1", "allocations": [{"fund": "A", "amount": 600}, {"fund": "B", "amount": 400}]},
+     "then": {"outcome": "ACCEPT", "cases": [{"fund": "A", "amount": 600}, {"fund": "B", "amount": 400}], "each_fund_balanced": true}},
+
+    {"id": "B13", "title": "Fund B expense cannot settle a Fund A advance case", "status": "DECIDED", "refs": ["EC06", "R2/N01", "arithmetic A05"],
+     "given": {"case": {"id": "UM1", "fund": "A", "outstanding": 1000}},
+     "when": {"command": "SettleAdvance", "case": "UM1", "allocations": [{"fund": "B", "kind": "EXPENSE", "amount": 700}]},
+     "then": {"outcome": "REJECT", "blocker": "CASE_FUND_MISMATCH", "effects": "NONE", "case_outstanding": 1000}},
+
+    {"id": "B14", "title": "Fund B cash cannot remit a Fund A transit case", "status": "DECIDED", "refs": ["EC06", "R2/N01", "arithmetic A06"],
+     "given": {"case": {"id": "TC1", "fund": "A", "remaining": 500}, "cash": {"fund": "B", "available": 500}},
+     "when": {"command": "RemitTransit", "case": "TC1", "paid_from_fund": "B", "amount": 500},
+     "then": {"outcome": "REJECT", "blocker": "CASE_FUND_MISMATCH", "effects": "NONE"}},
+
+    {"id": "B15", "title": "Close lists Funds without a current attestation; the Treasurer may waive with a reason", "status": "DECIDED", "refs": ["RD12", "R2/N09"],
+     "given": {"scoped_preparers_exist": true, "periods": {"2026-10": "OPEN"}, "funds_with_activity": ["A", "B"], "attestations": {"A": "CURRENT"}, "other_blockers": []},
+     "when": [{"command": "ClosePeriod", "period": "2026-10"}, {"command": "WaiveAttestation", "fund": "B", "reason": "Unit treasurer unavailable; Treasurer reviewed Fund B"}, {"command": "ClosePeriod", "period": "2026-10"}],
+     "then": [{"outcome": "REJECT", "blocker": "MISSING_FUND_ATTESTATION", "lists": ["B"]}, {"outcome": "ACCEPT", "audit": "waiver with reason, actor and time"}, {"outcome": "ACCEPT", "snapshot": "records the waiver"}]},
+
+    {"id": "B16", "title": "A later change in a Fund invalidates its attestation", "status": "DECIDED", "refs": ["RD12"],
+     "given": {"attestations": {"A": "CURRENT"}},
+     "when": {"command": "FinalizeTransaction", "fund": "A", "effective_date_in_attested_month": true},
+     "then": {"outcome": "ACCEPT", "attestations": {"A": "INVALIDATED"}}},
+
+    {"id": "B17", "title": "A Fund preparer can attest their Fund but cannot close", "status": "DECIDED", "refs": ["RD12", "RD01"],
+     "given": {"actor": "FUND_A_PREPARER"},
+     "when": [{"command": "AttestFund", "fund": "A"}, {"command": "AttestFund", "fund": "B"}, {"command": "ClosePeriod"}],
+     "then": [{"outcome": "ACCEPT"}, {"outcome": "REJECT", "blocker": "FUND_NOT_IN_SCOPE"}, {"outcome": "REJECT", "blocker": "NO_WORKSPACE_CLOSE_CAPABILITY"}]},
+
+    {"id": "B18", "title": "A waiver never covers an arithmetic blocker", "status": "DECIDED", "refs": ["RD12", "S 6.4 hard blockers"],
+     "given": {"funds_with_activity": ["A"], "attestations": {}, "waiver": {"fund": "A", "reason": "x"}, "other_blockers": ["UNEXPLAINED_DIFFERENCE"]},
+     "when": {"command": "ClosePeriod"},
+     "then": {"outcome": "REJECT", "blocker": "UNEXPLAINED_DIFFERENCE", "effects": "NONE"}},
+
+    {"id": "B19", "title": "A restricted voucher view exposes only the viewer's Fund slice", "status": "DECIDED", "refs": ["RD02", "S 13 restricted views"],
+     "given": {"voucher": {"number": "101", "total": 1000, "allocations": [{"fund": "A", "amount": 600}, {"fund": "B", "amount": 400}], "free_text": "Note", "attachment": "receipt.pdf"}, "viewer": {"funds": ["A"], "entitlements": []}},
+     "when": {"command": "ViewVoucher", "number": "101"},
+     "then": {"outcome": "ACCEPT", "visible": {"allocations": [{"fund": "A", "amount": 600}], "voucher_identity": true},
+              "absent": ["whole-voucher total 1000", "Fund B allocation", "free text", "actor details", "attachment file"], "attachment_download": "DENIED"}},
+
+    {"id": "B20", "title": "Every surface shows the same restricted population", "status": "DECIDED", "refs": ["RD02"],
+     "given": {"viewer": {"funds": ["A"]}, "surfaces": ["screen", "search", "AI context", "PDF", "Excel", "direct download", "portable export"]},
+     "when": {"command": "ReadFund A and Fund B shared Account data on each surface"},
+     "then": {"outcome": "ACCEPT", "same_visible_population_on_all_surfaces": true, "fund_b_400_visible_anywhere": false, "unrestricted_statement_visible_anywhere": false}},
+
+    {"id": "B21", "title": "A Fund-only voucher list reveals no gap listing", "status": "DECIDED", "refs": ["RD13", "R2/N04"],
+     "note": "Residual: the viewer still sees that 103 and 104 are absent from the numbers. The decision hides the gap listing and other Funds' content, not the skip. See the RD13 note in the readiness addendum.",
+     "given": {"series": [{"n": 101, "fund": "A"}, {"n": 102, "fund": "A"}, {"n": 103, "fund": "B"}, {"n": 104, "fund": "B"}, {"n": 105, "fund": "A"}], "viewer": {"funds": ["A"], "workspace_wide": false}},
+     "when": [{"command": "ListVouchers"}, {"command": "ListVoucherGaps"}, {"command": "ViewVoucher", "number": "103"}],
+     "then": [{"outcome": "ACCEPT", "numbers": [101, 102, 105]}, {"outcome": "REJECT", "blocker": "NO_WORKSPACE_WIDE_CAPABILITY"}, {"outcome": "REJECT", "response_indistinguishable_from_nonexistent_number": true}]},
+
+    {"id": "B22", "title": "Every posted batch has a voucher in a typed series", "status": "DECIDED", "refs": ["RD13", "S 8 F12"],
+     "given": {"batches": ["ordinary finalization", "controlled opening", "controlled OPEN-period adjustment"]},
+     "when": {"command": "PostEach"},
+     "then": {"outcome": "ACCEPT", "series": ["ordinary", "OPN", "ADJ"], "every_batch_has_voucher": true, "numbers_never_reused": true}},
+
+    {"id": "B23", "title": "A fiscal year not starting on 1 January is rejected in V1", "status": "DECIDED", "refs": ["RD13", "R2/N05"],
+     "given": {"workspace_configuration": {"fiscal_year_start": "04-01"}},
+     "when": {"command": "ActivateWorkspaceConfiguration"},
+     "then": {"outcome": "REJECT", "blocker": "FISCAL_START_NOT_JANUARY", "effects": "NONE"}},
+
+    {"id": "B24", "title": "Voucher year is the calendar year of the effective date", "status": "DECIDED", "refs": ["RD13", "D08"],
+     "given": {"transaction": {"effective_date": "2026-12-30"}, "finalized_on": "2027-01-02"},
+     "when": {"command": "FinalizeTransaction"},
+     "then": {"outcome": "ACCEPT", "voucher_year": 2026}},
+
+    {"id": "B25", "title": "History cannot add a second opening or bypass the cutover", "status": "DECIDED", "refs": ["RD05", "S 6.1"],
+     "given": {"cutover": "2026-11-01", "opening": "approved", "workbook": "history ending 2026-10-31"},
+     "when": [{"command": "ImportAsOpening", "source": "workbook"}, {"command": "StageImport", "dates_on_or_after": "2026-11-01"}],
+     "then": [{"outcome": "REJECT", "blocker": "OPENING_ALREADY_APPROVED", "effects": "NONE"}, {"outcome": "ACCEPT", "state": "STAGED"}]},
+
+    {"id": "B26", "title": "A mid-month start labels its actual coverage", "status": "DECIDED", "refs": ["RD05", "S 6.1"],
+     "given": {"cutover": "2026-11-10"},
+     "when": {"command": "BuildReport", "period": "2026-11"},
+     "then": {"outcome": "ACCEPT", "coverage_label": "2026-11-10 to 2026-11-30", "opening_label": "cutover position", "claims_complete_november": false, "claims_year_to_date": false}},
+
+    {"id": "B27", "title": "Versions resolve by the business date on every entry channel", "status": "DECIDED", "refs": ["RD06", "S 5.1"],
+     "given": {"master": {"v1": "until 2026-10-31", "v2": "from 2026-11-01"}, "entry": {"effective_date": "2026-10-25", "finalized_on": "2026-11-05"}, "channels": ["manual", "import", "AI preparation"]},
+     "when": {"command": "FinalizeTransaction", "via": "each channel"},
+     "then": {"outcome": "ACCEPT", "resolved_master": "v1", "resolved_policy": "versions in effect on 2026-10-25", "same_on_all_channels": true}},
+
+    {"id": "B28", "title": "A stale draft cannot bypass a requirement that changed", "status": "DECIDED", "refs": ["RD06"],
+     "given": {"draft": {"effective_date": "2026-11-03", "state": "REVIEWED", "reviewed_under": "approval policy p1"}, "policy": "p2 requires an external declaration from 2026-11-01, published after review"},
+     "when": {"command": "FinalizeTransaction"},
+     "then": {"outcome": "REJECT", "blocker": "REVIEW_STALE", "requires": "renewed review and the declaration p2 requires", "effects": "NONE"}},
+
+    {"id": "B29", "title": "An incident cannot change a CLOSED period or unblock a close", "status": "DECIDED", "refs": ["RD08", "S 4.3"],
+     "given": {"periods": {"2026-10": "CLOSED", "2026-11": "OPEN"}, "snapshot_2026-10_hash": "H1", "discovery": "Rp500,000 receipt omitted from October", "november_blockers": ["UNEXPLAINED_DIFFERENCE"]},
+     "when": [{"command": "RecordIncident", "period": "2026-10"}, {"command": "PostIncomeCorrection", "target_period": "2026-10", "via": "November entry disguised as correction"}, {"command": "ClosePeriod", "period": "2026-11"}],
+     "then": [{"outcome": "ACCEPT", "incident_fields": ["period", "records", "facts", "reconciliation_impact", "responsible_officer", "escalation_outcome"]}, {"outcome": "REJECT", "effects": "NONE"}, {"outcome": "REJECT", "blocker": "UNEXPLAINED_DIFFERENCE", "snapshot_2026-10_hash": "H1"}]},
+
+    {"id": "B30", "title": "Close requires the closer's explicit confirmation", "status": "DECIDED", "refs": ["RD08", "S 6.4 step 8"],
+     "given": {"periods": {"2026-10": "OPEN"}, "blockers": [], "screen_shown": ["final checks", "reporting coverage", "irreversible consequence"]},
+     "when": [{"command": "ClosePeriod", "confirmation": false}, {"command": "ClosePeriod", "confirmation": true}],
+     "then": [{"outcome": "REJECT", "blocker": "CONFIRMATION_REQUIRED", "effects": "NONE"}, {"outcome": "ACCEPT", "manifest": "records the confirmation actor and time"}]},
+
+    {"id": "B31", "title": "Snapshots hold Party IDs and resolve names at render time", "status": "DECIDED", "refs": ["RD11 (snapshot part)", "S 13"],
+     "given": {"snapshot": "F12 for 2026-10 with a donor Party P7", "viewers": {"entitled": "may see names", "restricted": "may not"}},
+     "when": [{"command": "InspectSnapshotDataset"}, {"command": "RenderPdf", "viewer": "entitled"}, {"command": "RenderPdf", "viewer": "restricted"}],
+     "then": [{"outcome": "ACCEPT", "contains_party_ids": true, "contains_names": false}, {"outcome": "ACCEPT", "shows": "name of P7"}, {"outcome": "ACCEPT", "shows": "no name"}],
+     "not_covered": "pseudonymization action, retention of already-generated files: still open"},
+
+    {"id": "B32", "title": "Reviewed default template: launch only after officer acceptance", "status": "DECIDED", "refs": ["RD03", "S 11"],
+     "given": {"original_forms": "none", "template": "reviewed default covering F01-F14 and eight F14 annexes", "periods": {"2026-10": "OPEN"}, "other_blockers": []},
+     "when": [{"command": "ClosePeriod", "template_acceptance": null}, {"command": "AcceptTemplate", "actor": "AUTHORIZED_CHURCH_OFFICER"}, {"command": "ClosePeriod"}],
+     "then": [{"outcome": "REJECT", "blocker": "TEMPLATE_NOT_ACCEPTED"}, {"outcome": "ACCEPT"}, {"outcome": "ACCEPT", "output_label": "default template, not verified against an original church form", "empty_annexes_marked": true}]},
+
+    {"id": "B33", "title": "Technical access alone cannot grant the Treasurer capability", "status": "DECIDED", "refs": ["RD07"],
+     "given": {"nominee": "N1 with login", "actors": ["INFRASTRUCTURE_ADMIN", "ONBOARDING_REVIEWER"], "authorization_record": {"nominee": "N1", "authorized_by": "named church officer or role", "evidence": "recorded"}},
+     "when": [{"command": "GrantFinancialCapability", "actor": "INFRASTRUCTURE_ADMIN"}, {"command": "GrantFinancialCapability", "actor": "ONBOARDING_REVIEWER", "authorization_verified": false}, {"command": "GrantFinancialCapability", "actor": "ONBOARDING_REVIEWER", "authorization_verified": true}],
+     "then": [{"outcome": "REJECT"}, {"outcome": "REJECT", "blocker": "AUTHORIZATION_NOT_VERIFIED"}, {"outcome": "ACCEPT", "audit": "grant with the authorization record and reviewer"}]},
+
+    {"id": "B34", "title": "Replacing the sole Treasurer needs new authorization and revokes the old access", "status": "DECIDED", "refs": ["RD07"],
+     "given": {"treasurer": "T1 (account lost)", "replacement": "T2"},
+     "when": [{"command": "GrantFinancialCapability", "to": "T2", "new_authorization": false}, {"command": "GrantFinancialCapability", "to": "T2", "new_authorization": true}],
+     "then": [{"outcome": "REJECT"}, {"outcome": "ACCEPT", "t1_access_and_sessions_revoked": true, "t2_inherits_approvals": false, "history_rewritten": false}]},
+
+    {"id": "B35", "title": "Supplier refund in November for an October payment", "status": "PROPOSED", "refs": ["RD04", "arithmetic A07"],
+     "note": "Awaiting approval of the RD04 event table. Do not implement before then.",
+     "given": {"periods": {"2026-10": "CLOSED", "2026-11": "OPEN"}, "original": {"id": "T-oct", "type": "DIRECT_EXPENSE", "fund": "GEN", "amount": 1000000, "period": "2026-10"}, "snapshot_2026-10_hash": "H1"},
+     "when": [{"command": "FinalizeRefund", "links_to": "T-oct", "amount": 200000, "effective_date": "2026-11-05"},
+              {"command": "FinalizeRefund", "links_to": "T-oct", "amount": 900000, "effective_date": "2026-11-06"},
+              {"command": "FinalizeCorrection", "target": "T-oct", "effective_date": "2026-11-07"}],
+     "then": [{"outcome": "ACCEPT", "november_belanja": -200000, "october_snapshot_hash": "H1"},
+              {"outcome": "REJECT", "blocker": "REFUND_EXCEEDS_ORIGINAL", "effects": "NONE"},
+              {"outcome": "REJECT", "blocker": "PERIOD_CLOSED", "effects": "NONE"}]},
+
+    {"id": "B36", "title": "Donor return in November for an October donation", "status": "PROPOSED", "refs": ["RD04"],
+     "note": "Awaiting approval of the RD04 event table. Do not implement before then.",
+     "given": {"periods": {"2026-10": "CLOSED", "2026-11": "OPEN"}, "original": {"id": "R-oct", "type": "DONATION", "ownership": "OWNED", "fund": "GEN", "party": "P7", "amount": 500000, "period": "2026-10"}},
+     "when": [{"command": "FinalizeDonorReturn", "links_to": "R-oct", "amount": 500000, "effective_date": "2026-11-05"},
+              {"command": "FinalizeDonorReturn", "links_to": "R-oct", "amount": 1, "effective_date": "2026-11-06"}],
+     "then": [{"outcome": "ACCEPT", "november_pendapatan": -500000, "october_unchanged": true},
+              {"outcome": "REJECT", "blocker": "RETURN_EXCEEDS_ORIGINAL", "effects": "NONE"}]}
+  ]
+}

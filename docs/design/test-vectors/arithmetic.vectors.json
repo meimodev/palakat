@@ -1,0 +1,146 @@
+{
+  "format": "palakat-arithmetic-vectors/1",
+  "currency": "IDR",
+  "note": "Fixtures for the balance equations and the per-Fund balance rule. Amounts are integer rupiah and fictional. Leg targets follow S section 3. A batch is a list of legs; 'kind' FUND_TRANSFER marks the only batch exempt from per-Fund balance (S 4.1 invariant 3). Opening legs are separate from events. 'sched' carries the signed transit-schedule effect (Tin/Tout). Check with check_arithmetic.py.",
+  "vectors": [
+    {
+      "id": "A01",
+      "title": "Worked example, whole workspace",
+      "status": "APPROVED",
+      "refs": ["S section 10", "RC10"],
+      "opening": [
+        {"t": "LIQUID:Kas", "dr": 10000000, "fund": "GEN"},
+        {"t": "OPENING_EQUITY", "cr": 10000000, "fund": "GEN"}
+      ],
+      "events": [
+        {"name": "Owned receipts", "legs": [
+          {"t": "LIQUID:Kas", "dr": 4000000, "fund": "GEN"}, {"t": "INCOME", "cr": 4000000, "fund": "GEN"}]},
+        {"name": "Electricity expense", "legs": [
+          {"t": "EXPENSE", "dr": 1250000, "fund": "GEN"}, {"t": "LIQUID:Kas", "cr": 1250000, "fund": "GEN"}]},
+        {"name": "Advance issue", "legs": [
+          {"t": "ADVANCE:UM1", "dr": 1000000, "fund": "GEN"}, {"t": "LIQUID:Kas", "cr": 1000000, "fund": "GEN"}]},
+        {"name": "Accepted advance spending", "legs": [
+          {"t": "EXPENSE", "dr": 750000, "fund": "GEN"}, {"t": "ADVANCE:UM1", "cr": 750000, "fund": "GEN"}]},
+        {"name": "Unused advance returned", "legs": [
+          {"t": "LIQUID:Kas", "dr": 250000, "fund": "GEN"}, {"t": "ADVANCE:UM1", "cr": 250000, "fund": "GEN"}]},
+        {"name": "Custody collection", "sched": {"tin": 2000000}, "legs": [
+          {"t": "LIQUID:Kas", "dr": 2000000, "fund": "GEN"}, {"t": "TRANSIT:TC1", "cr": 2000000, "fund": "GEN"}]},
+        {"name": "Custody remittance", "sched": {"tout": 1500000}, "legs": [
+          {"t": "TRANSIT:TC1", "dr": 1500000, "fund": "GEN"}, {"t": "LIQUID:Kas", "cr": 1500000, "fund": "GEN"}]},
+        {"name": "Cash-to-BNI transfer", "legs": [
+          {"t": "LIQUID:BNI", "dr": 3000000, "fund": "GEN"}, {"t": "LIQUID:Kas", "cr": 3000000, "fund": "GEN"}]}
+      ],
+      "expect": {
+        "C_open": 10000000, "A_open": 0, "L_open": 0,
+        "C": 12500000, "A": 0, "L": 500000, "N": 12000000,
+        "I": 4000000, "E": 2000000, "Tin": 2000000, "Tout": 1500000, "GP": 6000000, "GB": 3500000,
+        "per_fund_balanced": true
+      }
+    },
+    {
+      "id": "A02",
+      "title": "OPEN-period correction: reverse 1,250,000 and replace with 1,150,000",
+      "status": "APPROVED",
+      "refs": ["S section 10", "S section 4.3"],
+      "extends": "A01",
+      "extra_events": [
+        {"name": "Reversal of electricity expense", "legs": [
+          {"t": "LIQUID:Kas", "dr": 1250000, "fund": "GEN"}, {"t": "EXPENSE", "cr": 1250000, "fund": "GEN"}]},
+        {"name": "Replacement electricity expense", "legs": [
+          {"t": "EXPENSE", "dr": 1150000, "fund": "GEN"}, {"t": "LIQUID:Kas", "cr": 1150000, "fund": "GEN"}]}
+      ],
+      "expect": {"C": 12600000, "A": 0, "L": 500000, "N": 12100000, "E": 1900000, "I": 4000000, "per_fund_balanced": true}
+    },
+    {
+      "id": "A03",
+      "title": "Fund ownership transfer inside one Account: exempt from per-Fund balance, workspace money unchanged",
+      "status": "APPROVED",
+      "refs": ["S section 10", "S section 4.1 invariant 3", "E015"],
+      "opening": [
+        {"t": "LIQUID:BNI", "dr": 1000000, "fund": "A"},
+        {"t": "OPENING_EQUITY", "cr": 1000000, "fund": "A"}
+      ],
+      "events": [
+        {"name": "Fund ownership transfer A to B", "kind": "FUND_TRANSFER", "legs": [
+          {"t": "LIQUID:BNI", "dr": 500000, "fund": "B"}, {"t": "LIQUID:BNI", "cr": 500000, "fund": "A"}]}
+      ],
+      "expect": {
+        "C": 1000000, "I": 0, "E": 0,
+        "liquid_by_fund": {"A": 500000, "B": 500000},
+        "per_fund_balanced": true
+      }
+    },
+    {
+      "id": "A04",
+      "title": "Restricted view: BNI holds 1,000, Fund A owns 600",
+      "status": "DECIDED",
+      "refs": ["RD02", "S section 8 F10"],
+      "opening": [
+        {"t": "LIQUID:BNI", "dr": 600, "fund": "A"},
+        {"t": "LIQUID:BNI", "dr": 400, "fund": "B"},
+        {"t": "OPENING_EQUITY", "cr": 600, "fund": "A"},
+        {"t": "OPENING_EQUITY", "cr": 400, "fund": "B"}
+      ],
+      "events": [],
+      "expect": {"C": 1000, "liquid_by_fund": {"A": 600, "B": 400}, "per_fund_balanced": true},
+      "restricted_view": {
+        "viewer_funds": ["A"],
+        "expect_visible": {"C": 600},
+        "expect_absent": ["Fund B balance 400", "whole-Account observed bank balance", "unrestricted statement lines"]
+      }
+    },
+    {
+      "id": "A05",
+      "title": "Invalid: advance issued from Fund A, settled with Fund B expense",
+      "status": "DECIDED",
+      "refs": ["EC06", "R2/N01", "S section 4.1 invariants 3 and 9"],
+      "opening": [
+        {"t": "LIQUID:Kas", "dr": 1000, "fund": "A"},
+        {"t": "OPENING_EQUITY", "cr": 1000, "fund": "A"}
+      ],
+      "events": [
+        {"name": "Advance issue from Fund A", "legs": [
+          {"t": "ADVANCE:UM1", "dr": 1000, "fund": "A"}, {"t": "LIQUID:Kas", "cr": 1000, "fund": "A"}]},
+        {"name": "Settlement booking Fund B expense against the Fund A case", "legs": [
+          {"t": "EXPENSE", "dr": 700, "fund": "B"}, {"t": "ADVANCE:UM1", "cr": 700, "fund": "A"}]}
+      ],
+      "expect": {"per_fund_balanced": false, "unbalanced_event": "Settlement booking Fund B expense against the Fund A case"},
+      "behavior": "The settlement batch balances globally but not per Fund, so the posting module must reject it."
+    },
+    {
+      "id": "A06",
+      "title": "Invalid: Fund B cash remittance against a Fund A transit case",
+      "status": "DECIDED",
+      "refs": ["EC06", "R2/N01"],
+      "opening": [
+        {"t": "LIQUID:Kas", "dr": 500, "fund": "A"},
+        {"t": "LIQUID:Kas", "dr": 500, "fund": "B"},
+        {"t": "TRANSIT:TC1", "cr": 500, "fund": "A"},
+        {"t": "OPENING_EQUITY", "cr": 500, "fund": "B"}
+      ],
+      "events": [
+        {"name": "Remittance of the Fund A case paid from Fund B cash", "sched": {"tout": 500}, "legs": [
+          {"t": "TRANSIT:TC1", "dr": 500, "fund": "A"}, {"t": "LIQUID:Kas", "cr": 500, "fund": "B"}]}
+      ],
+      "expect": {"per_fund_balanced": false, "unbalanced_event": "Remittance of the Fund A case paid from Fund B cash"}
+    },
+    {
+      "id": "A07",
+      "title": "Proposed refund event (RD04, awaiting approval): October expense, November refund",
+      "status": "PROPOSED",
+      "refs": ["RD04"],
+      "opening": [
+        {"t": "LIQUID:Kas", "dr": 5000000, "fund": "GEN"},
+        {"t": "OPENING_EQUITY", "cr": 5000000, "fund": "GEN"}
+      ],
+      "events": [
+        {"name": "October supplier payment", "period": "2026-10", "legs": [
+          {"t": "EXPENSE", "dr": 1000000, "fund": "GEN"}, {"t": "LIQUID:Kas", "cr": 1000000, "fund": "GEN"}]},
+        {"name": "November supplier refund, linked to the October payment", "period": "2026-11", "legs": [
+          {"t": "LIQUID:Kas", "dr": 200000, "fund": "GEN"}, {"t": "EXPENSE", "cr": 200000, "fund": "GEN"}]}
+      ],
+      "expect": {"C": 4200000, "E": 800000, "per_fund_balanced": true},
+      "expect_by_period": {"2026-10": {"E": 1000000}, "2026-11": {"E": -200000}}
+    }
+  ]
+}
