@@ -141,6 +141,33 @@
       ],
       "expect": {"C": 4200000, "E": 800000, "per_fund_balanced": true},
       "expect_by_period": {"2026-10": {"E": 1000000}, "2026-11": {"E": -200000}}
+    },
+    {
+      "id": "A08",
+      "title": "Bank reconciliation with documented timing items: zero unexplained difference",
+      "status": "APPROVED",
+      "refs": ["S 6.3", "RC11", "behavior B40"],
+      "reconciliation": {"book_closing": 12000000, "observed_closing": 11300000,
+        "deposits_in_transit": [1000000], "outstanding_payments": [300000], "other_signed_items": []},
+      "expect": {"adjusted_statement_closing": 12000000, "unexplained_difference": 0}
+    },
+    {
+      "id": "A09",
+      "title": "Bank reconciliation with an unexplained difference of 50,000",
+      "status": "APPROVED",
+      "refs": ["S 6.3", "RC11", "behavior B39"],
+      "reconciliation": {"book_closing": 12000000, "observed_closing": 11250000,
+        "deposits_in_transit": [1000000], "outstanding_payments": [300000], "other_signed_items": []},
+      "expect": {"adjusted_statement_closing": 11950000, "unexplained_difference": 50000}
+    },
+    {
+      "id": "A10",
+      "title": "Cash count short by 50,000",
+      "status": "APPROVED",
+      "refs": ["S 6.3", "RC11", "behavior B43"],
+      "reconciliation": {"book_closing": 2500000, "observed_closing": 2450000,
+        "deposits_in_transit": [], "outstanding_payments": [], "other_signed_items": []},
+      "expect": {"adjusted_statement_closing": 2450000, "unexplained_difference": 50000}
     }
   ]
 }
