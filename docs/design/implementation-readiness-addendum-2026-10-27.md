@@ -228,7 +228,7 @@ Owner for EC01–EC08: **implementation designer**. Status: **OPEN — required 
 
 ## 4. Church configuration and source register
 
-Owner: **authorized church officer**, with implementation support. Status: **NOT YET RECORDED**. No illustrative value is a production default. Record values in a reviewed deployment configuration with activation actor/time and version IDs.
+Owner: **authorized church officer**, with implementation support. Status: **NOT YET RECORDED**. No illustrative value is a production default. Record values in a reviewed deployment configuration with activation actor/time and version IDs. A blank form for these values, with the derived 289-row production master ready for `allowed_effect_kinds`, is in [church-configuration/](church-configuration/church-configuration-template.md).
 
 | Required artifact | When it blocks |
 |---|---|
