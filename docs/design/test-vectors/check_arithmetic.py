@@ -51,8 +51,22 @@ def measures(opening, events):
     return m, liquid_fund
 
 
+def reconcile(r):
+    # S 6.3: adjusted = observed + deposits in transit - outstanding payments + other signed items
+    adjusted = r["observed_closing"] + sum(r["deposits_in_transit"]) - sum(r["outstanding_payments"]) + sum(r["other_signed_items"])
+    return {"adjusted_statement_closing": adjusted, "unexplained_difference": r["book_closing"] - adjusted}
+
+
 fails = 0
 for v in vectors:
+    if "reconciliation" in v:
+        got = reconcile(v["reconciliation"])
+        problems = [f"{k}: expected {w}, got {got[k]}" for k, w in v["expect"].items() if got[k] != w]
+        print(("FAIL " if problems else "ok   ") + v["id"] + "  " + v["title"])
+        for p in problems:
+            print("     -", p)
+        fails += bool(problems)
+        continue
     base = by_id[v["extends"]] if "extends" in v else v
     opening = base["opening"]
     events = base["events"] + v.get("extra_events", [])
