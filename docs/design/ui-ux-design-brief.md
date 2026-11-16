@@ -423,7 +423,7 @@ Each question has a proposed answer. A proposal becomes a decision only when its
 
 ## References
 
-All files on `main` are in `docs/design/` of the [meimodev/palakat](https://github.com/meimodev/palakat) repository; the last two items below are in open pull requests and may change. Citations in this brief use the short names below.
+All files are in `docs/design/` of the [meimodev/palakat](https://github.com/meimodev/palakat) repository. Citations in this brief use the short names below.
 
 - **P**: [MVP specification v5.0](https://github.com/meimodev/palakat/blob/main/docs/design/GMIM_Treasurer_MVP_Design_Specification_and_Rulebook_v5.0.md). Read sections 1 to 3 first (vision, scope, workflow, navigation and dashboard), then 5 to 13 for each workflow. Section 14 shows what V1 must leave room for.
 - **S**: [engineering specification v2.0](https://github.com/meimodev/palakat/blob/main/docs/design/GMIM_Treasurer_Domain_Model_Posting_Rules_State_Machines_and_Report_Pack_Data_Mapping_v2.0.md). Section 5 state machines, 6.4 close blockers, 8 field mapping for F01 to F14, 11 the default template, 13 restricted views.
@@ -431,8 +431,8 @@ All files on `main` are in `docs/design/` of the [meimodev/palakat](https://gith
 - [Build plan](https://github.com/meimodev/palakat/blob/main/docs/design/build-plan-2026-11-07.md): a draft, proposed order of work with no schedule set: slices 1 to 10 and the first complete finance path.
 - [Stack decision](https://github.com/meimodev/palakat/blob/main/docs/design/stack-decision-2026-11-08.md): Flutter, Supabase, Vercel. Its server-side split, including the abort-and-retry close, is proposed, not decided.
 - [Engineering contracts draft](https://github.com/meimodev/palakat/blob/main/docs/design/engineering-contracts-draft-2026-11-07.md): EC04 close abort and retry, EC07 rejected evidence, EC08 AI cost rate and reservation. Drafts, not approved. The Rp150,000 cap itself is decided.
-- Church configuration template, in [meimodev/palakat#88](https://github.com/meimodev/palakat/pull/88) (open pull request): the values a church supplies, which shows what the settings screens must hold.
-- Test fixtures, in [meimodev/palakat#87](https://github.com/meimodev/palakat/pull/87) (open pull request): more cases on top of the decided-rule fixtures already in docs/design/test-vectors/ on main. Vectors marked PROPOSED or DRAFT\_EC are not decided behavior.
+- [Church configuration template](https://github.com/meimodev/palakat/blob/main/docs/design/church-configuration/church-configuration-template.md): the values a church supplies, which shows what the settings screens must hold.
+- [Test fixtures](https://github.com/meimodev/palakat/tree/main/docs/design/test-vectors): cases for the decided rules, plus reconciliation, imports, approvals, evidence and the draft ECs. Vectors marked PROPOSED or DRAFT\_EC are not decided behavior.
 
 ---
 
