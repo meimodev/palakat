@@ -1,12 +1,12 @@
 # Test vectors
 
-Fixtures for the first posting and close code, written 7 November 2026 from the approved worked example (S section 10) and the product decisions RD01–RD13 and EC06 (see `../implementation-readiness-addendum-2026-10-27.md`). Extended 15 November 2026 with reconciliation, import, approval and evidence fixtures from S, and with fixtures for the draft engineering contracts. They are inputs for a future test harness. No application exists yet, so nothing here has been run against code.
+Fixtures for the first posting and close code, written 7 November 2026 from the approved worked example (S section 10) and the product decisions RD01–RD13 and EC06 (see `../implementation-readiness-addendum-2026-10-27.md`). Extended 15 November 2026 with reconciliation, import, approval and evidence fixtures from S, and with fixtures for the draft engineering contracts; extended 18 November 2026 with EC09 (unit finalization). They are inputs for a future test harness. No application exists yet, so nothing here has been run against code.
 
 | File | Content |
 |---|---|
 | `arithmetic.vectors.json` | Balanced legs and expected measures (A01–A07): worked example, OPEN-period correction, Fund ownership transfer, restricted-view balance, the two EC06 rejects, the proposed refund. Reconciliation equations (A08–A10): bank with timing items, bank with an unexplained difference, cash count. |
 | `check_arithmetic.py` | Recomputes `C`, `A`, `L`, `N`, `I`, `E`, `Tin`, `Tout`, `GP`, `GB`, the three bridge equations and per-Fund balance from the legs, and the S 6.3 adjusted statement closing and unexplained difference, and compares them to `expect`. Run `python3 -I check_arithmetic.py`; it exits 1 on any mismatch. |
-| `behavior.vectors.json` | Scenario vectors (B01–B92): given state, command, required outcome. |
+| `behavior.vectors.json` | Scenario vectors (B01–B100): given state, command, required outcome. |
 
 Behavior vectors by area:
 
@@ -29,6 +29,8 @@ Behavior vectors by area:
 | Restore drill and close archive (EC04) | B81–B85 | DRAFT_EC |
 | Portable export (EC05) | B86–B88 | DRAFT_EC |
 | AI cap reservation (EC08) | B89–B92 | DRAFT_EC |
+| Unit finalization in S (DL26, DL32, DL33, RD01, RD12) | B93–B95, B98, B100 | DECIDED |
+| Unit finalization, rest of draft EC09 | B96, B97, B99 | DRAFT_EC |
 
 Conventions:
 
@@ -39,5 +41,6 @@ Conventions:
 - B10 records a reading the product owner has not confirmed separately: a master row with no `allowed_effect_kinds` accepts owned posting and blocks custody posting.
 - B21 documents a residual: a Fund-only viewer cannot list gaps or read other Funds' vouchers, but still sees that voucher numbers skip.
 - B76 and B85 depend on open designer decisions (who sets `supported_amount`; whether a close may depend on the write-once store). Their notes say so.
+- B95 and B100 follow EC09's product answers of 18 November 2026: units finalize only on Accounts they operate (P1), and the church Bendahara may clear a unit's blockers with a reason (P2). Both are in S (E066, E067), so they and the other unit vectors whose rules are in S are DECIDED. B96 (Fund transfers reserved to the church Bendahara), B97 (the unit checker) and B99 (no finalization past Panitia `FINANCIAL CLOSING`) stay DRAFT_EC until the designer approves EC09.
 
 Not covered, because the contract is not decided: the pseudonymization action and PDF retention (RD11), the RD04 event table until approved, the EC05 package format and export retention, and EC07 coverage when one requirement spans several items (the draft says one verified link is enough).

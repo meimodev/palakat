@@ -13,7 +13,7 @@
 
 This is the single-file handover of the current Treasurer-first design, the user-supplied **Design Specification & Rulebook — Current Source of Truth**, the user-supplied **Consolidated Master Rulebook**, and the recovered recent conversation. The supplied documents resolve the previous gaps concerning adoption levels, organizational roles, member lifecycle, Warta/privacy masking, Panitia, notifications and attendance.
 
-**Section 16 retains all 775 rule numbers and source structure; incompatible rules are explicitly amended for approved rounds 1–6.** Appendix A retains the earlier conversation's AI-rule numbering 293–342; Appendix B retains controls C01–C20 with explicit OPEN-period correction limits. The untouched predecessor preserves original wording, while this edition records the changed rules and their authority. Their numbers belong to different source editions and must not be conflated. The prior handover's synthesized H001–H110 list has been replaced by the supplied master.
+**Section 16 retains all 775 rule numbers and source structure; incompatible rules are explicitly amended for approved rounds 1–6.** The 17 and 18 November 2026 amendments change nine more rules and add M776–M824 in subsection BC; the added rules are product-owner decisions, not source text. Appendix A retains the earlier conversation's AI-rule numbering 293–342; Appendix B retains controls C01–C20 with explicit OPEN-period correction limits. The untouched predecessor preserves original wording, while this edition records the changed rules and their authority. Their numbers belong to different source editions and must not be conflated. The prior handover's synthesized H001–H110 list has been replaced by the supplied master.
 
 The two user-supplied classification exports have now been read directly. **All 131 Pendapatan and 158 Belanja codes and labels are embedded once, as machine-readable JSON, in Appendix B of the companion engineering specification (S)**, with exact string formatting, original label text and indentation, source order, source references and file hashes. Each master has six verified top-level families.
 
@@ -39,6 +39,7 @@ The recovered design/rulebook and approved rounds 1–6 establish the product ba
 | Shared finance engine; Account / Fund / Scope / Mata Anggaran | Recovered |
 | Lifecycle, approvals, advances, transfers, evidence, migration, reconciliation and closing | Recovered constraints plus explicit engineering algorithms/state guards in section 19 |
 | All 775 consolidated master rules | Embedded in full in section 16 |
+| Platform modules, Secretary-first adoption, Secretariat and membership roles | Decided 17 and 18 November 2026 (DL1–DL33); applied in 1.1, 1.2, 6.2, 14 and rules M776–M824. Records and screens remain to specify (platform module plan, section 13) |
 | Earlier AI rules 293–342 and 20 tightened controls | Preserved in source-specific appendices |
 | Pendapatan/Belanja counts and six family names each | Recovered |
 | Exact 289 source codes/labels | Embedded as JSON in S Appendix B; counts and exact text verified |
@@ -52,13 +53,39 @@ The recovered design/rulebook and approved rounds 1–6 establish the product ba
 
 ### 0.3 Source editions, precedence and references
 
-Use **Master rule N** or `M001…M775` when referring to section 16. Use **Legacy AI rule N** or `L293…L342` for Appendix A. Use **Control C01…C20** for Appendix B. These aliases do not alter original source numbers. For example, Master rule 293 concerns Belanja's Marturia family, whereas Legacy AI rule 293 concerns OpenRouter.
+Use **Master rule N** or `M001…M824` when referring to section 16 (M776 onward are added decisions of 17 and 18 November 2026, not source text). Use **Legacy AI rule N** or `L293…L342` for Appendix A. Use **Control C01…C20** for Appendix B. These aliases do not alter original source numbers. For example, Master rule 293 concerns Belanja's Marturia family, whereas Legacy AI rule 293 concerns OpenRouter.
 
 The supplied documents are incorporated as the current product baseline under the user's instruction to update this handover. They do not prove that their 1–775 numbering is the original conversation's numbering; it is a consolidated source edition. The old chronological rules 1–292 are no longer a handover blocker because the supplied current master covers the accumulated decisions.
 
 Preserve compatible requirements across all sources. Treasurer-first and explicit deferrals govern V1 scope; future-platform rules remain future constraints rather than launch dependencies. Approved rounds 1–6 explicitly resolve prior engineering/policy ambiguities. Any remaining source gap stays visible. The amendment register identifies changed source rules; a mere handover interpretation cannot override an approved policy.
 
 ### 0.4 Revision record
+
+**Amendment (18 November 2026):** the user, acting as product owner, answered the two product questions in draft engineering contract EC09 (unit finalization). They are recorded as DL32 and DL33 in section 2 of the platform module plan:
+- **DL32:** a unit treasurer finalizes only on Accounts their unit operates.
+- **DL33:** the church Bendahara may clear a unit's open drafts and unit-Account reconciliations before close, with a reason and a notice to the unit.
+
+Applied here in 1.2, 14.3, 16 (added M823–M824), 17.1, 18.2 and 18.7. Also applied in S, as EC09's product part (E066 amended, E067 added). The rest of EC09 stays a draft until the implementation designer approves it.
+
+**Amendment (17 November 2026):** the user, acting as product owner, decided DL1–DL20, recorded in section 2 of [platform-module-plan-2026-11-17.md](platform-module-plan-2026-11-17.md). They cover:
+- a modular platform that a church can start Treasurer-first or Secretary-first, with Finance built first;
+- the Sekretaris Jemaat's duties, church documents and announcements;
+- membership kept by members and their Penatua Kolom, with UU PDP consent on application and deletion on request;
+- service approval, and vacancy cover by an Operator, including the Bendahara post;
+- Komisi, the Ketua Jemaat, inventory left out, and push notifications.
+
+Applied here in 0.2, 0.3, 1.1, 1.2, 6.2, 14 (with new 14.12), 16, 17.1, 18.2 and 18.7. Rules M148, M481, M563, M566, M634, M725 and M753 are amended, and subsection BC adds M776–M806. The prior wording is in git history. The same decisions are applied in S (register "Product-owner decisions — 17 November 2026", E061–E063), the readiness addendum's RD07 entry and the stack decision.
+
+**Amendment (17 November 2026, role decisions):** the user, acting as product owner, then decided DL21–DL31, recorded in the same section 2 of the platform module plan. They cover:
+- who records role assignments, and how Operators are appointed;
+- what Penatua, the Secretary and Operators can see;
+- unit treasurers finalizing in their own Fund;
+- Panitia creation and leftover money;
+- automatic BIPRA;
+- default in-app approvers and attendance finalization;
+- the BPMJ posts.
+
+Applied here in 0.2, 0.3, 1.2, 6.2, 14.1–14.5, 14.9, 14.12, 16, 17.1, 18.2 and 18.7. Rules M472 and M484 are amended, and M807–M822 are added to subsection BC. Also applied in S (E064–E066) and the readiness addendum's RD07 entry. The platform plan lists the risks these decisions accept.
 
 **Cleanup edit (7 November 2026, no policy change):** removed duplicated material, with git commit `1962b27` holding the full prior text. Section 19 (a near-verbatim copy of S sections 1–15, differing only in heading level and a few introductory words) is replaced by a section map to S. The readable catalog tables (Appendix C.1–C.2) and the duplicate JSON snapshots (Appendix D) are removed; the JSON in S Appendix B is the single copy and was byte-identical. Appendix C.3–C.4 and section 18.5, which only restated status or described a chat storage location, are removed. Three overview blocks that said they were superseded by S are removed: the 4.2 domain-record table, the 12.2 report-mapping table and the five 13.5 AI paragraphs that were word-for-word copies of S section 12 (13.5 now points to 0.5 and S section 12). Revision history above is condensed. M-rules, Appendix A (L293–L342), Appendix B (C01–C20) and Appendix C.5 are unchanged.
 
@@ -94,6 +121,8 @@ Value must not depend on BPMJ, Penatua, Syamas, BIPRA leaders, members or Paniti
 6. Progressive collaboration: **Church Operator → unit treasurers → approvals**.
 7. The broader church-management platform later.
 
+**Amended 17 November 2026 (DL1, DL9):** Finance is built first. The wider platform is built as modules on a shared core, and a church may start with the Secretariat instead of Finance. See [the platform module plan](platform-module-plan-2026-11-17.md), sections 9 and 12.
+
 ### 1.2 Confirmed five progressive adoption levels
 
 | Level | Adoption | Work supported | Authority boundary |
@@ -105,6 +134,12 @@ Value must not depend on BPMJ, Penatua, Syamas, BIPRA leaders, members or Paniti
 | **Level 5 — Full Church Platform** | Broader modules progressively activate | Member self-service, Warta, services, lifecycle, inventory, attendance and announcements | Publication/privacy and organizational authority rules remain effective |
 
 **First Treasurer (RD07).** The first Treasurer is established from a recorded church authorization that names the nominee and the authorizing person or role. A designated human onboarding reviewer verifies it before the financial capability is granted; technical access alone cannot grant it. The church names its authorization source. See S section 13.
+
+**Amended 17 November 2026 (DL1):** levels 1–4 are the Finance track. A church may instead start with the Secretariat track: the Sekretaris alone keeps the document archive, issues member letters, publishes announcements and publishes the Warta (step S1), with an Operator added later (S2). Membership is a third track: an Operator imports the paper member book and the Penatua Kolom verify (M1), then members apply and submit their own changes (M2). Tracks can be added in any order; level 5 is every track active. No daily Secretariat flow may require another church user, just as for Finance.
+
+**Amended 17 November 2026 (DL10, DL12):** the Secretary's appointment is verified the same way as the Treasurer's. While the Bendahara post is vacant, an Operator may act in it until a new Treasurer is granted; maker/checker still needs two distinct people.
+
+**Amended 17 November 2026 (DL21, DL22, DL26):** the authorized church officer, whom the developer assigns at onboarding, records every role assignment. An Operator's appointment needs no onboarding-reviewer check. At level 3, unit treasurers finalize transactions in their own Fund, and the church Bendahara still closes the month. **Amended 18 November 2026 (DL32, DL33):** a unit treasurer finalizes only on Accounts their unit operates, and the church Bendahara may clear a unit's open drafts and reconciliations before close.
 
 The backend must support this growth while the first UI remains Treasurer-focused. Collaboration must never make solo use impossible. Scopes can exist without unit user accounts. Data is entered once and reused wherever authorized.
 
@@ -331,6 +366,10 @@ True in-app approval can coexist later with external declarations. It requires a
 **Engineering status:** Scoped-role/delegation and separation-of-duties constraints are recovered in section 14. Section 19.4 separates approval mode from review and binds them to revision/authority. Exact expense thresholds, required approvers/quorum and exception capabilities remain church policy values; they are not invented. Maker/checker is off by default for solo use; when enabled it requires distinct humans under church policy. Where a maker/checker restriction applies, solo mode does not authorize bypassing it.
 
 Request, Approve, Pay and Verify remain distinguishable actions. Treasurer authority is not technical super-administration; system administrator and Church Operator are not automatically financial authorities. Multiple roles must not bypass self-approval: a person submitting as Ketua Pemuda cannot switch to their BPMJ role to approve the same request where independent approval is required. Maker/checker is configurable but structurally supported.
+
+**Amended 17 November 2026 (DL12):** an Operator may act on any vacant post, including the Bendahara, until a holder is appointed. The cover is audited like any delegated action, and maker/checker still needs two distinct people.
+
+**Amended 17 November 2026 (DL29):** once in-app approval exists, approvers come from the approval table in each church's configuration. Until a church fills it, the Ketua Jemaat approves Church Fund requests and a unit's Ketua approves that unit's Fund requests. Below a threshold the church sets, no approval is needed. These defaults name who approves; they invent no amount.
 
 Approval state, payment state, transaction lifecycle and reconciliation state are different concepts. An approved proposal is not evidence that money moved; a payment is not automatically approval.
 
@@ -829,6 +868,8 @@ The approved AI integration, context minimization, structured-proposal validatio
 
 The supplied documents recover these **accepted future-platform rules**. They constrain later expansion but do not make the whole platform a Treasurer MVP launch requirement. The long-term platform includes Jemaat and household data, Kolom, BIPRA, BPMJ, Komisi, Panitia/custom units, services, inventory, Warta, member lifecycle, notifications, reports, attendance, roles/delegation and audit/history.
 
+**Amended 17 November 2026:** the platform is built as modules on a shared core, each switched on per church (DL1). Inventory is left out for now (DL16). Komisi is a standing organizational unit type, a permanent work unit such as Komisi Diakonia or Pembangunan, with its own officers and, if the church wants, its own Fund (DL17). The module catalog, the seams between modules and the build order are in [the platform module plan](platform-module-plan-2026-11-17.md).
+
 ### 14.1 Organization, roles and permissions
 
 Use a generic organizational-unit model where practical rather than separate hardcoded accounting engines/tables for every type. One person has one account and may hold multiple simultaneous scoped role assignments. Avoid `user.role = "PENATUA"` as the entire authority model.
@@ -836,6 +877,16 @@ Use a generic organizational-unit model where practical rather than separate har
 Role assignment records include Person, Role, Scope, Start Date, End Date and Status. Effective permissions derive from **role + scope + delegation + workflow rules + active service period**. Different BPMJ positions may have different permissions; BPMJ membership grants no blanket access. Technical administration and church/financial authority remain separate.
 
 Historical context retains the role/scope in force when an action happened. Multiple concurrent users must not silently overwrite changes; provide conflict detection. Exact capability matrices and workflow thresholds remain engineering work.
+
+**Amended 17 November 2026 (DL12, DL19):** a post with no active holder is vacant, and an Operator may act on it (see 14.2). The Ketua Jemaat is a BPMJ position the church assigns, usually the Pendeta; the church sets its capabilities beyond approving services (14.8).
+
+**Amended 17 November 2026 (DL21, DL23–DL25, DL31):**
+- **Role assignment.** The developer assigns the authorized church officer at onboarding, and that officer records every other role assignment. The Treasurer and Secretary also go through the onboarding reviewer.
+- **The BPMJ posts.** The Sekretaris and Bendahara BPMJ are the Sekretaris and Bendahara Jemaat.
+- **What each role can see:**
+  - A Penatua Kolom sees full data only for their own Kolom's members and households, plus transfer requests into it.
+  - The Secretary can read the whole member registry but cannot change it.
+  - An Operator can see everything in every module.
 
 ### 14.2 Church Operator and delegation
 
@@ -845,11 +896,21 @@ Operator status does not automatically grant financial approval, leadership appo
 
 Delegated actions retain **performed by, acting role, scope, on behalf of, duration and timestamp**. Delegation may have start/end dates, and temporary delegation expires automatically. Administrative delegation does not automatically transfer governance authority; all delegated work remains auditable.
 
+**Amended 17 November 2026 (DL6, DL8, DL12):** Operators import the paper member book, handle membership exceptions such as members without a phone, and may act on any vacant post, including the Bendahara, until a holder is appointed. For vacancies only, this changes the rule that Operator status gives no financial approval (M148, M481).
+
+**Amended 17 November 2026 (DL22, DL25):** the authorized church officer records an Operator's appointment like any other role, with no onboarding-reviewer check. An Operator can see everything in every module, including all finance records, bank statements and members' full identities; this gives no administrative or approval power (M484). With DL12, this means someone can reach the Bendahara's finalize and close powers without a verified written church authorization. The platform plan records this as an accepted risk.
+
 ### 14.3 Fund governance and unit autonomy
 
 Each Fund has an owner and applicable governance, with operational Treasurer/responsible officer, visibility, approval and spending rules as relevant. Funding source determines the approval workflow. Church, Kolom, BIPRA and Panitia Fund governance can differ.
 
 Future Church Fund flows may require **Request → Treasurer financial review → authorized BPMJ approval → payment → evidence**. Kolom/BIPRA/Panitia money follows its authorized unit governance. Church Treasurer can have consolidated oversight without approving every subordinate-fund transaction. Unit autonomy and church oversight can coexist; precise limits remain explicit policy decisions.
+
+**Amended 17 November 2026 (DL26, DL29):** a unit treasurer (Bendahara Kolom, BIPRA, Komisi or Panitia) finalizes transactions in their own Fund. The church Bendahara still closes the whole workspace. A unit's Ketua is the default approver for its Fund's in-app requests until the church fills its approval table.
+
+**Amended 18 November 2026 (DL32, DL33):** the unit-finalization rules are drafted as EC09 in the engineering contracts draft. Two parts are decided:
+- A unit treasurer finalizes only on Accounts their unit operates, such as a Kolom cash box or a Panitia's own bank account. Movements on a church-operated Account, even of unit money, are finalized by the church Bendahara.
+- So that one unit cannot hold up the church's close, the church Bendahara may cancel or redate a unit's open draft and confirm its unit-operated Account's reconciliation from the unit's recorded observations. Each action needs a reason and notifies the unit.
 
 ### 14.4 Panitia / temporary groups
 
@@ -861,9 +922,22 @@ PLANNING → ACTIVE → EVENT COMPLETED → FINANCIAL CLOSING → CLOSED → ARC
 
 A Panitia can have Ketua, Sekretaris, Bendahara, members, its own Fund, transactions, reports and assets. It may receive approved church allocations and permitted donations/fundraising. Closed Panitia does not continue ordinary financial activity. Remaining money requires approved disposition; remaining assets require an approved owner/destination. Generate final accountability and retain history through archival. Do not strand balances in an archived committee.
 
+**Amended 17 November 2026 (DL16):** remaining assets are handed over by a church document recording the approved owner or destination.
+
+**Amended 17 November 2026 (DL27):** the authorized church officer creates a Panitia and moves it through its stages. The church Bendahara approves where its leftover money goes.
+
 ### 14.5 Member self-service, household and lifecycle
 
 Members supply their own eligible information where safe/practical rather than making officers retype it. Important changes can follow **Member submits → pending verification → officer verifies → authoritative update**. Self-service does not mean self-approval. Penatua/Syamas focus on supervision/approval; Operators assist exceptional administration.
+
+**Amended 17 November 2026 (DL6–DL8, DL13, DL18):**
+- Members submit their own data and life events, and their own Penatua Kolom verifies. An Operator handles exceptions.
+- A person declares consent under Indonesia's personal data law (UU PDP) when applying to become a member.
+- Existing members from the paper book are imported as unconfirmed records, visible only to their Penatua Kolom and the Operator. They become active once the household confirms its data and consents (in the app, or on a signed paper form the Penatua uploads) and the Penatua verifies. Nothing about an unconfirmed person is published.
+- Baptism, Sidi and Marriage are membership life events, submitted by the member and verified by the Penatua Kolom.
+- A member may withdraw consent and ask for their data to be deleted, and is then deleted. Their finance records keep the name as recorded, and Warta editions and documents already published stay exactly as published. Deceased members are still never deleted.
+- A Penatua Kolom sees full data only for their own Kolom (DL23).
+- A member's BIPRA is worked out from birth date, sex and marital status, using age limits the church sets. It changes by itself on birthdays and marriages, and the Penatua Kolom can correct an individual case (DL28).
 
 Household/family is first-class; every person remains an individual record, including dependents. Preserve household-membership history. Households may have a publication/display name that does not automatically depend on the current household head. Internal person, household, member history and login identity remain distinguishable.
 
@@ -872,6 +946,8 @@ Lifecycle events include **Birth, Registration, Kolom movement, Incoming transfe
 **Birth:** A formal event, not an ordinary profile edit. Parents/household may submit; verification precedes authoritative registration as required. Create an individual person linked to household and appropriate Kolom; update statistics. Birth does not imply baptism, Sidi or another sacramental/church status. Later service workflows reuse that child record. Birth information does not automatically become public Warta content.
 
 **Death:** Confirm status `DECEASED` rather than delete the person. Preserve family, membership, role, donation, transaction, service and audit history. Confirmation disables login, stops personal notifications, removes active approval authority, ends/suspends active roles, flags leadership vacancies, reroutes pending workflows and updates household statistics. A Treasurer's death triggers critical operational review. Never automatically appoint a replacement or transfer financial access. A replacement Treasurer needs new church authorization verified by a designated human reviewer, an audited grant and revocation of the displaced person's access (RD07, S section 13). Funeral/pastoral workflows may follow; health/cause-of-death information is not automatically public.
+
+**Amended 17 November 2026 (DL12):** while a deceased Treasurer's or leader's post is vacant, an Operator may act in it until a replacement is appointed (for the Treasurer, under RD07). This is cover, not an appointment.
 
 **Kolom movement:** Retain dated assignments and effective date; support individual, whole-household and selected-family-member transfer. Members/households may initiate with source/destination verification as required. Leadership roles do not automatically move; Penatua/Syamas movement triggers leadership review. Historical financial transactions retain original scope; future applicable transactions use new scope from effective date.
 
@@ -891,6 +967,8 @@ DRAFT → REVIEW → APPROVED → PUBLISHED → ARCHIVED
 
 Regular members see published editions. Preserve historical editions and support PDF/print. Published content must not silently change; corrections use traceable revisions. Exact template, reviewer/approver capabilities and publication scope remain to specify.
 
+**Amended 17 November 2026 (DL2, DL4, DL14):** the Sekretaris Jemaat is the Warta editor, reviewer and approver. The Secretary also writes and publishes announcements; an Operator may draft them. Each announcement has an audience, an optional end date after which it archives itself, and the lifecycle `DRAFT → PUBLISHED → ARCHIVED`; a correction is a new revision. The Warta template remains to specify.
+
 **Implementation clarification:** Apply audience/privacy rules when building the publication projection, before delivering its data or exports. Visual hiding alone does not enforce masking. Keep private canonical records separate from published identities and snapshots.
 
 ### 14.7 Mandatory publication masking and exceptions
@@ -907,6 +985,8 @@ Audit each exception with affected person, original preference, published repres
 
 Snapshot the exact published representation. A family published as “Keluarga Wenas-Lasut — Kolom 7” remains so historically after moving to Kolom 12. Later privacy changes apply prospectively to future eligible publications and do not silently rewrite prior editions.
 
+**Amended 17 November 2026 (DL5, DL15):** the Secretary, as Warta editor and approver, may reveal a masked identity for a stated necessity, with a reason and an audit record, and informs the member where appropriate. This changes M634 for the Secretary. A donor the Treasurer recorded who is not linked to any member appears with the name as recorded. *Proposed continuation detail:* a donor record that lost its member link because the member was deleted is not named in later editions.
+
 ### 14.8 Services/events
 
 Future services may include Sunday/Kolom/BIPRA worship, Baptism, Sidi, Marriage, Funeral, pastoral services, Panitia/special events and special worship. Reuse existing person/household data for member-requested services and permitted reports/Warta.
@@ -918,6 +998,8 @@ DRAFT → APPROVED/SCHEDULED → LIVE → COMPLETED → CLOSED
 ```
 
 This service/event capability does not bring deferred Pelayan scheduling/service roster into MVP.
+
+**Amended 17 November 2026 (DL11, DL12):** a service is approved by the Penatua or Syamas of the Kolom or BIPRA that is its audience. Jemaat-wide services (Sunday worship, Natal, Paskah) and Panitia events are approved by the Ketua Jemaat; when there is no Ketua Jemaat, by the Secretary or someone appointed. An Operator may act on a vacant approver post.
 
 ### 14.9 Attendance — anonymous aggregate headcount only
 
@@ -935,6 +1017,8 @@ Only finalized counts enter official reports/Warta. Finalized counts are not cas
 
 Scoped capabilities: `attendance.view`, `attendance.count`, `attendance.review`, `attendance.finalize`, `attendance.correct`, `attendance.assign_counter`. Temporary counters can receive only `attendance.count` for one specific service. Counting does not grant finalization; regular members do not need attendance-management access.
 
+**Amended 17 November 2026 (DL30):** whoever approves a service (14.8) assigns its counters, reviews the count and finalizes it. Counters can only count.
+
 ### 14.10 Notifications
 
 Use a central Notification Engine with **realtime in-app updates and push**. WhatsApp/SMS/email may be added later. **Quiet hours are explicitly not part of the current design.**
@@ -943,6 +1027,8 @@ Notifications are scope-aware, role-aware, relevant, action-oriented, deep-linke
 
 Treasurer triggers include missing evidence, overdue advances, unresolved bank reconciliation, external approval awaiting recording, transactions awaiting review and month-end issues. Notification delivery is not approval or financial evidence, and push failure does not stop accounting.
 
+**Amended 17 November 2026 (DL20):** push uses Firebase Cloud Messaging, sent from a server-side function so the key stays off the device.
+
 ### 14.11 Reports, search, duplication and historical integrity
 
 Future reports can cover Jemaat, Kolom, BIPRA, Panitia, Fund, Account, services/aggregate attendance, lifecycle statistics and inventory. Derive values from authoritative data; no generic custom-report/query builder is required initially. Global search respects permissions and cannot expose unrelated confidential records merely because a name matches.
@@ -950,6 +1036,20 @@ Future reports can cover Jemaat, Kolom, BIPRA, Panitia, Fund, Account, services/
 Potential duplicate people support **Compare, Merge, Not Same Person**. Merge preserves financial history, roles, household relationships, service history and audit history. Use controlled master data where it improves consistency without making entry unnecessarily difficult.
 
 Authoritative data favors lifecycle/history over destructive deletion: finalized transaction → reversal; published Warta → revision/archive; member → lifecycle status; closed Panitia → archive. Empty drafts may be deletable. Organizational/profile changes do not rewrite historical finance, publication or audit context.
+
+**Amended 17 November 2026 (DL13):** a living member who withdraws consent and asks for deletion is deleted; see 14.5.
+
+### 14.12 Secretariat and church documents
+
+**Added 17 November 2026 (DL2, DL3, DL10).** The Sekretaris Jemaat publishes the Warta Jemaat, publishes church-wide documents and maintains the documents of the whole church. Church-wide documents include:
+- decisions and circulars (SK BPMJ, surat edaran, decisions of church meetings and synods);
+- meeting minutes;
+- church rules and liturgy (tata gereja, regulations, tata ibadah);
+- letters issued to one member on request (atestasi, surat keterangan).
+
+The Secretary's appointment is verified like the Treasurer's (RD07). A lone Secretary can do all of this without any other church user. Document records, audiences and the letter-request flow are proposed in section 6.1 of [the platform module plan](platform-module-plan-2026-11-17.md).
+
+**Amended 17 November 2026 (DL24, DL31):** the Secretary is the Sekretaris BPMJ and can read the whole member registry, which letters and the Warta need, but cannot change member data.
 
 ## 15. Security, audit, backup/export and graceful degradation
 
@@ -991,7 +1091,7 @@ Export should be usable outside the app: machine-readable ledger/line data, exac
 
 ## 16. Consolidated master rulebook — all 775 supplied rules
 
-This is the user-supplied **Consolidated Master Rulebook**, embedded in full. Rule order/numbering and source subsections are retained. Identified round 1–6 amendments below change incompatible wording, and M277 carries one amendment of 7 November 2026 (RD06); all other rules retain source text. Source subsection headings are demoted one level to fit the document. The unchanged predecessor and recorded source hashes preserve original provenance. Refer to these as **Master rule N** (`M001…M775`). These numbers are independent from Legacy AI rules 293–342 in Appendix A and Controls C01–C20 in Appendix B.
+This is the user-supplied **Consolidated Master Rulebook**, embedded in full. Rule order/numbering and source subsections are retained. Identified round 1–6 amendments below change incompatible wording, M277 carries one amendment of 7 November 2026 (RD06), and M148, M472, M481, M484, M563, M566, M634, M725 and M753 carry amendments of 17 November 2026 (DL1, DL5, DL9, DL12, DL13, DL21, DL25); all other rules retain source text. Subsection BC (M776–M824) adds the product-owner decisions of 17 and 18 November 2026 and is not source text. Source subsection headings are demoted one level to fit the document. The unchanged predecessor and recorded source hashes preserve original provenance. Refer to these as **Master rule N** (`M001…M824`). These numbers are independent from Legacy AI rules 293–342 in Appendix A and Controls C01–C20 in Appendix B.
 
 The previous handover's H001–H110 synthesis is replaced by this recovered current master. Future-platform rules remain future constraints; their inclusion does not extend the Treasurer MVP scope beyond the explicit deferrals.
 
@@ -1334,7 +1434,7 @@ The previous handover's H001–H110 synthesis is replaced by this recovered curr
 
 147. System Administrator does not automatically equal financial authority.
 
-148. Church Operator does not automatically equal financial approver.
+148. Church Operator does not automatically equal financial approver, except while an Operator covers a vacant post (M800). **[Amended: DL12 / 17 November 2026.]**
 
 149. Request, Approve, Pay, and Verify should remain distinguishable financial actions.
 
@@ -2080,7 +2180,7 @@ The previous handover's H001–H110 synthesis is replaced by this recovered curr
 
 471. Specific BPMJ positions may have different permissions.
 
-472. Technical administrator rights and church authority must remain separate.
+472. Technical administrator rights and church authority must remain separate. The one exception: the developer assigns the authorized church officer at onboarding (M808). **[Amended: DL21 / 17 November 2026.]**
 
 ---
 
@@ -2102,13 +2202,13 @@ The previous handover's H001–H110 synthesis is replaced by this recovered curr
 
 480. Operator may prepare transaction drafts.
 
-481. Operator does not automatically approve financial activity.
+481. Operator does not automatically approve financial activity, except while covering a vacant post such as the Bendahara (M800). **[Amended: DL12 / 17 November 2026.]**
 
 482. Operator does not automatically appoint leadership.
 
 483. Operator does not automatically manage permissions.
 
-484. Avoid generic unlimited SUPER_ADMIN for routine church operators.
+484. Avoid generic unlimited SUPER_ADMIN for routine church operators. An Operator may see everything (M812), but seeing grants no administrative or approval power. **[Amended: DL25 / 17 November 2026.]**
 
 485. Operator may act as an administrative delegate.
 
@@ -2294,13 +2394,13 @@ The previous handover's H001–H110 synthesis is replaced by this recovered curr
 
 562. Death should flag leadership vacancies.
 
-563. Replacement leadership must not be assigned automatically.
+563. Replacement leadership must not be assigned automatically. An Operator may act on the vacant post until a holder is appointed; this is cover, not an appointment (M800). **[Amended: DL12 / 17 November 2026.]**
 
 564. Pending workflows assigned to a deceased approver should be rerouted appropriately.
 
 565. Death of a Treasurer should trigger critical operational review.
 
-566. Financial access must not automatically transfer to another person because of death.
+566. Financial access must not automatically transfer to another person because of death, except that an Operator may act on the vacant Bendahara post until a new Treasurer is granted (M800). **[Amended: DL12 / 17 November 2026.]**
 
 567. Death may initiate funeral/pastoral workflows.
 
@@ -2452,7 +2552,7 @@ The previous handover's H001–H110 synthesis is replaced by this recovered curr
 
 633. Masking may be overridden only for a legitimate official/governance/legal/accountability necessity.
 
-634. Ordinary editors cannot independently perform protected identity overrides.
+634. Ordinary editors cannot independently perform protected identity overrides. The Secretary, as Warta editor and approver, may perform one under rules 633 and 635–638. **[Amended: DL5 / 17 November 2026.]**
 
 635. Overrides require explicit reason.
 
@@ -2655,7 +2755,7 @@ The previous handover's H001–H110 synthesis is replaced by this recovered curr
 
 724. Finalized transactions should favor reversal over editing.
 
-725. Member records should use lifecycle status rather than deletion.
+725. Member records should use lifecycle status rather than deletion, except when a living member withdraws consent and asks for deletion (M793). **[Amended: DL13 / 17 November 2026.]**
 
 726. Panitia should use archive status rather than deletion after closure.
 
@@ -2723,7 +2823,7 @@ The previous handover's H001–H110 synthesis is replaced by this recovered curr
 
 ### BB. Final Product Principles
 
-753. Treasurer-first is the immediate product strategy.
+753. Treasurer-first is the immediate product strategy, and Finance is built first; a church may also start Secretary-first (M777). **[Amended: DL1, DL9 / 17 November 2026.]**
 
 754. Progressive adoption is preferred over mandatory institution-wide rollout.
 
@@ -2771,13 +2871,117 @@ The previous handover's H001–H110 synthesis is replaced by this recovered curr
 
 ---
 
+### BC. Platform Modules, Secretariat and Membership — added 17 November 2026
+
+Not source text. These rules record the product owner's decisions DL1–DL31 of 17 November 2026 and DL32–DL33 of 18 November 2026, from section 2 of [the platform module plan](platform-module-plan-2026-11-17.md).
+
+776. The platform is a shared core plus modules that each church switches on when its people are ready. **[Added: DL1.]**
+
+777. A church may start with Finance (Bendahara) or with the Secretariat (Sekretaris), run either alone, and add the other later without re-entering data. **[Added: DL1.]**
+
+778. Finance is built first. **[Added: DL9.]**
+
+779. No daily Secretariat flow may require another church user. **[Added: DL1, DL4.]**
+
+780. The Sekretaris Jemaat publishes the Warta Jemaat, publishes church-wide documents and maintains the documents of the whole church. **[Added: DL2.]**
+
+781. Church-wide documents include decisions and circulars, meeting minutes, church rules and liturgy, and letters issued to one member on request. **[Added: DL3.]**
+
+782. The Secretary's appointment is verified like the Treasurer's: a written church authorization, checked by a designated onboarding reviewer, then an audited grant. **[Added: DL10.]**
+
+783. The Secretary is the Warta editor, reviewer and approver. **[Added: DL4.]**
+
+784. The Secretary writes and publishes announcements; an Operator may draft them. **[Added: DL14.]**
+
+785. An announcement has an audience, an optional end date and the lifecycle DRAFT → PUBLISHED → ARCHIVED; a correction is a new revision. **[Added: DL14.]**
+
+786. Members submit their own data and life events, and their own Penatua Kolom verifies them. **[Added: DL6.]**
+
+787. An Operator handles membership exceptions, such as members without a phone. **[Added: DL6.]**
+
+788. A person declares consent under UU PDP when applying to become a member. **[Added: DL7.]**
+
+789. Existing members from the paper member book are imported as unconfirmed records, visible only to their Penatua Kolom and the Operator. **[Added: DL8.]**
+
+790. An unconfirmed member becomes active once the household confirms its data and consents, in the app or on a signed paper form the Penatua uploads, and the Penatua Kolom verifies. **[Added: DL6, DL8.]**
+
+791. Nothing about an unconfirmed person is published. **[Added: DL8.]**
+
+792. Baptism, Sidi and Marriage are recorded as membership life events, submitted by the member and verified by their Penatua Kolom. **[Added: DL18.]**
+
+793. A living member may withdraw consent and ask for their data to be deleted; the member is then deleted. **[Added: DL13.]**
+
+794. A deleted member's finance records keep the name as recorded, as part of the church's bookkeeping. **[Added: DL13.]**
+
+795. Warta editions and church documents already published stay exactly as published after a member is deleted. **[Added: DL13.]**
+
+796. A service is approved by the Penatua or Syamas of the Kolom or BIPRA that is its audience. **[Added: DL11.]**
+
+797. Jemaat-wide services and Panitia events are approved by the Ketua Jemaat. **[Added: DL11.]**
+
+798. When there is no Ketua Jemaat, the Secretary or someone appointed approves those services. **[Added: DL11.]**
+
+799. The Ketua Jemaat is a BPMJ position the church assigns, usually the Pendeta; the church sets its other capabilities. **[Added: DL19.]**
+
+800. An Operator may act on any vacant post, including the Bendahara, until a holder is appointed. **[Added: DL12.]**
+
+801. Maker/checker still requires two distinct people while an Operator covers a vacant post. **[Added: DL12.]**
+
+802. A donor the Treasurer recorded who is not linked to any member appears in the Warta with the name as recorded. **[Added: DL15.]**
+
+803. Komisi is a standing organizational unit type with its own officers and, if the church wants, its own Fund. **[Added: DL17.]**
+
+804. Inventory is left out for now. **[Added: DL16.]**
+
+805. A Panitia's remaining assets are handed over by a church document recording the approved owner or destination. **[Added: DL16.]**
+
+806. Push notifications use Firebase Cloud Messaging, sent from a server-side function so the key stays off the device. **[Added: DL20.]**
+
+807. The authorized church officer records every role assignment; the Treasurer and Secretary also go through the onboarding reviewer. **[Added: DL21.]**
+
+808. The developer assigns the authorized church officer at onboarding. **[Added: DL21.]**
+
+809. An Operator's appointment is recorded by the authorized church officer like any other role, with no onboarding-reviewer check. **[Added: DL22.]**
+
+810. A Penatua Kolom sees full data for the members and households of their own Kolom, plus transfer requests into it, and nothing else beyond what is published. **[Added: DL23.]**
+
+811. The Secretary can read the whole member registry but cannot change it. **[Added: DL24.]**
+
+812. An Operator can see everything in every module, including all finance records and bank statements. **[Added: DL25.]**
+
+813. A unit treasurer (Bendahara Kolom, BIPRA, Komisi or Panitia) finalizes transactions in their own Fund; the church Bendahara still closes the month. **[Added: DL26.]**
+
+814. The authorized church officer creates a Panitia and moves it through its stages. **[Added: DL27.]**
+
+815. The church Bendahara approves where a Panitia's leftover money goes. **[Added: DL27.]**
+
+816. A member's BIPRA is worked out from birth date, sex and marital status, using age limits the church sets, and changes by itself on birthdays and marriages. **[Added: DL28.]**
+
+817. The Penatua Kolom can correct an individual member's BIPRA. **[Added: DL28.]**
+
+818. In-app approvers come from the approval table in each church's configuration. **[Added: DL29.]**
+
+819. Until a church fills its approval table, the Ketua Jemaat approves Church Fund requests and a unit's Ketua approves that unit's Fund requests. **[Added: DL29.]**
+
+820. Below a threshold the church sets, no approval is needed. **[Added: DL29.]**
+
+821. Whoever approves a service assigns its attendance counters, reviews the count and finalizes it. **[Added: DL30.]**
+
+822. The Sekretaris BPMJ and Bendahara BPMJ are the Sekretaris Jemaat and Bendahara Jemaat. **[Added: DL31.]**
+
+823. A unit treasurer finalizes only on Accounts their unit operates; movements on a church-operated Account, even of unit money, are finalized by the church Bendahara. **[Added: DL32 / 18 November 2026.]**
+
+824. Before close, the church Bendahara may cancel or redate a unit's open draft and confirm its unit-operated Account's reconciliation from the unit's recorded observations, each with a reason and a notice to the unit. **[Added: DL33 / 18 November 2026.]**
+
+---
+
 ## 17. Continuation checklist and unresolved decisions
 
 ### 17.1 Remaining review and source material
 
 The current design, all 775 rules and both full classification row exports are now incorporated. The supplied classification catalogs remove the previous missing-row blocker.
 
-Policy decisions from rounds 1–6 are complete. Implementation still records the actual first production month and activation actor, creates the approved derived production masters, establishes needed church-specific thresholds/approvers/beneficiaries/formulas/due dates, and verifies deployed controls. Product decisions RD01–RD13 of 7 November 2026 are decided; their open conditions are listed in S section 15. Original GMIM report forms remain the external source gap: obtain page/cell/field/signature mappings and the exact accountability annex inventory. Source classification files do not supply those printable layouts.
+Policy decisions from rounds 1–6 are complete. Implementation still records the actual first production month and activation actor, creates the approved derived production masters, establishes needed church-specific thresholds/approvers/beneficiaries/formulas/due dates, and verifies deployed controls. Product decisions RD01–RD13 of 7 November 2026 are decided; their open conditions are listed in S section 15. Platform-module decisions DL1–DL33 of 17 and 18 November 2026 are recorded in section 2 of the platform module plan; its section 14 lists what is still open. Original GMIM report forms remain the external source gap: obtain page/cell/field/signature mappings and the exact accountability annex inventory. Source classification files do not supply those printable layouts.
 
 ### 17.2 Formalized design and remaining gates
 
@@ -2848,7 +3052,7 @@ Source: user-pasted **GMIM Treasurer-First Application — Design Specification 
 
 ### 18.2 Supplied consolidated master
 
-Source: user-pasted **GMIM Treasurer-First Application — Consolidated Master Rulebook**, attachment `5427d5ea-a3f3-4f80-9e1a-5496628eb785`, supplied 7 October 2026. All **775 rules in 54 source subsections A–BB** are embedded in section 16. Build priority and product promise are preserved in section 17. The 775-rule sequence has been checked for omissions and repeated numbers. The original handover verified source wording after restoring subsection heading levels. This edition retains all rule numbers and explicitly identifies the amendments to M082, M242, M391, M437 and M454; it does not claim the amended wording is the original source text.
+Source: user-pasted **GMIM Treasurer-First Application — Consolidated Master Rulebook**, attachment `5427d5ea-a3f3-4f80-9e1a-5496628eb785`, supplied 7 October 2026. All **775 rules in 54 source subsections A–BB** are embedded in section 16. Build priority and product promise are preserved in section 17. The 775-rule sequence has been checked for omissions and repeated numbers. The original handover verified source wording after restoring subsection heading levels. This edition retains all rule numbers and explicitly identifies the amendments to M082, M242, M391, M437 and M454; it does not claim the amended wording is the original source text. The 17 and 18 November 2026 amendments change M148, M472, M481, M484, M563, M566, M634, M725 and M753 and add M776–M824 in subsection BC; that wording is the product owner's, not the source's.
 
 ### 18.3 Recovered conversation
 
@@ -2878,7 +3082,7 @@ The full decoded text, string codes and source indentation are embedded in S App
 
 Source: **Next Steps After Docs**, conversation `6ac62014-70cc-83ec-acb6-4134bf1b9bc1`; the final decision summary records approval of rounds 1–6 and the replacement D07. Retrieved recent turns include the rounds 4–6 proposals/approvals and final consolidated decisions; earlier round outcomes are carried by that consolidated decision record and the current user instruction. No claim is made that this reader recovered original report attachments or every older message. Policy adoption is complete; runtime activation/configuration and original printable forms remain separate.
 
-Predecessor handover SHA-256: `df7cf8d531db8455ab53e94ea95ec377680c37343d46b35152c1ba9e3319b791`. Predecessor standalone SHA-256: `9e709f2d10964d559782baf9dccb26f3cb292fd0c18072f22e43c33d175598d7`. Both original files remain unchanged. The fenced source JSON objects (S Appendix B) remain byte-for-byte identical to the earlier editions. Active rule amendments: M082/M242/M391/M437/M454, L321, C02; E010/E018/E021/E025/E027/E045 and related report/workflow/status text are updated under the same approved baseline.
+Predecessor handover SHA-256: `df7cf8d531db8455ab53e94ea95ec377680c37343d46b35152c1ba9e3319b791`. Predecessor standalone SHA-256: `9e709f2d10964d559782baf9dccb26f3cb292fd0c18072f22e43c33d175598d7`. Both original files remain unchanged. The fenced source JSON objects (S Appendix B) remain byte-for-byte identical to the earlier editions. Active rule amendments: M082/M242/M391/M437/M454, L321, C02; from 17 and 18 November 2026, M148/M472/M481/M484/M563/M566/M634/M725/M753 and added M776–M824 (DL1–DL33); E010/E018/E021/E025/E027/E045 and related report/workflow/status text are updated under the same approved baseline.
 
 ## 19. Formal Treasurer domain model, state machines and GMIM data mapping
 

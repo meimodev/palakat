@@ -1,7 +1,7 @@
-# Engineering contracts EC01–EC08 — draft designs
+# Engineering contracts EC01–EC09 — draft designs
 
-Date: 7 November 2026
-Status: **DRAFT — proposed by Claude at the user's request. Not approved by the implementation designer. EC01–EC08 stay OPEN in the readiness addendum.**
+Date: 7 November 2026 (EC09 added 18 November 2026)
+Status: **DRAFT — proposed by Claude at the user's request. Not approved by the implementation designer. EC01–EC09 stay OPEN in the readiness addendum.**
 Owner: implementation designer (a role; no person is named yet)
 
 This file proposes a design for each engineering contract listed in section 3 of [the readiness addendum](implementation-readiness-addendum-2026-10-27.md). It changes neither S nor P. When the designer approves an entry, move its rules into S (the named section) and mark the EC entry closed in the addendum. If review finds that a design needs a different product behavior, that question goes back to the product owner, as the addendum requires.
@@ -18,6 +18,7 @@ Common ground, taken from S and not repeated per entry: one application and one 
 | EC06 | Assert per-Fund balance at commit; composite key ties allocations to the case's Fund | 3, 4.1 | Database-level backstop |
 | EC07 | Add a `REJECTED` evidence decision and a status projection | 5.3 | Coverage when a requirement needs several items |
 | EC08 | Reviewed price and rate table in each AI policy version; atomic reservation against the cap | 12 | None |
+| EC09 | A unit treasurer finalizes only transactions wholly in their unit's Funds, on Accounts their unit operates, excluding cross-Fund and controlled types | 3, 5.1, 6.3, 6.4, 13 | The `operator_scope` field and its constraint (the product questions were answered on 18 November 2026) |
 
 ## EC01 — Atomic consumption, date order and combined validation
 
@@ -199,6 +200,68 @@ The product rule is decided and in S 4.1 (invariants 3 and 9). This entry is how
 - Thresholds trigger at exactly 105,000, 135,000 and 150,000.
 - A policy version with no rate set cannot be activated for AI use.
 
+## EC09 — Unit finalization
+
+Source: product decision DL26 of 17 November 2026 ([platform module plan](platform-module-plan-2026-11-17.md), section 2). A unit treasurer (Bendahara Kolom, BIPRA, Komisi or Panitia) finalizes transactions in their own Fund, and the church Bendahara still closes the workspace (RD01). The plan tracks this entry as D17. It is needed before slice C2 (unit finance), not for the first finance path.
+
+**Terms**
+
+- **A unit's Funds:** the Funds whose owner Scope (S 3, Fund) is the Scope of the person's unit-treasurer role assignment. A person who is treasurer of two units holds both units' Funds.
+- **Unit-operated Account:** a `PhysicalAccount` with a new `operator_scope` field naming a unit, such as a Kolom cash box or a Panitia's own bank account. An empty `operator_scope` means the church Bendahara operates the Account. A unit-operated Account may hold money only of Funds its unit owns.
+
+**Design**
+
+1. **The finalize check.** It runs in the posting transaction, beside the existing guards (S 4.1 invariant 1). A unit treasurer may finalize a transaction only if all three hold:
+   1. every allocation and every journal leg is in their unit's Funds;
+   2. every `LIQUID` leg is on an Account their unit operates (confirmed by the product owner, DL32);
+   3. the type is not a Fund ownership transfer, a controlled opening or a controlled OPEN-period adjustment.
+
+   Otherwise the command is rejected with no effect, and the message names the first failing condition. The unit can still prepare the draft for the church Bendahara to finalize.
+2. **What it covers in practice:**
+   - owned receipts and direct expenses;
+   - reimbursements;
+   - advance issue, settlement and return, and transit collection and remittance, on the unit's own cases (one case is one Fund, EC06);
+   - Account transfers between the unit's own Accounts.
+
+   **What stays with the church Bendahara:**
+   - a church allocation to a Panitia, which is a Fund ownership transfer;
+   - moving money between a church Account and a unit Account;
+   - anything that touches a church-operated Account, even when it holds unit money.
+3. **Reverse and correct.** The same check applies to the original and to every batch in the correction bundle. The church Bendahara can reverse any eligible transaction (S 4.3).
+4. **Approval.** The approval guard (S 5.2) applies unchanged. Approvers come from the church's table, or by default from the unit's Ketua (DL29; for a Kolom, its Penatua). A unit treasurer cannot approve their own request under another role (rules 151–153).
+5. **Maker/checker.** When the church turns it on, it applies to units too. The eligible checker is a distinct human with review capability over that Fund: an officer of the unit named in the church configuration, or the church Bendahara. With it off, a unit treasurer may review and finalize in one action, as a solo Treasurer can (S 5.1).
+6. **Evidence.** A unit treasurer may verify evidence in their unit's Funds under the same policy that lets a solo Treasurer verify (S 5.3). Accepting an exception stays with the configured exception authority.
+7. **Vouchers.** Numbers come from the one workspace series (RD13); there is no unit series. A unit treasurer's voucher list follows the Fund-slice rule, so it shows no other Fund's volume (RD02).
+8. **Reconciliation.** The unit treasurer records cash counts and statement observations for their unit-operated Accounts and confirms those reconciliations. Church-operated Accounts stay with the church Bendahara, including any part of them that holds unit money (S 3, permissions).
+9. **Close.**
+   - The unit treasurer gives the readiness attestation for their unit's Funds (RD12).
+   - The church Bendahara closes the workspace and may waive a missing attestation with a reason.
+   - A unit's open drafts, staged rows and unconfirmed reconciliations still block the close (RD09, S 6.4).
+   - So that one unit cannot hold up the church's close, the church Bendahara may clear those blockers (DL33). They may cancel a unit's open draft or redate it into a later OPEN period. They may also confirm a unit-operated Account's reconciliation from the observations the unit recorded. Each action needs a reason, is audited, and notifies the unit treasurer. These actions add no posting and change no observation. Confirming leaves any unexplained difference visible as a blocker (S 6.3).
+10. **Panitia.** Once a Panitia moves past `FINANCIAL CLOSING` (DL27), its treasurer can no longer finalize. Its leftover money moves by a Fund ownership transfer or payment that the church Bendahara approves and finalizes.
+11. **Vacancy cover.** An Operator covering a vacant unit-treasurer post (DL12) gets exactly this capability for that unit, audited as vacancy cover.
+
+**Acceptance** (fixtures B93–B100)
+
+- A Kolom 7 treasurer finalizes a 500,000 expense from the Kolom 7 cash box. The voucher comes from the workspace series.
+- **Rejected for the unit treasurer, with no effect:**
+  - an expense split between the Kolom 7 Fund and the Church Fund;
+  - a Kolom 7 payment from the church's BNI account (the church Bendahara can finalize the same draft);
+  - a Fund ownership transfer, even between two Kolom 7 Funds.
+- With maker/checker on, a unit treasurer cannot check their own draft; the configured unit checker can.
+- A unit treasurer cannot close the period. The church Bendahara can close once the unit's attestation is present or waived.
+- A Panitia treasurer's finalize is rejected once the Panitia is past `FINANCIAL CLOSING`.
+- When a unit is unreachable, the church Bendahara redates its open draft and confirms its cash reconciliation, each with a reason and a notice, and the church closes. Without a reason, either action is rejected.
+
+**Product decisions** (the user, acting as product owner, 18 November 2026; recorded as DL32 and DL33 in the platform plan)
+
+- **P1, answered yes (DL32).** Units finalize only on Accounts they operate (rule 1.2). The church Bendahara operates the church bank account and answers for what the books say left it.
+- **P2, answered yes (DL33).** The church Bendahara may clear a unit's blockers before close, with a reason and a notice to the unit (rule 9).
+
+**Product part applied (18 November 2026):** P1 and P2 are in S (E066 amended, E067 added, sections 5.1, 6.4, 13 and 15) and in P (M823–M824), as was done for EC06's product part. The other rules in this entry stay a draft until the designer approves it. These are rules 1.1 and 1.3 as worded here, and rules 3–8, 10 and 11, plus the `operator_scope` design.
+
+**Decision for the designer:** the `operator_scope` field on `PhysicalAccount`, and the constraint that a unit-operated Account holds only its unit's Funds.
+
 ## What remains open after this draft
 
-Everything above is a proposal. Each entry needs the designer's decision on the points listed, then S edits and a status change in the addendum. Decisions that look product-level are marked: EC02 (who sets the supported amount) and EC04's limit on ordinary finalizations.
+Everything above is a proposal. Each entry needs the designer's decision on the points listed, then S edits and a status change in the addendum. Decisions that look product-level are marked: EC02 (who sets the supported amount), and EC04's limit on ordinary finalizations. EC09's product questions are answered; only its designer decision remains.

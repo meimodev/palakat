@@ -1,5 +1,7 @@
 # GMIM Treasurer — UI/UX design brief
 
+> **Superseded on 18 November 2026 by [version 2](ui-ux-design-brief-v2.md)**, which adds the platform modules and roles (DL1–DL33). Kept for the record; design from version 2.
+
 16 November 2026. This file holds the design brief and, after it, the [Indonesian UI glossary](#indonesian-ui-glossary).
 
 We need the UI/UX design for V1 of GMIM Treasurer: the app a congregation's Bendahara uses to record church money, back it with evidence and close each month for good. Terms are defined under The product. Citations such as P 3.2, S 5.2, RD07 and EC07 point to the MVP specification, the engineering specification, the product decisions and the draft engineering contracts listed in References.

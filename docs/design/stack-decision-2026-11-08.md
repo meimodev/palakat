@@ -2,13 +2,14 @@
 
 Date: 8 November 2026
 Decided by: the user, acting as product owner ("Supabase and Vercel are enough"; "Use Flutter"; Supabase on the free plan while possible)
-Status: DECIDED for hosting and client. Where each piece of server-side code runs is proposed below and not yet decided.
+Status: DECIDED for hosting and client. Where each piece of server-side code runs is proposed below and not yet decided. Amended 17 November 2026: Firebase Cloud Messaging added for push notifications (DL20 in [the platform module plan](platform-module-plan-2026-11-17.md)).
 
 ## Decision
 
 - **Client:** Flutter (`supabase_flutter`; Supabase lists Flutter as a generally available client library).
 - **Database, authentication, evidence storage:** Supabase (managed PostgreSQL).
 - **Hosting and a second object store:** Vercel (static hosting for a Flutter web build, functions, Vercel Blob).
+- **Push notifications (added 17 November 2026, DL20):** Firebase Cloud Messaging, for push only. Messages are sent from a server-side function, so the FCM credentials never reach the app. In-app notifications stay on Supabase Realtime. FCM's limits and pricing have not yet been checked in vendor documentation.
 - **Not used:** AWS. An S3 bucket with Object Lock was offered and declined.
 - **Plan:** build on the Supabase Free plan. Go-live with real church data needs a paid plan (see below). That is a condition for production use, not a coding blocker.
 
@@ -44,7 +45,7 @@ With Flutter and Supabase there is no application server between the client and 
 |---|---|---|
 | **Postgres functions** called as RPC (`SECURITY DEFINER`) | Posting kernel, voucher allocation, case and item consumption, period close commit, attestation, evidence decisions | One transaction gives atomicity, row locks (EC01), composite keys and deferred constraint triggers (EC06). The EC drafts already use these mechanisms |
 | **Row-level security and grants** | Tenant and capability checks as defense in depth; clients get no direct write access to financial tables | The Data API exposes tables, so a missing policy is a data leak. This needs its own review in slice 1 |
-| **Supabase Edge Functions** | AI proxy (OpenRouter key and ZDR setting stay server-side), cost reservation call | Secrets stay off the device. Within the 2 s CPU limit |
+| **Supabase Edge Functions** | AI proxy (OpenRouter key and ZDR setting stay server-side), cost reservation call, push sends through Firebase Cloud Messaging (DL20) | Secrets stay off the device. Within the 2 s CPU limit |
 | **Vercel functions** | Report rendering (PDF and Excel), export packaging, the close archive write, scheduled dumps | Heavier CPU and time than Edge Functions. A standard function cannot run `pg_dump`; see Open points |
 | **Flutter app** | Capture, review, display; never holds a service key; no offline finalization | Round 5A |
 

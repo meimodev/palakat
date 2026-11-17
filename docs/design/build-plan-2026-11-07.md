@@ -31,6 +31,8 @@ This turns the implementation sequence in section 5 of [the readiness addendum](
 
 Slices 1 to 5, plus a basic report and export from slice 6, are the "first complete finance path" milestone in the addendum. Slices 7 to 10 expand it.
 
+Slice 1 builds the shared platform core, not a Treasurer-only foundation, so a church can also start with the Secretary and add modules later without rework. The core items and the Secretariat, Membership and collaboration tracks are in [platform-module-plan-2026-11-17.md](platform-module-plan-2026-11-17.md) (DRAFT).
+
 ## Gaps to close before the slice that needs them
 
 - **Fixtures written 15 November 2026** for reconciliation (RC11), import idempotency (RC15), approval declarations, evidence timing and every draft EC (EC01–EC05, EC07, EC08). The draft-EC vectors are marked `DRAFT_EC`: when the designer approves an EC, update its vectors to match and mark them `DECIDED` before the slice starts. Still uncovered: the EC05 package format and export retention, and the RD11 pseudonymization action.
