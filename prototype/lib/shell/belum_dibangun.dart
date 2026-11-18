@@ -18,12 +18,21 @@ class BelumDibangun extends StatelessWidget {
       child: Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Text(p.judul, textAlign: TextAlign.center, style: PalakatText.judulLayar.copyWith(color: c.tinta)),
-            const SizedBox(height: 8),
-            Text(anak == null ? 'Belum dibangun' : 'Belum dibangun · $anak',
-                style: PalakatText.keterangan.copyWith(color: c.tinta3)),
-          ]),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                p.judul,
+                textAlign: TextAlign.center,
+                style: PalakatText.judulLayar.copyWith(color: c.tinta),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                anak == null ? 'Belum dibangun' : 'Belum dibangun · $anak',
+                style: PalakatText.keterangan.copyWith(color: c.tinta3),
+              ),
+            ],
+          ),
         ),
       ),
     );

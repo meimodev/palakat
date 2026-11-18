@@ -20,22 +20,36 @@ class KubikKeluar extends Curve {
 bool gerakMati(BuildContext context) => MediaQuery.disableAnimationsOf(context);
 
 /// One keyframe: draws [child] at linear time t with the board's timing function.
-typedef Bingkai = Widget Function(BuildContext context, double t, Curve kurva, Widget child);
+typedef Bingkai = Widget Function(
+  BuildContext context,
+  double t,
+  Curve kurva,
+  Widget child,
+);
 
 /// Plays once on mount: waits [tunda], then runs t from 0 to 1 over [lama].
 /// Before the delay t = 0 (fill-mode both). After the end t stays 1.
 /// Under reduce motion t is 1 at once, delay skipped. If reduce motion turns
 /// on mid-run, it jumps to 1.
 class GerakBuilder extends StatefulWidget {
-  const GerakBuilder({super.key, required this.lama, this.tunda = Duration.zero, required this.builder});
+  const GerakBuilder({
+    super.key,
+    required this.lama,
+    this.tunda = Duration.zero,
+    required this.builder,
+  });
   final Duration lama, tunda;
   final Widget Function(BuildContext context, double t) builder;
   @override
   State<GerakBuilder> createState() => _GerakBuilderState();
 }
 
-class _GerakBuilderState extends State<GerakBuilder> with SingleTickerProviderStateMixin {
-  late final AnimationController _c = AnimationController(vsync: this, duration: widget.lama);
+class _GerakBuilderState extends State<GerakBuilder>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    duration: widget.lama,
+  );
   Timer? _tunda;
   bool _mulai = false;
 
@@ -64,8 +78,10 @@ class _GerakBuilderState extends State<GerakBuilder> with SingleTickerProviderSt
   }
 
   @override
-  Widget build(BuildContext context) =>
-      AnimatedBuilder(animation: _c, builder: (ctx, _) => widget.builder(ctx, _c.value));
+  Widget build(BuildContext context) => AnimatedBuilder(
+    animation: _c,
+    builder: (ctx, _) => widget.builder(ctx, _c.value),
+  );
 }
 
 /// A keyframe played once on mount. Give it a key naming the state that shows it.
@@ -84,6 +100,9 @@ class Gerak extends StatelessWidget {
   final Widget child;
 
   @override
-  Widget build(BuildContext context) =>
-      GerakBuilder(lama: lama, tunda: tunda, builder: (ctx, t) => kerangka(ctx, t, kurva, child));
+  Widget build(BuildContext context) => GerakBuilder(
+    lama: lama,
+    tunda: tunda,
+    builder: (ctx, t) => kerangka(ctx, t, kurva, child),
+  );
 }

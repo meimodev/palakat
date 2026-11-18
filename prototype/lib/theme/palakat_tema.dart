@@ -42,7 +42,11 @@ ThemeData palakatTema(Brightness b) {
     bodyLarge: PalakatText.isi,
     bodyMedium: PalakatText.pendamping,
     bodySmall: PalakatText.keterangan,
-    labelLarge: TextStyle(fontFamily: PalakatText.sans, fontSize: 16, fontWeight: FontWeight.w700),
+    labelLarge: TextStyle(
+      fontFamily: PalakatText.sans,
+      fontSize: 16,
+      fontWeight: FontWeight.w700,
+    ),
   );
   return ThemeData(
     useMaterial3: true,
@@ -82,5 +86,6 @@ extension PalakatKonteks on BuildContext {
   double vw(double persen) => MediaQuery.sizeOf(this).width * persen / 100;
 
   /// CSS `clamp(min, <vw>vw, max)`.
-  double jepit(double min, double vwPersen, double max) => vw(vwPersen).clamp(min, max);
+  double jepit(double min, double vwPersen, double max) =>
+      vw(vwPersen).clamp(min, max);
 }

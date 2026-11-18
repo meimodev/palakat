@@ -7,7 +7,9 @@ import 'package:palakat_prototype/router.dart';
 /// Every board route builds without exceptions at its frame size.
 void main() {
   for (final p in semuaPapan) {
-    testWidgets('/${p.stem} at ${p.lebar.toInt()}×${p.tinggi.toInt()}', (tester) async {
+    testWidgets('/${p.stem} at ${p.lebar.toInt()}×${p.tinggi.toInt()}', (
+      tester,
+    ) async {
       tester.view.physicalSize = Size(p.lebar, p.tinggi);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);

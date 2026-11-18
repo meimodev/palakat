@@ -25,7 +25,14 @@ class PalakatWarna extends ThemeExtension<PalakatWarna> {
     required this.tirai,
   });
 
-  final Color kertas, permukaan, tinta, tinta2, tinta3, putus, garis, garisTegas;
+  final Color kertas,
+      permukaan,
+      tinta,
+      tinta2,
+      tinta3,
+      putus,
+      garis,
+      garisTegas;
   final Color laut, lautTua, lautLembut, bata, bataLembut, diTinta, diTinta2;
   final Color diLaut, diBata;
 
@@ -94,27 +101,26 @@ class PalakatWarna extends ThemeExtension<PalakatWarna> {
     Color? diLaut,
     Color? diBata,
     Color? tirai,
-  }) =>
-      PalakatWarna(
-        kertas: kertas ?? this.kertas,
-        permukaan: permukaan ?? this.permukaan,
-        tinta: tinta ?? this.tinta,
-        tinta2: tinta2 ?? this.tinta2,
-        tinta3: tinta3 ?? this.tinta3,
-        putus: putus ?? this.putus,
-        garis: garis ?? this.garis,
-        garisTegas: garisTegas ?? this.garisTegas,
-        laut: laut ?? this.laut,
-        lautTua: lautTua ?? this.lautTua,
-        lautLembut: lautLembut ?? this.lautLembut,
-        bata: bata ?? this.bata,
-        bataLembut: bataLembut ?? this.bataLembut,
-        diTinta: diTinta ?? this.diTinta,
-        diTinta2: diTinta2 ?? this.diTinta2,
-        diLaut: diLaut ?? this.diLaut,
-        diBata: diBata ?? this.diBata,
-        tirai: tirai ?? this.tirai,
-      );
+  }) => PalakatWarna(
+    kertas: kertas ?? this.kertas,
+    permukaan: permukaan ?? this.permukaan,
+    tinta: tinta ?? this.tinta,
+    tinta2: tinta2 ?? this.tinta2,
+    tinta3: tinta3 ?? this.tinta3,
+    putus: putus ?? this.putus,
+    garis: garis ?? this.garis,
+    garisTegas: garisTegas ?? this.garisTegas,
+    laut: laut ?? this.laut,
+    lautTua: lautTua ?? this.lautTua,
+    lautLembut: lautLembut ?? this.lautLembut,
+    bata: bata ?? this.bata,
+    bataLembut: bataLembut ?? this.bataLembut,
+    diTinta: diTinta ?? this.diTinta,
+    diTinta2: diTinta2 ?? this.diTinta2,
+    diLaut: diLaut ?? this.diLaut,
+    diBata: diBata ?? this.diBata,
+    tirai: tirai ?? this.tirai,
+  );
 
   @override
   PalakatWarna lerp(PalakatWarna? o, double t) {

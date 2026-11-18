@@ -6,11 +6,16 @@ final Map<String, VoidCallback> ulangPapan = {};
 
 /// Provided by a `<Stem>Kendali`; bumping [generasi] remounts the board's views.
 class GenerasiPapan extends InheritedWidget {
-  const GenerasiPapan({super.key, required this.generasi, required super.child});
+  const GenerasiPapan({
+    super.key,
+    required this.generasi,
+    required super.child,
+  });
   final int generasi;
 
   static int of(BuildContext context) =>
-      context.dependOnInheritedWidgetOfExactType<GenerasiPapan>()?.generasi ?? 0;
+      context.dependOnInheritedWidgetOfExactType<GenerasiPapan>()?.generasi ??
+      0;
 
   @override
   bool updateShouldNotify(GenerasiPapan old) => old.generasi != generasi;
@@ -22,5 +27,6 @@ class DenganGenerasi extends StatelessWidget {
   final Widget child;
 
   @override
-  Widget build(BuildContext context) => KeyedSubtree(key: ValueKey(GenerasiPapan.of(context)), child: child);
+  Widget build(BuildContext context) =>
+      KeyedSubtree(key: ValueKey(GenerasiPapan.of(context)), child: child);
 }

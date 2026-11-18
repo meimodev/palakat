@@ -23,7 +23,9 @@ Page<void> halaman(
     child: child,
     transitionDuration: d,
     reverseTransitionDuration: Duration.zero,
-    transitionsBuilder: (ctx, anim, _, c) =>
-        AnimatedBuilder(animation: anim, builder: (ctx, _) => kerangka(ctx, anim.value, kurva, c)),
+    transitionsBuilder: (ctx, anim, _, c) => AnimatedBuilder(
+      animation: anim,
+      builder: (ctx, _) => kerangka(ctx, anim.value, kurva, c),
+    ),
   );
 }
