@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Akun dan keluar (ponsel)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+input{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes masuk{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@keyframes pudar{from{opacity:0}to{opacity:1}}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes isi{from{width:0}to{width:100%}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 16px; line-height: 1.4">
+<sc-if value="{{isAkun}}" hint-placeholder-val="{{true}}"><div style="position: absolute; inset: 0; display: flex; flex-direction: column"><div style="display: flex; align-items: center; gap: 8px; padding: 14px 12px 8px"><a href="Lainnya.dc.html" aria-label="Kembali ke Lainnya" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #13201C"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></a><div style="flex: 1"><h1 style="margin: 0; font-size: 18px; font-weight: 700">Akun</h1></div></div>
+  <div style="flex: 1; overflow-y: auto; padding: 8px 20px 20px; display: flex; flex-direction: column; gap: 16px">
+      <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 2px"><div style="font-weight: 700; font-size: 18px">Meiske Lumentut</div><div style="font-size: 14px; color: #43514C">Bendahara · Jemaat Karunia · Wewenang Bendahara aktif</div><div style="font-size: 13px; color: #5E6A66">Masuk dengan kode ke nomor ponsel · <a href="AkunSaya.dc.html" style="font-weight: 700">Ganti nomor ponsel</a></div></div>
+      <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 4px 16px"><div style="display: flex; justify-content: space-between; gap: 16px; align-items: center; padding: 12px 0"><div><div style="font-weight: 600">Perangkat ini</div><div style="font-size: 13px; color: #5E6A66">Masuk sejak 16/11/2026 08.02</div></div><span style="flex: none; white-space: nowrap; font-size: 13px; font-weight: 700; border-radius: 6px; padding: 3px 9px; border: 1.5px solid #13201C">Sedang dipakai</span></div><a href="Bendahara.dc.html" style="display: flex; justify-content: space-between; gap: 16px; align-items: center; min-height: 52px; border-top: 1px solid #DDE2DB; text-decoration: none; color: #13201C"><span style="font-weight: 600">Sesi di perangkat lain</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E6A66" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></div>
+      <div style="font-size: 14px; color: #43514C">Keluar hanya mengakhiri sesi di perangkat ini. Wewenang Bendahara tidak berubah.</div>
+</div>
+  <div style="padding: 12px 20px 22px; background: #FFFFFF; border-top: 1px solid #DDE2DB; display: flex; flex-direction: column; gap: 8px"><button onClick="{{minta}}" style="min-height: 48px; border-radius: 14px; border: 1.5px solid #13201C; background: #FFFFFF; color: #13201C; font-weight: 700; text-align: center">Keluar dari perangkat ini</button></div>
+</div>
+<sc-if value="{{tanya}}" hint-placeholder-val="{{false}}"><div style="position: absolute; inset: 0"><button onClick="{{batal}}" aria-label="Kembali ke Akun" style="position: absolute; inset: 0; width: 100%; background: rgba(19,32,28,.45); border: 0; animation: pudar .2s"></button><div style="position: absolute; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-radius: 22px 22px 0 0; padding: 18px 20px 24px; display: flex; flex-direction: column; gap: 12px; animation: muncul .28s"><div><h2 style="margin: 0; font-size: 18px; font-weight: 700">Keluar dari perangkat ini?</h2><div style="font-size: 14px; color: #43514C">Yang sudah dibukukan dan draf yang sudah tersimpan tetap aman. Isian yang belum tersimpan akan hilang.</div></div><button onClick="{{keluar}}" style="min-height: 52px; border-radius: 14px; border: 0; background: #13201C; color: #FFFFFF; font-weight: 700; text-align: center; padding: 0 20px">Keluar</button><button onClick="{{batal}}" style="min-height: 44px; border: 0; background: none; color: #0E5A63; font-weight: 700; text-align: center; color: #13201C">Kembali</button></div></div></sc-if></sc-if>
+<sc-if value="{{isKeluar}}" hint-placeholder-val="{{false}}"><div style="position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; padding: 0 28px; gap: 20px; animation: pudar .25s"><div><h1 style="margin: 0 0 6px; font-size: 24px; font-weight: 700; line-height: 1.2">Anda sudah keluar</h1><div style="font-size: 14px; color: #43514C; font-size: 15px">Sesi di perangkat ini berakhir. Masuk lagi kapan saja dengan kode yang dikirim ke nomor ponsel Anda.</div></div><a href="Masuk.dc.html" style="min-height: 52px; border-radius: 14px; border: 0; background: #0E5A63; color: #FFFFFF; font-weight: 700; text-align: center; padding: 0 20px; display: flex; align-items: center; justify-content: center; text-decoration: none">Masuk</a></div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  rp(n) { var s = String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return (n < 0 ? '−' : '') + 'Rp' + s; }
+  state = { st: 'akun' };
+  vals() {
+    var self = this, s = this.state;
+    return { isAkun: s.st !== 'keluar', tanya: s.st === 'tanya', biasa: s.st === 'akun', isKeluar: s.st === 'keluar',
+      minta: function () { self.setState({ st: 'tanya' }); }, batal: function () { self.setState({ st: 'akun' }); }, keluar: function () { self.setState({ st: 'keluar' }); } };
+  }
+
+  renderVals() { var V = this.vals(); if (this.navVals) V.nav = this.navVals(); return V; }
+}
+</script>
+</body>
+</html>

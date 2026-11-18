@@ -43,6 +43,7 @@ melos_*.yaml
 .pub/
 /build/
 **/build/
+!/docs/build/
 
 # Web related
 lib/generated_plugin_registrant.dart

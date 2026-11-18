@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Bendahara, sesi dan serah terima (ponsel)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+input{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes masuk{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@keyframes pudar{from{opacity:0}to{opacity:1}}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes putar{to{transform:rotate(360deg)}}
+@keyframes tali{from{height:0}to{height:22px}}
+@keyframes cap{0%{opacity:0;transform:scale(1.7)}55%{opacity:1;transform:scale(.94)}100%{opacity:1;transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 16px; line-height: 1.4">
+
+<sc-if value="{{isKosong}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; inset: 0; overflow-y: auto; padding: 24px 20px 28px; display: flex; flex-direction: column; gap: 18px">
+  <div style="background: #13201C; color: #FFFFFF; border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 8px">
+    <div style="font-size: 19px; font-weight: 700">Belum ada Bendahara aktif</div>
+    <div style="font-size: 14px; color: #EAF0EC">Wewenang Meiske Lumentut dicabut pada 16/11/2026 08.10 oleh Petugas verifikasi, atas permintaan BPMJ. Semua sesinya sudah diakhiri.</div>
+    <div style="font-size: 14px; color: #EAF0EC"><strong style="color: #FFFFFF">Yang perlu bertindak: BPMJ Jemaat Karunia.</strong> BPMJ menunjuk Bendahara baru dan mengirim surat penunjukannya untuk diverifikasi.</div><div style="font-size: 14px; color: #EAF0EC">Sementara itu, Operator Jemaat dapat <a href="JabatanKosong.dc.html" style="color: #FFFFFF; font-weight: 700">menjalankan jabatan kosong</a> ini. Setiap tindakannya tercatat atas namanya.</div>
+  </div>
+  <div style="font-size: 15px"><strong>Semua data hanya dapat dilihat.</strong> Mencatat, membukukan, rekonsiliasi dan tutup buku tidak tersedia sampai ada Bendahara aktif.</div>
+  <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 4px 16px">
+    <div style="display: flex; justify-content: space-between; gap: 16px; padding: 12px 0"><div style="font-size: 14px; color: #43514C">Saldo buku semua Kas/Bank</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; font-weight: 500">Rp38.415.000</div></div>
+    <div style="display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-top: 1px solid #DDE2DB"><div style="font-size: 14px; color: #43514C">Draf yang tertinggal</div><div style="font-size: 14px; font-weight: 600">2 · belum masuk saldo</div></div>
+    <div style="display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-top: 1px solid #DDE2DB"><div style="font-size: 14px; color: #43514C">Bulan berikutnya untuk tutup buku</div><div style="font-size: 14px; font-weight: 600">Oktober 2026</div></div>
+  </div>
+  <div style="font-size: 13px; color: #5E6A66">Riwayat tetap mencatat Meiske Lumentut sebagai pelaku semua tindakannya. Bendahara baru tidak mewarisi persetujuan yang pernah dicatat.</div>
+</div>
+</sc-if>
+
+<sc-if value="{{isUtama}}" hint-placeholder-val="{{true}}">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column; animation: pudar .2s">
+  <div style="display: flex; align-items: center; gap: 8px; padding: 14px 12px 8px">
+    <a href="Lainnya.dc.html" aria-label="Kembali ke Lainnya" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #13201C"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></a>
+    <h1 style="margin: 0; flex: 1; font-size: 18px; font-weight: 700">Bendahara dan sesi</h1>
+  </div>
+  <div style="flex: 1; overflow-y: auto; padding: 8px 20px 24px; display: flex; flex-direction: column; gap: 18px">
+    <div style="background: #FFFFFF; border: 1.5px solid #13201C; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 4px">
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px"><div style="font-size: 18px; font-weight: 700">{{namaAktif}}</div><span style="font-size: 13px; font-weight: 700; background: #0E5A63; color: #FFFFFF; border-radius: 6px; padding: 4px 10px">Wewenang Bendahara aktif</span></div>
+      <div style="font-size: 14px; color: #43514C">{{aktifSejak}}</div>
+      <sc-if value="{{sudahPindah}}" hint-placeholder-val="{{false}}"><div style="font-size: 13px; color: #5E6A66; border-top: 1px dashed #7F8C86; margin-top: 8px; padding-top: 8px">Sebelumnya: Meiske Lumentut · wewenang berakhir 16/11/2026. Riwayat tetap mencatatnya sebagai pelaku.</div></sc-if>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <h2 style="margin: 0; font-size: 16px; font-weight: 700">Sesi yang sedang masuk</h2>
+      <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 0 16px">
+        <sc-for list="{{sesi}}" as="x" hint-placeholder-count="2">
+          <div style="display: flex; align-items: center; gap: 12px; min-height: 60px; border-top: {{x.garis}}"><div style="flex: 1"><div style="font-weight: 600; font-size: 15px">{{x.n}}</div><div style="font-size: 13px; color: #5E6A66">{{x.s}}</div></div><sc-if value="{{x.bisa}}" hint-placeholder-val="{{false}}"><button onClick="{{x.akhiri}}" style="min-height: 44px; padding: 0 12px; border-radius: 10px; border: 1.5px solid #7F8C86; background: #FFFFFF; font-weight: 700; font-size: 14px">Akhiri sesi</button></sc-if></div>
+        </sc-for>
+      </div>
+    </div>
+
+    <sc-if value="{{belumPindah}}" hint-placeholder-val="{{true}}">
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <button onClick="{{keSerah}}" style="min-height: 52px; border-radius: 14px; border: 1.5px solid #13201C; background: #FFFFFF; font-weight: 700; text-align: center">Serah terima Bendahara</button>
+        <div style="font-size: 13px; color: #5E6A66">Pemulihan akun mengembalikan akses orang yang sama dan tidak memerlukan penunjukan baru. Mengganti orangnya selalu lewat serah terima.</div>
+      </div>
+    </sc-if>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{isSerah}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column; animation: masuk .28s cubic-bezier(.2,.8,.2,1)">
+  <div style="display: flex; align-items: center; gap: 8px; padding: 14px 12px 8px">
+    <button onClick="{{keUtama}}" aria-label="Kembali" style="flex: none; width: 44px; height: 44px; background: none; border: 0; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+    <h1 style="margin: 0; flex: 1; font-size: 18px; font-weight: 700">Serah terima Bendahara</h1>
+  </div>
+  <div style="flex: 1; overflow-y: auto; padding: 8px 20px 20px; display: flex; flex-direction: column; gap: 6px">
+
+    <div style="background: #FFFFFF; border: {{lamaBd}}; border-radius: 14px; padding: 14px 16px">
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px"><div style="font-weight: 700">Meiske Lumentut</div><span style="font-size: 13px; font-weight: 700; border-radius: 6px; padding: 3px 9px; background: {{lamaBg}}; color: {{lamaFg}}; border: 1.5px solid {{lamaGaris}}">{{lamaTeks}}</span></div>
+      <div style="font-size: 13px; color: #5E6A66">{{lamaSub}}</div>
+    </div>
+    <div style="width: 2px; height: 22px; background: #13201C; margin-left: 28px"></div>
+    <div style="background: {{baruBg}}; border: {{baruBd}}; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px">
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px"><div style="font-weight: 700">Bendahara baru</div><span style="font-size: 13px; font-weight: 700; border-radius: 6px; padding: 3px 9px; background: {{baruLBg}}; color: {{baruLFg}}; border: {{baruLBd}}">{{baruTeks}}</span></div>
+      <sc-if value="{{tBelum}}" hint-placeholder-val="{{true}}">
+        <div><label for="bn" style="display: block; font-size: 14px; color: #43514C; margin-bottom: 6px">Nama yang ditunjuk</label><input id="bn" value="{{nama}}" onChange="{{onNama}}" style="width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF"></div>
+        <div style="font-size: 14px; color: #43514C">Surat penunjukan baru: <strong style="color: #13201C">SK-BPMJ-09-2026.pdf · Terlampir</strong></div>
+      </sc-if>
+      <sc-if value="{{tTunggu}}" hint-placeholder-val="{{false}}">
+        <div style="display: flex; align-items: center; gap: 12px"><svg width="34" height="34" viewBox="0 0 88 88" aria-hidden="true" style="flex: none; animation: putar 6s linear infinite"><circle cx="44" cy="44" r="38" fill="none" stroke="#13201C" stroke-width="6" stroke-dasharray="9 10"/></svg><div role="status" style="font-size: 14px"><strong>{{nama}}</strong> · menunggu Petugas verifikasi memeriksa surat penunjukan.</div></div>
+      </sc-if>
+      <sc-if value="{{tAktif}}" hint-placeholder-val="{{false}}">
+        <div role="status" style="font-size: 14px; animation: muncul .3s"><strong>{{nama}}</strong> · aktif sejak 16/11/2026 · SK-BPMJ-09-2026</div>
+      </sc-if>
+    </div>
+
+    <div style="margin-top: 14px; font-size: 14px; color: #43514C; display: flex; flex-direction: column; gap: 6px">
+      <div style="font-weight: 700; color: #13201C">Yang terjadi saat wewenang berpindah</div>
+      <div>Semua sesi Bendahara lama diakhiri saat itu juga.</div>
+      <div>Bendahara baru tidak mewarisi persetujuan yang pernah dicatat Bendahara lama.</div>
+      <div>Riwayat tetap mencatat Bendahara lama sebagai pelaku tindakannya.</div>
+      <div>Sampai verifikasi selesai, Bendahara lama tetap aktif. Tidak pernah ada dua Bendahara aktif.</div>
+    </div>
+  </div>
+  <div style="padding: 12px 20px 22px; background: #FFFFFF; border-top: 1px solid #DDE2DB; display: flex; flex-direction: column; gap: 8px">
+    <sc-if value="{{tBelum}}" hint-placeholder-val="{{true}}">
+      <sc-if value="{{tanpaNama}}" hint-placeholder-val="{{false}}"><div style="font-size: 14px; color: #43514C">Isi nama yang ditunjuk.</div></sc-if>
+      <button onClick="{{kirim}}" disabled="{{tanpaNama}}" style="min-height: 52px; border-radius: 14px; border: 0; background: {{btnBg}}; color: {{btnFg}}; font-weight: 700; text-align: center">Kirim untuk diverifikasi</button>
+    </sc-if>
+    <sc-if value="{{tTunggu}}" hint-placeholder-val="{{false}}"><div style="font-size: 14px; color: #43514C; text-align: center; min-height: 52px; display: flex; align-items: center; justify-content: center">Menunggu verifikasi wewenang. Tidak ada yang perlu Anda lakukan.</div></sc-if>
+    <sc-if value="{{tAktif}}" hint-placeholder-val="{{false}}"><button onClick="{{keUtama}}" style="min-height: 52px; border-radius: 14px; border: 1.5px solid #13201C; background: #FFFFFF; font-weight: 700; text-align: center; animation: muncul .3s">Lihat Bendahara dan sesi</button></sc-if>
+  </div>
+</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"keadaan":{"editor":"enum","options":["Bendahara aktif","Belum ada Bendahara aktif"],"default":"Bendahara aktif"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  state = { screen: 'utama', tahap: 'belum', nama: 'Yohanis Tumbelaka', sesi: ['Ponsel ini', 'Chrome di laptop'] };
+  componentWillUnmount() { clearTimeout(this.t); }
+  renderVals() {
+    var self = this, s = this.state;
+    var kosong = (this.props.keadaan ?? 'Bendahara aktif') !== 'Bendahara aktif';
+    var aktif = s.tahap === 'aktif', tunggu = s.tahap === 'tunggu', okNama = s.nama.trim().length > 0;
+    var SUB = { 'Ponsel ini': 'Sesi ini · aktif sekarang', 'Chrome di laptop': 'Terakhir dipakai 14/11/2026 20.15' };
+    var sesi = aktif ? [{ n: 'Belum ada sesi', s: 'Semua sesi Meiske Lumentut diakhiri 16/11/2026', bisa: false, garis: '0' }] : s.sesi.map(function (n, i) { return { n: n, s: SUB[n], bisa: n !== 'Ponsel ini', garis: i ? '1px solid #DDE2DB' : '0', akhiri: function () { self.setState({ sesi: s.sesi.filter(function (x) { return x !== n; }) }); } }; });
+    return {
+      isKosong: kosong, isUtama: !kosong && s.screen === 'utama', isSerah: !kosong && s.screen === 'serah',
+      namaAktif: aktif ? s.nama : 'Meiske Lumentut', aktifSejak: aktif ? 'Aktif sejak 16/11/2026 · SK-BPMJ-09-2026' : 'Aktif sejak 15/09/2026 · SK-BPMJ-04-2026',
+      sudahPindah: aktif, belumPindah: !aktif, sesi: sesi,
+      tBelum: s.tahap === 'belum', tTunggu: tunggu, tAktif: aktif, nama: s.nama, tanpaNama: !okNama,
+      btnBg: okNama ? '#0E5A63' : '#DDE2DB', btnFg: okNama ? '#FFFFFF' : '#5E6A66',
+      lamaTeks: aktif ? 'Wewenang berakhir' : 'Wewenang Bendahara aktif', lamaBg: aktif ? '#FFFFFF' : '#0E5A63', lamaFg: aktif ? '#43514C' : '#FFFFFF', lamaGaris: aktif ? '#5E6A66' : '#0E5A63',
+      lamaBd: aktif ? '1.5px solid #5E6A66' : '1.5px solid #13201C', lamaSub: aktif ? 'Berakhir 16/11/2026 · semua sesi diakhiri' : 'Tetap aktif sampai Bendahara baru diverifikasi',
+      baruBg: aktif ? '#FFFFFF' : 'transparent', baruBd: aktif ? '1.5px solid #13201C' : '1.5px dashed #808D87',
+      baruTeks: aktif ? 'Wewenang Bendahara aktif' : (tunggu ? 'Menunggu verifikasi wewenang' : 'Belum dikirim'),
+      baruLBg: aktif ? '#0E5A63' : 'transparent', baruLFg: aktif ? '#FFFFFF' : '#43514C', baruLBd: aktif ? '1.5px solid #0E5A63' : '1.5px dashed #808D87',
+      keSerah: function () { self.setState({ screen: 'serah' }); },
+      keUtama: function () { self.setState({ screen: 'utama' }); },
+      onNama: function (e) { self.setState({ nama: e.target.value }); },
+      kirim: function () { if (!okNama) return; self.setState({ tahap: 'tunggu' }); clearTimeout(self.t); self.t = setTimeout(function () { self.setState({ tahap: 'aktif' }); }, 2800); }
+    };
+  }
+}
+</script>
+</body>
+</html>

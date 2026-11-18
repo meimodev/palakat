@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Draf: pindah tanggal dan batalkan (web)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+input{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes isi{from{width:0}to{width:100%}}
+@keyframes titik{0%,100%{opacity:.25}50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+.pn-c{display:none}
+@media (max-width:860px){
+.pn{flex:1 1 100%!important;flex-direction:row!important;flex-wrap:wrap;align-items:center;gap:0 12px!important;padding:8px 16px!important;border-right:0!important;border-bottom:1px solid #DDE2DB}
+.pn-c{display:flex;align-items:center;appearance:none;-webkit-appearance:none;min-height:44px;margin:0 0 0 auto;padding:0 16px;border-radius:14px;border:1.5px solid #13201C;background:#FFFFFF;font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+.pn-c::before{content:"Menu"}
+.pn-c:checked{background:#13201C;color:#FFFFFF}
+.pn-c:checked::before{content:"Tutup menu"}
+.pn-l,.pn-w{display:none;flex:1 1 100%}
+.pn-c:checked~.pn-l{display:block;padding:8px 0}
+.pn-c:checked~.pn-w{display:block;margin-top:0!important;padding-bottom:8px!important}
+}
+</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; flex-wrap: wrap; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 15px; line-height: 1.45">
+
+  <nav class="pn" style="flex: 1 1 220px; box-sizing: border-box; padding: 24px 16px; background: #FFFFFF; border-right: 1px solid #DDE2DB; display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px">
+      <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="none" stroke="#0E5A63" stroke-width="2" stroke-dasharray="3 3"/><path d="M12 2h4a6 6 0 0 1 6 6v8a6 6 0 0 1-6 6h-4z" fill="#0E5A63"/></svg>
+      <div><div style="font-weight: 700; font-size: 18px; line-height: 1.1">palakat</div><div style="font-size: 13px; color: #5E6A66">Jemaat Karunia</div></div>
+    </div>
+    <input type="checkbox" class="pn-c" aria-label="Menu">
+    <div class="pn-l">
+      <sc-for list="{{nav}}" as="n" hint-placeholder-count="7">
+        <a href="{{n.href}}" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 10px; text-decoration: none; font-weight: 600; background: {{n.bg}}; color: {{n.fg}}">{{n.n}}</a>
+      </sc-for>
+    </div>
+    <div class="pn-w" style="margin-top: auto; padding: 12px 8px 0; border-top: 1px solid #DDE2DB; font-size: 13px; color: #43514C"><sc-if value="{{tjk}}" hint-placeholder-val="{{true}}"><div><strong style="color: #13201C">Meiske L.</strong> · Bendahara<br>Wewenang Bendahara aktif</div></sc-if><sc-if value="{{jk}}" hint-placeholder-val="{{false}}"><div><strong style="color: #13201C">Yanti Sumual</strong> · Operator<br>Menjalankan jabatan kosong Bendahara Jemaat</div></sc-if></div>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 28px clamp(16px, 3vw, 40px) 40px; display: flex; flex-direction: column; gap: 20px">
+<sc-if value="{{jk}}" hint-placeholder-val="{{false}}"><div role="status" style="background: #13201C; color: #FFFFFF; border-radius: 14px; padding: 12px 16px; font-size: 14px"><strong>Anda menjalankan jabatan kosong Bendahara Jemaat sejak 16/11/2026 08.15.</strong> <span style="color: #D5DDD8">Setiap tindakan dicatat sebagai dijalankan oleh Operator Yanti Sumual.</span></div></sc-if>
+<div><a href="WebTransaksi.dc.html" style="font-size: 14px; font-weight: 600">Transaksi</a><h1 style="margin: 2px 0 0; font-size: 26px; font-weight: 700">Draf</h1></div>
+    <div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+      <div style="flex: 999 1 460px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+    <sc-if value="{{konflik}}" hint-placeholder-val="{{false}}"><div role="alert" style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; border: 1.5px solid #13201C; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px"><div style="font-size: 15px"><strong>Sudah diubah sejak Anda membukanya</strong> (oleh {{plk}}, 16/11/2026 10.58, dari perangkat lain).</div><div style="font-size: 14px; color: #43514C">Isian Anda tidak menimpa perubahan itu. Muat versi terbaru, lalu lanjutkan.</div><button onClick="{{muat}}" style="min-height: 46px; padding: 0 20px; border-radius: 12px; border: 0; background: #13201C; color: #FFFFFF; font-weight: 700; align-self: flex-start">Muat versi terbaru</button></div></sc-if>
+    <sc-if value="{{isDraf}}" hint-placeholder-val="{{true}}">
+      <div style="border: 1.5px dashed #808D87; border-radius: 14px; border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 6px"><span style="align-self: flex-start; font-size: 13px; font-weight: 700; border-radius: 6px; padding: 3px 9px; border: 1.5px dashed #808D87; color: #43514C">Draf · belum masuk saldo</span><div style="font-family: 'IBM Plex Mono', monospace; font-size: 30px; font-weight: 500; color: #43514C">{{jumlah}}</div><div style="font-weight: 600">{{ur}}</div><div style="font-size: 13px; color: #5E6A66">{{sub}}</div><div style="font-size: 13px; color: #5E6A66">{{bulanTeks}}</div></div>
+      <sc-if value="{{tolak}}" hint-placeholder-val="{{true}}"><div style="font-size: 15px"><strong style="color: #A63C1C">Tidak dapat dilakukan: Bukukan.</strong> September 2026 sudah ditutup, dan draf ini tidak pernah masuk laporannya. Yang masih dapat Anda lakukan: pindah tanggal ke bulan yang belum ditutup, atau batalkan.</div></sc-if>
+    </sc-if>
+    <sc-if value="{{isBatal}}" hint-placeholder-val="{{false}}"><div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 6px; animation: muncul .3s"><span style="align-self: flex-start; font-size: 13px; font-weight: 700; border-radius: 6px; padding: 3px 9px; background: #DDE2DB; color: #43514C">Dibatalkan</span><div style="font-family: 'IBM Plex Mono', monospace; font-size: 30px; font-weight: 500; color: #5E6A66; text-decoration: line-through">−Rp650.000</div><div style="font-weight: 600">Honor pemusik</div><div style="font-size: 14px; color: #43514C">Alasan: {{alasanAkhir}}</div><div style="font-size: 13px; color: #5E6A66">Dibatalkan oleh {{plk}}, 16/11/2026 11.20 · tidak pernah punya No. Bukti · hanya dapat dilihat</div></div></sc-if>
+    <sc-if value="{{isHapus}}" hint-placeholder-val="{{false}}"><div role="status" style="border: 1.5px dashed #808D87; border-radius: 14px; padding: 18px; font-size: 15px; animation: muncul .3s"><strong>Draf kosong dihapus.</strong> Hanya draf tanpa isian yang dapat dihapus; yang lain dibatalkan dengan alasan.</div></sc-if>
+
+        <sc-if value="{{isDraf}}" hint-placeholder-val="{{true}}"><div style="display: flex; flex-wrap: wrap; gap: 8px">
+      <sc-if value="{{bisaBuku}}" hint-placeholder-val="{{false}}"><a href="WebCatat.dc.html" style="min-height: 52px; border-radius: 14px; border: 0; background: #0E5A63; color: #FFFFFF; font-weight: 700; text-align: center; padding: 0 20px; display: flex; align-items: center; justify-content: center; text-decoration: none; box-sizing: border-box">Periksa dan bukukan</a></sc-if>
+      <sc-if value="{{bisaPindah}}" hint-placeholder-val="{{true}}"><button onClick="{{bukaPindah}}" disabled="{{kunci}}" style="min-height: 48px; border-radius: 14px; border: 1.5px solid #13201C; background: #FFFFFF; color: #13201C; font-weight: 700; text-align: center; padding: 0 20px">Pindah tanggal</button></sc-if>
+      <sc-if value="{{bisaBatal}}" hint-placeholder-val="{{true}}"><button onClick="{{bukaBatal}}" disabled="{{kunci}}" style="min-height: 48px; border-radius: 14px; border: 1.5px solid #13201C; background: #FFFFFF; color: #13201C; font-weight: 700; text-align: center; padding: 0 20px">Batalkan</button></sc-if>
+      <sc-if value="{{bisaHapus}}" hint-placeholder-val="{{false}}"><button onClick="{{hapus}}" style="min-height: 48px; border-radius: 14px; border: 1.5px solid #13201C; background: #FFFFFF; color: #13201C; font-weight: 700; text-align: center; padding: 0 20px">Hapus draf</button></sc-if>
+</div></sc-if>
+        <div style="display: flex; flex-direction: column; gap: 6px"><div style="margin: 0; font-size: 16px; font-weight: 700; font-size: 15px">Riwayat</div><sc-for list="{{hist}}" as="h" hint-placeholder-count="1"><div style="font-size: 14px; color: #43514C">{{h.t}}</div></sc-for></div>
+      </div>
+      <sc-if value="{{adaSheet}}" hint-placeholder-val="{{false}}"><aside style="flex: 1 1 360px; min-width: 0; background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 14px; animation: muncul .3s">
+      <div><h2 style="margin: 0; font-size: 18px; font-weight: 700">{{sheetJudul}}</h2><div style="font-size: 14px; color: #43514C">{{sheetCat}}</div></div>
+      <sc-if value="{{isPindah}}" hint-placeholder-val="{{true}}"><div><div style="font-size: 14px; color: #43514C; margin-bottom: 8px">Pindah ke bulan</div><div><sc-for list="{{bulanChips}}" as="c" hint-placeholder-count="2"><button onClick="{{c.pick}}" aria-pressed="{{c.on}}" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; margin: 0 8px 8px 0; border-radius: 999px; border: 1.5px solid {{c.bd}}; background: {{c.bg}}; color: {{c.fg}}; font-weight: 600; font-size: 14px">{{c.n}}</button></sc-for></div></div></sc-if>
+      <div><label for="alb" style="display: block; font-size: 14px; color: #43514C; margin-bottom: 6px">Alasan <strong style="color: #13201C">· wajib</strong></label><textarea id="alb" rows="2" value="{{alasan}}" onChange="{{onAlasan}}" style="width: 100%; box-sizing: border-box; padding: 12px 14px; border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF; resize: none; font: inherit; color: inherit"></textarea></div>
+      <button onClick="{{simpan}}" disabled="{{tanpaAlasan}}" style="min-height: 52px; border-radius: 14px; border: 0; background: {{btnBg}}; color: {{btnFg}}; font-weight: 700; text-align: center; padding: 0 20px">{{sheetTombol}}</button>
+      <button onClick="{{tutupSheet}}" style="min-height: 44px; border: 0; background: none; color: #0E5A63; font-weight: 700; text-align: center; color: #13201C">Kembali</button>
+</aside></sc-if>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"jabatanKosong":{"editor":"boolean","default":false},"konflik":{"editor":"boolean","default":false},"drafKosong":{"editor":"boolean","default":false},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  rp(n) { var s = String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return (n < 0 ? '−' : '') + 'Rp' + s; }
+  navVals() { return [['Beranda', 'WebBeranda.dc.html'], ['Transaksi', 'WebTransaksi.dc.html'], ['Uang Muka dan Titipan', 'WebKewajiban.dc.html'], ['Rekonsiliasi', 'WebRekonsiliasi.dc.html'], ['Bulan dan tutup buku', 'WebTutupBuku.dc.html'], ['Laporan', 'WebPaketLaporan.dc.html'], ['Pengaturan', 'WebPengaturan.dc.html']].map(function (n, i) { return { n: n[0], href: n[1], bg: i === 1 ? '#13201C' : 'transparent', fg: i === 1 ? '#FFFFFF' : '#13201C' }; }); }
+  state = { st: 'draf', bulan: 'September 2026', tgl: '28 September 2026', sheet: null, alasan: '', ke: 'November 2026', muat: false, hist: ['28/09/2026 16.10 · Draf dicatat oleh Meiske L.'] };
+  vals() {
+    var self = this, s = this.state, chip = function (on) { return on ? { bg: '#13201C', fg: '#FFFFFF', bd: '#13201C' } : { bg: '#FFFFFF', fg: '#13201C', bd: '#7F8C86' }; };
+    var konflik = (this.props.konflik ?? false) && !s.muat, kosong = this.props.drafKosong ?? false;
+    var tutup = s.bulan === 'September 2026', ok = s.alasan.trim().length > 0, pindah = s.sheet === 'pindah';
+    var draf = s.st === 'draf';
+    return {
+      isDraf: draf, isBatal: s.st === 'batal', isHapus: s.st === 'hapus', konflik: konflik && draf, kunci: konflik,
+      jumlah: kosong ? '—' : '−Rp650.000', ur: kosong ? 'Draf kosong' : 'Honor pemusik', sub: kosong ? 'Belum ada isian · dibuat 16/11/2026 11.02' : 'Bank BNI ··4821 · tanggal transaksi ' + s.tgl,
+      bulanTeks: s.bulan + (tutup ? ' · Sudah ditutup' : ' · Belum ditutup'),
+      tolak: draf && tutup && !kosong, bisaBuku: draf && !tutup && !kosong, bisaHapus: draf && kosong, bisaPindah: draf && !kosong, bisaBatal: draf && !kosong,
+      adaSheet: !!s.sheet, sheetJudul: pindah ? 'Pindah tanggal' : 'Batalkan draf',
+      sheetCat: pindah ? 'Hanya bulan sesudahnya yang belum ditutup. Draf tetap Draf, dan tanda sudah diperiksa atau persetujuan yang ada akan hilang.' : 'Draf yang dibatalkan tidak pernah punya No. Bukti dan tetap dapat dilihat bersama alasannya.',
+      isPindah: pindah, bulanChips: ['Oktober 2026', 'November 2026'].map(function (b) { var on = s.ke === b; return Object.assign({ n: b + ' · Belum ditutup', on: on, pick: function () { self.setState({ ke: b }); } }, chip(on)); }),
+      alasan: s.alasan, onAlasan: function (e) { self.setState({ alasan: e.target.value }); }, tanpaAlasan: !ok,
+      btnBg: ok ? '#13201C' : '#DDE2DB', btnFg: ok ? '#FFFFFF' : '#5E6A66', sheetTombol: pindah ? 'Pindah tanggal ke ' + s.ke : 'Batalkan draf',
+      alasanAkhir: s.alasanAkhir || '',
+      bukaPindah: function () { if (!konflik) self.setState({ sheet: 'pindah', alasan: '' }); }, bukaBatal: function () { if (!konflik) self.setState({ sheet: 'batal', alasan: '' }); }, tutupSheet: function () { self.setState({ sheet: null }); },
+      simpan: function () { if (!ok) return; var a = s.alasan.trim(); if (pindah) self.setState({ sheet: null, bulan: s.ke, tgl: (s.ke === 'November 2026' ? '16 November 2026' : '31 Oktober 2026'), hist: ['16/11/2026 11.20 · Pindah tanggal ke ' + s.ke + ' · alasan: ' + a + ' · oleh Meiske L.'].concat(s.hist) }); else self.setState({ sheet: null, st: 'batal', alasanAkhir: a, hist: ['16/11/2026 11.20 · Dibatalkan · alasan: ' + a + ' · oleh Meiske L.'].concat(s.hist) }); },
+      hapus: function () { self.setState({ st: 'hapus' }); }, muat: function () { self.setState({ muat: true }); },
+      hist: s.hist.map(function (h) { return { t: h }; })
+    };
+  }
+
+  rv0() { var V = this.vals(); if (this.navVals) V.nav = this.navVals(); return V; }
+  tukarJk(o, d) {
+    var self = this, ganti = function (s) { var t = s.match(/\d\d\/\d\d\/\d{4}/g) || []; return s.indexOf('Meiske L.') < 0 || t.some(function (x) { return x !== '16/11/2026'; }) ? s : s.split('Meiske L.').join('Yanti Sumual, Operator'); };
+    if (d > 5 || !o || typeof o !== 'object') return o;
+    Object.keys(o).forEach(function (k) { var v = o[k]; if (typeof v === 'string') o[k] = ganti(v); else if (v && typeof v === 'object') self.tukarJk(v, d + 1); });
+    return o;
+  }
+  renderVals() {
+    var V = this.rv0(), jk = !!this.props.jabatanKosong;
+    if (jk && true) this.tukarJk(V, 0);
+    V.jk = jk; V.tjk = !jk; V.plk = jk ? 'Yanti Sumual, Operator' : 'Meiske L.'; V.plk2 = jk ? 'Yanti Sumual, Operator (menjalankan jabatan kosong Bendahara Jemaat)' : 'Meiske L.';
+    return V;
+  }
+}
+</script>
+</body>
+</html>

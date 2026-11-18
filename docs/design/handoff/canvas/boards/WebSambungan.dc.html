@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Sambungan terputus dan sesi berakhir (web)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+input{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes isi{from{width:0}to{width:100%}}
+@keyframes titik{0%,100%{opacity:.25}50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+.pn-c{display:none}
+@media (max-width:860px){
+.pn{flex:1 1 100%!important;flex-direction:row!important;flex-wrap:wrap;align-items:center;gap:0 12px!important;padding:8px 16px!important;border-right:0!important;border-bottom:1px solid #DDE2DB}
+.pn-c{display:flex;align-items:center;appearance:none;-webkit-appearance:none;min-height:44px;margin:0 0 0 auto;padding:0 16px;border-radius:14px;border:1.5px solid #13201C;background:#FFFFFF;font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+.pn-c::before{content:"Menu"}
+.pn-c:checked{background:#13201C;color:#FFFFFF}
+.pn-c:checked::before{content:"Tutup menu"}
+.pn-l,.pn-w{display:none;flex:1 1 100%}
+.pn-c:checked~.pn-l{display:block;padding:8px 0}
+.pn-c:checked~.pn-w{display:block;margin-top:0!important;padding-bottom:8px!important}
+}
+</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; flex-wrap: wrap; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 15px; line-height: 1.45">
+
+  <nav class="pn" style="flex: 1 1 220px; box-sizing: border-box; padding: 24px 16px; background: #FFFFFF; border-right: 1px solid #DDE2DB; display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px">
+      <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="none" stroke="#0E5A63" stroke-width="2" stroke-dasharray="3 3"/><path d="M12 2h4a6 6 0 0 1 6 6v8a6 6 0 0 1-6 6h-4z" fill="#0E5A63"/></svg>
+      <div><div style="font-weight: 700; font-size: 18px; line-height: 1.1">palakat</div><div style="font-size: 13px; color: #5E6A66">Jemaat Karunia</div></div>
+    </div>
+    <input type="checkbox" class="pn-c" aria-label="Menu">
+    <div class="pn-l">
+      <sc-for list="{{nav}}" as="n" hint-placeholder-count="7">
+        <a href="{{n.href}}" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 10px; text-decoration: none; font-weight: 600; background: {{n.bg}}; color: {{n.fg}}">{{n.n}}</a>
+      </sc-for>
+    </div>
+    <div class="pn-w" style="margin-top: auto; padding: 12px 8px 0; border-top: 1px solid #DDE2DB; font-size: 13px; color: #43514C"><strong style="color: #13201C">Meiske L.</strong> · Bendahara<br>Wewenang Bendahara aktif</div>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 28px clamp(16px, 3vw, 40px) 40px; display: flex; flex-direction: column; gap: 20px">
+    <sc-if value="{{isForm}}" hint-placeholder-val="{{true}}"><div><a href="WebTransaksi.dc.html" style="font-size: 14px; font-weight: 600">Transaksi</a><h1 style="margin: 2px 0 0; font-size: 26px; font-weight: 700">Catat transaksi</h1></div>
+      <div style="max-width: 640px; display: flex; flex-direction: column; gap: 16px">
+      <sc-if value="{{putus}}" hint-placeholder-val="{{true}}"><div role="alert" style="background: #F8E8E0; border: 1.5px solid #A63C1C; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px">
+        <div style="display: flex; align-items: center; gap: 10px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#A63C1C" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M2 8.5a15 15 0 0 1 20 0M5.5 12a10 10 0 0 1 13 0M9 15.5a5 5 0 0 1 6 0M3 3l18 18"/><circle cx="12" cy="19" r="1" fill="#A63C1C"/></svg><strong style="font-size: 16px">Tidak ada sambungan</strong></div>
+        <div style="font-size: 14px; color: #43514C">Palakat bekerja hanya saat tersambung. Isian di bawah belum tersimpan, dan tetap ada selama layar ini terbuka.</div>
+        <sc-if value="{{lagi}}" hint-placeholder-val="{{false}}"><div style="font-size: 14px; font-weight: 700; color: #A63C1C">{{percobaan}}</div></sc-if>
+      </div></sc-if>
+      <sc-if value="{{mencoba}}" hint-placeholder-val="{{false}}"><div role="status" style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px"><strong>Mencoba menyimpan lagi…</strong><div style="height: 6px; border-radius: 3px; background: #DDE2DB; overflow: hidden"><div style="height: 100%; background: #0E5A63; animation: isi 1.6s linear both"></div></div><div style="font-size: 13px; color: #5E6A66">Percobaan ulang tidak membuat draf kedua dan tidak membuat No. Bukti.</div></div></sc-if>
+      <sc-if value="{{tersimpan}}" hint-placeholder-val="{{false}}"><div role="status" style="background: #E1EEED; border-radius: 14px; padding: 14px 16px; animation: muncul .3s"><strong>Tersambung lagi. Draf tersimpan.</strong><div style="font-size: 14px; color: #43514C">Tersimpan satu kali. Tidak ada salinan ganda dari percobaan sebelumnya.</div></div></sc-if>
+      <div style="border: {{lencanaBd}}; background: #FFFFFF; border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 6px; transition: border .3s"><span style="align-self: flex-start; font-size: 13px; font-weight: 700; border-radius: 6px; padding: 3px 9px; border: {{lencanaBd}}; color: #43514C">{{lencana}} · Draf · belum masuk saldo</span><div style="font-family: 'IBM Plex Mono', monospace; font-size: 30px; font-weight: 500; color: #43514C">−Rp85.000</div><div style="font-weight: 600">Air minum untuk rapat</div><div style="font-size: 13px; color: #5E6A66">Kas · diambil dari peruntukan Umum Jemaat · Lingkup Jemaat · 16 November 2026</div><div style="font-size: 13px; color: #5E6A66">Belanja 5.04.01.00 Konsumsi rapat</div></div>
+      <sc-if value="{{belumSimpan}}" hint-placeholder-val="{{true}}"><div style="display: flex; flex-direction: column; gap: 6px"><div style="margin: 0; font-size: 16px; font-weight: 700; font-size: 15px">Menunggu sambungan</div><div style="font-size: 14px; color: #43514C">Simpan sebagai draf, Periksa dan bukukan, dan melampirkan dokumen pendukung. Semuanya berjalan di server, jadi tidak ada yang dibukukan dari perangkat ini saja.</div></div></sc-if>
+<div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center">
+      <sc-if value="{{putus}}" hint-placeholder-val="{{true}}"><button onClick="{{coba}}" style="min-height: 52px; border-radius: 14px; border: 0; background: #13201C; color: #FFFFFF; font-weight: 700; text-align: center; padding: 0 20px">Coba lagi</button></sc-if>
+      <sc-if value="{{mencoba}}" hint-placeholder-val="{{false}}"><button disabled="{{mencoba}}" style="min-height: 52px; border-radius: 14px; border: 0; background: #13201C; color: #FFFFFF; font-weight: 700; text-align: center; padding: 0 20px; background: #DDE2DB; color: #5E6A66">Mencoba menyimpan lagi…</button></sc-if>
+      <sc-if value="{{tersimpan}}" hint-placeholder-val="{{false}}"><a href="WebCatat.dc.html" style="min-height: 52px; border-radius: 14px; border: 0; background: #0E5A63; color: #FFFFFF; font-weight: 700; text-align: center; padding: 0 20px; display: flex; align-items: center; justify-content: center; text-decoration: none">Periksa dan bukukan</a><button onClick="{{ulang}}" style="min-height: 44px; border: 0; background: none; color: #0E5A63; font-weight: 700; text-align: center">Ulangi contoh</button></sc-if>
+</div></div>
+    </sc-if>
+    <sc-if value="{{isSesi}}" hint-placeholder-val="{{false}}"><div style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 0"><div style="width: 100%; max-width: 460px; background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; border-radius: 18px; padding: clamp(24px, 4vw, 40px); box-sizing: border-box; display: flex; flex-direction: column; gap: 20px">
+      <svg width="56" height="56" viewBox="0 0 56 56" fill="none" aria-hidden="true"><circle cx="28" cy="28" r="26" stroke="#808D87" stroke-width="2" stroke-dasharray="5 5"/><rect x="18" y="26" width="20" height="15" rx="3" fill="#13201C"/><path d="M22 26v-4a6 6 0 0 1 12 0v4" stroke="#13201C" stroke-width="2.5"/></svg>
+      <div><h1 style="margin: 0 0 6px; font-size: 24px; font-weight: 700; line-height: 1.2">{{sJudul}}</h1><div style="font-size: 14px; color: #43514C; font-size: 15px">{{sCat}}</div></div>
+      <div style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: #43514C"><div><strong style="color: #13201C">Tetap aman:</strong> semua yang sudah dibukukan dan draf yang sudah tersimpan.</div><div><strong style="color: #13201C">Tidak ikut tersimpan:</strong> isian yang belum tersimpan di perangkat ini.</div></div>
+      <sc-if value="{{bisaMasuk}}" hint-placeholder-val="{{true}}"><a href="WebMasuk.dc.html" style="min-height: 52px; border-radius: 14px; border: 0; background: #0E5A63; color: #FFFFFF; font-weight: 700; text-align: center; padding: 0 20px; display: flex; align-items: center; justify-content: center; text-decoration: none">Masuk lagi</a></sc-if>
+      <sc-if value="{{tanpaWewenang}}" hint-placeholder-val="{{false}}"><div style="border: 1.5px dashed #808D87; border-radius: 14px; padding: 14px 16px; font-size: 14px">Anda tidak lagi memegang wewenang Bendahara Jemaat Karunia. Riwayat tetap mencatat tindakan Anda. Bila ini keliru, yang dapat membantu adalah BPMJ Jemaat Karunia.</div></sc-if>
+</div></div></sc-if>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"keadaan":{"editor":"enum","options":["Tidak ada sambungan","Sesi berakhir: lama tidak dipakai","Sesi berakhir: diakhiri dari perangkat lain","Sesi berakhir: wewenang berpindah"],"default":"Tidak ada sambungan"},"sambunganKembali":{"editor":"boolean","default":true},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  rp(n) { var s = String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return (n < 0 ? '−' : '') + 'Rp' + s; }
+  navVals() { return [['Beranda', 'WebBeranda.dc.html'], ['Transaksi', 'WebTransaksi.dc.html'], ['Uang Muka dan Titipan', 'WebKewajiban.dc.html'], ['Rekonsiliasi', 'WebRekonsiliasi.dc.html'], ['Bulan dan tutup buku', 'WebTutupBuku.dc.html'], ['Laporan', 'WebPaketLaporan.dc.html'], ['Pengaturan', 'WebPengaturan.dc.html']].map(function (n, i) { return { n: n[0], href: n[1], bg: i === 1 ? '#13201C' : 'transparent', fg: i === 1 ? '#FFFFFF' : '#13201C' }; }); }
+  state = { st: 'putus', n: 1 };
+  vals() {
+    var self = this, s = this.state, k = this.props.keadaan ?? 'Tidak ada sambungan', pulih = this.props.sambunganKembali ?? true;
+    var sesi = k !== 'Tidak ada sambungan';
+    var S = { 'Sesi berakhir: lama tidak dipakai': ['Sesi Anda berakhir', 'Aplikasi mengakhiri sesi yang lama tidak dipakai.', true], 'Sesi berakhir: diakhiri dari perangkat lain': ['Sesi di perangkat ini diakhiri', 'Diakhiri oleh Meiske L. dari perangkat lain, 16/11/2026 11.40.', true], 'Sesi berakhir: wewenang berpindah': ['Sesi Anda berakhir', 'Wewenang Bendahara berpindah pada 16/11/2026. Semua sesi Bendahara lama diakhiri saat itu juga.', false] }[k] || ['', '', true];
+    return {
+      isSesi: sesi, isForm: !sesi, putus: s.st === 'putus', mencoba: s.st === 'coba', tersimpan: s.st === 'simpan', belumSimpan: s.st !== 'simpan',
+      lagi: s.n > 1 && s.st === 'putus', percobaan: 'Masih belum tersambung · percobaan ke-' + s.n,
+      lencana: s.st === 'simpan' ? 'Tersimpan' : (s.st === 'coba' ? 'Mencoba menyimpan lagi…' : 'Belum tersimpan'),
+      lencanaBd: s.st === 'simpan' ? '1.5px solid #13201C' : '1.5px dashed #808D87',
+      coba: function () { if (s.st !== 'putus') return; self.setState({ st: 'coba' }); setTimeout(function () { self.setState(pulih ? { st: 'simpan' } : { st: 'putus', n: s.n + 1 }); }, 1600); },
+      ulang: function () { self.setState({ st: 'putus', n: 1 }); },
+      sJudul: S[0], sCat: S[1], bisaMasuk: S[2], tanpaWewenang: !S[2]
+    };
+  }
+
+  renderVals() { var V = this.vals(); if (this.navVals) V.nav = this.navVals(); return V; }
+}
+</script>
+</body>
+</html>

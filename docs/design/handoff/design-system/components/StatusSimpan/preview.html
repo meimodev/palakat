@@ -1,0 +1,28 @@
+<!-- @dsCard group="Pita" height=258 width=412 -->
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>StatusSimpan — pratinjau</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+html, body { margin: 0; }
+body { background: var(--kertas); }
+/* tanah: komponen selalu tampil di atas kertas, apa pun latar bingkai pratinjau */
+.tanah { background: var(--kertas); color: var(--tinta); font-family: var(--font-sans); font-size: 15px; line-height: 1.45; padding: var(--s20); min-height: 100vh; box-sizing: border-box; }
+.pk { display: flex; flex-direction: column; gap: 10px; max-width: 372px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+input, textarea { color: inherit; }
+button:focus-visible, a:focus-visible { outline: 2px solid var(--laut); outline-offset: 2px; }
+a { color: var(--laut); }
+@media (prefers-reduced-motion: reduce) { * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+</style>
+</head>
+<body>
+<div class="tanah"><div class="pk">
+<div style="display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 14px; font-weight: 600"><span style="color: var(--laut)">Tersimpan</span><span style="color: var(--tinta3)">Belum tersimpan</span><span style="color: var(--tinta3)">Mencoba menyimpan lagi…</span></div>
+<div style="background: var(--bataLembut); border: 1px solid var(--bata); border-radius: var(--radius-isian); padding: 10px 14px; display: flex; align-items: center; gap: 10px"><div style="flex: 1; font-size: 14px"><strong>Gagal disimpan.</strong> Isian Anda masih ada di layar ini.</div><span style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 14px; border-radius: 10px; background: var(--bata); color: var(--diBata); font-weight: 700; font-size: 14px">Coba lagi</span></div>
+<div style="background: var(--permukaan); border: 1.5px solid var(--tinta); border-radius: var(--radius-isian); padding: 10px 14px; font-size: 14px"><strong>Sudah diubah sejak Anda membukanya</strong> (oleh Meiske L., 10.58). Muat versi terbaru sebelum melanjutkan.</div>
+</div></div>
+</body>
+</html>

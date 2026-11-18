@@ -1,0 +1,27 @@
+<!-- @dsCard group="Pita" height=186 width=412 -->
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>PitaLaporan — pratinjau</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+html, body { margin: 0; }
+body { background: var(--kertas); }
+/* tanah: komponen selalu tampil di atas kertas, apa pun latar bingkai pratinjau */
+.tanah { background: var(--kertas); color: var(--tinta); font-family: var(--font-sans); font-size: 15px; line-height: 1.45; padding: var(--s20); min-height: 100vh; box-sizing: border-box; }
+.pk { display: flex; flex-direction: column; gap: 10px; max-width: 372px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+input, textarea { color: inherit; }
+button:focus-visible, a:focus-visible { outline: 2px solid var(--laut); outline-offset: 2px; }
+a { color: var(--laut); }
+@media (prefers-reduced-motion: reduce) { * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+</style>
+</head>
+<body>
+<div class="tanah"><div class="pk">
+<div style="border: 1.5px dashed var(--putus); border-radius: var(--radius-kartu); padding: 12px 16px"><strong>Laporan sementara</strong><div style="font-size: 14px; color: var(--tinta2)">Bukan laporan resmi. Angka masih dapat berubah.</div></div>
+<div style="background: var(--tinta); color: var(--permukaan); border-radius: var(--radius-kartu); padding: 12px 16px"><strong>Laporan resmi</strong><div style="font-size: 14px; color: var(--diTinta2)">Dibekukan saat tutup buku · ID <span style="font-family: var(--font-mono)">SNP-2026-10-01</span></div></div>
+</div></div>
+</body>
+</html>

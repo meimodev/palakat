@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Ekspor data Jemaat (ponsel)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+input{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes masuk{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@keyframes pudar{from{opacity:0}to{opacity:1}}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes isi{from{width:0}to{width:100%}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; display: flex; flex-direction: column; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 16px; line-height: 1.4">
+<sc-if value="{{jk}}" hint-placeholder-val="{{false}}"><div role="status" style="flex: none; background: #13201C; color: #FFFFFF; padding: 10px 24px 8px; font-size: 13px; line-height: 1.3; text-align: center"><strong>Menjalankan jabatan kosong</strong> · Bendahara Jemaat</div></sc-if>
+<div style="position: relative; flex: 1; min-height: 0">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column">
+  <div style="display: flex; align-items: center; gap: 8px; padding: 14px 12px 8px"><a href="Lainnya.dc.html" aria-label="Kembali ke Lainnya" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #13201C"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></a><div style="flex: 1"><h1 style="margin: 0; font-size: 18px; font-weight: 700">Ekspor data Jemaat</h1><div style="font-size: 13px; color: #43514C">Salinan lengkap milik Jemaat</div></div></div>
+  <div style="flex: 1; overflow-y: auto; padding: 8px 20px 20px; display: flex; flex-direction: column; gap: 14px">
+    <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 0 16px">
+      <sc-for list="{{isi}}" as="x" hint-placeholder-count="5">
+        <div style="padding: 12px 0; border-top: {{x.garis}}"><div style="display: flex; justify-content: space-between; align-items: center; gap: 10px"><div style="font-weight: 600; font-size: 15px">{{x.n}}</div><span style="font-size: 13px; font-weight: 700; border-radius: 6px; padding: 3px 9px; white-space: nowrap; background: {{x.bg}}; color: {{x.fg}}; border: {{x.bd}}">{{x.st}}</span></div><div style="font-size: 13px; color: #5E6A66">{{x.s}}</div><sc-if value="{{x.jalan}}" hint-placeholder-val="{{false}}"><div style="height: 4px; border-radius: 2px; background: #DDE2DB; margin-top: 8px; overflow: hidden"><div style="height: 100%; background: #0E5A63; animation: isi {{x.dur}} linear both"></div></div></sc-if></div>
+      </sc-for>
+    </div>
+    <sc-if value="{{belum}}" hint-placeholder-val="{{true}}"><div style="font-size: 14px; color: #43514C">Mencakup 15 September 2026 sampai hari ini. Bulan yang belum ditutup diekspor sebagai keadaan saat ini dan ditandai Belum ditutup.</div></sc-if>
+    <sc-if value="{{selesai}}" hint-placeholder-val="{{false}}">
+      <div style="border: 1.5px solid #A63C1C; background: #FFFFFF; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; animation: muncul .3s"><div style="font-weight: 700; font-size: 16px">Ekspor belum lengkap</div><div style="font-size: 14px">3 dari 214 dokumen pendukung tidak ikut:</div><div style="font-size: 14px; color: #43514C">2 file Ditahan (alasan keamanan)</div><div style="font-size: 14px; color: #43514C">1 file gagal dibaca</div><div style="font-size: 13px; color: #5E6A66; margin-top: 4px">Daftar isi mencatat ketiganya beserta No. Bukti dan alasannya.</div></div>
+    </sc-if>
+  </div>
+  <div style="padding: 12px 20px 22px; background: #FFFFFF; border-top: 1px solid #DDE2DB; display: flex; flex-direction: column; gap: 8px">
+    <sc-if value="{{belum}}" hint-placeholder-val="{{true}}"><button onClick="{{buat}}" style="min-height: 52px; border-radius: 14px; border: 0; background: #0E5A63; color: #FFFFFF; font-weight: 700; text-align: center">Buat ekspor</button></sc-if>
+    <sc-if value="{{jalan}}" hint-placeholder-val="{{false}}"><div role="status" style="min-height: 52px; display: flex; align-items: center; justify-content: center; font-weight: 700">Sedang disiapkan…</div></sc-if>
+    <sc-if value="{{selesai}}" hint-placeholder-val="{{false}}"><button onClick="{{unduh}}" style="min-height: 52px; border-radius: 14px; border: 0; background: #0E5A63; color: #FFFFFF; font-weight: 700; text-align: center">{{unduhTeks}}</button><button onClick="{{buat}}" style="min-height: 44px; border: 0; background: none; color: #0E5A63; font-weight: 700; text-align: center">Coba lagi</button></sc-if>
+  </div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"jabatanKosong":{"editor":"boolean","default":false},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  rp(n) { var s = String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return (n < 0 ? '−' : '') + 'Rp' + s; }
+  state = { st: 'belum' };
+  componentWillUnmount() { clearTimeout(this.t); }
+  rv0() {
+    var _u = this, _su = this.state.diunduh;
+    var self = this, st = this.state.st, jalan = st === 'jalan', selesai = st === 'selesai';
+    var I = [['Buku', 'Semua transaksi, termasuk yang dibalik dan dibatalkan', '1.1s'], ['Versi', 'Mata Anggaran, pengaturan dan aturan per bulan', '1.5s'], ['Dokumen pendukung', '214 file, masing-masing dengan checksum', '2.4s'], ['Laporan', 'Laporan resmi September dan Oktober 2026', '1.9s'], ['Daftar isi', 'Apa yang ada di ekspor ini, dan apa yang tidak', '2.6s']];
+    return { unduh: function () { _u.setState({ diunduh: true }); }, unduhTeks: _su ? 'Diunduh · ekspor-jemaat-karunia-2026-11-16.zip' : 'Unduh ekspor (belum lengkap)',
+      belum: st === 'belum', jalan: jalan, selesai: selesai,
+      isi: I.map(function (x, i) { var kurang = selesai && i === 2; return { n: x[0], s: kurang ? '211 dari 214 file disertakan' : x[1], dur: x[2], jalan: jalan, garis: i ? '1px solid #DDE2DB' : '0', st: jalan ? 'Sedang disiapkan' : (selesai ? (kurang ? 'Belum lengkap' : 'Disertakan') : 'Akan disertakan'), bg: selesai && !kurang ? '#0E5A63' : '#FFFFFF', fg: selesai ? (kurang ? '#A63C1C' : '#FFFFFF') : '#43514C', bd: selesai ? (kurang ? '1.5px solid #A63C1C' : '1.5px solid #0E5A63') : '1.5px dashed #808D87' }; }),
+      buat: function () { self.setState({ st: 'jalan' }); clearTimeout(self.t); self.t = setTimeout(function () { self.setState({ st: 'selesai' }); }, 2800); }
+    };
+  }
+  tukarJk(o, d) {
+    var self = this, ganti = function (s) { var t = s.match(/\d\d\/\d\d\/\d{4}/g) || []; return s.indexOf('Meiske L.') < 0 || t.some(function (x) { return x !== '16/11/2026'; }) ? s : s.split('Meiske L.').join('Yanti Sumual, Operator'); };
+    if (d > 5 || !o || typeof o !== 'object') return o;
+    Object.keys(o).forEach(function (k) { var v = o[k]; if (typeof v === 'string') o[k] = ganti(v); else if (v && typeof v === 'object') self.tukarJk(v, d + 1); });
+    return o;
+  }
+  renderVals() {
+    var V = this.rv0(), jk = !!this.props.jabatanKosong;
+    if (jk && false) this.tukarJk(V, 0);
+    V.jk = jk; V.tjk = !jk; V.plk = jk ? 'Yanti Sumual, Operator' : 'Meiske L.'; V.plk2 = jk ? 'Yanti Sumual, Operator (menjalankan jabatan kosong Bendahara Jemaat)' : 'Meiske L.';
+    return V;
+  }
+}
+</script>
+</body>
+</html>

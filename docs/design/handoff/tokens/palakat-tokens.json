@@ -1,0 +1,163 @@
+{
+  "name": "Palakat · Calm ledger",
+  "version": "1.0.0",
+  "color": {
+    "kertas": "#F3F5F1",
+    "permukaan": "#FFFFFF",
+    "tinta": "#13201C",
+    "tinta2": "#43514C",
+    "tinta3": "#5E6A66",
+    "putus": "#808D87",
+    "garis": "#DDE2DB",
+    "garisTegas": "#7F8C86",
+    "laut": "#0E5A63",
+    "lautTua": "#0A4249",
+    "lautLembut": "#E1EEED",
+    "bata": "#A63C1C",
+    "bataLembut": "#F8E8E0",
+    "diTinta": "#EAF0EC",
+    "diTinta2": "#D5DDD8",
+    "diLaut": "#FFFFFF",
+    "diBata": "#FFFFFF"
+  },
+  "font": {
+    "sans": "Plus Jakarta Sans",
+    "mono": "IBM Plex Mono"
+  },
+  "text": {
+    "judulHalaman": {
+      "size": 26,
+      "weight": 700,
+      "font": "sans"
+    },
+    "judulBesar": {
+      "size": 22,
+      "weight": 700,
+      "font": "sans"
+    },
+    "judulLayar": {
+      "size": 18,
+      "weight": 700,
+      "font": "sans"
+    },
+    "judulBagian": {
+      "size": 16,
+      "weight": 700,
+      "font": "sans"
+    },
+    "isi": {
+      "size": 16,
+      "weight": 400,
+      "font": "sans"
+    },
+    "isiWeb": {
+      "size": 15,
+      "weight": 400,
+      "font": "sans"
+    },
+    "pendamping": {
+      "size": 14,
+      "weight": 400,
+      "font": "sans"
+    },
+    "keterangan": {
+      "size": 13,
+      "weight": 400,
+      "font": "sans"
+    },
+    "jumlahUtama": {
+      "size": 38,
+      "weight": 500,
+      "font": "mono"
+    },
+    "jumlahIsian": {
+      "size": 30,
+      "weight": 500,
+      "font": "mono"
+    },
+    "jumlah": {
+      "size": 16,
+      "weight": 500,
+      "font": "mono"
+    },
+    "kode": {
+      "size": 13,
+      "weight": 400,
+      "font": "mono"
+    }
+  },
+  "radius": {
+    "lencana": 6,
+    "isian": 12,
+    "kartu": 14,
+    "kartuBesar": 16,
+    "lembar": 22,
+    "chip": 999
+  },
+  "space": [
+    4,
+    8,
+    12,
+    16,
+    20,
+    24,
+    40
+  ],
+  "size": {
+    "sentuhMin": 44,
+    "tombolUtama": 52,
+    "tombolKedua": 48,
+    "isian": 48
+  },
+  "border": {
+    "draf": "1.5 putus-putus · putus",
+    "dibukukan": "1 penuh · garis",
+    "terpilih": "1.5 penuh · tinta",
+    "ditutup": "isi penuh · tinta",
+    "usulanAI": "1.5 titik-titik · laut",
+    "hambatan": "1.5 penuh · bata"
+  },
+  "motion": {
+    "durationMs": {
+      "sentuh": 160,
+      "pindahLayar": 280,
+      "kait": 450,
+      "tinta": 700,
+      "segelTahan": 1600,
+      "segel": 900
+    },
+    "curve": [
+      0.2,
+      0.8,
+      0.2,
+      1
+    ],
+    "reducedMotion": "semua gerak dimatikan"
+  },
+  "format": {
+    "rupiah": "Rp1.250.000",
+    "negatif": "−Rp15.000",
+    "tanggalTabel": "06/10/2026",
+    "tanggalKalimat": "6 Oktober 2026",
+    "belumAda": "—"
+  },
+  "colorGelap": {
+    "kertas": "#0E1513",
+    "permukaan": "#17201D",
+    "tinta": "#EAF0EC",
+    "tinta2": "#B4C0BA",
+    "tinta3": "#93A19B",
+    "putus": "#5F6F69",
+    "garis": "#2A3632",
+    "garisTegas": "#5C726A",
+    "laut": "#6CC3CB",
+    "lautTua": "#9BDCE2",
+    "lautLembut": "#1B3B3A",
+    "bata": "#F09A7A",
+    "bataLembut": "#3B2018",
+    "diTinta": "#13201C",
+    "diTinta2": "#43514C",
+    "diLaut": "#0E1513",
+    "diBata": "#0E1513"
+  }
+}

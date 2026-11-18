@@ -1,0 +1,27 @@
+<!-- @dsCard group="Isian" height=193 width=412 -->
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>IsianAlasan — pratinjau</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+html, body { margin: 0; }
+body { background: var(--kertas); }
+/* tanah: komponen selalu tampil di atas kertas, apa pun latar bingkai pratinjau */
+.tanah { background: var(--kertas); color: var(--tinta); font-family: var(--font-sans); font-size: 15px; line-height: 1.45; padding: var(--s20); min-height: 100vh; box-sizing: border-box; }
+.pk { display: flex; flex-direction: column; gap: 10px; max-width: 372px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+input, textarea { color: inherit; }
+button:focus-visible, a:focus-visible { outline: 2px solid var(--laut); outline-offset: 2px; }
+a { color: var(--laut); }
+@media (prefers-reduced-motion: reduce) { * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+</style>
+</head>
+<body>
+<div class="tanah"><div class="pk">
+<div><div style="font-size: 14px; color: var(--tinta2); margin-bottom: 6px">Alasan <strong style="color: var(--tinta)">· wajib</strong></div><div style="width: 100%; box-sizing: border-box; padding: 12px 14px; border-radius: var(--radius-isian); border: 1px solid var(--garisTegas); background: var(--permukaan); resize: none; font: inherit; color: inherit; min-height: 64px; color: var(--tinta3)">Contoh: Mata Anggaran keliru</div></div>
+<span style="min-height: 52px; border-radius: var(--radius-kartu); border: 0; background: var(--tinta); color: var(--permukaan); font-weight: 700; text-align: center; display: inline-flex; align-items: center; justify-content: center; background: var(--garis); color: var(--tinta3)">Batalkan draf</span>
+</div></div>
+</body>
+</html>

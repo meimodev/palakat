@@ -1,0 +1,65 @@
+<!-- @dsCard group="Kartu" height=657 width=412 -->
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>PanelDokumen — pratinjau</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+html, body { margin: 0; }
+body { background: var(--kertas); }
+/* tanah: komponen selalu tampil di atas kertas, apa pun latar bingkai pratinjau */
+.tanah { background: var(--kertas); color: var(--tinta); font-family: var(--font-sans); font-size: 15px; line-height: 1.45; padding: var(--s20); min-height: 100vh; box-sizing: border-box; }
+.pk { display: flex; flex-direction: column; gap: 10px; max-width: 372px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+input, textarea { color: inherit; }
+button:focus-visible, a:focus-visible { outline: 2px solid var(--laut); outline-offset: 2px; }
+a { color: var(--laut); }
+@media (prefers-reduced-motion: reduce) { * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+</style>
+</head>
+<body>
+<div class="tanah"><div class="pk">
+<div style="background: var(--permukaan); border: 1px solid var(--garis); border-radius: var(--radius-kartu); padding: 0 16px">
+
+<div style="display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 8px 0; border-top: 0">
+<div style="flex: none; width: 34px; height: 42px; border-radius: var(--radius-lencana); background: transparent; border: 1.5px dashed var(--putus)"></div>
+<div style="flex: 1; min-width: 0"><div style="font-weight: 600; font-size: 14px; color: var(--tinta)">Wajib, belum ada</div><div style="font-size: 13px; color: var(--tinta3)">Menjadi hambatan tutup buku</div></div>
+<span style="flex: none; min-height: 40px; display: inline-flex; align-items: center; padding: 0 12px; border-radius: 10px; border: 1.5px solid var(--tinta); color: var(--tinta); font-weight: 700; font-size: 13px">Lampirkan</span>
+</div>
+<div style="display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 8px 0; border-top: 1px solid var(--garis)">
+<div style="flex: none; width: 34px; height: 42px; border-radius: var(--radius-lencana); background: var(--kertas); border: 1px solid var(--garisTegas)"></div>
+<div style="flex: 1; min-width: 0"><div style="font-weight: 600; font-size: 14px; color: var(--tinta)">Sedang diunggah…</div><div style="font-size: 13px; color: var(--tinta3)">nota-16-11.jpg</div></div>
+</div>
+<div style="display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 8px 0; border-top: 1px solid var(--garis)">
+<div style="flex: none; width: 34px; height: 42px; border-radius: var(--radius-lencana); background: var(--bataLembut); border: 1px solid var(--garisTegas)"></div>
+<div style="flex: 1; min-width: 0"><div style="font-weight: 600; font-size: 14px; color: var(--bata)">Gagal diunggah</div><div style="font-size: 13px; color: var(--tinta3)">nota-16-11.jpg · belum terlampir</div></div>
+<span style="flex: none; min-height: 40px; display: inline-flex; align-items: center; padding: 0 12px; border-radius: 10px; border: 1.5px solid var(--bata); color: var(--bata); font-weight: 700; font-size: 13px">Coba lagi</span>
+</div>
+<div style="display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 8px 0; border-top: 1px solid var(--garis)">
+<div style="flex: none; width: 34px; height: 42px; border-radius: var(--radius-lencana); background: var(--kertas); border: 1px solid var(--garisTegas)"></div>
+<div style="flex: 1; min-width: 0"><div style="font-weight: 600; font-size: 14px; color: var(--tinta)">Diunggah, belum diverifikasi</div><div style="font-size: 13px; color: var(--tinta3)">nota-16-11.jpg · Terlampir</div></div>
+<span style="flex: none; min-height: 40px; display: inline-flex; align-items: center; padding: 0 12px; border-radius: 10px; border: 1.5px solid var(--tinta); color: var(--tinta); font-weight: 700; font-size: 13px">Verifikasi</span>
+</div>
+<div style="display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 8px 0; border-top: 1px solid var(--garis)">
+<div style="flex: none; width: 34px; height: 42px; border-radius: var(--radius-lencana); background: var(--lautLembut); border: 1px solid var(--garisTegas)"></div>
+<div style="flex: 1; min-width: 0"><div style="font-weight: 600; font-size: 14px; color: var(--tinta)">Terverifikasi (oleh Meiske L.)</div><div style="font-size: 13px; color: var(--tinta3)">16/11/2026 10.50</div></div>
+</div>
+<div style="display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 8px 0; border-top: 1px solid var(--garis)">
+<div style="flex: none; width: 34px; height: 42px; border-radius: var(--radius-lencana); background: var(--lautLembut); border: 1px solid var(--garisTegas)"></div>
+<div style="flex: 1; min-width: 0"><div style="font-weight: 600; font-size: 14px; color: var(--tinta)">Dikecualikan</div><div style="font-size: 13px; color: var(--tinta3)">Alasan: nota hilang · oleh Ketua BPMJ</div></div>
+</div>
+<div style="display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 8px 0; border-top: 1px solid var(--garis)">
+<div style="flex: none; width: 34px; height: 42px; border-radius: var(--radius-lencana); background: var(--bataLembut); border: 1px solid var(--garisTegas)"></div>
+<div style="flex: 1; min-width: 0"><div style="font-weight: 600; font-size: 14px; color: var(--bata)">Ditolak</div><div style="font-size: 13px; color: var(--tinta3)">Alasan: foto tidak terbaca · tetap di Riwayat</div></div>
+<span style="flex: none; min-height: 40px; display: inline-flex; align-items: center; padding: 0 12px; border-radius: 10px; border: 1.5px solid var(--bata); color: var(--bata); font-weight: 700; font-size: 13px">Lampirkan</span>
+</div>
+<div style="display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 8px 0; border-top: 1px solid var(--garis)">
+<div style="flex: none; width: 34px; height: 42px; border-radius: var(--radius-lencana); background: var(--bataLembut); border: 1px solid var(--garisTegas)"></div>
+<div style="flex: 1; min-width: 0"><div style="font-weight: 600; font-size: 14px; color: var(--bata)">Ditahan (alasan keamanan)</div><div style="font-size: 13px; color: var(--tinta3)">File tidak dapat dibuka</div></div>
+</div>
+
+</div>
+</div></div>
+</body>
+</html>

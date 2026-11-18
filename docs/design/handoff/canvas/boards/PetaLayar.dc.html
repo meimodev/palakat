@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Peta layar</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+input{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes masuk{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@keyframes pudar{from{opacity:0}to{opacity:1}}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes isi{from{width:0}to{width:100%}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</helmet>
+<div style="width: 1760px; height: 1860px; box-sizing: border-box; padding: 56px; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 15px; line-height: 1.45; display: flex; flex-direction: column; gap: 32px">
+  <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 40px"><div><div style="font-size: 36px; font-weight: 700; line-height: 1.1; letter-spacing: -0.5px">Peta layar</div><div style="color: #43514C; margin-top: 4px">Di mana tiap layar berada dalam navigasi. Saat diputar, tiap nama membuka artboard-nya.</div></div><div style="display: flex; flex-wrap: wrap; gap: 8px; font-size: 13px"><span style="font-size: 13px; font-weight: 700; border-radius: 6px; padding: 3px 9px; background: #13201C; color: #FFFFFF">T1 jalur pertama</span><span style="font-size: 13px; font-weight: 700; border-radius: 6px; padding: 3px 9px; border: 1.5px solid #13201C">T2 dan T3</span><span style="font-size: 13px; font-weight: 700; border-radius: 6px; padding: 3px 9px; border: 1.5px dashed #808D87; color: #43514C">Sementara</span></div></div>
+  <sc-for list="{{platform}}" as="p" hint-placeholder-count="2">
+    <div style="display: flex; flex-direction: column; gap: 14px">
+      <div style="display: flex; align-items: baseline; gap: 12px"><h2 style="margin: 0; font-size: 22px; font-weight: 700">{{p.n}}</h2><div style="font-size: 14px; color: #43514C">{{p.cat}}</div></div>
+      <div style="display: grid; grid-template-columns: repeat({{p.kolom}}, minmax(0, 1fr)); gap: 16px; align-items: start">
+        <sc-for list="{{p.grup}}" as="g" hint-placeholder-count="6">
+          <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 2px"><div style="font-weight: 700; font-size: 15px; padding-bottom: 6px; border-bottom: 1.5px solid #13201C; margin-bottom: 4px">{{g.n}}</div>
+            <sc-for list="{{g.layar}}" as="l" hint-placeholder-count="5"><a href="{{l.href}}" style="display: flex; align-items: center; justify-content: space-between; gap: 6px; min-height: 30px; font-size: 13px; font-weight: 600; color: #13201C; text-decoration: none"><span>{{l.n}}</span><span style="flex: none; font-size: 13px; font-weight: 700; border-radius: 5px; padding: 1px 6px; background: {{l.bg}}; color: {{l.fg}}; border: {{l.bd}}">{{l.t}}</span></a></sc-for>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-for>
+  <div style="font-size: 14px; color: #43514C">Ponsel memakai lima tab bawah dengan tombol Catat di tengah. Web memakai bilah samping dengan tujuh tujuan; Rekonsiliasi dan Laporan berdiri sendiri di web karena dikerjakan di layar lebar. “Peran lain” adalah tampilan untuk orang selain Bendahara.</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1760,"height":1860}}'>
+class Component extends DCLogic {
+  rp(n) { var s = String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return (n < 0 ? '−' : '') + 'Rp' + s; }
+  renderVals() {
+    var T = { 1: { t: 'T1', bg: '#13201C', fg: '#FFFFFF', bd: '1.5px solid #13201C' }, 2: { t: 'T2', bg: 'transparent', fg: '#13201C', bd: '1.5px solid #13201C' }, 3: { t: 'T3', bg: 'transparent', fg: '#13201C', bd: '1.5px solid #13201C' }, 0: { t: 'Sem.', bg: 'transparent', fg: '#43514C', bd: '1.5px dashed #808D87' } };
+    var mk = function (g) { return { n: g[0], layar: g[1].map(function (l) { return Object.assign({ href: l[0] + '.dc.html', n: l[1] }, T[l[2]]); }) }; };
+    var P = [['Beranda', [['Main', 'Beranda dan catat', 1], ['Cari', 'Cari dan tanya', 3], ['Pemberitahuan', 'Pemberitahuan', 0], ['Masuk', 'Masuk', 1], ['Pemulihan', 'Pemulihan akun', 1], ['Sambungan', 'Sambungan dan sesi', 1], ['Memuat', 'Memuat dan gagal', 1]]], ['Transaksi', [['Main', 'Daftar dan rincian', 1], ['PilihBulan', 'Pemilih bulan', 1], ['Persetujuan', 'Ganti persetujuan', 1], ['AlihPeruntukan', 'Alih peruntukan', 1], ['AIFoto', 'AI dari foto nota', 3], ['Draf', 'Pindah tanggal, batalkan', 1], ['Koreksi', 'Koreksi dan persetujuan', 1], ['Dokumen', 'Dokumen pendukung', 1], ['Bagi', 'Bagi Mata Anggaran', 1], ['Persembahan', 'Persembahan', 2], ['Pemeriksa', 'Pemeriksa kedua', 1], ['Pengembalian', 'Pengembalian', 0], ['BantuanAI', 'Bantuan AI', 3], ['Kamera', 'Foto dokumen', 1], ['Tanggal', 'Tanggal transaksi', 1], ['AIMataAnggaran', 'AI: Mata Anggaran', 3], ['LihatDokumen', 'Lihat file', 1]]], ['Bulan', [['TutupBuku', 'Rekonsiliasi dan tutup buku', 1], ['HitungKas', 'Hitung kas', 1], ['Kesiapan', 'Pernyataan kesiapan', 2], ['Kejadian', 'Kejadian', 1], ['Laporan', 'Laporan', 1], ['RekonIsi', 'Isi rekening koran', 1], ['AIBulan', 'AI akhir bulan', 3], ['LihatTransaksi', 'Lihat transaksi', 2]]], ['Lainnya', [['Lainnya', 'Pengaturan', 1], ['UbahPengaturan', 'Tambah dan ubah', 1], ['MataAnggaran', 'Mata Anggaran', 1], ['Bendahara', 'Bendahara dan sesi', 1], ['FormatLaporan', 'Format laporan', 1], ['Kewajiban', 'Uang Muka dan Titipan', 2], ['KasusBaru', 'Kasus baru', 2], ['Bukti', 'Daftar Bukti Kas', 2], ['Impor', 'Impor', 2], ['Ekspor', 'Ekspor', 3], ['Keluar', 'Akun dan keluar', 1]]], ['Pertama kali', [['Awal', 'Langkah dan saldo awal', 1], ['AwalIsian', 'Identitas dan daftar', 1]]], ['Peran lain', [['Terbatas', 'Akses terbatas', 2]]]];
+    var W = [['Beranda', [['WebBeranda', 'Beranda', 1], ['WebCari', 'Cari dan tanya', 3], ['WebPemberitahuan', 'Pemberitahuan', 0], ['WebMasuk', 'Masuk', 1], ['WebPemulihan', 'Pemulihan akun', 1], ['WebSambungan', 'Sambungan dan sesi', 1], ['WebMemuat', 'Memuat dan gagal', 1], ['TabBeranda', 'Lebar tablet', 1]]], ['Transaksi', [['WebTransaksi', 'Daftar dan rincian', 1], ['WebPilihBulan', 'Pemilih bulan', 1], ['WebBagi', 'Bagi Mata Anggaran', 1], ['WebPersetujuan', 'Ganti persetujuan', 1], ['WebAlihPeruntukan', 'Alih peruntukan', 1], ['WebAIFoto', 'AI dari foto nota', 3], ['WebCatat', 'Catat transaksi', 1], ['WebDraf', 'Pindah tanggal, batalkan', 1], ['WebKoreksi', 'Koreksi dan persetujuan', 1], ['WebDokumen', 'Dokumen pendukung', 1], ['WebPersembahan', 'Persembahan', 2], ['WebPemeriksa', 'Pemeriksa kedua', 1], ['WebImpor', 'Impor', 2], ['WebPengembalian', 'Pengembalian', 0], ['WebLihatDokumen', 'Lihat file', 1], ['WebUnggah', 'Unggah dokumen', 1], ['WebTanggal', 'Tanggal transaksi', 1], ['WebBantuanAI', 'AI dari kalimat', 3], ['WebAIMataAnggaran', 'AI: Mata Anggaran', 3]]], ['Uang Muka dan Titipan', [['WebKewajiban', 'Kasus dan sisa', 2], ['WebKasus', 'Catat pada kasus', 2], ['WebKasusBaru', 'Kasus baru', 2]]], ['Rekonsiliasi', [['WebRekonsiliasi', 'Rekening koran', 1], ['WebHitungKas', 'Hitung kas', 1], ['WebRekonIsi', 'Isi rekening koran', 1]]], ['Bulan dan tutup buku', [['WebTutupBuku', 'Tutup buku', 1], ['WebKesiapan', 'Pernyataan kesiapan', 2], ['WebKejadian', 'Kejadian', 1], ['WebAI', 'Bantuan AI akhir bulan', 3]]], ['Laporan', [['WebLaporan', 'F01', 1], ['WebPaketLaporan', 'F01 sampai F14', 2], ['WebExcel', 'Contoh Excel', 2], ['WebBukti', 'Daftar Bukti Kas', 2], ['WebFormatLaporan', 'Format laporan', 1], ['A4F01', 'Halaman A4', 1], ['WebLihatTransaksi', 'Lihat transaksi', 2]]], ['Pengaturan', [['WebPengaturan', 'Pengaturan', 1], ['WebUbahPengaturan', 'Tambah dan ubah', 1], ['WebSerahTerima', 'Serah terima', 1], ['WebAwal', 'Saldo awal', 1], ['WebAwalIsian', 'Identitas dan daftar', 1], ['WebMataAnggaran', 'Mata Anggaran', 1], ['WebEkspor', 'Ekspor', 3], ['WebKeluar', 'Akun dan keluar', 1]]], ['Peran lain', [['WebTerbatas', 'Akses terbatas', 2], ['WebExcelTerbatas', 'Excel TERBATAS', 2], ['WebVerifikasi', 'Petugas verifikasi', 1]]]];
+    return { platform: [{ n: 'Ponsel', cat: 'Tab bawah: Beranda · Transaksi · Catat · Bulan · Lainnya', kolom: 6, grup: P.map(mk) }, { n: 'Web', cat: 'Bilah samping', kolom: 8, grup: W.map(mk) }] };
+  }
+}
+</script>
+</body>
+</html>

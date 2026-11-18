@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Pengaturan: tambah dan ubah, berlaku mulai bulan tertentu (ponsel)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+input{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes masuk{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@keyframes pudar{from{opacity:0}to{opacity:1}}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes isi{from{width:0}to{width:100%}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 16px; line-height: 1.4">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column"><div style="display: flex; align-items: center; gap: 8px; padding: 14px 12px 8px"><a href="Lainnya.dc.html" aria-label="Kembali ke Lainnya" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #13201C"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></a><div style="flex: 1"><h1 style="margin: 0; font-size: 18px; font-weight: 700">Ubah pengaturan</h1><div style="font-size: 14px; color: #43514C; font-size: 13px">Selalu sebagai versi baru</div></div></div>
+  <div style="padding: 0 20px 4px"><sc-for list="{{tab}}" as="c" hint-placeholder-count="3"><button onClick="{{c.pick}}" aria-pressed="{{c.on}}" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; margin: 0 8px 8px 0; border-radius: 999px; border: 1.5px solid {{c.bd}}; background: {{c.bg}}; color: {{c.fg}}; font-weight: 600; font-size: 14px; padding: 0 12px; font-size: 13px; margin: 0 6px 6px 0">{{c.n}}</button></sc-for></div>
+  <div style="flex: 1; overflow-y: auto; padding: 8px 20px 20px; display: flex; flex-direction: column; gap: 16px">
+      <sc-if value="{{isKas}}" hint-placeholder-val="{{true}}"><div style="display: flex; flex-direction: column; gap: 14px">
+        <div><div style="font-size: 14px; color: #43514C; margin-bottom: 8px">Jenis</div><div><sc-for list="{{jenis}}" as="c" hint-placeholder-count="2"><button onClick="{{c.pick}}" aria-pressed="{{c.on}}" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; margin: 0 8px 8px 0; border-radius: 999px; border: 1.5px solid {{c.bd}}; background: {{c.bg}}; color: {{c.fg}}; font-weight: 600; font-size: 14px">{{c.n}}</button></sc-for></div></div>
+        <div><label for="pn" style="display: block; font-size: 14px; color: #43514C; margin-bottom: 6px">{{namaLabel}}</label><input id="pn" value="{{nama}}" onChange="{{onNama}}" placeholder="{{namaPh}}" style="width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF"><div style="font-size: 13px; color: #5E6A66; margin-top: 4px">Jangan memakai nama peruntukan atau Lingkup.</div></div>
+        <sc-if value="{{isBank}}" hint-placeholder-val="{{true}}"><div><label for="pa" style="display: block; font-size: 14px; color: #43514C; margin-bottom: 6px">Empat angka akhir No. rekening</label><input id="pa" inputmode="numeric" value="{{akhir}}" onChange="{{onAkhir}}" style="width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF; font-family: 'IBM Plex Mono', monospace; max-width: 160px"></div></sc-if>
+        <div><div style="font-size: 14px; color: #43514C; margin-bottom: 8px">Berlaku mulai</div><div><sc-for list="{{mulai}}" as="c" hint-placeholder-count="2"><button onClick="{{c.pick}}" aria-pressed="{{c.on}}" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; margin: 0 8px 8px 0; border-radius: 999px; border: 1.5px solid {{c.bd}}; background: {{c.bg}}; color: {{c.fg}}; font-weight: 600; font-size: 14px">{{c.n}}</button></sc-for></div></div>
+      </div></sc-if>
+      <sc-if value="{{isSeri}}" hint-placeholder-val="{{false}}"><div style="display: flex; flex-direction: column; gap: 14px">
+        <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 12px 16px"><div style="font-size: 14px; color: #43514C">Sekarang, sejak September 2026</div><div style="font-family: 'IBM Plex Mono', monospace; font-weight: 600">BKU-2026-0151</div></div>
+        <div><label for="pw" style="display: block; font-size: 14px; color: #43514C; margin-bottom: 6px">Awalan seri Biasa · 2 sampai 4 huruf</label><input id="pw" value="{{awalan}}" onChange="{{onAwalan}}" style="width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF; font-family: 'IBM Plex Mono', monospace; max-width: 160px"></div>
+        <div><div style="font-size: 14px; color: #43514C; margin-bottom: 8px">Jumlah angka</div><div><sc-for list="{{digit}}" as="c" hint-placeholder-count="2"><button onClick="{{c.pick}}" aria-pressed="{{c.on}}" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; margin: 0 8px 8px 0; border-radius: 999px; border: 1.5px solid {{c.bd}}; background: {{c.bg}}; color: {{c.fg}}; font-weight: 600; font-size: 14px">{{c.n}}</button></sc-for></div></div>
+        <div><div style="font-size: 14px; color: #43514C">Nomor pertama tahun 2027</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 24px; font-weight: 500">{{contoh}}</div><div style="font-size: 13px; color: #5E6A66">Satu seri Biasa per tahun kalender. Seri OPN dan ADJ tetap. Nomor selalu dibuat aplikasi.</div></div>
+      </div></sc-if>
+      <sc-if value="{{isAturan}}" hint-placeholder-val="{{false}}"><div style="display: flex; flex-direction: column; gap: 14px">
+        <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 12px 16px"><div style="font-size: 14px; color: #43514C">Sekarang, sejak September 2026</div><div style="font-weight: 600">Persetujuan wajib untuk Belanja Rp2.000.000 ke atas</div></div>
+        <div><label for="pb" style="font-size: 14px; color: #43514C">Wajib untuk Belanja mulai dari</label><div style="display: flex; align-items: baseline; gap: 6px; font-family: 'IBM Plex Mono', monospace; border-bottom: 2px solid #13201C; padding-bottom: 4px; max-width: 280px"><span style="font-size: 18px; color: #5E6A66">Rp</span><input id="pb" inputmode="numeric" value="{{batasFmt}}" onChange="{{onBatas}}" style="flex: 1; min-width: 0; width: 100%; border: 0; background: transparent; font-family: 'IBM Plex Mono', monospace; font-size: 26px; font-weight: 500; padding: 0; min-height: 44px; box-sizing: border-box"></div></div>
+        <div><div style="font-size: 14px; color: #43514C; margin-bottom: 8px">Berlaku mulai</div><div><sc-for list="{{mulai}}" as="c" hint-placeholder-count="2"><button onClick="{{c.pick}}" aria-pressed="{{c.on}}" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; margin: 0 8px 8px 0; border-radius: 999px; border: 1.5px solid {{c.bd}}; background: {{c.bg}}; color: {{c.fg}}; font-weight: 600; font-size: 14px">{{c.n}}</button></sc-for></div></div>
+      </div></sc-if>
+      <button onClick="{{simpan}}" disabled="{{takBisa}}" style="min-height: 52px; border-radius: 14px; border: 0; background: {{btnBg}}; color: {{btnFg}}; font-weight: 700; text-align: center; padding: 0 20px">Simpan sebagai versi baru</button>
+
+      <div style="margin: 0; font-size: 16px; font-weight: 700">Perubahan yang menunggu berlaku</div>
+      <sc-if value="{{adaJadi}}" hint-placeholder-val="{{false}}"><sc-for list="{{jadi}}" as="j" hint-placeholder-count="1"><div style="border: 1.5px dashed #808D87; border-radius: 14px; padding: 12px 16px; font-size: 14px; font-weight: 600; animation: muncul .3s">{{j.t}}</div></sc-for></sc-if>
+      <div style="font-size: 13px; color: #5E6A66">Pengaturan tidak diubah di tempat. Versi lama tetap berlaku untuk bulan-bulan sebelumnya dan tidak mengubah transaksi yang sudah dibukukan. Yang sudah dipakai hanya dapat dinonaktifkan.</div>
+</div></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  rp(n) { var s = String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return (n < 0 ? '−' : '') + 'Rp' + s; }
+  state = { tab: 'kas', jenis: 'Bank', nama: '', akhir: '', mulai: 'Desember 2026', awalan: 'BKU', digit: 4, batas: '3000000', jadi: {} };
+  vals() {
+    var self = this, s = this.state, rp = this.rp, chip = function (on) { return on ? { bg: '#13201C', fg: '#FFFFFF', bd: '#13201C' } : { bg: '#FFFFFF', fg: '#13201C', bd: '#7F8C86' }; };
+    var okKas = s.nama.trim().length > 0 && (s.jenis === 'Kas' || s.akhir.length === 4), okSeri = /^[A-Z]{2,4}$/.test(s.awalan), okAturan = parseInt(s.batas || '0', 10) > 0;
+    var ok = { kas: okKas, seri: okSeri, aturan: okAturan }[s.tab], nol = ''; for (var i = 1; i < s.digit; i++) nol += '0';
+    var namaKas = s.jenis === 'Kas' ? 'Kas ' + s.nama.trim() : 'Bank ' + s.nama.trim() + ' ··' + s.akhir;
+    var teks = { kas: namaKas + ' · berlaku mulai ' + s.mulai + ' · belum dapat dipakai untuk transaksi sebelum itu', seri: 'Seri Biasa menjadi ' + s.awalan + '-2027-' + nol + '1 · berlaku mulai Januari 2027 · nomor yang sudah diberikan tidak berubah', aturan: 'Persetujuan wajib untuk Belanja ' + rp(parseInt(s.batas || '0', 10)) + ' ke atas · berlaku mulai ' + s.mulai + ' · transaksi sebelumnya tetap memakai Rp2.000.000' };
+    return {
+      tab: [['kas', 'Tambah Kas/Bank'], ['seri', 'Seri No. Bukti'], ['aturan', 'Aturan persetujuan']].map(function (t) { var on = s.tab === t[0]; return Object.assign({ n: t[1], on: on, pick: function () { self.setState({ tab: t[0] }); } }, chip(on)); }),
+      isKas: s.tab === 'kas', isSeri: s.tab === 'seri', isAturan: s.tab === 'aturan',
+      jenis: ['Kas', 'Bank'].map(function (jn) { var on = s.jenis === jn; return Object.assign({ n: jn, on: on, pick: function () { self.setState({ jenis: jn }); } }, chip(on)); }), isBank: s.jenis === 'Bank',
+      nama: s.nama, onNama: function (e) { self.setState({ nama: e.target.value }); }, namaLabel: s.jenis === 'Kas' ? 'Tempat atau pemegang' : 'Nama bank', namaPh: s.jenis === 'Kas' ? 'Misalnya: Panitia Natal' : 'Misalnya: Mandiri',
+      akhir: s.akhir, onAkhir: function (e) { self.setState({ akhir: e.target.value.replace(/\D/g, '').slice(0, 4) }); },
+      mulai: ['Desember 2026', 'Januari 2027'].map(function (b) { var on = s.mulai === b; return Object.assign({ n: b, on: on, pick: function () { self.setState({ mulai: b }); } }, chip(on)); }),
+      awalan: s.awalan, onAwalan: function (e) { self.setState({ awalan: e.target.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 4) }); },
+      digit: [4, 5].map(function (d) { var on = s.digit === d; return Object.assign({ n: d + ' angka', on: on, pick: function () { self.setState({ digit: d }); } }, chip(on)); }), contoh: s.awalan + '-2027-' + nol + '1',
+      batasFmt: s.batas ? s.batas.replace(/\B(?=(\d{3})+(?!\d))/g, '.') : '', onBatas: function (e) { self.setState({ batas: e.target.value.replace(/\D/g, '').replace(/^0+/, '').slice(0, 10) }); },
+      takBisa: !ok, btnBg: ok ? '#0E5A63' : '#DDE2DB', btnFg: ok ? '#FFFFFF' : '#5E6A66',
+      simpan: function () { if (!ok) return; var j = Object.assign({}, s.jadi); j[s.tab] = teks[s.tab]; self.setState({ jadi: j }); },
+      jadi: Object.keys(s.jadi).map(function (k) { return { t: s.jadi[k] }; }), adaJadi: Object.keys(s.jadi).length > 0
+    };
+  }
+
+  renderVals() { var V = this.vals(); if (this.navVals) V.nav = this.navVals(); return V; }
+}
+</script>
+</body>
+</html>

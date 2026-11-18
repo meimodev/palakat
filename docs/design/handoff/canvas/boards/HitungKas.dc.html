@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Hitung kas (ponsel)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+input{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes masuk{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@keyframes pudar{from{opacity:0}to{opacity:1}}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes denyut{0%{transform:scale(1)}40%{transform:scale(1.04)}100%{transform:scale(1)}}
+@keyframes lingkar{from{stroke-dashoffset:239}to{stroke-dashoffset:0}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; display: flex; flex-direction: column; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 16px; line-height: 1.4">
+<sc-if value="{{jk}}" hint-placeholder-val="{{false}}"><div role="status" style="flex: none; background: #13201C; color: #FFFFFF; padding: 10px 24px 8px; font-size: 13px; line-height: 1.3; text-align: center"><strong>Menjalankan jabatan kosong</strong> · Bendahara Jemaat</div></sc-if>
+<div style="position: relative; flex: 1; min-height: 0">
+
+<sc-if value="{{isHitung}}" hint-placeholder-val="{{true}}">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column; animation: pudar .2s">
+  <div style="display: flex; align-items: center; gap: 8px; padding: 14px 12px 8px">
+    <a href="TutupBuku.dc.html" aria-label="Kembali ke Bulan" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #13201C"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></a>
+    <div style="flex: 1"><h1 style="margin: 0; font-size: 18px; font-weight: 700">Hitung kas</h1><div style="font-size: 13px; color: #43514C">Kas · 16 November 2026 · 11.30</div></div>
+  </div>
+  <div style="flex: 1; overflow-y: auto; padding: 8px 20px 20px; display: flex; flex-direction: column; gap: 18px">
+    <div>
+      <div style="font-size: 14px; color: #43514C">Hasil hitung kas</div>
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 38px; font-weight: 500; letter-spacing: -1px; line-height: 1.15; color: {{hasilFg}}">{{hasil}}</div>
+      <div style="font-size: 13px; color: #5E6A66">{{hasilCat}}</div>
+    </div>
+
+    <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 0 12px 0 16px">
+      <sc-for list="{{pecahan}}" as="p" hint-placeholder-count="7">
+        <div style="display: flex; align-items: center; gap: 8px; min-height: 56px; border-top: {{p.garis}}">
+          <div style="width: 92px; font-family: 'IBM Plex Mono', monospace; font-size: 15px; font-weight: 500">{{p.label}}</div>
+          <button onClick="{{p.kurang}}" aria-label="{{p.kurangLabel}}" style="flex: none; width: 44px; height: 44px; border-radius: 12px; border: 1.5px solid #7F8C86; background: #FFFFFF; font-size: 22px; font-weight: 600; text-align: center; line-height: 1">−</button>
+          <div style="width: 36px; text-align: center; font-family: 'IBM Plex Mono', monospace; font-size: 17px; font-weight: 600">{{p.n}}</div>
+          <button onClick="{{p.tambah}}" aria-label="{{p.tambahLabel}}" style="flex: none; width: 44px; height: 44px; border-radius: 12px; border: 0; background: #13201C; color: #FFFFFF; font-size: 22px; font-weight: 600; text-align: center; line-height: 1">+</button>
+          <div style="flex: 1; text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: {{p.fg}}">{{p.sub}}</div>
+        </div>
+      </sc-for>
+    </div>
+    <button onClick="{{kosong}}" style="min-height: 48px; border-radius: 12px; border: 1.5px dashed #808D87; background: transparent; font-weight: 700; color: #43514C; text-align: center">Kas kosong: catat Rp0</button>
+
+    <div>
+      <div style="font-size: 14px; color: #43514C; margin-bottom: 8px">Petugas penghitung <span style="color: #5E6A66">· paling sedikit satu</span></div>
+      <div><sc-for list="{{petugas}}" as="c" hint-placeholder-count="3"><button onClick="{{c.pick}}" aria-pressed="{{c.on}}" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; margin: 0 8px 8px 0; border-radius: 999px; border: 1.5px solid {{c.bd}}; background: {{c.bg}}; color: {{c.fg}}; font-weight: 600; font-size: 14px">{{c.n}}</button></sc-for></div>
+    </div>
+
+    <div>
+      <div style="font-size: 14px; color: #43514C; margin-bottom: 8px">Dokumen pendukung</div>
+      <sc-if value="{{dokKosong}}" hint-placeholder-val="{{true}}"><button onClick="{{lampirkan}}" style="width: 100%; min-height: 52px; border-radius: 12px; border: 1.5px dashed #808D87; background: transparent; font-weight: 600; color: #0E5A63; text-align: center">Lampirkan lembar hitung kas</button></sc-if>
+      <sc-if value="{{dokAda}}" hint-placeholder-val="{{false}}"><div style="border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF; padding: 12px 14px; animation: muncul .28s"><div style="font-size: 14px; font-weight: 600">lembar-hitung-16-11.jpg · Terlampir</div><div style="font-size: 13px; color: #43514C">Diunggah, belum diverifikasi</div></div></sc-if>
+    </div>
+  </div>
+  <div style="padding: 12px 20px 22px; background: #FFFFFF; border-top: 1px solid #DDE2DB; display: flex; flex-direction: column; gap: 8px">
+    <sc-if value="{{takBisa}}" hint-placeholder-val="{{false}}"><div style="font-size: 14px; color: #43514C">{{alasan}}</div></sc-if>
+    <button onClick="{{keBanding}}" disabled="{{takBisa}}" style="min-height: 52px; border-radius: 14px; border: 0; background: {{btnBg}}; color: {{btnFg}}; font-weight: 700; text-align: center">Bandingkan dengan Saldo buku</button>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{isBanding}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column; animation: masuk .28s cubic-bezier(.2,.8,.2,1)">
+  <div style="display: flex; align-items: center; gap: 8px; padding: 14px 12px 8px">
+    <button onClick="{{keHitung}}" aria-label="Kembali" style="flex: none; width: 44px; height: 44px; background: none; border: 0; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+    <h1 style="margin: 0; flex: 1; font-size: 18px; font-weight: 700">Kas · hitung kas dan buku</h1>
+  </div>
+  <div style="flex: 1; overflow-y: auto; padding: 8px 20px 20px; display: flex; flex-direction: column; gap: 18px">
+    <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+      <div style="display: flex; justify-content: space-between; font-size: 15px"><div style="color: #43514C">Saldo buku</div><div style="font-family: 'IBM Plex Mono', monospace; font-weight: 500">Rp8.420.000</div></div>
+      <div style="display: flex; justify-content: space-between; font-size: 15px; animation: muncul .3s .15s both"><div style="color: #43514C">Hasil hitung kas</div><div style="font-family: 'IBM Plex Mono', monospace; font-weight: 500">{{hasil}}</div></div>
+      <div style="border-top: 1.5px solid #13201C; padding-top: 12px; display: flex; justify-content: space-between; align-items: baseline; animation: muncul .3s .35s both"><div style="font-weight: 700">Selisih belum dijelaskan</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 26px; font-weight: 600; color: {{selisihFg}}">{{selisih}}</div></div>
+    </div>
+
+    <sc-if value="{{adaSelisih}}" hint-placeholder-val="{{false}}">
+      <div style="display: flex; flex-direction: column; gap: 10px; animation: muncul .3s .5s both">
+        <div style="font-size: 15px"><strong>{{selisihArah}}</strong> Hasil hitung disimpan apa adanya; tidak ada tindakan untuk menyamakan angka.</div>
+        <div style="font-size: 14px; color: #43514C">Selisih hilang hanya dengan mencatat transaksi yang terlewat, atau menghitung lagi. Bila masih ada saat akhir bulan, selisih menjadi hambatan tutup buku.</div>
+        <a href="Main.dc.html" style="min-height: 48px; border-radius: 14px; border: 1.5px solid #13201C; background: #FFFFFF; color: #13201C; font-weight: 700; display: flex; align-items: center; justify-content: center; text-decoration: none">Catat transaksi yang terlewat</a>
+        <button onClick="{{keHitung}}" style="min-height: 48px; border-radius: 14px; border: 1.5px solid #13201C; background: #FFFFFF; font-weight: 700; text-align: center">Hitung lagi</button>
+      </div>
+    </sc-if>
+    <sc-if value="{{tanpaSelisih}}" hint-placeholder-val="{{true}}">
+      <div style="background: #E1EEED; border-radius: 14px; padding: 14px 16px; font-size: 15px; font-weight: 600; animation: muncul .3s .5s both">Hasil hitung kas sama dengan Saldo buku.</div>
+    </sc-if>
+
+    <sc-if value="{{tersimpan}}" hint-placeholder-val="{{false}}">
+      <div style="display: flex; align-items: center; gap: 14px; animation: muncul .3s">
+        <svg width="56" height="56" viewBox="0 0 88 88" aria-hidden="true" style="flex: none"><circle cx="44" cy="44" r="38" fill="#0E5A63" stroke="#0E5A63" stroke-width="3" stroke-dasharray="239" transform="rotate(-90 44 44)" style="animation: lingkar .7s ease-out both"/><path d="M29 45l10 10 20-21" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" style="animation: pudar .3s .5s both"/></svg>
+        <div role="status"><div style="font-weight: 700">Hitung kas tersimpan</div><div style="font-size: 14px; color: #43514C">{{petugasTeks}} · 16/11/2026 11.30</div></div>
+      </div>
+    </sc-if>
+  </div>
+  <div style="padding: 12px 20px 22px; background: #FFFFFF; border-top: 1px solid #DDE2DB">
+    <sc-if value="{{belumSimpan}}" hint-placeholder-val="{{true}}"><button onClick="{{simpan}}" style="width: 100%; min-height: 52px; border-radius: 14px; border: 0; background: #0E5A63; color: #FFFFFF; font-weight: 700; text-align: center">Simpan hitung kas</button></sc-if>
+    <sc-if value="{{tersimpan}}" hint-placeholder-val="{{false}}"><a href="TutupBuku.dc.html" style="min-height: 52px; border-radius: 14px; border: 1.5px solid #13201C; background: #FFFFFF; color: #13201C; font-weight: 700; display: flex; align-items: center; justify-content: center; text-decoration: none">Kembali ke Bulan</a></sc-if>
+  </div>
+</div>
+</sc-if>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"jabatanKosong":{"editor":"boolean","default":false},"contohTerisi":{"editor":"boolean","default":true},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  state = { screen: 'hitung', n: null, nol: false, petugas: [], dok: false, tersimpan: false };
+  P = [100000, 50000, 20000, 10000, 5000, 2000, 1000];
+  BUKU = 8420000;
+  rp(n) { var s = String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return (n < 0 ? '−' : '') + 'Rp' + s; }
+  hitungan() { if (this.state.n) return this.state.n; return (this.props.contohTerisi ?? true) ? [80, 5, 5, 1, 2, 0, 0] : [0, 0, 0, 0, 0, 0, 0]; }
+  rv0() {
+    var self = this, s = this.state, rp = this.rp, n = this.hitungan(), P = this.P;
+    var total = n.reduce(function (a, c, i) { return a + c * P[i]; }, 0);
+    var dihitung = total > 0 || s.nol;
+    var ubah = function (i, d) { return function () { var m = n.slice(); m[i] = Math.max(0, m[i] + d); self.setState({ n: m, nol: false, tersimpan: false }); }; };
+    var ORANG = ['Meiske L.', 'Pnt. Jefry Wowor', 'Dkn. Olga Tamba'];
+    var selisih = this.BUKU - total, okPetugas = s.petugas.length > 0, bisa = dihitung && okPetugas;
+    return {
+      isHitung: s.screen === 'hitung', isBanding: s.screen === 'banding',
+      hasil: dihitung ? rp(total) : '—', hasilFg: dihitung ? '#13201C' : '#5E6A66',
+      hasilCat: dihitung ? (total === 0 ? 'Dihitung: Rp0' : 'Dihitung per pecahan') : 'Belum dihitung. Kosong bukan Rp0.',
+      pecahan: P.map(function (v, i) { return { label: rp(v).replace('Rp', ''), n: n[i], sub: n[i] ? rp(n[i] * v) : '—', fg: n[i] ? '#13201C' : '#5E6A66', garis: i ? '1px solid #DDE2DB' : '0', tambah: ubah(i, 1), kurang: ubah(i, -1), tambahLabel: 'Tambah satu lembar ' + rp(v), kurangLabel: 'Kurangi satu lembar ' + rp(v) }; }),
+      petugas: ORANG.map(function (o) { var on = s.petugas.indexOf(o) >= 0; return { n: o, on: on, bg: on ? '#13201C' : '#FFFFFF', fg: on ? '#FFFFFF' : '#13201C', bd: on ? '#13201C' : '#7F8C86', pick: function () { var a = s.petugas.slice(), i = a.indexOf(o); if (i >= 0) a.splice(i, 1); else a.push(o); self.setState({ petugas: a }); } }; }),
+      dokKosong: !s.dok, dokAda: s.dok,
+      takBisa: !bisa, alasan: !dihitung ? 'Isi hasil hitung, atau catat Rp0 bila kas memang kosong.' : 'Pilih petugas penghitung.',
+      btnBg: bisa ? '#0E5A63' : '#DDE2DB', btnFg: bisa ? '#FFFFFF' : '#5E6A66',
+      selisih: rp(Math.abs(selisih)), selisihFg: selisih === 0 ? '#0E5A63' : '#A63C1C', adaSelisih: selisih !== 0, tanpaSelisih: selisih === 0,
+      selisihArah: selisih > 0 ? 'Uang di kas kurang ' + rp(selisih) + ' dari buku.' : 'Uang di kas lebih ' + rp(-selisih) + ' dari buku.',
+      tersimpan: s.tersimpan, belumSimpan: !s.tersimpan, petugasTeks: 'Dihitung oleh ' + s.petugas.join(' dan '),
+      kosong: function () { self.setState({ n: [0, 0, 0, 0, 0, 0, 0], nol: true, tersimpan: false }); },
+      lampirkan: function () { self.setState({ dok: true }); },
+      keBanding: function () { if (bisa) self.setState({ screen: 'banding' }); },
+      keHitung: function () { self.setState({ screen: 'hitung', tersimpan: false }); },
+      simpan: function () { self.setState({ tersimpan: true }); }
+    };
+  }
+  tukarJk(o, d) {
+    var self = this, ganti = function (s) { var t = s.match(/\d\d\/\d\d\/\d{4}/g) || []; return s.indexOf('Meiske L.') < 0 || t.some(function (x) { return x !== '16/11/2026'; }) ? s : s.split('Meiske L.').join('Yanti Sumual, Operator'); };
+    if (d > 5 || !o || typeof o !== 'object') return o;
+    Object.keys(o).forEach(function (k) { var v = o[k]; if (typeof v === 'string') o[k] = ganti(v); else if (v && typeof v === 'object') self.tukarJk(v, d + 1); });
+    return o;
+  }
+  renderVals() {
+    var V = this.rv0(), jk = !!this.props.jabatanKosong;
+    if (jk && false) this.tukarJk(V, 0);
+    V.jk = jk; V.tjk = !jk; V.plk = jk ? 'Yanti Sumual, Operator' : 'Meiske L.'; V.plk2 = jk ? 'Yanti Sumual, Operator (menjalankan jabatan kosong Bendahara Jemaat)' : 'Meiske L.';
+    return V;
+  }
+}
+</script>
+</body>
+</html>

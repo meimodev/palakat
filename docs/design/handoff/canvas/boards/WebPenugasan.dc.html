@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Penugasan jabatan (web)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+input{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes isi{from{width:0}to{width:100%}}
+@keyframes titik{0%,100%{opacity:.25}50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+.pn-c{display:none}
+@media (max-width:860px){
+.pn{flex:1 1 100%!important;flex-direction:row!important;flex-wrap:wrap;align-items:center;gap:0 12px!important;padding:8px 16px!important;border-right:0!important;border-bottom:1px solid #DDE2DB}
+.pn-c{display:flex;align-items:center;appearance:none;-webkit-appearance:none;min-height:44px;margin:0 0 0 auto;padding:0 16px;border-radius:14px;border:1.5px solid #13201C;background:#FFFFFF;font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+.pn-c::before{content:"Menu"}
+.pn-c:checked{background:#13201C;color:#FFFFFF}
+.pn-c:checked::before{content:"Tutup menu"}
+.pn-l,.pn-w{display:none;flex:1 1 100%}
+.pn-c:checked~.pn-l{display:block;padding:8px 0}
+.pn-c:checked~.pn-w{display:block;margin-top:0!important;padding-bottom:8px!important}
+}
+</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; flex-wrap: wrap; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 15px; line-height: 1.45">
+
+  <nav class="pn" style="flex: 1 1 220px; box-sizing: border-box; padding: 24px 16px; background: #FFFFFF; border-right: 1px solid #DDE2DB; display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px">
+      <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="none" stroke="#0E5A63" stroke-width="2" stroke-dasharray="3 3"/><path d="M12 2h4a6 6 0 0 1 6 6v8a6 6 0 0 1-6 6h-4z" fill="#0E5A63"/></svg>
+      <div><div style="font-weight: 700; font-size: 18px; line-height: 1.1">palakat</div><div style="font-size: 13px; color: #5E6A66">Jemaat Karunia</div></div>
+    </div>
+    <input type="checkbox" class="pn-c" aria-label="Menu">
+    <div class="pn-l">
+      <sc-for list="{{nav}}" as="n" hint-placeholder-count="7">
+        <a href="{{n.href}}" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 10px; text-decoration: none; font-weight: 600; background: {{n.bg}}; color: {{n.fg}}">{{n.n}}</a>
+      </sc-for>
+    </div>
+    <div class="pn-w" style="margin-top: auto; padding: 12px 8px 0; border-top: 1px solid #DDE2DB; font-size: 13px; color: #43514C"><strong style="color: #13201C">Pdt. Lidya Rondonuwu</strong> · Ketua Jemaat<br>Pimpinan Jemaat yang berwenang</div>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 28px clamp(16px, 3vw, 40px) 40px; display: flex; flex-direction: column; gap: 20px">
+<div><a href="WebBerandaJabatan.dc.html" style="font-size: 14px; font-weight: 600">Beranda</a><h1 style="margin: 2px 0 0; font-size: 26px; font-weight: 700">Penugasan jabatan</h1><div style="font-size: 14px; color: #43514C">Siapa memegang jabatan apa, di unit mana, sejak kapan</div></div><div style="max-width: 1120px; display: flex; flex-direction: column; gap: 16px"><sc-if value="{{k0}}" hint-placeholder-val="{{true}}"><div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; align-items: start"><sc-for list="{{jab}}" as="j" hint-placeholder-count="7"><div style="{{j.bd}}; border-radius: 14px; padding: 12px 16px; display: flex; flex-direction: column; gap: 2px"><div style="display: flex; justify-content: space-between; gap: 16px; align-items: center"><span style="font-weight: 700">{{j.n}}</span><span style="flex: none; font-size: 13px; font-weight: 700; border-radius: 6px; padding: 3px 9px; {{j.ls}}">{{j.st}}</span></div><div style="font-size: 14px">{{j.o}}</div><div style="font-size: 13px; color: #5E6A66">{{j.ket}}</div></div></sc-for></div><div style="display: flex; flex-wrap: wrap; gap: 8px"><button onClick="{{go1}}" style="min-height: 52px; border-radius: 14px; border: 0; background: #13201C; color: #FFFFFF; font-weight: 700; text-align: center; padding: 0 16px; flex: 1 1 150px; max-width: 340px">Catat penugasan</button></div></sc-if><sc-if value="{{k1}}" hint-placeholder-val="{{false}}"><div style="display: flex; flex-wrap: wrap; gap: 20px 28px; align-items: flex-start"><div style="flex: 1.3 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 12px"><div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 12px"><label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: #43514C"><span>Orang</span><input value="Sym. Greis Mamahit" readonly style="width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF; min-height: 48px"></label><label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: #43514C"><span>Jabatan</span><input value="Syamas" readonly style="width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF; min-height: 48px"></label><label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: #43514C"><span>Unit</span><input value="Kolom 3" readonly style="width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF; min-height: 48px"></label><div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; align-items: start"><label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: #43514C"><span>Mulai</span><input value="18/11/2026" readonly style="width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF; min-height: 48px"></label><label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: #43514C"><span>Berakhir</span><input value="—" readonly style="width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF; min-height: 48px"><span style="font-size: 13px; color: #5E6A66">Kosong: sampai dicatat berakhir</span></label></div><label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: #43514C"><span>Keputusan gereja</span><input value="SK BPMJ No. 14/2026 · Dokumen gereja" readonly style="width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF; min-height: 48px"><span style="font-size: 13px; color: #5E6A66">Dilampirkan dari Dokumen gereja</span></label></div></div><div style="flex: 1 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 12px"><div style="font-size: 13px; color: #5E6A66">Dicatat oleh Pdt. Lidya Rondonuwu, Pimpinan Jemaat yang berwenang. Penugasan bukan persetujuan di aplikasi; keputusannya ada di dokumen.</div><div style="display: flex; flex-wrap: wrap; gap: 8px"><button onClick="{{go0}}" style="min-height: 52px; border-radius: 14px; border: 0; background: #13201C; color: #FFFFFF; font-weight: 700; text-align: center; padding: 0 16px; flex: 1 1 150px; max-width: 340px">Catat penugasan</button><button onClick="{{go0}}" style="min-height: 44px; border: 0; background: none; color: #0E5A63; font-weight: 700; text-align: center; padding: 0 16px; flex: 1 1 150px; max-width: 340px">Batalkan</button></div></div></div></sc-if><sc-if value="{{k2}}" hint-placeholder-val="{{false}}"><div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 12px"><label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: #43514C"><span>Orang</span><input value="Pdt. Lidya Rondonuwu" readonly style="width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF; min-height: 48px"></label><label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: #43514C"><span>Jabatan</span><input value="Ketua Komisi" readonly style="width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF; min-height: 48px"></label><label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: #43514C"><span>Unit</span><input value="Komisi Diakonia" readonly style="width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF; min-height: 48px"></label></div><div style="font-size: 15px"><strong style="color: #A63C1C">Tidak dapat dilakukan: Catat penugasan.</strong> <span>Anda tidak dapat menugaskan jabatan kepada diri sendiri.</span></div><div style="font-size: 13px; color: #5E6A66">Penugasan Pimpinan Jemaat yang berwenang dicatat oleh Tim pengembang saat pengaturan awal.</div><div style="display: flex; flex-wrap: wrap; gap: 8px"><button onClick="{{go1}}" style="min-height: 48px; border-radius: 14px; border: 1.5px solid #13201C; background: #FFFFFF; color: #13201C; font-weight: 700; text-align: center; padding: 0 16px; flex: 1 1 150px; max-width: 340px">Pilih orang lain</button><button onClick="{{go0}}" style="min-height: 44px; border: 0; background: none; color: #0E5A63; font-weight: 700; text-align: center; padding: 0 16px; flex: 1 1 150px; max-width: 340px">Batalkan</button></div></sc-if><sc-if value="{{k3}}" hint-placeholder-val="{{false}}"><div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px"><div style="display: flex; justify-content: space-between; gap: 16px; align-items: center"><span style="font-weight: 700">Sekretaris Jemaat</span><span style="flex: none; font-size: 13px; font-weight: 700; border-radius: 6px; padding: 3px 9px; color: #43514C; border: 1.5px dashed #808D87">Menunggu verifikasi wewenang</span></div><div style="font-size: 14px; color: #43514C">Olvie Pangemanan · dicatat 03/11/2026</div><div style="font-size: 13px; color: #5E6A66">Penunjukan Bendahara Jemaat dan Sekretaris Jemaat diperiksa Petugas verifikasi terhadap keputusan tertulis gereja sebelum wewenangnya aktif. Akses teknis saja tidak memberi wewenang.</div></div><div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px"><div style="display: flex; justify-content: space-between; gap: 16px; align-items: center"><span style="font-weight: 700">Operator</span><span style="flex: none; font-size: 13px; font-weight: 700; border-radius: 6px; padding: 3px 9px; color: #FFFFFF; background: #0E5A63; border: 1.5px solid #0E5A63">Aktif</span></div><div style="font-size: 14px; color: #43514C">Yanti Sumual · sejak 01/11/2026</div><div style="font-size: 13px; color: #5E6A66">Penugasan Operator tidak melewati Petugas verifikasi.</div></div></sc-if></div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"keadaan":{"editor":"enum","options":["Daftar jabatan", "Catat penugasan", "Menugaskan diri sendiri", "Menunggu verifikasi wewenang"],"default":"Daftar jabatan"},"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  rp(n) { var s = String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return (n < 0 ? '−' : '') + 'Rp' + s; }
+  navVals() { return [['Beranda', 'WebBerandaJabatan.dc.html'], ['Keuangan', 'WebBeranda.dc.html'], ['Dokumen gereja', 'WebDokumenGereja.dc.html'], ['Pengumuman', 'WebPengumuman.dc.html'], ['Warta Jemaat', 'WebWartaArsip.dc.html'], ['Data jemaat', 'WebDataAnggota.dc.html'], ['Ibadah dan kegiatan', 'Ibadah.dc.html'], ['Panitia', 'Panitia.dc.html'], ['Pemberitahuan', 'WebKotakMasuk.dc.html'], ['Pengaturan', 'WebPenugasan.dc.html']].map(function (n, i) { return { n: n[0], href: n[1], bg: i === 9 ? '#13201C' : 'transparent', fg: i === 9 ? '#FFFFFF' : '#13201C' }; }); }
+  state = { k: null };
+  vals() {
+    var self = this, O = ["Daftar jabatan", "Catat penugasan", "Menugaskan diri sendiri", "Menunggu verifikasi wewenang"], LS = {"draf": "color: #43514C; border: 1.5px dashed #808D87", "garis": "color: #43514C; border: 1.5px solid #5E6A66; background: #FFFFFF", "tinta": "color: #FFFFFF; background: #13201C; border: 1.5px solid #13201C", "laut": "color: #FFFFFF; background: #0E5A63; border: 1.5px solid #0E5A63", "lautg": "color: #0E5A63; background: #FFFFFF; border: 1.5px solid #0E5A63", "bata": "color: #A63C1C; background: #FFFFFF; border: 1.5px solid #A63C1C", "abu": "color: #43514C; background: #DDE2DB; border: 1.5px solid #DDE2DB"};
+    var k = this.state.k ?? (this.props.keadaan ?? O[0]); var ki = Math.max(0, O.indexOf(k));
+    var V = { keadaan: O[ki] };
+    O.forEach(function (o, i) { V['k' + i] = i === ki; V['go' + i] = function () { self.setState({ k: o }); }; });
+    var web = true, PS = ["AlurAnggota", "AlurBeranda", "AlurDana", "AlurIbadah", "AlurModul", "AlurNama", "AlurPanitia", "AlurPanitiaBaru", "AlurPelimpahan", "AlurPenugasan", "AlurPeristiwa", "AntreanVerifikasi", "CabutIzin", "Ibadah", "Kehadiran", "KeuanganUnit", "KonfirmasiKeluarga", "Modul", "Panitia", "Pelimpahan", "PemberiPersetujuan", "Peristiwa", "PermintaanDana", "PermohonanAnggota", "PersembahanSaya", "TampilanNama"], hal = function (n) { return (web && PS.indexOf(n) < 0 ? (n === 'Main' ? 'WebBeranda' : 'Web' + n) : n) + '.dc.html'; };
+    var baris = function (a) { return a.map(function (r) { return { j: r[0], s: r[1], l: r[2] || '', ls: LS[r[3] || 'garis'], h: r[4] ? hal(r[4]) : hal('Penugasan') }; }); };
+    var E = (function () { var J = [['Bendahara Jemaat', 'Aktif', 'laut', 'Meiske Lumentut', 'Sejak 15/09/2026 · wewenang sudah diverifikasi'], ['Penatua Kolom 2', 'Jabatan kosong', 'bata', '—', 'Dijalankan Operator Yanti Sumual sejak 01/11/2026', 1], ['Sekretaris Jemaat', 'Aktif', 'laut', 'Olvie Pangemanan', 'Sejak 03/11/2026 · SK BPMJ No. 12/2026'], ['Ketua Jemaat', 'Aktif', 'laut', 'Pdt. Lidya Rondonuwu', 'Sejak 01/01/2026 · Ketua BPMJ'], ['Wakil Ketua BPMJ', 'Aktif', 'laut', 'Pnt. Jefry Wowor', 'Sejak 01/01/2026'], ['Ketua Komisi Diakonia', 'Aktif', 'laut', 'Pnt. Hendrik Rumagit', 'Sejak 01/03/2026'],
+       
+        ['Operator', 'Aktif', 'laut', 'Yanti Sumual', 'Sejak 01/11/2026'], ['Penatua Kolom 7', 'Aktif', 'laut', 'Pnt. Hendrik Rumagit', 'Sejak 01/01/2026'], ['Syamas Kolom 3', 'Jabatan kosong', 'bata', '—', 'Belum ada yang menjalankan', 1], ['Penatua Kolom 2', 'Berakhir', 'abu', 'Pnt. Altje Rompas', '01/01/2022 – 31/10/2026']];
+      return { jab: J.map(function (j) { return { n: j[0], st: j[1], ls: LS[j[2]], o: j[3], ket: j[4], bd: j[5] ? 'border: 1.5px dashed #808D87' : 'background: #FFFFFF; border: 1px solid #DDE2DB' }; }) }; })() || {};
+    for (var n in E) V[n] = E[n];
+    return V;
+  }
+
+  renderVals() { var V = this.vals(); if (this.navVals) V.nav = this.navVals(); return V; }
+}
+</script>
+</body>
+</html>

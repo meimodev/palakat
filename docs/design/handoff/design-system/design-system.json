@@ -1,0 +1,49 @@
+{
+ "v": 3,
+ "layout": "files",
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-11-17T10:39:31Z"
+ },
+ "title": "Palakat",
+ "namespace": "Palakat",
+ "libraries": [],
+ "sections": {},
+ "groups": [
+  "Logo"
+ ],
+ "assetGroups": {
+  "Logo": {
+   "name": "Logo",
+   "tile": "l",
+   "order": [
+    "palakat-mark.svg",
+    "palakat-mark-terang.svg"
+   ],
+   "files": {
+    "palakat-mark.svg": {
+     "name": "palakat-mark.svg",
+     "blob": "63b620808097e2bf62d279514d296c1c",
+     "size": 264,
+     "type": "image/svg+xml"
+    },
+    "palakat-mark-terang.svg": {
+     "name": "palakat-mark-terang.svg",
+     "blob": "caa195af64f0b6244a245738c7ad3953",
+     "size": 264,
+     "type": "image/svg+xml"
+    }
+   }
+  }
+ },
+ "blobs": {},
+ "docs": {
+  "sections": []
+ },
+ "lastChange": {
+  "by": "Meimo",
+  "at": "2026-11-18T10:20:02Z",
+  "via": "Cowork",
+  "note": "Tema gelap dipastikan; aturan BIPRA; email cadangan tidak wajib"
+ }
+}

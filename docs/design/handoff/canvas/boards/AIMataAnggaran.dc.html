@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Bantuan AI: usulan Mata Anggaran dan pembagian (ponsel)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+input{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes masuk{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@keyframes pudar{from{opacity:0}to{opacity:1}}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes isi{from{width:0}to{width:100%}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; display: flex; flex-direction: column; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 16px; line-height: 1.4">
+<sc-if value="{{jk}}" hint-placeholder-val="{{false}}"><div role="status" style="flex: none; background: #13201C; color: #FFFFFF; padding: 10px 24px 8px; font-size: 13px; line-height: 1.3; text-align: center"><strong>Menjalankan jabatan kosong</strong> · Bendahara Jemaat</div></sc-if>
+<div style="position: relative; flex: 1; min-height: 0">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column"><div style="display: flex; align-items: center; gap: 8px; padding: 14px 12px 8px"><a href="Main.dc.html" aria-label="Kembali ke isian" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #13201C"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></a><div style="flex: 1"><h1 style="margin: 0; font-size: 18px; font-weight: 700">Belanja</h1><div style="font-size: 14px; color: #43514C; font-size: 13px">Pilih Mata Anggaran</div></div></div>
+  <div style="flex: 1; overflow-y: auto; padding: 8px 20px 20px; display: flex; flex-direction: column; gap: 16px">
+      <div style="border: 1.5px dashed #808D87; border-radius: 14px; border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 6px"><span style="align-self: flex-start; font-size: 13px; font-weight: 700; border-radius: 6px; padding: 3px 9px; border: 1.5px dashed #808D87; color: #43514C">Draf · belum masuk saldo</span><div style="font-family: 'IBM Plex Mono', monospace; font-size: 30px; font-weight: 500; color: #43514C">−Rp480.000</div><div style="font-size: 13px; color: #5E6A66">Belanja · Toko Sinar · Kas · diambil dari peruntukan Umum Jemaat · Lingkup Jemaat</div></div>
+      <div><label for="mu" style="display: block; font-size: 14px; color: #43514C; margin-bottom: 6px">Uraian</label><input id="mu" value="{{ur}}" onChange="{{onUr}}" style="width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF"></div>
+      <div style="display: flex; flex-direction: column; gap: 6px"><div style="font-size: 14px; color: #43514C">Mata Anggaran</div>
+        <sc-if value="{{belumPilih}}" hint-placeholder-val="{{true}}"><div style="border: 1.5px dashed #808D87; border-radius: 14px; padding: 12px 16px; font-weight: 700; color: #A63C1C">Mata Anggaran belum dipilih</div></sc-if>
+        <sc-if value="{{pakai}}" hint-placeholder-val="{{false}}"><div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; border: 1.5px solid #13201C; padding: 4px 16px; animation: muncul .3s"><sc-for list="{{jadi}}" as="j" hint-placeholder-count="1"><div style="display: flex; justify-content: space-between; gap: 16px; align-items: baseline; padding: 10px 0; border-top: {{j.garis}}"><span style="font-weight: 600">{{j.t}}</span><span style="flex: none; font-family: 'IBM Plex Mono', monospace; font-weight: 500">{{j.rp}}</span></div></sc-for></div><div style="font-size: 13px; color: #5E6A66">Mata Anggaran sudah dipilih oleh {{plk}} Usulan AI tidak tersimpan sebagai keputusan.</div><button onClick="{{ulang}}" style="min-height: 44px; border: 0; background: none; color: #0E5A63; font-weight: 700; text-align: center; align-self: flex-start; padding: 0">Ganti pilihan</button></sc-if>
+      </div>
+
+      <sc-if value="{{ada}}" hint-placeholder-val="{{true}}"><div style="background: #E1EEED; border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px">
+        <div style="font-size: 13px; font-weight: 700; color: #0A4249; letter-spacing: .3px">BANTUAN AI · PILIHAN</div>
+        <div style="background: #FFFFFF; border: 1.5px dotted #0E5A63; border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px"><span style="align-self: flex-start; font-size: 13px; font-weight: 700; color: #0A4249; border: 1.5px dotted #0E5A63; border-radius: 6px; padding: 2px 8px">{{label}}</span>
+          <sc-for list="{{usul}}" as="u" hint-placeholder-count="1"><div style="display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px dotted #7F8C86"><div style="flex: 1; min-width: 0"><div style="font-style: italic; font-weight: 600; color: #0A4249">Belanja {{u.no}} {{u.n}}</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #43514C">{{u.rp}}</div></div><sc-if value="{{ragu}}" hint-placeholder-val="{{false}}"><button onClick="{{u.pilih}}" disabled="{{basi}}" style="flex: none; min-height: 44px; padding: 0 14px; border-radius: 10px; border: 1.5px solid #13201C; background: #FFFFFF; font-weight: 700; font-size: 14px">Pilih ini</button></sc-if></div></sc-for>
+          <sc-if value="{{adaCek}}" hint-placeholder-val="{{false}}"><div style="font-size: 13px; color: #5E6A66">{{jumlahCek}}</div></sc-if>
+        </div>
+        <sc-if value="{{basi}}" hint-placeholder-val="{{false}}"><div style="font-size: 14px; font-weight: 600">Usulan lama — draf sudah berubah. Usulan ini tidak dapat dipakai.</div><button onClick="{{baru}}" style="min-height: 44px; border-radius: 12px; border: 1.5px solid #0E5A63; background: #FFFFFF; color: #0A4249; font-weight: 700; text-align: center">Buat usulan baru</button></sc-if>
+        <sc-if value="{{segar}}" hint-placeholder-val="{{true}}"><div style="display: flex; gap: 8px"><sc-if value="{{yakin}}" hint-placeholder-val="{{true}}"><button onClick="{{terima}}" style="flex: 1; min-height: 46px; border-radius: 12px; border: 0; background: {{pakaiBg}}; color: {{pakaiFg}}; font-weight: 700; text-align: center">Pakai</button></sc-if><a href="Bagi.dc.html" style="flex: 1.3; min-height: 46px; font-size: 15px; white-space: nowrap; border-radius: 12px; border: 1.5px solid #13201C; background: #FFFFFF; color: #13201C; font-weight: 700; display: flex; align-items: center; justify-content: center; text-decoration: none; box-sizing: border-box">Pilih sendiri</a><button onClick="{{abaikan}}" style="flex: 1; min-height: 46px; border-radius: 12px; border: 1.5px solid #13201C; background: #FFFFFF; font-weight: 700; text-align: center">Abaikan</button></div></sc-if>
+        <div style="font-size: 13px; color: #5E6A66; color: #43514C">AI hanya memilih dari baris yang dapat dibukukan dan boleh untuk uang milik sendiri. Memakai, mengganti atau mengabaikan usulan tidak perlu alasan.</div>
+      </div></sc-if>
+      <sc-if value="{{abai}}" hint-placeholder-val="{{false}}"><div style="font-size: 14px; color: #43514C; animation: muncul .3s">Usulan diabaikan. Draf boleh disimpan tanpa Mata Anggaran, tetapi belum dapat dibukukan.</div></sc-if>
+</div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"jabatanKosong":{"editor":"boolean","default":false},"usulan":{"editor":"enum","options":["Satu baris","Bagi ke dua baris","AI kurang yakin"],"default":"Satu baris"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  rp(n) { var s = String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return (n < 0 ? '−' : '') + 'Rp' + s; }
+  state = { ur: null, dasar: null, st: 'ada', pilihan: null };
+  vals() {
+    var self = this, s = this.state, mode = this.props.usulan ?? 'Satu baris';
+    var DEF = { 'Satu baris': 'Kertas HVS dan tinta printer', 'Bagi ke dua baris': 'Kertas HVS Rp300.000 dan token listrik Rp180.000', 'AI kurang yakin': 'Keperluan ibadah padang' };
+    var U = { 'Satu baris': [['5.02.01.00', 'Alat tulis dan fotokopi', 'Rp480.000']], 'Bagi ke dua baris': [['5.02.01.00', 'Alat tulis dan fotokopi', 'Rp300.000'], ['5.01.02.00', 'Listrik, air dan telepon', 'Rp180.000']], 'AI kurang yakin': [['5.04.01.00', 'Konsumsi rapat', ''], ['5.05.02.00', 'Sewa peralatan', '']] }[mode];
+    var ur = s.ur === null ? DEF[mode] : s.ur, basi = s.st === 'ada' && ur !== (s.dasar === null ? DEF[mode] : s.dasar), ragu = mode === 'AI kurang yakin';
+    var jadi = s.st === 'pakai' ? (ragu ? [U[s.pilihan]] : U) : [];
+    return {
+      ur: ur, onUr: function (e) { self.setState({ ur: e.target.value }); },
+      ada: s.st === 'ada', abai: s.st === 'abai', pakai: s.st === 'pakai', belumPilih: s.st !== 'pakai', basi: basi, segar: !basi, ragu: ragu, yakin: !ragu,
+      label: ragu ? 'Usulan AI · kurang yakin, mohon dicek' : (U.length > 1 ? 'Usulan AI · bagi ke 2 Mata Anggaran' : 'Usulan AI · Mata Anggaran'),
+      usul: U.map(function (u, i) { return { no: u[0], n: u[1], rp: u[2], pilih: function () { if (!basi) self.setState({ st: 'pakai', pilihan: i }); } }; }),
+      jadi: jadi.map(function (u, i) { return { t: 'Belanja ' + u[0] + ' ' + u[1], rp: u[2] || 'Rp480.000', garis: i ? '1px solid #DDE2DB' : '0' }; }),
+      jumlahCek: U.length > 1 && !ragu ? 'Rp300.000 + Rp180.000 = Rp480.000, sama persis dengan jumlah pembayaran.' : '', adaCek: U.length > 1 && !ragu,
+      pakaiBg: basi ? '#DDE2DB' : '#0E5A63', pakaiFg: basi ? '#5E6A66' : '#FFFFFF',
+      terima: function () { if (!basi && !ragu) self.setState({ st: 'pakai' }); }, abaikan: function () { self.setState({ st: 'abai' }); },
+      baru: function () { self.setState({ dasar: ur, st: 'ada' }); }, ulang: function () { self.setState({ st: 'ada', pilihan: null, dasar: ur }); }
+    };
+  }
+
+  rv0() { var V = this.vals(); if (this.navVals) V.nav = this.navVals(); return V; }
+  tukarJk(o, d) {
+    var self = this, ganti = function (s) { var t = s.match(/\d\d\/\d\d\/\d{4}/g) || []; return s.indexOf('Meiske L.') < 0 || t.some(function (x) { return x !== '16/11/2026'; }) ? s : s.split('Meiske L.').join('Yanti Sumual, Operator'); };
+    if (d > 5 || !o || typeof o !== 'object') return o;
+    Object.keys(o).forEach(function (k) { var v = o[k]; if (typeof v === 'string') o[k] = ganti(v); else if (v && typeof v === 'object') self.tukarJk(v, d + 1); });
+    return o;
+  }
+  renderVals() {
+    var V = this.rv0(), jk = !!this.props.jabatanKosong;
+    if (jk && true) this.tukarJk(V, 0);
+    V.jk = jk; V.tjk = !jk; V.plk = jk ? 'Yanti Sumual, Operator' : 'Meiske L.'; V.plk2 = jk ? 'Yanti Sumual, Operator (menjalankan jabatan kosong Bendahara Jemaat)' : 'Meiske L.';
+    return V;
+  }
+}
+</script>
+</body>
+</html>

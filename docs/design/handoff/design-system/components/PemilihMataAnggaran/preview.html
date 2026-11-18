@@ -1,0 +1,38 @@
+<!-- @dsCard group="Isian" height=568 width=412 -->
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>PemilihMataAnggaran — pratinjau</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+html, body { margin: 0; }
+body { background: var(--kertas); }
+/* tanah: komponen selalu tampil di atas kertas, apa pun latar bingkai pratinjau */
+.tanah { background: var(--kertas); color: var(--tinta); font-family: var(--font-sans); font-size: 15px; line-height: 1.45; padding: var(--s20); min-height: 100vh; box-sizing: border-box; }
+.pk { display: flex; flex-direction: column; gap: 10px; max-width: 372px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+input, textarea { color: inherit; }
+button:focus-visible, a:focus-visible { outline: 2px solid var(--laut); outline-offset: 2px; }
+a { color: var(--laut); }
+@media (prefers-reduced-motion: reduce) { * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+</style>
+</head>
+<body>
+<div class="tanah"><div class="pk">
+<div style="background: var(--permukaan); border: 1px solid var(--garis); border-radius: var(--radius-kartu); padding: 14px 16px; display: flex; flex-direction: column">
+<div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px"><div style="flex: 1; min-height: 44px; display: flex; align-items: center; padding: 0 14px; border-radius: var(--radius-isian); border: 1px solid var(--garisTegas); background: var(--kertas); color: var(--tinta3); font-size: 14px">Cari nomor atau nama</div><span style="font-size: 13px; font-weight: 700; background: var(--tinta); color: var(--permukaan); border-radius: var(--radius-lencana); padding: 4px 10px">Belanja</span></div>
+<div style="padding: 10px 0 6px"><div style="font-family: var(--font-mono); font-size: 13px; color: var(--tinta3)">5.00.00.00</div><div style="font-size: 14px; font-weight: 700; color: var(--tinta2)">BELANJA OPERASIONAL</div><div style="font-size: 13px; color: var(--tinta3)">Judul kelompok, tidak dapat dibukukan</div></div>
+<div style="border-top: 1px solid var(--garis); padding: 10px 0 10px 14px"><div style="font-family: var(--font-mono); font-size: 13px; color: var(--tinta2)">Belanja 5.01.02.00</div><div style="font-weight: 600">Listrik, air dan telepon</div></div>
+<div style="border: 2px solid var(--tinta); border-radius: var(--radius-isian); padding: 10px 14px; display: flex; align-items: center; gap: 10px"><div style="flex: 1"><div style="font-family: var(--font-mono); font-size: 13px; color: var(--tinta2)">Belanja 5.03.03.00</div><div style="font-weight: 600">Biaya administrasi bank</div></div><svg aria-label="Terpilih" height="22" role="img" viewbox="0 0 24 24" width="22"><circle cx="12" cy="12" fill="var(--laut)" r="11"></circle><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="var(--permukaan)" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"></path></svg></div>
+<div style="margin-top: 12px; min-height: 44px; border-radius: var(--radius-isian); border: 1.5px dashed var(--putus); display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--tinta2); font-size: 14px">Simpan tanpa Mata Anggaran</div>
+</div>
+<div style="font-size: 13px; color: var(--tinta2)">Bagi ke beberapa Mata Anggaran</div>
+<div style="background: var(--permukaan); border: 1px solid var(--garis); border-radius: var(--radius-kartu); padding: 6px 16px">
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; font-size: 14px"><div><span style="font-family: var(--font-mono); font-size: 13px; color: var(--tinta2)">5.01.02.00</span> Listrik, air dan telepon</div><div style="font-family: var(--font-mono)">Rp1.000.000</div></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; font-size: 14px; border-top: 1px solid var(--garis)"><div><span style="font-family: var(--font-mono); font-size: 13px; color: var(--tinta2)">5.02.01.00</span> Alat tulis dan fotokopi</div><div style="font-family: var(--font-mono)">Rp200.000</div></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; font-size: 14px; border-top: 1.5px solid var(--tinta); font-weight: 700; color: var(--bata)"><div>Total baris harus sama dengan Jumlah</div><div style="font-family: var(--font-mono)">kurang Rp50.000</div></div>
+</div>
+</div></div>
+</body>
+</html>

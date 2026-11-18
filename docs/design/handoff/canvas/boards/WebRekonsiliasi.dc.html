@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Rekonsiliasi (web)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+button:focus-visible,a:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes dariKiri{from{opacity:0;transform:translateX(-60px)}to{opacity:1;transform:none}}
+@keyframes dariKanan{from{opacity:0;transform:translateX(60px)}to{opacity:1;transform:none}}
+@keyframes kait{0%{opacity:0;transform:scale(0)}70%{opacity:1;transform:scale(1.25)}100%{opacity:1;transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+.pn-c{display:none}
+@media (max-width:860px){
+.pn{flex:1 1 100%!important;flex-direction:row!important;flex-wrap:wrap;align-items:center;gap:0 12px!important;padding:8px 16px!important;border-right:0!important;border-bottom:1px solid #DDE2DB}
+.pn-c{display:flex;align-items:center;appearance:none;-webkit-appearance:none;min-height:44px;margin:0 0 0 auto;padding:0 16px;border-radius:14px;border:1.5px solid #13201C;background:#FFFFFF;font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+.pn-c::before{content:"Menu"}
+.pn-c:checked{background:#13201C;color:#FFFFFF}
+.pn-c:checked::before{content:"Tutup menu"}
+.pn-l,.pn-w{display:none;flex:1 1 100%}
+.pn-c:checked~.pn-l{display:block;padding:8px 0}
+.pn-c:checked~.pn-w{display:block;margin-top:0!important;padding-bottom:8px!important}
+}
+</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; flex-wrap: wrap; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 15px; line-height: 1.45">
+
+  <nav class="pn" style="flex: 1 1 220px; box-sizing: border-box; padding: 24px 16px; background: #FFFFFF; border-right: 1px solid #DDE2DB; display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px">
+      <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="none" stroke="#0E5A63" stroke-width="2" stroke-dasharray="3 3"/><path d="M12 2h4a6 6 0 0 1 6 6v8a6 6 0 0 1-6 6h-4z" fill="#0E5A63"/></svg>
+      <div><div style="font-weight: 700; font-size: 18px; line-height: 1.1">palakat</div><div style="font-size: 13px; color: #5E6A66">Jemaat Karunia</div></div>
+    </div>
+    <input type="checkbox" class="pn-c" aria-label="Menu">
+    <div class="pn-l">
+      <sc-for list="{{nav}}" as="n" hint-placeholder-count="7">
+        <a href="{{n.href}}" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 10px; text-decoration: none; font-weight: 600; background: {{n.bg}}; color: {{n.fg}}">{{n.n}}</a>
+      </sc-for>
+    </div>
+    <div class="pn-w" style="margin-top: auto; padding: 12px 8px 0; border-top: 1px solid #DDE2DB; font-size: 13px; color: #43514C"><sc-if value="{{tjk}}" hint-placeholder-val="{{true}}"><div><strong style="color: #13201C">Meiske L.</strong> · Bendahara<br>Wewenang Bendahara aktif</div></sc-if><sc-if value="{{jk}}" hint-placeholder-val="{{false}}"><div><strong style="color: #13201C">Yanti Sumual</strong> · Operator<br>Menjalankan jabatan kosong Bendahara Jemaat</div></sc-if></div>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 28px clamp(16px, 3vw, 40px) 40px; display: flex; flex-direction: column; gap: 20px">
+<sc-if value="{{jk}}" hint-placeholder-val="{{false}}"><div role="status" style="background: #13201C; color: #FFFFFF; border-radius: 14px; padding: 12px 16px; font-size: 14px"><strong>Anda menjalankan jabatan kosong Bendahara Jemaat sejak 16/11/2026 08.15.</strong> <span style="color: #D5DDD8">Setiap tindakan dicatat sebagai dijalankan oleh Operator Yanti Sumual.</span></div></sc-if>
+    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px">
+      <h1 style="margin: 0; font-size: 26px; font-weight: 700; flex: 1 1 200px">Rekonsiliasi <span style="font-size: 15px; font-weight: 500; color: #5E6A66">· Oktober 2026</span></h1>
+      <span style="font-size: 13px; font-weight: 700; border-radius: 6px; padding: 4px 10px; background: {{stBg}}; color: {{stFg}}; border: 1.5px solid {{stBd}}">{{stTeks}}</span>
+    </div>
+    <div style="display: flex; flex-wrap: wrap; gap: 0 22px; font-size: 14px; font-weight: 600; margin-top: -8px"><a href="WebRekonIsi.dc.html" style="min-height: 44px; min-width: 44px; display: inline-flex; align-items: center">Isi rekening koran</a><a href="WebHitungKas.dc.html" style="min-height: 44px; min-width: 44px; display: inline-flex; align-items: center">Hitung kas</a></div>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px">
+      <a href="WebHitungKas.dc.html" style="min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1.5px solid #7F8C86; background: #FFFFFF; font-weight: 600; font-size: 14px; color: #13201C; display: flex; align-items: center; justify-content: center; text-decoration: none; box-sizing: border-box">Kas · Sudah dipastikan</a>
+      <span aria-current="true" style="min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1.5px solid #13201C; background: #13201C; color: #FFFFFF; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; box-sizing: border-box">Bank BNI ··4821</span>
+      <span style="min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1.5px solid #7F8C86; background: #FFFFFF; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; box-sizing: border-box; color: #43514C">Bank SulutGo ··1107 · Sudah dipastikan</span>
+    </div>
+
+    <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 16px; padding: 18px 20px; display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 28px">
+      <div><div style="font-size: 13px; color: #43514C">Saldo buku</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 20px; font-weight: 500">{{buku}}</div></div>
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 20px; color: #5E6A66" aria-hidden="true">−</div>
+      <div><div style="font-size: 13px; color: #43514C">Saldo pembanding <span style="color: #5E6A66">· rekening koran Rp24.100.000{{pembandingCat}}</span></div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 20px; font-weight: 500">{{pembanding}}</div></div>
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 20px; color: #5E6A66" aria-hidden="true">=</div>
+      <div style="flex: 1 1 220px"><div style="font-size: 13px; font-weight: 700">Selisih belum dijelaskan</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 32px; font-weight: 600; line-height: 1.1; color: {{selisihFg}}; transition: color .3s">{{selisih}}</div></div>
+      <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start">
+        <button onClick="{{pastikan}}" disabled="{{takBisaPasti}}" style="min-height: 48px; padding: 0 20px; border-radius: 12px; border: 0; background: {{pastiBg}}; color: {{pastiFg}}; font-weight: 700">Pastikan rekonsiliasi</button>
+        <div style="font-size: 13px; color: #43514C; max-width: 260px">{{pastiAlasan}}</div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; min-height: 52px; border: 1.5px dashed #808D87; border-radius: 14px; padding: 8px 16px">
+      <div style="flex: 1 1 320px; font-size: 14px; color: #43514C">{{pilihTeks}}</div>
+      <button onClick="{{cocokkan}}" disabled="{{takBisaCocok}}" style="min-height: 44px; padding: 0 20px; border-radius: 12px; border: 0; background: {{cocokBg}}; color: {{cocokFg}}; font-weight: 700">Cocokkan</button>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(440px, 100%), 1fr)); gap: 20px; align-items: start">
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <h2 style="margin: 0; font-size: 16px; font-weight: 700">Mutasi bank <span style="font-size: 13px; font-weight: 500; color: #5E6A66">· belum cocok</span></h2>
+        <sc-for list="{{mutasi}}" as="r" hint-placeholder-count="3">
+          <div style="display: flex; align-items: stretch; margin-bottom: 2px; background: {{r.bg}}; border: {{r.bd}}; border-radius: 12px">
+            <button onClick="{{r.pick}}" aria-pressed="{{r.on}}" style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 8px 14px; background: none; border: 0">
+              <div style="flex: none; width: 22px; height: 22px; border-radius: 6px; border: 2px solid #13201C; background: {{r.cek}}; display: flex; align-items: center; justify-content: center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+              <div style="flex: 1; min-width: 0"><div style="font-weight: 600; font-size: 14px">{{r.n}}</div><div style="font-size: 13px; color: #5E6A66">{{r.tgl}}</div></div>
+              <div style="font-family: 'IBM Plex Mono', monospace; font-weight: 500">{{r.rp}}</div>
+            </button>
+            <sc-if value="{{r.aksi}}" hint-placeholder-val="{{false}}"><button onClick="{{r.aksiOn}}" style="flex: none; margin: 8px 8px 8px 0; padding: 0 12px; border-radius: 10px; border: 1.5px solid #13201C; background: #FFFFFF; font-weight: 700; font-size: 13px">{{r.aksi}}</button></sc-if>
+          </div>
+        </sc-for>
+        <sc-if value="{{mutasiHabis}}" hint-placeholder-val="{{false}}"><div style="font-size: 14px; color: #43514C; padding: 8px 0">Semua mutasi bank sudah cocok.</div></sc-if>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <h2 style="margin: 0; font-size: 16px; font-weight: 700">Transaksi <span style="font-size: 13px; font-weight: 500; color: #5E6A66">· sudah dibukukan, belum cocok</span></h2>
+        <sc-for list="{{transaksi}}" as="r" hint-placeholder-count="4">
+          <div style="display: flex; align-items: stretch; margin-bottom: 2px; background: {{r.bg}}; border: {{r.bd}}; border-radius: 12px">
+            <button onClick="{{r.pick}}" aria-pressed="{{r.on}}" style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 8px 14px; background: none; border: 0">
+              <div style="flex: none; width: 22px; height: 22px; border-radius: 6px; border: 2px solid #13201C; background: {{r.cek}}; display: flex; align-items: center; justify-content: center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+              <div style="flex: 1; min-width: 0"><div style="font-weight: 600; font-size: 14px">{{r.n}}</div><div style="font-size: 13px; color: #5E6A66"><span style="font-family: 'IBM Plex Mono', monospace">{{r.no}}</span> · {{r.tgl}}</div></div>
+              <div style="font-family: 'IBM Plex Mono', monospace; font-weight: 500">{{r.rp}}</div>
+            </button>
+            <sc-if value="{{r.aksi}}" hint-placeholder-val="{{false}}"><button onClick="{{r.aksiOn}}" style="flex: none; margin: 8px 8px 8px 0; padding: 0 12px; border-radius: 10px; border: 1.5px solid #13201C; background: #FFFFFF; font-weight: 700; font-size: 13px">{{r.aksi}}</button></sc-if>
+          </div>
+        </sc-for>
+        <sc-if value="{{transaksiHabis}}" hint-placeholder-val="{{false}}"><div style="font-size: 14px; color: #43514C; padding: 8px 0">Tidak ada transaksi yang belum cocok.</div></sc-if>
+      </div>
+    </div>
+
+    <sc-if value="{{perjalanan}}" hint-placeholder-val="{{false}}">
+      <div style="display: flex; flex-direction: column; gap: 8px; animation: muncul .3s">
+        <h2 style="margin: 0; font-size: 16px; font-weight: 700">Dalam perjalanan <span style="font-size: 13px; font-weight: 500; color: #5E6A66">· dibawa ke bulan berikutnya</span></h2>
+        <div style="display: flex; align-items: center; gap: 12px; border: 1.5px dashed #808D87; border-radius: 12px; padding: 8px 14px; min-height: 52px"><div style="flex: 1"><span style="font-weight: 600; font-size: 14px">Setoran dalam perjalanan</span> <span style="font-size: 13px; color: #5E6A66">· <span style="font-family: 'IBM Plex Mono', monospace">BKU-2026-0131</span> · 31/10/2026</span></div><div style="font-family: 'IBM Plex Mono', monospace; font-weight: 500">Rp500.000</div><button onClick="{{lepasPerjalanan}}" style="min-height: 44px; padding: 0 12px; border: 0; background: none; color: #0E5A63; font-weight: 700">Lepaskan</button></div>
+      </div>
+    </sc-if>
+
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <h2 style="margin: 0; font-size: 16px; font-weight: 700">Cocok <span style="font-size: 13px; font-weight: 500; color: #5E6A66">· {{cocokN}} mutasi bank</span></h2>
+      <sc-for list="{{grup}}" as="g" hint-placeholder-count="1">
+        <div style="position: relative; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; align-items: center; margin-bottom: 4px">
+          <div style="background: #FFFFFF; border: 1.5px solid #0E5A63; border-radius: 12px; padding: 10px 14px; animation: dariKiri .45s cubic-bezier(.2,.8,.2,1) both"><div style="font-size: 13px; color: #5E6A66">Mutasi bank</div><div style="font-size: 14px; font-weight: 600">{{g.m}}</div><div style="font-family: 'IBM Plex Mono', monospace; font-weight: 500">{{g.rp}}</div></div>
+          <div style="background: #FFFFFF; border: 1.5px solid #0E5A63; border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; gap: 8px; animation: dariKanan .45s cubic-bezier(.2,.8,.2,1) both"><div style="flex: 1; min-width: 0"><div style="font-size: 13px; color: #5E6A66">Transaksi · {{g.jenis}}</div><div style="font-size: 14px; font-weight: 600">{{g.t}}</div><div style="font-family: 'IBM Plex Mono', monospace; font-weight: 500">{{g.rp}}</div></div><button onClick="{{g.lepas}}" style="min-height: 44px; padding: 0 10px; border: 0; background: none; color: #0E5A63; font-weight: 700; font-size: 14px">Lepaskan</button></div>
+          <div style="position: absolute; left: 50%; top: 50%; margin: -15px 0 0 -15px; width: 30px; height: 30px; border-radius: 50%; background: #0E5A63; display: flex; align-items: center; justify-content: center; animation: kait .4s .4s both"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M9 15l6-6M10 6l1-1a5 5 0 0 1 7 7l-1 1M14 18l-1 1a5 5 0 0 1-7-7l1-1"/></svg></div>
+        </div>
+      </sc-for>
+      <div style="font-size: 14px; color: #43514C">12 mutasi bank lain sudah cocok dengan transaksinya.</div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"jabatanKosong":{"editor":"boolean","default":false},"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  state = { selM: [], selT: [], grup: [], perjalanan: false, biaya: false, pasti: false, selisih: 515000 };
+  M = [{ id: 'm1', n: 'TRF MASUK IBU RUNTU', tgl: '28/10/2026', jm: 1000000 }, { id: 'm2', n: 'TARIK TUNAI', tgl: '30/10/2026', jm: -2000000 }, { id: 'm3', n: 'BIAYA ADM', tgl: '31/10/2026', jm: -15000 }];
+  T = [{ id: 't1', n: 'Persembahan syukur', no: 'BKU-2026-0118', tgl: '27/10/2026', jm: 500000 }, { id: 't2', n: 'Sumbangan donatur', no: 'BKU-2026-0121', tgl: '28/10/2026', jm: 500000 }, { id: 't3', n: 'Pindah antar Kas/Bank: Bank BNI ke Kas', no: 'BKU-2026-0127', tgl: '30/10/2026', jm: -2000000 }, { id: 't4', n: 'Setoran ke bank: Kas ke Bank BNI', no: 'BKU-2026-0131', tgl: '31/10/2026', jm: 500000 }];
+  rp(n) { var s = String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return (n < 0 ? '−' : '') + 'Rp' + s; }
+  componentWillUnmount() { clearInterval(this.t); }
+  target(p) { return (24615000 - (p.biaya ? 15000 : 0)) - (24100000 + (p.perjalanan ? 500000 : 0)); }
+  ubah(patch) {
+    var self = this, dari = this.state.selisih, ke = this.target(Object.assign({}, this.state, patch)), i = 0;
+    this.setState(Object.assign({ pasti: false }, patch));
+    if (dari === ke) return;
+    clearInterval(this.t);
+    this.t = setInterval(function () { i++; var k = 1 - Math.pow(1 - i / 22, 3); self.setState({ selisih: Math.round(dari + (ke - dari) * k) }); if (i >= 22) clearInterval(self.t); }, 30);
+  }
+  rv0() {
+    var self = this, s = this.state, rp = this.rp;
+    var nav = [['Beranda', 'WebBeranda.dc.html'], ['Transaksi', 'WebTransaksi.dc.html'], ['Uang Muka dan Titipan', 'WebKewajiban.dc.html'], ['Rekonsiliasi', 'WebRekonsiliasi.dc.html'], ['Bulan dan tutup buku', 'WebTutupBuku.dc.html'], ['Laporan', 'WebPaketLaporan.dc.html'], ['Pengaturan', 'WebPengaturan.dc.html']];
+    var dipakaiM = [].concat.apply([], s.grup.map(function (g) { return g.m; })).concat(s.biaya ? ['m3'] : []);
+    var dipakaiT = [].concat.apply([], s.grup.map(function (g) { return g.t; })).concat(s.perjalanan ? ['t4'] : []);
+    var toggle = function (key, id) { return function () { var a = s[key].slice(), i = a.indexOf(id); if (i >= 0) a.splice(i, 1); else a.push(id); var p = {}; p[key] = a; self.setState(p); }; };
+    var baris = function (list, dipakai, key, sel) {
+      return list.filter(function (r) { return dipakai.indexOf(r.id) < 0; }).map(function (r) {
+        var on = sel.indexOf(r.id) >= 0;
+        var o = Object.assign({}, r, { on: on, rp: rp(r.jm), bg: on ? '#E1EEED' : '#FFFFFF', bd: on ? '1.5px solid #0E5A63' : '1px solid #DDE2DB', cek: on ? '#13201C' : '#FFFFFF', pick: toggle(key, r.id) });
+        if (r.id === 'm3') { o.aksi = 'Buat transaksi dari mutasi ini'; o.aksiOn = function () { self.ubah({ biaya: true, selM: s.selM.filter(function (x) { return x !== 'm3'; }) }); }; }
+        if (r.id === 't4') { o.aksi = 'Tandai dalam perjalanan'; o.aksiOn = function () { self.ubah({ perjalanan: true, selT: s.selT.filter(function (x) { return x !== 't4'; }) }); }; }
+        return o;
+      });
+    };
+    var mutasi = baris(this.M, dipakaiM, 'selM', s.selM), transaksi = baris(this.T, dipakaiT, 'selT', s.selT);
+    var sum = function (list, sel) { return list.filter(function (r) { return sel.indexOf(r.id) >= 0; }).reduce(function (a, r) { return a + r.jm; }, 0); };
+    var sm = sum(this.M, s.selM), stt = sum(this.T, s.selT), ada = s.selM.length > 0 && s.selT.length > 0, sama = ada && sm === stt;
+    var pilihTeks = (!s.selM.length && !s.selT.length) ? 'Pilih mutasi bank dan transaksi yang sama jumlahnya. Satu mutasi boleh dicocokkan dengan beberapa transaksi, dan sebaliknya.' : ('Mutasi bank dipilih ' + rp(sm) + ' · transaksi dipilih ' + rp(stt) + (sama ? ' · jumlah sama' : (ada ? ' · sisa belum dicocokkan ' + rp(Math.abs(sm - stt)) : '')));
+    var nama = function (list, ids) { return list.filter(function (r) { return ids.indexOf(r.id) >= 0; }).map(function (r) { return r.n; }).join(' + '); };
+    var grup = s.grup.map(function (g, i) { return { m: nama(self.M, g.m), t: nama(self.T, g.t), jenis: g.t.length + ' transaksi', rp: rp(sum(self.M, g.m)), lepas: function () { var a = s.grup.slice(); a.splice(i, 1); self.setState({ grup: a, pasti: false }); } }; });
+    if (s.biaya) grup.push({ m: 'BIAYA ADM', t: 'Biaya administrasi bank · BKU-2026-0133', jenis: 'Belanja 5.03.03.00 · Dibukukan', rp: rp(-15000), lepas: function () { self.ubah({ biaya: false }); } });
+    var nol = this.target(s) === 0, habis = mutasi.length === 0, bisaPasti = nol && habis && !s.pasti;
+    var st = s.pasti ? { stTeks: 'Sudah dipastikan', stBg: '#0E5A63', stFg: '#FFFFFF', stBd: '#0E5A63' } : { stTeks: 'Sedang dikerjakan', stBg: 'transparent', stFg: '#43514C', stBd: '#5E6A66' };
+    return Object.assign({
+      nav: nav.map(function (n, i) { return { n: n[0], href: n[1], bg: i === 3 ? '#13201C' : 'transparent', fg: i === 3 ? '#FFFFFF' : '#13201C' }; }),
+      buku: rp(24615000 - (s.biaya ? 15000 : 0)), pembanding: rp(24100000 + (s.perjalanan ? 500000 : 0)), pembandingCat: s.perjalanan ? ' + dalam perjalanan Rp500.000' : '',
+      selisih: rp(s.selisih), selisihFg: s.selisih === 0 ? '#0E5A63' : '#A63C1C',
+      takBisaPasti: !bisaPasti, pastiBg: bisaPasti ? '#0E5A63' : '#DDE2DB', pastiFg: bisaPasti ? '#FFFFFF' : '#5E6A66',
+      pastiAlasan: s.pasti ? 'Dipastikan oleh Meiske L. Perubahan pada buku membuatnya perlu dipastikan lagi.' : (!nol ? 'Selisih belum dijelaskan harus Rp0.' : (!habis ? 'Masih ada mutasi bank yang belum cocok.' : 'Selisih Rp0 dan semua mutasi bank sudah cocok.')),
+      pilihTeks: pilihTeks, takBisaCocok: !sama, cocokBg: sama ? '#13201C' : '#DDE2DB', cocokFg: sama ? '#FFFFFF' : '#5E6A66',
+      mutasi: mutasi, transaksi: transaksi, mutasiHabis: habis, transaksiHabis: transaksi.length === 0,
+      perjalanan: s.perjalanan, grup: grup, cocokN: 12 + dipakaiM.length,
+      cocokkan: function () { if (!sama) return; self.setState({ grup: s.grup.concat([{ m: s.selM.slice(), t: s.selT.slice() }]), selM: [], selT: [], pasti: false }); },
+      lepasPerjalanan: function () { self.ubah({ perjalanan: false }); },
+      pastikan: function () { if (bisaPasti) self.setState({ pasti: true }); }
+    }, st);
+  }
+  tukarJk(o, d) {
+    var self = this, ganti = function (s) { var t = s.match(/\d\d\/\d\d\/\d{4}/g) || []; return s.indexOf('Meiske L.') < 0 || t.some(function (x) { return x !== '16/11/2026'; }) ? s : s.split('Meiske L.').join('Yanti Sumual, Operator'); };
+    if (d > 5 || !o || typeof o !== 'object') return o;
+    Object.keys(o).forEach(function (k) { var v = o[k]; if (typeof v === 'string') o[k] = ganti(v); else if (v && typeof v === 'object') self.tukarJk(v, d + 1); });
+    return o;
+  }
+  renderVals() {
+    var V = this.rv0(), jk = !!this.props.jabatanKosong;
+    if (jk && true) this.tukarJk(V, 0);
+    V.jk = jk; V.tjk = !jk; V.plk = jk ? 'Yanti Sumual, Operator' : 'Meiske L.'; V.plk2 = jk ? 'Yanti Sumual, Operator (menjalankan jabatan kosong Bendahara Jemaat)' : 'Meiske L.';
+    return V;
+  }
+}
+</script>
+</body>
+</html>

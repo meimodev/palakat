@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Uang Muka, Titipan, Penggantian biaya (ponsel)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+input{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes masuk{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@keyframes naik{from{transform:translateY(100%)}to{transform:none}}
+@keyframes pudar{from{opacity:0}to{opacity:1}}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; display: flex; flex-direction: column; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 16px; line-height: 1.4">
+<sc-if value="{{jk}}" hint-placeholder-val="{{false}}"><div role="status" style="flex: none; background: #13201C; color: #FFFFFF; padding: 10px 24px 8px; font-size: 13px; line-height: 1.3; text-align: center"><strong>Menjalankan jabatan kosong</strong> · Bendahara Jemaat</div></sc-if>
+<div style="position: relative; flex: 1; min-height: 0">
+
+<sc-if value="{{isDaftar}}" hint-placeholder-val="{{true}}">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column; animation: pudar .2s">
+  <div style="display: flex; align-items: center; gap: 8px; padding: 14px 12px 8px">
+    <a href="Main.dc.html" aria-label="Kembali ke Beranda" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #13201C"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></a>
+    <h1 style="margin: 0; flex: 1; font-size: 18px; font-weight: 700">Uang yang masih berjalan</h1><a href="KasusBaru.dc.html" style="flex: none; min-height: 44px; padding: 0 14px; margin-right: 8px; border-radius: 12px; background: #0E5A63; color: #FFFFFF; font-weight: 700; display: flex; align-items: center; text-decoration: none">+ Kasus baru</a>
+  </div>
+  <div style="padding: 0 20px 10px">
+    <sc-for list="{{tab}}" as="c" hint-placeholder-count="3"><button onClick="{{c.pick}}" aria-pressed="{{c.on}}" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 13px; margin: 0 6px 0 0; border-radius: 999px; border: 1.5px solid {{c.bd}}; background: {{c.bg}}; color: {{c.fg}}; font-weight: 600; font-size: 13px">{{c.n}}</button></sc-for>
+  </div>
+  <div style="flex: 1; overflow-y: auto; padding: 4px 20px 20px; display: flex; flex-direction: column; gap: 12px">
+    <div>
+      <div style="font-size: 14px; color: #43514C">{{L.sisa}} · {{bukaN}} kasus</div>
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 30px; font-weight: 500; letter-spacing: -1px">{{totalSisa}}</div>
+      <div style="font-size: 13px; color: #5E6A66">{{L.cat}}</div>
+    </div>
+    <sc-for list="{{kasus}}" as="k" hint-placeholder-count="3">
+      <button onClick="{{k.buka}}" style="display: flex; flex-direction: column; gap: 6px; width: 100%; background: {{k.bg}}; border: {{k.bd}}; border-radius: 14px; padding: 14px 16px">
+        <span style="display: flex; justify-content: space-between; align-items: center; gap: 8px"><span style="font-weight: 700; font-size: 15px">{{k.judul}}</span><span style="font-family: 'IBM Plex Mono', monospace; font-weight: 500">{{k.sisa}}</span></span>
+        <span style="font-size: 13px; color: #43514C">{{L.pihak}}: {{k.pihak}}</span>
+        <span style="display: block; height: 8px; border-radius: 4px; border: 1.5px dashed #808D87; overflow: hidden; box-sizing: border-box"><span style="display: block; height: 100%; width: {{k.pct}}; background: #13201C"></span></span>
+        <span style="font-size: 13px; color: #43514C; font-weight: {{k.fw}}">{{k.status}}</span>
+      </button>
+    </sc-for>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{isRinci}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column; animation: masuk .28s cubic-bezier(.2,.8,.2,1)">
+  <div style="display: flex; align-items: center; gap: 8px; padding: 14px 12px 8px">
+    <button onClick="{{keDaftar}}" aria-label="Kembali" style="flex: none; width: 44px; height: 44px; background: none; border: 0; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+    <div style="flex: 1"><h1 style="margin: 0; font-size: 18px; font-weight: 700">{{r.judul}}</h1><div style="font-size: 13px; color: #43514C">{{L.pihak}}: {{r.pihak}}</div></div>
+  </div>
+  <div style="flex: 1; overflow-y: auto; padding: 8px 20px 20px; display: flex; flex-direction: column; gap: 16px">
+    <div>
+      <div style="font-size: 14px; color: #43514C">{{L.sisa}}</div>
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 36px; font-weight: 500; letter-spacing: -1px; line-height: 1.15">{{sisaTampil}}</div>
+      <div style="font-size: 13px; color: #5E6A66">Dihitung dari catatan di bawah. Tidak ada isian untuk mengubahnya.</div>
+    </div>
+    <div style="height: 14px; border-radius: 7px; border: 1.5px dashed #808D87; overflow: hidden; box-sizing: border-box"><div style="height: 100%; width: {{r.pct}}; background: #13201C; transition: width .5s cubic-bezier(.2,.8,.2,1)"></div></div>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center"><span style="font-size: 13px; font-weight: 700; border-radius: 6px; padding: 3px 9px; background: {{r.sbg}}; color: {{r.sfg}}; border: {{r.sbd}}">{{r.statusPendek}}</span><span style="font-size: 13px; color: #13201C; font-weight: {{r.tfw}}">{{r.tempo}}</span></div>
+
+    <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 4px 16px">
+      <div style="display: flex; justify-content: space-between; gap: 12px; padding: 12px 0"><div><div style="font-weight: 600; font-size: 15px">{{L.awal}}</div><div style="font-size: 13px; color: #5E6A66">{{r.awalCat}}</div></div><div style="font-family: 'IBM Plex Mono', monospace; font-weight: 500">{{r.awal}}</div></div>
+      <sc-for list="{{r.entri}}" as="e" hint-placeholder-count="1">
+        <div style="display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; border-top: 1px solid #DDE2DB; animation: muncul .3s"><div><div style="font-weight: 600; font-size: 15px">{{e.n}}</div><div style="font-size: 13px; color: #5E6A66"><span style="font-family: 'IBM Plex Mono', monospace">{{e.no}}</span> · {{e.t}} · {{e.cat}}</div></div><div style="font-family: 'IBM Plex Mono', monospace; font-weight: 500">{{e.rp}}</div></div>
+      </sc-for>
+    </div>
+    <div style="font-size: 13px; color: #5E6A66">{{L.kaki}}</div>
+  </div>
+  <div style="padding: 12px 20px 22px; background: #FFFFFF; border-top: 1px solid #DDE2DB; display: flex; flex-direction: column; gap: 8px">
+    <sc-for list="{{aksi}}" as="a" hint-placeholder-count="2">
+      <button onClick="{{a.buka}}" style="min-height: 50px; border-radius: 14px; font-weight: 700; text-align: center; background: {{a.bg}}; color: {{a.fg}}; border: {{a.bd}}">{{a.n}}</button>
+    </sc-for>
+    <sc-if value="{{tuntas}}" hint-placeholder-val="{{false}}"><div role="status" style="min-height: 50px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #0E5A63; animation: muncul .3s"><span>{{r.statusPendek}} · tidak ada sisa</span></div></sc-if>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{sheet}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; inset: 0">
+  <button onClick="{{tutupSheet}}" aria-label="Kembali ke kasus" style="position: absolute; inset: 0; width: 100%; background: rgba(19,32,28,.45); border: 0; animation: pudar .2s"></button>
+  <div style="position: absolute; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-radius: 22px 22px 0 0; padding: 10px 20px 24px; display: flex; flex-direction: column; gap: 14px; animation: naik .28s cubic-bezier(.2,.8,.2,1)">
+    <div style="width: 40px; height: 4px; border-radius: 2px; background: #7F8C86; margin: 0 auto 4px"></div>
+    <div><h2 style="margin: 0; font-size: 18px; font-weight: 700">{{s.n}}</h2><div style="font-size: 14px; color: #43514C">{{s.cat}}</div></div>
+    <div>
+      <label for="jm" style="font-size: 14px; color: #43514C">Jumlah (Rp)</label>
+      <div style="display: flex; align-items: baseline; gap: 6px; font-family: 'IBM Plex Mono', monospace; border-bottom: 2px solid #13201C; padding-bottom: 4px"><span style="font-size: 20px; color: #5E6A66">Rp</span><input id="jm" inputmode="numeric" placeholder="0" value="{{isiFmt}}" onChange="{{onIsi}}" readonly="{{s.kunci}}" style="flex: 1; min-width: 0; width: 100%; border: 0; background: transparent; font-family: 'IBM Plex Mono', monospace; font-size: 32px; font-weight: 500; letter-spacing: -1px; padding: 0; min-height: 44px; box-sizing: border-box"></div>
+    </div>
+    <sc-if value="{{isiLebih}}" hint-placeholder-val="{{false}}"><div style="font-size: 14px; color: #A63C1C; font-weight: 600">Tidak dapat dilakukan: melebihi sisa {{sisaRp}}. {{s.lebih}}</div></sc-if>
+    <button onClick="{{simpan}}" disabled="{{isiSalah}}" style="min-height: 52px; border-radius: 14px; border: 0; background: {{simpanBg}}; color: {{simpanFg}}; font-weight: 700; text-align: center">{{s.tombol}}</button>
+    <button onClick="{{tutupSheet}}" style="min-height: 44px; border: 0; background: none; font-weight: 700; text-align: center">Kembali</button>
+  </div>
+</div>
+</sc-if>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"jabatanKosong":{"editor":"boolean","default":false},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  state = { tab: 'um', buka: null, sheet: null, isi: '', tampil: 0, nomor: 150, cek: {},
+    kasus: [
+      { id: 'um1', j: 'um', judul: 'Panitia Natal', pihak: 'Sdr. Rivo Mandagi', awal: 1500000, awalCat: 'BKU-2026-0129 · 01/11/2026 · dari peruntukan Umum Jemaat', tempo: '30/11/2026', entri: [{ n: 'Pertanggungjawaban uang muka', no: 'BKU-2026-0138', t: '08/11/2026', cat: 'menjadi Belanja', jm: 850000 }] },
+      { id: 'um2', j: 'um', judul: 'Retret Pemuda', pihak: 'Sdri. Natalia Rumengan', awal: 800000, awalCat: 'BKU-2026-0112 · 20/10/2026 · dari peruntukan Umum Jemaat', tempo: '10/11/2026', lewat: true, entri: [{ n: 'Pertanggungjawaban uang muka', no: 'BKU-2026-0150', t: '05/11/2026', cat: 'menjadi Belanja', jm: 300000 }] },
+      { id: 'um3', j: 'um', judul: 'Perjalanan dinas Wilayah', pihak: 'Pnt. Jefry Wowor', awal: 400000, awalCat: 'BKU-2026-0103 · 07/10/2026', tempo: '', entri: [{ n: 'Pertanggungjawaban uang muka', no: 'BKU-2026-0149', t: '03/11/2026', cat: 'menjadi Belanja', jm: 400000 }] },
+      { id: 'tt1', j: 'tt', judul: 'Sentralisasi November', pihak: 'Sinode', awal: 2400000, awalCat: 'Dari 4 persembahan · disimpan di Bank BNI ··4821', tempo: '', entri: [{ n: 'Penyaluran', no: 'BKU-2026-0136', t: '07/11/2026', cat: 'bukan Belanja', jm: 1000000 }] },
+      { id: 'tt2', j: 'tt', judul: 'Persembahan khusus', pihak: 'Wilayah', awal: 450000, awalCat: 'Dari persembahan khusus 9 November · disimpan di Kas', tempo: '', entri: [] },
+      { id: 'pb1', j: 'pb', judul: 'Alat kebersihan gereja', pihak: 'Ibu Selvie Kalalo', awal: 185000, awalCat: 'Nota 12/11/2026 terlampir · belum masuk saldo', tempo: '', entri: [] },
+      { id: 'pb2', j: 'pb', judul: 'Bensin antar jemput', pihak: 'Sdr. Rivo Mandagi', awal: 120000, awalCat: 'Nota 02/11/2026 terlampir', tempo: '', entri: [{ n: 'Penggantian biaya dibayar', no: 'BKU-2026-0134', t: '05/11/2026', cat: 'Belanja, dicatat satu kali', jm: 120000 }] }
+    ] };
+  LBL = {
+    um: { tab: 'Uang Muka', pihak: 'Diberikan kepada', awal: 'Uang Muka diberikan', sisa: 'Sisa belum dipertanggungjawabkan', cat: 'Uang muka bukan Belanja saat diberikan.', st: ['Belum dipertanggungjawabkan', 'Sebagian dipertanggungjawabkan', 'Sudah dipertanggungjawabkan'], kaki: 'Pertanggungjawaban yang diterima menjadi Belanja. Pengembalian sisa kembali ke Kas dan bukan Pendapatan.' },
+    tt: { tab: 'Titipan', pihak: 'Titipan untuk', awal: 'Terkumpul', sisa: 'Sisa belum disalurkan', cat: 'Uang titipan untuk pihak lain, bukan Pendapatan dan bukan Belanja.', st: ['Belum disalurkan', 'Sebagian disalurkan', 'Sudah disalurkan'], kaki: 'Sentralisasi dari uang milik sendiri dicatat sebagai Belanja biasa, tidak di sini.' },
+    pb: { tab: 'Penggantian biaya', pihak: 'Dibayar kepada', awal: 'Klaim', sisa: 'Belum dibayar', cat: 'Klaim belum masuk saldo sampai dibayar.', st: ['Belum dibayar', 'Belum dibayar', 'Sudah dibayar'], kaki: 'Mengecek klaim tidak mengubah saldo. Pembayarannya mencatat Belanja satu kali.' }
+  };
+  AKSI = {
+    um: [{ id: 'tj', n: 'Catat pertanggungjawaban', cat: 'Belanja dari uang muka, dengan nota.', entri: 'Pertanggungjawaban uang muka', ecat: 'menjadi Belanja', tombol: 'Bukukan pertanggungjawaban', lebih: 'Kelebihan belanja dicatat sebagai Penggantian biaya.', utama: true }, { id: 'kb', n: 'Catat pengembalian sisa', cat: 'Uang kembali ke Kas. Bukan Pendapatan.', entri: 'Pengembalian sisa uang muka', ecat: 'kembali ke Kas', tombol: 'Bukukan pengembalian', lebih: '' }],
+    tt: [{ id: 'sl', n: 'Salurkan', cat: 'Menyerahkan titipan kepada yang berhak. Bukan Belanja.', entri: 'Penyaluran', ecat: 'bukan Belanja', tombol: 'Bukukan penyaluran', lebih: '', utama: true }],
+    pb: [{ id: 'ck', n: 'Cek klaim', cek: true }, { id: 'by', n: 'Bayar penggantian biaya', cat: 'Membayar klaim penuh dan mencatat Belanja satu kali.', entri: 'Penggantian biaya dibayar', ecat: 'Belanja, dicatat satu kali', tombol: 'Bukukan pembayaran', lebih: '', kunci: true, utama: true }]
+  };
+  rp(n) { var s = String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return (n < 0 ? '−' : '') + 'Rp' + s; }
+  componentWillUnmount() { clearInterval(this.t); }
+  sisa(k) { return k.awal - k.entri.reduce(function (a, e) { return a + e.jm; }, 0); }
+  rv0() {
+    var self = this, s = this.state, rp = this.rp, L = this.LBL[s.tab];
+    var st = function (k) { var x = self.sisa(k), l = self.LBL[k.j].st; return x === 0 ? l[2] : (k.entri.length ? l[1] : l[0]); };
+    var list = s.kasus.filter(function (k) { return k.j === s.tab; });
+    var buka = list.filter(function (k) { return self.sisa(k) > 0; });
+    var cur = s.kasus.filter(function (k) { return k.id === s.buka; })[0];
+    var csisa = cur ? this.sisa(cur) : 0;
+    var akt = cur ? this.AKSI[cur.j].filter(function (a) { return a.id === s.sheet; })[0] : null;
+    var isi = parseInt(s.isi || '0', 10), salah = isi <= 0 || isi > csisa;
+    var sudahCek = cur ? !!s.cek[cur.id] : false;
+    var aksi = (cur && csisa > 0) ? this.AKSI[cur.j].filter(function (a) { return !(a.cek && sudahCek) && !(a.id === 'by' && !sudahCek); }).map(function (a) {
+      var u = a.utama && !(cur.j === 'pb' && !sudahCek) || (a.cek && !sudahCek);
+      return { n: a.cek ? 'Cek klaim · tidak mengubah saldo' : a.n, bg: u ? '#0E5A63' : '#FFFFFF', fg: u ? '#FFFFFF' : '#13201C', bd: u ? '0' : '1.5px solid #13201C', buka: function () { if (a.cek) { var c = Object.assign({}, s.cek); c[cur.id] = true; self.setState({ cek: c }); return; } self.setState({ sheet: a.id, isi: String(csisa) }); } };
+    }) : [];
+    return {
+      isDaftar: !s.buka, isRinci: !!s.buka, sheet: !!akt, L: L,
+      tab: ['um', 'tt', 'pb'].map(function (t) { var on = s.tab === t; return { n: self.LBL[t].tab, on: on, bg: on ? '#13201C' : '#FFFFFF', fg: on ? '#FFFFFF' : '#13201C', bd: on ? '#13201C' : '#7F8C86', pick: function () { self.setState({ tab: t }); } }; }),
+      bukaN: buka.length, totalSisa: rp(buka.reduce(function (a, k) { return a + self.sisa(k); }, 0)),
+      kasus: list.map(function (k) { var x = self.sisa(k), beres = x === 0; return { judul: k.judul, pihak: k.pihak, sisa: rp(x), pct: Math.round((k.awal - x) / k.awal * 100) + '%', bg: beres ? 'transparent' : '#FFFFFF', bd: beres ? '1px solid #DDE2DB' : '1px solid #7F8C86', status: st(k) + (k.tempo && !beres ? (k.lewat ? ' · Lewat jatuh tempo (jatuh tempo: ' + k.tempo + ')' : ' · jatuh tempo ' + k.tempo) : ''), fw: (k.lewat && !beres) ? 700 : 400, buka: function () { clearInterval(self.t); self.setState({ buka: k.id, tampil: x }); } }; }),
+      r: cur ? { judul: cur.judul, pihak: cur.pihak, awal: rp(cur.awal), awalCat: cur.awalCat + (cur.j === 'pb' && sudahCek && csisa > 0 ? ' · klaim sudah dicek' : ''), pct: Math.round((cur.awal - csisa) / cur.awal * 100) + '%',
+        statusPendek: st(cur), sbg: csisa === 0 ? '#0E5A63' : 'transparent', sfg: csisa === 0 ? '#FFFFFF' : '#43514C', sbd: csisa === 0 ? '1.5px solid #0E5A63' : '1.5px solid #5E6A66',
+        tempo: (cur.tempo && csisa > 0) ? (cur.lewat ? 'Lewat jatuh tempo (jatuh tempo: ' + cur.tempo + ')' : 'Jatuh tempo ' + cur.tempo) : '', tfw: cur.lewat ? 700 : 400,
+        entri: cur.entri.map(function (e) { return Object.assign({}, e, { rp: '− ' + rp(e.jm) }); }) } : { entri: [] },
+      sisaTampil: rp(s.tampil), sisaRp: rp(csisa), aksi: aksi, tuntas: !!cur && csisa === 0,
+      s: akt || {}, isiFmt: s.isi ? s.isi.replace(/\B(?=(\d{3})+(?!\d))/g, '.') : '', isiLebih: isi > csisa, isiSalah: salah,
+      simpanBg: salah ? '#DDE2DB' : '#0E5A63', simpanFg: salah ? '#5E6A66' : '#FFFFFF',
+      keDaftar: function () { clearInterval(self.t); self.setState({ buka: null, sheet: null }); },
+      tutupSheet: function () { self.setState({ sheet: null }); },
+      onIsi: function (e) { if (akt && akt.kunci) return; self.setState({ isi: e.target.value.replace(/\D/g, '').replace(/^0+/, '').slice(0, 11) }); },
+      simpan: function () {
+        if (salah || !akt) return;
+        var dari = csisa, ke = csisa - isi, i = 0;
+        var kasus = s.kasus.map(function (k) { return k.id !== cur.id ? k : Object.assign({}, k, { entri: k.entri.concat([{ n: akt.entri, no: 'BKU-2026-0' + s.nomor, t: '16/11/2026', cat: akt.ecat, jm: isi }]) }); });
+        self.setState({ kasus: kasus, sheet: null, nomor: s.nomor + 1 });
+        clearInterval(self.t);
+        self.t = setInterval(function () { i++; var k = 1 - Math.pow(1 - i / 22, 3); self.setState({ tampil: Math.round(dari + (ke - dari) * k) }); if (i >= 22) clearInterval(self.t); }, 30);
+      }
+    };
+  }
+  tukarJk(o, d) {
+    var self = this, ganti = function (s) { var t = s.match(/\d\d\/\d\d\/\d{4}/g) || []; return s.indexOf('Meiske L.') < 0 || t.some(function (x) { return x !== '16/11/2026'; }) ? s : s.split('Meiske L.').join('Yanti Sumual, Operator'); };
+    if (d > 5 || !o || typeof o !== 'object') return o;
+    Object.keys(o).forEach(function (k) { var v = o[k]; if (typeof v === 'string') o[k] = ganti(v); else if (v && typeof v === 'object') self.tukarJk(v, d + 1); });
+    return o;
+  }
+  renderVals() {
+    var V = this.rv0(), jk = !!this.props.jabatanKosong;
+    if (jk && false) this.tukarJk(V, 0);
+    V.jk = jk; V.tjk = !jk; V.plk = jk ? 'Yanti Sumual, Operator' : 'Meiske L.'; V.plk2 = jk ? 'Yanti Sumual, Operator (menjalankan jabatan kosong Bendahara Jemaat)' : 'Meiske L.';
+    return V;
+  }
+}
+</script>
+</body>
+</html>

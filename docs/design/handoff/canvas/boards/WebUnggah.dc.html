@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Unggah dokumen pendukung (web)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+input{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes isi{from{width:0}to{width:100%}}
+@keyframes titik{0%,100%{opacity:.25}50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+.pn-c{display:none}
+@media (max-width:860px){
+.pn{flex:1 1 100%!important;flex-direction:row!important;flex-wrap:wrap;align-items:center;gap:0 12px!important;padding:8px 16px!important;border-right:0!important;border-bottom:1px solid #DDE2DB}
+.pn-c{display:flex;align-items:center;appearance:none;-webkit-appearance:none;min-height:44px;margin:0 0 0 auto;padding:0 16px;border-radius:14px;border:1.5px solid #13201C;background:#FFFFFF;font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+.pn-c::before{content:"Menu"}
+.pn-c:checked{background:#13201C;color:#FFFFFF}
+.pn-c:checked::before{content:"Tutup menu"}
+.pn-l,.pn-w{display:none;flex:1 1 100%}
+.pn-c:checked~.pn-l{display:block;padding:8px 0}
+.pn-c:checked~.pn-w{display:block;margin-top:0!important;padding-bottom:8px!important}
+}
+</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; flex-wrap: wrap; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 15px; line-height: 1.45">
+
+  <nav class="pn" style="flex: 1 1 220px; box-sizing: border-box; padding: 24px 16px; background: #FFFFFF; border-right: 1px solid #DDE2DB; display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px">
+      <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="none" stroke="#0E5A63" stroke-width="2" stroke-dasharray="3 3"/><path d="M12 2h4a6 6 0 0 1 6 6v8a6 6 0 0 1-6 6h-4z" fill="#0E5A63"/></svg>
+      <div><div style="font-weight: 700; font-size: 18px; line-height: 1.1">palakat</div><div style="font-size: 13px; color: #5E6A66">Jemaat Karunia</div></div>
+    </div>
+    <input type="checkbox" class="pn-c" aria-label="Menu">
+    <div class="pn-l">
+      <sc-for list="{{nav}}" as="n" hint-placeholder-count="7">
+        <a href="{{n.href}}" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 10px; text-decoration: none; font-weight: 600; background: {{n.bg}}; color: {{n.fg}}">{{n.n}}</a>
+      </sc-for>
+    </div>
+    <div class="pn-w" style="margin-top: auto; padding: 12px 8px 0; border-top: 1px solid #DDE2DB; font-size: 13px; color: #43514C"><sc-if value="{{tjk}}" hint-placeholder-val="{{true}}"><div><strong style="color: #13201C">Meiske L.</strong> · Bendahara<br>Wewenang Bendahara aktif</div></sc-if><sc-if value="{{jk}}" hint-placeholder-val="{{false}}"><div><strong style="color: #13201C">Yanti Sumual</strong> · Operator<br>Menjalankan jabatan kosong Bendahara Jemaat</div></sc-if></div>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 28px clamp(16px, 3vw, 40px) 40px; display: flex; flex-direction: column; gap: 20px">
+<sc-if value="{{jk}}" hint-placeholder-val="{{false}}"><div role="status" style="background: #13201C; color: #FFFFFF; border-radius: 14px; padding: 12px 16px; font-size: 14px"><strong>Anda menjalankan jabatan kosong Bendahara Jemaat sejak 16/11/2026 08.15.</strong> <span style="color: #D5DDD8">Setiap tindakan dicatat sebagai dijalankan oleh Operator Yanti Sumual.</span></div></sc-if>
+<div><a href="WebDokumen.dc.html" style="font-size: 14px; font-weight: 600">Dokumen pendukung</a><h1 style="margin: 2px 0 0; font-size: 26px; font-weight: 700">Unggah dokumen pendukung</h1><div style="font-size: 14px; color: #43514C">BKU-2026-0143 · Sewa sound system · Rp600.000</div></div>
+    <div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+      <div style="flex: 999 1 460px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+        <div style="border: 1.5px dashed #808D87; border-radius: 14px; border-radius: 16px; padding: 32px 20px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#43514C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V5M7.5 9.5L12 5l4.5 4.5M5 19h14"/></svg><div style="font-weight: 700">Tarik file ke sini</div><div style="font-size: 14px; color: #43514C">Foto nota, tangkapan layar bukti transfer, atau PDF.</div><sc-if value="{{bisa}}" hint-placeholder-val="{{true}}"><button onClick="{{tambah}}" style="min-height: 46px; padding: 0 20px; border-radius: 12px; border: 0; background: #13201C; color: #FFFFFF; font-weight: 700">Pilih file</button></sc-if><sc-if value="{{penuh}}" hint-placeholder-val="{{false}}"><div style="font-size: 13px; color: #5E6A66">Contoh ini berhenti di tiga file.</div></sc-if></div>
+        <sc-if value="{{kosong}}" hint-placeholder-val="{{true}}"><div style="font-size: 14px; color: #43514C">Belum ada file. Dokumen pendukung transaksi ini masih “Wajib, belum ada”.</div></sc-if>
+        <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 0 16px"><sc-for list="{{files}}" as="f" hint-placeholder-count="1"><div style="display: flex; align-items: center; gap: 14px; padding: 12px 0; border-top: {{f.garis}}; animation: muncul .3s"><span style="flex: none; width: 44px; height: 56px; background: #FBFAF6; border: 1px solid #7F8C86; border-radius: 4px; display: flex; flex-direction: column; justify-content: center; gap: 4px; padding: 0 7px; box-sizing: border-box"><span style="height: 2px; background: #13201C"></span><span style="height: 2px; background: #808D87"></span><span style="height: 2px; background: #808D87; width: 70%"></span><span style="height: 2px; background: #13201C; width: 50%; align-self: flex-end"></span></span><div style="flex: 1; min-width: 0"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; font-weight: 600">{{f.n}}</div><div style="font-size: 14px; color: {{f.fg}}; font-weight: {{f.fw}}">{{f.t}} <span style="color: #5E6A66; font-weight: 400">· {{f.u}}</span></div><sc-if value="{{f.jalan}}" hint-placeholder-val="{{false}}"><div style="height: 6px; border-radius: 3px; background: #DDE2DB; overflow: hidden; margin-top: 6px"><div style="height: 100%; background: #0E5A63; animation: isi 1.5s linear both"></div></div></sc-if></div><sc-if value="{{f.gagal}}" hint-placeholder-val="{{false}}"><button onClick="{{f.coba}}" style="flex: none; min-height: 44px; padding: 0 14px; border-radius: 12px; border: 1.5px solid #A63C1C; background: #FFFFFF; color: #A63C1C; font-weight: 700">Coba lagi</button></sc-if><sc-if value="{{f.lampir}}" hint-placeholder-val="{{false}}"><a href="WebLihatDokumen.dc.html" style="flex: none; min-height: 44px; display: flex; align-items: center; font-weight: 700">Lihat file</a></sc-if></div></sc-for></div>
+      </div>
+      <aside style="flex: 1 1 340px; min-width: 0; background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 10px"><div><div style="font-size: 14px; color: #43514C">Dokumen pendukung · {{jumlah}}</div><div style="font-size: 20px; font-weight: 700; color: #A63C1C">{{stTeks}}</div></div><div style="font-size: 14px; color: #43514C">Terlampir bukan terverifikasi. Tutup buku menunggu Terverifikasi atau Dikecualikan.</div><div style="font-size: 14px; color: #43514C">File yang gagal diunggah tidak pernah terbaca sebagai terlampir. Coba lagi tidak membuat salinan ganda.</div><sc-if value="{{adaLampir}}" hint-placeholder-val="{{false}}"><a href="WebDokumen.dc.html" style="min-height: 46px; padding: 0 20px; border-radius: 12px; border: 0; background: #0E5A63; color: #FFFFFF; font-weight: 700; display: flex; align-items: center; justify-content: center; text-decoration: none; animation: muncul .3s">Lanjut ke verifikasi</a></sc-if></aside>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"jabatanKosong":{"editor":"boolean","default":false},"gagalUnggah":{"editor":"boolean","default":false},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  rp(n) { var s = String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return (n < 0 ? '−' : '') + 'Rp' + s; }
+  navVals() { return [['Beranda', 'WebBeranda.dc.html'], ['Transaksi', 'WebTransaksi.dc.html'], ['Uang Muka dan Titipan', 'WebKewajiban.dc.html'], ['Rekonsiliasi', 'WebRekonsiliasi.dc.html'], ['Bulan dan tutup buku', 'WebTutupBuku.dc.html'], ['Laporan', 'WebPaketLaporan.dc.html'], ['Pengaturan', 'WebPengaturan.dc.html']].map(function (n, i) { return { n: n[0], href: n[1], bg: i === 1 ? '#13201C' : 'transparent', fg: i === 1 ? '#FFFFFF' : '#13201C' }; }); }
+  state = { files: [], sudahGagal: false };
+  vals() {
+    var self = this, s = this.state, gagal = this.props.gagalUnggah ?? false;
+    var N = [['nota-sewa-sound.jpg', '1,2 MB'], ['kuitansi-cv-nada-prima.pdf', '340 KB'], ['tanda-terima.jpg', '880 KB']];
+    var set = function (i, st) { var f = self.state.files.slice(); f[i] = Object.assign({}, f[i], { st: st }); self.setState({ files: f }); };
+    var kirim = function (i, bolehGagal) { setTimeout(function () { var g = bolehGagal && gagal && !self.state.sudahGagal; if (g) self.setState({ sudahGagal: true }); set(i, g ? 'gagal' : 'lampir'); }, 1500); };
+    var lampir = s.files.filter(function (f) { return f.st === 'lampir'; }).length;
+    var T = { unggah: ['Sedang diunggah…', '#43514C', 500], gagal: ['Gagal diunggah · belum terlampir', '#A63C1C', 700], lampir: ['Terlampir', '#13201C', 600] };
+    return {
+      penuh: s.files.length >= N.length, bisa: s.files.length < N.length,
+      tambah: function () { var i = s.files.length; if (i >= N.length) return; self.setState({ files: s.files.concat([{ n: N[i][0], u: N[i][1], st: 'unggah' }]) }); kirim(i, true); },
+      files: s.files.map(function (f, i) { return { n: f.n, u: f.u, t: T[f.st][0], fg: T[f.st][1], fw: T[f.st][2], jalan: f.st === 'unggah', gagal: f.st === 'gagal', lampir: f.st === 'lampir', garis: i ? '1px solid #DDE2DB' : '0', coba: function () { set(i, 'unggah'); kirim(i, false); } }; }),
+      kosong: s.files.length === 0, stTeks: lampir ? 'Diunggah, belum diverifikasi' : 'Wajib, belum ada', jumlah: lampir ? lampir + ' file terlampir' : 'belum ada file terlampir', adaLampir: lampir > 0
+    };
+  }
+
+  rv0() { var V = this.vals(); if (this.navVals) V.nav = this.navVals(); return V; }
+  tukarJk(o, d) {
+    var self = this, ganti = function (s) { var t = s.match(/\d\d\/\d\d\/\d{4}/g) || []; return s.indexOf('Meiske L.') < 0 || t.some(function (x) { return x !== '16/11/2026'; }) ? s : s.split('Meiske L.').join('Yanti Sumual, Operator'); };
+    if (d > 5 || !o || typeof o !== 'object') return o;
+    Object.keys(o).forEach(function (k) { var v = o[k]; if (typeof v === 'string') o[k] = ganti(v); else if (v && typeof v === 'object') self.tukarJk(v, d + 1); });
+    return o;
+  }
+  renderVals() {
+    var V = this.rv0(), jk = !!this.props.jabatanKosong;
+    if (jk && false) this.tukarJk(V, 0);
+    V.jk = jk; V.tjk = !jk; V.plk = jk ? 'Yanti Sumual, Operator' : 'Meiske L.'; V.plk2 = jk ? 'Yanti Sumual, Operator (menjalankan jabatan kosong Bendahara Jemaat)' : 'Meiske L.';
+    return V;
+  }
+}
+</script>
+</body>
+</html>

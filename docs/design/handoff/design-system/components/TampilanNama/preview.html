@@ -1,0 +1,29 @@
+<!-- @dsCard group="Platform" height=311 width=412 -->
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>TampilanNama — pratinjau</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+html, body { margin: 0; }
+body { background: var(--kertas); }
+/* tanah: komponen selalu tampil di atas kertas, apa pun latar bingkai pratinjau */
+.tanah { background: var(--kertas); color: var(--tinta); font-family: var(--font-sans); font-size: 15px; line-height: 1.45; padding: var(--s20); min-height: 100vh; box-sizing: border-box; }
+.pk { display: flex; flex-direction: column; gap: 10px; max-width: 372px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+input, textarea { color: inherit; }
+button:focus-visible, a:focus-visible { outline: 2px solid var(--laut); outline-offset: 2px; }
+a { color: var(--laut); }
+@media (prefers-reduced-motion: reduce) { * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+</style>
+</head>
+<body>
+<div class="tanah"><div class="pk">
+<div style="background: var(--permukaan); border: 1px solid var(--garis); border-radius: var(--radius-kartu); padding: 10px 14px; display: flex; align-items: center; gap: 12px; font-size: 15px"><span style="width: 22px; height: 22px; flex: none; border-radius: 50%; border: 6px solid var(--tinta); box-sizing: border-box"></span><span style="flex: 1">Keluarga + Kolom</span><span style="font-size: 13px; color: var(--tinta3)">Kel. Wenas-Lasut — Kolom 7</span></div>
+<div style="background: var(--permukaan); border: 1px solid var(--garis); border-radius: var(--radius-kartu); padding: 10px 14px; display: flex; align-items: center; gap: 12px; font-size: 15px"><span style="width: 22px; height: 22px; flex: none; border-radius: 50%; border: 1.5px solid var(--tinta3); box-sizing: border-box"></span><span style="flex: 1">Tanpa nama</span><span style="font-size: 13px; color: var(--tinta3)">Tanpa nama</span></div>
+<div style="background: var(--lautLembut); border-radius: var(--radius-kartu); padding: 12px 14px"><div style="font-size: 13px; color: var(--tinta2)">Lihat tampilan nama saya</div><div>Syukur HUT pernikahan: <strong>Kel. Wenas-Lasut — Kolom 7</strong></div></div>
+<div style="border: 1.5px dashed var(--putus); border-radius: var(--radius-kartu); padding: 12px 14px; font-size: 14px"><strong>Masih mudah dikenali.</strong> <span style="color: var(--tinta2)">Kolom 11 hanya punya satu anggota Remaja.</span></div>
+</div></div>
+</body>
+</html>

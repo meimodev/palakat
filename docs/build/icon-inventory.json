@@ -1,0 +1,218 @@
+[
+ {
+  "svg": "<rect x=\"2\" y=\"2\" width=\"20\" height=\"20\" rx=\"6\" fill=\"none\" stroke=\"#0E5A63\" stroke-width=\"2\" stroke-dasharray=\"3 3\"/><path d=\"M12 2h4a6 6 0 0 1 6 6v8a6 6 0 0 1-6 6h-4z\" fill=\"#0E5A63\"/>",
+  "count": 90,
+  "boards": [
+   "Awal.dc.html",
+   "Main.dc.html",
+   "Masuk.dc.html",
+   "TabBeranda.dc.html",
+   "TabCatat.dc.html",
+   "TabTransaksi.dc.html"
+  ]
+ },
+ {
+  "svg": "<path d=\"M9 6l6 6-6 6\"/>",
+  "count": 50,
+  "boards": [
+   "AlurBeranda.dc.html",
+   "AntreanVerifikasi.dc.html",
+   "Awal.dc.html",
+   "BerandaJabatan.dc.html",
+   "CariOrang.dc.html",
+   "DokumenGereja.dc.html"
+  ]
+ },
+ {
+  "svg": "<path d=\"M4 11l8-7 8 7v9H4z\"/>",
+  "count": 2,
+  "boards": [
+   "Lainnya.dc.html",
+   "Main.dc.html"
+  ]
+ },
+ {
+  "svg": "<path d=\"M5 7h14M5 12h14M5 17h9\"/>",
+  "count": 2,
+  "boards": [
+   "Lainnya.dc.html",
+   "Main.dc.html"
+  ]
+ },
+ {
+  "svg": "<path d=\"M12 5v14M5 12h14\"/>",
+  "count": 2,
+  "boards": [
+   "Lainnya.dc.html",
+   "Main.dc.html"
+  ]
+ },
+ {
+  "svg": "<rect x=\"4\" y=\"5\" width=\"16\" height=\"15\" rx=\"3\"/><path d=\"M4 10h16M9 3v4M15 3v4\"/>",
+  "count": 2,
+  "boards": [
+   "Lainnya.dc.html",
+   "Main.dc.html"
+  ]
+ },
+ {
+  "svg": "<circle cx=\"5\" cy=\"12\" r=\"2\"/><circle cx=\"12\" cy=\"12\" r=\"2\"/><circle cx=\"19\" cy=\"12\" r=\"2\"/>",
+  "count": 2,
+  "boards": [
+   "Lainnya.dc.html",
+   "Main.dc.html"
+  ]
+ },
+ {
+  "svg": "<path d=\"M15 6l-6 6 6 6\"/>",
+  "count": 115,
+  "boards": [
+   "AIBulan.dc.html",
+   "AIFoto.dc.html",
+   "AIMataAnggaran.dc.html",
+   "AkunSaya.dc.html",
+   "AlihPeruntukan.dc.html",
+   "AlurAnggota.dc.html"
+  ]
+ },
+ {
+  "svg": "<path d=\"M4 8h3l2-3h6l2 3h3v11H4z\"/><circle cx=\"12\" cy=\"13\" r=\"3.5\"/>",
+  "count": 1,
+  "boards": [
+   "Main.dc.html"
+  ]
+ },
+ {
+  "svg": "<circle cx=\"12\" cy=\"12\" r=\"11\" fill=\"#0E5A63\"/><path d=\"M7 12.5l3.2 3.2L17 9\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>",
+  "count": 7,
+  "boards": [
+   "Main.dc.html",
+   "TabCatat.dc.html",
+   "TutupBuku.dc.html",
+   "WebCatat.dc.html",
+   "WebTutupBuku.dc.html"
+  ]
+ },
+ {
+  "svg": "<rect x=\"1\" y=\"1\" width=\"22\" height=\"22\" rx=\"6\" fill=\"#A63C1C\"/><path d=\"M12 6.5v7M12 17v.5\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2.4\" stroke-linecap=\"round\"/>",
+  "count": 4,
+  "boards": [
+   "Main.dc.html",
+   "TabCatat.dc.html",
+   "TutupBuku.dc.html",
+   "WebCatat.dc.html"
+  ]
+ },
+ {
+  "svg": "<circle cx=\"12\" cy=\"12\" r=\"10\" fill=\"none\" stroke=\"#5E6A66\" stroke-width=\"2\" stroke-dasharray=\"3 3\"/>",
+  "count": 3,
+  "boards": [
+   "Main.dc.html",
+   "TabCatat.dc.html",
+   "WebCatat.dc.html"
+  ]
+ },
+ {
+  "svg": "<path d=\"M9 15l6-6M10 6l1-1a5 5 0 0 1 7 7l-1 1M14 18l-1 1a5 5 0 0 1-7-7l1-1\"/>",
+  "count": 2,
+  "boards": [
+   "TutupBuku.dc.html",
+   "WebRekonsiliasi.dc.html"
+  ]
+ },
+ {
+  "svg": "<circle cx=\"28\" cy=\"28\" r=\"24\" fill=\"none\" stroke=\"#DDE2DB\" stroke-width=\"4\"/><path d=\"M28 4a24 24 0 0 1 24 24\" fill=\"none\" stroke=\"#13201C\" stroke-width=\"4\" stroke-linecap=\"round\"/>",
+  "count": 2,
+  "boards": [
+   "TutupBuku.dc.html",
+   "WebTutupBuku.dc.html"
+  ]
+ },
+ {
+  "svg": "<circle cx=\"52\" cy=\"52\" r=\"46\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"3\" stroke-dasharray=\"290\" transform=\"rotate(-90 52 52)\" style=\"animation: lingkar .9s .3s ease-out both\"/><g style=\"transform-origin: 52px 52px; animation: cap .5s 1.1s cubic-bezier(.2,.8,.2,1) both\"><rect x=\"35\" y=\"48\" width=\"34\" height=\"26\" rx=\"5\" fill=\"#FFFFFF\"/><path d=\"M41 48v-8a11 11 0 0 1 22 0v8\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"4\" stroke-linecap=\"round\"/></g>",
+  "count": 2,
+  "boards": [
+   "TutupBuku.dc.html",
+   "WebTutupBuku.dc.html"
+  ]
+ },
+ {
+  "svg": "<circle cx=\"44\" cy=\"44\" r=\"38\" fill=\"none\" stroke=\"#808D87\" stroke-width=\"3\" stroke-dasharray=\"5 6\"/>",
+  "count": 1,
+  "boards": [
+   "Awal.dc.html"
+  ]
+ },
+ {
+  "svg": "<circle cx=\"44\" cy=\"44\" r=\"38\" fill=\"none\" stroke=\"#13201C\" stroke-width=\"3\" stroke-dasharray=\"5 6\"/>",
+  "count": 1,
+  "boards": [
+   "Awal.dc.html"
+  ]
+ },
+ {
+  "svg": "<circle cx=\"44\" cy=\"44\" r=\"38\" fill=\"#0E5A63\" stroke=\"#0E5A63\" stroke-width=\"3\" stroke-dasharray=\"239\" transform=\"rotate(-90 44 44)\" style=\"animation: lingkar .7s ease-out both\"/><path d=\"M29 45l10 10 20-21\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" style=\"animation: pudar .3s .5s both\"/>",
+  "count": 2,
+  "boards": [
+   "Awal.dc.html",
+   "HitungKas.dc.html"
+  ]
+ },
+ {
+  "svg": "<path d=\"M5 12.5l4.5 4.5L19 7.5\"/>",
+  "count": 4,
+  "boards": [
+   "LihatTransaksi.dc.html",
+   "WebLihatTransaksi.dc.html",
+   "WebRekonsiliasi.dc.html"
+  ]
+ },
+ {
+  "svg": "<path d=\"M6 6l12 12M18 6L6 18\"/>",
+  "count": 4,
+  "boards": [
+   "AwalIsian.dc.html",
+   "Bagi.dc.html",
+   "WebAwalIsian.dc.html",
+   "WebBagi.dc.html"
+  ]
+ },
+ {
+  "svg": "<circle cx=\"44\" cy=\"44\" r=\"38\" fill=\"none\" stroke=\"#13201C\" stroke-width=\"6\" stroke-dasharray=\"9 10\"/>",
+  "count": 1,
+  "boards": [
+   "Bendahara.dc.html"
+  ]
+ },
+ {
+  "svg": "<circle cx=\"44\" cy=\"44\" r=\"38\" fill=\"none\" stroke=\"#13201C\" stroke-width=\"4\" stroke-dasharray=\"6 7\"/>",
+  "count": 2,
+  "boards": [
+   "Masuk.dc.html",
+   "WebMasuk.dc.html"
+  ]
+ },
+ {
+  "svg": "<path d=\"M2 8.5a15 15 0 0 1 20 0M5.5 12a10 10 0 0 1 13 0M9 15.5a5 5 0 0 1 6 0M3 3l18 18\"/><circle cx=\"12\" cy=\"19\" r=\"1\" fill=\"#A63C1C\"/>",
+  "count": 2,
+  "boards": [
+   "Sambungan.dc.html",
+   "WebSambungan.dc.html"
+  ]
+ },
+ {
+  "svg": "<circle cx=\"28\" cy=\"28\" r=\"26\" stroke=\"#808D87\" stroke-width=\"2\" stroke-dasharray=\"5 5\"/><rect x=\"18\" y=\"26\" width=\"20\" height=\"15\" rx=\"3\" fill=\"#13201C\"/><path d=\"M22 26v-4a6 6 0 0 1 12 0v4\" stroke=\"#13201C\" stroke-width=\"2.5\"/>",
+  "count": 2,
+  "boards": [
+   "Sambungan.dc.html",
+   "WebSambungan.dc.html"
+  ]
+ },
+ {
+  "svg": "<path d=\"M12 16V5M7.5 9.5L12 5l4.5 4.5M5 19h14\"/>",
+  "count": 1,
+  "boards": [
+   "WebUnggah.dc.html"
+  ]
+ }
+]

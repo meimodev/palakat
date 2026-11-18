@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Laporan (ponsel)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+input{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes masuk{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@keyframes pudar{from{opacity:0}to{opacity:1}}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes isi{from{width:0}to{width:100%}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 16px; line-height: 1.4">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column"><div style="display: flex; align-items: center; gap: 8px; padding: 14px 12px 8px"><a href="BerandaJabatan.dc.html" aria-label="Kembali ke Beranda" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #13201C"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></a><div style="flex: 1"><h1 style="margin: 0; font-size: 18px; font-weight: 700">Laporan</h1><div style="font-size: 14px; color: #43514C; font-size: 13px">Dari data yang sah, disaring menurut jangkauan tiap jabatan</div></div></div><div style="flex: 1; overflow-y: auto; padding: 8px 20px 20px; display: flex; flex-direction: column; gap: 16px"><div style="flex: none; display: flex; flex-direction: column; gap: 16px"><div style="display: flex; flex-wrap: wrap; gap: 8px"><span style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 999px; border: 1.5px solid #7F8C86; background: #FFFFFF; font-weight: 600; font-size: 14px">Jemaat</span><span style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 999px; border: 1.5px solid #7F8C86; background: #FFFFFF; font-weight: 600; font-size: 14px">Kolom</span><span style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 999px; border: 1.5px solid #7F8C86; background: #FFFFFF; font-weight: 600; font-size: 14px">BIPRA</span><span style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 999px; border: 1.5px solid #7F8C86; background: #FFFFFF; font-weight: 600; font-size: 14px">Komisi</span><span style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 999px; border: 1.5px solid #7F8C86; background: #FFFFFF; font-weight: 600; font-size: 14px">Panitia</span><span style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 999px; border: 1.5px solid #7F8C86; background: #FFFFFF; font-weight: 600; font-size: 14px">Peruntukan</span><span style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 999px; border: 1.5px solid #7F8C86; background: #FFFFFF; font-weight: 600; font-size: 14px">Kas/Bank</span></div><sc-if value="{{adaStat}}" hint-placeholder-val="{{false}}"><div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; align-items: start"><div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px"><div style="font-size: 13px; color: #5E6A66">Anggota aktif</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 26px; font-weight: 500">{{s0}}</div><div style="font-size: 13px; color: #5E6A66">{{k0t}}</div></div><div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px"><div style="font-size: 13px; color: #5E6A66">Keluarga</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 26px; font-weight: 500">{{s1}}</div><div style="font-size: 13px; color: #5E6A66">dengan riwayat Kolom</div></div><div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px"><div style="font-size: 13px; color: #5E6A66">Peristiwa diverifikasi · November 2026</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 26px; font-weight: 500">{{s2}}</div><div style="font-size: 13px; color: #5E6A66">2 kelahiran · 3 baptisan · 1 pernikahan · 1 kematian</div></div><div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px"><div style="font-size: 13px; color: #5E6A66">Jumlah kehadiran Minggu 15/11/2026</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 26px; font-weight: 500">{{s3}}</div><div style="font-size: 13px; color: #5E6A66">hanya yang Ditetapkan</div></div></div></sc-if><sc-if value="{{adaUang}}" hint-placeholder-val="{{false}}"><div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px"><div style="display: flex; justify-content: space-between; gap: 16px; align-items: center"><span style="font-weight: 700">{{uj}}</span><span style="font-family: 'IBM Plex Mono', monospace; font-weight: 500">{{uv}}</span></div><div style="font-size: 13px; color: #5E6A66">{{uk}}</div></div></sc-if><sc-if value="{{k3}}" hint-placeholder-val="{{false}}"><div style="border: 1.5px dashed #808D87; border-radius: 14px; padding: 12px 14px; font-size: 14px"><strong>Data jemaat dan Jumlah kehadiran belum aktif.</strong> <span style="color: #43514C">Laporannya tidak tampil. Laporan keuangan tetap tersedia.</span></div></sc-if><div style="font-size: 13px; color: #5E6A66">Tidak ada penyusun laporan bebas. Laporan tidak pernah memuat kehadiran per orang atau gabungan kehadiran dengan persembahan.</div></div></div></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"keadaan":{"editor":"enum","options":["Seluruh Jemaat", "Kolom 7", "Panitia Natal 2026", "Modul tidak aktif"],"default":"Seluruh Jemaat"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  rp(n) { var s = String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return (n < 0 ? '−' : '') + 'Rp' + s; }
+  state = { k: null };
+  vals() {
+    var self = this, O = ["Seluruh Jemaat", "Kolom 7", "Panitia Natal 2026", "Modul tidak aktif"], LS = {"draf": "color: #43514C; border: 1.5px dashed #808D87", "garis": "color: #43514C; border: 1.5px solid #5E6A66; background: #FFFFFF", "tinta": "color: #FFFFFF; background: #13201C; border: 1.5px solid #13201C", "laut": "color: #FFFFFF; background: #0E5A63; border: 1.5px solid #0E5A63", "lautg": "color: #0E5A63; background: #FFFFFF; border: 1.5px solid #0E5A63", "bata": "color: #A63C1C; background: #FFFFFF; border: 1.5px solid #A63C1C", "abu": "color: #43514C; background: #DDE2DB; border: 1.5px solid #DDE2DB"};
+    var k = this.state.k ?? (this.props.keadaan ?? O[0]); var ki = Math.max(0, O.indexOf(k));
+    var V = { keadaan: O[ki] };
+    O.forEach(function (o, i) { V['k' + i] = i === ki; V['go' + i] = function () { self.setState({ k: o }); }; });
+    var web = false, PS = ["AlurAnggota", "AlurBeranda", "AlurDana", "AlurIbadah", "AlurModul", "AlurNama", "AlurPanitia", "AlurPanitiaBaru", "AlurPelimpahan", "AlurPenugasan", "AlurPeristiwa", "AntreanVerifikasi", "CabutIzin", "Ibadah", "Kehadiran", "KeuanganUnit", "KonfirmasiKeluarga", "Modul", "Panitia", "Pelimpahan", "PemberiPersetujuan", "Peristiwa", "PermintaanDana", "PermohonanAnggota", "PersembahanSaya", "TampilanNama"], hal = function (n) { return (web && PS.indexOf(n) < 0 ? (n === 'Main' ? 'WebBeranda' : 'Web' + n) : n) + '.dc.html'; };
+    var baris = function (a) { return a.map(function (r) { return { j: r[0], s: r[1], l: r[2] || '', ls: LS[r[3] || 'garis'], h: r[4] ? hal(r[4]) : hal('LaporanLintas') }; }); };
+    var E = (function () { var S = [['1.284', '412', '7', '412', 'di 12 Kolom'], ['96', '31', '2', '38', 'Kolom 7 saja'], ['—', '—', '—', '—', '']][Math.min(ki, 2)];
+      var U = [['Saldo buku semua Kas/Bank', 'Rp38.415.000', 'Keuangan · hanya yang sudah dibukukan'], ['Saldo buku peruntukan Kolom 7', 'Rp1.240.000', 'Keuangan unit · Kas Kolom 7'], ['Saldo buku peruntukan Panitia Natal', 'Rp4.350.000', 'Panitia · tahap Aktif'], ['Saldo buku semua Kas/Bank', 'Rp38.415.000', 'Keuangan · hanya yang sudah dibukukan']][ki];
+      return { adaStat: ki < 2, adaUang: true, s0: S[0], s1: S[1], s2: S[2], s3: S[3], k0t: S[4], uj: U[0], uv: U[1], uk: U[2] }; })() || {};
+    for (var n in E) V[n] = E[n];
+    return V;
+  }
+
+  renderVals() { var V = this.vals(); if (this.navVals) V.nav = this.navVals(); return V; }
+}
+</script>
+</body>
+</html>

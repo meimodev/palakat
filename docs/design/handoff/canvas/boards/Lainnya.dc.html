@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Lainnya dan pengaturan (ponsel)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+input{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes masuk{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@keyframes naik{from{transform:translateY(100%)}to{transform:none}}
+@keyframes pudar{from{opacity:0}to{opacity:1}}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 16px; line-height: 1.4">
+
+<sc-if value="{{isHub}}" hint-placeholder-val="{{true}}">
+<div style="position: absolute; inset: 0 0 84px 0; overflow-y: auto; padding: 24px 20px 28px; display: flex; flex-direction: column; gap: 18px; animation: pudar .2s">
+  <h1 style="margin: 0; font-size: 22px; font-weight: 700">Lainnya</h1>
+  <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 2px">
+    <div style="font-weight: 700; font-size: 17px">Jemaat Karunia</div>
+    <div style="font-size: 14px; color: #43514C">WITA · tahun buku mulai 1 Januari (tidak dapat diubah)</div>
+    <div style="font-size: 14px; color: #43514C">Tanggal mulai pencatatan 15 September 2026</div>
+  </div>
+
+  <div style="font-size: 13px; color: #5E6A66">Pengaturan tidak diubah di tempat. Setiap perubahan berlaku mulai bulan tertentu dan tidak mengubah transaksi yang sudah dibukukan.</div>
+
+  <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 0 16px">
+    <button onClick="{{keKas}}" style="display: flex; align-items: center; gap: 12px; width: 100%; min-height: 60px; background: none; border: 0; padding: 0"><div style="flex: 1"><div style="font-weight: 600; font-size: 15px">Kas/Bank</div><div style="font-size: 13px; color: #5E6A66">{{kasRingkas}}</div></div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E6A66" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+    <div style="min-height: 60px; display: flex; flex-direction: column; justify-content: center; border-top: 1px solid #DDE2DB"><div style="font-weight: 600; font-size: 15px">Peruntukan</div><div style="font-size: 13px; color: #5E6A66">Umum Jemaat · Diakonia · Pembangunan</div></div>
+    <div style="min-height: 60px; display: flex; flex-direction: column; justify-content: center; border-top: 1px solid #DDE2DB"><div style="font-weight: 600; font-size: 15px">Lingkup</div><div style="font-size: 13px; color: #5E6A66">Jemaat · Kolom 3 · BIPRA Pemuda · Komisi Diakonia · Panitia Natal</div></div>
+    <a href="MataAnggaran.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 60px; border-top: 1px solid #DDE2DB; text-decoration: none; color: #13201C"><div style="flex: 1"><div style="font-weight: 600; font-size: 15px">Mata Anggaran</div><div style="font-size: 13px; color: #5E6A66">Versi 2026.1 diterbitkan · versi 2026.2 masih draf</div></div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E6A66" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a>
+    <div style="min-height: 60px; display: flex; flex-direction: column; justify-content: center; border-top: 1px solid #DDE2DB"><div style="font-weight: 600; font-size: 15px">Seri No. Bukti</div><div style="font-size: 13px; color: #5E6A66"><span style="font-family: 'IBM Plex Mono', monospace">BKU-2026-0001</span> Biasa · <span style="font-family: 'IBM Plex Mono', monospace">OPN</span> Saldo awal pencatatan · <span style="font-family: 'IBM Plex Mono', monospace">ADJ</span> Penyesuaian</div></div>
+  </div>
+
+  <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 0 16px">
+    <button onClick="{{keAturan}}" style="display: flex; align-items: center; gap: 12px; width: 100%; min-height: 60px; background: none; border: 0; padding: 0"><div style="flex: 1"><div style="font-weight: 600; font-size: 15px">Aturan persetujuan dan dokumen pendukung</div><div style="font-size: 13px; color: #5E6A66">{{aturanRingkas}}</div></div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E6A66" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+    <div style="min-height: 60px; display: flex; flex-direction: column; justify-content: center; border-top: 1px solid #DDE2DB"><div style="font-weight: 600; font-size: 15px">Format laporan</div><div style="font-size: 13px; color: #5E6A66">Bawaan Palakat v1 · Persetujuan format: sudah dicatat</div></div>
+    <a href="Bendahara.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 60px; border-top: 1px solid #DDE2DB; text-decoration: none; color: #13201C"><div style="flex: 1"><div style="font-weight: 600; font-size: 15px">Bendahara dan sesi</div><div style="font-size: 13px; color: #5E6A66">Meiske Lumentut · Wewenang Bendahara aktif</div></div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E6A66" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a>
+    <button onClick="{{keRiwayat}}" style="display: flex; align-items: center; gap: 12px; width: 100%; min-height: 60px; background: none; border: 0; border-top: 1px solid #DDE2DB; padding: 0"><div style="flex: 1"><div style="font-weight: 600; font-size: 15px">Riwayat aktivitas</div><div style="font-size: 13px; color: #5E6A66">Siapa melakukan apa, dan kapan</div></div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E6A66" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+  </div>
+  <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 0 16px"><a href="Laporan.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 60px; border-top: 0; text-decoration: none; color: #13201C"><div style="flex: 1"><div style="font-weight: 600; font-size: 15px">Laporan</div><div style="font-size: 13px; color: #5E6A66">Paket Laporan Bulanan GMIM · F01 sampai F14</div></div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E6A66" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a><a href="Bukti.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 60px; border-top: 1px solid #DDE2DB; text-decoration: none; color: #13201C"><div style="flex: 1"><div style="font-weight: 600; font-size: 15px">Daftar Bukti Kas</div><div style="font-size: 13px; color: #5E6A66">Semua No. Bukti dan celah nomor</div></div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E6A66" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a><a href="Kewajiban.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 60px; border-top: 1px solid #DDE2DB; text-decoration: none; color: #13201C"><div style="flex: 1"><div style="font-weight: 600; font-size: 15px">Uang Muka dan Titipan</div><div style="font-size: 13px; color: #5E6A66">Uang yang masih berjalan</div></div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E6A66" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a><a href="Impor.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 60px; border-top: 1px solid #DDE2DB; text-decoration: none; color: #13201C"><div style="flex: 1"><div style="font-weight: 600; font-size: 15px">Impor</div><div style="font-size: 13px; color: #5E6A66">Dari file Excel atau CSV</div></div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E6A66" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a><a href="Ekspor.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 60px; border-top: 1px solid #DDE2DB; text-decoration: none; color: #13201C"><div style="flex: 1"><div style="font-weight: 600; font-size: 15px">Ekspor data Jemaat</div><div style="font-size: 13px; color: #5E6A66">Salinan lengkap milik Jemaat</div></div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E6A66" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a><a href="Dokumen.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 60px; border-top: 1px solid #DDE2DB; text-decoration: none; color: #13201C"><div style="flex: 1"><div style="font-weight: 600; font-size: 15px">Dokumen pendukung</div><div style="font-size: 13px; color: #5E6A66">Verifikasi, pengecualian, dokumen susulan</div></div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E6A66" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a><a href="Kesiapan.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 60px; border-top: 1px solid #DDE2DB; text-decoration: none; color: #13201C"><div style="flex: 1"><div style="font-weight: 600; font-size: 15px">Pernyataan kesiapan</div><div style="font-size: 13px; color: #5E6A66">Per peruntukan · setelah ada bendahara unit (Putaran 5)</div></div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E6A66" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a><a href="Kejadian.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 60px; border-top: 1px solid #DDE2DB; text-decoration: none; color: #13201C"><div style="flex: 1"><div style="font-weight: 600; font-size: 15px">Kejadian setelah tutup buku</div><div style="font-size: 13px; color: #5E6A66">Catatan tentang bulan yang sudah ditutup</div></div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E6A66" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a><a href="FormatLaporan.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 60px; border-top: 1px solid #DDE2DB; text-decoration: none; color: #13201C"><div style="flex: 1"><div style="font-weight: 600; font-size: 15px">Persetujuan format laporan</div><div style="font-size: 13px; color: #5E6A66">Sudah dicatat · 03/10/2026</div></div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E6A66" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a><a href="Cari.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 60px; border-top: 1px solid #DDE2DB; text-decoration: none; color: #13201C"><div style="flex: 1"><div style="font-weight: 600; font-size: 15px">Cari</div><div style="font-size: 13px; color: #5E6A66">Dengan kata sehari-hari</div></div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E6A66" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a><a href="Pemberitahuan.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 60px; border-top: 1px solid #DDE2DB; text-decoration: none; color: #13201C"><div style="flex: 1"><div style="font-weight: 600; font-size: 15px">Pemberitahuan</div><div style="font-size: 13px; color: #5E6A66">Sementara</div></div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E6A66" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a><a href="UbahPengaturan.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 60px; border-top: 1px solid #DDE2DB; text-decoration: none; color: #13201C"><div style="flex: 1"><div style="font-weight: 600; font-size: 15px">Tambah dan ubah pengaturan</div><div style="font-size: 13px; color: #5E6A66">Kas/Bank, seri No. Bukti, aturan · berlaku mulai bulan tertentu</div></div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E6A66" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a><a href="Pemeriksa.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 60px; border-top: 1px solid #DDE2DB; text-decoration: none; color: #13201C"><div style="flex: 1"><div style="font-weight: 600; font-size: 15px">Wajib pemeriksa kedua</div><div style="font-size: 13px; color: #5E6A66">Aturan pilihan Jemaat</div></div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E6A66" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a><a href="Persetujuan.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 60px; border-top: 1px solid #DDE2DB; text-decoration: none; color: #13201C"><div style="flex: 1"><div style="font-weight: 600; font-size: 15px">Persetujuan di luar aplikasi</div><div style="font-size: 13px; color: #5E6A66">Ganti catatan, dan yang terjadi bila transaksi diubah</div></div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E6A66" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a><a href="Keluar.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 60px; border-top: 1px solid #DDE2DB; text-decoration: none; color: #13201C"><div style="flex: 1"><div style="font-weight: 600; font-size: 15px">Akun dan keluar</div><div style="font-size: 13px; color: #5E6A66">Meiske Lumentut · perangkat ini</div></div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E6A66" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></div>
+</div>
+<nav style="position: absolute; left: 0; right: 0; bottom: 0; height: 84px; background: #FFFFFF; border-top: 1px solid #DDE2DB; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: start; padding-top: 8px; box-sizing: border-box">
+  <a href="Main.dc.html" style="min-height: 52px; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 13px; font-weight: 600; color: #5E6A66; text-decoration: none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7v9H4z"/></svg>Beranda</a>
+  <a href="Main.dc.html" style="min-height: 52px; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 13px; font-weight: 600; color: #5E6A66; text-decoration: none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h9"/></svg>Transaksi</a>
+  <div style="display: flex; justify-content: center"><a href="Main.dc.html" aria-label="Catat transaksi" style="width: 58px; height: 58px; margin-top: -22px; border-radius: 50%; background: #0E5A63; color: #FFFFFF; border: 4px solid #F3F5F1; display: flex; align-items: center; justify-content: center; box-sizing: content-box"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></a></div>
+  <a href="TutupBuku.dc.html" style="min-height: 52px; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 13px; font-weight: 600; color: #5E6A66; text-decoration: none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>Bulan</a>
+  <div style="min-height: 52px; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 13px; font-weight: 600; color: #0E5A63"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>Lainnya</div>
+</nav>
+</sc-if>
+
+<sc-if value="{{isKas}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column; animation: masuk .28s cubic-bezier(.2,.8,.2,1)">
+  <div style="display: flex; align-items: center; gap: 8px; padding: 14px 12px 8px">
+    <button onClick="{{keHub}}" aria-label="Kembali" style="flex: none; width: 44px; height: 44px; background: none; border: 0; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+    <h1 style="margin: 0; flex: 1; font-size: 18px; font-weight: 700">Kas/Bank</h1>
+  </div>
+  <div style="flex: 1; overflow-y: auto; padding: 8px 20px 20px; display: flex; flex-direction: column; gap: 10px">
+    <sc-for list="{{kas}}" as="k" hint-placeholder-count="4">
+      <div style="margin-bottom: 2px; background: {{k.bg}}; border: {{k.bd}}; border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; gap: 12px">
+        <div style="flex: 1"><div style="font-weight: 600; font-size: 15px; color: {{k.fg}}">{{k.n}}</div><div style="font-size: 13px; color: #5E6A66">{{k.s}}</div></div>
+        <sc-if value="{{k.bisa}}" hint-placeholder-val="{{false}}"><button onClick="{{k.buka}}" style="min-height: 44px; padding: 0 12px; border-radius: 10px; border: 1.5px solid #7F8C86; background: #FFFFFF; font-weight: 700; font-size: 14px">Nonaktifkan</button></sc-if>
+      </div>
+    </sc-for>
+    <div style="font-size: 13px; color: #5E6A66; margin-top: 6px">Kas/Bank yang sudah dipakai tidak dapat dihilangkan, hanya dinonaktifkan. Yang nonaktif tetap tampil di transaksi dan laporan lamanya.</div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{sheet}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; inset: 0">
+  <button onClick="{{tutupSheet}}" aria-label="Kembali ke daftar Kas/Bank" style="position: absolute; inset: 0; width: 100%; background: rgba(19,32,28,.45); border: 0; animation: pudar .2s"></button>
+  <div style="position: absolute; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-radius: 22px 22px 0 0; padding: 10px 20px 24px; display: flex; flex-direction: column; gap: 14px; animation: naik .28s cubic-bezier(.2,.8,.2,1)">
+    <div style="width: 40px; height: 4px; border-radius: 2px; background: #7F8C86; margin: 0 auto 4px"></div>
+    <div><h2 style="margin: 0; font-size: 18px; font-weight: 700">Nonaktifkan {{sheetNama}}</h2><div style="font-size: 14px; color: #43514C">Transaksi lama tidak berubah dan tetap tampil di laporannya.</div></div>
+    <div><div style="font-size: 14px; color: #43514C; margin-bottom: 8px">Berlaku mulai</div><div><sc-for list="{{bulanChips}}" as="c" hint-placeholder-count="2"><button onClick="{{c.pick}}" aria-pressed="{{c.on}}" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; margin: 0 8px 0 0; border-radius: 999px; border: 1.5px solid {{c.bd}}; background: {{c.bg}}; color: {{c.fg}}; font-weight: 600; font-size: 14px">{{c.n}}</button></sc-for></div><div style="font-size: 13px; color: #5E6A66; margin-top: 8px">Hanya bulan yang belum ditutup dan belum berjalan.</div></div>
+    <button onClick="{{nonaktifkan}}" style="min-height: 52px; border-radius: 14px; border: 0; background: #13201C; color: #FFFFFF; font-weight: 700; text-align: center">Nonaktifkan mulai {{bulanPilih}}</button>
+    <button onClick="{{tutupSheet}}" style="min-height: 44px; border: 0; background: none; font-weight: 700; text-align: center">Kembali</button>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{isAturan}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column; animation: masuk .28s cubic-bezier(.2,.8,.2,1)">
+  <div style="display: flex; align-items: center; gap: 8px; padding: 14px 12px 8px">
+    <button onClick="{{keHub}}" aria-label="Kembali" style="flex: none; width: 44px; height: 44px; background: none; border: 0; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+    <h1 style="margin: 0; flex: 1; font-size: 18px; font-weight: 700">Aturan</h1>
+  </div>
+  <div style="flex: 1; overflow-y: auto; padding: 8px 20px 20px; display: flex; flex-direction: column; gap: 16px">
+    <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 4px 16px">
+      <div style="padding: 12px 0"><div style="font-weight: 600; font-size: 15px">Persetujuan di luar aplikasi</div><div style="font-size: 14px; color: #43514C">Wajib untuk Belanja Rp2.000.000 ke atas · berlaku mulai September 2026</div></div>
+      <div style="padding: 12px 0; border-top: 1px solid #DDE2DB"><div style="font-weight: 600; font-size: 15px">Dokumen pendukung</div><div style="font-size: 14px; color: #43514C">Wajib untuk semua Belanja · Bendahara boleh memverifikasi unggahannya sendiri</div></div>
+      <div style="padding: 12px 0; border-top: 1px solid #DDE2DB"><div style="font-weight: 600; font-size: 15px">Pemberi pengecualian</div><div style="font-size: 14px; color: #43514C">Ketua BPMJ</div></div>
+    </div>
+
+    <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px">
+      <div style="display: flex; align-items: center; gap: 12px">
+        <div style="flex: 1"><div style="font-weight: 600; font-size: 15px">Wajib pemeriksa kedua</div><div style="font-size: 13px; color: #5E6A66">{{mcStatus}}</div></div>
+        <button onClick="{{toggleMc}}" aria-pressed="{{mc}}" aria-label="Wajib pemeriksa kedua" style="flex: none; width: 56px; height: 44px; background: none; border: 0; padding: 6px 0; display: flex; align-items: center"><span style="display: block; width: 56px; height: 32px; border-radius: 16px; background: {{mcBg}}; border: 1.5px solid #13201C; box-sizing: border-box; position: relative; transition: background .16s"><span style="position: absolute; top: 3px; left: {{mcLeft}}; width: 23px; height: 23px; border-radius: 50%; background: {{mcDot}}; transition: left .16s"></span></span></button>
+      </div>
+      <sc-if value="{{mc}}" hint-placeholder-val="{{false}}">
+        <div style="border-top: 1px solid #DDE2DB; padding-top: 10px; display: flex; flex-direction: column; gap: 6px; animation: muncul .3s">
+          <div style="font-size: 14px"><strong>Berlaku mulai Desember 2026.</strong> Sejak itu, Bukukan memerlukan orang kedua yang menandai sudah diperiksa. Pemeriksa kedua tidak boleh orang yang mencatat.</div>
+          <div style="font-size: 14px; color: #A63C1C; font-weight: 600">Belum ada pemeriksa kedua yang ditunjuk. Tanpa itu, Bukukan akan ditolak mulai Desember 2026.</div>
+          <div style="font-size: 13px; color: #5E6A66">Transaksi November 2026 dan sebelumnya tidak terpengaruh.</div>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{isRiwayat}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column; animation: masuk .28s cubic-bezier(.2,.8,.2,1)">
+  <div style="display: flex; align-items: center; gap: 8px; padding: 14px 12px 8px">
+    <button onClick="{{keHub}}" aria-label="Kembali" style="flex: none; width: 44px; height: 44px; background: none; border: 0; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+    <h1 style="margin: 0; flex: 1; font-size: 18px; font-weight: 700">Riwayat aktivitas</h1>
+  </div>
+  <div style="flex: 1; overflow-y: auto; padding: 8px 20px 20px">
+    <sc-for list="{{riwayat}}" as="r" hint-placeholder-count="6">
+      <div style="padding: 12px 0; border-top: {{r.garis}}"><div style="font-size: 15px; font-weight: 600">{{r.t}}</div><div style="font-size: 13px; color: #5E6A66">{{r.s}}</div></div>
+    </sc-for>
+  </div>
+</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  state = { screen: 'hub', sheet: null, bulan: 'Desember 2026', non: {}, mc: false };
+  renderVals() {
+    var self = this, s = this.state;
+    var KAS = [{ id: 'kas', n: 'Kas', s: 'Aktif · dipakai sejak September 2026' }, { id: 'bni', n: 'Bank BNI ··4821', s: 'Aktif · dipakai sejak September 2026' }, { id: 'bsg', n: 'Bank SulutGo ··1107', s: 'Aktif · dipakai sejak September 2026' }, { id: 'hut', n: 'Kas Panitia HUT', s: 'Nonaktif sejak November 2026 · tetap tampil di laporan lama', mati: true }];
+    var kas = KAS.map(function (k) {
+      var akan = s.non[k.id], mati = !!k.mati;
+      return { n: k.n, s: akan ? 'Aktif sampai akhir ' + (akan === 'Desember 2026' ? 'November 2026' : 'Desember 2026') + ' · nonaktif mulai ' + akan : k.s, bisa: !mati && !akan, bg: mati ? 'transparent' : '#FFFFFF', bd: (mati || akan) ? '1.5px dashed #808D87' : '1px solid #DDE2DB', fg: mati ? '#43514C' : '#13201C', buka: function () { self.setState({ sheet: k.id, bulan: 'Desember 2026' }); } };
+    });
+    var cur = KAS.filter(function (k) { return k.id === s.sheet; })[0];
+    var aktifN = KAS.filter(function (k) { return !k.mati; }).length;
+    return {
+      isHub: s.screen === 'hub', isKas: s.screen === 'kas', isAturan: s.screen === 'aturan', isRiwayat: s.screen === 'riwayat',
+      kasRingkas: aktifN + ' aktif · 1 nonaktif', aturanRingkas: s.mc ? 'Wajib pemeriksa kedua: hidup mulai Desember 2026' : 'Wajib pemeriksa kedua: mati',
+      kas: kas, sheet: !!s.sheet, sheetNama: cur ? cur.n : '', bulanPilih: s.bulan,
+      bulanChips: ['Desember 2026', 'Januari 2027'].map(function (b) { var on = s.bulan === b; return { n: b, on: on, bg: on ? '#13201C' : '#FFFFFF', fg: on ? '#FFFFFF' : '#13201C', bd: on ? '#13201C' : '#7F8C86', pick: function () { self.setState({ bulan: b }); } }; }),
+      mc: s.mc, mcStatus: s.mc ? 'Hidup mulai Desember 2026' : 'Mati · Bendahara memeriksa dan membukukan sendiri',
+      mcBg: s.mc ? '#13201C' : '#FFFFFF', mcDot: s.mc ? '#FFFFFF' : '#13201C', mcLeft: s.mc ? '28px' : '3px',
+      riwayat: [
+        ['Meiske L. membukukan BKU-2026-0146', '15/11/2026 12.20 · Persembahan Ibadah Minggu'],
+        ['Meiske L. membuat pembalikan BKU-2026-0144', '12/11/2026 09.31 · Alasan: Mata Anggaran keliru'],
+        ['Meiske L. menonaktifkan Kas Panitia HUT', '28/10/2026 16.44 · berlaku mulai November 2026'],
+        ['Meiske L. menutup buku September 2026', '05/10/2026 19.02 · Periode laporan 15–30 September 2026'],
+        ['Meiske L. mencatat persetujuan format laporan', '03/10/2026 10.15 · Pemberi persetujuan: Pdt. Lidya Rondonuwu, Ketua BPMJ'],
+        ['Petugas verifikasi mengaktifkan wewenang Bendahara', '15/09/2026 10.15 · Meiske Lumentut']
+      ].map(function (r, i) { return { t: r[0], s: r[1], garis: i ? '1px solid #DDE2DB' : '0' }; }),
+      keHub: function () { self.setState({ screen: 'hub', sheet: null }); },
+      keKas: function () { self.setState({ screen: 'kas' }); },
+      keAturan: function () { self.setState({ screen: 'aturan' }); },
+      keRiwayat: function () { self.setState({ screen: 'riwayat' }); },
+      tutupSheet: function () { self.setState({ sheet: null }); },
+      nonaktifkan: function () { var n = Object.assign({}, s.non); n[s.sheet] = s.bulan; self.setState({ non: n, sheet: null }); },
+      toggleMc: function () { self.setState({ mc: !s.mc }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!-- @dsCard group="Status" height=95 width=412 -->
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>BatangPembagian — pratinjau</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+html, body { margin: 0; }
+body { background: var(--kertas); }
+/* tanah: komponen selalu tampil di atas kertas, apa pun latar bingkai pratinjau */
+.tanah { background: var(--kertas); color: var(--tinta); font-family: var(--font-sans); font-size: 15px; line-height: 1.45; padding: var(--s20); min-height: 100vh; box-sizing: border-box; }
+.pk { display: flex; flex-direction: column; gap: 10px; max-width: 372px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+input, textarea { color: inherit; }
+button:focus-visible, a:focus-visible { outline: 2px solid var(--laut); outline-offset: 2px; }
+a { color: var(--laut); }
+@media (prefers-reduced-motion: reduce) { * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+</style>
+</head>
+<body>
+<div class="tanah"><div class="pk">
+<div style="height: 18px; border-radius: 9px; border: 1.5px dashed var(--putus); display: flex; overflow: hidden; box-sizing: border-box"><div style="width: 62%; background: var(--tinta)"></div><div style="width: 22%; background: var(--laut)"></div></div>
+<div style="display: flex; justify-content: space-between; gap: 16px; align-items: baseline"><div style="font-size: 14px; font-weight: 700; color: var(--bata)">Sisa belum dibagi</div><div style="font-family: var(--font-mono); font-size: 18px; font-weight: 600; color: var(--bata)">Rp500.000</div></div>
+</div></div>
+</body>
+</html>

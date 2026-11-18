@@ -1,0 +1,85 @@
+<!-- @dsCard height=288 -->
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>palakat</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; height: 100%; }
+  body { background: var(--kertas); color: var(--tinta); font-family: var(--font-sans); overflow: hidden; }
+  .sampul { position: relative; height: 288px; overflow: hidden; }
+  /* komposisi: kotak selebar 480 di paruh kanan tata letak 960, bebas dari nama */
+  .gambar { position: absolute; top: 0; left: 480px; width: 480px; height: 288px; overflow: hidden; }
+  .gambar svg { display: block; width: 480px; height: 288px; }
+  .laut { fill: var(--laut); }
+  .lembut { fill: var(--lautLembut); }
+  .tinta { fill: var(--tinta); }
+  .bata { fill: var(--bata); }
+  .blok { rx: var(--radius-kartuBesar); }
+  .ubin { rx: var(--radius-lencana); }
+  .draf { fill: none; stroke: var(--putus); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .buku { fill: none; stroke: var(--kertas); stroke-width: 1.5; }
+  .penuh { fill: var(--kertas); }
+  .kata { position: absolute; left: var(--s24); right: var(--s24); bottom: var(--s24); max-width: 440px; }
+  .nama { margin: 0; font-size: 104px; line-height: .9; font-weight: 700; letter-spacing: -.023em; color: var(--tinta); }
+  .baris { margin: var(--s24) 0 0 4px; font-size: 14px; line-height: 20px; color: var(--tinta2); }
+</style>
+</head>
+<body>
+<div class="sampul">
+<div class="gambar" aria-hidden="true">
+<svg viewBox="0 0 480 288" width="480" height="288">
+<!--
+  blok        laut 160×216 keluar dari tepi atas (warna tindakan utama, terbesar kedua) · tinta 296×192 keluar dari tepi kanan (bidang “sudah ditutup”, terbesar) · lautLembut 160×48 (satu rona lembut) · bata 24×24 sekali saja (hanya berarti hambatan) — sekitar 34% dari 960×288
+  susunan     satu lempeng laut tinggi dengan satelit; tepi bawah sejajar s24 di atas tepi; celah s16
+  pola        ubin, dari “Garis putus-putus belum masuk saldo. Garis penuh sudah dibukukan. Tinta gelap sudah ditutup.”: ubin s24 berjarak s40; sebaris putus-putus (putus) di atas kertas, lalu di dalam bidang tinta ubin bergaris penuh yang baris demi baris terisi
+  skala       sisi kelipatan s8; celah s16; jarak ubin s40; sudut blok radius-kartuBesar, sudut ubin radius-lencana
+-->
+<rect class="laut blok" x="24" y="-16" width="160" height="216" rx="16"/>
+<rect class="lembut blok" x="24" y="216" width="160" height="48" rx="16"/>
+<rect class="tinta blok" x="200" y="72" width="296" height="192" rx="16"/>
+<rect class="bata ubin" x="224" y="24" width="24" height="24" rx="6"/>
+<rect class="draf ubin" x="264" y="24" width="24" height="24" rx="6"/>
+<rect class="draf ubin" x="304" y="24" width="24" height="24" rx="6"/>
+<rect class="draf ubin" x="344" y="24" width="24" height="24" rx="6"/>
+<rect class="draf ubin" x="384" y="24" width="24" height="24" rx="6"/>
+<rect class="draf ubin" x="424" y="24" width="24" height="24" rx="6"/>
+<rect class="draf ubin" x="464" y="24" width="24" height="24" rx="6"/>
+<rect class="buku ubin" x="224" y="96" width="24" height="24" rx="6"/>
+<rect class="buku ubin" x="264" y="96" width="24" height="24" rx="6"/>
+<rect class="buku ubin" x="304" y="96" width="24" height="24" rx="6"/>
+<rect class="buku ubin" x="344" y="96" width="24" height="24" rx="6"/>
+<rect class="buku ubin" x="384" y="96" width="24" height="24" rx="6"/>
+<rect class="buku ubin" x="424" y="96" width="24" height="24" rx="6"/>
+<rect class="buku ubin" x="464" y="96" width="24" height="24" rx="6"/>
+<rect class="penuh ubin" x="224" y="136" width="24" height="24" rx="6"/>
+<rect class="penuh ubin" x="264" y="136" width="24" height="24" rx="6"/>
+<rect class="penuh ubin" x="304" y="136" width="24" height="24" rx="6"/>
+<rect class="buku ubin" x="344" y="136" width="24" height="24" rx="6"/>
+<rect class="buku ubin" x="384" y="136" width="24" height="24" rx="6"/>
+<rect class="buku ubin" x="424" y="136" width="24" height="24" rx="6"/>
+<rect class="buku ubin" x="464" y="136" width="24" height="24" rx="6"/>
+<rect class="penuh ubin" x="224" y="176" width="24" height="24" rx="6"/>
+<rect class="penuh ubin" x="264" y="176" width="24" height="24" rx="6"/>
+<rect class="penuh ubin" x="304" y="176" width="24" height="24" rx="6"/>
+<rect class="penuh ubin" x="344" y="176" width="24" height="24" rx="6"/>
+<rect class="penuh ubin" x="384" y="176" width="24" height="24" rx="6"/>
+<rect class="buku ubin" x="424" y="176" width="24" height="24" rx="6"/>
+<rect class="buku ubin" x="464" y="176" width="24" height="24" rx="6"/>
+<rect class="penuh ubin" x="224" y="216" width="24" height="24" rx="6"/>
+<rect class="penuh ubin" x="264" y="216" width="24" height="24" rx="6"/>
+<rect class="penuh ubin" x="304" y="216" width="24" height="24" rx="6"/>
+<rect class="penuh ubin" x="344" y="216" width="24" height="24" rx="6"/>
+<rect class="penuh ubin" x="384" y="216" width="24" height="24" rx="6"/>
+<rect class="penuh ubin" x="424" y="216" width="24" height="24" rx="6"/>
+<rect class="penuh ubin" x="464" y="216" width="24" height="24" rx="6"/>
+</svg>
+</div>
+<div class="kata">
+<h1 class="nama">palakat</h1>
+<p class="baris">Putus-putus: draf. Garis penuh: dibukukan. Tinta: ditutup.</p>
+</div>
+</div>
+</body>
+</html>

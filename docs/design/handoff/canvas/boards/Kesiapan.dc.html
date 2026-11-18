@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Pernyataan kesiapan per peruntukan (ponsel)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+input{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes masuk{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@keyframes pudar{from{opacity:0}to{opacity:1}}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes isi{from{width:0}to{width:100%}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 16px; line-height: 1.4">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column">
+  <div style="display: flex; align-items: center; gap: 8px; padding: 14px 12px 8px"><a href="TutupBuku.dc.html" aria-label="Kembali ke Bulan" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #13201C"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></a><div style="flex: 1"><h1 style="margin: 0; font-size: 18px; font-weight: 700">Pernyataan kesiapan</h1><div style="font-size: 14px; color: #43514C; font-size: 13px">Oktober 2026 · masuk sebagai {{siapa}}</div></div></div>
+  <div style="flex: 1; overflow-y: auto; padding: 8px 20px 20px; display: flex; flex-direction: column; gap: 16px; gap: 12px">
+      <sc-if value="{{bend}}" hint-placeholder-val="{{true}}">
+        <sc-if value="{{adaKurang}}" hint-placeholder-val="{{true}}"><div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; border: 1.5px solid #A63C1C; padding: 14px 16px"><div style="font-weight: 700">Hambatan tutup buku Oktober 2026</div><div style="font-size: 14px; color: #43514C">{{kurangN}} peruntukan belum punya pernyataan kesiapan yang berlaku. Minta bendahara unitnya menyatakan siap, atau bebaskan dengan alasan.</div></div></sc-if>
+        <sc-if value="{{beres}}" hint-placeholder-val="{{false}}"><div style="background: #E1EEED; border-radius: 14px; padding: 14px 16px; font-weight: 600; animation: muncul .3s">{{beresTeks}}</div></sc-if>
+      </sc-if>
+      <sc-if value="{{penyiap}}" hint-placeholder-val="{{false}}"><div style="font-size: 14px; color: #43514C">Anda menyatakan bahwa catatan peruntukan Diakonia untuk Oktober 2026 sudah lengkap menurut Anda. Ini bukan persetujuan dan tidak menutup buku; tutup buku tetap dilakukan Bendahara.</div></sc-if>
+<div>
+      <sc-for list="{{rows}}" as="r" hint-placeholder-count="3">
+        <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px">
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px"><div style="font-weight: 700; font-size: 16px">Peruntukan {{r.n}}</div><span style="font-size: 13px; font-weight: 700; border-radius: 6px; padding: 3px 9px; background: {{r.sbg}}; color: {{r.sfg}}; border: {{r.sbd}}">{{r.st}}</span></div>
+          <div style="font-size: 14px; color: #43514C">{{r.cat}}</div>
+          <sc-if value="{{r.bisaBebas}}" hint-placeholder-val="{{false}}"><button onClick="{{r.bebas}}" style="min-height: 48px; border-radius: 14px; border: 1.5px solid #13201C; background: #FFFFFF; color: #13201C; font-weight: 700; text-align: center; padding: 0 18px; align-self: flex-start">Bebaskan</button></sc-if>
+          <sc-if value="{{r.bisaNyata}}" hint-placeholder-val="{{false}}"><button onClick="{{r.nyata}}" style="min-height: 52px; border-radius: 14px; border: 0; background: #0E5A63; color: #FFFFFF; font-weight: 700; text-align: center; padding: 0 18px; align-self: flex-start">Nyatakan siap</button></sc-if>
+          <sc-if value="{{r.isForm}}" hint-placeholder-val="{{false}}"><div style="display: flex; flex-direction: column; gap: 8px; border-top: 1px solid #DDE2DB; padding-top: 10px; animation: muncul .3s"><label for="alc" style="font-size: 14px; color: #43514C">Alasan membebaskan <strong style="color: #13201C">· wajib</strong></label><textarea id="alc" rows="2" value="{{alasan}}" onChange="{{onAlasan}}" style="width: 100%; box-sizing: border-box; padding: 12px 14px; border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF; resize: none; font: inherit; color: inherit"></textarea><div style="display: flex; flex-wrap: wrap; gap: 8px"><button onClick="{{r.simpan}}" disabled="{{tanpaAlasan}}" style="min-height: 46px; padding: 0 20px; border-radius: 12px; border: 0; background: {{btnBg}}; color: {{btnFg}}; font-weight: 700">Bebaskan dengan alasan ini</button><button onClick="{{r.batal}}" style="min-height: 46px; padding: 0 20px; border-radius: 12px; border: 1.5px solid #13201C; background: #FFFFFF; color: #13201C; font-weight: 700">Kembali</button></div></div></sc-if>
+        </div>
+      </sc-for>
+</div><div style="font-size: 13px; color: #5E6A66">Berlaku setelah Jemaat punya bendahara unit (Putaran 5). Perubahan pada transaksi bulan itu membuat pernyataan perlu dinyatakan lagi.</div></div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"masukSebagai":{"editor":"enum","options":["Bendahara","Bendahara Komisi Diakonia"],"default":"Bendahara"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  rp(n) { var s = String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return (n < 0 ? '−' : '') + 'Rp' + s; }
+  state = { f: { umum: 'ada', diak: 'lagi', bang: 'belum' }, form: null, alasan: '', als: {} };
+  vals() {
+    var self = this, s = this.state, bend = (this.props.masukSebagai ?? 'Bendahara') === 'Bendahara';
+    var F = [['umum', 'Umum Jemaat', 'Pnt. Jefry Wowor · 02/11/2026'], ['diak', 'Diakonia', 'Dkn. Olga Tamba'], ['bang', 'Pembangunan', 'Sdr. Rivo Mandagi']];
+    var T = { ada: ['Sudah dinyatakan siap', '#0E5A63', '#FFFFFF', '1.5px solid #0E5A63'], lagi: ['Perlu dinyatakan lagi', '#FFFFFF', '#A63C1C', '1.5px solid #A63C1C'], belum: ['Pernyataan kesiapan belum ada', '#FFFFFF', '#A63C1C', '1.5px solid #A63C1C'], bebas: ['Dibebaskan', '#FFFFFF', '#13201C', '1.5px solid #13201C'] };
+    var set = function (id, v, extra) { var f = Object.assign({}, s.f); f[id] = v; self.setState(Object.assign({ f: f, form: null, alasan: '' }, extra || {})); };
+    var ok = s.alasan.trim().length > 0;
+    var rows = F.filter(function (x) { return bend || x[0] === 'diak'; }).map(function (x) {
+      var st = s.f[x[0]], t = T[st], perlu = st === 'lagi' || st === 'belum';
+      var cat = st === 'ada' ? 'Oleh ' + (x[0] === 'umum' ? x[2] : x[2] + ' · 16/11/2026') : (st === 'lagi' ? 'Dinyatakan 01/11/2026, lalu ada transaksi Oktober yang berubah. Pernyataan lama tidak berlaku lagi.' : (st === 'belum' ? 'Bendahara unit: ' + x[2] : 'Oleh Bendahara · alasan: ' + (s.als[x[0]] || '')));
+      return { id: x[0], n: x[1], st: t[0], sbg: t[1], sfg: t[2], sbd: t[3], cat: cat, bisaBebas: bend && perlu && s.form !== x[0], bisaNyata: !bend && perlu, isForm: s.form === x[0],
+        bebas: function () { self.setState({ form: x[0], alasan: '' }); }, nyata: function () { set(x[0], 'ada'); },
+        simpan: function () { if (!ok) return; var a = Object.assign({}, s.als); a[x[0]] = s.alasan.trim(); set(x[0], 'bebas', { als: a }); }, batal: function () { self.setState({ form: null }); } };
+    });
+    var kurang = F.filter(function (x) { var st = s.f[x[0]]; return st === 'lagi' || st === 'belum'; }).length;
+    var bebasN = F.filter(function (x) { return s.f[x[0]] === 'bebas'; }).length;
+    return {
+      rows: rows, bend: bend, penyiap: !bend, siapa: bend ? 'Meiske L., Bendahara' : 'Dkn. Olga Tamba, Bendahara Komisi Diakonia',
+      adaKurang: kurang > 0, beres: kurang === 0, kurangN: kurang,
+      beresTeks: 'Pernyataan kesiapan semua peruntukan sudah ada' + (bebasN ? ' · ' + bebasN + ' dibebaskan, tercatat sebagai pengecualian di konfirmasi tutup buku' : '') + '.',
+      alasan: s.alasan, onAlasan: function (e) { self.setState({ alasan: e.target.value }); }, tanpaAlasan: !ok, btnBg: ok ? '#13201C' : '#DDE2DB', btnFg: ok ? '#FFFFFF' : '#5E6A66'
+    };
+  }
+
+  renderVals() { var V = this.vals(); if (this.navVals) V.nav = this.navVals(); return V; }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!-- @dsCard group="Fondasi" height=325 width=960 -->
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Gerak — pratinjau</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+html, body { margin: 0; }
+body { background: var(--kertas); }
+/* tanah: komponen selalu tampil di atas kertas, apa pun latar bingkai pratinjau */
+.tanah { background: var(--kertas); color: var(--tinta); font-family: var(--font-sans); font-size: 15px; line-height: 1.45; padding: var(--s20); min-height: 100vh; box-sizing: border-box; }
+.pk { display: flex; flex-direction: column; gap: 10px; max-width: 920px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+input, textarea { color: inherit; }
+button:focus-visible, a:focus-visible { outline: 2px solid var(--laut); outline-offset: 2px; }
+a { color: var(--laut); }
+@media (prefers-reduced-motion: reduce) { * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+@keyframes cap{0%{opacity:0;transform:scale(1.7) rotate(-9deg)}55%{opacity:1;transform:scale(.94) rotate(-3deg)}100%{opacity:1;transform:scale(1) rotate(-3deg)}}
+@keyframes sapu{0%{transform:scaleX(0);opacity:.2}65%{transform:scaleX(1);opacity:.2}100%{transform:scaleX(1);opacity:0}}
+@keyframes dariKiri{from{opacity:0;transform:translateX(-40px)}to{opacity:1;transform:none}}
+@keyframes dariKanan{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none}}
+@keyframes kait{0%{opacity:0;transform:scale(0)}70%{opacity:1;transform:scale(1.25)}100%{opacity:1;transform:scale(1)}}
+@keyframes lingkar{from{stroke-dashoffset:176}to{stroke-dashoffset:0}}
+@keyframes segel{0%{opacity:0;transform:scale(1.8)}60%{opacity:1;transform:scale(.92)}100%{opacity:1;transform:scale(1)}}
+@keyframes gelap{from{background:var(--permukaan);color:var(--tinta)}to{background:var(--tinta);color:var(--permukaan)}}
+@keyframes isi{from{width:0}to{width:100%}}
+</style>
+</head>
+<body>
+<div class="tanah"><div class="pk">
+<div style="display: flex; align-items: center; gap: 16px"><div style="flex: 1; font-size: 14px; color: var(--tinta2)">Gerak hanya dipakai saat status uang berubah. Semua gerak mati bila perangkat meminta gerak dikurangi.</div><button id="ulang" style="min-height: 44px; padding: 0 18px; border-radius: var(--radius-isian); border: 1.5px solid var(--tinta); background: var(--permukaan); font-weight: 700">Putar ulang</button></div>
+<div id="gerak"><div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="height: 120px; display: flex; align-items: center; justify-content: center">
+<div style="position: relative; overflow: hidden; width: 100%; box-sizing: border-box; border: 1.5px solid var(--tinta); background: var(--permukaan); border-radius: var(--radius-kartu); padding: 14px; display: flex; flex-direction: column; gap: 6px"><div style="position: absolute; inset: 0; background: var(--laut); transform-origin: left; animation: sapu .7s ease-out both"></div><span style="align-self: flex-start; font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--laut); border: 2px solid var(--laut); border-radius: 8px; padding: 3px 8px; animation: cap .55s cubic-bezier(.2,.8,.2,1) .35s both">BKU-2026-0101</span><div style="font-family: var(--font-mono); font-size: 20px; font-weight: 500">−Rp1.250.000</div></div>
+</div>
+<div><div style="font-weight: 700">Tinta · 700 ms</div><div style="font-size: 13px; color: var(--tinta2)">Bukukan: tinta menyapu kartu, No. Bukti dicap, saldo berhitung ke angka baru.</div></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="height: 120px; display: flex; align-items: center; justify-content: center">
+<div style="position: relative; width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px"><div style="border: 1.5px solid var(--laut); background: var(--permukaan); border-radius: var(--radius-isian); padding: 10px; font-size: 13px; animation: dariKiri .45s cubic-bezier(.2,.8,.2,1) both">Mutasi bank<br/><span style="font-family: var(--font-mono)">−Rp15.000</span></div><div style="border: 1.5px solid var(--laut); background: var(--permukaan); border-radius: var(--radius-isian); padding: 10px; font-size: 13px; animation: dariKanan .45s cubic-bezier(.2,.8,.2,1) both">Transaksi<br/><span style="font-family: var(--font-mono)">−Rp15.000</span></div><div style="position: absolute; left: 50%; top: 50%; margin: -13px 0 0 -13px; width: 26px; height: 26px; border-radius: 50%; background: var(--laut); animation: kait .4s .4s both"></div></div>
+</div>
+<div><div style="font-weight: 700">Kait · 450 ms</div><div style="font-size: 13px; color: var(--tinta2)">Cocokkan: dua sisi bertemu dan terkait; selisih berhitung turun ke Rp0.</div></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="height: 120px; display: flex; align-items: center; justify-content: center">
+<div style="width: 100%; height: 100%; border-radius: var(--radius-kartu); display: flex; align-items: center; justify-content: center; animation: gelap .7s ease-out both"><svg aria-hidden="true" height="72" viewbox="0 0 72 72" width="72"><circle cx="36" cy="36" fill="none" r="28" stroke="var(--permukaan)" stroke-dasharray="176" stroke-width="3" style="animation: lingkar .9s .3s ease-out both" transform="rotate(-90 36 36)"></circle><g style="transform-origin: 36px 36px; animation: segel .5s 1.1s cubic-bezier(.2,.8,.2,1) both"><rect fill="var(--permukaan)" height="17" rx="3" width="22" x="25" y="33"></rect><path d="M29 33v-5a7 7 0 0 1 14 0v5" fill="none" stroke="var(--permukaan)" stroke-linecap="round" stroke-width="3"></path></g></svg></div>
+</div>
+<div><div style="font-weight: 700">Segel · tahan 1600 ms, lalu 900 ms</div><div style="font-size: 13px; color: var(--tinta2)">Tutup buku: tombol ditahan sampai penuh, layar menggelap, lingkaran menutup, gembok terpasang.</div></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="height: 120px; display: flex; flex-direction: column; align-items: stretch; justify-content: center; gap: 10px">
+<div style="border: 1px solid var(--garisTegas); background: var(--permukaan); border-radius: var(--radius-isian); padding: 12px 14px"><div style="font-size: 14px; font-weight: 600">Sedang diunggah…</div><div style="height: 4px; border-radius: 2px; background: var(--garis); margin-top: 8px; overflow: hidden"><div style="height: 100%; background: var(--laut); animation: isi 1.2s linear both"></div></div></div>
+</div>
+<div><div style="font-weight: 700">Tunggu · selama prosesnya</div><div style="font-size: 13px; color: var(--tinta2)">Unggah, simpan, file laporan: selalu tampak sedang berjalan. Berhasil tidak pernah ditampilkan sebelum benar-benar berhasil.</div></div>
+</div>
+</div></div>
+</div></div>
+<script>
+  var g = document.getElementById("gerak");
+  document.getElementById("ulang").addEventListener("click", function () { var h = g.innerHTML; g.innerHTML = ""; setTimeout(function () { g.innerHTML = h; }, 80); });
+</script>
+</body>
+</html>

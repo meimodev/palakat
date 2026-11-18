@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Alur · Panitia (ponsel)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+input{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes masuk{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@keyframes pudar{from{opacity:0}to{opacity:1}}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes isi{from{width:0}to{width:100%}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 16px; line-height: 1.4">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column"><div style="display: flex; align-items: center; gap: 8px; padding: 14px 12px 8px"><a href="Panitia.dc.html" aria-label="Kembali ke Panitia" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #13201C"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></a><div style="flex: 1"><h1 style="margin: 0; font-size: 18px; font-weight: 700">Alur · Panitia</h1><div style="font-size: 14px; color: #43514C; font-size: 13px">Panitia Natal 2026 dari Aktif sampai Diarsipkan</div></div></div><div style="flex: 1; overflow-y: auto; padding: 8px 20px 20px; display: flex; flex-direction: column; gap: 16px"><div style="flex: none; display: flex; flex-direction: column; gap: 16px"><sc-if value="{{pesanAda}}" hint-placeholder-val="{{false}}"><div role="status" style="background: #E1EEED; border-radius: 12px; padding: 12px 14px; font-size: 14px"><span>{{pesan}}</span></div></sc-if><div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px"><div style="display: flex; justify-content: space-between; gap: 16px; align-items: center"><span style="font-weight: 700">Panitia Natal 2026</span><span style="flex: none; font-size: 13px; font-weight: 700; border-radius: 6px; padding: 3px 9px; {{stLs}}">{{st}}</span></div><div style="font-size: 14px; color: #43514C">Ketua: Stevi Lengkong · Bendahara: Rivo Mandagi</div><div style="font-size: 13px; color: #5E6A66"><span>{{stKet}}</span></div></div><sc-if value="{{aktif}}" hint-placeholder-val="{{false}}"><div style="display: flex; flex-wrap: wrap; gap: 8px"><button onClick="{{mulaiTutup}}" style="min-height: 52px; border-radius: 14px; border: 0; background: #13201C; color: #FFFFFF; font-weight: 700; text-align: center; padding: 0 16px; flex: 1 1 150px; max-width: 340px">Mulai penutupan keuangan</button></div></sc-if><sc-if value="{{tutupKeu}}" hint-placeholder-val="{{false}}"><h2 style="margin: 0; font-size: 16px; font-weight: 700">Uang harus selesai sebelum Panitia ditutup</h2><div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px"><div style="display: flex; justify-content: space-between; gap: 16px; align-items: center"><span style="font-weight: 700">Uang Muka · Dekorasi Natal</span><span style="flex: none; font-size: 13px; font-weight: 700; border-radius: 6px; padding: 3px 9px; {{umLs}}">{{umL}}</span></div><div style="display: flex; justify-content: space-between; gap: 16px; font-size: 14px"><span style="color: #43514C">Diberikan</span><span style="text-align: right; font-weight: 600"><span style="font-family: 'IBM Plex Mono', monospace; font-weight: 500">Rp300.000</span></span></div><sc-if value="{{umBelum}}" hint-placeholder-val="{{false}}"><button onClick="{{umBeres}}" style="min-height: 44px; border: 0; background: none; color: #0E5A63; font-weight: 700; text-align: center; padding: 0 16px; align-self: flex-start">Contoh: pertanggungjawaban dibukukan</button></sc-if></div><div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px"><div style="display: flex; justify-content: space-between; gap: 16px; align-items: center"><span style="font-weight: 700">Sisa uang Panitia</span><span style="flex: none; font-size: 13px; font-weight: 700; border-radius: 6px; padding: 3px 9px; {{sisaLs}}">{{sisaL}}</span></div><div style="display: flex; justify-content: space-between; gap: 16px; font-size: 14px"><span style="color: #43514C">Saldo peruntukan Panitia Natal 2026</span><span style="text-align: right; font-weight: 600"><span style="font-family: 'IBM Plex Mono', monospace; font-weight: 500">Rp350.000</span></span></div><div style="font-size: 13px; color: #5E6A66">Sisa dikembalikan ke peruntukan Umum Jemaat lewat Alih peruntukan oleh Bendahara Jemaat.</div><sc-if value="{{sisaBelum}}" hint-placeholder-val="{{false}}"><button onClick="{{sisaBeres}}" style="min-height: 44px; border: 0; background: none; color: #0E5A63; font-weight: 700; text-align: center; padding: 0 16px; align-self: flex-start">Contoh: alih peruntukan dibukukan</button></sc-if></div><div style="border: 1.5px dashed #808D87; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px"><div style="display: flex; justify-content: space-between; gap: 16px; align-items: center"><span style="font-weight: 700">Serah terima aset · bila ada</span><span style="flex: none; font-size: 13px; font-weight: 700; border-radius: 6px; padding: 3px 9px; {{fileLs}}">{{fileL}}</span></div><label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: #43514C"><span>Tanggal serah terima</span><input value="{{tglST}}" onChange="{{onTglST}}" placeholder="hh/bb/tttt" style="width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF; min-height: 48px"><span style="font-size: 13px; color: #5E6A66">Sesuai berita acara.</span></label><sc-if value="{{fileKosong}}" hint-placeholder-val="{{false}}"><button onClick="{{pilihFile}}" style="min-height: 48px; border-radius: 14px; border: 1.5px solid #13201C; background: #FFFFFF; color: #13201C; font-weight: 700; text-align: center; padding: 0 16px; align-self: flex-start">Pilih file berita acara</button></sc-if><sc-if value="{{fileAda}}" hint-placeholder-val="{{false}}"><div style="font-size: 13px; color: #5E6A66">berita-acara-serah-terima.pdf</div></sc-if><div style="font-size: 13px; color: #5E6A66">Tidak menghalangi penutupan. Lampirkan bila Panitia punya aset yang diserahkan.</div></div><sc-if value="{{sebabAda}}" hint-placeholder-val="{{false}}"><div style="font-size: 14px"><strong style="color: #A63C1C">Tidak dapat dilakukan: Tutup Panitia.</strong> <span>{{sebab}}</span></div></sc-if><div style="display: flex; flex-wrap: wrap; gap: 8px"><button onClick="{{tutup}}" aria-disabled="{{okX}}" style="min-height: 52px; border-radius: 14px; border: 0; font-weight: 700; text-align: center; padding: 0 16px; flex: 1 1 150px; max-width: 340px; {{okSt}}">Tutup Panitia</button></div></sc-if><sc-if value="{{ditutup}}" hint-placeholder-val="{{false}}"><div style="font-size: 13px; color: #5E6A66">Panitia yang Ditutup tidak dapat membukukan lagi. Riwayat dan laporannya tetap dapat dibaca.</div><div style="display: flex; flex-wrap: wrap; gap: 8px"><button onClick="{{arsip}}" style="min-height: 48px; border-radius: 14px; border: 1.5px solid #13201C; background: #FFFFFF; color: #13201C; font-weight: 700; text-align: center; padding: 0 16px; flex: 1 1 150px; max-width: 340px">Arsipkan</button></div></sc-if><sc-if value="{{sudahArsip}}" hint-placeholder-val="{{false}}"><div style="font-size: 13px; color: #5E6A66">Diarsipkan: tidak tampil di daftar Panitia aktif, tetap dapat dicari dan dibaca.</div></sc-if><sc-if value="{{riwAda}}" hint-placeholder-val="{{false}}"><h2 style="margin: 0; font-size: 16px; font-weight: 700">Riwayat</h2><div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 4px 16px; display: flex; flex-direction: column"><sc-for list="{{riw}}" as="r" hint-placeholder-count="2"><div style="padding: 8px 0; border-top: 1px solid #DDE2DB; margin-top: -1px; font-size: 13px; color: #5E6A66"><span>{{r.t}}</span></div></sc-for></div></sc-if></div></div></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"keadaan":{"editor":"enum","options":["Alur"],"default":"Alur"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  rp(n) { var s = String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return (n < 0 ? '−' : '') + 'Rp' + s; }
+  state = { k: null };
+  vals() {
+    var self = this, O = ["Alur"], LS = {"draf": "color: #43514C; border: 1.5px dashed #808D87", "garis": "color: #43514C; border: 1.5px solid #5E6A66; background: #FFFFFF", "tinta": "color: #FFFFFF; background: #13201C; border: 1.5px solid #13201C", "laut": "color: #FFFFFF; background: #0E5A63; border: 1.5px solid #0E5A63", "lautg": "color: #0E5A63; background: #FFFFFF; border: 1.5px solid #0E5A63", "bata": "color: #A63C1C; background: #FFFFFF; border: 1.5px solid #A63C1C", "abu": "color: #43514C; background: #DDE2DB; border: 1.5px solid #DDE2DB"};
+    var k = this.state.k ?? (this.props.keadaan ?? O[0]); var ki = Math.max(0, O.indexOf(k));
+    var V = { keadaan: O[ki] };
+    O.forEach(function (o, i) { V['k' + i] = i === ki; V['go' + i] = function () { self.setState({ k: o }); }; });
+    var web = false, PS = ["AlurAnggota", "AlurBeranda", "AlurDana", "AlurIbadah", "AlurModul", "AlurNama", "AlurPanitia", "AlurPanitiaBaru", "AlurPelimpahan", "AlurPenugasan", "AlurPeristiwa", "AntreanVerifikasi", "CabutIzin", "Ibadah", "Kehadiran", "KeuanganUnit", "KonfirmasiKeluarga", "Modul", "Panitia", "Pelimpahan", "PemberiPersetujuan", "Peristiwa", "PermintaanDana", "PermohonanAnggota", "PersembahanSaya", "TampilanNama"], hal = function (n) { return (web && PS.indexOf(n) < 0 ? (n === 'Main' ? 'WebBeranda' : 'Web' + n) : n) + '.dc.html'; };
+    var baris = function (a) { return a.map(function (r) { return { j: r[0], s: r[1], l: r[2] || '', ls: LS[r[3] || 'garis'], h: r[4] ? hal(r[4]) : hal('AlurPanitia') }; }); };
+    var E = (function () { var s = Object.assign({ pesan: '', riw: [] }, { v: 'utama', st: 'Aktif', um: false, sisa: false, file: '', tglST: '' }, self.state.a || {});
+      var set = function (o) { self.setState({ a: Object.assign({}, s, o) }); };
+      var ke = function (v, o) { return function () { set(Object.assign({ v: v, pesan: '' }, o || {})); }; };
+      var ketik = function (k) { return function (e) { var o = {}; o[k] = e.target.value; set(o); }; };
+      var balik = function (k) { return function () { var o = {}; o[k] = !s[k]; set(o); }; };
+      var tgl = function (t) { var m = /^(\d\d)\/(\d\d)\/(\d{4})$/.exec((t || '').trim()); if (!m) return null; var d = +m[1], b = +m[2]; if (b < 1 || b > 12 || d < 1 || d > 31) return null; return (+m[3]) * 10000 + b * 100 + d; };
+      var HARI = 20261116, HARI_T = '16/11/2026';
+      var chip = function (on) { return on ? 'background: #13201C; color: #FFFFFF; border: 1.5px solid #13201C' : 'background: #FFFFFF; color: #13201C; border: 1.5px solid #7F8C86'; };
+      var pil = function (k, a) { return a.map(function (n) { return { n: n, on: s[k] === n, st: chip(s[k] === n), pick: function () { var o = { pesan: '' }; o[k] = n; set(o); } }; }); };
+      var V = { pesan: s.pesan, pesanAda: !!s.pesan, riw: s.riw.map(function (t) { return { t: t }; }), riwAda: s.riw.length > 0 };
+      ["utama"].forEach(function (v) { V['v_' + v] = s.v === v; });
+      var ya = function (n, b) { V[n] = !!b; V[n + 'X'] = !b; V[n + 'St'] = b ? 'background: #13201C; color: #FFFFFF' : 'background: #DDE2DB; color: #43514C'; };
+      var sebab = function (n, t) { V[n] = t || ''; V[n + 'Ada'] = !!t; };
+      var catat = function (t) { return [HARI_T + ' · ' + t].concat(s.riw); };
+
+      var fileSt = function (sekaliGagal) { return { fileKosong: !s.file, fileGagal: s.file === 'gagal', fileAda: s.file === 'ada', fileL: s.file === 'ada' ? 'Terlampir' : (s.file === 'gagal' ? 'Gagal diunggah' : 'Wajib, belum ada'), fileLs: LS[s.file === 'ada' ? 'garis' : 'bata'],
+        pilihFile: function () { set({ file: sekaliGagal && !s.file ? 'gagal' : 'ada' }); } }; };
+
+      var t = tgl(s.tglST), a = !s.um ? 'masih ada Uang Muka yang belum dipertanggungjawabkan.' : (!s.sisa ? 'sisa uang Panitia belum dikembalikan.' : (s.tglST.trim() && t === null ? 'tanggal serah terima tidak dikenali. Contoh: 16/11/2026.' : (t !== null && t > HARI ? 'tanggal serah terima belum tiba.' : '')));
+      ya('ok', !a); sebab('sebab', a);
+      var R_ = Object.assign(V, fileSt(false), {
+        st: s.st, stLs: LS[s.st === 'Aktif' ? 'laut' : (s.st === 'Penutupan keuangan' ? 'draf' : (s.st === 'Ditutup' ? 'tinta' : 'abu'))], aktif: s.st === 'Aktif', tutupKeu: s.st === 'Penutupan keuangan', ditutup: s.st === 'Ditutup', sudahArsip: s.st === 'Diarsipkan',
+        stKet: s.st === 'Aktif' ? 'Membukukan di peruntukan Panitia Natal 2026.' : (s.st === 'Penutupan keuangan' ? 'Tidak ada transaksi baru selain yang menyelesaikan penutupan.' : (s.st === 'Ditutup' ? 'Ditutup ' + HARI_T + '.' : 'Diarsipkan ' + HARI_T + '.')),
+        umL: s.um ? 'Sudah dipertanggungjawabkan' : 'Belum dipertanggungjawabkan', umLs: LS[s.um ? 'laut' : 'bata'], umBelum: !s.um, sisaL: s.sisa ? 'Sudah dikembalikan' : 'Belum dikembalikan', sisaLs: LS[s.sisa ? 'laut' : 'bata'], sisaBelum: !s.sisa,
+        tglST: s.tglST, onTglST: ketik('tglST'), fileL: s.file === 'ada' ? 'Terlampir' : 'Belum dilampirkan', fileLs: LS[s.file === 'ada' ? 'garis' : 'draf'],
+        mulaiTutup: function () { set({ st: 'Penutupan keuangan', riw: catat('Penutupan keuangan Panitia Natal 2026 dimulai · Stevi Lengkong, Ketua Panitia') }); },
+        umBeres: function () { set({ um: true, riw: catat('Pertanggungjawaban Uang Muka Dekorasi Natal dibukukan · Rivo Mandagi, Bendahara Panitia') }); },
+        sisaBeres: function () { set({ sisa: true, riw: catat('Sisa Rp350.000 dialihkan ke peruntukan Umum Jemaat · Meiske Lumentut, Bendahara Jemaat') }); },
+        tutup: function () { set({ st: 'Ditutup', riw: catat('Panitia Natal 2026 Ditutup · ' + (s.file === 'ada' ? 'berita acara serah terima aset ' + s.tglST.trim() + ' terlampir' : 'tanpa berita acara serah terima aset')) }); },
+        arsip: function () { set({ st: 'Diarsipkan', riw: catat('Panitia Natal 2026 Diarsipkan') }); }
+      });
+      [["tutup", "ok"]].forEach(function (g) { var mentah = R_[g[0]]; R_[g[0] + 'Mentah'] = mentah; R_[g[0]] = function () { var F = self.vals(); if (F[g[1]]) F[g[0] + 'Mentah'](); }; });
+      return R_; })() || {};
+    for (var n in E) V[n] = E[n];
+    return V;
+  }
+
+  renderVals() { var V = this.vals(); if (this.navVals) V.nav = this.navVals(); return V; }
+}
+</script>
+</body>
+</html>

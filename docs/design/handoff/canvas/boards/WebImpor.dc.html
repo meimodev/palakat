@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Impor transaksi (web)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+input{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes isi{from{width:0}to{width:100%}}
+@keyframes titik{0%,100%{opacity:.25}50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+.pn-c{display:none}
+@media (max-width:860px){
+.pn{flex:1 1 100%!important;flex-direction:row!important;flex-wrap:wrap;align-items:center;gap:0 12px!important;padding:8px 16px!important;border-right:0!important;border-bottom:1px solid #DDE2DB}
+.pn-c{display:flex;align-items:center;appearance:none;-webkit-appearance:none;min-height:44px;margin:0 0 0 auto;padding:0 16px;border-radius:14px;border:1.5px solid #13201C;background:#FFFFFF;font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+.pn-c::before{content:"Menu"}
+.pn-c:checked{background:#13201C;color:#FFFFFF}
+.pn-c:checked::before{content:"Tutup menu"}
+.pn-l,.pn-w{display:none;flex:1 1 100%}
+.pn-c:checked~.pn-l{display:block;padding:8px 0}
+.pn-c:checked~.pn-w{display:block;margin-top:0!important;padding-bottom:8px!important}
+}
+</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; flex-wrap: wrap; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 15px; line-height: 1.45">
+
+  <nav class="pn" style="flex: 1 1 220px; box-sizing: border-box; padding: 24px 16px; background: #FFFFFF; border-right: 1px solid #DDE2DB; display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px">
+      <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="none" stroke="#0E5A63" stroke-width="2" stroke-dasharray="3 3"/><path d="M12 2h4a6 6 0 0 1 6 6v8a6 6 0 0 1-6 6h-4z" fill="#0E5A63"/></svg>
+      <div><div style="font-weight: 700; font-size: 18px; line-height: 1.1">palakat</div><div style="font-size: 13px; color: #5E6A66">Jemaat Karunia</div></div>
+    </div>
+    <input type="checkbox" class="pn-c" aria-label="Menu">
+    <div class="pn-l">
+      <sc-for list="{{nav}}" as="n" hint-placeholder-count="7">
+        <a href="{{n.href}}" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 10px; text-decoration: none; font-weight: 600; background: {{n.bg}}; color: {{n.fg}}">{{n.n}}</a>
+      </sc-for>
+    </div>
+    <div class="pn-w" style="margin-top: auto; padding: 12px 8px 0; border-top: 1px solid #DDE2DB; font-size: 13px; color: #43514C"><sc-if value="{{tjk}}" hint-placeholder-val="{{true}}"><div><strong style="color: #13201C">Meiske L.</strong> · Bendahara<br>Wewenang Bendahara aktif</div></sc-if><sc-if value="{{jk}}" hint-placeholder-val="{{false}}"><div><strong style="color: #13201C">Yanti Sumual</strong> · Operator<br>Menjalankan jabatan kosong Bendahara Jemaat</div></sc-if></div>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 28px clamp(16px, 3vw, 40px) 40px; display: flex; flex-direction: column; gap: 20px">
+<sc-if value="{{jk}}" hint-placeholder-val="{{false}}"><div role="status" style="background: #13201C; color: #FFFFFF; border-radius: 14px; padding: 12px 16px; font-size: 14px"><strong>Anda menjalankan jabatan kosong Bendahara Jemaat sejak 16/11/2026 08.15.</strong> <span style="color: #D5DDD8">Setiap tindakan dicatat sebagai dijalankan oleh Operator Yanti Sumual.</span></div></sc-if>
+    <div><a href="WebTransaksi.dc.html" style="font-size: 14px; font-weight: 600">Transaksi</a><h1 style="margin: 2px 0 0; font-size: 26px; font-weight: 700">Impor <span style="font-size: 15px; font-weight: 500; color: #5E6A66">· kas-november.xlsx · 5 baris</span></h1></div>
+    <div style="background: {{kBg}}; border: {{kBd}}; border-radius: 16px; padding: 16px 20px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px">
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 13px; font-weight: 700"><sc-for list="{{tahap}}" as="t" hint-placeholder-count="4"><span style="display: inline-flex; align-items: center; min-height: 32px; padding: 0 12px; border-radius: 999px; background: {{t.bg}}; color: {{t.fg}}; border: {{t.bd}}">{{t.n}}</span></sc-for></div>
+      <div style="flex: 1 1 280px; font-size: 14px; color: #43514C">{{ket}}</div>
+      <sc-if value="{{adaAksi}}" hint-placeholder-val="{{true}}"><button onClick="{{maju}}" disabled="{{takBisa}}" style="min-height: 46px; padding: 0 20px; border-radius: 12px; border: 0; background: {{btnBg}}; color: {{btnFg}}; font-weight: 700">{{btnTeks}}</button></sc-if>
+    </div>
+    <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; overflow-x: auto"><div style="min-width: 980px">
+      <div style="display: grid; grid-template-columns: 50px minmax(0, 1.2fr) minmax(0, 1.3fr) minmax(0, 1.1fr) minmax(0, 1.2fr); gap: 16px; padding: 12px 18px; font-size: 13px; font-weight: 600; color: #43514C"><div>Baris</div><div>Nilai asli di file</div><div>Dibaca sebagai</div><div>Mata Anggaran</div><div>Hasil</div></div>
+      <sc-for list="{{rows}}" as="r" hint-placeholder-count="5">
+        <div style="display: grid; grid-template-columns: 50px minmax(0, 1.2fr) minmax(0, 1.3fr) minmax(0, 1.1fr) minmax(0, 1.2fr); gap: 16px; align-items: start; padding: 12px 18px; border-top: 1px solid #DDE2DB; font-size: 14px; background: {{r.bg}}">
+          <div style="font-family: 'IBM Plex Mono', monospace; color: #43514C">{{r.i}}</div>
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #43514C; white-space: pre-line">{{r.asli}}</div>
+          <div><div style="font-weight: 600">{{r.ur}}</div><div style="font-size: 13px; color: #43514C">{{r.baca}}</div></div>
+          <div style="font-size: 13px; color: {{r.mfg}}">{{r.ma}}</div>
+          <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start">
+            <span style="font-size: 13px; font-weight: 700; border-radius: 6px; padding: 3px 9px; background: {{r.hbg}}; color: {{r.hfg}}; border: {{r.hbd}}">{{r.hasil}}</span>
+            <sc-if value="{{r.cat}}" hint-placeholder-val="{{false}}"><div style="font-size: 13px; color: #43514C">{{r.cat}}</div></sc-if>
+            <sc-if value="{{r.pilih}}" hint-placeholder-val="{{false}}"><div style="display: flex; flex-wrap: wrap; gap: 6px"><button onClick="{{r.tetap}}" style="min-height: 44px; padding: 0 12px; border-radius: 10px; border: 1.5px solid #13201C; background: #FFFFFF; font-weight: 700; font-size: 13px">Tetap impor</button><button onClick="{{r.tidak}}" style="min-height: 44px; padding: 0 12px; border-radius: 10px; border: 1.5px solid #13201C; background: #FFFFFF; font-weight: 700; font-size: 13px">Tidak diimpor</button></div></sc-if>
+          </div>
+        </div>
+      </sc-for>
+    </div></div>
+    <div style="font-size: 13px; color: #5E6A66">Baris yang masih ditampung belum masuk saldo dan menjadi hambatan tutup buku bulannya. Baris yang tidak diimpor tetap disimpan bersama alasannya.</div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"jabatanKosong":{"editor":"boolean","default":false},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  rp(n) { var s = String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return (n < 0 ? '−' : '') + 'Rp' + s; }
+  navVals() { return [['Beranda', 'WebBeranda.dc.html'], ['Transaksi', 'WebTransaksi.dc.html'], ['Uang Muka dan Titipan', 'WebKewajiban.dc.html'], ['Rekonsiliasi', 'WebRekonsiliasi.dc.html'], ['Bulan dan tutup buku', 'WebTutupBuku.dc.html'], ['Laporan', 'WebPaketLaporan.dc.html'], ['Pengaturan', 'WebPengaturan.dc.html']].map(function (n, i) { return { n: n[0], href: n[1], bg: i === 1 ? '#13201C' : 'transparent', fg: i === 1 ? '#FFFFFF' : '#13201C' }; }); }
+  state = { st: 0, ganda: '' };
+  rv0() {
+    var self = this, s = this.state, st = s.st;
+    var NAMA = ['Ditampung', 'Lolos pengecekan', 'Sudah diperiksa', 'Sudah diimpor'];
+    var D = [
+      ['02/11/26\nPersembahan Mgg\n3.100.000', 'Persembahan Ibadah Minggu', '02/11/2026 · Kas · Rp3.100.000 masuk', 'Pendapatan 1.3.53.07.00 Persembahan Ibadah Minggu', 'ok'],
+      ['04/11/26\nBayar PLN\n-1250000', 'Bayar PLN', '04/11/2026 · Bank BNI ··4821 · Rp1.250.000 keluar', 'Belanja 5.01.02.00 Listrik, air dan telepon', 'ok'],
+      ['4 Nop\nPLN nov\n1.250.000,-', 'PLN nov', '04/11/2026 · Bank BNI ··4821 · Rp1.250.000 keluar', 'Belanja 5.01.02.00 Listrik, air dan telepon', 'ganda'],
+      ['08/11/26\nHonor pemusik\n650rb', 'Honor pemusik', '08/11/2026 · Kas · Rp650.000 keluar', '', 'ok'],
+      ['31/11/26\nATK\n85.000', 'ATK', 'Tanggal tidak terbaca · Kas · Rp85.000 keluar', 'Belanja 5.02.01.00 Alat tulis dan fotokopi', 'tolak']
+    ];
+    var rows = D.map(function (d, i) {
+      var jenis = d[4], h = { hasil: NAMA[Math.min(st, 3)], hbg: st === 3 ? '#13201C' : '#FFFFFF', hfg: st === 3 ? '#FFFFFF' : '#43514C', hbd: st === 3 ? '1.5px solid #13201C' : (st === 0 ? '1.5px dashed #808D87' : '1.5px solid #5E6A66'), cat: '', pilih: false, bg: st === 0 ? '#F3F5F1' : '#FFFFFF' };
+      if (st >= 1 && jenis === 'tolak') h = { hasil: 'Tidak diimpor', hbg: '#FFFFFF', hfg: '#A63C1C', hbd: '1.5px solid #A63C1C', cat: 'Alasan: tanggal 31/11 tidak ada. Perbaiki di file lalu impor lagi, atau catat sendiri.', pilih: false, bg: '#FFFFFF' };
+      if (st >= 1 && jenis === 'ganda') {
+        if (s.ganda === 'tidak') h = { hasil: 'Tidak diimpor', hbg: '#FFFFFF', hfg: '#43514C', hbd: '1.5px solid #5E6A66', cat: 'Alasan: sama dengan baris 2.', pilih: false, bg: '#FFFFFF' };
+        else if (!s.ganda) h = { hasil: 'Mungkin ganda', hbg: '#FFFFFF', hfg: '#13201C', hbd: '1.5px solid #13201C', cat: 'Tanggal, Kas/Bank dan jumlah sama dengan baris 2.', pilih: st < 3, bg: '#FFFFFF' };
+      }
+      return Object.assign({ i: i + 1, asli: d[0], ur: d[1], baca: d[2], ma: d[3] || 'Mata Anggaran belum dipilih', mfg: d[3] ? '#13201C' : '#A63C1C', tetap: function () { self.setState({ ganda: 'tetap' }); }, tidak: function () { self.setState({ ganda: 'tidak' }); } }, h);
+    });
+    var tunggu = st === 1 && !s.ganda;
+    var KET = ['Nilai asli dan hasil bacaannya ditampilkan berdampingan. Belum ada yang masuk saldo.', tunggu ? 'Putuskan dulu baris yang mungkin ganda.' : 'Pengecekan selesai. Baca sekali lagi sebelum menandai sudah diperiksa.', 'Sudah diperiksa. Impor mencatat baris yang lolos; baris tanpa Mata Anggaran masuk sebagai transaksi dengan Mata Anggaran belum dipilih.', (s.ganda === 'tetap' ? 4 : 3) + ' baris sudah diimpor · ' + (s.ganda === 'tetap' ? 1 : 2) + ' tidak diimpor. No. bukti asal dari file ditampilkan terpisah dari No. Bukti.'];
+    return {
+      nav: this.navVals(), rows: rows, ket: KET[st],
+      tahap: NAMA.map(function (n, i) { var lewat = i <= st; return { n: (i + 1) + ' · ' + n, bg: lewat ? '#13201C' : 'transparent', fg: lewat ? '#FFFFFF' : '#5E6A66', bd: lewat ? '1.5px solid #13201C' : '1.5px dashed #808D87' }; }),
+      kBg: st === 3 ? '#FFFFFF' : 'transparent', kBd: st === 3 ? '1.5px solid #13201C' : '1.5px dashed #808D87',
+      adaAksi: st < 3, takBisa: tunggu, btnTeks: ['Jalankan pengecekan', 'Tandai sudah diperiksa', 'Impor'][st] || '', btnBg: tunggu ? '#DDE2DB' : (st === 2 ? '#0E5A63' : '#13201C'), btnFg: tunggu ? '#5E6A66' : '#FFFFFF',
+      maju: function () { if (!tunggu) self.setState({ st: Math.min(3, st + 1) }); }
+    };
+  }
+  tukarJk(o, d) {
+    var self = this, ganti = function (s) { var t = s.match(/\d\d\/\d\d\/\d{4}/g) || []; return s.indexOf('Meiske L.') < 0 || t.some(function (x) { return x !== '16/11/2026'; }) ? s : s.split('Meiske L.').join('Yanti Sumual, Operator'); };
+    if (d > 5 || !o || typeof o !== 'object') return o;
+    Object.keys(o).forEach(function (k) { var v = o[k]; if (typeof v === 'string') o[k] = ganti(v); else if (v && typeof v === 'object') self.tukarJk(v, d + 1); });
+    return o;
+  }
+  renderVals() {
+    var V = this.rv0(), jk = !!this.props.jabatanKosong;
+    if (jk && false) this.tukarJk(V, 0);
+    V.jk = jk; V.tjk = !jk; V.plk = jk ? 'Yanti Sumual, Operator' : 'Meiske L.'; V.plk2 = jk ? 'Yanti Sumual, Operator (menjalankan jabatan kosong Bendahara Jemaat)' : 'Meiske L.';
+    return V;
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Hitung kas (web)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+input{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+.pn-c{display:none}
+@media (max-width:860px){
+.pn{flex:1 1 100%!important;flex-direction:row!important;flex-wrap:wrap;align-items:center;gap:0 12px!important;padding:8px 16px!important;border-right:0!important;border-bottom:1px solid #DDE2DB}
+.pn-c{display:flex;align-items:center;appearance:none;-webkit-appearance:none;min-height:44px;margin:0 0 0 auto;padding:0 16px;border-radius:14px;border:1.5px solid #13201C;background:#FFFFFF;font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+.pn-c::before{content:"Menu"}
+.pn-c:checked{background:#13201C;color:#FFFFFF}
+.pn-c:checked::before{content:"Tutup menu"}
+.pn-l,.pn-w{display:none;flex:1 1 100%}
+.pn-c:checked~.pn-l{display:block;padding:8px 0}
+.pn-c:checked~.pn-w{display:block;margin-top:0!important;padding-bottom:8px!important}
+}
+</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; flex-wrap: wrap; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 15px; line-height: 1.45">
+
+  <nav class="pn" style="flex: 1 1 220px; box-sizing: border-box; padding: 24px 16px; background: #FFFFFF; border-right: 1px solid #DDE2DB; display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px">
+      <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="none" stroke="#0E5A63" stroke-width="2" stroke-dasharray="3 3"/><path d="M12 2h4a6 6 0 0 1 6 6v8a6 6 0 0 1-6 6h-4z" fill="#0E5A63"/></svg>
+      <div><div style="font-weight: 700; font-size: 18px; line-height: 1.1">palakat</div><div style="font-size: 13px; color: #5E6A66">Jemaat Karunia</div></div>
+    </div>
+    <input type="checkbox" class="pn-c" aria-label="Menu">
+    <div class="pn-l">
+      <sc-for list="{{nav}}" as="n" hint-placeholder-count="7">
+        <a href="{{n.href}}" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 10px; text-decoration: none; font-weight: 600; background: {{n.bg}}; color: {{n.fg}}">{{n.n}}</a>
+      </sc-for>
+    </div>
+    <div class="pn-w" style="margin-top: auto; padding: 12px 8px 0; border-top: 1px solid #DDE2DB; font-size: 13px; color: #43514C"><sc-if value="{{tjk}}" hint-placeholder-val="{{true}}"><div><strong style="color: #13201C">Meiske L.</strong> · Bendahara<br>Wewenang Bendahara aktif</div></sc-if><sc-if value="{{jk}}" hint-placeholder-val="{{false}}"><div><strong style="color: #13201C">Yanti Sumual</strong> · Operator<br>Menjalankan jabatan kosong Bendahara Jemaat</div></sc-if></div>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 28px clamp(16px, 3vw, 40px) 40px; display: flex; flex-direction: column; gap: 20px">
+<sc-if value="{{jk}}" hint-placeholder-val="{{false}}"><div role="status" style="background: #13201C; color: #FFFFFF; border-radius: 14px; padding: 12px 16px; font-size: 14px"><strong>Anda menjalankan jabatan kosong Bendahara Jemaat sejak 16/11/2026 08.15.</strong> <span style="color: #D5DDD8">Setiap tindakan dicatat sebagai dijalankan oleh Operator Yanti Sumual.</span></div></sc-if>
+    <h1 style="margin: 0; font-size: 26px; font-weight: 700">Rekonsiliasi <span style="font-size: 15px; font-weight: 500; color: #5E6A66">· November 2026</span></h1>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px">
+      <span aria-current="page" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 16px; border-radius: 999px; border: 1.5px solid #13201C; background: #13201C; color: #FFFFFF; font-weight: 600; font-size: 14px">Kas · hitung kas</span>
+      <a href="WebRekonsiliasi.dc.html" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 16px; border-radius: 999px; border: 1.5px solid #7F8C86; background: #FFFFFF; color: #13201C; font-weight: 600; font-size: 14px; text-decoration: none">Bank BNI ··4821</a>
+      <a href="WebRekonsiliasi.dc.html" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 16px; border-radius: 999px; border: 1.5px solid #7F8C86; background: #FFFFFF; color: #13201C; font-weight: 600; font-size: 14px; text-decoration: none">Bank SulutGo ··1107</a>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+      <div style="flex: 999 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+        <div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px"><h2 style="margin: 0; font-size: 18px; font-weight: 700">Hitung kas</h2><div style="font-size: 14px; color: #43514C">16 November 2026 · 11.30</div></div>
+        <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 4px 18px">
+          <div style="display: grid; grid-template-columns: minmax(0, 1fr) 120px minmax(0, 1fr); gap: 16px; padding: 10px 0; font-size: 13px; font-weight: 600; color: #43514C"><div>Pecahan</div><div style="text-align: right">Lembar</div><div style="text-align: right">Jumlah</div></div>
+          <sc-for list="{{pecahan}}" as="p" hint-placeholder-count="7">
+            <div style="display: grid; grid-template-columns: minmax(0, 1fr) 120px minmax(0, 1fr); gap: 16px; align-items: center; padding: 6px 0; border-top: 1px solid #DDE2DB">
+              <label for="{{p.id}}" style="font-family: 'IBM Plex Mono', monospace; font-weight: 500">{{p.label}}</label>
+              <input id="{{p.id}}" inputmode="numeric" placeholder="—" value="{{p.v}}" onChange="{{p.on}}" style="width: 100%; box-sizing: border-box; min-height: 44px; padding: 0 12px; border-radius: 10px; border: 1px solid #7F8C86; background: #FFFFFF; font-family: 'IBM Plex Mono', monospace; font-size: 15px; text-align: right">
+              <div style="text-align: right; font-family: 'IBM Plex Mono', monospace; color: {{p.fg}}">{{p.sub}}</div>
+            </div>
+          </sc-for>
+          <div style="display: grid; grid-template-columns: minmax(0, 1fr) 120px minmax(0, 1fr); gap: 16px; padding: 12px 0; border-top: 1.5px solid #13201C; font-weight: 700"><div>Hasil hitung kas</div><div></div><div style="text-align: right; font-family: 'IBM Plex Mono', monospace; color: {{hasilFg}}">{{hasil}}</div></div>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px"><button onClick="{{kosong}}" style="min-height: 44px; padding: 0 16px; border-radius: 12px; border: 1.5px dashed #808D87; background: transparent; font-weight: 700; color: #43514C">Kas kosong: catat Rp0</button><div style="flex: 1 1 240px; font-size: 13px; color: #5E6A66">{{hasilCat}}</div></div>
+      </div>
+
+      <aside style="flex: 1 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+        <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 10px">
+          <div style="display: flex; justify-content: space-between"><div style="color: #43514C">Saldo buku</div><div style="font-family: 'IBM Plex Mono', monospace; font-weight: 500">Rp8.420.000</div></div>
+          <div style="display: flex; justify-content: space-between"><div style="color: #43514C">Hasil hitung kas</div><div style="font-family: 'IBM Plex Mono', monospace; font-weight: 500; color: {{hasilFg}}">{{hasil}}</div></div>
+          <div style="border-top: 1.5px solid #13201C; padding-top: 12px; display: flex; justify-content: space-between; align-items: baseline; gap: 12px"><div style="font-weight: 700">Selisih belum dijelaskan</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 28px; font-weight: 600; color: {{selisihFg}}; transition: color .3s">{{selisih}}</div></div>
+          <div style="font-size: 14px; color: #43514C">{{selisihCat}}</div>
+        </div>
+        <div>
+          <div style="font-size: 14px; color: #43514C; margin-bottom: 8px">Petugas penghitung <span style="color: #5E6A66">· paling sedikit satu</span></div>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px"><sc-for list="{{petugas}}" as="c" hint-placeholder-count="3"><button onClick="{{c.pick}}" aria-pressed="{{c.on}}" style="min-height: 44px; padding: 0 14px; border-radius: 999px; border: 1.5px solid {{c.bd}}; background: {{c.bg}}; color: {{c.fg}}; font-weight: 600; font-size: 14px">{{c.n}}</button></sc-for></div>
+        </div>
+        <div style="border: 1.5px dashed #808D87; border-radius: 12px; padding: 12px 14px; font-size: 14px; color: #43514C"><strong style="color: #0E5A63">Lampirkan dokumen pendukung</strong> · foto lembar hitung kas</div>
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <button onClick="{{simpan}}" disabled="{{takBisa}}" style="min-height: 50px; border-radius: 12px; border: 0; background: {{btnBg}}; color: {{btnFg}}; font-weight: 700; text-align: center">Simpan hitung kas</button>
+          <div role="status" style="font-size: 14px; color: {{pesanFg}}; font-weight: {{pesanFw}}">{{pesan}}</div>
+        </div>
+      </aside>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"jabatanKosong":{"editor":"boolean","default":false},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  state = { v: ['80', '5', '5', '1', '2', '', ''], nol: false, petugas: [], tersimpan: false };
+  P = [100000, 50000, 20000, 10000, 5000, 2000, 1000];
+  BUKU = 8420000;
+  rp(n) { var s = String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return (n < 0 ? '−' : '') + 'Rp' + s; }
+  rv0() {
+    var self = this, s = this.state, rp = this.rp, P = this.P;
+    var nav = [['Beranda', 'WebBeranda.dc.html'], ['Transaksi', 'WebTransaksi.dc.html'], ['Uang Muka dan Titipan', 'WebKewajiban.dc.html'], ['Rekonsiliasi', 'WebRekonsiliasi.dc.html'], ['Bulan dan tutup buku', 'WebTutupBuku.dc.html'], ['Laporan', 'WebPaketLaporan.dc.html'], ['Pengaturan', 'WebPengaturan.dc.html']];
+    var num = function (d) { return d === '' ? 0 : parseInt(d, 10); };
+    var total = s.v.reduce(function (a, d, i) { return a + num(d) * P[i]; }, 0);
+    var ada = s.v.some(function (d) { return d !== ''; }), dihitung = ada || s.nol;
+    var selisih = this.BUKU - total, okPetugas = s.petugas.length > 0, bisa = dihitung && okPetugas && !s.tersimpan;
+    return {
+      nav: nav.map(function (n, i) { return { n: n[0], href: n[1], bg: i === 3 ? '#13201C' : 'transparent', fg: i === 3 ? '#FFFFFF' : '#13201C' }; }),
+      pecahan: P.map(function (v, i) { var d = s.v[i]; return { id: 'p-' + v, label: rp(v), v: d, sub: d === '' ? '—' : rp(num(d) * v), fg: d === '' ? '#5E6A66' : '#13201C', on: function (e) { var a = s.v.slice(); a[i] = e.target.value.replace(/\D/g, '').replace(/^0+(?=\d)/, '').slice(0, 5); self.setState({ v: a, nol: false, tersimpan: false }); } }; }),
+      hasil: dihitung ? rp(total) : '—', hasilFg: dihitung ? '#13201C' : '#5E6A66',
+      hasilCat: dihitung ? (s.nol && total === 0 ? 'Dihitung: Rp0. Nol dicatat sebagai hasil hitung, bukan sebagai belum dihitung.' : 'Sel kosong berarti pecahan itu tidak ada.') : 'Belum dihitung. Kosong bukan Rp0.',
+      selisih: dihitung ? rp(Math.abs(selisih)) : '—', selisihFg: !dihitung ? '#5E6A66' : (selisih === 0 ? '#0E5A63' : '#A63C1C'),
+      selisihCat: !dihitung ? 'Selisih baru dapat dihitung setelah ada hasil hitung kas.' : (selisih === 0 ? 'Hasil hitung kas sama dengan Saldo buku.' : ((selisih > 0 ? 'Uang di kas kurang dari buku. ' : 'Uang di kas lebih dari buku. ') + 'Hasil hitung disimpan apa adanya; tidak ada tindakan untuk menyamakan angka.')),
+      petugas: ['Meiske L.', 'Pnt. Jefry Wowor', 'Dkn. Olga Tamba'].map(function (o) { var on = s.petugas.indexOf(o) >= 0; return { n: o, on: on, bg: on ? '#13201C' : '#FFFFFF', fg: on ? '#FFFFFF' : '#13201C', bd: on ? '#13201C' : '#7F8C86', pick: function () { var a = s.petugas.slice(), i = a.indexOf(o); if (i >= 0) a.splice(i, 1); else a.push(o); self.setState({ petugas: a, tersimpan: false }); } }; }),
+      takBisa: !bisa, btnBg: bisa ? '#0E5A63' : '#DDE2DB', btnFg: bisa ? '#FFFFFF' : '#5E6A66',
+      pesan: s.tersimpan ? 'Hitung kas tersimpan · dihitung oleh ' + s.petugas.join(' dan ') : (!dihitung ? 'Isi hasil hitung, atau catat Rp0 bila kas memang kosong.' : (!okPetugas ? 'Pilih petugas penghitung.' : 'Siap disimpan.')),
+      pesanFg: s.tersimpan ? '#0E5A63' : '#43514C', pesanFw: s.tersimpan ? 700 : 400,
+      kosong: function () { self.setState({ v: ['', '', '', '', '', '', ''], nol: true, tersimpan: false }); },
+      simpan: function () { if (bisa) self.setState({ tersimpan: true }); }
+    };
+  }
+  tukarJk(o, d) {
+    var self = this, ganti = function (s) { var t = s.match(/\d\d\/\d\d\/\d{4}/g) || []; return s.indexOf('Meiske L.') < 0 || t.some(function (x) { return x !== '16/11/2026'; }) ? s : s.split('Meiske L.').join('Yanti Sumual, Operator'); };
+    if (d > 5 || !o || typeof o !== 'object') return o;
+    Object.keys(o).forEach(function (k) { var v = o[k]; if (typeof v === 'string') o[k] = ganti(v); else if (v && typeof v === 'object') self.tukarJk(v, d + 1); });
+    return o;
+  }
+  renderVals() {
+    var V = this.rv0(), jk = !!this.props.jabatanKosong;
+    if (jk && false) this.tukarJk(V, 0);
+    V.jk = jk; V.tjk = !jk; V.plk = jk ? 'Yanti Sumual, Operator' : 'Meiske L.'; V.plk2 = jk ? 'Yanti Sumual, Operator (menjalankan jabatan kosong Bendahara Jemaat)' : 'Meiske L.';
+    return V;
+  }
+}
+</script>
+</body>
+</html>

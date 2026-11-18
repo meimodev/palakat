@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Paket Laporan Bulanan GMIM (web)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+input{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes isi{from{width:0}to{width:100%}}
+@keyframes titik{0%,100%{opacity:.25}50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+.pn-c{display:none}
+@media (max-width:860px){
+.pn{flex:1 1 100%!important;flex-direction:row!important;flex-wrap:wrap;align-items:center;gap:0 12px!important;padding:8px 16px!important;border-right:0!important;border-bottom:1px solid #DDE2DB}
+.pn-c{display:flex;align-items:center;appearance:none;-webkit-appearance:none;min-height:44px;margin:0 0 0 auto;padding:0 16px;border-radius:14px;border:1.5px solid #13201C;background:#FFFFFF;font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+.pn-c::before{content:"Menu"}
+.pn-c:checked{background:#13201C;color:#FFFFFF}
+.pn-c:checked::before{content:"Tutup menu"}
+.pn-l,.pn-w{display:none;flex:1 1 100%}
+.pn-c:checked~.pn-l{display:block;padding:8px 0}
+.pn-c:checked~.pn-w{display:block;margin-top:0!important;padding-bottom:8px!important}
+}
+</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; flex-wrap: wrap; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 15px; line-height: 1.45">
+
+  <nav class="pn" style="flex: 1 1 220px; box-sizing: border-box; padding: 24px 16px; background: #FFFFFF; border-right: 1px solid #DDE2DB; display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px">
+      <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="none" stroke="#0E5A63" stroke-width="2" stroke-dasharray="3 3"/><path d="M12 2h4a6 6 0 0 1 6 6v8a6 6 0 0 1-6 6h-4z" fill="#0E5A63"/></svg>
+      <div><div style="font-weight: 700; font-size: 18px; line-height: 1.1">palakat</div><div style="font-size: 13px; color: #5E6A66">Jemaat Karunia</div></div>
+    </div>
+    <input type="checkbox" class="pn-c" aria-label="Menu">
+    <div class="pn-l">
+      <sc-for list="{{nav}}" as="n" hint-placeholder-count="7">
+        <a href="{{n.href}}" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 10px; text-decoration: none; font-weight: 600; background: {{n.bg}}; color: {{n.fg}}">{{n.n}}</a>
+      </sc-for>
+    </div>
+    <div class="pn-w" style="margin-top: auto; padding: 12px 8px 0; border-top: 1px solid #DDE2DB; font-size: 13px; color: #43514C"><sc-if value="{{tjk}}" hint-placeholder-val="{{true}}"><div><strong style="color: #13201C">Meiske L.</strong> · Bendahara<br>Wewenang Bendahara aktif</div></sc-if><sc-if value="{{jk}}" hint-placeholder-val="{{false}}"><div><strong style="color: #13201C">Yanti Sumual</strong> · Operator<br>Menjalankan jabatan kosong Bendahara Jemaat</div></sc-if></div>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 28px clamp(16px, 3vw, 40px) 40px; display: flex; flex-direction: column; gap: 20px">
+<sc-if value="{{jk}}" hint-placeholder-val="{{false}}"><div role="status" style="background: #13201C; color: #FFFFFF; border-radius: 14px; padding: 12px 16px; font-size: 14px"><strong>Anda menjalankan jabatan kosong Bendahara Jemaat sejak 16/11/2026 08.15.</strong> <span style="color: #D5DDD8">Setiap tindakan dicatat sebagai dijalankan oleh Operator Yanti Sumual.</span></div></sc-if>
+    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px"><h1 style="margin: 0; font-size: 26px; font-weight: 700; flex: 1 1 320px">Paket Laporan Bulanan GMIM <span style="font-size: 15px; font-weight: 500; color: #5E6A66">· Oktober 2026</span></h1><a href="A4F01.dc.html" style="min-height: 44px; padding: 0 18px; border-radius: 12px; border: 0; background: #0E5A63; color: #FFFFFF; font-weight: 700; display: flex; align-items: center; justify-content: center; text-decoration: none; box-sizing: border-box">Unduh PDF</a><a href="WebExcel.dc.html" style="min-height: 44px; padding: 0 18px; border-radius: 12px; border: 1.5px solid #13201C; background: #FFFFFF; font-weight: 700; color: #13201C; display: flex; align-items: center; justify-content: center; text-decoration: none; box-sizing: border-box">Unduh Excel</a></div>
+    <div style="display: flex; flex-wrap: wrap; gap: 0 22px; font-size: 14px; font-weight: 600; margin-top: -8px"><a href="WebFormatLaporan.dc.html" style="min-height: 44px; min-width: 44px; display: inline-flex; align-items: center">Persetujuan format laporan</a><a href="WebBukti.dc.html" style="min-height: 44px; min-width: 44px; display: inline-flex; align-items: center">Celah nomor</a><a href="A4F01.dc.html" style="min-height: 44px; min-width: 44px; display: inline-flex; align-items: center">Halaman A4</a><a href="WebLihatTransaksi.dc.html" style="min-height: 44px; min-width: 44px; display: inline-flex; align-items: center">Lihat transaksi di balik sebuah angka</a></div>
+    <div style="background: #13201C; color: #FFFFFF; border-radius: 14px; padding: 12px 16px; display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: baseline"><strong>Laporan resmi{{capSalinan}}</strong><span style="font-size: 14px; color: #D5DDD8">Dibekukan saat tutup buku 16/11/2026 11.05 · ID <span style="font-family: 'IBM Plex Mono', monospace">SNP-2026-10-01</span> · Versi Mata Anggaran 2026.1</span></div>
+    <div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+      <div style="flex: 1 1 216px; min-width: 0; background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 6px">
+        <sc-for list="{{daftar}}" as="f" hint-placeholder-count="14">
+          <button onClick="{{f.pick}}" aria-pressed="{{f.on}}" style="display: flex; gap: 10px; align-items: baseline; width: 100%; min-height: 44px; padding: 8px 12px; border-radius: 10px; border: 0; background: {{f.bg}}; color: {{f.fg}}; font-size: 14px"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; flex: none">{{f.id}}</span><span style="font-weight: 600">{{f.n}}</span></button>
+        </sc-for>
+      </div>
+      <div style="flex: 999 1 620px; min-width: 0; background: #FFFFFF; border: 1.5px solid #13201C; border-radius: 6px; padding: clamp(18px, 2vw, 28px); display: flex; flex-direction: column; gap: 18px">
+        <div style="display: flex; flex-direction: column; gap: 2px; border-bottom: 2px solid #13201C; padding-bottom: 14px">
+          <div style="font-size: 13px; font-weight: 600; color: #43514C; letter-spacing: .4px">{{p.id}} · LAPORAN RESMI{{capSalinan}}</div>
+          <div style="font-size: 22px; font-weight: 700; letter-spacing: .2px; text-transform: uppercase">{{p.n}}</div>
+          <div>Jemaat Karunia · Periode laporan 1–31 Oktober 2026</div>
+          <div style="font-size: 13px; color: #5E6A66">Format bawaan aplikasi. {{p.isi}}</div>
+        </div>
+        <sc-if value="{{isF01}}" hint-placeholder-val="{{false}}"><a href="WebLaporan.dc.html" style="align-self: flex-start; min-height: 44px; padding: 0 18px; border-radius: 12px; border: 1.5px solid #13201C; color: #13201C; font-weight: 700; display: flex; align-items: center; text-decoration: none">Buka halaman F01</a></sc-if>
+        <sc-if value="{{isLain}}" hint-placeholder-val="{{false}}">
+          <sc-if value="{{lapTerbatas}}" hint-placeholder-val="{{false}}"><div style="border: 1.5px dashed #808D87; border-radius: 12px; padding: 16px; font-size: 14px; color: #43514C">Laporan ini tidak termasuk salinan TERBATAS. Akses terbatas tidak melihat posisi Kas/Bank, rekening koran, titipan pihak lain, atau daftar yang mencakup seluruh Jemaat. Salinan terbatas memuat F02, F03, F05, F07 dan F12, masing-masing hanya bagian peruntukan Diakonia.</div></sc-if>
+          <sc-if value="{{lapPenuh}}" hint-placeholder-val="{{true}}">
+            <div style="font-weight: 700">{{g.sub}}</div>
+            <div style="overflow-x: auto"><div style="min-width: {{g.minW}}; font-size: 13px">
+              <div style="display: grid; grid-template-columns: {{g.tpl}}; gap: 10px; padding: 8px 0; font-weight: 700; border-bottom: 1px solid #13201C"><sc-for list="{{g.cols}}" as="h" hint-placeholder-count="5"><div style="text-align: {{h.ta}}">{{h.n}}</div></sc-for></div>
+              <sc-for list="{{g.rows}}" as="r" hint-placeholder-count="6">
+                <div style="display: grid; grid-template-columns: {{g.tpl}}; gap: 10px; padding: 8px 0; border-bottom: {{r.garis}}; align-items: baseline; font-weight: {{r.fw}}"><sc-for list="{{r.sel}}" as="x" hint-placeholder-count="5"><div style="text-align: {{x.ta}}; font-family: {{x.ff}}">{{x.v}}</div></sc-for></div>
+              </sc-for>
+            </div></div>
+            <div style="font-size: 13px; color: #5E6A66">{{g.kaki}}</div>
+          </sc-if>
+        </sc-if>
+        <sc-if value="{{isF02}}" hint-placeholder-val="{{true}}">
+          <div style="overflow-x: auto"><div style="min-width: 820px; font-size: 13px">
+            <div style="display: grid; grid-template-columns: 78px 104px 104px minmax(0, 1fr) 100px 100px 104px; gap: 10px; padding: 8px 0; font-weight: 700; border-bottom: 1px solid #13201C"><div>Tanggal</div><div>No. Bukti</div><div>No. MA</div><div>Uraian · Kas/Bank</div><div style="text-align: right">Penerimaan</div><div style="text-align: right">Pengeluaran</div><div style="text-align: right">{{saldoJudul}}</div></div>
+            <div style="display: grid; grid-template-columns: 78px 104px 104px minmax(0, 1fr) 100px 100px 104px; gap: 10px; padding: 8px 0; border-bottom: 1px solid #DDE2DB; font-weight: 600"><div></div><div></div><div></div><div>{{saldoAwalTeks}}</div><div></div><div></div><div style="text-align: right; font-family: 'IBM Plex Mono', monospace">{{saldoAwal}}</div></div>
+            <sc-for list="{{bku}}" as="r" hint-placeholder-count="7">
+              <div style="display: grid; grid-template-columns: 78px 104px 104px minmax(0, 1fr) 100px 100px 104px; gap: 10px; padding: 8px 0; border-bottom: 1px solid #DDE2DB; align-items: baseline">
+                <div>{{r.tgl}}</div><div style="font-family: 'IBM Plex Mono', monospace"><a href="WebTransaksi.dc.html">{{r.no}}</a></div><div style="font-family: 'IBM Plex Mono', monospace">{{r.ma}}</div>
+                <div>{{r.ur}}<sc-if value="{{r.tanda}}" hint-placeholder-val="{{false}}"> <span style="font-size: 13px; font-weight: 700; border: 1.5px solid #5E6A66; color: #43514C; border-radius: 6px; padding: 0 6px; white-space: nowrap">{{r.tanda}}</span></sc-if><div style="color: #5E6A66">{{r.ak}}</div></div>
+                <div style="text-align: right; font-family: 'IBM Plex Mono', monospace">{{r.masuk}}</div><div style="text-align: right; font-family: 'IBM Plex Mono', monospace">{{r.keluar}}</div><div style="text-align: right; font-family: 'IBM Plex Mono', monospace">{{r.saldo}}</div>
+              </div>
+            </sc-for>
+            <div style="padding: 10px 0; color: #5E6A66">{{sisaBaris}}</div>
+          </div></div>
+          <div style="font-size: 13px; color: #5E6A66">Pembayaran yang dibagi tampil satu kali dengan daftar No. MA-nya. Pembalikan tampil sebagai angka negatif dan tidak dipotong ke nol. Kolom saldo selalu menyebut Kas/Bank yang dijumlahkannya. Setiap No. Bukti membuka transaksinya.</div>
+        </sc-if>
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"jabatanKosong":{"editor":"boolean","default":false},"salinan":{"editor":"enum","options":["Seluruh Jemaat","TERBATAS · Peruntukan Diakonia"],"default":"Seluruh Jemaat"},"$preview":{"width":1440,"height":1200}}'>
+class Component extends DCLogic {
+  rp(n) { var s = String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return (n < 0 ? '−' : '') + 'Rp' + s; }
+  navVals() { return [['Beranda', 'WebBeranda.dc.html'], ['Transaksi', 'WebTransaksi.dc.html'], ['Uang Muka dan Titipan', 'WebKewajiban.dc.html'], ['Rekonsiliasi', 'WebRekonsiliasi.dc.html'], ['Bulan dan tutup buku', 'WebTutupBuku.dc.html'], ['Laporan', 'WebPaketLaporan.dc.html'], ['Pengaturan', 'WebPengaturan.dc.html']].map(function (n, i) { return { n: n[0], href: n[1], bg: i === 5 ? '#13201C' : 'transparent', fg: i === 5 ? '#FFFFFF' : '#13201C' }; }); }
+  state = { pilih: 'F02' };
+  rv0() {
+    var self = this, s = this.state, rp = this.rp, terbatas = (this.props.salinan ?? 'Seluruh Jemaat') !== 'Seluruh Jemaat';
+    var F = [['F01', 'Laporan Perbendaharaan Bulanan', 'Saldo awal dan akhir Kas/Bank, Pendapatan dan Belanja, Dana Transit masuk dan keluar, uang muka, kesimpulan rekonsiliasi.'], ['F02', 'Buku Kas Umum', terbatas ? 'Hanya bagian peruntukan Diakonia.' : 'Semua Kas/Bank dalam satu buku, dengan label Kas/Bank per baris.'], ['F03', 'Buku Kas Pembantu', 'Per Kas/Bank, per peruntukan, per Lingkup, per Uang Muka, per Titipan untuk.'], ['F04', 'Mata Anggaran Pendapatan', 'Semua baris versi yang diterbitkan, sesuai urutan sumber.'], ['F05', 'Realisasi Pendapatan Menurut Mata Anggaran', 'Pendapatan per baris, termasuk baris bernilai Rp0. Tanpa kolom anggaran.'], ['F06', 'Mata Anggaran Belanja', 'Semua baris versi yang diterbitkan, sesuai urutan sumber.'], ['F07', 'Realisasi Belanja Menurut Mata Anggaran', 'Belanja per baris. Tanpa kolom anggaran.'], ['F08', 'Rekap Penerimaan', 'Penerimaan buku, tiap ukuran di kolomnya sendiri.'], ['F09', 'Rekap Pengeluaran', 'Pengeluaran buku, termasuk belanja dari uang muka.'], ['F10', 'Posisi Kas & Bank', 'Saldo buku, hasil hitung kas dan saldo rekening koran di kolom terpisah.'], ['F11', 'Rekonsiliasi', 'Per Kas/Bank: item dalam perjalanan, saldo pembanding, yang cocok dan belum cocok.'], ['F12', 'Daftar Bukti Kas', 'Daftar No. Bukti dengan persetujuan, dokumen pendukung dan pengecualian.'], ['F13', 'Sentralisasi / Penyaluran', 'Titipan per pihak: terkumpul, disalurkan, sisa. Sentralisasi dari uang milik sendiri terpisah.'], ['F14', 'Lampiran Laporan Bulanan', 'Delapan lampiran. Lampiran tanpa isi dicetak sebagai Nihil.']];
+    var p = F.filter(function (f) { return f[0] === s.pilih; })[0];
+    var ROWS = [
+      ['04/10/2026', 'BKU-2026-0098', '1.3.53.07.00; 1.3.55.01.00', 'Persembahan Ibadah Minggu dan Diakonia', '', 'Kas; Bank BNI ··4821', 4150000, 0],
+      ['04/10/2026', 'BKU-2026-0099', '2.1.01.02.00', 'Titipan untuk: Sinode · Sentralisasi', '', 'Kas', 600000, 0],
+      ['05/10/2026', 'BKU-2026-0100', '5.07.01.00', 'Honorarium pelayan', '', 'Bank BNI ··4821', 0, 1820000],
+      ['06/10/2026', 'BKU-2026-0101', '5.01.02.00; 5.02.01.00', 'Toko Sinar: listrik dan alat tulis, satu pembayaran', '', 'Bank BNI ··4821', 0, 1250000],
+      ['06/10/2026', 'BKU-2026-0102', '', 'Setoran ke bank: ke Bank BNI ··4821', '', 'Kas ke Bank BNI', 5000000, 5000000],
+      ['07/10/2026', 'BKU-2026-0103', '', 'Uang Muka diberikan · Pnt. Jefry Wowor', '', 'Kas', 0, 400000],
+      ['08/10/2026', 'BKU-2026-0104', '', 'Setoran ke bank: ke Bank SulutGo ··1107', '', 'Kas ke Bank SulutGo', 1500000, 1500000],
+      ['09/10/2026', 'BKU-2026-0105', '5.02.01.00', 'Konsumsi rapat majelis', 'Dibalik oleh BKU-2026-0109', 'Kas', 0, 750000],
+      ['10/10/2026', 'BKU-2026-0106', '', 'Pengembalian sisa uang muka · Panitia HUT Jemaat', '', 'Kas', 350000, 0],
+      ['11/10/2026', 'BKU-2026-0107', '1.3.53.07.00', 'Persembahan Ibadah Minggu', '', 'Kas', 2650000, 0],
+      ['11/10/2026', 'BKU-2026-0108', '2.1.01.02.00', 'Titipan untuk: Sinode · Sentralisasi', '', 'Kas', 600000, 0],
+      ['12/10/2026', 'BKU-2026-0109', '5.02.01.00', 'Pembalikan BKU-2026-0105', 'Pembalikan', 'Kas', 0, -750000],
+      ['12/10/2026', 'BKU-2026-0110', '5.04.01.00', 'Konsumsi rapat majelis', 'Koreksi dari BKU-2026-0105', 'Kas', 0, 750000],
+      ['18/10/2026', 'BKU-2026-0114', '1.3.53.07.00', 'Persembahan Ibadah Minggu', '', 'Kas', 2400000, 0],
+      ['18/10/2026', 'BKU-2026-0115', '1.4.10.02.00', 'Sumbangan donatur', '', 'Bank BNI ··4821', 700000, 0],
+      ['18/10/2026', 'BKU-2026-0117', '2.1.01.02.00', 'Titipan untuk: Sinode · Sentralisasi', '', 'Kas', 600000, 0],
+      ['20/10/2026', 'BKU-2026-0112', '', 'Uang Muka diberikan · Sdri. Natalia Rumengan', '', 'Kas', 0, 800000],
+      ['20/10/2026', 'BKU-2026-0113', '1.3.53.09.00', 'Persembahan syukur', '', 'Kas', 1220000, 0],
+      ['22/10/2026', 'BKU-2026-0116', '5.08.02.00', 'Pemeliharaan atap gedung', '', 'Bank BNI ··4821', 0, 5500000],
+      ['25/10/2026', 'BKU-2026-0119', '', 'Uang Muka diberikan · Ibu Selvie Kalalo', '', 'Kas', 0, 300000],
+      ['25/10/2026', 'BKU-2026-0123', '1.3.53.07.00', 'Persembahan Ibadah Minggu', '', 'Kas', 2700000, 0],
+      ['25/10/2026', 'BKU-2026-0125', '2.1.01.02.00', 'Titipan untuk: Sinode · Sentralisasi', '', 'Kas', 600000, 0],
+      ['26/10/2026', 'BKU-2026-0120', '5.07.01.00', 'Honorarium pelayan', '', 'Bank BNI ··4821', 0, 1820000],
+      ['26/10/2026', 'BKU-2026-0130', '', 'Setoran ke bank: ke Bank BNI ··4821', '', 'Kas ke Bank BNI', 2690000, 2690000],
+      ['27/10/2026', 'BKU-2026-0118', '1.3.53.09.00', 'Persembahan syukur', '', 'Bank BNI ··4821', 500000, 0],
+      ['27/10/2026', 'BKU-2026-0122', '4.03.04.00', 'Diakonia sakit', '', 'Kas', 0, 300000],
+      ['28/10/2026', 'BKU-2026-0121', '1.4.10.02.00', 'Sumbangan donatur', '', 'Bank BNI ··4821', 500000, 0],
+      ['30/10/2026', 'BKU-2026-0127', '', 'Pindah antar Kas/Bank: Bank BNI ke Kas', '', 'Bank BNI ke Kas', 2000000, 2000000],
+      ['30/10/2026', 'BKU-2026-0128', '2.1.01.02.00', 'Penyaluran · Titipan untuk: Sinode', '', 'Bank BNI ··4821', 0, 2400000],
+      ['31/10/2026', 'BKU-2026-0131', '', 'Setoran ke bank: ke Bank BNI ··4821', '', 'Kas ke Bank BNI', 500000, 500000],
+      ['31/10/2026', 'BKU-2026-0133', '5.03.03.00', 'Biaya administrasi bank', '', 'Bank BNI ··4821', 0, 15000]
+    ];
+    if (terbatas) ROWS = [['04/10/2026', 'BKU-2026-0098', '1.3.55.01.00', 'Bagian peruntukan Diakonia', '', '', 950000, 0], ['27/10/2026', 'BKU-2026-0122', '4.03.04.00', 'Bagian peruntukan Diakonia', '', '', 0, 300000]];
+    var M = '−';
+    var LAP = {
+      F03: { sub: 'Buku per Kas/Bank · Kas', tpl: '84px 118px minmax(0, 1fr) 112px 112px 120px', cols: ['Tanggal', 'No. Bukti', 'Uraian', 'Penerimaan', 'Pengeluaran', 'Saldo Kas'], kanan: [3, 4, 5], mono: [1, 3, 4, 5], rows: [
+        ['', '', 'Saldo awal Kas', '', '', 'Rp4.070.000', 1], ['04/10/2026', 'BKU-2026-0098', 'Persembahan Ibadah Minggu dan Diakonia', 'Rp3.200.000', '', 'Rp7.270.000'], ['04/10/2026', 'BKU-2026-0099', 'Titipan untuk: Sinode · Sentralisasi', 'Rp600.000', '', 'Rp7.870.000'], ['06/10/2026', 'BKU-2026-0102', 'Setoran ke bank: ke Bank BNI ··4821', '', 'Rp5.000.000', 'Rp2.870.000'], ['07/10/2026', 'BKU-2026-0103', 'Uang Muka diberikan · Pnt. Jefry Wowor', '', 'Rp400.000', 'Rp2.470.000'], ['08/10/2026', 'BKU-2026-0104', 'Setoran ke bank: ke Bank SulutGo ··1107', '', 'Rp1.500.000', 'Rp970.000'], ['09/10/2026', 'BKU-2026-0105', 'Konsumsi rapat majelis · Dibalik oleh BKU-2026-0109', '', 'Rp750.000', 'Rp220.000'], ['10/10/2026', 'BKU-2026-0106', 'Pengembalian sisa uang muka · Panitia HUT Jemaat', 'Rp350.000', '', 'Rp570.000'], ['11/10/2026', 'BKU-2026-0107', 'Persembahan Ibadah Minggu', 'Rp2.650.000', '', 'Rp3.220.000'], ['11/10/2026', 'BKU-2026-0108', 'Titipan untuk: Sinode · Sentralisasi', 'Rp600.000', '', 'Rp3.820.000'], ['12/10/2026', 'BKU-2026-0109', 'Pembalikan BKU-2026-0105', '', M + 'Rp750.000', 'Rp4.570.000'], ['12/10/2026', 'BKU-2026-0110', 'Konsumsi rapat majelis · Koreksi dari BKU-2026-0105', '', 'Rp750.000', 'Rp3.820.000'], ['18/10/2026', 'BKU-2026-0114', 'Persembahan Ibadah Minggu', 'Rp2.400.000', '', 'Rp6.220.000'], ['18/10/2026', 'BKU-2026-0117', 'Titipan untuk: Sinode · Sentralisasi', 'Rp600.000', '', 'Rp6.820.000'], ['20/10/2026', 'BKU-2026-0112', 'Uang Muka diberikan · Sdri. Natalia Rumengan', '', 'Rp800.000', 'Rp6.020.000'], ['20/10/2026', 'BKU-2026-0113', 'Persembahan syukur', 'Rp1.220.000', '', 'Rp7.240.000'], ['25/10/2026', 'BKU-2026-0119', 'Uang Muka diberikan · Ibu Selvie Kalalo', '', 'Rp300.000', 'Rp6.940.000'], ['25/10/2026', 'BKU-2026-0123', 'Persembahan Ibadah Minggu', 'Rp2.700.000', '', 'Rp9.640.000'], ['25/10/2026', 'BKU-2026-0125', 'Titipan untuk: Sinode · Sentralisasi', 'Rp600.000', '', 'Rp10.240.000'], ['26/10/2026', 'BKU-2026-0130', 'Setoran ke bank: ke Bank BNI ··4821', '', 'Rp2.690.000', 'Rp7.550.000'], ['27/10/2026', 'BKU-2026-0122', 'Diakonia sakit', '', 'Rp300.000', 'Rp7.250.000'], ['30/10/2026', 'BKU-2026-0127', 'Pindah antar Kas/Bank: Bank BNI ke Kas', 'Rp2.000.000', '', 'Rp9.250.000'], ['31/10/2026', 'BKU-2026-0131', 'Setoran ke bank: ke Bank BNI ··4821', '', 'Rp500.000', 'Rp8.750.000']],
+        kaki: '22 baris Kas · Saldo akhir Kas Rp8.750.000. Buku pembantu juga dibuat per peruntukan, per Lingkup, per Uang Muka dan per Titipan untuk.' },
+      F04: { sub: 'Versi Mata Anggaran 2026.1', tpl: '150px minmax(0, 1fr) 250px 130px', cols: ['No. MA', 'Nama Mata Anggaran', 'Jenis baris', 'Boleh untuk'], kanan: [], mono: [0], rows: [
+        ['1.3.53.00.00', 'PERSEMBAHAN', 'Judul kelompok, tidak dapat dibukukan', '', 1], ['1.3.53.07.00', 'Persembahan Ibadah Minggu', 'Dapat dibukukan', 'Milik sendiri'], ['1.3.53.09.00', 'Persembahan syukur', 'Dapat dibukukan', 'Milik sendiri'], ['1.3.55.01.00', 'Persembahan Diakonia', 'Dapat dibukukan', 'Milik sendiri'], ['1.4.10.00.00', 'SUMBANGAN', 'Judul kelompok, tidak dapat dibukukan', '', 1], ['1.4.10.02.00', 'Sumbangan donatur', 'Dapat dibukukan', 'Keduanya']],
+        kaki: 'Contoh 6 dari 131 baris, sesuai urutan sumber. Nomor dan nama dicetak persis seperti tersimpan.' },
+      F05: { sub: 'Pendapatan menurut Mata Anggaran', tpl: '150px minmax(0, 1fr) 170px', cols: ['No. MA', 'Nama Mata Anggaran', 'Oktober 2026'], kanan: [2], mono: [0, 2], rows: [
+        ['1.3.53.00.00', 'PERSEMBAHAN', 'Rp13.620.000', 1], ['1.3.53.07.00', 'Persembahan Ibadah Minggu', 'Rp10.950.000'], ['1.3.53.09.00', 'Persembahan syukur', 'Rp1.720.000'], ['1.3.55.01.00', 'Persembahan Diakonia', 'Rp950.000'], ['1.4.10.00.00', 'SUMBANGAN', 'Rp1.200.000', 1], ['1.4.10.02.00', 'Sumbangan donatur', 'Rp1.200.000'], ['1.4.10.03.00', 'Sumbangan natura', 'Rp0'], ['', 'Jumlah Pendapatan', 'Rp14.820.000', 1]],
+        kaki: 'Contoh 7 dari 131 baris. Baris tanpa transaksi tetap dicetak sebagai Rp0. Tidak ada kolom anggaran, selisih atau persentase.' },
+      F06: { sub: 'Versi Mata Anggaran 2026.1', tpl: '150px minmax(0, 1fr) 250px 130px', cols: ['No. MA', 'Nama Mata Anggaran', 'Jenis baris', 'Boleh untuk'], kanan: [], mono: [0], rows: [
+        ['5.00.00.00', 'BELANJA OPERASIONAL', 'Judul kelompok, tidak dapat dibukukan', '', 1], ['5.01.02.00', 'Listrik, air dan telepon', 'Dapat dibukukan', 'Milik sendiri'], ['5.02.01.00', 'Alat tulis dan fotokopi', 'Dapat dibukukan', 'Milik sendiri'], ['5.03.03.00', 'Biaya administrasi bank', 'Dapat dibukukan', 'Milik sendiri'], ['4.00.00.00', 'BELANJA PELAYANAN', 'Judul kelompok, tidak dapat dibukukan', '', 1], ['4.03.03.00', 'Diakonia duka', 'Dapat dibukukan', 'Milik sendiri']],
+        kaki: 'Contoh 6 dari 158 baris, sesuai urutan sumber.' },
+      F07: { sub: 'Belanja menurut Mata Anggaran', tpl: '150px minmax(0, 1fr) 170px', cols: ['No. MA', 'Nama Mata Anggaran', 'Oktober 2026'], kanan: [2], mono: [0, 2], rows: [
+        ['5.00.00.00', 'BELANJA OPERASIONAL', 'Rp11.155.000', 1], ['5.01.02.00', 'Listrik, air dan telepon', 'Rp1.000.000'], ['5.02.01.00', 'Alat tulis dan fotokopi', 'Rp250.000'], ['5.03.03.00', 'Biaya administrasi bank', 'Rp15.000'], ['5.04.01.00', 'Konsumsi rapat', 'Rp750.000'], ['5.05.02.00', 'Sewa peralatan', 'Rp0'], ['5.07.01.00', 'Honorarium pelayan', 'Rp3.640.000'], ['5.08.02.00', 'Pemeliharaan gedung', 'Rp5.500.000'], ['4.00.00.00', 'BELANJA PELAYANAN', 'Rp300.000', 1], ['4.03.04.00', 'Diakonia sakit', 'Rp300.000'], ['', 'Jumlah Belanja', 'Rp11.455.000', 1]],
+        kaki: 'Contoh 9 dari 158 baris. Alat tulis dan fotokopi sudah memuat pembalikan BKU-2026-0109; koreksinya masuk ke Konsumsi rapat. Tidak ada kolom anggaran.' },
+      F08: { sub: 'Penerimaan buku per Kas/Bank', tpl: 'minmax(0, 1fr) 112px 112px 140px 112px 124px', cols: ['Kas/Bank', 'Pendapatan', 'Titipan masuk', 'Pengembalian sisa uang muka', 'Pindah masuk', 'Jumlah penerimaan'], kanan: [1, 2, 3, 4, 5], mono: [1, 2, 3, 4, 5], rows: [
+        ['Kas', 'Rp12.170.000', 'Rp2.400.000', 'Rp350.000', 'Rp2.000.000', 'Rp16.920.000'], ['Bank BNI ··4821', 'Rp2.650.000', 'Rp0', 'Rp0', 'Rp8.190.000', 'Rp10.840.000'], ['Bank SulutGo ··1107', 'Rp0', 'Rp0', 'Rp0', 'Rp1.500.000', 'Rp1.500.000'], ['Jumlah', 'Rp14.820.000', 'Rp2.400.000', 'Rp350.000', 'Rp11.690.000', 'Rp29.260.000', 1]],
+        kaki: 'Penerimaan bukan Pendapatan: kolom Pindah masuk, Titipan masuk dan Pengembalian sisa uang muka tidak pernah dijumlahkan ke Pendapatan.' },
+      F09: { sub: 'Pengeluaran buku per Kas/Bank', tpl: 'minmax(0, 1fr) 112px 124px 124px 112px 124px', cols: ['Kas/Bank', 'Belanja', 'Titipan disalurkan', 'Uang Muka diberikan', 'Pindah keluar', 'Jumlah pengeluaran'], kanan: [1, 2, 3, 4, 5], mono: [1, 2, 3, 4, 5], rows: [
+        ['Kas', 'Rp1.050.000', 'Rp0', 'Rp1.500.000', 'Rp9.690.000', 'Rp12.240.000'], ['Bank BNI ··4821', 'Rp10.405.000', 'Rp2.400.000', 'Rp0', 'Rp2.000.000', 'Rp14.805.000'], ['Bank SulutGo ··1107', 'Rp0', 'Rp0', 'Rp0', 'Rp0', 'Rp0'], ['Jumlah', 'Rp11.455.000', 'Rp2.400.000', 'Rp1.500.000', 'Rp11.690.000', 'Rp27.045.000', 1]],
+        kaki: 'Belanja dari pertanggungjawaban uang muka dicetak di baris tersendiri dan tidak mengurangi Kas/Bank lagi: Rp0 pada Oktober 2026.' },
+      F10: { sub: 'Per 31 Oktober 2026', tpl: 'minmax(0, 1fr) 140px 140px 160px 170px', cols: ['Kas/Bank', 'Saldo buku', 'Hasil hitung kas', 'Saldo rekening koran', 'Selisih belum dijelaskan'], kanan: [1, 2, 3, 4], mono: [1, 2, 3, 4], rows: [
+        ['Kas', 'Rp8.750.000', 'Rp8.750.000', '', 'Rp0'], ['Bank BNI ··4821', 'Rp24.600.000', '', 'Rp24.100.000', 'Rp0'], ['Bank SulutGo ··1107', 'Rp5.115.000', '', 'Rp5.115.000', 'Rp0']],
+        kaki: 'Hasil hitung kas dan saldo rekening koran berada di kolom terpisah dan tidak dijumlahkan. Bank BNI: setoran dalam perjalanan Rp500.000 dijelaskan di F11.' },
+      F11: { sub: 'Per Kas/Bank', tpl: 'minmax(0, 1fr) 140px 150px 160px', cols: ['Baris', 'Kas', 'Bank BNI ··4821', 'Bank SulutGo ··1107'], kanan: [1, 2, 3], mono: [1, 2, 3], rows: [
+        ['Hasil hitung kas / Saldo rekening koran', 'Rp8.750.000', 'Rp24.100.000', 'Rp5.115.000'], ['Setoran dalam perjalanan', 'Rp0', 'Rp500.000', 'Rp0'], ['Pembayaran dalam perjalanan', 'Rp0', 'Rp0', 'Rp0'], ['Saldo pembanding', 'Rp8.750.000', 'Rp24.600.000', 'Rp5.115.000', 1], ['Saldo buku', 'Rp8.750.000', 'Rp24.600.000', 'Rp5.115.000', 1], ['Selisih belum dijelaskan', 'Rp0', 'Rp0', 'Rp0', 1], ['Mutasi bank cocok / belum cocok', '', '13 / 0', '1 / 0'], ['Status', 'Sudah dipastikan', 'Sudah dipastikan', 'Sudah dipastikan']],
+        kaki: 'Item dalam perjalanan dibawa ke November 2026 dan dicetak lagi di laporan bulan itu sampai cocok.' },
+      F12: { sub: 'No. Bukti Oktober 2026', tpl: '104px 78px minmax(0, 1fr) 104px 150px 160px', cols: ['No. Bukti', 'Tanggal', 'Uraian', 'Jumlah (Rp)', 'Persetujuan', 'Dokumen pendukung saat tutup buku'], kanan: [3], mono: [0, 3], rows: [
+        ['BKU-2026-0098', '04/10/2026', 'Persembahan Ibadah Minggu dan Diakonia', 'Rp4.150.000', 'Tidak diperlukan', 'Terverifikasi'], ['BKU-2026-0101', '06/10/2026', 'Toko Sinar: listrik dan alat tulis', M + 'Rp1.250.000', 'Tidak diperlukan', 'Terverifikasi'], ['BKU-2026-0105', '09/10/2026', 'Konsumsi rapat majelis · Dibalik oleh BKU-2026-0109', M + 'Rp750.000', 'Tidak diperlukan', 'Terverifikasi'], ['BKU-2026-0109', '12/10/2026', 'Pembalikan BKU-2026-0105', 'Rp750.000', 'Tidak diperlukan', 'Tidak diperlukan'], ['BKU-2026-0116', '22/10/2026', 'Pemeliharaan atap gedung', M + 'Rp5.500.000', 'Sudah dicatat · Ketua BPMJ', 'Dikecualikan · kuitansi menyusul']],
+        kaki: 'Contoh 5 dari 33 baris. Kolom dokumen pendukung mencetak status saat tutup buku; dokumen susulan tidak mengubah halaman ini.' },
+      F13: { sub: 'Titipan per pihak, lalu Sentralisasi dari uang milik sendiri', tpl: 'minmax(0, 1fr) 130px 130px 130px 170px', cols: ['Titipan untuk', 'Sisa awal', 'Terkumpul', 'Disalurkan', 'Sisa belum disalurkan'], kanan: [1, 2, 3, 4], mono: [1, 2, 3, 4], rows: [
+        ['Sinode', 'Rp0', 'Rp2.400.000', 'Rp2.400.000', 'Rp0'], ['Wilayah', 'Rp0', 'Rp0', 'Rp0', 'Rp0'], ['Jumlah titipan', 'Rp0', 'Rp2.400.000', 'Rp2.400.000', 'Rp0', 1], ['Sentralisasi dari uang milik sendiri (Belanja, bukan titipan)', '', '', 'Rp0', '']],
+        kaki: 'Judul “Sentralisasi / Penyaluran” menggantikan judul sumber “Sentralisasi / Settlement”.' },
+      F14: { sub: 'Delapan lampiran', tpl: '40px minmax(0, 1fr) 260px', cols: ['', 'Lampiran', 'Isi pada Oktober 2026'], kanan: [], mono: [0], rows: [
+        ['1', 'Uang Muka', '3 kasus'], ['2', 'Rincian Pertanggungjawaban Uang Muka', 'Nihil'], ['3', 'Penghitungan Persembahan', '4 ibadah'], ['4', 'Penggantian Biaya', 'Nihil'], ['5', 'Pengecualian Dokumen Pendukung', '1 dokumen'], ['6', 'Pembalikan dan Koreksi', '1 rangkaian'], ['7', 'Saldo Awal Pencatatan', 'Nihil'], ['8', 'Hasil Pengecekan Otomatis', '8 syarat terpenuhi']],
+        kaki: 'Lampiran tanpa isi dicetak sebagai “Nihil”, bukan halaman kosong.' }
+    };
+    var L0 = LAP[p[0]] || { sub: '', tpl: '1fr', cols: [], kanan: [], mono: [], rows: [], kaki: '' };
+    var LAPT = {
+      F03: { sub: 'Buku per peruntukan · Diakonia · TERBATAS', tpl: '84px 118px 130px 120px 120px 130px', cols: ['Tanggal', 'No. Bukti', 'No. MA', 'Penerimaan', 'Pengeluaran', 'Saldo Diakonia'], kanan: [3, 4, 5], mono: [1, 2, 3, 4, 5], rows: [['', '', '', '', '', 'Rp3.050.000', 1], ['04/10/2026', 'BKU-2026-0098', '1.3.55.01.00', 'Rp950.000', '', 'Rp4.000.000'], ['27/10/2026', 'BKU-2026-0122', '4.03.04.00', '', 'Rp300.000', 'Rp3.700.000']], kaki: '2 baris. Uraian, pelaku dan bagian peruntukan lain tidak dicetak di salinan ini.' },
+      F05: { sub: 'Pendapatan peruntukan Diakonia · TERBATAS', tpl: '150px minmax(0, 1fr) 170px', cols: ['No. MA', 'Nama Mata Anggaran', 'Oktober 2026'], kanan: [2], mono: [0, 2], rows: [['1.3.55.01.00', 'Persembahan Diakonia', 'Rp950.000'], ['', 'Jumlah Pendapatan peruntukan Diakonia', 'Rp950.000', 1]], kaki: 'Hanya baris yang punya bagian Diakonia. Baris peruntukan lain tidak dicetak, juga tidak sebagai Rp0.' },
+      F07: { sub: 'Belanja peruntukan Diakonia · TERBATAS', tpl: '150px minmax(0, 1fr) 170px', cols: ['No. MA', 'Nama Mata Anggaran', 'Oktober 2026'], kanan: [2], mono: [0, 2], rows: [['4.03.03.00', 'Diakonia duka', 'Rp0'], ['4.03.04.00', 'Diakonia sakit', 'Rp300.000'], ['', 'Jumlah Belanja peruntukan Diakonia', 'Rp300.000', 1]], kaki: 'Hanya baris yang boleh dipakai peruntukan Diakonia.' },
+      F12: { sub: 'No. Bukti dengan bagian Diakonia · TERBATAS', tpl: '130px 100px 160px minmax(0, 1fr)', cols: ['No. Bukti', 'Tanggal', 'Bagian Diakonia', 'Dokumen pendukung saat tutup buku'], kanan: [2], mono: [0, 2], rows: [['BKU-2026-0098', '04/10/2026', 'Rp950.000', 'Terverifikasi'], ['BKU-2026-0122', '27/10/2026', M + 'Rp300.000', 'Terverifikasi']], kaki: 'Status dokumen dicetak; file aslinya, jumlah seluruh transaksi dan nama pemberi persetujuan tidak disertakan.' }
+    };
+    var adaT = terbatas && !!LAPT[p[0]];
+    if (adaT) L0 = LAPT[p[0]];
+    var g = { sub: L0.sub, tpl: L0.tpl, kaki: L0.kaki, minWr: 0, minW: ((L0.tpl.match(/(\d+)px/g) || []).reduce(function (t, v) { return t + parseInt(v, 10) + 10; }, 0) + (/fr/.test(L0.tpl) ? 170 : 0)) + 'px',
+      cols: L0.cols.map(function (n, i) { return { n: n, ta: L0.kanan.indexOf(i) >= 0 ? 'right' : 'left' }; }),
+      rows: L0.rows.map(function (r) { var tebal = typeof r[r.length - 1] === 'number', sel = tebal ? r.slice(0, -1) : r; return { fw: tebal ? 700 : 400, garis: tebal ? '1px solid #13201C' : '1px solid #DDE2DB', sel: sel.map(function (v, i) { return { v: v, ta: L0.kanan.indexOf(i) >= 0 ? 'right' : 'left', ff: L0.mono.indexOf(i) >= 0 ? "'IBM Plex Mono', monospace" : 'inherit' }; }) }; }) };
+    var saldo = terbatas ? 3050000 : 36250000;
+    return {
+      nav: this.navVals(), capSalinan: terbatas ? ' · TERBATAS · Peruntukan Diakonia' : '',
+      daftar: F.map(function (f) { var on = s.pilih === f[0]; return { id: f[0], n: f[1], on: on, bg: on ? '#13201C' : 'transparent', fg: on ? '#FFFFFF' : '#13201C', pick: function () { self.setState({ pilih: f[0] }); } }; }),
+      p: { id: p[0], n: p[1], isi: p[2] }, isF01: p[0] === 'F01', isF02: p[0] === 'F02', isLain: p[0] !== 'F01' && p[0] !== 'F02', lapTerbatas: terbatas && !adaT, lapPenuh: !terbatas || adaT, g: g,
+      saldoJudul: terbatas ? 'Saldo Diakonia' : 'Saldo semua Kas/Bank', saldoAwalTeks: terbatas ? 'Saldo awal peruntukan Diakonia' : 'Saldo awal Kas/Bank', saldoAwal: rp(saldo),
+      bku: ROWS.map(function (r) { saldo += r[6] - r[7]; return { tgl: r[0], no: r[1], ma: r[2] || '—', ur: r[3], tanda: r[4], ak: r[5], masuk: r[6] ? rp(r[6]) : '', keluar: r[7] ? rp(r[7]) : '', saldo: rp(saldo) }; }),
+      sisaBaris: terbatas ? '2 baris. Jumlah seluruh transaksi, uraian, pelaku dan bagian peruntukan lain tidak ada di salinan ini.' : '31 baris · Saldo akhir Kas/Bank Rp38.465.000'
+    };
+  }
+  tukarJk(o, d) {
+    var self = this, ganti = function (s) { var t = s.match(/\d\d\/\d\d\/\d{4}/g) || []; return s.indexOf('Meiske L.') < 0 || t.some(function (x) { return x !== '16/11/2026'; }) ? s : s.split('Meiske L.').join('Yanti Sumual, Operator'); };
+    if (d > 5 || !o || typeof o !== 'object') return o;
+    Object.keys(o).forEach(function (k) { var v = o[k]; if (typeof v === 'string') o[k] = ganti(v); else if (v && typeof v === 'object') self.tukarJk(v, d + 1); });
+    return o;
+  }
+  renderVals() {
+    var V = this.rv0(), jk = !!this.props.jabatanKosong;
+    if (jk && false) this.tukarJk(V, 0);
+    V.jk = jk; V.tjk = !jk; V.plk = jk ? 'Yanti Sumual, Operator' : 'Meiske L.'; V.plk2 = jk ? 'Yanti Sumual, Operator (menjalankan jabatan kosong Bendahara Jemaat)' : 'Meiske L.';
+    return V;
+  }
+}
+</script>
+</body>
+</html>

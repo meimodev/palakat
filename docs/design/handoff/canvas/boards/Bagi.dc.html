@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Bagi ke beberapa Mata Anggaran (ponsel)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+input{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes masuk{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@keyframes naik{from{transform:translateY(100%)}to{transform:none}}
+@keyframes pudar{from{opacity:0}to{opacity:1}}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; display: flex; flex-direction: column; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 16px; line-height: 1.4">
+<sc-if value="{{jk}}" hint-placeholder-val="{{false}}"><div role="status" style="flex: none; background: #13201C; color: #FFFFFF; padding: 10px 24px 8px; font-size: 13px; line-height: 1.3; text-align: center"><strong>Menjalankan jabatan kosong</strong> · Bendahara Jemaat</div></sc-if>
+<div style="position: relative; flex: 1; min-height: 0">
+
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column">
+  <div style="display: flex; align-items: center; gap: 8px; padding: 14px 12px 8px">
+    <a href="Main.dc.html" aria-label="Kembali ke transaksi" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #13201C"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></a>
+    <div style="flex: 1"><h1 style="margin: 0; font-size: 18px; font-weight: 700">Bagi ke beberapa Mata Anggaran</h1><div style="font-size: 13px; color: #43514C">Belanja · Toko Sinar · satu pembayaran</div></div>
+    <span style="font-size: 13px; font-weight: 700; background: #13201C; color: #FFFFFF; border-radius: 6px; padding: 4px 10px; margin-right: 8px">Belanja</span>
+  </div>
+  <div style="flex: 1; overflow-y: auto; padding: 8px 20px 20px; display: flex; flex-direction: column; gap: 16px">
+    <div>
+      <div style="font-size: 14px; color: #43514C">Jumlah (Rp)</div>
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 34px; font-weight: 500; letter-spacing: -1px">Rp1.250.000</div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <div style="height: 18px; border-radius: 9px; border: 1.5px dashed #808D87; display: flex; overflow: hidden; box-sizing: border-box">
+        <sc-for list="{{segmen}}" as="g" hint-placeholder-count="2"><div style="height: 100%; width: {{g.w}}; background: {{g.c}}; transition: width .45s cubic-bezier(.2,.8,.2,1)"></div></sc-for>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: baseline"><div style="font-size: 14px; font-weight: 700; color: {{sisaFg}}">{{sisaLabel}}</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 18px; font-weight: 600; color: {{sisaFg}}">{{sisa}}</div></div>
+    </div>
+
+    <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 0 16px">
+      <sc-for list="{{baris}}" as="b" hint-placeholder-count="2">
+        <div style="padding: 12px 0; border-top: {{b.garis}}">
+          <div style="display: flex; align-items: flex-start; gap: 10px">
+            <div style="flex: none; width: 12px; height: 12px; border-radius: 3px; background: {{b.c}}; margin-top: 5px"></div>
+            <div style="flex: 1; min-width: 0"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #43514C">Belanja {{b.k}}</div><label for="{{b.id}}" style="font-weight: 600; font-size: 15px">{{b.n}}</label></div>
+            <button onClick="{{b.lepas}}" aria-label="{{b.lepasLabel}}" style="flex: none; width: 44px; height: 44px; margin: -8px -10px 0 0; background: none; border: 0; display: flex; align-items: center; justify-content: center; color: #5E6A66"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-top: 4px">
+            <sc-if value="{{b.bisaSisa}}" hint-placeholder-val="{{false}}"><button onClick="{{b.isiSisa}}" style="min-height: 44px; padding: 0 12px; border-radius: 10px; border: 0; background: #13201C; color: #FFFFFF; font-weight: 700; font-size: 14px">Isi sisa</button></sc-if>
+            <div style="display: flex; align-items: baseline; gap: 4px; font-family: 'IBM Plex Mono', monospace; border-bottom: 1.5px solid #13201C; width: 160px"><span style="font-size: 14px; color: #5E6A66">Rp</span><input id="{{b.id}}" inputmode="numeric" placeholder="—" value="{{b.v}}" onChange="{{b.on}}" style="flex: 1; min-width: 0; width: 100%; min-height: 44px; border: 0; background: transparent; font-family: 'IBM Plex Mono', monospace; font-size: 17px; font-weight: 500; text-align: right; padding: 0"></div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <button onClick="{{bukaPilih}}" style="min-height: 48px; border-radius: 12px; border: 1.5px dashed #808D87; background: transparent; font-weight: 700; color: #0E5A63; text-align: center">+ Tambah baris</button>
+    <div style="font-size: 13px; color: #5E6A66">Pembayaran ini tetap satu transaksi dengan satu No. Bukti. Di laporan, jumlahnya tampil sekali dengan daftar Mata Anggarannya.</div>
+  </div>
+  <div style="padding: 12px 20px 22px; background: #FFFFFF; border-top: 1px solid #DDE2DB; display: flex; flex-direction: column; gap: 8px">
+    <sc-if value="{{belumPas}}" hint-placeholder-val="{{true}}"><div style="font-size: 14px; color: #43514C">{{alasan}}</div></sc-if>
+    <sc-if value="{{dipakai}}" hint-placeholder-val="{{false}}"><div role="status" style="font-size: 14px; font-weight: 700; color: #0E5A63; animation: muncul .3s">Mata Anggaran sudah dipilih · dibagi ke {{barisN}} baris</div></sc-if>
+    <button onClick="{{pakai}}" disabled="{{belumPas}}" style="min-height: 52px; border-radius: 14px; border: 0; background: {{btnBg}}; color: {{btnFg}}; font-weight: 700; text-align: center">Pakai pembagian ini</button>
+  </div>
+</div>
+
+<sc-if value="{{pilih}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; inset: 0">
+  <button onClick="{{tutupPilih}}" aria-label="Kembali ke pembagian" style="position: absolute; inset: 0; width: 100%; background: rgba(19,32,28,.45); border: 0; animation: pudar .2s"></button>
+  <div style="position: absolute; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-radius: 22px 22px 0 0; padding: 10px 20px 24px; animation: naik .28s cubic-bezier(.2,.8,.2,1)">
+    <div style="width: 40px; height: 4px; border-radius: 2px; background: #7F8C86; margin: 0 auto 14px"></div>
+    <h2 style="margin: 0 0 6px; font-size: 18px; font-weight: 700">Pilih Mata Anggaran</h2>
+    <sc-for list="{{pilihan}}" as="r" hint-placeholder-count="3">
+      <button onClick="{{r.pick}}" style="display: block; width: 100%; min-height: 60px; background: none; border: 0; border-top: 1px solid #DDE2DB; padding: 8px 0"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #43514C">Belanja {{r.k}}</div><div style="font-weight: 600; font-size: 15px">{{r.n}}</div></button>
+    </sc-for>
+    <sc-if value="{{pilihanHabis}}" hint-placeholder-val="{{false}}"><div style="font-size: 14px; color: #43514C; padding: 12px 0">Semua baris contoh sudah dipakai.</div></sc-if>
+  </div>
+</div>
+</sc-if>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"jabatanKosong":{"editor":"boolean","default":false},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  state = { baris: [{ k: '5.01.02.00', v: '1000000' }, { k: '5.02.01.00', v: '200000' }], pilih: false, dipakai: false };
+  JUMLAH = 1250000;
+  MA = { '5.01.02.00': 'Listrik, air dan telepon', '5.02.01.00': 'Alat tulis dan fotokopi', '5.03.03.00': 'Biaya administrasi bank', '5.04.01.00': 'Konsumsi rapat', '5.05.02.00': 'Sewa peralatan' };
+  C = ['#13201C', '#0E5A63', '#86B5B8', '#43514C', '#7F8C86'];
+  rp(n) { var s = String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return (n < 0 ? '−' : '') + 'Rp' + s; }
+  rv0() {
+    var self = this, s = this.state, rp = this.rp, J = this.JUMLAH, MA = this.MA, C = this.C;
+    var num = function (d) { return d === '' ? 0 : parseInt(d, 10); };
+    var total = s.baris.reduce(function (a, b) { return a + num(b.v); }, 0), sisa = J - total;
+    var kosong = s.baris.some(function (b) { return b.v === ''; });
+    var pas = sisa === 0 && !kosong && s.baris.length >= 2;
+    var set = function (i, v) { var a = s.baris.map(function (b) { return Object.assign({}, b); }); a[i].v = v; self.setState({ baris: a, dipakai: false }); };
+    var terpakai = s.baris.map(function (b) { return b.k; });
+    var pilihan = Object.keys(MA).filter(function (k) { return terpakai.indexOf(k) < 0; }).map(function (k) { return { k: k, n: MA[k], pick: function () { self.setState({ baris: s.baris.concat([{ k: k, v: '' }]), pilih: false, dipakai: false }); } }; });
+    return {
+      segmen: s.baris.map(function (b, i) { return { w: Math.max(0, Math.min(100, num(b.v) / Math.max(J, total) * 100)) + '%', c: C[i % C.length] }; }),
+      sisa: rp(Math.abs(sisa)), sisaLabel: sisa === 0 ? 'Total baris sama dengan Jumlah' : (sisa < 0 ? 'Total baris lebih dari Jumlah' : 'Sisa belum dibagi'), sisaFg: sisa === 0 ? '#0E5A63' : '#A63C1C',
+      baris: s.baris.map(function (b, i) { return { id: 'b-' + i, k: b.k, n: MA[b.k], c: C[i % C.length], v: b.v === '' ? '' : b.v.replace(/\B(?=(\d{3})+(?!\d))/g, '.'), garis: i ? '1px solid #DDE2DB' : '0', bisaSisa: b.v === '' && sisa > 0, lepasLabel: 'Lepas baris ' + MA[b.k], on: function (e) { set(i, e.target.value.replace(/\D/g, '').replace(/^0+(?=\d)/, '').slice(0, 11)); }, isiSisa: function () { set(i, String(sisa)); }, lepas: function () { var a = s.baris.slice(); a.splice(i, 1); self.setState({ baris: a, dipakai: false }); } }; }),
+      barisN: s.baris.length, belumPas: !pas, dipakai: s.dipakai && pas,
+      alasan: s.baris.length < 2 ? 'Pembagian memerlukan paling sedikit dua baris.' : (kosong ? 'Masih ada baris yang belum diisi.' : 'Total baris harus sama dengan Jumlah.'),
+      btnBg: pas ? '#0E5A63' : '#DDE2DB', btnFg: pas ? '#FFFFFF' : '#5E6A66',
+      pilih: s.pilih, pilihan: pilihan, pilihanHabis: pilihan.length === 0,
+      bukaPilih: function () { self.setState({ pilih: true }); }, tutupPilih: function () { self.setState({ pilih: false }); },
+      pakai: function () { if (pas) self.setState({ dipakai: true }); }
+    };
+  }
+  tukarJk(o, d) {
+    var self = this, ganti = function (s) { var t = s.match(/\d\d\/\d\d\/\d{4}/g) || []; return s.indexOf('Meiske L.') < 0 || t.some(function (x) { return x !== '16/11/2026'; }) ? s : s.split('Meiske L.').join('Yanti Sumual, Operator'); };
+    if (d > 5 || !o || typeof o !== 'object') return o;
+    Object.keys(o).forEach(function (k) { var v = o[k]; if (typeof v === 'string') o[k] = ganti(v); else if (v && typeof v === 'object') self.tukarJk(v, d + 1); });
+    return o;
+  }
+  renderVals() {
+    var V = this.rv0(), jk = !!this.props.jabatanKosong;
+    if (jk && false) this.tukarJk(V, 0);
+    V.jk = jk; V.tjk = !jk; V.plk = jk ? 'Yanti Sumual, Operator' : 'Meiske L.'; V.plk2 = jk ? 'Yanti Sumual, Operator (menjalankan jabatan kosong Bendahara Jemaat)' : 'Meiske L.';
+    return V;
+  }
+}
+</script>
+</body>
+</html>

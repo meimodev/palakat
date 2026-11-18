@@ -1,0 +1,26 @@
+<!-- @dsCard group="Kartu" height=226 width=412 -->
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>KartuUsulanAI — pratinjau</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+html, body { margin: 0; }
+body { background: var(--kertas); }
+/* tanah: komponen selalu tampil di atas kertas, apa pun latar bingkai pratinjau */
+.tanah { background: var(--kertas); color: var(--tinta); font-family: var(--font-sans); font-size: 15px; line-height: 1.45; padding: var(--s20); min-height: 100vh; box-sizing: border-box; }
+.pk { display: flex; flex-direction: column; gap: 10px; max-width: 372px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+input, textarea { color: inherit; }
+button:focus-visible, a:focus-visible { outline: 2px solid var(--laut); outline-offset: 2px; }
+a { color: var(--laut); }
+@media (prefers-reduced-motion: reduce) { * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+</style>
+</head>
+<body>
+<div class="tanah"><div class="pk">
+<div style="background: var(--lautLembut); border-radius: var(--radius-kartuBesar); padding: 14px"><div style="background: var(--permukaan); border: 1.5px dotted var(--laut); border-radius: var(--radius-isian); padding: 14px; display: flex; flex-direction: column; gap: 6px"><span style="align-self: flex-start; font-size: 13px; font-weight: 700; color: var(--lautTua); border: 1.5px dotted var(--laut); border-radius: var(--radius-lencana); padding: 2px 8px">Usulan AI</span><div style="font-size: 14px; font-style: italic; color: var(--lautTua)">Belanja 5.01.02.00 Listrik, air dan telepon</div><div style="font-size: 13px; font-weight: 600">AI kurang yakin, mohon dicek</div><div style="display: flex; gap: 8px; margin-top: 4px"><span style="min-height: 40px; display: inline-flex; align-items: center; padding: 0 14px; border-radius: 10px; background: var(--laut); color: var(--diLaut); font-weight: 700; font-size: 14px">Pakai</span><span style="min-height: 40px; display: inline-flex; align-items: center; padding: 0 14px; border-radius: 10px; border: 1.5px solid var(--tinta); font-weight: 700; font-size: 14px">Ubah</span><span style="min-height: 40px; display: inline-flex; align-items: center; padding: 0 14px; border-radius: 10px; border: 1.5px solid var(--tinta); font-weight: 700; font-size: 14px">Abaikan</span></div></div></div>
+</div></div>
+</body>
+</html>

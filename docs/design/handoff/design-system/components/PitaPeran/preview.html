@@ -1,0 +1,28 @@
+<!-- @dsCard group="Pita" height=210 width=412 -->
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>PitaPeran — pratinjau</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+html, body { margin: 0; }
+body { background: var(--kertas); }
+/* tanah: komponen selalu tampil di atas kertas, apa pun latar bingkai pratinjau */
+.tanah { background: var(--kertas); color: var(--tinta); font-family: var(--font-sans); font-size: 15px; line-height: 1.45; padding: var(--s20); min-height: 100vh; box-sizing: border-box; }
+.pk { display: flex; flex-direction: column; gap: 10px; max-width: 372px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+input, textarea { color: inherit; }
+button:focus-visible, a:focus-visible { outline: 2px solid var(--laut); outline-offset: 2px; }
+a { color: var(--laut); }
+@media (prefers-reduced-motion: reduce) { * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+</style>
+</head>
+<body>
+<div class="tanah"><div class="pk">
+<div style="border: 1.5px solid var(--tinta); border-radius: var(--radius-isian); padding: 10px 14px; font-size: 14px"><strong>Akses terbatas: Peruntukan Diakonia</strong></div>
+<div style="background: var(--tinta); color: var(--permukaan); border-radius: var(--radius-kartu); padding: 12px 14px; font-size: 14px"><strong>Belum ada Bendahara aktif.</strong> Semua data hanya dapat dilihat.</div>
+<div style="border: 1.5px dashed var(--putus); border-radius: var(--radius-kartu); padding: 10px 14px; font-size: 14px"><strong>Sementara.</strong> <span style="color: var(--tinta2)">Aturannya belum diputuskan.</span></div>
+</div></div>
+</body>
+</html>

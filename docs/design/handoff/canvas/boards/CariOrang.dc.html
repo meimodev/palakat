@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Cari orang (ponsel)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+input{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes masuk{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@keyframes pudar{from{opacity:0}to{opacity:1}}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes isi{from{width:0}to{width:100%}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 16px; line-height: 1.4">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column"><div style="display: flex; align-items: center; gap: 8px; padding: 14px 12px 8px"><a href="BerandaJabatan.dc.html" aria-label="Kembali ke Beranda" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #13201C"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></a><div style="flex: 1"><h1 style="margin: 0; font-size: 18px; font-weight: 700">Cari orang</h1><div style="font-size: 14px; color: #43514C; font-size: 13px">Hasil hanya dari modul aktif dan dari yang boleh Anda lihat</div></div></div><div style="flex: 1; overflow-y: auto; padding: 8px 20px 20px; display: flex; flex-direction: column; gap: 16px"><div style="flex: none; display: flex; flex-direction: column; gap: 16px"><label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: #43514C"><span>Cari nama, keluarga atau Kolom</span><input value="{{q}}" readonly style="width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF; min-height: 48px"></label><sc-if value="{{ada}}" hint-placeholder-val="{{false}}"><div style="font-size: 14px; color: #43514C">{{ringkas}}</div><sc-for list="{{hasil}}" as="r" hint-placeholder-count="3"><a href="{{r.h}}" style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 12px 16px; min-height: 44px; display: flex; align-items: center; gap: 12px; text-decoration: none; color: #13201C"><span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 600">{{r.j}}</span><span style="font-size: 13px; color: #5E6A66">{{r.s}}</span></span><sc-if value="{{r.l}}" hint-placeholder-val="{{false}}"><span style="flex: none; font-size: 13px; font-weight: 700; border-radius: 6px; padding: 3px 9px; {{r.ls}}">{{r.l}}</span></sc-if><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E6A66" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></sc-for></sc-if><sc-if value="{{k0}}" hint-placeholder-val="{{true}}"><a href="AlurPulihkan.dc.html" style="min-height: 44px; display: inline-flex; align-items: center; font-weight: 700; font-size: 14px">Orangnya kehilangan nomor ponsel? Pulihkan akun</a></sc-if><sc-if value="{{k2}}" hint-placeholder-val="{{false}}"><div style="border: 1.5px dashed #808D87; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px"><div style="font-weight: 700">Tidak ada hasil untuk “Rumengan”</div><div style="font-size: 14px; color: #43514C">Periksa ejaan, atau cari dengan nama keluarga.</div></div></sc-if><div style="font-size: 13px; color: #5E6A66">Kecocokan nama tidak pernah membuka data yang tidak boleh Anda lihat, dan jumlah hasil tidak menyebut data di luar jangkauan Anda.</div></div></div></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"keadaan":{"editor":"enum","options":["Dilihat Operator", "Dilihat Penatua Kolom 7", "Tidak ada hasil"],"default":"Dilihat Operator"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  rp(n) { var s = String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return (n < 0 ? '−' : '') + 'Rp' + s; }
+  state = { k: null };
+  vals() {
+    var self = this, O = ["Dilihat Operator", "Dilihat Penatua Kolom 7", "Tidak ada hasil"], LS = {"draf": "color: #43514C; border: 1.5px dashed #808D87", "garis": "color: #43514C; border: 1.5px solid #5E6A66; background: #FFFFFF", "tinta": "color: #FFFFFF; background: #13201C; border: 1.5px solid #13201C", "laut": "color: #FFFFFF; background: #0E5A63; border: 1.5px solid #0E5A63", "lautg": "color: #0E5A63; background: #FFFFFF; border: 1.5px solid #0E5A63", "bata": "color: #A63C1C; background: #FFFFFF; border: 1.5px solid #A63C1C", "abu": "color: #43514C; background: #DDE2DB; border: 1.5px solid #DDE2DB"};
+    var k = this.state.k ?? (this.props.keadaan ?? O[0]); var ki = Math.max(0, O.indexOf(k));
+    var V = { keadaan: O[ki] };
+    O.forEach(function (o, i) { V['k' + i] = i === ki; V['go' + i] = function () { self.setState({ k: o }); }; });
+    var web = false, PS = ["AlurAnggota", "AlurBeranda", "AlurDana", "AlurIbadah", "AlurModul", "AlurNama", "AlurPanitia", "AlurPanitiaBaru", "AlurPelimpahan", "AlurPenugasan", "AlurPeristiwa", "AntreanVerifikasi", "CabutIzin", "Ibadah", "Kehadiran", "KeuanganUnit", "KonfirmasiKeluarga", "Modul", "Panitia", "Pelimpahan", "PemberiPersetujuan", "Peristiwa", "PermintaanDana", "PermohonanAnggota", "PersembahanSaya", "TampilanNama"], hal = function (n) { return (web && PS.indexOf(n) < 0 ? (n === 'Main' ? 'WebBeranda' : 'Web' + n) : n) + '.dc.html'; };
+    var baris = function (a) { return a.map(function (r) { return { j: r[0], s: r[1], l: r[2] || '', ls: LS[r[3] || 'garis'], h: r[4] ? hal(r[4]) : hal('CariOrang') }; }); };
+    var E = (function () { var H = [[['Novita Wenas', 'Data jemaat · Keluarga Wenas-Lasut · Kolom 7', 'Aktif', 'laut', 'DataAnggota'], ['Keluarga Wenas-Lasut', 'Data jemaat · 4 orang · Kolom 7', '', '', 'DataAnggota'], ['Ferry Wenas', 'Data jemaat · Kolom 2', 'Belum dikonfirmasi', 'draf', 'KonfirmasiKeluarga'], ['Novita Wenas', 'Dokumen gereja · Surat keterangan 15/11/2026', 'Diterbitkan', 'tinta', 'PermohonanSurat'], ['Kel. Wenas-Lasut', 'Keuangan · Sampul syukur 08/11/2026', 'Dibukukan', 'tinta', 'Main']],
+               [['Novita Wenas', 'Data jemaat · Keluarga Wenas-Lasut · Kolom 7', 'Aktif', 'laut', 'DataAnggota'], ['Keluarga Wenas-Lasut', 'Data jemaat · 4 orang · Kolom 7', '', '', 'DataAnggota']], []][ki];
+      return { q: ki === 2 ? 'Rumengan' : 'Wenas', ada: ki !== 2, hasil: baris(H), ringkas: H.length + ' hasil untuk “Wenas”' }; })() || {};
+    for (var n in E) V[n] = E[n];
+    return V;
+  }
+
+  renderVals() { var V = this.vals(); if (this.navVals) V.nav = this.navVals(); return V; }
+}
+</script>
+</body>
+</html>

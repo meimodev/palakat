@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Uang Muka dan Titipan: catat pada kasus (web)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+input{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes isi{from{width:0}to{width:100%}}
+@keyframes titik{0%,100%{opacity:.25}50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+.pn-c{display:none}
+@media (max-width:860px){
+.pn{flex:1 1 100%!important;flex-direction:row!important;flex-wrap:wrap;align-items:center;gap:0 12px!important;padding:8px 16px!important;border-right:0!important;border-bottom:1px solid #DDE2DB}
+.pn-c{display:flex;align-items:center;appearance:none;-webkit-appearance:none;min-height:44px;margin:0 0 0 auto;padding:0 16px;border-radius:14px;border:1.5px solid #13201C;background:#FFFFFF;font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+.pn-c::before{content:"Menu"}
+.pn-c:checked{background:#13201C;color:#FFFFFF}
+.pn-c:checked::before{content:"Tutup menu"}
+.pn-l,.pn-w{display:none;flex:1 1 100%}
+.pn-c:checked~.pn-l{display:block;padding:8px 0}
+.pn-c:checked~.pn-w{display:block;margin-top:0!important;padding-bottom:8px!important}
+}
+</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; flex-wrap: wrap; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 15px; line-height: 1.45">
+
+  <nav class="pn" style="flex: 1 1 220px; box-sizing: border-box; padding: 24px 16px; background: #FFFFFF; border-right: 1px solid #DDE2DB; display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px">
+      <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="none" stroke="#0E5A63" stroke-width="2" stroke-dasharray="3 3"/><path d="M12 2h4a6 6 0 0 1 6 6v8a6 6 0 0 1-6 6h-4z" fill="#0E5A63"/></svg>
+      <div><div style="font-weight: 700; font-size: 18px; line-height: 1.1">palakat</div><div style="font-size: 13px; color: #5E6A66">Jemaat Karunia</div></div>
+    </div>
+    <input type="checkbox" class="pn-c" aria-label="Menu">
+    <div class="pn-l">
+      <sc-for list="{{nav}}" as="n" hint-placeholder-count="7">
+        <a href="{{n.href}}" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 10px; text-decoration: none; font-weight: 600; background: {{n.bg}}; color: {{n.fg}}">{{n.n}}</a>
+      </sc-for>
+    </div>
+    <div class="pn-w" style="margin-top: auto; padding: 12px 8px 0; border-top: 1px solid #DDE2DB; font-size: 13px; color: #43514C"><sc-if value="{{tjk}}" hint-placeholder-val="{{true}}"><div><strong style="color: #13201C">Meiske L.</strong> · Bendahara<br>Wewenang Bendahara aktif</div></sc-if><sc-if value="{{jk}}" hint-placeholder-val="{{false}}"><div><strong style="color: #13201C">Yanti Sumual</strong> · Operator<br>Menjalankan jabatan kosong Bendahara Jemaat</div></sc-if></div>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 28px clamp(16px, 3vw, 40px) 40px; display: flex; flex-direction: column; gap: 20px">
+<sc-if value="{{jk}}" hint-placeholder-val="{{false}}"><div role="status" style="background: #13201C; color: #FFFFFF; border-radius: 14px; padding: 12px 16px; font-size: 14px"><strong>Anda menjalankan jabatan kosong Bendahara Jemaat sejak 16/11/2026 08.15.</strong> <span style="color: #D5DDD8">Setiap tindakan dicatat sebagai dijalankan oleh Operator Yanti Sumual.</span></div></sc-if>
+<div><a href="WebKewajiban.dc.html" style="font-size: 14px; font-weight: 600">Uang Muka dan Titipan</a><h1 style="margin: 2px 0 0; font-size: 26px; font-weight: 700">Catat pada kasus</h1></div>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px"><sc-for list="{{tab}}" as="c" hint-placeholder-count="3"><button onClick="{{c.pick}}" aria-pressed="{{c.on}}" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; margin: 0 8px 8px 0; border-radius: 999px; border: 1.5px solid {{c.bd}}; background: {{c.bg}}; color: {{c.fg}}; font-weight: 600; font-size: 14px; margin: 0">{{c.n}}</button></sc-for></div>
+    <div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+      <div style="flex: 1 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 10px"><div><div style="font-size: 14px; color: #43514C">{{L.sisa}} · {{bukaN}} kasus</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 30px; font-weight: 500">{{totalSisa}}</div></div>
+        <sc-for list="{{kasus}}" as="k" hint-placeholder-count="3"><button onClick="{{k.buka}}" style="display: flex; flex-direction: column; gap: 6px; width: 100%; background: {{k.bg}}; border: {{k.bd}}; border-radius: 14px; padding: 14px 16px"><span style="display: flex; justify-content: space-between; gap: 16px; align-items: center"><span style="font-weight: 700">{{k.judul}}</span><span style="font-family: 'IBM Plex Mono', monospace; font-weight: 500">{{k.sisa}}</span></span><span style="font-size: 13px; color: #5E6A66">{{L.pihak}}: {{k.pihak}}</span><span style="display: block; height: 8px; border-radius: 4px; border: 1.5px dashed #808D87; overflow: hidden; box-sizing: border-box"><span style="display: block; height: 100%; width: {{k.pct}}; background: #13201C"></span></span><span style="font-size: 13px; color: #43514C; font-weight: {{k.fw}}">{{k.status}}</span></button></sc-for></div>
+      <div style="flex: 999 1 480px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+        <sc-if value="{{isDaftar}}" hint-placeholder-val="{{true}}"><div style="border: 1.5px dashed #808D87; border-radius: 14px; padding: 18px; font-size: 14px; color: #43514C">Pilih satu kasus di kiri untuk melihat catatannya.</div></sc-if>
+        <sc-if value="{{isRinci}}" hint-placeholder-val="{{false}}">
+          <div><h2 style="margin: 0; font-size: 20px; font-weight: 700">{{r.judul}}</h2><div style="font-size: 14px; color: #43514C">{{L.pihak}}: {{r.pihak}}</div></div>
+          <div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 20px"><div><div style="font-size: 14px; color: #43514C">{{L.sisa}}</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 34px; font-weight: 500; letter-spacing: -1px">{{sisaTampil}}</div></div><span style="font-size: 13px; font-weight: 700; border-radius: 6px; padding: 3px 9px; background: {{r.sbg}}; color: {{r.sfg}}; border: {{r.sbd}}">{{r.statusPendek}}</span><span style="font-size: 13px; font-weight: {{r.tfw}}">{{r.tempo}}</span></div>
+          <div style="height: 14px; border-radius: 7px; border: 1.5px dashed #808D87; overflow: hidden; box-sizing: border-box"><div style="height: 100%; width: {{r.pct}}; background: #13201C; transition: width .5s cubic-bezier(.2,.8,.2,1)"></div></div>
+          <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 4px 16px"><div style="display: flex; justify-content: space-between; gap: 16px; padding: 12px 0"><div><div style="font-weight: 600">{{L.awal}}</div><div style="font-size: 13px; color: #5E6A66">{{r.awalCat}}</div></div><div style="font-family: 'IBM Plex Mono', monospace; font-weight: 500">{{r.awal}}</div></div><sc-for list="{{r.entri}}" as="e" hint-placeholder-count="1"><div style="display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-top: 1px solid #DDE2DB; animation: muncul .3s"><div><div style="font-weight: 600">{{e.n}}</div><div style="font-size: 13px; color: #5E6A66"><span style="font-family: 'IBM Plex Mono', monospace">{{e.no}}</span> · {{e.t}} · {{e.cat}}</div></div><div style="font-family: 'IBM Plex Mono', monospace; font-weight: 500">{{e.rp}}</div></div></sc-for></div>
+          <sc-if value="{{sheet}}" hint-placeholder-val="{{false}}"><div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; border: 1.5px solid #13201C; padding: 16px; display: flex; flex-direction: column; gap: 10px; animation: muncul .3s"><div><div style="font-weight: 700; font-size: 16px">{{s.n}}</div><div style="font-size: 14px; color: #43514C">{{s.cat}}</div></div><div style="display: flex; align-items: baseline; gap: 6px; font-family: 'IBM Plex Mono', monospace; border-bottom: 2px solid #13201C; padding-bottom: 4px; max-width: 300px"><span style="font-size: 18px; color: #5E6A66">Rp</span><input aria-label="Jumlah (Rp)" inputmode="numeric" value="{{isiFmt}}" onChange="{{onIsi}}" style="flex: 1; min-width: 0; width: 100%; border: 0; background: transparent; font-family: 'IBM Plex Mono', monospace; font-size: 26px; font-weight: 500; padding: 0; min-height: 44px; box-sizing: border-box"></div><sc-if value="{{isiLebih}}" hint-placeholder-val="{{false}}"><div style="font-size: 14px; color: #A63C1C; font-weight: 600">Tidak dapat dilakukan: melebihi sisa {{sisaRp}}. {{s.lebih}}</div></sc-if><div style="display: flex; flex-wrap: wrap; gap: 8px"><button onClick="{{simpan}}" disabled="{{isiSalah}}" style="min-height: 46px; padding: 0 20px; border-radius: 12px; border: 0; background: {{simpanBg}}; color: {{simpanFg}}; font-weight: 700">{{s.tombol}}</button><button onClick="{{tutupSheet}}" style="min-height: 46px; padding: 0 20px; border-radius: 12px; border: 1.5px solid #13201C; background: #FFFFFF; color: #13201C; font-weight: 700">Kembali</button></div></div></sc-if>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px"><sc-for list="{{aksi}}" as="a" hint-placeholder-count="2"><button onClick="{{a.buka}}" style="min-height: 46px; padding: 0 18px; border-radius: 12px; font-weight: 700; background: {{a.bg}}; color: {{a.fg}}; border: {{a.bd}}">{{a.n}}</button></sc-for></div>
+          <sc-if value="{{tuntas}}" hint-placeholder-val="{{false}}"><div role="status" style="font-weight: 700; color: #0E5A63">{{r.statusPendek}} · tidak ada sisa</div></sc-if>
+          <div style="font-size: 13px; color: #5E6A66">{{L.kaki}} Sisa dihitung dari catatan di atas; tidak ada isian untuk mengubahnya.</div>
+        </sc-if>
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"jabatanKosong":{"editor":"boolean","default":false},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  rp(n) { var s = String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return (n < 0 ? '−' : '') + 'Rp' + s; }
+  navVals() { return [['Beranda', 'WebBeranda.dc.html'], ['Transaksi', 'WebTransaksi.dc.html'], ['Uang Muka dan Titipan', 'WebKewajiban.dc.html'], ['Rekonsiliasi', 'WebRekonsiliasi.dc.html'], ['Bulan dan tutup buku', 'WebTutupBuku.dc.html'], ['Laporan', 'WebPaketLaporan.dc.html'], ['Pengaturan', 'WebPengaturan.dc.html']].map(function (n, i) { return { n: n[0], href: n[1], bg: i === 2 ? '#13201C' : 'transparent', fg: i === 2 ? '#FFFFFF' : '#13201C' }; }); }
+  state = { tab: 'um', buka: null, sheet: null, isi: '', tampil: 0, nomor: 150, cek: {},
+    kasus: [
+      { id: 'um1', j: 'um', judul: 'Panitia Natal', pihak: 'Sdr. Rivo Mandagi', awal: 1500000, awalCat: 'BKU-2026-0129 · 01/11/2026 · dari peruntukan Umum Jemaat', tempo: '30/11/2026', entri: [{ n: 'Pertanggungjawaban uang muka', no: 'BKU-2026-0138', t: '08/11/2026', cat: 'menjadi Belanja', jm: 850000 }] },
+      { id: 'um2', j: 'um', judul: 'Retret Pemuda', pihak: 'Sdri. Natalia Rumengan', awal: 800000, awalCat: 'BKU-2026-0112 · 20/10/2026 · dari peruntukan Umum Jemaat', tempo: '10/11/2026', lewat: true, entri: [{ n: 'Pertanggungjawaban uang muka', no: 'BKU-2026-0150', t: '05/11/2026', cat: 'menjadi Belanja', jm: 300000 }] },
+      { id: 'um3', j: 'um', judul: 'Perjalanan dinas Wilayah', pihak: 'Pnt. Jefry Wowor', awal: 400000, awalCat: 'BKU-2026-0103 · 07/10/2026', tempo: '', entri: [{ n: 'Pertanggungjawaban uang muka', no: 'BKU-2026-0149', t: '03/11/2026', cat: 'menjadi Belanja', jm: 400000 }] },
+      { id: 'tt1', j: 'tt', judul: 'Sentralisasi November', pihak: 'Sinode', awal: 2400000, awalCat: 'Dari 4 persembahan · disimpan di Bank BNI ··4821', tempo: '', entri: [{ n: 'Penyaluran', no: 'BKU-2026-0136', t: '07/11/2026', cat: 'bukan Belanja', jm: 1000000 }] },
+      { id: 'tt2', j: 'tt', judul: 'Persembahan khusus', pihak: 'Wilayah', awal: 450000, awalCat: 'Dari persembahan khusus 9 November · disimpan di Kas', tempo: '', entri: [] },
+      { id: 'pb1', j: 'pb', judul: 'Alat kebersihan gereja', pihak: 'Ibu Selvie Kalalo', awal: 185000, awalCat: 'Nota 12/11/2026 terlampir · belum masuk saldo', tempo: '', entri: [] },
+      { id: 'pb2', j: 'pb', judul: 'Bensin antar jemput', pihak: 'Sdr. Rivo Mandagi', awal: 120000, awalCat: 'Nota 02/11/2026 terlampir', tempo: '', entri: [{ n: 'Penggantian biaya dibayar', no: 'BKU-2026-0134', t: '05/11/2026', cat: 'Belanja, dicatat satu kali', jm: 120000 }] }
+    ] };
+  LBL = {
+    um: { tab: 'Uang Muka', pihak: 'Diberikan kepada', awal: 'Uang Muka diberikan', sisa: 'Sisa belum dipertanggungjawabkan', cat: 'Uang muka bukan Belanja saat diberikan.', st: ['Belum dipertanggungjawabkan', 'Sebagian dipertanggungjawabkan', 'Sudah dipertanggungjawabkan'], kaki: 'Pertanggungjawaban yang diterima menjadi Belanja. Pengembalian sisa kembali ke Kas dan bukan Pendapatan.' },
+    tt: { tab: 'Titipan', pihak: 'Titipan untuk', awal: 'Terkumpul', sisa: 'Sisa belum disalurkan', cat: 'Uang titipan untuk pihak lain, bukan Pendapatan dan bukan Belanja.', st: ['Belum disalurkan', 'Sebagian disalurkan', 'Sudah disalurkan'], kaki: 'Sentralisasi dari uang milik sendiri dicatat sebagai Belanja biasa, tidak di sini.' },
+    pb: { tab: 'Penggantian biaya', pihak: 'Dibayar kepada', awal: 'Klaim', sisa: 'Belum dibayar', cat: 'Klaim belum masuk saldo sampai dibayar.', st: ['Belum dibayar', 'Belum dibayar', 'Sudah dibayar'], kaki: 'Mengecek klaim tidak mengubah saldo. Pembayarannya mencatat Belanja satu kali.' }
+  };
+  AKSI = {
+    um: [{ id: 'tj', n: 'Catat pertanggungjawaban', cat: 'Belanja dari uang muka, dengan nota.', entri: 'Pertanggungjawaban uang muka', ecat: 'menjadi Belanja', tombol: 'Bukukan pertanggungjawaban', lebih: 'Kelebihan belanja dicatat sebagai Penggantian biaya.', utama: true }, { id: 'kb', n: 'Catat pengembalian sisa', cat: 'Uang kembali ke Kas. Bukan Pendapatan.', entri: 'Pengembalian sisa uang muka', ecat: 'kembali ke Kas', tombol: 'Bukukan pengembalian', lebih: '' }],
+    tt: [{ id: 'sl', n: 'Salurkan', cat: 'Menyerahkan titipan kepada yang berhak. Bukan Belanja.', entri: 'Penyaluran', ecat: 'bukan Belanja', tombol: 'Bukukan penyaluran', lebih: '', utama: true }],
+    pb: [{ id: 'ck', n: 'Cek klaim', cek: true }, { id: 'by', n: 'Bayar penggantian biaya', cat: 'Membayar klaim penuh dan mencatat Belanja satu kali.', entri: 'Penggantian biaya dibayar', ecat: 'Belanja, dicatat satu kali', tombol: 'Bukukan pembayaran', lebih: '', kunci: true, utama: true }]
+  };
+  rp(n) { var s = String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return (n < 0 ? '−' : '') + 'Rp' + s; }
+  componentWillUnmount() { clearInterval(this.t); }
+  sisa(k) { return k.awal - k.entri.reduce(function (a, e) { return a + e.jm; }, 0); }
+  vals() {
+    var self = this, s = this.state, rp = this.rp, L = this.LBL[s.tab];
+    var st = function (k) { var x = self.sisa(k), l = self.LBL[k.j].st; return x === 0 ? l[2] : (k.entri.length ? l[1] : l[0]); };
+    var list = s.kasus.filter(function (k) { return k.j === s.tab; });
+    var buka = list.filter(function (k) { return self.sisa(k) > 0; });
+    var cur = s.kasus.filter(function (k) { return k.id === s.buka; })[0];
+    var csisa = cur ? this.sisa(cur) : 0;
+    var akt = cur ? this.AKSI[cur.j].filter(function (a) { return a.id === s.sheet; })[0] : null;
+    var isi = parseInt(s.isi || '0', 10), salah = isi <= 0 || isi > csisa;
+    var sudahCek = cur ? !!s.cek[cur.id] : false;
+    var aksi = (cur && csisa > 0) ? this.AKSI[cur.j].filter(function (a) { return !(a.cek && sudahCek) && !(a.id === 'by' && !sudahCek); }).map(function (a) {
+      var u = a.utama && !(cur.j === 'pb' && !sudahCek) || (a.cek && !sudahCek);
+      return { n: a.cek ? 'Cek klaim · tidak mengubah saldo' : a.n, bg: u ? '#0E5A63' : '#FFFFFF', fg: u ? '#FFFFFF' : '#13201C', bd: u ? '0' : '1.5px solid #13201C', buka: function () { if (a.cek) { var c = Object.assign({}, s.cek); c[cur.id] = true; self.setState({ cek: c }); return; } self.setState({ sheet: a.id, isi: String(csisa) }); } };
+    }) : [];
+    return {
+      isDaftar: !s.buka, isRinci: !!s.buka, sheet: !!akt, L: L,
+      tab: ['um', 'tt', 'pb'].map(function (t) { var on = s.tab === t; return { n: self.LBL[t].tab, on: on, bg: on ? '#13201C' : '#FFFFFF', fg: on ? '#FFFFFF' : '#13201C', bd: on ? '#13201C' : '#7F8C86', pick: function () { self.setState({ tab: t }); } }; }),
+      bukaN: buka.length, totalSisa: rp(buka.reduce(function (a, k) { return a + self.sisa(k); }, 0)),
+      kasus: list.map(function (k) { var x = self.sisa(k), beres = x === 0; return { judul: k.judul, pihak: k.pihak, sisa: rp(x), pct: Math.round((k.awal - x) / k.awal * 100) + '%', bg: beres ? 'transparent' : '#FFFFFF', bd: beres ? '1px solid #DDE2DB' : '1px solid #7F8C86', status: st(k) + (k.tempo && !beres ? (k.lewat ? ' · Lewat jatuh tempo (jatuh tempo: ' + k.tempo + ')' : ' · jatuh tempo ' + k.tempo) : ''), fw: (k.lewat && !beres) ? 700 : 400, buka: function () { clearInterval(self.t); self.setState({ buka: k.id, tampil: x }); } }; }),
+      r: cur ? { judul: cur.judul, pihak: cur.pihak, awal: rp(cur.awal), awalCat: cur.awalCat + (cur.j === 'pb' && sudahCek && csisa > 0 ? ' · klaim sudah dicek' : ''), pct: Math.round((cur.awal - csisa) / cur.awal * 100) + '%',
+        statusPendek: st(cur), sbg: csisa === 0 ? '#0E5A63' : 'transparent', sfg: csisa === 0 ? '#FFFFFF' : '#43514C', sbd: csisa === 0 ? '1.5px solid #0E5A63' : '1.5px solid #5E6A66',
+        tempo: (cur.tempo && csisa > 0) ? (cur.lewat ? 'Lewat jatuh tempo (jatuh tempo: ' + cur.tempo + ')' : 'Jatuh tempo ' + cur.tempo) : '', tfw: cur.lewat ? 700 : 400,
+        entri: cur.entri.map(function (e) { return Object.assign({}, e, { rp: '− ' + rp(e.jm) }); }) } : { entri: [] },
+      sisaTampil: rp(s.tampil), sisaRp: rp(csisa), aksi: aksi, tuntas: !!cur && csisa === 0,
+      s: akt || {}, isiFmt: s.isi ? s.isi.replace(/\B(?=(\d{3})+(?!\d))/g, '.') : '', isiLebih: isi > csisa, isiSalah: salah,
+      simpanBg: salah ? '#DDE2DB' : '#0E5A63', simpanFg: salah ? '#5E6A66' : '#FFFFFF',
+      keDaftar: function () { clearInterval(self.t); self.setState({ buka: null, sheet: null }); },
+      tutupSheet: function () { self.setState({ sheet: null }); },
+      onIsi: function (e) { if (akt && akt.kunci) return; self.setState({ isi: e.target.value.replace(/\D/g, '').replace(/^0+/, '').slice(0, 11) }); },
+      simpan: function () {
+        if (salah || !akt) return;
+        var dari = csisa, ke = csisa - isi, i = 0;
+        var kasus = s.kasus.map(function (k) { return k.id !== cur.id ? k : Object.assign({}, k, { entri: k.entri.concat([{ n: akt.entri, no: 'BKU-2026-0' + s.nomor, t: '16/11/2026', cat: akt.ecat, jm: isi }]) }); });
+        self.setState({ kasus: kasus, sheet: null, nomor: s.nomor + 1 });
+        clearInterval(self.t);
+        self.t = setInterval(function () { i++; var k = 1 - Math.pow(1 - i / 22, 3); self.setState({ tampil: Math.round(dari + (ke - dari) * k) }); if (i >= 22) clearInterval(self.t); }, 30);
+      }
+    };
+  }
+
+  rv0() { var V = this.vals(); if (this.navVals) V.nav = this.navVals(); return V; }
+  tukarJk(o, d) {
+    var self = this, ganti = function (s) { var t = s.match(/\d\d\/\d\d\/\d{4}/g) || []; return s.indexOf('Meiske L.') < 0 || t.some(function (x) { return x !== '16/11/2026'; }) ? s : s.split('Meiske L.').join('Yanti Sumual, Operator'); };
+    if (d > 5 || !o || typeof o !== 'object') return o;
+    Object.keys(o).forEach(function (k) { var v = o[k]; if (typeof v === 'string') o[k] = ganti(v); else if (v && typeof v === 'object') self.tukarJk(v, d + 1); });
+    return o;
+  }
+  renderVals() {
+    var V = this.rv0(), jk = !!this.props.jabatanKosong;
+    if (jk && false) this.tukarJk(V, 0);
+    V.jk = jk; V.tjk = !jk; V.plk = jk ? 'Yanti Sumual, Operator' : 'Meiske L.'; V.plk2 = jk ? 'Yanti Sumual, Operator (menjalankan jabatan kosong Bendahara Jemaat)' : 'Meiske L.';
+    return V;
+  }
+}
+</script>
+</body>
+</html>

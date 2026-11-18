@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Transaksi dan koreksi (tablet)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+button:focus-visible,a:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes cap{0%{opacity:0;transform:scale(1.7) rotate(-9deg)}55%{opacity:1;transform:scale(.94) rotate(-3deg)}100%{opacity:1;transform:scale(1) rotate(-3deg)}}
+@keyframes sapu{0%{transform:scaleX(0);opacity:.2}65%{transform:scaleX(1);opacity:.2}100%{transform:scaleX(1);opacity:0}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+.pn-c{display:none}
+@media (max-width:860px){
+.pn{flex:1 1 100%!important;flex-direction:row!important;flex-wrap:wrap;align-items:center;gap:0 12px!important;padding:8px 16px!important;border-right:0!important;border-bottom:1px solid #DDE2DB}
+.pn-c{display:flex;align-items:center;appearance:none;-webkit-appearance:none;min-height:44px;margin:0 0 0 auto;padding:0 16px;border-radius:14px;border:1.5px solid #13201C;background:#FFFFFF;font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+.pn-c::before{content:"Menu"}
+.pn-c:checked{background:#13201C;color:#FFFFFF}
+.pn-c:checked::before{content:"Tutup menu"}
+.pn-l,.pn-w{display:none;flex:1 1 100%}
+.pn-c:checked~.pn-l{display:block;padding:8px 0}
+.pn-c:checked~.pn-w{display:block;margin-top:0!important;padding-bottom:8px!important}
+}
+</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; flex-wrap: wrap; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 15px; line-height: 1.45">
+
+  <nav class="pn" style="flex: 1 1 220px; box-sizing: border-box; padding: 24px 16px; background: #FFFFFF; border-right: 1px solid #DDE2DB; display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px">
+      <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="none" stroke="#0E5A63" stroke-width="2" stroke-dasharray="3 3"/><path d="M12 2h4a6 6 0 0 1 6 6v8a6 6 0 0 1-6 6h-4z" fill="#0E5A63"/></svg>
+      <div><div style="font-weight: 700; font-size: 18px; line-height: 1.1">palakat</div><div style="font-size: 13px; color: #5E6A66">Jemaat Karunia</div></div>
+    </div>
+    <input type="checkbox" class="pn-c" aria-label="Menu">
+    <div class="pn-l">
+      <sc-for list="{{nav}}" as="n" hint-placeholder-count="7">
+        <a href="{{n.href}}" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 10px; text-decoration: none; font-weight: 600; background: {{n.bg}}; color: {{n.fg}}">{{n.n}}</a>
+      </sc-for>
+    </div>
+    <div class="pn-w" style="margin-top: auto; padding: 12px 8px 0; border-top: 1px solid #DDE2DB; font-size: 13px; color: #43514C"><strong style="color: #13201C">Meiske L.</strong> · Bendahara<br>Wewenang Bendahara aktif</div>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 28px clamp(16px, 3vw, 40px) 40px; display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px">
+      <h1 style="margin: 0; font-size: 26px; font-weight: 700; flex: 1 1 200px">Transaksi</h1>
+      <a href="WebPilihBulan.dc.html" style="min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid #7F8C86; background: #FFFFFF; font-weight: 600; color: #13201C; display: flex; align-items: center; justify-content: center; text-decoration: none; box-sizing: border-box">November 2026 · Belum ditutup</a>
+      <a href="WebImpor.dc.html" style="min-height: 44px; padding: 0 16px; border-radius: 12px; border: 1.5px solid #13201C; background: #FFFFFF; color: #13201C; font-weight: 700; display: flex; align-items: center; text-decoration: none; box-sizing: border-box">Impor</a>
+      <a href="WebCatat.dc.html" style="min-height: 44px; padding: 0 18px; border-radius: 12px; background: #0E5A63; color: #FFFFFF; font-weight: 700; display: flex; align-items: center; text-decoration: none">+ Catat transaksi</a>
+    </div>
+    <div style="display: flex; flex-wrap: wrap; gap: 0 22px; font-size: 14px; font-weight: 600; margin-top: -8px"><a href="WebBukti.dc.html" style="min-height: 44px; min-width: 44px; display: inline-flex; align-items: center">Daftar Bukti Kas</a><a href="WebKoreksi.dc.html" style="min-height: 44px; min-width: 44px; display: inline-flex; align-items: center">Koreksi dengan pembalikan</a><a href="WebDraf.dc.html" style="min-height: 44px; min-width: 44px; display: inline-flex; align-items: center">Draf di bulan yang sudah ditutup</a><a href="WebPengembalian.dc.html" style="min-height: 44px; min-width: 44px; display: inline-flex; align-items: center">Pengembalian</a><a href="WebCari.dc.html" style="min-height: 44px; min-width: 44px; display: inline-flex; align-items: center">Cari</a></div>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px">
+      <sc-for list="{{filters}}" as="c" hint-placeholder-count="5">
+        <button onClick="{{c.pick}}" aria-pressed="{{c.on}}" style="min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1.5px solid {{c.bd}}; background: {{c.bg}}; color: {{c.fg}}; font-weight: 600; font-size: 14px">{{c.n}}</button>
+      </sc-for>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+      <div style="flex: 999 1 520px; min-width: 0; background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; overflow-x: auto">
+        <div style="min-width: 470px">
+          <div style="display: grid; grid-template-columns: 104px 88px minmax(0, 1fr) 124px; gap: 12px; padding: 12px 16px; font-size: 13px; font-weight: 600; color: #43514C"><div>Status</div><div>Tanggal</div><div>Uraian · No. Bukti · Kas/Bank</div><div style="text-align: right">Jumlah (Rp)</div></div>
+          <sc-for list="{{rows}}" as="r" hint-placeholder-count="7">
+            <button onClick="{{r.pick}}" aria-pressed="{{r.on}}" style="display: grid; grid-template-columns: 104px 88px minmax(0, 1fr) 124px; gap: 12px; align-items: center; width: 100%; min-height: 56px; padding: 8px 16px; background: {{r.bg}}; border: 0; border-top: 1px solid #DDE2DB; box-shadow: {{r.sh}}; font-size: 14px">
+              <div><span style="display: inline-block; font-size: 13px; font-weight: 700; padding: 3px 9px; border-radius: 6px; background: {{r.bbg}}; color: {{r.bfg}}; border: {{r.bbd}}">{{r.st}}</span></div>
+              <div style="color: #43514C">{{r.tgl}}</div>
+              <div style="min-width: 0"><div style="font-weight: 600; overflow-wrap: anywhere">{{r.ur}}</div><div style="font-size: 13px; color: #43514C"><span style="font-family: 'IBM Plex Mono', monospace">{{r.no}}</span> · {{r.ak}}</div><sc-if value="{{r.cat}}" hint-placeholder-val="{{false}}"><div style="font-size: 13px; color: #5E6A66">{{r.cat}}</div></sc-if></div>
+              <div style="text-align: right; font-family: 'IBM Plex Mono', monospace; font-weight: 500; color: {{r.fg}}; text-decoration: {{r.td}}">{{r.rp}}</div>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+
+      <aside style="flex: 1 1 360px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+        <div style="position: relative; overflow: hidden; border-radius: 16px; padding: 18px; background: {{d.cardBg}}; border: {{d.cardBd}}; display: flex; flex-direction: column; gap: 6px">
+          <sc-if value="{{baruBuku}}" hint-placeholder-val="{{false}}"><div style="position: absolute; inset: 0; background: #0E5A63; transform-origin: left; animation: sapu .7s ease-out both; pointer-events: none"></div></sc-if>
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
+            <span style="font-size: 13px; font-weight: 700; padding: 3px 9px; border-radius: 6px; background: {{d.bbg}}; color: {{d.bfg}}; border: {{d.bbd}}">{{d.stLabel}}</span>
+            <sc-if value="{{baruBuku}}" hint-placeholder-val="{{false}}"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; font-weight: 600; color: #0E5A63; border: 2px solid #0E5A63; border-radius: 8px; padding: 4px 10px; animation: cap .55s cubic-bezier(.2,.8,.2,1) .35s both">No. Bukti {{d.no}}</span></sc-if>
+            <sc-if value="{{lamaBuku}}" hint-placeholder-val="{{true}}"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: #43514C">{{d.no}}</span></sc-if>
+          </div>
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 32px; font-weight: 500; letter-spacing: -1px; color: {{d.fg}}">{{d.rp}}</div>
+          <div style="font-weight: 600">{{d.ur}}</div>
+          <div style="font-size: 13px; color: #5E6A66">{{d.sub}}</div>
+        </div>
+
+        <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 4px 16px">
+          <sc-for list="{{d.rinci}}" as="f" hint-placeholder-count="6"><div style="display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; border-top: {{f.garis}}"><div style="font-size: 14px; color: #43514C">{{f.k}}</div><div style="font-size: 14px; font-weight: 600; text-align: right; color: {{f.fg}}">{{f.v}}</div></div></sc-for>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <h2 style="margin: 4px 0 0; font-size: 15px; font-weight: 700">Yang dapat dilakukan</h2>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px">
+            <sc-for list="{{d.aksi}}" as="a" hint-placeholder-count="3">
+              <sc-if value="{{a.tombol}}" hint-placeholder-val="{{false}}"><button onClick="{{a.on}}" style="min-height: 44px; padding: 0 16px; border-radius: 12px; font-weight: 700; font-size: 14px; background: {{a.bg}}; color: {{a.fg}}; border: {{a.bd}}">{{a.n}}</button></sc-if><sc-if value="{{a.taut}}" hint-placeholder-val="{{true}}"><a href="{{a.href}}" style="min-height: 44px; padding: 0 16px; border-radius: 12px; font-weight: 700; font-size: 14px; background: {{a.bg}}; color: {{a.fg}}; border: {{a.bd}}; display: inline-flex; align-items: center; text-decoration: none; box-sizing: border-box">{{a.n}}</a></sc-if>
+            </sc-for>
+          </div>
+          <div style="font-size: 13px; color: #5E6A66">{{d.catatan}}</div>
+          <div style="display: flex; flex-direction: column; gap: 4px"><h2 style="margin: 4px 0 0; font-size: 15px; font-weight: 700">Riwayat</h2><sc-for list="{{d.rw}}" as="h" hint-placeholder-count="2"><div style="font-size: 14px; color: #43514C">{{h.t}}</div></sc-for></div>
+        </div>
+      </aside>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":834,"height":1112}}'>
+class Component extends DCLogic {
+  state = { filter: 'Semua', pilih: 0, buku: false };
+  rp(n) { var s = String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return (n < 0 ? '−' : '') + 'Rp' + s; }
+  renderVals() {
+    var self = this, s = this.state, rp = this.rp;
+    var nav = [['Beranda', 'WebBeranda.dc.html'], ['Transaksi', 'WebTransaksi.dc.html'], ['Uang Muka dan Titipan', 'WebKewajiban.dc.html'], ['Rekonsiliasi', 'WebRekonsiliasi.dc.html'], ['Bulan dan tutup buku', 'WebTutupBuku.dc.html'], ['Laporan', 'WebPaketLaporan.dc.html'], ['Pengaturan', 'WebPengaturan.dc.html']];
+    var B = {
+      'Draf': { bbg: 'transparent', bfg: '#43514C', bbd: '1.5px dashed #808D87' },
+      'Dibukukan': { bbg: '#13201C', bfg: '#FFFFFF', bbd: '1.5px solid #13201C' },
+      'Dibalik': { bbg: '#FFFFFF', bfg: '#43514C', bbd: '1.5px solid #5E6A66' },
+      'Dibatalkan': { bbg: '#F3F5F1', bfg: '#43514C', bbd: '1.5px solid #F3F5F1' }
+    };
+    var utama = { bg: '#0E5A63', fg: '#FFFFFF', bd: '0' }, biasa = { bg: '#FFFFFF', fg: '#13201C', bd: '1.5px solid #13201C' };
+    var TUJU = { 'Verifikasi': 'WebLihatDokumen', 'Lampirkan dokumen pendukung': 'WebUnggah', 'Catat pengecualian': 'WebDokumen', 'Koreksi dengan pembalikan': 'WebKoreksi', 'Pilih Mata Anggaran': 'WebCatat', 'Ubah': 'WebCatat', 'Catat persetujuan': 'WebPersetujuan', 'Batalkan': 'WebDraf', 'Pindah tanggal': 'WebDraf' };
+    var aksi = function (list) { return list.map(function (a) { return Object.assign({ n: a[0], on: a[2] || null, tombol: !!a[2], taut: !a[2], href: (TUJU[a[0]] || 'WebKoreksi') + '.dc.html' }, a[1] ? utama : biasa); }); };
+    var data = [
+      { st: s.buku ? 'Dibukukan' : 'Draf', no: s.buku ? 'BKU-2026-0147' : '', tgl: '16/11/2026', ur: 'Fotokopi warta jemaat', ak: 'Kas', jm: -150000, cat: s.buku ? '' : 'Belum masuk saldo',
+        rinci: [['Diambil dari peruntukan', 'Umum Jemaat'], ['Lingkup', 'Jemaat'], ['Mata Anggaran', 'Belanja 5.02.01.00 Alat tulis dan fotokopi'], ['Persetujuan', 'Tidak diperlukan (aturan: transaksi rutin)'], ['Dokumen pendukung', 'Diunggah, belum diverifikasi']].concat(s.buku ? [['Dibukukan pada', '16/11/2026 10.42']] : []),
+        aksi: s.buku ? aksi([['Verifikasi', 1], ['Lampirkan dokumen pendukung'], ['Koreksi dengan pembalikan']]) : aksi([['Periksa dan bukukan', 1, function () { self.setState({ buku: true }); }], ['Ubah'], ['Pindah tanggal'], ['Batalkan']]),
+        catatan: s.buku ? 'Jumlah, tanggal, Kas/Bank, peruntukan, Lingkup dan Mata Anggaran tidak dapat diubah lagi.' : 'Semua syarat terpenuhi. Pindah tanggal dan Batalkan memerlukan alasan.' },
+      { st: 'Draf', no: '', tgl: '08/11/2026', ur: 'Honor pemusik', ak: 'Bank BNI ··4821', jm: -650000, cat: 'Belum masuk saldo · Mata Anggaran belum dipilih',
+        rinci: [['Diambil dari peruntukan', 'Umum Jemaat'], ['Lingkup', 'Jemaat'], ['Mata Anggaran', 'Mata Anggaran belum dipilih', 1], ['Persetujuan', 'Persetujuan belum dicatat', 1], ['Dokumen pendukung', 'Wajib, belum ada', 1]],
+        aksi: aksi([['Pilih Mata Anggaran', 1], ['Catat persetujuan'], ['Lampirkan dokumen pendukung'], ['Ubah'], ['Batalkan']]),
+        catatan: 'Tidak dapat dilakukan: Bukukan. Mata Anggaran belum dipilih dan persetujuan belum dicatat.' },
+      { st: 'Dibukukan', no: 'BKU-2026-0146', tgl: '15/11/2026', ur: 'Persembahan Ibadah Minggu', ak: 'Kas', jm: 3450000,
+        rinci: [['Masuk ke peruntukan', 'Umum Jemaat'], ['Lingkup', 'Jemaat'], ['Mata Anggaran', 'Pendapatan 1.3.53.07.00 Persembahan Ibadah Minggu'], ['Versi Mata Anggaran', '2026.1'], ['Dokumen pendukung', 'Terverifikasi (oleh Meiske L.)'], ['Dibukukan pada', '15/11/2026 12.20']],
+        aksi: aksi([['Lampirkan dokumen pendukung'], ['Koreksi dengan pembalikan']]),
+        catatan: 'Koreksi hanya lewat pembalikan, selama November 2026 belum ditutup.' },
+      { st: 'Dibukukan', no: 'BKU-2026-0143', tgl: '11/11/2026', ur: 'Sewa sound system', ak: 'Kas', jm: -600000, cat: 'Dokumen pendukung wajib, belum ada',
+        rinci: [['Diambil dari peruntukan', 'Umum Jemaat'], ['Lingkup', 'Panitia Natal'], ['Mata Anggaran', 'Belanja 5.05.02.00 Sewa peralatan'], ['Dokumen pendukung', 'Wajib, belum ada', 1], ['Dibukukan pada', '11/11/2026 16.05']],
+        aksi: aksi([['Lampirkan dokumen pendukung', 1], ['Catat pengecualian'], ['Koreksi dengan pembalikan']]),
+        catatan: 'Menjadi hambatan tutup buku sampai dokumen terverifikasi atau dikecualikan dengan alasan.' },
+      { st: 'Dibukukan', no: 'BKU-2026-0144', tgl: '12/11/2026', ur: 'Pembalikan BKU-2026-0139', ak: 'Kas', jm: 750000, cat: 'Pembalikan',
+        rinci: [['Pembalikan dari', 'No. Bukti BKU-2026-0139'], ['Alasan', 'Mata Anggaran keliru'], ['Dibukukan pada', '12/11/2026 09.31']],
+        aksi: aksi([['Lihat transaksi asal']]),
+        catatan: 'Pembalikan tidak dapat diubah atau dibalik.' },
+      { st: 'Dibalik', no: 'BKU-2026-0139', tgl: '09/11/2026', ur: 'Konsumsi rapat majelis', ak: 'Kas', jm: -750000, cat: 'Dibalik oleh No. Bukti BKU-2026-0144',
+        rinci: [['Dibalik oleh', 'No. Bukti BKU-2026-0144'], ['Transaksi koreksi', 'No. Bukti BKU-2026-0145'], ['Mata Anggaran', 'Belanja 5.02.01.00 Alat tulis dan fotokopi'], ['Dibukukan pada', '09/11/2026 14.12']],
+        aksi: aksi([['Lihat pembalikan'], ['Lihat transaksi koreksi']]),
+        catatan: 'Transaksi asal tetap tampil di daftar dan laporan.' },
+      { st: 'Dibatalkan', no: '', tgl: '05/11/2026', ur: 'Pembelian bunga altar', ak: 'Kas', jm: -200000, cat: 'Tidak pernah dibukukan',
+        rinci: [['Alasan', 'Tercatat dua kali'], ['Dibatalkan oleh', 'Meiske L.'], ['Dibatalkan pada', '06/11/2026 08.02']],
+        aksi: [],
+        catatan: 'Hanya dapat dilihat. Transaksi ini tidak pernah punya No. Bukti.' }
+    ];
+    var rows = data.map(function (r, i) {
+      var draf = r.st === 'Draf', batal = r.st === 'Dibatalkan', on = s.pilih === i;
+      return Object.assign({}, r, B[r.st], { i: i, on: on, no: r.no || '—', rp: rp(r.jm), fg: (draf || batal) ? '#5E6A66' : '#13201C', td: batal ? 'line-through' : 'none', bg: on ? '#E1EEED' : (draf ? '#F3F5F1' : '#FFFFFF'), sh: on ? 'inset 3px 0 0 #0E5A63' : 'none', pick: function () { self.setState({ pilih: i }); } });
+    }).filter(function (r) { return s.filter === 'Semua' || r.st === s.filter; });
+    var p = data[s.pilih], draf = p.st === 'Draf';
+    var bk = ((p.rinci || []).filter(function (r) { return r[0] === 'Dibukukan pada'; })[0] || [])[1];
+    var d = Object.assign({ rw: (draf ? [p.tgl + ' · Draf dicatat oleh Meiske L.'] : [(bk ? bk + ' · ' : '') + 'Dibukukan oleh Meiske L.', p.tgl + ' · Draf dicatat oleh Meiske L.']).map(function (v) { return { t: v }; }) }, p, B[p.st], {
+      stLabel: draf ? 'Draf · belum masuk saldo' : p.st, no: p.no || 'Belum ada No. Bukti', rp: rp(p.jm), fg: (draf || p.st === 'Dibatalkan') ? '#43514C' : '#13201C',
+      cardBg: draf ? 'transparent' : '#FFFFFF', cardBd: draf ? '1.5px dashed #808D87' : '1.5px solid #13201C',
+      sub: p.ak + ' · tanggal transaksi ' + p.tgl,
+      rinci: p.rinci.map(function (f, i) { return { k: f[0], v: f[1], fg: f[2] ? '#A63C1C' : '#13201C', garis: i ? '1px solid #DDE2DB' : '0' }; })
+    });
+    return {
+      nav: nav.map(function (n, i) { return { n: n[0], href: n[1], bg: i === 1 ? '#13201C' : 'transparent', fg: i === 1 ? '#FFFFFF' : '#13201C' }; }),
+      filters: ['Semua', 'Draf', 'Dibukukan', 'Dibalik', 'Dibatalkan'].map(function (f) { var on = s.filter === f; return { n: f, on: on, bg: on ? '#13201C' : '#FFFFFF', fg: on ? '#FFFFFF' : '#13201C', bd: on ? '#13201C' : '#7F8C86', pick: function () { self.setState({ filter: f }); } }; }),
+      rows: rows, d: d,
+      baruBuku: s.pilih === 0 && s.buku, lamaBuku: !(s.pilih === 0 && s.buku)
+    };
+  }
+}
+</script>
+</body>
+</html>

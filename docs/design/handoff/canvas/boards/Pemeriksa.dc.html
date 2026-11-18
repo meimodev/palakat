@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Wajib pemeriksa kedua (ponsel)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+button:focus-visible,a:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes naik{from{transform:translateY(100%)}to{transform:none}}
+@keyframes pudar{from{opacity:0}to{opacity:1}}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes cap{0%{opacity:0;transform:scale(1.7) rotate(-9deg)}55%{opacity:1;transform:scale(.94) rotate(-3deg)}100%{opacity:1;transform:scale(1) rotate(-3deg)}}
+@keyframes sapu{0%{transform:scaleX(0);opacity:.2}65%{transform:scaleX(1);opacity:.2}100%{transform:scaleX(1);opacity:0}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 16px; line-height: 1.4">
+
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column">
+  <div style="padding: 20px 20px 8px; display: flex; flex-direction: column; gap: 4px">
+    <div style="font-size: 13px; color: #43514C">Masuk sebagai <strong style="color: #13201C">{{siapa}}</strong> · Wajib pemeriksa kedua: hidup</div>
+    <h1 style="margin: 0; font-size: 20px; font-weight: 700">Belanja · Sewa kursi ibadah padang</h1>
+  </div>
+  <div style="flex: 1; overflow-y: auto; padding: 8px 20px 20px; display: flex; flex-direction: column; gap: 16px">
+
+    <div style="display: flex; align-items: center; gap: 6px">
+      <sc-for list="{{tahap}}" as="t" hint-placeholder-count="3"><span style="display: inline-flex; align-items: center; min-height: 30px; padding: 0 10px; border-radius: 999px; font-size: 13px; font-weight: 700; background: {{t.bg}}; color: {{t.fg}}; border: {{t.bd}}">{{t.n}}</span></sc-for>
+    </div>
+
+    <div style="flex: none; position: relative; overflow: hidden; border-radius: 16px; padding: 18px; background: {{kBg}}; border: {{kBd}}; display: flex; flex-direction: column; gap: 6px; transition: background .3s">
+      <sc-if value="{{isBuku}}" hint-placeholder-val="{{false}}"><div style="position: absolute; inset: 0; background: #0E5A63; transform-origin: left; animation: sapu .7s ease-out both; pointer-events: none"></div></sc-if>
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
+        <span style="font-size: 13px; font-weight: 700; border-radius: 6px; padding: 3px 9px; background: {{sBg}}; color: {{sFg}}; border: {{sBd}}">{{sTeks}}</span>
+        <sc-if value="{{isBuku}}" hint-placeholder-val="{{false}}"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; font-weight: 600; color: #0E5A63; border: 2px solid #0E5A63; border-radius: 8px; padding: 4px 10px; animation: cap .55s cubic-bezier(.2,.8,.2,1) .35s both">No. Bukti BKU-2026-0151</span></sc-if>
+      </div>
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 30px; font-weight: 500; color: {{jFg}}">−Rp900.000</div>
+      <div style="font-size: 14px; color: #43514C">Kas · diambil dari peruntukan Umum Jemaat · Lingkup Jemaat</div>
+      <div style="font-size: 14px; color: #43514C">Belanja 5.05.02.00 Sewa peralatan · 16 November 2026</div>
+    </div>
+
+    <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 4px 16px">
+      <div style="display: flex; justify-content: space-between; gap: 16px; padding: 11px 0"><div style="font-size: 14px; color: #43514C">Dicatat oleh</div><div style="font-size: 14px; font-weight: 600">Meiske L. · 16/11/2026 09.40</div></div>
+      <div style="display: flex; justify-content: space-between; gap: 16px; padding: 11px 0; border-top: 1px solid #DDE2DB"><div style="font-size: 14px; color: #43514C">Diperiksa oleh</div><div style="font-size: 14px; font-weight: 600; text-align: right; color: {{pFg}}">{{pTeks}}</div></div>
+      <div style="display: flex; justify-content: space-between; gap: 16px; padding: 11px 0; border-top: 1px solid #DDE2DB"><div style="font-size: 14px; color: #43514C">Dokumen pendukung</div><div style="font-size: 14px; font-weight: 600">Diunggah, belum diverifikasi</div></div>
+    </div>
+
+    <div style="font-size: 14px; color: #43514C">{{penjelasan}}</div>
+  </div>
+
+  <div style="padding: 12px 20px 22px; background: #FFFFFF; border-top: 1px solid #DDE2DB; display: flex; flex-direction: column; gap: 8px">
+    <sc-if value="{{tolak}}" hint-placeholder-val="{{false}}"><div style="font-size: 14px; color: #A63C1C; font-weight: 600">Tidak dapat dilakukan: {{tolak}}</div></sc-if>
+    <sc-for list="{{aksi}}" as="a" hint-placeholder-count="2">
+      <button onClick="{{a.on}}" disabled="{{a.mati}}" style="min-height: 50px; border-radius: 14px; font-weight: 700; text-align: center; background: {{a.bg}}; color: {{a.fg}}; border: {{a.bd}}">{{a.n}}</button>
+    </sc-for>
+  </div>
+</div>
+
+<sc-if value="{{sheet}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; inset: 0">
+  <button onClick="{{tutupSheet}}" aria-label="Kembali ke transaksi" style="position: absolute; inset: 0; width: 100%; background: rgba(19,32,28,.45); border: 0; animation: pudar .2s"></button>
+  <div style="position: absolute; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-radius: 22px 22px 0 0; padding: 10px 20px 24px; display: flex; flex-direction: column; gap: 14px; animation: naik .28s cubic-bezier(.2,.8,.2,1)">
+    <div style="width: 40px; height: 4px; border-radius: 2px; background: #7F8C86; margin: 0 auto 4px"></div>
+    <h2 style="margin: 0; font-size: 19px; font-weight: 700">Ubah transaksi yang sudah diperiksa?</h2>
+    <div style="font-size: 15px">Transaksi kembali menjadi <strong>Draf</strong>. Tanda sudah diperiksa dari Pnt. Jefry Wowor dan persetujuan yang sudah dicatat akan hilang, lalu perlu diberikan lagi.</div>
+    <button onClick="{{keDraf}}" style="min-height: 52px; border-radius: 14px; border: 0; background: #13201C; color: #FFFFFF; font-weight: 700; text-align: center">Ubah dan kembalikan ke Draf</button>
+    <button onClick="{{tutupSheet}}" style="min-height: 44px; border: 0; background: none; font-weight: 700; text-align: center">Kembali</button>
+  </div>
+</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"masukSebagai":{"editor":"enum","options":["Bendahara","Pemeriksa kedua"],"default":"Bendahara"},"adaPemeriksaKedua":{"editor":"boolean","default":true},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  state = { st: 'draf', sheet: false };
+  renderVals() {
+    var self = this, s = this.state;
+    var bend = (this.props.masukSebagai ?? 'Bendahara') === 'Bendahara', ada = this.props.adaPemeriksaKedua ?? true;
+    var draf = s.st === 'draf', periksa = s.st === 'periksa', buku = s.st === 'buku';
+    var U = { bg: '#0E5A63', fg: '#FFFFFF', bd: '0' }, B = { bg: '#FFFFFF', fg: '#13201C', bd: '1.5px solid #13201C' }, M = { bg: '#DDE2DB', fg: '#5E6A66', bd: '0', mati: true };
+    var aksi = [], tolak = '', penjelasan = '';
+    if (draf && bend) {
+      tolak = ada ? 'Anda yang mencatat transaksi ini, jadi orang lain yang harus menandainya sudah diperiksa. Pemeriksa kedua: Pnt. Jefry Wowor.' : 'belum ada pemeriksa kedua yang ditunjuk. Yang perlu bertindak: BPMJ menunjuk pemeriksa kedua.';
+      aksi = [Object.assign({ n: 'Tandai sudah diperiksa' }, M), Object.assign({ n: 'Ubah' }, B)];
+      penjelasan = 'Draf belum masuk saldo. Sampai diperiksa dan dibukukan, transaksi ini menjadi hambatan tutup buku November 2026.';
+    } else if (draf && !bend) {
+      aksi = [Object.assign({ n: 'Tandai sudah diperiksa', on: function () { self.setState({ st: 'periksa' }); } }, U)];
+      penjelasan = 'Menandai sudah diperiksa bukan persetujuan dan belum memasukkan transaksi ke saldo. Bendahara yang membukukan.';
+    } else if (periksa && bend) {
+      aksi = [Object.assign({ n: 'Bukukan', on: function () { self.setState({ st: 'buku' }); } }, U), Object.assign({ n: 'Ubah', on: function () { self.setState({ sheet: true }); } }, B)];
+      penjelasan = 'Sudah diperiksa, belum masuk saldo. Pindah tanggal dan Batalkan tetap tersedia dengan alasan.';
+    } else if (periksa && !bend) {
+      penjelasan = 'Anda sudah menandai transaksi ini. Menunggu Bendahara membukukan; tidak ada yang perlu Anda lakukan.';
+    } else {
+      penjelasan = 'Sudah masuk saldo. Jumlah, tanggal, Kas/Bank, peruntukan, Lingkup dan Mata Anggaran tidak dapat diubah lagi.';
+    }
+    var ke = draf ? 0 : (periksa ? 1 : 2);
+    return {
+      siapa: bend ? 'Meiske L., Bendahara' : 'Pnt. Jefry Wowor, Pemeriksa kedua',
+      tahap: ['Draf', 'Sudah diperiksa', 'Dibukukan'].map(function (n, i) { var lewat = i <= ke; return { n: (i + 1) + ' · ' + n, bg: lewat ? '#13201C' : 'transparent', fg: lewat ? '#FFFFFF' : '#5E6A66', bd: lewat ? '1.5px solid #13201C' : '1.5px dashed #808D87' }; }),
+      isBuku: buku, kBg: draf ? 'transparent' : '#FFFFFF', kBd: buku ? '1.5px solid #13201C' : (periksa ? '1.5px solid #0E5A63' : '1.5px dashed #808D87'), jFg: buku ? '#13201C' : '#43514C',
+      sTeks: buku ? 'Dibukukan' : (periksa ? 'Sudah diperiksa · belum masuk saldo' : 'Draf · belum masuk saldo'),
+      sBg: buku ? '#13201C' : (periksa ? '#FFFFFF' : 'transparent'), sFg: buku ? '#FFFFFF' : (periksa ? '#0E5A63' : '#43514C'), sBd: buku ? '1.5px solid #13201C' : (periksa ? '1.5px solid #0E5A63' : '1.5px dashed #808D87'),
+      pTeks: draf ? 'Belum diperiksa' : 'Pnt. Jefry Wowor · 16/11/2026 10.05', pFg: draf ? '#A63C1C' : '#13201C',
+      aksi: aksi, tolak: tolak, penjelasan: penjelasan, sheet: s.sheet,
+      tutupSheet: function () { self.setState({ sheet: false }); },
+      keDraf: function () { self.setState({ st: 'draf', sheet: false }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

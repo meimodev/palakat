@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Pengaturan (web)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+button:focus-visible,a:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+.pn-c{display:none}
+@media (max-width:860px){
+.pn{flex:1 1 100%!important;flex-direction:row!important;flex-wrap:wrap;align-items:center;gap:0 12px!important;padding:8px 16px!important;border-right:0!important;border-bottom:1px solid #DDE2DB}
+.pn-c{display:flex;align-items:center;appearance:none;-webkit-appearance:none;min-height:44px;margin:0 0 0 auto;padding:0 16px;border-radius:14px;border:1.5px solid #13201C;background:#FFFFFF;font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+.pn-c::before{content:"Menu"}
+.pn-c:checked{background:#13201C;color:#FFFFFF}
+.pn-c:checked::before{content:"Tutup menu"}
+.pn-l,.pn-w{display:none;flex:1 1 100%}
+.pn-c:checked~.pn-l{display:block;padding:8px 0}
+.pn-c:checked~.pn-w{display:block;margin-top:0!important;padding-bottom:8px!important}
+}
+</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; flex-wrap: wrap; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 15px; line-height: 1.45">
+
+  <nav class="pn" style="flex: 1 1 220px; box-sizing: border-box; padding: 24px 16px; background: #FFFFFF; border-right: 1px solid #DDE2DB; display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px">
+      <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="none" stroke="#0E5A63" stroke-width="2" stroke-dasharray="3 3"/><path d="M12 2h4a6 6 0 0 1 6 6v8a6 6 0 0 1-6 6h-4z" fill="#0E5A63"/></svg>
+      <div><div style="font-weight: 700; font-size: 18px; line-height: 1.1">palakat</div><div style="font-size: 13px; color: #5E6A66">Jemaat Karunia</div></div>
+    </div>
+    <input type="checkbox" class="pn-c" aria-label="Menu">
+    <div class="pn-l">
+      <sc-for list="{{nav}}" as="n" hint-placeholder-count="7">
+        <a href="{{n.href}}" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 10px; text-decoration: none; font-weight: 600; background: {{n.bg}}; color: {{n.fg}}">{{n.n}}</a>
+      </sc-for>
+    </div>
+    <div class="pn-w" style="margin-top: auto; padding: 12px 8px 0; border-top: 1px solid #DDE2DB; font-size: 13px; color: #43514C">{{penggunaTeks}}</div>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 28px clamp(16px, 3vw, 40px) 40px; display: flex; flex-direction: column; gap: 20px">
+    <div><h1 style="margin: 0; font-size: 26px; font-weight: 700">Pengaturan</h1><div style="font-size: 14px; color: #43514C">Pengaturan tidak diubah di tempat. Setiap perubahan berlaku mulai bulan tertentu dan tidak mengubah transaksi yang sudah dibukukan.</div></div>
+    <div style="display: flex; flex-wrap: wrap; gap: 0 22px; font-size: 14px; font-weight: 600; margin-top: -8px"><a href="WebUbahPengaturan.dc.html" style="min-height: 44px; min-width: 44px; display: inline-flex; align-items: center">Tambah dan ubah</a><a href="WebFormatLaporan.dc.html" style="min-height: 44px; min-width: 44px; display: inline-flex; align-items: center">Persetujuan format laporan</a><a href="WebPemeriksa.dc.html" style="min-height: 44px; min-width: 44px; display: inline-flex; align-items: center">Wajib pemeriksa kedua</a><a href="WebSerahTerima.dc.html" style="min-height: 44px; min-width: 44px; display: inline-flex; align-items: center">Serah terima Bendahara</a><a href="WebKeluar.dc.html" style="min-height: 44px; min-width: 44px; display: inline-flex; align-items: center">Akun dan keluar</a></div>
+
+    <sc-if value="{{kosong}}" hint-placeholder-val="{{false}}">
+      <div style="background: #13201C; color: #FFFFFF; border-radius: 16px; padding: 18px 20px; display: flex; flex-direction: column; gap: 6px">
+        <div style="font-size: 19px; font-weight: 700">Belum ada Bendahara aktif</div>
+        <div style="font-size: 14px; color: #EAF0EC">Wewenang Meiske Lumentut dicabut pada 16/11/2026 08.10 oleh Petugas verifikasi. Semua data hanya dapat dilihat. <strong style="color: #FFFFFF">Yang perlu bertindak: BPMJ Jemaat Karunia</strong>, dengan menunjuk Bendahara baru dan mengirim surat penunjukannya untuk diverifikasi.</div>
+      </div>
+    </sc-if>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(420px, 100%), 1fr)); gap: 20px; align-items: start">
+
+      <div style="display: flex; flex-direction: column; gap: 20px">
+        <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 4px">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px"><h2 style="margin: 0; font-size: 17px; font-weight: 700">Jemaat Karunia</h2><a href="WebAwal.dc.html" style="font-size: 14px; font-weight: 600; min-height: 44px; display: inline-flex; align-items: center">Pengaturan awal Jemaat</a></div>
+          <div style="font-size: 14px; color: #43514C">WITA · tahun buku mulai 1 Januari (tidak dapat diubah)</div>
+          <div style="font-size: 14px; color: #43514C">Tanggal mulai pencatatan 15 September 2026 · bulan pertama pencatatan September 2026</div>
+          <a href="WebEkspor.dc.html" style="font-size: 14px; font-weight: 600; margin-top: 4px; min-height: 44px; display: inline-flex; align-items: center">Ekspor data Jemaat</a>
+        </div>
+
+        <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 16px 18px 6px">
+          <h2 style="margin: 0 0 6px; font-size: 17px; font-weight: 700">Kas/Bank</h2>
+          <sc-for list="{{kas}}" as="k" hint-placeholder-count="4">
+            <div style="display: flex; align-items: center; gap: 12px; min-height: 56px; border-top: 1px solid #DDE2DB"><div style="flex: 1"><div style="font-weight: 600; color: {{k.fg}}">{{k.n}}</div><div style="font-size: 13px; color: #5E6A66">{{k.s}}</div></div><sc-if value="{{k.bisa}}" hint-placeholder-val="{{false}}"><button onClick="{{k.non}}" disabled="{{kosong}}" style="min-height: 44px; padding: 0 12px; border-radius: 10px; border: 1.5px solid #7F8C86; background: #FFFFFF; font-weight: 700; font-size: 14px">Nonaktifkan</button></sc-if></div>
+          </sc-for>
+          <div style="font-size: 13px; color: #5E6A66; padding: 10px 0">Yang sudah dipakai hanya dapat dinonaktifkan, berlaku mulai bulan berikutnya yang belum berjalan.</div>
+        </div>
+
+        <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px">
+          <div><h2 style="margin: 0; font-size: 17px; font-weight: 700">Peruntukan</h2><div style="font-size: 14px; color: #43514C">Umum Jemaat · Diakonia · Pembangunan</div></div>
+          <div style="border-top: 1px solid #DDE2DB; padding-top: 10px"><h2 style="margin: 0; font-size: 17px; font-weight: 700">Lingkup</h2><div style="font-size: 14px; color: #43514C">Jemaat · Kolom 3 · BIPRA Pemuda · Komisi Diakonia · Panitia Natal</div></div>
+          <div style="border-top: 1px solid #DDE2DB; padding-top: 10px"><h2 style="margin: 0; font-size: 17px; font-weight: 700">Seri No. Bukti</h2><div style="font-size: 14px; color: #43514C"><span style="font-family: 'IBM Plex Mono', monospace; color: #13201C">BKU-2026-0001</span> Biasa · <span style="font-family: 'IBM Plex Mono', monospace; color: #13201C">OPN-2026-0001</span> Saldo awal pencatatan · <span style="font-family: 'IBM Plex Mono', monospace; color: #13201C">ADJ-2026-0001</span> Penyesuaian</div><div style="font-size: 13px; color: #5E6A66">Nomor dibuat aplikasi saat Bukukan, tidak pernah diketik.</div></div>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 20px">
+        <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 4px">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px"><h2 style="margin: 0; font-size: 17px; font-weight: 700">Mata Anggaran</h2><a href="WebMataAnggaran.dc.html" style="font-size: 14px; font-weight: 600; min-height: 44px; display: inline-flex; align-items: center">Buka versi 2026.2</a></div>
+          <div style="font-size: 14px; color: #43514C">Versi 2026.1 · Diterbitkan · berlaku mulai September 2026</div>
+          <div style="font-size: 14px; color: #43514C">Versi 2026.2 · Draf · usulan berlaku mulai Desember 2026</div>
+        </div>
+
+        <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px">
+          <h2 style="margin: 0; font-size: 17px; font-weight: 700">Aturan persetujuan dan dokumen pendukung</h2>
+          <div style="font-size: 14px; color: #43514C">Persetujuan di luar aplikasi wajib untuk Belanja Rp2.000.000 ke atas. Dokumen pendukung wajib untuk semua Belanja; Bendahara boleh memverifikasi unggahannya sendiri. Pemberi pengecualian: Ketua BPMJ.</div>
+          <div style="border-top: 1px solid #DDE2DB; padding-top: 10px; display: flex; align-items: center; gap: 12px">
+            <div style="flex: 1"><div style="font-weight: 600">Wajib pemeriksa kedua</div><div style="font-size: 13px; color: #5E6A66">{{mcStatus}}</div></div>
+            <button onClick="{{toggleMc}}" disabled="{{kosong}}" aria-pressed="{{mc}}" aria-label="Wajib pemeriksa kedua" style="flex: none; width: 56px; height: 44px; background: none; border: 0; padding: 6px 0; display: flex; align-items: center"><span style="display: block; width: 56px; height: 32px; border-radius: 16px; background: {{mcBg}}; border: 1.5px solid #13201C; box-sizing: border-box; position: relative; transition: background .16s"><span style="position: absolute; top: 3px; left: {{mcLeft}}; width: 23px; height: 23px; border-radius: 50%; background: {{mcDot}}; transition: left .16s"></span></span></button>
+          </div>
+          <sc-if value="{{mc}}" hint-placeholder-val="{{false}}"><div style="font-size: 14px; animation: muncul .3s"><strong>Berlaku mulai Desember 2026.</strong> <span style="color: #A63C1C; font-weight: 600">Belum ada pemeriksa kedua yang ditunjuk; tanpa itu Bukukan akan ditolak mulai Desember 2026.</span> Transaksi sebelumnya tidak terpengaruh.</div></sc-if>
+        </div>
+
+        <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 4px">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px"><h2 style="margin: 0; font-size: 17px; font-weight: 700">Format laporan</h2><a href="WebLaporan.dc.html" style="font-size: 14px; font-weight: 600; min-height: 44px; display: inline-flex; align-items: center">Lihat laporan</a></div>
+          <div style="font-size: 14px; color: #43514C">Bawaan Palakat v1 · Persetujuan format: sudah dicatat · 01/11/2026</div>
+        </div>
+
+        <div style="background: #FFFFFF; border: {{benBd}}; border-radius: 14px; padding: 16px 18px 6px">
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 12px; margin-bottom: 8px"><h2 style="margin: 0; font-size: 17px; font-weight: 700">Bendahara dan sesi</h2><span style="font-size: 13px; font-weight: 700; border-radius: 6px; padding: 4px 10px; background: {{benBg}}; color: {{benFg}}; border: 1.5px solid {{benGaris}}">{{benTeks}}</span></div>
+          <div style="font-size: 14px; color: #43514C; padding-bottom: 10px">{{benSub}}</div>
+          <sc-for list="{{sesi}}" as="x" hint-placeholder-count="2">
+            <div style="display: flex; align-items: center; gap: 12px; min-height: 56px; border-top: 1px solid #DDE2DB"><div style="flex: 1"><div style="font-weight: 600">{{x.n}}</div><div style="font-size: 13px; color: #5E6A66">{{x.s}}</div></div><sc-if value="{{x.bisa}}" hint-placeholder-val="{{false}}"><button onClick="{{x.akhiri}}" style="min-height: 44px; padding: 0 12px; border-radius: 10px; border: 1.5px solid #7F8C86; background: #FFFFFF; font-weight: 700; font-size: 14px">Akhiri sesi</button></sc-if></div>
+          </sc-for>
+          <sc-if value="{{aktif}}" hint-placeholder-val="{{true}}"><div style="border-top: 1px solid #DDE2DB; padding: 12px 0 10px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px"><a href="WebSerahTerima.dc.html" style="min-height: 44px; padding: 0 16px; border-radius: 12px; border: 1.5px solid #13201C; background: #FFFFFF; font-weight: 700; font-size: 14px; color: #13201C; display: flex; align-items: center; justify-content: center; text-decoration: none; box-sizing: border-box">Serah terima Bendahara</a><div style="flex: 1 1 200px; font-size: 13px; color: #5E6A66">Bendahara baru memerlukan surat penunjukan baru dan tidak mewarisi persetujuan yang pernah dicatat.</div></div></sc-if>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 10px">
+      <h2 style="margin: 0; font-size: 17px; font-weight: 700">Riwayat aktivitas</h2>
+      <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; overflow-x: auto">
+        <div style="min-width: 640px">
+          <div style="display: grid; grid-template-columns: 160px 190px minmax(0, 1fr); gap: 16px; padding: 12px 18px; font-size: 14px; font-weight: 600; color: #43514C"><div>Waktu</div><div>Pelaku</div><div>Tindakan</div></div>
+          <sc-for list="{{riwayat}}" as="r" hint-placeholder-count="5"><div style="display: grid; grid-template-columns: 160px 190px minmax(0, 1fr); gap: 16px; padding: 12px 18px; border-top: 1px solid #DDE2DB; font-size: 14px"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #43514C">{{r.w}}</div><div style="font-weight: 600">{{r.p}}</div><div>{{r.t}}</div></div></sc-for>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"keadaan":{"editor":"enum","options":["Bendahara aktif","Belum ada Bendahara aktif"],"default":"Bendahara aktif"},"$preview":{"width":1440,"height":1300}}'>
+class Component extends DCLogic {
+  state = { non: {}, mc: false, sesi: ['Browser ini', 'Ponsel Android'] };
+  renderVals() {
+    var self = this, s = this.state;
+    var kosong = (this.props.keadaan ?? 'Bendahara aktif') !== 'Bendahara aktif';
+    var nav = [['Beranda', 'WebBeranda.dc.html'], ['Transaksi', 'WebTransaksi.dc.html'], ['Uang Muka dan Titipan', 'WebKewajiban.dc.html'], ['Rekonsiliasi', 'WebRekonsiliasi.dc.html'], ['Bulan dan tutup buku', 'WebTutupBuku.dc.html'], ['Laporan', 'WebPaketLaporan.dc.html'], ['Pengaturan', 'WebPengaturan.dc.html']];
+    var KAS = [{ id: 'kas', n: 'Kas' }, { id: 'bni', n: 'Bank BNI ··4821' }, { id: 'bsg', n: 'Bank SulutGo ··1107' }, { id: 'hut', n: 'Kas Panitia HUT', mati: true }];
+    var SUB = { 'Browser ini': 'Sesi ini · aktif sekarang', 'Ponsel Android': 'Terakhir dipakai 16/11/2026 10.42' };
+    var R = [['16/11/2026 10.42', 'Meiske L.', 'Membukukan BKU-2026-0147'], ['12/11/2026 09.31', 'Meiske L.', 'Membuat pembalikan BKU-2026-0144 · alasan: Mata Anggaran keliru'], ['28/10/2026 16.44', 'Meiske L.', 'Menonaktifkan Kas Panitia HUT · berlaku mulai November 2026'], ['05/10/2026 19.02', 'Meiske L.', 'Menutup buku September 2026'], ['03/10/2026 10.15', 'Meiske L.', 'Mencatat persetujuan format laporan'], ['15/09/2026 10.15', 'Petugas verifikasi', 'Mengaktifkan wewenang Bendahara untuk Meiske Lumentut']];
+    if (kosong) R = [['16/11/2026 08.10', 'Petugas verifikasi', 'Mencabut wewenang Bendahara Meiske Lumentut · semua sesi diakhiri']].concat(R.filter(function (r) { return r[0].indexOf('16/11/2026') < 0; }));
+    return {
+      kosong: kosong, aktif: !kosong,
+      nav: nav.map(function (n, i) { return { n: n[0], href: n[1], bg: i === 6 ? '#13201C' : 'transparent', fg: i === 6 ? '#FFFFFF' : '#13201C' }; }),
+      penggunaTeks: kosong ? 'Anda masuk sebagai Pengelola teknis. Hanya dapat melihat.' : 'Meiske L. · Bendahara · Wewenang Bendahara aktif',
+      kas: KAS.map(function (k) { var akan = s.non[k.id]; return { n: k.n, fg: k.mati ? '#43514C' : '#13201C', s: k.mati ? 'Nonaktif sejak November 2026 · tetap tampil di laporan lama' : (akan ? 'Aktif sampai akhir November 2026 · nonaktif mulai Desember 2026' : 'Aktif · dipakai sejak September 2026'), bisa: !k.mati && !akan, non: function () { var n = Object.assign({}, s.non); n[k.id] = true; self.setState({ non: n }); } }; }),
+      mc: s.mc, mcStatus: s.mc ? 'Hidup mulai Desember 2026' : 'Mati · Bendahara memeriksa dan membukukan sendiri',
+      mcBg: s.mc ? '#13201C' : '#FFFFFF', mcDot: s.mc ? '#FFFFFF' : '#13201C', mcLeft: s.mc ? '28px' : '3px',
+      benTeks: kosong ? 'Belum ada Bendahara aktif' : 'Wewenang Bendahara aktif', benBg: kosong ? '#13201C' : '#0E5A63', benFg: '#FFFFFF', benGaris: kosong ? '#13201C' : '#0E5A63', benBd: kosong ? '1.5px solid #13201C' : '1px solid #DDE2DB',
+      benSub: kosong ? 'Meiske Lumentut · Wewenang dicabut 16/11/2026 · Riwayat tetap mencatatnya sebagai pelaku tindakannya.' : 'Meiske Lumentut · aktif sejak 15/09/2026 · SK-BPMJ-04-2026',
+      sesi: kosong ? [] : s.sesi.map(function (n) { return { n: n, s: SUB[n], bisa: n !== 'Browser ini', akhiri: function () { self.setState({ sesi: s.sesi.filter(function (x) { return x !== n; }) }); } }; }),
+      riwayat: R.map(function (r) { return { w: r[0], p: r[1], t: r[2] }; }),
+      toggleMc: function () { if (!kosong) self.setState({ mc: !s.mc }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

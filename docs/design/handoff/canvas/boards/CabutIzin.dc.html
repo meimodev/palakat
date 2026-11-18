@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Cabut izin dan hapus data saya (ponsel)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+input{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes masuk{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@keyframes pudar{from{opacity:0}to{opacity:1}}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes isi{from{width:0}to{width:100%}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 16px; line-height: 1.4">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column"><div style="display: flex; align-items: center; gap: 8px; padding: 14px 12px 8px"><a href="DataAnggota.dc.html" aria-label="Kembali ke Data jemaat" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #13201C"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></a><div style="flex: 1"><h1 style="margin: 0; font-size: 18px; font-weight: 700">Cabut izin dan hapus data saya</h1><div style="font-size: 14px; color: #43514C; font-size: 13px">Hak anggota; data dihapus setelah dikonfirmasi</div></div></div><div style="flex: 1; overflow-y: auto; padding: 8px 20px 20px; display: flex; flex-direction: column; gap: 16px"><div style="flex: none; display: flex; flex-direction: column; gap: 16px"><sc-if value="{{jelas}}" hint-placeholder-val="{{false}}"><div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px"><div style="font-weight: 700">Yang dihapus</div><div style="font-size: 14px; color: #43514C">Data pribadi Anda, riwayat keluarga dan Kolom, peristiwa, jabatan yang sedang dipegang (menjadi Jabatan kosong), dan akun Anda.</div></div><div style="border: 1.5px dashed #808D87; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px"><div style="font-weight: 700">Yang tetap ada</div><div style="font-size: 14px; color: #43514C">Catatan keuangan Jemaat tetap menyimpan nama seperti yang tercatat, sebagai bagian dari pembukuan gereja. Warta Jemaat dan dokumen yang sudah diterbitkan tetap persis seperti saat diterbitkan.</div></div></sc-if><sc-if value="{{k0}}" hint-placeholder-val="{{true}}"><div style="display: flex; flex-wrap: wrap; gap: 8px"><button onClick="{{go1}}" style="min-height: 48px; border-radius: 14px; border: 1.5px solid #13201C; background: #FFFFFF; color: #13201C; font-weight: 700; text-align: center; padding: 0 16px; flex: 1 1 150px; max-width: 340px">Lanjutkan</button><a href="DataAnggota.dc.html" style="min-height: 44px; border: 0; background: none; color: #0E5A63; font-weight: 700; text-align: center; padding: 0 16px; flex: 1 1 150px; max-width: 340px; display: flex; align-items: center; justify-content: center; text-decoration: none">Kembali</a></div></sc-if><sc-if value="{{k1}}" hint-placeholder-val="{{false}}"><label style="display: flex; gap: 12px; align-items: flex-start; min-height: 44px; font-size: 14px"><input type="checkbox" style="width: 24px; height: 24px; flex: none; margin: 2px 0 0"><span>Saya mengerti data saya akan dihapus dan tidak dapat dikembalikan. Untuk menjadi anggota lagi saya harus mengajukan permohonan baru.</span></label><div style="display: flex; flex-wrap: wrap; gap: 8px"><button disabled style="min-height: 52px; border-radius: 14px; border: 0; background: #DDE2DB; color: #43514C; font-weight: 700; text-align: center; padding: 0 16px; flex: 1 1 150px; max-width: 340px">Cabut izin dan hapus data saya</button><button onClick="{{go0}}" style="min-height: 44px; border: 0; background: none; color: #0E5A63; font-weight: 700; text-align: center; padding: 0 16px; flex: 1 1 150px; max-width: 340px">Kembali</button></div><div style="font-size: 13px; color: #5E6A66">Tombol aktif setelah pernyataan di atas dicentang.</div></sc-if><sc-if value="{{k2}}" hint-placeholder-val="{{false}}"><div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px"><div style="display: flex; justify-content: space-between; gap: 16px; align-items: center"><span style="font-weight: 700">Permintaan hapus · Ferry Wenas</span><span style="flex: none; font-size: 13px; font-weight: 700; border-radius: 6px; padding: 3px 9px; color: #43514C; border: 1.5px solid #5E6A66; background: #FFFFFF">Menunggu konfirmasi Penatua</span></div><div style="font-size: 14px; color: #43514C">Dicatat Operator Yanti Sumual dari surat bertanda tangan, 16/11/2026.</div><div style="font-size: 13px; color: #5E6A66">Permintaan lewat kertas dikonfirmasi Penatua Kolom 7 sebelum dijalankan.</div></div><div style="display: flex; flex-wrap: wrap; gap: 8px"><button onClick="{{go3}}" style="min-height: 52px; border-radius: 14px; border: 0; background: #13201C; color: #FFFFFF; font-weight: 700; text-align: center; padding: 0 16px; flex: 1 1 150px; max-width: 340px">Konfirmasi permintaan</button></div></sc-if><sc-if value="{{k3}}" hint-placeholder-val="{{false}}"><div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px"><div style="display: flex; justify-content: space-between; gap: 16px; align-items: center"><span style="font-weight: 700">Catatan penghapusan</span><span style="flex: none; font-size: 13px; font-weight: 700; border-radius: 6px; padding: 3px 9px; color: #43514C; background: #DDE2DB; border: 1.5px solid #DDE2DB">Selesai</span></div><div style="display: flex; justify-content: space-between; gap: 16px; font-size: 14px"><span style="color: #43514C">Dihapus pada</span><span style="text-align: right; font-weight: 600">17/11/2026 20.15</span></div><div style="display: flex; justify-content: space-between; gap: 16px; font-size: 14px"><span style="color: #43514C">Atas permintaan</span><span style="text-align: right; font-weight: 600">anggota sendiri</span></div><div style="display: flex; justify-content: space-between; gap: 16px; font-size: 14px"><span style="color: #43514C">Dijalankan oleh</span><span style="text-align: right; font-weight: 600">Pnt. Hendrik Rumagit</span></div><div style="font-size: 13px; color: #5E6A66">Catatan ini tidak memuat data pribadi. Orangnya tidak lagi punya status; anggota yang meninggal dunia tidak pernah dihapus dengan cara ini.</div></div></sc-if></div></div></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"keadaan":{"editor":"enum","options":["Penjelasan", "Konfirmasi", "Permintaan lewat kertas", "Sudah dihapus"],"default":"Penjelasan"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  rp(n) { var s = String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return (n < 0 ? '−' : '') + 'Rp' + s; }
+  state = { k: null };
+  vals() {
+    var self = this, O = ["Penjelasan", "Konfirmasi", "Permintaan lewat kertas", "Sudah dihapus"], LS = {"draf": "color: #43514C; border: 1.5px dashed #808D87", "garis": "color: #43514C; border: 1.5px solid #5E6A66; background: #FFFFFF", "tinta": "color: #FFFFFF; background: #13201C; border: 1.5px solid #13201C", "laut": "color: #FFFFFF; background: #0E5A63; border: 1.5px solid #0E5A63", "lautg": "color: #0E5A63; background: #FFFFFF; border: 1.5px solid #0E5A63", "bata": "color: #A63C1C; background: #FFFFFF; border: 1.5px solid #A63C1C", "abu": "color: #43514C; background: #DDE2DB; border: 1.5px solid #DDE2DB"};
+    var k = this.state.k ?? (this.props.keadaan ?? O[0]); var ki = Math.max(0, O.indexOf(k));
+    var V = { keadaan: O[ki] };
+    O.forEach(function (o, i) { V['k' + i] = i === ki; V['go' + i] = function () { self.setState({ k: o }); }; });
+    var web = false, PS = ["AlurAnggota", "AlurBeranda", "AlurDana", "AlurIbadah", "AlurModul", "AlurNama", "AlurPanitia", "AlurPanitiaBaru", "AlurPelimpahan", "AlurPenugasan", "AlurPeristiwa", "AntreanVerifikasi", "CabutIzin", "Ibadah", "Kehadiran", "KeuanganUnit", "KonfirmasiKeluarga", "Modul", "Panitia", "Pelimpahan", "PemberiPersetujuan", "Peristiwa", "PermintaanDana", "PermohonanAnggota", "PersembahanSaya", "TampilanNama"], hal = function (n) { return (web && PS.indexOf(n) < 0 ? (n === 'Main' ? 'WebBeranda' : 'Web' + n) : n) + '.dc.html'; };
+    var baris = function (a) { return a.map(function (r) { return { j: r[0], s: r[1], l: r[2] || '', ls: LS[r[3] || 'garis'], h: r[4] ? hal(r[4]) : hal('CabutIzin') }; }); };
+    var E = (function () { return { jelas: ki < 2 }; })() || {};
+    for (var n in E) V[n] = E[n];
+    return V;
+  }
+
+  renderVals() { var V = this.vals(); if (this.navVals) V.nav = this.navVals(); return V; }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!-- @dsCard group="Isian" height=98 width=412 -->
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>PenghitungPecahan — pratinjau</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+html, body { margin: 0; }
+body { background: var(--kertas); }
+/* tanah: komponen selalu tampil di atas kertas, apa pun latar bingkai pratinjau */
+.tanah { background: var(--kertas); color: var(--tinta); font-family: var(--font-sans); font-size: 15px; line-height: 1.45; padding: var(--s20); min-height: 100vh; box-sizing: border-box; }
+.pk { display: flex; flex-direction: column; gap: 10px; max-width: 372px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+input, textarea { color: inherit; }
+button:focus-visible, a:focus-visible { outline: 2px solid var(--laut); outline-offset: 2px; }
+a { color: var(--laut); }
+@media (prefers-reduced-motion: reduce) { * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+</style>
+</head>
+<body>
+<div class="tanah"><div class="pk">
+<div style="background: var(--permukaan); border: 1px solid var(--garis); border-radius: var(--radius-kartu); padding: 0 12px 0 16px"><div style="display: flex; align-items: center; gap: 8px; min-height: 56px"><div style="width: 92px; font-family: var(--font-mono); font-weight: 500">50.000</div><span style="width: 44px; height: 44px; border-radius: var(--radius-isian); border: 1.5px solid var(--garisTegas); display: inline-flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 600">−</span><div style="width: 36px; text-align: center; font-family: var(--font-mono); font-size: 17px; font-weight: 600">5</div><span style="width: 44px; height: 44px; border-radius: var(--radius-isian); background: var(--tinta); color: var(--permukaan); display: inline-flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 600">+</span><div style="flex: 1; text-align: right; font-family: var(--font-mono); font-size: 14px">Rp250.000</div></div></div>
+</div></div>
+</body>
+</html>

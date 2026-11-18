@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Masuk dan menunggu verifikasi (web)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+input{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes isi{from{width:0}to{width:100%}}
+@keyframes titik{0%,100%{opacity:.25}50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+.pn-c{display:none}
+@media (max-width:860px){
+.pn{flex:1 1 100%!important;flex-direction:row!important;flex-wrap:wrap;align-items:center;gap:0 12px!important;padding:8px 16px!important;border-right:0!important;border-bottom:1px solid #DDE2DB}
+.pn-c{display:flex;align-items:center;appearance:none;-webkit-appearance:none;min-height:44px;margin:0 0 0 auto;padding:0 16px;border-radius:14px;border:1.5px solid #13201C;background:#FFFFFF;font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+.pn-c::before{content:"Menu"}
+.pn-c:checked{background:#13201C;color:#FFFFFF}
+.pn-c:checked::before{content:"Tutup menu"}
+.pn-l,.pn-w{display:none;flex:1 1 100%}
+.pn-c:checked~.pn-l{display:block;padding:8px 0}
+.pn-c:checked~.pn-w{display:block;margin-top:0!important;padding-bottom:8px!important}
+}
+</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; flex-wrap: wrap; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 15px; line-height: 1.45">
+
+  <nav class="pn" style="flex: 1 1 220px; box-sizing: border-box; padding: 24px 16px; background: #FFFFFF; border-right: 1px solid #DDE2DB; display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px">
+      <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="none" stroke="#0E5A63" stroke-width="2" stroke-dasharray="3 3"/><path d="M12 2h4a6 6 0 0 1 6 6v8a6 6 0 0 1-6 6h-4z" fill="#0E5A63"/></svg>
+      <div><div style="font-weight: 700; font-size: 18px; line-height: 1.1">palakat</div><div style="font-size: 13px; color: #5E6A66">Jemaat Karunia</div></div>
+    </div>
+    <input type="checkbox" class="pn-c" aria-label="Menu">
+    <div class="pn-l">
+      <sc-for list="{{nav}}" as="n" hint-placeholder-count="7">
+        <a href="{{n.href}}" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 10px; text-decoration: none; font-weight: 600; background: {{n.bg}}; color: {{n.fg}}">{{n.n}}</a>
+      </sc-for>
+    </div>
+    <div class="pn-w" style="margin-top: auto; padding: 12px 8px 0; border-top: 1px solid #DDE2DB; font-size: 13px; color: #43514C">Belum masuk</div>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 28px clamp(16px, 3vw, 40px) 40px; display: flex; flex-direction: column; gap: 20px">
+    <div style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 0"><div style="width: 100%; max-width: 440px; background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 18px; padding: clamp(24px, 4vw, 40px); box-sizing: border-box; display: flex; flex-direction: column; gap: 32px">
+      <div style="display: flex; align-items: center; gap: 12px"><svg width="40" height="40" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="none" stroke="#0E5A63" stroke-width="2" stroke-dasharray="3 3"/><path d="M12 2h4a6 6 0 0 1 6 6v8a6 6 0 0 1-6 6h-4z" fill="#0E5A63"/></svg><div style="font-size: 30px; font-weight: 700; letter-spacing: -.5px">palakat</div></div>
+      <sc-if value="{{tEmail}}" hint-placeholder-val="{{true}}"><div style="display: flex; flex-direction: column; gap: 14px"><div><h1 style="margin: 0 0 4px; font-size: 24px; font-weight: 700">Masuk</h1><div style="font-size: 14px; color: #43514C; font-size: 15px">Satu akun untuk semua jabatan Anda di Jemaat.</div></div><div><label for="ie" style="display: block; font-size: 14px; color: #43514C; margin-bottom: 6px">Nomor ponsel</label><input id="ie" type="tel" inputmode="numeric" autocomplete="tel" value="{{email}}" onChange="{{onEmail}}" placeholder="08…" style="width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF"></div><button onClick="{{kirim}}" disabled="{{tanpaEmail}}" style="min-height: 52px; border-radius: 14px; border: 0; background: {{btnBg}}; color: {{btnFg}}; font-weight: 700; text-align: center">Kirim kode masuk</button><div style="font-size: 13px; color: #5E6A66">Kode enam angka dikirim ke nomor ponsel Anda lewat WhatsApp atau SMS. Tidak ada kata sandi yang perlu diingat.</div><a href="WebPemulihan.dc.html" style="min-height: 44px; display: flex; align-items: center; font-weight: 700; font-size: 14px">Tidak bisa menerima kode? Pemulihan akun</a><a href="WebAlurMasuk.dc.html" style="min-height: 44px; display: flex; align-items: center; font-weight: 700; font-size: 14px">Belum terhubung dengan Data jemaat? Hubungkan akun</a></div></sc-if>
+      <sc-if value="{{tKode}}" hint-placeholder-val="{{false}}"><div style="display: flex; flex-direction: column; gap: 14px; animation: muncul .3s"><div><h1 style="margin: 0 0 4px; font-size: 24px; font-weight: 700">Masukkan kode</h1><div style="font-size: 14px; color: #43514C; font-size: 15px">Dikirim ke <strong style="color: #13201C">{{email}}</strong></div></div><div><label for="ik" style="display: block; font-size: 14px; color: #43514C; margin-bottom: 6px">Kode enam angka</label><input id="ik" inputmode="numeric" autocomplete="one-time-code" value="{{kode}}" onChange="{{onKode}}" style="width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF; font-family: 'IBM Plex Mono', monospace; font-size: 26px; letter-spacing: 8px; text-align: center; min-height: 60px"></div><button onClick="{{masuk}}" disabled="{{tanpaKode}}" style="min-height: 52px; border-radius: 14px; border: 0; background: {{btnBg}}; color: {{btnFg}}; font-weight: 700; text-align: center">Masuk</button><button onClick="{{ulang}}" style="min-height: 44px; border: 0; background: none; color: #0E5A63; font-weight: 700; text-align: center">Pakai nomor lain</button></div></sc-if>
+      <sc-if value="{{tHasil}}" hint-placeholder-val="{{false}}">
+        <sc-if value="{{hTunggu}}" hint-placeholder-val="{{true}}"><div style="display: flex; flex-direction: column; gap: 14px; animation: muncul .3s"><svg width="72" height="72" viewBox="0 0 88 88" aria-hidden="true"><circle cx="44" cy="44" r="38" fill="none" stroke="#13201C" stroke-width="4" stroke-dasharray="6 7"/></svg><div><h1 style="margin: 0 0 6px; font-size: 24px; font-weight: 700; line-height: 1.2">Menunggu verifikasi wewenang</h1><div style="font-size: 15px">Anda sudah masuk, tetapi belum ada tindakan keuangan yang tersedia.</div></div><div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px"><div style="font-size: 14px"><strong>Mengapa:</strong> wewenang Bendahara hanya berasal dari keputusan Jemaat yang sudah diverifikasi. Akun saja tidak memberi wewenang.</div><div style="font-size: 14px"><strong>Yang perlu bertindak:</strong> Petugas verifikasi, setelah BPMJ mengirim surat penunjukan Anda.</div></div><a href="WebAwal.dc.html" style="min-height: 48px; border-radius: 14px; border: 1.5px solid #13201C; background: #FFFFFF; color: #13201C; font-weight: 700; text-align: center; display: flex; align-items: center; justify-content: center; text-decoration: none">Lihat langkah pengaturan awal</a></div></sc-if>
+        <sc-if value="{{hBend}}" hint-placeholder-val="{{false}}"><div style="display: flex; flex-direction: column; gap: 14px; animation: muncul .3s"><div><h1 style="margin: 0 0 6px; font-size: 24px; font-weight: 700">Jemaat Karunia</h1><div style="font-size: 15px">Meiske Lumentut · Wewenang Bendahara aktif</div></div><a href="WebBeranda.dc.html" style="min-height: 52px; border-radius: 14px; border: 0; background: #0E5A63; color: #FFFFFF; font-weight: 700; text-align: center; display: flex; align-items: center; justify-content: center; text-decoration: none">Buka Beranda</a></div></sc-if>
+        <sc-if value="{{hTerbatas}}" hint-placeholder-val="{{false}}"><div style="display: flex; flex-direction: column; gap: 14px; animation: muncul .3s"><div><h1 style="margin: 0 0 6px; font-size: 24px; font-weight: 700">Jemaat Karunia</h1><div style="font-size: 15px">Dkn. Olga Tamba · Akses terbatas: Peruntukan Diakonia</div></div><a href="WebTerbatas.dc.html" style="min-height: 52px; border-radius: 14px; border: 0; background: #0E5A63; color: #FFFFFF; font-weight: 700; text-align: center; display: flex; align-items: center; justify-content: center; text-decoration: none">Buka peruntukan Diakonia</a></div></sc-if>
+        <sc-if value="{{hAdmin}}" hint-placeholder-val="{{false}}"><div style="display: flex; flex-direction: column; gap: 14px; animation: muncul .3s"><div><h1 style="margin: 0 0 6px; font-size: 24px; font-weight: 700; line-height: 1.2">Anda masuk sebagai administrator sistem</h1><div style="font-size: 15px">Tidak ada tindakan keuangan yang tersedia.</div></div><div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px"><div style="font-size: 14px"><strong>Mengapa:</strong> administrator sistem mengurus sisi teknis, dan tidak dapat bertindak sebagai Bendahara atau pemberi persetujuan. Akses teknis saja tidak pernah memberi wewenang Bendahara.</div><div style="font-size: 14px"><strong>Yang memegang pembukuan:</strong> Bendahara Jemaat Karunia, lewat penunjukan yang sudah diverifikasi.</div></div></div></sc-if>
+      </sc-if>
+</div></div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"setelahMasuk":{"editor":"enum","options":["Menunggu verifikasi wewenang","Bendahara","Akses terbatas","Administrator sistem"],"default":"Menunggu verifikasi wewenang"},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  rp(n) { var s = String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return (n < 0 ? '−' : '') + 'Rp' + s; }
+  navVals() { return [['Masuk', 'WebMasuk.dc.html']].map(function (n, i) { return { n: n[0], href: n[1], bg: i === 0 ? '#13201C' : 'transparent', fg: i === 0 ? '#FFFFFF' : '#13201C' }; }); }
+  state = { tahap: 'email', email: '', kode: '' };
+  vals() {
+    var self = this, s = this.state, k = this.props.setelahMasuk ?? 'Menunggu verifikasi wewenang';
+    var okE = /^08\d{8,11}$/.test(s.email), okK = s.kode.length === 6;
+    return {
+      tEmail: s.tahap === 'email', tKode: s.tahap === 'kode', tHasil: s.tahap === 'hasil',
+      email: s.email, onEmail: function (e) { self.setState({ email: e.target.value.replace(/\D/g, '').slice(0, 13) }); }, kode: s.kode, onKode: function (e) { self.setState({ kode: e.target.value.replace(/\D/g, '').slice(0, 6) }); },
+      btnBg: (s.tahap === 'email' ? okE : okK) ? '#0E5A63' : '#DDE2DB', btnFg: (s.tahap === 'email' ? okE : okK) ? '#FFFFFF' : '#5E6A66', tanpaEmail: !okE, tanpaKode: !okK,
+      kirim: function () { if (okE) self.setState({ tahap: 'kode' }); }, masuk: function () { if (okK) self.setState({ tahap: 'hasil' }); }, ulang: function () { self.setState({ tahap: 'email', kode: '' }); },
+      hTunggu: k === 'Menunggu verifikasi wewenang', hBend: k === 'Bendahara', hTerbatas: k === 'Akses terbatas', hAdmin: k === 'Administrator sistem'
+    };
+  }
+
+  renderVals() { var V = this.vals(); if (this.navVals) V.nav = this.navVals(); return V; }
+}
+</script>
+</body>
+</html>

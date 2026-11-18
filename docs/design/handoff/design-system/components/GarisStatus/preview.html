@@ -1,0 +1,43 @@
+<!-- @dsCard group="Fondasi" height=332 width=960 -->
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>GarisStatus — pratinjau</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+html, body { margin: 0; }
+body { background: var(--kertas); }
+/* tanah: komponen selalu tampil di atas kertas, apa pun latar bingkai pratinjau */
+.tanah { background: var(--kertas); color: var(--tinta); font-family: var(--font-sans); font-size: 15px; line-height: 1.45; padding: var(--s20); min-height: 100vh; box-sizing: border-box; }
+.pk { display: flex; flex-direction: column; gap: 10px; max-width: 920px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+input, textarea { color: inherit; }
+button:focus-visible, a:focus-visible { outline: 2px solid var(--laut); outline-offset: 2px; }
+a { color: var(--laut); }
+@media (prefers-reduced-motion: reduce) { * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+</style>
+</head>
+<body>
+<div class="tanah"><div class="pk">
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px">
+<div style="border: 1.5px dashed var(--putus); border-radius: var(--radius-kartuBesar); padding: 20px; display: flex; flex-direction: column; gap: 6px">
+<span style="align-self: flex-start; font-size: 13px; font-weight: 700; border: 1.5px dashed var(--putus); color: var(--tinta2); border-radius: var(--radius-lencana); padding: 3px 9px">Draf · belum masuk saldo</span>
+<div style="font-family: var(--font-mono); font-size: 28px; font-weight: 500; color: var(--tinta2)">−Rp1.250.000</div>
+<div style="font-size: 14px; color: var(--tinta2)">Putus-putus: belum dihitung, masih dapat diubah. Dipakai untuk draf, isian kosong, laporan sementara, item dalam perjalanan.</div>
+</div>
+<div style="border: 1.5px solid var(--tinta); background: var(--permukaan); border-radius: var(--radius-kartuBesar); padding: 20px; display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; justify-content: space-between; align-items: center"><span style="font-size: 13px; font-weight: 700; background: var(--tinta); color: var(--permukaan); border-radius: var(--radius-lencana); padding: 4px 10px">Dibukukan</span><span style="font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--laut); border: 2px solid var(--laut); border-radius: 8px; padding: 3px 8px; transform: rotate(-3deg)">BKU-2026-0101</span></div>
+<div style="font-family: var(--font-mono); font-size: 28px; font-weight: 500">−Rp1.250.000</div>
+<div style="font-size: 14px; color: var(--tinta2)">Garis penuh: masuk saldo dan laporan, punya No. Bukti, hanya dikoreksi lewat pembalikan.</div>
+</div>
+<div style="background: var(--tinta); color: var(--permukaan); border-radius: var(--radius-kartuBesar); padding: 20px; display: flex; flex-direction: column; gap: 6px">
+<span style="align-self: flex-start; font-size: 13px; font-weight: 700; background: var(--permukaan); color: var(--tinta); border-radius: var(--radius-lencana); padding: 4px 10px">Sudah ditutup</span>
+<div style="font-family: var(--font-mono); font-size: 28px; font-weight: 500">Oktober 2026</div>
+<div style="font-size: 14px; color: var(--diTinta2)">Tinta gelap: final dan beku. Dipakai hanya untuk bulan yang sudah ditutup, laporan resmi, dan pernyataan permanen.</div>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px"><div style="border: 1.5px dashed var(--putus); border-radius: var(--radius-isian); padding: 10px 12px; min-height: 64px; box-sizing: border-box"><div style="font-family: var(--font-mono); font-size: 13px; font-weight: 600">draf</div><div style="font-size: 13px">Belum masuk saldo</div></div><div style="border: 1px solid var(--garis); background: var(--permukaan); border-radius: var(--radius-isian); padding: 10px 12px; min-height: 64px; box-sizing: border-box"><div style="font-family: var(--font-mono); font-size: 13px; font-weight: 600">dibukukan</div><div style="font-size: 13px">Masuk saldo dan laporan</div></div><div style="border: 1.5px solid var(--tinta); background: var(--permukaan); border-radius: var(--radius-isian); padding: 10px 12px; min-height: 64px; box-sizing: border-box"><div style="font-family: var(--font-mono); font-size: 13px; font-weight: 600">terpilih</div><div style="font-size: 13px">Sedang dikerjakan</div></div><div style="border: 1.5px solid var(--tinta); background: var(--tinta); color: var(--permukaan); border-radius: var(--radius-isian); padding: 10px 12px; min-height: 64px; box-sizing: border-box"><div style="font-family: var(--font-mono); font-size: 13px; font-weight: 600">ditutup</div><div style="font-size: 13px">Sudah ditutup, resmi</div></div><div style="border: 1.5px dotted var(--laut); background: var(--permukaan); color: var(--lautTua); font-style: italic; border-radius: var(--radius-isian); padding: 10px 12px; min-height: 64px; box-sizing: border-box"><div style="font-family: var(--font-mono); font-size: 13px; font-weight: 600">usulanAI</div><div style="font-size: 13px">Usulan AI</div></div><div style="border: 1.5px solid var(--bata); background: var(--permukaan); color: var(--bata); border-radius: var(--radius-isian); padding: 10px 12px; min-height: 64px; box-sizing: border-box"><div style="font-family: var(--font-mono); font-size: 13px; font-weight: 600">hambatan</div><div style="font-size: 13px">Hambatan, gagal</div></div></div>
+</div></div>
+</body>
+</html>

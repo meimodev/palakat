@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Cari orang (web)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+input{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes isi{from{width:0}to{width:100%}}
+@keyframes titik{0%,100%{opacity:.25}50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+.pn-c{display:none}
+@media (max-width:860px){
+.pn{flex:1 1 100%!important;flex-direction:row!important;flex-wrap:wrap;align-items:center;gap:0 12px!important;padding:8px 16px!important;border-right:0!important;border-bottom:1px solid #DDE2DB}
+.pn-c{display:flex;align-items:center;appearance:none;-webkit-appearance:none;min-height:44px;margin:0 0 0 auto;padding:0 16px;border-radius:14px;border:1.5px solid #13201C;background:#FFFFFF;font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+.pn-c::before{content:"Menu"}
+.pn-c:checked{background:#13201C;color:#FFFFFF}
+.pn-c:checked::before{content:"Tutup menu"}
+.pn-l,.pn-w{display:none;flex:1 1 100%}
+.pn-c:checked~.pn-l{display:block;padding:8px 0}
+.pn-c:checked~.pn-w{display:block;margin-top:0!important;padding-bottom:8px!important}
+}
+</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; flex-wrap: wrap; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 15px; line-height: 1.45">
+
+  <nav class="pn" style="flex: 1 1 220px; box-sizing: border-box; padding: 24px 16px; background: #FFFFFF; border-right: 1px solid #DDE2DB; display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px">
+      <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="none" stroke="#0E5A63" stroke-width="2" stroke-dasharray="3 3"/><path d="M12 2h4a6 6 0 0 1 6 6v8a6 6 0 0 1-6 6h-4z" fill="#0E5A63"/></svg>
+      <div><div style="font-weight: 700; font-size: 18px; line-height: 1.1">palakat</div><div style="font-size: 13px; color: #5E6A66">Jemaat Karunia</div></div>
+    </div>
+    <input type="checkbox" class="pn-c" aria-label="Menu">
+    <div class="pn-l">
+      <sc-for list="{{nav}}" as="n" hint-placeholder-count="7">
+        <a href="{{n.href}}" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 10px; text-decoration: none; font-weight: 600; background: {{n.bg}}; color: {{n.fg}}">{{n.n}}</a>
+      </sc-for>
+    </div>
+    <div class="pn-w" style="margin-top: auto; padding: 12px 8px 0; border-top: 1px solid #DDE2DB; font-size: 13px; color: #43514C"><strong style="color: #13201C">Yanti Sumual</strong> · Operator</div>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 28px clamp(16px, 3vw, 40px) 40px; display: flex; flex-direction: column; gap: 20px">
+<div><a href="WebBerandaJabatan.dc.html" style="font-size: 14px; font-weight: 600">Beranda</a><h1 style="margin: 2px 0 0; font-size: 26px; font-weight: 700">Cari orang</h1><div style="font-size: 14px; color: #43514C">Hasil hanya dari modul aktif dan dari yang boleh Anda lihat</div></div><div style="max-width: 880px; display: flex; flex-direction: column; gap: 16px"><label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: #43514C"><span>Cari nama, keluarga atau Kolom</span><input value="{{q}}" readonly style="width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF; min-height: 48px"></label><sc-if value="{{ada}}" hint-placeholder-val="{{false}}"><div style="font-size: 14px; color: #43514C">{{ringkas}}</div><div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; overflow: hidden"><div style="margin-top: -1px; display: flex; flex-direction: column"><sc-for list="{{hasil}}" as="r" hint-placeholder-count="3"><a href="{{r.h}}" style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, auto) 20px; gap: 16px; align-items: center; min-height: 52px; padding: 8px 18px; border-top: 1px solid #DDE2DB; text-decoration: none; color: #13201C"><span style="min-width: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 20px"><span style="flex: 1 1 260px; min-width: 0; font-weight: 600">{{r.j}}</span><span style="flex: 1.4 1 300px; min-width: 0; font-size: 13px; color: #5E6A66">{{r.s}}</span></span><span style="display: flex; justify-content: flex-end"><sc-if value="{{r.l}}" hint-placeholder-val="{{false}}"><span style="flex: none; font-size: 13px; font-weight: 700; border-radius: 6px; padding: 3px 9px; {{r.ls}}">{{r.l}}</span></sc-if></span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E6A66" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></sc-for></div></div></sc-if><sc-if value="{{k0}}" hint-placeholder-val="{{true}}"><a href="WebAlurPulihkan.dc.html" style="min-height: 44px; display: inline-flex; align-items: center; font-weight: 700; font-size: 14px">Orangnya kehilangan nomor ponsel? Pulihkan akun</a></sc-if><sc-if value="{{k2}}" hint-placeholder-val="{{false}}"><div style="border: 1.5px dashed #808D87; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px"><div style="font-weight: 700">Tidak ada hasil untuk “Rumengan”</div><div style="font-size: 14px; color: #43514C">Periksa ejaan, atau cari dengan nama keluarga.</div></div></sc-if><div style="font-size: 13px; color: #5E6A66">Kecocokan nama tidak pernah membuka data yang tidak boleh Anda lihat, dan jumlah hasil tidak menyebut data di luar jangkauan Anda.</div></div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"keadaan":{"editor":"enum","options":["Dilihat Operator", "Dilihat Penatua Kolom 7", "Tidak ada hasil"],"default":"Dilihat Operator"},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  rp(n) { var s = String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return (n < 0 ? '−' : '') + 'Rp' + s; }
+  navVals() { return [['Beranda', 'WebBerandaJabatan.dc.html'], ['Keuangan', 'WebBeranda.dc.html'], ['Dokumen gereja', 'WebDokumenGereja.dc.html'], ['Pengumuman', 'WebPengumuman.dc.html'], ['Warta Jemaat', 'WebWartaArsip.dc.html'], ['Data jemaat', 'WebDataAnggota.dc.html'], ['Ibadah dan kegiatan', 'Ibadah.dc.html'], ['Panitia', 'Panitia.dc.html'], ['Pemberitahuan', 'WebKotakMasuk.dc.html'], ['Pengaturan', 'WebPenugasan.dc.html']].map(function (n, i) { return { n: n[0], href: n[1], bg: i === 0 ? '#13201C' : 'transparent', fg: i === 0 ? '#FFFFFF' : '#13201C' }; }); }
+  state = { k: null };
+  vals() {
+    var self = this, O = ["Dilihat Operator", "Dilihat Penatua Kolom 7", "Tidak ada hasil"], LS = {"draf": "color: #43514C; border: 1.5px dashed #808D87", "garis": "color: #43514C; border: 1.5px solid #5E6A66; background: #FFFFFF", "tinta": "color: #FFFFFF; background: #13201C; border: 1.5px solid #13201C", "laut": "color: #FFFFFF; background: #0E5A63; border: 1.5px solid #0E5A63", "lautg": "color: #0E5A63; background: #FFFFFF; border: 1.5px solid #0E5A63", "bata": "color: #A63C1C; background: #FFFFFF; border: 1.5px solid #A63C1C", "abu": "color: #43514C; background: #DDE2DB; border: 1.5px solid #DDE2DB"};
+    var k = this.state.k ?? (this.props.keadaan ?? O[0]); var ki = Math.max(0, O.indexOf(k));
+    var V = { keadaan: O[ki] };
+    O.forEach(function (o, i) { V['k' + i] = i === ki; V['go' + i] = function () { self.setState({ k: o }); }; });
+    var web = true, PS = ["AlurAnggota", "AlurBeranda", "AlurDana", "AlurIbadah", "AlurModul", "AlurNama", "AlurPanitia", "AlurPanitiaBaru", "AlurPelimpahan", "AlurPenugasan", "AlurPeristiwa", "AntreanVerifikasi", "CabutIzin", "Ibadah", "Kehadiran", "KeuanganUnit", "KonfirmasiKeluarga", "Modul", "Panitia", "Pelimpahan", "PemberiPersetujuan", "Peristiwa", "PermintaanDana", "PermohonanAnggota", "PersembahanSaya", "TampilanNama"], hal = function (n) { return (web && PS.indexOf(n) < 0 ? (n === 'Main' ? 'WebBeranda' : 'Web' + n) : n) + '.dc.html'; };
+    var baris = function (a) { return a.map(function (r) { return { j: r[0], s: r[1], l: r[2] || '', ls: LS[r[3] || 'garis'], h: r[4] ? hal(r[4]) : hal('CariOrang') }; }); };
+    var E = (function () { var H = [[['Novita Wenas', 'Data jemaat · Keluarga Wenas-Lasut · Kolom 7', 'Aktif', 'laut', 'DataAnggota'], ['Keluarga Wenas-Lasut', 'Data jemaat · 4 orang · Kolom 7', '', '', 'DataAnggota'], ['Ferry Wenas', 'Data jemaat · Kolom 2', 'Belum dikonfirmasi', 'draf', 'KonfirmasiKeluarga'], ['Novita Wenas', 'Dokumen gereja · Surat keterangan 15/11/2026', 'Diterbitkan', 'tinta', 'PermohonanSurat'], ['Kel. Wenas-Lasut', 'Keuangan · Sampul syukur 08/11/2026', 'Dibukukan', 'tinta', 'Main']],
+               [['Novita Wenas', 'Data jemaat · Keluarga Wenas-Lasut · Kolom 7', 'Aktif', 'laut', 'DataAnggota'], ['Keluarga Wenas-Lasut', 'Data jemaat · 4 orang · Kolom 7', '', '', 'DataAnggota']], []][ki];
+      return { q: ki === 2 ? 'Rumengan' : 'Wenas', ada: ki !== 2, hasil: baris(H), ringkas: H.length + ' hasil untuk “Wenas”' }; })() || {};
+    for (var n in E) V[n] = E[n];
+    return V;
+  }
+
+  renderVals() { var V = this.vals(); if (this.navVals) V.nav = this.navVals(); return V; }
+}
+</script>
+</body>
+</html>

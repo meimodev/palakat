@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Pengaturan awal dan saldo awal (ponsel)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+input{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes masuk{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@keyframes pudar{from{opacity:0}to{opacity:1}}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes putar{to{transform:rotate(360deg)}}
+@keyframes lingkar{from{stroke-dashoffset:239}to{stroke-dashoffset:0}}
+@keyframes cap{0%{opacity:0;transform:scale(1.7) rotate(-9deg)}55%{opacity:1;transform:scale(.94) rotate(-3deg)}100%{opacity:1;transform:scale(1) rotate(-3deg)}}
+@keyframes sapu{0%{transform:scaleX(0);opacity:.2}65%{transform:scaleX(1);opacity:.2}100%{transform:scaleX(1);opacity:0}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 16px; line-height: 1.4">
+
+<sc-if value="{{isLangkah}}" hint-placeholder-val="{{true}}">
+<div style="position: absolute; inset: 0; overflow-y: auto; padding: 24px 20px 28px; display: flex; flex-direction: column; gap: 18px; animation: pudar .2s">
+  <div style="display: flex; align-items: center; gap: 10px">
+    <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="none" stroke="#0E5A63" stroke-width="2" stroke-dasharray="3 3"/><path d="M12 2h4a6 6 0 0 1 6 6v8a6 6 0 0 1-6 6h-4z" fill="#0E5A63"/></svg>
+    <div style="font-weight: 700; font-size: 17px">palakat</div>
+  </div>
+  <div><h1 style="margin: 0 0 4px; font-size: 24px; font-weight: 700; line-height: 1.2">Pengaturan awal Jemaat</h1><div style="font-size: 15px; color: #43514C">Jemaat Karunia · {{selesaiN}} dari 6 langkah selesai</div></div>
+  <a href="AwalIsian.dc.html" style="min-height: 44px; display: flex; align-items: center; font-weight: 700; font-size: 15px">Isi identitas, Kas/Bank, peruntukan dan Lingkup</a>
+
+  <sc-if value="{{belumSiap}}" hint-placeholder-val="{{true}}">
+    <div style="border: 1.5px dashed #808D87; border-radius: 14px; padding: 14px 16px; font-size: 14px; color: #43514C"><strong style="color: #13201C">Belum ada tindakan keuangan yang tersedia.</strong> {{alasan}}</div>
+  </sc-if>
+  <sc-if value="{{siap}}" hint-placeholder-val="{{false}}">
+    <div style="background: #13201C; color: #FFFFFF; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 10px; animation: muncul .3s"><div style="font-weight: 700">Jemaat siap mencatat.</div><div style="font-size: 14px; color: #D5DDD8">Pencatatan dimulai 15 September 2026. Persetujuan format laporan masih perlu dicatat sebelum tutup buku pertama.</div><a href="Main.dc.html" style="min-height: 48px; border-radius: 12px; background: #FFFFFF; color: #13201C; font-weight: 700; display: flex; align-items: center; justify-content: center; text-decoration: none">Mulai mencatat</a></div>
+  </sc-if>
+
+  <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 16px; padding: 0 16px">
+    <sc-for list="{{langkah}}" as="l" hint-placeholder-count="6">
+      <button onClick="{{l.buka}}" disabled="{{l.mati}}" style="display: flex; align-items: center; gap: 14px; width: 100%; min-height: 72px; background: none; border: 0; border-top: {{l.garis}}; padding: 10px 0; opacity: 1">
+        <div style="flex: none; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 15px; background: {{l.bg}}; color: {{l.fg}}; border: {{l.bd}}">{{l.tanda}}</div>
+        <div style="flex: 1"><div style="font-weight: 600; font-size: 15px; color: {{l.jfg}}">{{l.j}}</div><div style="font-size: 13px; color: {{l.sfg}}; font-weight: {{l.sfw}}">{{l.s}}</div></div>
+        <sc-if value="{{l.bisa}}" hint-placeholder-val="{{false}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E6A66" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></sc-if>
+      </button>
+    </sc-for>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{isTunjuk}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column; animation: masuk .28s cubic-bezier(.2,.8,.2,1)">
+  <div style="display: flex; align-items: center; gap: 8px; padding: 14px 12px 8px">
+    <button onClick="{{keLangkah}}" aria-label="Kembali" style="flex: none; width: 44px; height: 44px; background: none; border: 0; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+    <h1 style="margin: 0; flex: 1; font-size: 18px; font-weight: 700">Penunjukan Bendahara</h1>
+  </div>
+  <div style="flex: 1; overflow-y: auto; padding: 8px 20px 20px; display: flex; flex-direction: column; gap: 18px">
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 12px 0 4px">
+      <sc-if value="{{wBelum}}" hint-placeholder-val="{{true}}"><svg width="88" height="88" viewBox="0 0 88 88" aria-hidden="true"><circle cx="44" cy="44" r="38" fill="none" stroke="#808D87" stroke-width="3" stroke-dasharray="5 6"/></svg></sc-if>
+      <sc-if value="{{wTunggu}}" hint-placeholder-val="{{false}}"><svg width="88" height="88" viewBox="0 0 88 88" aria-hidden="true" style="animation: putar 6s linear infinite"><circle cx="44" cy="44" r="38" fill="none" stroke="#13201C" stroke-width="3" stroke-dasharray="5 6"/></svg></sc-if>
+      <sc-if value="{{wAktif}}" hint-placeholder-val="{{false}}"><svg width="88" height="88" viewBox="0 0 88 88" aria-hidden="true"><circle cx="44" cy="44" r="38" fill="#0E5A63" stroke="#0E5A63" stroke-width="3" stroke-dasharray="239" transform="rotate(-90 44 44)" style="animation: lingkar .7s ease-out both"/><path d="M29 45l10 10 20-21" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" style="animation: pudar .3s .5s both"/></svg></sc-if>
+      <div role="status" style="font-size: 18px; font-weight: 700; text-align: center">{{wJudul}}</div>
+      <div style="font-size: 14px; color: #43514C; text-align: center">{{wTeks}}</div>
+    </div>
+    <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 4px 16px">
+      <div style="display: flex; justify-content: space-between; gap: 16px; padding: 12px 0"><div style="font-size: 14px; color: #43514C">Yang ditunjuk</div><div style="font-size: 14px; font-weight: 600; text-align: right">Meiske Lumentut</div></div>
+      <div style="display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-top: 1px solid #DDE2DB"><div style="font-size: 14px; color: #43514C">Yang menunjuk</div><div style="font-size: 14px; font-weight: 600; text-align: right">BPMJ Jemaat Karunia</div></div>
+      <div style="display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-top: 1px solid #DDE2DB"><div style="font-size: 14px; color: #43514C">Surat penunjukan</div><div style="font-size: 14px; font-weight: 600; text-align: right">SK-BPMJ-04-2026.pdf · Terlampir</div></div>
+      <div style="display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-top: 1px solid #DDE2DB"><div style="font-size: 14px; color: #43514C">Diverifikasi oleh</div><div style="font-size: 14px; font-weight: 600; text-align: right">{{verifOleh}}</div></div>
+    </div>
+    <div style="font-size: 13px; color: #5E6A66">Akses teknis ke aplikasi saja tidak memberi wewenang Bendahara. Wewenang hanya berasal dari keputusan Jemaat yang sudah diverifikasi.</div>
+  </div>
+  <div style="padding: 12px 20px 22px; background: #FFFFFF; border-top: 1px solid #DDE2DB">
+    <sc-if value="{{wBelum}}" hint-placeholder-val="{{true}}"><button onClick="{{kirim}}" style="width: 100%; min-height: 52px; border-radius: 14px; border: 0; background: #0E5A63; color: #FFFFFF; font-weight: 700; text-align: center">Kirim untuk diverifikasi</button></sc-if>
+    <sc-if value="{{wTunggu}}" hint-placeholder-val="{{false}}"><div style="font-size: 14px; color: #43514C; text-align: center; min-height: 52px; display: flex; align-items: center; justify-content: center">Menunggu Petugas verifikasi. Tidak ada yang perlu Anda lakukan.</div></sc-if>
+    <sc-if value="{{wAktif}}" hint-placeholder-val="{{false}}"><button onClick="{{keLangkah}}" style="width: 100%; min-height: 52px; border-radius: 14px; border: 0; background: #0E5A63; color: #FFFFFF; font-weight: 700; text-align: center; animation: muncul .3s">Lanjut ke saldo awal pencatatan</button></sc-if>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{isSaldo}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column; animation: masuk .28s cubic-bezier(.2,.8,.2,1)">
+  <div style="display: flex; align-items: center; gap: 8px; padding: 14px 12px 8px">
+    <button onClick="{{keLangkah}}" aria-label="Kembali" style="flex: none; width: 44px; height: 44px; background: none; border: 0; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+    <div style="flex: 1"><h1 style="margin: 0; font-size: 18px; font-weight: 700">Saldo awal pencatatan</h1><div style="font-size: 13px; color: #43514C">Per 15 September 2026, tanggal mulai pencatatan</div></div>
+  </div>
+  <div style="flex: 1; overflow-y: auto; padding: 8px 20px 20px; display: flex; flex-direction: column; gap: 18px">
+
+    <sc-if value="{{belumOpn}}" hint-placeholder-val="{{true}}">
+      <div style="display: flex; flex-direction: column; gap: 18px">
+        <div>
+          <div style="font-size: 14px; color: #43514C">Kas · jumlah terverifikasi</div>
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 34px; font-weight: 500; letter-spacing: -1px">Rp3.200.000</div>
+          <div style="font-size: 13px; color: #5E6A66">Sumber: berita acara hitung kas 14/09/2026 · Terlampir</div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <div style="font-weight: 700; font-size: 15px">Bagi ke peruntukan</div>
+          <div style="height: 18px; border-radius: 9px; border: 1.5px dashed #808D87; display: flex; overflow: hidden; box-sizing: border-box">
+            <div style="height: 100%; width: {{w0}}; background: #13201C; transition: width .45s cubic-bezier(.2,.8,.2,1)"></div>
+            <div style="height: 100%; width: {{w1}}; background: #0E5A63; transition: width .45s cubic-bezier(.2,.8,.2,1)"></div>
+            <div style="height: 100%; width: {{w2}}; background: #86B5B8; transition: width .45s cubic-bezier(.2,.8,.2,1)"></div>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: baseline"><div style="font-size: 14px; color: {{sisaFg}}; font-weight: 700">{{sisaLabel}}</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 18px; font-weight: 600; color: {{sisaFg}}">{{sisa}}</div></div>
+        </div>
+
+        <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 0 16px">
+          <sc-for list="{{baris}}" as="b" hint-placeholder-count="3">
+            <div style="padding: 12px 0; border-top: {{b.garis}}">
+              <div style="display: flex; align-items: center; gap: 10px">
+                <div style="flex: none; width: 12px; height: 12px; border-radius: 3px; background: {{b.warna}}"></div>
+                <label for="{{b.id}}" style="flex: 1; font-size: 15px; font-weight: 600">{{b.n}}</label>
+                <div style="display: flex; align-items: baseline; gap: 4px; font-family: 'IBM Plex Mono', monospace; border-bottom: 1.5px solid #13201C; width: 150px"><span style="font-size: 14px; color: #5E6A66">Rp</span><input id="{{b.id}}" inputmode="numeric" placeholder="—" value="{{b.v}}" onChange="{{b.on}}" style="flex: 1; min-width: 0; width: 100%; min-height: 44px; border: 0; background: transparent; font-family: 'IBM Plex Mono', monospace; font-size: 17px; font-weight: 500; text-align: right; padding: 0"></div>
+              </div>
+              <sc-if value="{{b.kosong}}" hint-placeholder-val="{{false}}">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 8px"><div style="font-size: 13px; color: #A63C1C; font-weight: 600">Belum diisi. Kosong bukan Rp0.</div><div style="display: flex; gap: 8px"><button onClick="{{b.nol}}" style="min-height: 44px; padding: 0 12px; border-radius: 10px; border: 1.5px solid #7F8C86; background: #FFFFFF; font-weight: 700; font-size: 14px">Isi Rp0</button><sc-if value="{{adaSisa}}" hint-placeholder-val="{{true}}"><button onClick="{{b.isiSisa}}" style="min-height: 44px; padding: 0 12px; border-radius: 10px; border: 0; background: #13201C; color: #FFFFFF; font-weight: 700; font-size: 14px">Isi sisa</button></sc-if></div></div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="font-size: 14px; color: #43514C; display: flex; flex-direction: column; gap: 4px"><div>Bank BNI ··4821 · Rp24.000.000 · sudah dibagi</div><div>Bank SulutGo ··1107 · Rp5.100.000 · sudah dibagi</div><div>Uang muka dan titipan yang masih berjalan: tidak ada</div></div>
+        <div style="font-size: 13px; color: #5E6A66">Saldo awal bukan Pendapatan. Jumlah per peruntukan harus sama persis dengan tiap Kas/Bank, termasuk yang Rp0.</div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{opn}}" hint-placeholder-val="{{false}}">
+      <div style="position: relative; overflow: hidden; border: 1.5px solid #13201C; background: #FFFFFF; border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 8px">
+        <div style="position: absolute; inset: 0; background: #0E5A63; transform-origin: left; animation: sapu .7s ease-out both; pointer-events: none"></div>
+        <div style="display: flex; justify-content: space-between; align-items: center"><div style="font-size: 13px; font-weight: 700; background: #13201C; color: #FFFFFF; border-radius: 6px; padding: 4px 10px">Dibukukan</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; font-weight: 600; color: #0E5A63; border: 2px solid #0E5A63; border-radius: 8px; padding: 4px 10px; animation: cap .55s cubic-bezier(.2,.8,.2,1) .35s both">No. Bukti OPN-2026-0001</div></div>
+        <div style="font-size: 14px; color: #43514C; margin-top: 6px">Saldo awal pencatatan · semua Kas/Bank</div>
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 30px; font-weight: 500">Rp32.300.000</div>
+        <div style="font-size: 13px; color: #5E6A66">Seri OPN · bukan Pendapatan · menjadi final setelah September 2026 ditutup</div>
+      </div>
+      <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 4px 16px; animation: muncul .3s .6s both">
+        <sc-for list="{{hasil}}" as="h" hint-placeholder-count="3"><div style="display: flex; justify-content: space-between; padding: 11px 0; border-top: {{h.garis}}"><div style="font-size: 14px; color: #43514C">{{h.n}}</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; font-weight: 500">{{h.v}}</div></div></sc-for>
+      </div>
+    </sc-if>
+  </div>
+  <div style="padding: 12px 20px 22px; background: #FFFFFF; border-top: 1px solid #DDE2DB; display: flex; flex-direction: column; gap: 8px">
+    <sc-if value="{{belumPas}}" hint-placeholder-val="{{true}}"><div style="font-size: 14px; color: #43514C">Tidak dapat dibukukan: {{belumPasAlasan}}</div></sc-if>
+    <sc-if value="{{bisaOpn}}" hint-placeholder-val="{{false}}"><button onClick="{{bukukan}}" style="min-height: 52px; border-radius: 14px; border: 0; background: #0E5A63; color: #FFFFFF; font-weight: 700; text-align: center; animation: muncul .3s">Periksa dan bukukan saldo awal</button></sc-if>
+    <sc-if value="{{opn}}" hint-placeholder-val="{{false}}"><button onClick="{{keLangkah}}" style="min-height: 52px; border-radius: 14px; border: 1.5px solid #13201C; background: #FFFFFF; font-weight: 700; text-align: center">Kembali ke pengaturan awal</button></sc-if>
+  </div>
+</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  state = { screen: 'langkah', wewenang: 'belum', opn: false, bagi: { umum: '2000000', diak: '700000', bang: '' } };
+  KAS = 3200000;
+  rp(n) { var s = String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return (n < 0 ? '−' : '') + 'Rp' + s; }
+  componentWillUnmount() { clearTimeout(this.t); }
+  renderVals() {
+    var self = this, s = this.state, rp = this.rp, KAS = this.KAS;
+    var fmt = function (d) { return d === '' ? '' : (d.replace(/\B(?=(\d{3})+(?!\d))/g, '.')); };
+    var num = function (d) { return d === '' ? 0 : parseInt(d, 10); };
+    var keys = [['umum', 'Umum Jemaat', '#13201C'], ['diak', 'Diakonia', '#0E5A63'], ['bang', 'Pembangunan', '#86B5B8']];
+    var jumlah = keys.reduce(function (a, k) { return a + num(s.bagi[k[0]]); }, 0);
+    var sisa = KAS - jumlah, adaKosong = keys.some(function (k) { return s.bagi[k[0]] === ''; });
+    var pas = sisa === 0 && !adaKosong;
+    var set = function (k, v) { var b = Object.assign({}, s.bagi); b[k] = v; self.setState({ bagi: b }); };
+    var pct = function (k) { return Math.max(0, Math.min(100, num(s.bagi[k]) / Math.max(KAS, jumlah) * 100)) + '%'; };
+    var aktif = s.wewenang === 'aktif', tunggu = s.wewenang === 'tunggu';
+    var L = [
+      { j: 'Identitas Jemaat', s: 'WITA · tahun buku mulai 1 Januari', st: 'ok' },
+      { j: 'Kas/Bank, peruntukan, Lingkup', s: '3 Kas/Bank · 3 peruntukan · 4 Lingkup', st: 'ok' },
+      { j: 'Mata Anggaran', s: 'Versi 2026.1 diterbitkan · berlaku mulai September 2026', st: 'ok' },
+      { j: 'Penunjukan Bendahara', s: aktif ? 'Wewenang Bendahara aktif' : (tunggu ? 'Menunggu verifikasi wewenang · Petugas verifikasi' : 'Giliran Anda: kirim surat penunjukan'), st: aktif ? 'ok' : (tunggu ? 'tunggu' : 'kini'), ke: 'tunjuk' },
+      { j: 'Saldo awal pencatatan', s: s.opn ? 'Dibukukan · OPN-2026-0001' : (aktif ? 'Giliran Anda: bagi saldo ke peruntukan' : 'Terbuka setelah wewenang Bendahara aktif'), st: s.opn ? 'ok' : (aktif ? 'kini' : 'kunci'), ke: 'saldo' },
+      { j: 'Persetujuan format laporan', s: 'Pimpinan Jemaat yang berwenang · wajib sebelum tutup buku pertama', st: 'nanti' }
+    ];
+    var S = { ok: { bg: '#0E5A63', fg: '#FFFFFF', bd: '0', tanda: '✓' }, kini: { bg: '#13201C', fg: '#FFFFFF', bd: '0' }, tunggu: { bg: 'transparent', fg: '#13201C', bd: '1.5px dashed #13201C' }, kunci: { bg: 'transparent', fg: '#5E6A66', bd: '1.5px dashed #808D87' }, nanti: { bg: 'transparent', fg: '#5E6A66', bd: '1.5px dashed #808D87' } };
+    var langkah = L.map(function (l, i) {
+      var bisa = !!l.ke && (l.st === 'kini' || l.st === 'tunggu' || l.st === 'ok');
+      return Object.assign({ tanda: String(i + 1) }, S[l.st], { j: l.j, s: l.s, garis: i ? '1px solid #DDE2DB' : '0', bisa: bisa, mati: !bisa, jfg: l.st === 'kunci' ? '#5E6A66' : '#13201C', sfg: l.st === 'kini' ? '#0E5A63' : '#5E6A66', sfw: l.st === 'kini' ? 700 : 400, buka: function () { if (bisa) self.setState({ screen: l.ke }); } });
+    });
+    var W = { belum: ['Belum dikirim', 'Kirim surat penunjukan dari BPMJ untuk diverifikasi.'], tunggu: ['Menunggu verifikasi wewenang', 'Petugas verifikasi sedang memeriksa surat penunjukan. Sampai selesai, belum ada tindakan keuangan yang tersedia.'], aktif: ['Wewenang Bendahara aktif', 'Anda sekarang dapat mencatat, membukukan dan menutup buku untuk Jemaat Karunia.'] }[s.wewenang];
+    return {
+      isLangkah: s.screen === 'langkah', isTunjuk: s.screen === 'tunjuk', isSaldo: s.screen === 'saldo',
+      langkah: langkah, selesaiN: L.filter(function (l) { return l.st === 'ok'; }).length,
+      siap: s.opn, belumSiap: !s.opn,
+      alasan: aktif ? 'Tinggal satu langkah: bukukan saldo awal pencatatan.' : (tunggu ? 'Menunggu Petugas verifikasi memeriksa penunjukan Bendahara.' : 'Kirim surat penunjukan Bendahara untuk diverifikasi.'),
+      wBelum: s.wewenang === 'belum', wTunggu: tunggu, wAktif: aktif, wJudul: W[0], wTeks: W[1], verifOleh: aktif ? 'Petugas verifikasi · 15/09/2026' : 'Belum diverifikasi',
+      baris: keys.map(function (k, i) { var v = s.bagi[k[0]]; return { id: 'f-' + k[0], n: k[1], warna: k[2], v: fmt(v), kosong: v === '', garis: i ? '1px solid #DDE2DB' : '0', on: function (e) { set(k[0], e.target.value.replace(/\D/g, '').replace(/^0+(?=\d)/, '').slice(0, 11)); }, nol: function () { set(k[0], '0'); }, isiSisa: function () { set(k[0], String(Math.max(0, sisa))); } }; }),
+      w0: pct('umum'), w1: pct('diak'), w2: pct('bang'),
+      sisa: rp(Math.abs(sisa)), sisaLabel: pas ? 'Pas dengan Kas' : (sisa < 0 ? 'Lebih dari Kas' : 'Sisa belum dibagi'), sisaFg: pas ? '#0E5A63' : (sisa === 0 ? '#13201C' : '#A63C1C'), adaSisa: sisa > 0,
+      belumOpn: !s.opn, opn: s.opn, bisaOpn: pas && !s.opn, belumPas: !pas && !s.opn,
+      belumPasAlasan: sisa !== 0 ? 'jumlah per peruntukan belum sama dengan Kas.' : 'masih ada peruntukan yang belum diisi.',
+      hasil: [['Kas', 3200000], ['Bank BNI ··4821', 24000000], ['Bank SulutGo ··1107', 5100000]].map(function (h, i) { return { n: h[0], v: rp(h[1]), garis: i ? '1px solid #DDE2DB' : '0' }; }),
+      keLangkah: function () { self.setState({ screen: 'langkah' }); },
+      kirim: function () { self.setState({ wewenang: 'tunggu' }); clearTimeout(self.t); self.t = setTimeout(function () { self.setState({ wewenang: 'aktif' }); }, 2800); },
+      bukukan: function () { self.setState({ opn: true }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

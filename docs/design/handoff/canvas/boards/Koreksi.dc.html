@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Koreksi, persetujuan dan kejadian (ponsel)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+input,textarea{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes masuk{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@keyframes naik{from{transform:translateY(100%)}to{transform:none}}
+@keyframes pudar{from{opacity:0}to{opacity:1}}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes cap{0%{opacity:0;transform:scale(1.7)}55%{opacity:1;transform:scale(.94)}100%{opacity:1;transform:scale(1)}}
+@keyframes balik{from{opacity:0;transform:perspective(700px) rotateX(-90deg)}to{opacity:1;transform:perspective(700px) rotateX(0)}}
+@keyframes tali{from{height:0}to{height:18px}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; display: flex; flex-direction: column; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 16px; line-height: 1.4">
+<sc-if value="{{jk}}" hint-placeholder-val="{{false}}"><div role="status" style="flex: none; background: #13201C; color: #FFFFFF; padding: 10px 24px 8px; font-size: 13px; line-height: 1.3; text-align: center"><strong>Menjalankan jabatan kosong</strong> · Bendahara Jemaat</div></sc-if>
+<div style="position: relative; flex: 1; min-height: 0">
+
+<sc-if value="{{isDetail}}" hint-placeholder-val="{{true}}">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column; animation: pudar .2s">
+  <div style="display: flex; align-items: center; gap: 8px; padding: 14px 12px 8px">
+    <a href="Main.dc.html" aria-label="Kembali ke Beranda" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #13201C"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></a>
+    <h1 style="margin: 0; flex: 1; font-family: 'IBM Plex Mono', monospace; font-size: 17px; font-weight: 600">BKU-2026-0139</h1>
+    <div style="font-size: 13px; font-weight: 700; border-radius: 6px; padding: 4px 10px; margin-right: 8px; background: {{stBg}}; color: {{stFg}}; border: 1.5px solid {{stBd}}">{{stTeks}}</div>
+  </div>
+  <div style="flex: 1; overflow-y: auto; padding: 8px 20px 24px; display: flex; flex-direction: column; gap: 16px">
+    <div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 34px; font-weight: 500; letter-spacing: -1px">−Rp750.000</div><div style="font-weight: 600">Konsumsi rapat majelis</div><div style="font-size: 14px; color: #43514C">Belanja · {{tglTeks}}</div></div>
+
+    <sc-if value="{{dibalik}}" hint-placeholder-val="{{false}}"><button onClick="{{keHasil}}" style="min-height: 48px; border-radius: 12px; border: 1.5px solid #13201C; background: #FFFFFF; padding: 0 14px; font-weight: 600; font-size: 14px">Dibalik oleh No. Bukti <span style="font-family: 'IBM Plex Mono', monospace">BKU-2026-0144</span> · lihat rangkaian</button></sc-if>
+    <sc-if value="{{tutup}}" hint-placeholder-val="{{false}}"><div style="background: #13201C; color: #FFFFFF; border-radius: 12px; padding: 12px 14px; font-size: 14px"><strong>{{bulanNama}} sudah ditutup.</strong> Transaksi ini final dan laporan resminya dibekukan.</div></sc-if>
+
+    <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 4px 16px">
+      <sc-for list="{{rinci}}" as="d" hint-placeholder-count="5"><div style="display: flex; justify-content: space-between; gap: 16px; padding: 11px 0; border-top: {{d.garis}}"><div style="font-size: 14px; color: #43514C">{{d.k}}</div><div style="font-size: 14px; font-weight: 600; text-align: right">{{d.v}}</div></div></sc-for>
+    </div>
+
+    <div style="border-radius: 14px; padding: 14px 16px; background: {{apBg}}; border: {{apBd}}; display: flex; flex-direction: column; gap: 4px">
+      <div style="font-size: 14px; color: #43514C">Persetujuan di luar aplikasi</div>
+      <div style="font-weight: 700; font-size: 15px">{{apJudul}}</div>
+      <sc-if value="{{apAda}}" hint-placeholder-val="{{false}}">
+        <div style="animation: muncul .3s; display: flex; flex-direction: column; gap: 2px; margin-top: 4px">
+          <div style="font-size: 14px"><span style="color: #43514C">Pemberi persetujuan:</span> <strong>{{apNama}}</strong>, {{apJabatan}}</div>
+          <div style="font-size: 14px; color: #43514C">08/11/2026 · cara: {{apCara}}</div>
+          <div style="font-size: 13px; color: #5E6A66; border-top: 1px dashed #7F8C86; margin-top: 8px; padding-top: 8px">Dicatat oleh {{plk}}, 16/11/2026 11.20. Pernyataan Bendahara, bukan persetujuan di dalam aplikasi.</div><a href="Persetujuan.dc.html" style="min-height: 44px; display: flex; align-items: center; font-weight: 700; font-size: 14px">Ganti catatan persetujuan</a>
+        </div>
+      </sc-if>
+      <sc-if value="{{apBisa}}" hint-placeholder-val="{{true}}"><button onClick="{{bukaAp}}" style="margin-top: 8px; min-height: 44px; border-radius: 12px; border: 1.5px solid #13201C; background: #FFFFFF; font-weight: 700; text-align: center">Catat persetujuan</button></sc-if>
+    </div>
+
+    <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 14px 16px"><div style="font-size: 14px; color: #43514C">Dokumen pendukung</div><div style="font-weight: 600; font-size: 15px">Terverifikasi (oleh Meiske L.)</div><sc-if value="{{tutup}}" hint-placeholder-val="{{false}}"><div style="font-size: 13px; color: #5E6A66; margin-top: 4px">Status saat tutup buku: Terverifikasi · Status sekarang: Terverifikasi</div></sc-if></div>
+
+    <sc-if value="{{kejadianAda}}" hint-placeholder-val="{{false}}"><div style="border: 1.5px solid #13201C; border-radius: 14px; padding: 14px 16px; background: #FFFFFF; animation: muncul .3s"><div style="display: flex; justify-content: space-between; align-items: center; gap: 8px"><div style="font-weight: 700; font-size: 15px">Kejadian setelah tutup buku</div><div style="font-size: 13px; font-weight: 700; border: 1.5px solid #5E6A66; color: #43514C; border-radius: 6px; padding: 3px 9px">Belum ditindaklanjuti</div></div><div style="font-size: 14px; color: #43514C; margin-top: 4px">{{kejadianTeks}}</div><div style="font-size: 13px; color: #5E6A66; margin-top: 6px">Angka dan laporan resmi {{bulanNama}} tidak berubah.</div></div></sc-if>
+
+    <sc-if value="{{buka}}" hint-placeholder-val="{{true}}">
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <sc-if value="{{belumDibalik}}" hint-placeholder-val="{{true}}"><button onClick="{{keKoreksi}}" style="min-height: 52px; border-radius: 14px; border: 0; background: #13201C; color: #FFFFFF; font-weight: 700; text-align: center">Koreksi dengan pembalikan</button></sc-if>
+        <a href="Kamera.dc.html" style="min-height: 48px; border-radius: 14px; border: 1.5px solid #13201C; background: #FFFFFF; font-weight: 700; text-align: center; color: #13201C; display: flex; align-items: center; justify-content: center; text-decoration: none; box-sizing: border-box">Lampirkan dokumen pendukung</a>
+        <div style="font-size: 13px; color: #5E6A66">Jumlah, tanggal, Kas/Bank, peruntukan, Lingkup dan Mata Anggaran tidak dapat diubah langsung.</div>
+      </div>
+    </sc-if>
+    <sc-if value="{{tutup}}" hint-placeholder-val="{{false}}">
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <div style="font-size: 14px; color: #43514C"><strong style="color: #13201C">Tidak dapat dilakukan: koreksi dengan pembalikan.</strong> {{bulanNama}} sudah ditutup. Yang masih dapat Anda lakukan:</div>
+        <button onClick="{{keKejadian}}" style="min-height: 52px; border-radius: 14px; border: 0; background: #13201C; color: #FFFFFF; font-weight: 700; text-align: center">Catat kejadian</button>
+        <a href="Kamera.dc.html" style="min-height: 48px; border-radius: 14px; border: 1.5px solid #13201C; background: #FFFFFF; font-weight: 700; text-align: center; color: #13201C; display: flex; align-items: center; justify-content: center; text-decoration: none; box-sizing: border-box">Lampirkan dokumen pendukung</a>
+        <div style="font-size: 13px; color: #5E6A66">Dokumen susulan hanya mengubah Status sekarang, bukan laporan resmi.</div>
+      </div>
+    </sc-if>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{isAp}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; inset: 0">
+  <button onClick="{{keDetail}}" aria-label="Kembali ke transaksi" style="position: absolute; inset: 0; width: 100%; background: rgba(19,32,28,.45); border: 0; animation: pudar .2s"></button>
+  <div style="position: absolute; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-radius: 22px 22px 0 0; padding: 10px 20px 24px; display: flex; flex-direction: column; gap: 14px; animation: naik .28s cubic-bezier(.2,.8,.2,1)">
+    <div style="width: 40px; height: 4px; border-radius: 2px; background: #7F8C86; margin: 0 auto 4px"></div>
+    <div><h2 style="margin: 0; font-size: 18px; font-weight: 700">Catat persetujuan</h2><div style="font-size: 14px; color: #43514C">Anda mencatat persetujuan yang diberikan di luar aplikasi.</div></div>
+    <div><label for="apn" style="display: block; font-size: 14px; color: #43514C; margin-bottom: 6px">Pemberi persetujuan</label><input id="apn" value="{{apNama}}" onChange="{{onApNama}}" style="width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF"></div>
+    <div><label for="apj" style="display: block; font-size: 14px; color: #43514C; margin-bottom: 6px">Jabatan</label><input id="apj" value="{{apJabatan}}" onChange="{{onApJabatan}}" style="width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF"></div>
+    <div><div style="font-size: 14px; color: #43514C; margin-bottom: 6px">Cara</div><div><sc-for list="{{caraChips}}" as="c" hint-placeholder-count="3"><button onClick="{{c.pick}}" aria-pressed="{{c.on}}" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; margin: 0 8px 0 0; border-radius: 999px; border: 1.5px solid {{c.bd}}; background: {{c.bg}}; color: {{c.fg}}; font-weight: 600; font-size: 14px">{{c.n}}</button></sc-for></div></div>
+    <div style="display: flex; justify-content: space-between; align-items: center; min-height: 44px; border-top: 1px solid #DDE2DB"><div style="font-size: 14px; color: #43514C">Tanggal persetujuan</div><div style="font-weight: 600; font-size: 15px">8 November 2026</div></div>
+    <button onClick="{{simpanAp}}" style="min-height: 52px; border-radius: 14px; border: 0; background: #0E5A63; color: #FFFFFF; font-weight: 700; text-align: center">Catat persetujuan</button>
+    <div style="font-size: 13px; color: #5E6A66">Catatan yang keliru digantikan catatan baru, tidak diubah.</div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{isKoreksi}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column; animation: masuk .28s cubic-bezier(.2,.8,.2,1)">
+  <div style="display: flex; align-items: center; gap: 8px; padding: 14px 12px 8px">
+    <button onClick="{{keDetail}}" aria-label="Kembali" style="flex: none; width: 44px; height: 44px; background: none; border: 0; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+    <h1 style="margin: 0; flex: 1; font-size: 18px; font-weight: 700">Koreksi dengan pembalikan</h1>
+  </div>
+  <div style="flex: 1; overflow-y: auto; padding: 8px 20px 20px; display: flex; flex-direction: column; gap: 18px">
+    <div style="font-size: 14px; color: #43514C">Transaksi <span style="font-family: 'IBM Plex Mono', monospace; color: #13201C">BKU-2026-0139</span> tetap tercatat. Sebuah pembalikan meniadakan pengaruhnya, lalu transaksi koreksi mencatat yang benar.</div>
+    <div><label for="alasan" style="display: block; font-size: 14px; color: #43514C; margin-bottom: 6px">Alasan <span style="color: #13201C; font-weight: 700">· wajib</span></label><textarea id="alasan" rows="2" value="{{alasan}}" onChange="{{onAlasan}}" placeholder="Contoh: Mata Anggaran keliru" style="width: 100%; box-sizing: border-box; padding: 12px 14px; border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF; resize: none"></textarea></div>
+    <div>
+      <div style="font-size: 14px; color: #43514C; margin-bottom: 8px">Yang dibuat</div>
+      <sc-for list="{{mode}}" as="m" hint-placeholder-count="2">
+        <button onClick="{{m.pick}}" aria-pressed="{{m.on}}" style="display: flex; align-items: center; gap: 12px; width: 100%; min-height: 60px; margin-bottom: 8px; padding: 10px 14px; border-radius: 14px; background: #FFFFFF; border: {{m.bd}}">
+          <div style="flex: none; width: 20px; height: 20px; border-radius: 50%; border: 2px solid #13201C; display: flex; align-items: center; justify-content: center"><div style="width: 10px; height: 10px; border-radius: 50%; background: {{m.dot}}"></div></div>
+          <div style="flex: 1"><div style="font-weight: 600; font-size: 15px">{{m.n}}</div><div style="font-size: 13px; color: #5E6A66">{{m.s}}</div></div>
+        </button>
+      </sc-for>
+    </div>
+    <sc-if value="{{denganKoreksi}}" hint-placeholder-val="{{true}}">
+      <div>
+        <div style="font-size: 14px; color: #43514C; margin-bottom: 8px">Mata Anggaran pada transaksi koreksi</div>
+        <sc-for list="{{maPilihan}}" as="m" hint-placeholder-count="2">
+          <button onClick="{{m.pick}}" aria-pressed="{{m.on}}" style="display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; margin-bottom: 8px; padding: 8px 14px; border-radius: 12px; background: #FFFFFF; border: {{m.bd}}"><div style="flex: 1"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #43514C">Belanja {{m.k}}</div><div style="font-weight: 600; font-size: 15px">{{m.n}}</div></div><div style="font-size: 13px; color: #5E6A66">{{m.cat}}</div></button>
+        </sc-for>
+      </div>
+    </sc-if>
+    <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px">
+      <div style="font-weight: 700; font-size: 15px">Yang ikut terdampak</div>
+      <div style="font-size: 14px; color: #43514C">Bulan terdampak: November 2026 · Belum ditutup</div>
+      <div style="font-size: 14px; color: #43514C">Persetujuan pada transaksi asal tidak ikut pindah ke transaksi koreksi.</div>
+      <div style="font-size: 14px; color: #43514C">Tidak ada uang muka, titipan atau pencocokan rekening koran yang terkait.</div>
+    </div>
+  </div>
+  <div style="padding: 12px 20px 22px; background: #FFFFFF; border-top: 1px solid #DDE2DB; display: flex; flex-direction: column; gap: 8px">
+    <sc-if value="{{tanpaAlasan}}" hint-placeholder-val="{{true}}"><div style="font-size: 14px; color: #43514C">Isi alasan untuk melanjutkan.</div></sc-if>
+    <button onClick="{{bukukan}}" disabled="{{tanpaAlasan}}" style="min-height: 52px; border-radius: 14px; border: 0; background: {{btnBg}}; color: {{btnFg}}; font-weight: 700; text-align: center">{{btnTeks}}</button>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{isHasil}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column; animation: pudar .2s">
+  <div style="padding: 24px 20px 8px"><h1 style="margin: 0; font-size: 22px; font-weight: 700">Koreksi dibukukan</h1><div style="font-size: 14px; color: #43514C">{{hasilTeks}}</div></div>
+  <div style="flex: 1; overflow-y: auto; padding: 12px 20px 20px; display: flex; flex-direction: column; align-items: stretch">
+    <div style="background: #FFFFFF; border: 1.5px solid #5E6A66; border-radius: 14px; padding: 12px 16px">
+      <div style="display: flex; justify-content: space-between; align-items: center"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #43514C">BKU-2026-0139</div><div style="font-size: 13px; font-weight: 700; border: 1.5px solid #5E6A66; color: #43514C; border-radius: 6px; padding: 3px 9px; animation: cap .5s .2s both">Dibalik</div></div>
+      <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 4px"><div style="font-weight: 600; font-size: 15px; color: #43514C">Transaksi asal</div><div style="font-family: 'IBM Plex Mono', monospace; font-weight: 500; color: #43514C">−Rp750.000</div></div>
+      <div style="font-size: 13px; color: #5E6A66">Belanja 5.02.01.00 Alat tulis dan fotokopi · tetap tampil di daftar dan laporan</div>
+    </div>
+    <div style="width: 2px; background: #13201C; margin-left: 28px; animation: tali .25s .5s both"></div>
+    <div style="background: #FFFFFF; border: 1.5px solid #13201C; border-radius: 14px; padding: 12px 16px; transform-origin: top; animation: balik .5s .7s cubic-bezier(.2,.8,.2,1) both">
+      <div style="display: flex; justify-content: space-between; align-items: center"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #43514C">BKU-2026-0144</div><div style="font-size: 13px; font-weight: 700; background: #13201C; color: #FFFFFF; border-radius: 6px; padding: 4px 10px">Dibukukan</div></div>
+      <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 4px"><div style="font-weight: 600; font-size: 15px">Pembalikan</div><div style="font-family: 'IBM Plex Mono', monospace; font-weight: 500">Rp750.000</div></div>
+      <div style="font-size: 13px; color: #5E6A66">Pembalikan dari No. Bukti BKU-2026-0139 · tidak dapat diubah atau dibalik</div>
+    </div>
+    <sc-if value="{{denganKoreksi}}" hint-placeholder-val="{{true}}">
+      <div style="width: 2px; background: #13201C; margin-left: 28px; animation: tali .25s 1.2s both"></div>
+      <div style="background: #FFFFFF; border: 1.5px solid #13201C; border-radius: 14px; padding: 12px 16px; animation: muncul .4s 1.4s both">
+        <div style="display: flex; justify-content: space-between; align-items: center"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #43514C">BKU-2026-0145</div><div style="font-size: 13px; font-weight: 700; background: #13201C; color: #FFFFFF; border-radius: 6px; padding: 4px 10px">Dibukukan</div></div>
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 4px"><div style="font-weight: 600; font-size: 15px">Transaksi koreksi</div><div style="font-family: 'IBM Plex Mono', monospace; font-weight: 500">−Rp750.000</div></div>
+        <div style="font-size: 13px; color: #5E6A66">Koreksi dari No. Bukti BKU-2026-0139 · Belanja {{maBaru}}</div>
+      </div>
+    </sc-if>
+    <div style="margin-top: 18px; display: flex; justify-content: space-between; align-items: baseline; border-top: 1.5px solid #13201C; padding-top: 12px; animation: muncul .4s 1.7s both"><div style="font-weight: 700; font-size: 15px">Pengaruh pada Saldo buku Kas</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 20px; font-weight: 600">{{pengaruh}}</div></div>
+    <div style="font-size: 13px; color: #5E6A66; margin-top: 4px; animation: muncul .4s 1.7s both">Alasan: {{alasan}}</div>
+  </div>
+  <div style="padding: 12px 20px 22px; background: #FFFFFF; border-top: 1px solid #DDE2DB"><button onClick="{{keDetail}}" style="width: 100%; min-height: 52px; border-radius: 14px; border: 1.5px solid #13201C; background: #FFFFFF; font-weight: 700; text-align: center">Kembali ke transaksi asal</button></div>
+</div>
+</sc-if>
+
+<sc-if value="{{isKejadian}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column; animation: masuk .28s cubic-bezier(.2,.8,.2,1)">
+  <div style="display: flex; align-items: center; gap: 8px; padding: 14px 12px 8px">
+    <button onClick="{{keDetail}}" aria-label="Kembali" style="flex: none; width: 44px; height: 44px; background: none; border: 0; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+    <h1 style="margin: 0; flex: 1; font-size: 18px; font-weight: 700">Catat kejadian</h1>
+  </div>
+  <div style="flex: 1; overflow-y: auto; padding: 8px 20px 20px; display: flex; flex-direction: column; gap: 16px">
+    <div style="background: #13201C; color: #FFFFFF; border-radius: 14px; padding: 14px 16px; font-size: 14px">Kejadian setelah tutup buku hanya mencatat. Kejadian tidak mengubah angka apa pun, tidak menghapus selisih, dan tidak menghilangkan hambatan tutup buku.</div>
+    <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 4px 16px">
+      <div style="display: flex; justify-content: space-between; gap: 16px; padding: 11px 0"><div style="font-size: 14px; color: #43514C">Periode</div><div style="font-size: 14px; font-weight: 600">{{bulanNama}} · Sudah ditutup</div></div>
+      <div style="display: flex; justify-content: space-between; gap: 16px; padding: 11px 0; border-top: 1px solid #DDE2DB"><div style="font-size: 14px; color: #43514C">Transaksi</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; font-weight: 600">BKU-2026-0139</div></div>
+    </div>
+    <div><label for="kj" style="display: block; font-size: 14px; color: #43514C; margin-bottom: 6px">Penjelasan <span style="color: #13201C; font-weight: 700">· wajib</span></label><textarea id="kj" rows="3" value="{{kejadian}}" onChange="{{onKejadian}}" placeholder="Apa yang ditemukan, apa adanya" style="width: 100%; box-sizing: border-box; padding: 12px 14px; border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF; resize: none"></textarea></div>
+    <div><label for="kd" style="display: block; font-size: 14px; color: #43514C; margin-bottom: 6px">Dampak pada rekonsiliasi</label><input id="kd" placeholder="Misalnya: tidak ada" style="width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF"></div>
+    <div><label for="kp" style="display: block; font-size: 14px; color: #43514C; margin-bottom: 6px">Penanggung jawab</label><input id="kp" placeholder="Nama dan jabatan" style="width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF"></div>
+    <div style="font-size: 13px; color: #5E6A66">Penyelesaian keuangan dicatat terpisah dari penjelasan, setelah ada keputusan Jemaat.</div>
+  </div>
+  <div style="padding: 12px 20px 22px; background: #FFFFFF; border-top: 1px solid #DDE2DB"><button onClick="{{simpanKejadian}}" disabled="{{tanpaKejadian}}" style="width: 100%; min-height: 52px; border-radius: 14px; border: 0; background: {{kjBg}}; color: {{kjFg}}; font-weight: 700; text-align: center">Catat kejadian</button></div>
+</div>
+</sc-if>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"jabatanKosong":{"editor":"boolean","default":false},"bulanTransaksi":{"editor":"enum","options":["Belum ditutup","Sudah ditutup"],"default":"Belum ditutup"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  state = { screen: 'detail', ap: false, apNama: 'Pdt. Lidya Rondonuwu', apJabatan: 'Ketua BPMJ', apCara: 'notulen rapat', alasan: '', mode: 'koreksi', ma: 1, dibalik: false, kejadian: '', kejadianAda: false };
+  MA = [{ k: '5.02.01.00', n: 'Alat tulis dan fotokopi', cat: 'asal' }, { k: '5.04.01.00', n: 'Konsumsi rapat', cat: '' }];
+  rv0() {
+    var self = this, s = this.state;
+    var tutup = (this.props.bulanTransaksi ?? 'Belum ditutup') === 'Sudah ditutup';
+    var bulanNama = tutup ? 'Oktober 2026' : 'November 2026';
+    var sel = function (on) { return on ? '2px solid #13201C' : '1px solid #7F8C86'; };
+    var st = s.dibalik ? { stTeks: 'Dibalik', stBg: '#FFFFFF', stFg: '#43514C', stBd: '#5E6A66' } : { stTeks: 'Dibukukan', stBg: '#13201C', stFg: '#FFFFFF', stBd: '#13201C' };
+    var okAlasan = s.alasan.trim().length > 0, okKj = s.kejadian.trim().length > 0, kor = s.mode === 'koreksi';
+    return Object.assign({
+      isDetail: s.screen === 'detail' || s.screen === 'ap', isAp: s.screen === 'ap', isKoreksi: s.screen === 'koreksi', isHasil: s.screen === 'hasil', isKejadian: s.screen === 'kejadian',
+      tutup: tutup, buka: !tutup && !s.dibalik, bulanNama: bulanNama, tglTeks: tutup ? '9 Oktober 2026' : '9 November 2026',
+      dibalik: s.dibalik, belumDibalik: !s.dibalik,
+      rinci: [['Kas/Bank', 'Kas'], ['Diambil dari peruntukan', 'Umum Jemaat'], ['Lingkup', 'Jemaat'], ['Mata Anggaran', 'Belanja 5.02.01.00 Alat tulis dan fotokopi'], ['Versi Mata Anggaran', '2026.1'], ['Dibukukan pada', (tutup ? '09/10/2026' : '09/11/2026') + ' 14.12']].map(function (d, i) { return { k: d[0], v: d[1], garis: i ? '1px solid #DDE2DB' : '0' }; }),
+      apAda: s.ap, apBisa: !s.ap && !tutup && !s.dibalik, apJudul: s.ap ? 'Persetujuan sudah dicatat' : 'Persetujuan belum dicatat',
+      apBg: s.ap ? '#FFFFFF' : 'transparent', apBd: s.ap ? '1px solid #DDE2DB' : '1.5px dashed #808D87',
+      apNama: s.apNama, apJabatan: s.apJabatan, apCara: s.apCara,
+      caraChips: ['surat', 'notulen rapat', 'pesan'].map(function (c) { var on = s.apCara === c; return { n: c, on: on, bg: on ? '#13201C' : '#FFFFFF', fg: on ? '#FFFFFF' : '#13201C', bd: on ? '#13201C' : '#7F8C86', pick: function () { self.setState({ apCara: c }); } }; }),
+      alasan: s.alasan, tanpaAlasan: !okAlasan, denganKoreksi: kor,
+      mode: [{ id: 'koreksi', n: 'Pembalikan dan transaksi koreksi', s: 'Keduanya dibukukan bersama, atau tidak sama sekali' }, { id: 'balik', n: 'Pembalikan saja', s: 'Transaksi ini seharusnya tidak ada' }].map(function (m) { var on = s.mode === m.id; return Object.assign(m, { on: on, bd: sel(on), dot: on ? '#13201C' : 'transparent', pick: function () { self.setState({ mode: m.id }); } }); }),
+      maPilihan: this.MA.map(function (m, i) { var on = s.ma === i; return Object.assign({}, m, { on: on, bd: sel(on), pick: function () { self.setState({ ma: i }); } }); }),
+      btnTeks: kor ? 'Bukukan pembalikan dan koreksi' : 'Bukukan pembalikan', btnBg: okAlasan ? '#0E5A63' : '#DDE2DB', btnFg: okAlasan ? '#FFFFFF' : '#5E6A66',
+      hasilTeks: kor ? 'Dua No. Bukti baru dibukukan bersama sebagai satu rangkaian.' : 'Satu No. Bukti baru dibukukan.',
+      maBaru: this.MA[s.ma].k + ' ' + this.MA[s.ma].n, pengaruh: kor ? 'Rp0' : '+Rp750.000',
+      kejadian: s.kejadian, tanpaKejadian: !okKj, kjBg: okKj ? '#13201C' : '#DDE2DB', kjFg: okKj ? '#FFFFFF' : '#5E6A66',
+      kejadianAda: s.kejadianAda && tutup, kejadianTeks: s.kejadian,
+      keDetail: function () { self.setState({ screen: 'detail' }); },
+      keHasil: function () { self.setState({ screen: 'hasil' }); },
+      bukaAp: function () { self.setState({ screen: 'ap' }); },
+      simpanAp: function () { self.setState({ screen: 'detail', ap: true }); },
+      onApNama: function (e) { self.setState({ apNama: e.target.value }); },
+      onApJabatan: function (e) { self.setState({ apJabatan: e.target.value }); },
+      keKoreksi: function () { self.setState({ screen: 'koreksi' }); },
+      onAlasan: function (e) { self.setState({ alasan: e.target.value }); },
+      bukukan: function () { if (okAlasan) self.setState({ screen: 'hasil', dibalik: true }); },
+      keKejadian: function () { self.setState({ screen: 'kejadian' }); },
+      onKejadian: function (e) { self.setState({ kejadian: e.target.value }); },
+      simpanKejadian: function () { if (okKj) self.setState({ screen: 'detail', kejadianAda: true }); }
+    }, st);
+  }
+  tukarJk(o, d) {
+    var self = this, ganti = function (s) { var t = s.match(/\d\d\/\d\d\/\d{4}/g) || []; return s.indexOf('Meiske L.') < 0 || t.some(function (x) { return x !== '16/11/2026'; }) ? s : s.split('Meiske L.').join('Yanti Sumual, Operator'); };
+    if (d > 5 || !o || typeof o !== 'object') return o;
+    Object.keys(o).forEach(function (k) { var v = o[k]; if (typeof v === 'string') o[k] = ganti(v); else if (v && typeof v === 'object') self.tukarJk(v, d + 1); });
+    return o;
+  }
+  renderVals() {
+    var V = this.rv0(), jk = !!this.props.jabatanKosong;
+    if (jk && true) this.tukarJk(V, 0);
+    V.jk = jk; V.tjk = !jk; V.plk = jk ? 'Yanti Sumual, Operator' : 'Meiske L.'; V.plk2 = jk ? 'Yanti Sumual, Operator (menjalankan jabatan kosong Bendahara Jemaat)' : 'Meiske L.';
+    return V;
+  }
+}
+</script>
+</body>
+</html>

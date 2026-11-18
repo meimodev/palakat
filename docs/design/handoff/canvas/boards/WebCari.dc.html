@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Cari dan tanya (web)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+input{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes isi{from{width:0}to{width:100%}}
+@keyframes titik{0%,100%{opacity:.25}50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+.pn-c{display:none}
+@media (max-width:860px){
+.pn{flex:1 1 100%!important;flex-direction:row!important;flex-wrap:wrap;align-items:center;gap:0 12px!important;padding:8px 16px!important;border-right:0!important;border-bottom:1px solid #DDE2DB}
+.pn-c{display:flex;align-items:center;appearance:none;-webkit-appearance:none;min-height:44px;margin:0 0 0 auto;padding:0 16px;border-radius:14px;border:1.5px solid #13201C;background:#FFFFFF;font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+.pn-c::before{content:"Menu"}
+.pn-c:checked{background:#13201C;color:#FFFFFF}
+.pn-c:checked::before{content:"Tutup menu"}
+.pn-l,.pn-w{display:none;flex:1 1 100%}
+.pn-c:checked~.pn-l{display:block;padding:8px 0}
+.pn-c:checked~.pn-w{display:block;margin-top:0!important;padding-bottom:8px!important}
+}
+</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; flex-wrap: wrap; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 15px; line-height: 1.45">
+
+  <nav class="pn" style="flex: 1 1 220px; box-sizing: border-box; padding: 24px 16px; background: #FFFFFF; border-right: 1px solid #DDE2DB; display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px">
+      <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="none" stroke="#0E5A63" stroke-width="2" stroke-dasharray="3 3"/><path d="M12 2h4a6 6 0 0 1 6 6v8a6 6 0 0 1-6 6h-4z" fill="#0E5A63"/></svg>
+      <div><div style="font-weight: 700; font-size: 18px; line-height: 1.1">palakat</div><div style="font-size: 13px; color: #5E6A66">Jemaat Karunia</div></div>
+    </div>
+    <input type="checkbox" class="pn-c" aria-label="Menu">
+    <div class="pn-l">
+      <sc-for list="{{nav}}" as="n" hint-placeholder-count="7">
+        <a href="{{n.href}}" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 10px; text-decoration: none; font-weight: 600; background: {{n.bg}}; color: {{n.fg}}">{{n.n}}</a>
+      </sc-for>
+    </div>
+    <div class="pn-w" style="margin-top: auto; padding: 12px 8px 0; border-top: 1px solid #DDE2DB; font-size: 13px; color: #43514C"><sc-if value="{{tjk}}" hint-placeholder-val="{{true}}"><div><strong style="color: #13201C">Meiske L.</strong> · Bendahara<br>Wewenang Bendahara aktif</div></sc-if><sc-if value="{{jk}}" hint-placeholder-val="{{false}}"><div><strong style="color: #13201C">Yanti Sumual</strong> · Operator<br>Menjalankan jabatan kosong Bendahara Jemaat</div></sc-if></div>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 28px clamp(16px, 3vw, 40px) 40px; display: flex; flex-direction: column; gap: 20px">
+<sc-if value="{{jk}}" hint-placeholder-val="{{false}}"><div role="status" style="background: #13201C; color: #FFFFFF; border-radius: 14px; padding: 12px 16px; font-size: 14px"><strong>Anda menjalankan jabatan kosong Bendahara Jemaat sejak 16/11/2026 08.15.</strong> <span style="color: #D5DDD8">Setiap tindakan dicatat sebagai dijalankan oleh Operator Yanti Sumual.</span></div></sc-if>
+<h1 style="margin: 0; font-size: 26px; font-weight: 700">Cari</h1>
+    <div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start"><div style="flex: 999 1 480px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+      <input aria-label="Cari transaksi" value="{{q}}" onChange="{{onQ}}" placeholder="Cari dengan kata sehari-hari" style="width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF; min-height: 52px; font-size: 16px">
+      <sc-if value="{{ada}}" hint-placeholder-val="{{true}}">
+        <div><div style="font-size: 14px; color: #43514C">Dibaca sebagai: Pendapatan 1.3.53.07.00 Persembahan Ibadah Minggu · Oktober 2026 · ibadah pagi</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 30px; font-weight: 500; letter-spacing: -1px">Rp10.950.000</div><div style="font-size: 13px; color: #5E6A66">Jumlah dari 4 transaksi yang sudah dibukukan. Angka ini dihitung aplikasi dari catatan, bukan oleh AI.</div></div>
+        <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 0 16px"><sc-for list="{{rows}}" as="r" hint-placeholder-count="4"><a href="WebTransaksi.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 56px; border-top: {{r.garis}}; text-decoration: none; color: #13201C"><span style="flex: 1"><span style="display: block; font-weight: 600; font-size: 15px">Persembahan Ibadah Minggu</span><span style="display: block; font-size: 13px; color: #5E6A66"><span style="font-family: 'IBM Plex Mono', monospace">{{r.no}}</span> · {{r.tgl}} · Kas</span></span><span style="font-family: 'IBM Plex Mono', monospace; font-weight: 500">{{r.rp}}</span></a></sc-for></div>
+      </sc-if>
+      <sc-if value="{{kosong}}" hint-placeholder-val="{{false}}"><div style="border: 1.5px dashed #808D87; border-radius: 14px; padding: 16px; font-size: 14px; color: #43514C">Tidak ada transaksi yang cocok di Jemaat Karunia.</div></sc-if>
+</div><aside style="flex: 1 1 380px; min-width: 0">
+      <div style="background: #E1EEED; border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px">
+        <div style="font-size: 13px; font-weight: 700; color: #0A4249; letter-spacing: .3px">BANTUAN AI · PILIHAN</div>
+        <sc-if value="{{aiBelum}}" hint-placeholder-val="{{true}}"><button onClick="{{tanya}}" style="min-height: 44px; border-radius: 12px; border: 1.5px solid #0E5A63; background: #FFFFFF; color: #0A4249; font-weight: 700; text-align: center; padding: 0 16px">Jelaskan hasil ini</button></sc-if>
+        <sc-if value="{{aiProses}}" hint-placeholder-val="{{false}}"><div role="status" style="min-height: 44px; display: flex; align-items: center; font-size: 14px; font-weight: 600; color: #0A4249">Menyusun penjelasan…</div></sc-if>
+        <sc-if value="{{aiAda}}" hint-placeholder-val="{{false}}"><div style="background: #FFFFFF; border: 1.5px dotted #0E5A63; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 6px; animation: muncul .3s"><span style="align-self: flex-start; font-size: 13px; font-weight: 700; color: #0A4249; border: 1.5px dotted #0E5A63; border-radius: 6px; padding: 2px 8px">Usulan AI · penjelasan</span><div style="font-size: 14px; font-style: italic; color: #0A4249">Empat ibadah Minggu pagi di Oktober tercatat, dengan persembahan terbesar pada 4 Oktober. Persembahan 18 Oktober paling kecil; itu bertepatan dengan ibadah padang.</div><div style="font-size: 13px; color: #5E6A66">Berdasarkan 4 transaksi di atas saja. AI tidak melihat peruntukan atau Jemaat lain.</div></div></sc-if>
+        <div style="border-top: 1px solid #C9DAD9; padding-top: 10px; display: flex; flex-direction: column; gap: 8px">
+          <sc-if value="{{nBelum}}" hint-placeholder-val="{{true}}"><button onClick="{{buatNarasi}}" style="min-height: 44px; border-radius: 12px; border: 1.5px solid #0E5A63; background: #FFFFFF; color: #0A4249; font-weight: 700; text-align: center; padding: 0 16px">Buat usulan narasi bulanan Oktober</button></sc-if>
+          <sc-if value="{{nAda}}" hint-placeholder-val="{{false}}"><div style="background: #FFFFFF; border: 1.5px dotted #0E5A63; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 8px; animation: muncul .3s"><span style="align-self: flex-start; font-size: 13px; font-weight: 700; color: #0A4249; border: 1.5px dotted #0E5A63; border-radius: 6px; padding: 2px 8px">Usulan AI · narasi bulanan</span><div style="font-size: 14px; font-style: italic; color: #0A4249">Pada Oktober 2026 Pendapatan Jemaat Rp14.820.000 dan Belanja Rp11.455.000. Belanja terbesar adalah pemeliharaan gedung. Semua Kas/Bank sudah direkonsiliasi tanpa selisih.</div><div style="display: flex; flex-wrap: wrap; gap: 8px"><button onClick="{{pakaiNarasi}}" style="min-height: 44px; padding: 0 16px; border-radius: 10px; border: 0; background: #0E5A63; color: #FFFFFF; font-weight: 700">Pakai</button><button onClick="{{pakaiNarasi}}" style="min-height: 44px; padding: 0 16px; border-radius: 10px; border: 1.5px solid #13201C; background: #FFFFFF; font-weight: 700">Ubah</button><button onClick="{{abaiNarasi}}" style="min-height: 44px; padding: 0 16px; border-radius: 10px; border: 1.5px solid #13201C; background: #FFFFFF; font-weight: 700">Abaikan</button></div></div></sc-if>
+          <sc-if value="{{nPakai}}" hint-placeholder-val="{{false}}"><div role="status" style="font-size: 14px; font-weight: 600">Narasi disalin ke catatan pengantar laporan dan dapat Anda ubah. Angka di laporan resmi tetap dari catatan.</div></sc-if>
+          <sc-if value="{{nAbai}}" hint-placeholder-val="{{false}}"><div role="status" style="font-size: 14px; font-weight: 600">Diabaikan. Tidak perlu alasan.</div></sc-if>
+        </div>
+        <div style="font-size: 13px; color: #5E6A66; color: #43514C">AI hanya mengusulkan dan tidak memberi angka resmi.</div>
+      </div>
+</aside></div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"jabatanKosong":{"editor":"boolean","default":false},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  rp(n) { var s = String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return (n < 0 ? '−' : '') + 'Rp' + s; }
+  navVals() { return [['Beranda', 'WebBeranda.dc.html'], ['Transaksi', 'WebTransaksi.dc.html'], ['Uang Muka dan Titipan', 'WebKewajiban.dc.html'], ['Rekonsiliasi', 'WebRekonsiliasi.dc.html'], ['Bulan dan tutup buku', 'WebTutupBuku.dc.html'], ['Laporan', 'WebPaketLaporan.dc.html'], ['Pengaturan', 'WebPengaturan.dc.html']].map(function (n, i) { return { n: n[0], href: n[1], bg: i === 1 ? '#13201C' : 'transparent', fg: i === 1 ? '#FFFFFF' : '#13201C' }; }); }
+  state = { q: 'persembahan Minggu pagi bulan Oktober', ai: 'belum', narasi: 'belum' };
+  componentWillUnmount() { clearTimeout(this.t); }
+  vals() {
+    var self = this, s = this.state, cocok = /persembahan|minggu|oktober/i.test(s.q);
+    var R = [['BKU-2026-0098', '04/10/2026', 'Rp3.200.000'], ['BKU-2026-0107', '11/10/2026', 'Rp2.650.000'], ['BKU-2026-0114', '18/10/2026', 'Rp2.400.000'], ['BKU-2026-0123', '25/10/2026', 'Rp2.700.000']];
+    return {
+      q: s.q, onQ: function (e) { self.setState({ q: e.target.value, ai: 'belum' }); },
+      ada: cocok, kosong: !cocok, rows: R.map(function (r, i) { return { no: r[0], tgl: r[1], rp: r[2], garis: i ? '1px solid #DDE2DB' : '0' }; }),
+      aiBelum: s.ai === 'belum' && cocok, aiProses: s.ai === 'proses', aiAda: s.ai === 'ada',
+      tanya: function () { self.setState({ ai: 'proses' }); clearTimeout(self.t); self.t = setTimeout(function () { self.setState({ ai: 'ada' }); }, 1300); },
+      nBelum: s.narasi === 'belum', nAda: s.narasi === 'ada', nPakai: s.narasi === 'pakai', nAbai: s.narasi === 'abai',
+      buatNarasi: function () { self.setState({ narasi: 'ada' }); }, pakaiNarasi: function () { self.setState({ narasi: 'pakai' }); }, abaiNarasi: function () { self.setState({ narasi: 'abai' }); }
+    };
+  }
+
+  rv0() { var V = this.vals(); if (this.navVals) V.nav = this.navVals(); return V; }
+  tukarJk(o, d) {
+    var self = this, ganti = function (s) { var t = s.match(/\d\d\/\d\d\/\d{4}/g) || []; return s.indexOf('Meiske L.') < 0 || t.some(function (x) { return x !== '16/11/2026'; }) ? s : s.split('Meiske L.').join('Yanti Sumual, Operator'); };
+    if (d > 5 || !o || typeof o !== 'object') return o;
+    Object.keys(o).forEach(function (k) { var v = o[k]; if (typeof v === 'string') o[k] = ganti(v); else if (v && typeof v === 'object') self.tukarJk(v, d + 1); });
+    return o;
+  }
+  renderVals() {
+    var V = this.rv0(), jk = !!this.props.jabatanKosong;
+    if (jk && false) this.tukarJk(V, 0);
+    V.jk = jk; V.tjk = !jk; V.plk = jk ? 'Yanti Sumual, Operator' : 'Meiske L.'; V.plk2 = jk ? 'Yanti Sumual, Operator (menjalankan jabatan kosong Bendahara Jemaat)' : 'Meiske L.';
+    return V;
+  }
+}
+</script>
+</body>
+</html>

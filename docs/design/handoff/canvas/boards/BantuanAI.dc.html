@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Bantuan AI saat mencatat (ponsel)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+input,textarea{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes pudar{from{opacity:0}to{opacity:1}}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes titik{0%,100%{opacity:.25}50%{opacity:1}}
+@keyframes turun{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; display: flex; flex-direction: column; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 16px; line-height: 1.4">
+<sc-if value="{{jk}}" hint-placeholder-val="{{false}}"><div role="status" style="flex: none; background: #13201C; color: #FFFFFF; padding: 10px 24px 8px; font-size: 13px; line-height: 1.3; text-align: center"><strong>Menjalankan jabatan kosong</strong> · Bendahara Jemaat</div></sc-if>
+<div style="position: relative; flex: 1; min-height: 0">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column">
+  <div style="display: flex; align-items: center; gap: 8px; padding: 14px 12px 8px">
+    <a href="Main.dc.html" aria-label="Kembali ke Beranda" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #13201C"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></a>
+    <h1 style="margin: 0; flex: 1; font-size: 18px; font-weight: 700">Belanja</h1>
+    <div style="font-size: 13px; font-weight: 600; color: #5E6A66; padding-right: 8px">{{simpanTeks}}</div>
+  </div>
+  <div style="flex: 1; overflow-y: auto; padding: 8px 20px 20px; display: flex; flex-direction: column; gap: 16px">
+
+    <sc-if value="{{aiHidup}}" hint-placeholder-val="{{true}}">
+      <div style="background: #E1EEED; border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px"><label for="kal" style="font-size: 13px; font-weight: 700; color: #0A4249; letter-spacing: .3px">BANTUAN AI · PILIHAN</label><sc-if value="{{peringatan}}" hint-placeholder-val="{{false}}"><span style="font-size: 13px; color: #13201C">Biaya AI bulan ini {{persen}}</span></sc-if></div>
+        <textarea id="kal" rows="2" value="{{kalimat}}" onChange="{{onKalimat}}" style="width: 100%; box-sizing: border-box; padding: 10px 12px; border-radius: 12px; border: 1px solid #0E5A63; background: #FFFFFF; resize: none"></textarea>
+        <sc-if value="{{tBelum}}" hint-placeholder-val="{{true}}"><button onClick="{{buat}}" style="min-height: 44px; border-radius: 12px; border: 1.5px solid #0E5A63; background: #FFFFFF; color: #0A4249; font-weight: 700; text-align: center">Buat usulan dari kalimat ini</button></sc-if>
+        <sc-if value="{{tProses}}" hint-placeholder-val="{{false}}"><div role="status" style="min-height: 44px; display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: #0A4249">Menyusun usulan<span style="display: inline-flex; gap: 4px"><span style="width: 6px; height: 6px; border-radius: 50%; background: #0E5A63; animation: titik 1s infinite"></span><span style="width: 6px; height: 6px; border-radius: 50%; background: #0E5A63; animation: titik 1s .2s infinite"></span><span style="width: 6px; height: 6px; border-radius: 50%; background: #0E5A63; animation: titik 1s .4s infinite"></span></span></div></sc-if>
+
+        <sc-if value="{{tAda}}" hint-placeholder-val="{{false}}">
+          <div style="background: #FFFFFF; border: 1.5px dotted #0E5A63; border-radius: 12px; padding: 4px 14px; animation: muncul .3s">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 0 6px"><span style="font-size: 13px; font-weight: 700; color: #0A4249; border: 1.5px dotted #0E5A63; border-radius: 6px; padding: 2px 8px">Usulan AI</span><span style="font-size: 13px; color: #43514C">{{usulCat}}</span></div>
+            <sc-for list="{{usul}}" as="u" hint-placeholder-count="5">
+              <div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-top: 1px dotted #7F8C86"><div style="font-size: 14px; color: #43514C">{{u.k}}</div><div style="text-align: right"><div style="font-size: 14px; font-weight: 600; font-style: italic; color: #0A4249">{{u.v}}</div><sc-if value="{{u.ragu}}" hint-placeholder-val="{{false}}"><div style="font-size: 13px; color: #13201C; font-weight: 600">AI kurang yakin, mohon dicek</div></sc-if></div></div>
+            </sc-for>
+            <div style="font-size: 13px; color: #5E6A66; padding: 8px 0; border-top: 1px dotted #7F8C86">Peruntukan dan Lingkup tidak diusulkan. Pilih sendiri.</div>
+          </div>
+          <sc-if value="{{basi}}" hint-placeholder-val="{{false}}"><div style="font-size: 14px; font-weight: 600">Usulan lama — draf sudah berubah. Buat usulan baru bila masih perlu.</div></sc-if>
+          <div style="display: flex; gap: 8px">
+            <button onClick="{{pakai}}" disabled="{{basi}}" style="flex: 1; min-height: 46px; border-radius: 12px; border: 0; background: {{pakaiBg}}; color: {{pakaiFg}}; font-weight: 700; text-align: center">Pakai</button>
+            <button onClick="{{pakai}}" disabled="{{basi}}" style="flex: 1; min-height: 46px; border-radius: 12px; border: 1.5px solid #13201C; background: #FFFFFF; font-weight: 700; text-align: center">Ubah</button>
+            <button onClick="{{abaikan}}" style="flex: 1; min-height: 46px; border-radius: 12px; border: 1.5px solid #13201C; background: #FFFFFF; font-weight: 700; text-align: center">Abaikan</button>
+          </div>
+          <div style="font-size: 13px; color: #43514C">Usulan belum mengisi apa pun. Pakai mengisi draf; Ubah mengisi lalu membuka isian untuk diperbaiki. Tidak perlu alasan.</div>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{aiMati}}" hint-placeholder-val="{{false}}">
+      <div style="border: 1px solid #7F8C86; border-radius: 14px; padding: 12px 16px; font-size: 14px; color: #43514C"><strong style="color: #13201C">{{matiJudul}}</strong> {{matiTeks}}</div>
+    </sc-if>
+
+    <div style="display: flex; flex-direction: column; gap: 4px">
+      <div style="font-size: 14px; color: #43514C">Jumlah (Rp)</div>
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 36px; font-weight: 500; letter-spacing: -1px; border-bottom: 2px solid #13201C; padding-bottom: 4px; color: {{jFg}}">{{jumlah}}</div>
+    </div>
+    <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 4px 16px">
+      <sc-for list="{{isian}}" as="f" hint-placeholder-count="6">
+        <div style="display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-top: {{f.garis}}"><div style="font-size: 14px; color: #43514C">{{f.k}}</div><div style="font-size: 14px; font-weight: 600; text-align: right; color: {{f.fg}}; animation: {{f.anim}}">{{f.v}}</div></div>
+      </sc-for>
+    </div>
+    <div style="font-size: 13px; color: #5E6A66">AI hanya mengusulkan. Membukukan, memverifikasi dokumen dan menutup buku selalu dilakukan orang.</div>
+  </div>
+  <div style="padding: 12px 20px 22px; background: #FFFFFF; border-top: 1px solid #DDE2DB; display: flex; flex-direction: column; gap: 6px">
+    <a href="Main.dc.html" style="min-height: 52px; border-radius: 14px; border: 0; background: #0E5A63; color: #FFFFFF; font-weight: 700; text-align: center; display: flex; align-items: center; justify-content: center; text-decoration: none; box-sizing: border-box">Periksa dan bukukan</a>
+    <a href="Main.dc.html" style="min-height: 44px; border: 0; background: none; color: #0E5A63; font-weight: 700; text-align: center; display: flex; align-items: center; justify-content: center; text-decoration: none; box-sizing: border-box">Simpan sebagai draf</a>
+  </div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"jabatanKosong":{"editor":"boolean","default":false},"keadaanAI":{"editor":"enum","options":["tersedia","biaya 70%","batas biaya tercapai","sedang tidak tersedia"],"default":"tersedia"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  state = { kalimat: 'Bayar PLN Rp1.250.000 dari BNI tanggal 6 Oktober', tahap: 'belum', dasar: '', dipakai: false };
+  componentWillUnmount() { clearTimeout(this.t); }
+  rv0() {
+    var self = this, s = this.state, k = this.props.keadaanAI ?? 'tersedia';
+    var mati = k === 'batas biaya tercapai' || k === 'sedang tidak tersedia';
+    var basi = s.tahap === 'ada' && s.kalimat !== s.dasar;
+    var p = s.dipakai;
+    var isi = [['Kas/Bank', p ? 'Bank BNI ··4821' : ''], ['Dibayar kepada', p ? 'PLN' : ''], ['Tanggal transaksi', p ? '6 Oktober 2026' : '16 November 2026', 1], ['Mata Anggaran', p ? 'Belanja 5.01.02.00 Listrik, air dan telepon' : ''], ['Diambil dari peruntukan', ''], ['Lingkup', '']];
+    return {
+      aiHidup: !mati, aiMati: mati, peringatan: k === 'biaya 70%', persen: '70% dari batas',
+      matiJudul: k === 'batas biaya tercapai' ? 'Batas biaya AI per bulan tercapai.' : 'AI sedang tidak tersedia.',
+      matiTeks: k === 'batas biaya tercapai' ? 'Bantuan AI berhenti sampai Desember 2026. Mencatat, membukukan dan tutup buku berjalan seperti biasa.' : 'Mencatat, membukukan dan tutup buku berjalan seperti biasa.',
+      kalimat: s.kalimat, tBelum: s.tahap === 'belum', tProses: s.tahap === 'proses', tAda: s.tahap === 'ada', basi: basi,
+      usulCat: 'dari kalimat Anda',
+      usul: [['Jumlah (Rp)', 'Rp1.250.000'], ['Kas/Bank', 'Bank BNI ··4821'], ['Dibayar kepada', 'PLN'], ['Tanggal transaksi', '6 Oktober 2026'], ['Mata Anggaran', 'Belanja 5.01.02.00 Listrik, air dan telepon', 1]].map(function (u) { return { k: u[0], v: u[1], ragu: !!u[2] }; }),
+      pakaiBg: basi ? '#DDE2DB' : '#0E5A63', pakaiFg: basi ? '#5E6A66' : '#FFFFFF',
+      jumlah: p ? 'Rp1.250.000' : 'Rp0', jFg: p ? '#13201C' : '#5E6A66',
+      isian: isi.map(function (f, i) { var ada = !!f[1]; return { k: f[0], v: ada ? f[1] : 'Belum diisi', fg: ada ? '#13201C' : '#5E6A66', garis: i ? '1px solid #DDE2DB' : '0', anim: (p && ada && !(f[2] && !p)) ? 'turun .4s ' + (i * 70) + 'ms both' : 'none' }; }),
+      simpanTeks: p ? 'Tersimpan · Draf' : 'Belum tersimpan',
+      onKalimat: function (e) { self.setState({ kalimat: e.target.value }); },
+      buat: function () { var d = s.kalimat; self.setState({ tahap: 'proses' }); clearTimeout(self.t); self.t = setTimeout(function () { self.setState({ tahap: 'ada', dasar: d }); }, 1300); },
+      pakai: function () { if (!basi) self.setState({ dipakai: true, tahap: 'belum' }); },
+      abaikan: function () { self.setState({ tahap: 'belum' }); }
+    };
+  }
+  tukarJk(o, d) {
+    var self = this, ganti = function (s) { var t = s.match(/\d\d\/\d\d\/\d{4}/g) || []; return s.indexOf('Meiske L.') < 0 || t.some(function (x) { return x !== '16/11/2026'; }) ? s : s.split('Meiske L.').join('Yanti Sumual, Operator'); };
+    if (d > 5 || !o || typeof o !== 'object') return o;
+    Object.keys(o).forEach(function (k) { var v = o[k]; if (typeof v === 'string') o[k] = ganti(v); else if (v && typeof v === 'object') self.tukarJk(v, d + 1); });
+    return o;
+  }
+  renderVals() {
+    var V = this.rv0(), jk = !!this.props.jabatanKosong;
+    if (jk && false) this.tukarJk(V, 0);
+    V.jk = jk; V.tjk = !jk; V.plk = jk ? 'Yanti Sumual, Operator' : 'Meiske L.'; V.plk2 = jk ? 'Yanti Sumual, Operator (menjalankan jabatan kosong Bendahara Jemaat)' : 'Meiske L.';
+    return V;
+  }
+}
+</script>
+</body>
+</html>

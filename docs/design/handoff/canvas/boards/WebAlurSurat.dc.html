@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Alur · Permohonan surat (web)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+input{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes isi{from{width:0}to{width:100%}}
+@keyframes titik{0%,100%{opacity:.25}50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+.pn-c{display:none}
+@media (max-width:860px){
+.pn{flex:1 1 100%!important;flex-direction:row!important;flex-wrap:wrap;align-items:center;gap:0 12px!important;padding:8px 16px!important;border-right:0!important;border-bottom:1px solid #DDE2DB}
+.pn-c{display:flex;align-items:center;appearance:none;-webkit-appearance:none;min-height:44px;margin:0 0 0 auto;padding:0 16px;border-radius:14px;border:1.5px solid #13201C;background:#FFFFFF;font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+.pn-c::before{content:"Menu"}
+.pn-c:checked{background:#13201C;color:#FFFFFF}
+.pn-c:checked::before{content:"Tutup menu"}
+.pn-l,.pn-w{display:none;flex:1 1 100%}
+.pn-c:checked~.pn-l{display:block;padding:8px 0}
+.pn-c:checked~.pn-w{display:block;margin-top:0!important;padding-bottom:8px!important}
+}
+</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; flex-wrap: wrap; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 15px; line-height: 1.45">
+
+  <nav class="pn" style="flex: 1 1 220px; box-sizing: border-box; padding: 24px 16px; background: #FFFFFF; border-right: 1px solid #DDE2DB; display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px">
+      <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="none" stroke="#0E5A63" stroke-width="2" stroke-dasharray="3 3"/><path d="M12 2h4a6 6 0 0 1 6 6v8a6 6 0 0 1-6 6h-4z" fill="#0E5A63"/></svg>
+      <div><div style="font-weight: 700; font-size: 18px; line-height: 1.1">palakat</div><div style="font-size: 13px; color: #5E6A66">Jemaat Karunia</div></div>
+    </div>
+    <input type="checkbox" class="pn-c" aria-label="Menu">
+    <div class="pn-l">
+      <sc-for list="{{nav}}" as="n" hint-placeholder-count="7">
+        <a href="{{n.href}}" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 10px; text-decoration: none; font-weight: 600; background: {{n.bg}}; color: {{n.fg}}">{{n.n}}</a>
+      </sc-for>
+    </div>
+    <div class="pn-w" style="margin-top: auto; padding: 12px 8px 0; border-top: 1px solid #DDE2DB; font-size: 13px; color: #43514C"><strong style="color: #13201C">Olvie Pangemanan</strong> · Sekretaris Jemaat</div>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 28px clamp(16px, 3vw, 40px) 40px; display: flex; flex-direction: column; gap: 20px">
+<div><a href="WebPermohonanSurat.dc.html" style="font-size: 14px; font-weight: 600">Permohonan surat</a><h1 style="margin: 2px 0 0; font-size: 26px; font-weight: 700">Alur · Permohonan surat</h1><div style="font-size: 14px; color: #43514C">Dari permohonan anggota sampai surat diterbitkan atau tidak</div></div><div style="max-width: 1120px; display: flex; flex-direction: column; gap: 16px"><sc-if value="{{v_daftar}}" hint-placeholder-val="{{false}}"><sc-if value="{{pesanAda}}" hint-placeholder-val="{{false}}"><div role="status" style="background: #E1EEED; border-radius: 12px; padding: 12px 14px; font-size: 14px"><span>{{pesan}}</span></div></sc-if><sc-for list="{{mohon}}" as="r" hint-placeholder-count="3"><div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 12px 16px; display: flex; flex-direction: column; gap: 6px"><div style="display: flex; justify-content: space-between; gap: 16px; align-items: center"><span style="font-weight: 700">{{r.j}}</span><span style="flex: none; font-size: 13px; font-weight: 700; border-radius: 6px; padding: 3px 9px; {{r.ls}}">{{r.l}}</span></div><div style="font-size: 13px; color: #5E6A66"><span>{{r.s}}</span></div><sc-if value="{{r.buka1}}" hint-placeholder-val="{{false}}"><button onClick="{{r.buka}}" style="min-height: 48px; border-radius: 14px; border: 1.5px solid #13201C; background: #FFFFFF; color: #13201C; font-weight: 700; text-align: center; padding: 0 16px; align-self: flex-start">Buka permohonan</button></sc-if></div></sc-for><div style="font-size: 13px; color: #5E6A66">Permohonan datang dari anggota, atau dicatat Operator di kantor untuk anggota tanpa ponsel.</div><sc-if value="{{riwAda}}" hint-placeholder-val="{{false}}"><h2 style="margin: 0; font-size: 16px; font-weight: 700">Riwayat</h2><div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 4px 16px; display: flex; flex-direction: column"><sc-for list="{{riw}}" as="r" hint-placeholder-count="2"><div style="padding: 8px 0; border-top: 1px solid #DDE2DB; margin-top: -1px; font-size: 13px; color: #5E6A66"><span>{{r.t}}</span></div></sc-for></div></sc-if></sc-if><sc-if value="{{v_buka}}" hint-placeholder-val="{{false}}"><div style="display: flex; flex-wrap: wrap; gap: 20px 28px; align-items: flex-start"><div style="flex: 1.3 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 12px"><div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px"><div style="display: flex; justify-content: space-between; gap: 16px; align-items: center"><span style="font-weight: 700"><span>{{pJudul}}</span></span><span style="flex: none; font-size: 13px; font-weight: 700; border-radius: 6px; padding: 3px 9px; color: #43514C; border: 1.5px solid #5E6A66; background: #FFFFFF">Diajukan</span></div><div style="display: flex; justify-content: space-between; gap: 16px; font-size: 14px"><span style="color: #43514C">Nama</span><span style="text-align: right; font-weight: 600"><span>{{pNama}}</span></span></div><div style="display: flex; justify-content: space-between; gap: 16px; font-size: 14px"><span style="color: #43514C">Keluarga · Kolom</span><span style="text-align: right; font-weight: 600"><span>{{pKel}}</span></span></div><div style="display: flex; justify-content: space-between; gap: 16px; font-size: 14px"><span style="color: #43514C">Status</span><span style="text-align: right; font-weight: 600">Aktif</span></div><div style="font-size: 13px; color: #5E6A66">Diambil dari Data jemaat yang sudah Diverifikasi. Sekretaris Jemaat membaca, tidak mengubah.</div></div><label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: #43514C"><span>Nomor surat</span><input value="{{no}}" onChange="{{onNo}}" placeholder="Contoh: 027/SKet/XI/2026" style="width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF; min-height: 48px"><span style="font-size: 13px; color: #5E6A66">Sesuai buku agenda surat keluar.</span></label></div><div style="flex: 1 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 12px"><div style="border: 1.5px dashed #808D87; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px"><div style="display: flex; justify-content: space-between; gap: 16px; align-items: center"><span style="font-weight: 700">Salinan bertanda tangan</span><span style="flex: none; font-size: 13px; font-weight: 700; border-radius: 6px; padding: 3px 9px; {{fileLs}}">{{fileL}}</span></div><sc-if value="{{fileGagal}}" hint-placeholder-val="{{false}}"><div style="font-size: 14px"><strong style="color: #A63C1C">Gagal diunggah.</strong> <span>Isian Anda masih ada di layar ini; file belum terlampir.</span></div><button onClick="{{pilihFile}}" style="min-height: 52px; border-radius: 14px; border: 0; background: #13201C; color: #FFFFFF; font-weight: 700; text-align: center; padding: 0 16px; align-self: flex-start">Coba lagi</button></sc-if><sc-if value="{{fileKosong}}" hint-placeholder-val="{{false}}"><div style="font-size: 13px; color: #5E6A66">Tanda tangan ada di dokumennya. Tidak ada persetujuan di aplikasi untuk dokumen gereja.</div><button onClick="{{pilihFile}}" style="min-height: 48px; border-radius: 14px; border: 1.5px solid #13201C; background: #FFFFFF; color: #13201C; font-weight: 700; text-align: center; padding: 0 16px; align-self: flex-start">Pilih file</button></sc-if><sc-if value="{{fileAda}}" hint-placeholder-val="{{false}}"><div style="font-size: 13px; color: #5E6A66">salinan-bertanda-tangan.pdf · 1 halaman</div></sc-if></div><sc-if value="{{sebabAda}}" hint-placeholder-val="{{false}}"><div style="font-size: 14px"><strong style="color: #A63C1C">Tidak dapat dilakukan: Terbitkan surat.</strong> <span>{{sebab}}</span></div></sc-if><div style="display: flex; flex-wrap: wrap; gap: 8px"><button onClick="{{terbit}}" aria-disabled="{{okX}}" style="min-height: 52px; border-radius: 14px; border: 0; font-weight: 700; text-align: center; padding: 0 16px; flex: 1 1 150px; max-width: 340px; {{okSt}}">Terbitkan surat</button><button onClick="{{keTolak}}" style="min-height: 48px; border-radius: 14px; border: 1.5px solid #13201C; background: #FFFFFF; color: #13201C; font-weight: 700; text-align: center; padding: 0 16px; flex: 1 1 150px; max-width: 340px">Tidak diterbitkan</button><button onClick="{{pulang}}" style="min-height: 44px; border: 0; background: none; color: #0E5A63; font-weight: 700; text-align: center; padding: 0 16px; flex: 1 1 150px; max-width: 340px">Kembali</button></div></div></div></sc-if><sc-if value="{{v_tolak}}" hint-placeholder-val="{{false}}"><div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px"><div style="display: flex; justify-content: space-between; gap: 16px; align-items: center"><span style="font-weight: 700"><span>{{pJudul}}</span></span><span style="flex: none; font-size: 13px; font-weight: 700; border-radius: 6px; padding: 3px 9px; color: #43514C; border: 1.5px solid #5E6A66; background: #FFFFFF">Diajukan</span></div><div style="font-size: 13px; color: #5E6A66">Pemohon diberi tahu, dengan alasannya.</div></div><label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: #43514C"><span>Alasan · wajib</span><textarea rows="3" value="{{alasan}}" onChange="{{onAlasan}}" style="width: 100%; box-sizing: border-box; padding: 12px 14px; border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF; resize: none; font: inherit; color: inherit; min-height: 96px"></textarea></label><sc-if value="{{sebab2Ada}}" hint-placeholder-val="{{false}}"><div style="font-size: 14px"><strong style="color: #A63C1C">Tidak dapat dilakukan: Catat tidak diterbitkan.</strong> <span>{{sebab2}}</span></div></sc-if><div style="display: flex; flex-wrap: wrap; gap: 8px"><button onClick="{{tolak}}" aria-disabled="{{ok2X}}" style="min-height: 52px; border-radius: 14px; border: 0; font-weight: 700; text-align: center; padding: 0 16px; flex: 1 1 150px; max-width: 340px; {{ok2St}}">Catat tidak diterbitkan</button><button onClick="{{keBuka}}" style="min-height: 44px; border: 0; background: none; color: #0E5A63; font-weight: 700; text-align: center; padding: 0 16px; flex: 1 1 150px; max-width: 340px">Kembali</button></div></sc-if></div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"keadaan":{"editor":"enum","options":["Alur"],"default":"Alur"},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  rp(n) { var s = String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return (n < 0 ? '−' : '') + 'Rp' + s; }
+  navVals() { return [['Beranda', 'WebBerandaJabatan.dc.html'], ['Keuangan', 'WebBeranda.dc.html'], ['Dokumen gereja', 'WebDokumenGereja.dc.html'], ['Pengumuman', 'WebPengumuman.dc.html'], ['Warta Jemaat', 'WebWartaArsip.dc.html'], ['Data jemaat', 'WebDataAnggota.dc.html'], ['Ibadah dan kegiatan', 'Ibadah.dc.html'], ['Panitia', 'Panitia.dc.html'], ['Pemberitahuan', 'WebKotakMasuk.dc.html'], ['Pengaturan', 'WebPenugasan.dc.html']].map(function (n, i) { return { n: n[0], href: n[1], bg: i === 2 ? '#13201C' : 'transparent', fg: i === 2 ? '#FFFFFF' : '#13201C' }; }); }
+  state = { k: null };
+  vals() {
+    var self = this, O = ["Alur"], LS = {"draf": "color: #43514C; border: 1.5px dashed #808D87", "garis": "color: #43514C; border: 1.5px solid #5E6A66; background: #FFFFFF", "tinta": "color: #FFFFFF; background: #13201C; border: 1.5px solid #13201C", "laut": "color: #FFFFFF; background: #0E5A63; border: 1.5px solid #0E5A63", "lautg": "color: #0E5A63; background: #FFFFFF; border: 1.5px solid #0E5A63", "bata": "color: #A63C1C; background: #FFFFFF; border: 1.5px solid #A63C1C", "abu": "color: #43514C; background: #DDE2DB; border: 1.5px solid #DDE2DB"};
+    var k = this.state.k ?? (this.props.keadaan ?? O[0]); var ki = Math.max(0, O.indexOf(k));
+    var V = { keadaan: O[ki] };
+    O.forEach(function (o, i) { V['k' + i] = i === ki; V['go' + i] = function () { self.setState({ k: o }); }; });
+    var web = true, PS = ["AlurAnggota", "AlurBeranda", "AlurDana", "AlurIbadah", "AlurModul", "AlurNama", "AlurPanitia", "AlurPanitiaBaru", "AlurPelimpahan", "AlurPenugasan", "AlurPeristiwa", "AntreanVerifikasi", "CabutIzin", "Ibadah", "Kehadiran", "KeuanganUnit", "KonfirmasiKeluarga", "Modul", "Panitia", "Pelimpahan", "PemberiPersetujuan", "Peristiwa", "PermintaanDana", "PermohonanAnggota", "PersembahanSaya", "TampilanNama"], hal = function (n) { return (web && PS.indexOf(n) < 0 ? (n === 'Main' ? 'WebBeranda' : 'Web' + n) : n) + '.dc.html'; };
+    var baris = function (a) { return a.map(function (r) { return { j: r[0], s: r[1], l: r[2] || '', ls: LS[r[3] || 'garis'], h: r[4] ? hal(r[4]) : hal('AlurSurat') }; }); };
+    var E = (function () { var s = Object.assign({ pesan: '', riw: [] }, { v: 'daftar', sel: 0, no: '', file: '', alasan: '', P: [['Surat keterangan', 'Novita Wenas', 'Diajukan 14/11/2026 · untuk melamar pekerjaan', 'Diajukan', 'Wenas-Lasut · Kolom 7'], ['Atestasi keluar', 'Keluarga Lasut', 'Diajukan 15/11/2026 · pindah ke Jemaat lain', 'Diajukan', 'Lasut · Kolom 4'], ['Surat keterangan', 'Agustina Lasut', 'Dicatat Operator di kantor, 16/11/2026', 'Diajukan', 'Wenas-Lasut · Kolom 7']] }, self.state.a || {});
+      var set = function (o) { self.setState({ a: Object.assign({}, s, o) }); };
+      var ke = function (v, o) { return function () { set(Object.assign({ v: v, pesan: '' }, o || {})); }; };
+      var ketik = function (k) { return function (e) { var o = {}; o[k] = e.target.value; set(o); }; };
+      var balik = function (k) { return function () { var o = {}; o[k] = !s[k]; set(o); }; };
+      var tgl = function (t) { var m = /^(\d\d)\/(\d\d)\/(\d{4})$/.exec((t || '').trim()); if (!m) return null; var d = +m[1], b = +m[2]; if (b < 1 || b > 12 || d < 1 || d > 31) return null; return (+m[3]) * 10000 + b * 100 + d; };
+      var HARI = 20261116, HARI_T = '16/11/2026';
+      var chip = function (on) { return on ? 'background: #13201C; color: #FFFFFF; border: 1.5px solid #13201C' : 'background: #FFFFFF; color: #13201C; border: 1.5px solid #7F8C86'; };
+      var pil = function (k, a) { return a.map(function (n) { return { n: n, on: s[k] === n, st: chip(s[k] === n), pick: function () { var o = { pesan: '' }; o[k] = n; set(o); } }; }); };
+      var V = { pesan: s.pesan, pesanAda: !!s.pesan, riw: s.riw.map(function (t) { return { t: t }; }), riwAda: s.riw.length > 0 };
+      ["daftar", "buka", "tolak"].forEach(function (v) { V['v_' + v] = s.v === v; });
+      var ya = function (n, b) { V[n] = !!b; V[n + 'X'] = !b; V[n + 'St'] = b ? 'background: #13201C; color: #FFFFFF' : 'background: #DDE2DB; color: #43514C'; };
+      var sebab = function (n, t) { V[n] = t || ''; V[n + 'Ada'] = !!t; };
+      var catat = function (t) { return [HARI_T + ' · ' + t].concat(s.riw); };
+
+      var fileSt = function (sekaliGagal) { return { fileKosong: !s.file, fileGagal: s.file === 'gagal', fileAda: s.file === 'ada', fileL: s.file === 'ada' ? 'Terlampir' : (s.file === 'gagal' ? 'Gagal diunggah' : 'Wajib, belum ada'), fileLs: LS[s.file === 'ada' ? 'garis' : 'bata'],
+        pilihFile: function () { set({ file: sekaliGagal && !s.file ? 'gagal' : 'ada' }); } }; };
+
+      var p = s.P[s.sel], alasan = !s.no.trim() ? 'nomor surat belum diisi.' : (s.file !== 'ada' ? 'salinan bertanda tangan belum terlampir.' : '');
+      ya('ok', !alasan); sebab('sebab', s.no || s.file ? alasan : '');
+      var al = s.alasan.trim(); ya('ok2', !!al); sebab('sebab2', al && !al ? 'alasan terlalu pendek.' : '');
+      var ubah = function (st, ket, teks) { var P = s.P.map(function (x) { return x.slice(); }); P[s.sel][3] = st; P[s.sel][2] = ket; set({ v: 'daftar', P: P, pesan: teks, riw: catat(teks + ' Oleh Olvie Pangemanan, Sekretaris Jemaat.'), no: '', file: '', alasan: '' }); };
+      var R_ = Object.assign(V, fileSt(false), {
+        mohon: s.P.map(function (x, i) { return { j: x[0] + ' · ' + x[1], s: x[2], l: x[3], ls: LS[x[3] === 'Diajukan' ? 'garis' : (x[3] === 'Diterbitkan' ? 'tinta' : 'bata')], buka1: x[3] === 'Diajukan', buka: ke('buka', { sel: i, no: '', file: '', alasan: '' }) }; }),
+        pJudul: p[0] + ' · ' + p[1], pNama: p[1], pKel: p[4], no: s.no, onNo: ketik('no'), alasan: s.alasan, onAlasan: ketik('alasan'), pulang: ke('daftar'), keTolak: ke('tolak'), keBuka: ke('buka'),
+        terbit: function () { ubah('Diterbitkan', 'No. ' + s.no.trim() + ' · ' + HARI_T + ' · hanya anggota, keluarganya dan pelayan yang menaunginya yang melihat', p[0] + ' ' + p[1] + ' diterbitkan dengan No. ' + s.no.trim() + '.'); },
+        tolak: function () { ubah('Tidak diterbitkan', 'Alasan: ' + al, p[0] + ' ' + p[1] + ' tidak diterbitkan · alasan: ' + al + '.'); }
+      });
+      [["terbit", "ok"], ["tolak", "ok2"]].forEach(function (g) { var mentah = R_[g[0]]; R_[g[0] + 'Mentah'] = mentah; R_[g[0]] = function () { var F = self.vals(); if (F[g[1]]) F[g[0] + 'Mentah'](); }; });
+      return R_; })() || {};
+    for (var n in E) V[n] = E[n];
+    return V;
+  }
+
+  renderVals() { var V = this.vals(); if (this.navVals) V.nav = this.navVals(); return V; }
+}
+</script>
+</body>
+</html>

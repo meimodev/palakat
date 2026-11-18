@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Laporan Perbendaharaan Bulanan (web)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,a:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+.pn-c{display:none}
+@media (max-width:860px){
+.pn{flex:1 1 100%!important;flex-direction:row!important;flex-wrap:wrap;align-items:center;gap:0 12px!important;padding:8px 16px!important;border-right:0!important;border-bottom:1px solid #DDE2DB}
+.pn-c{display:flex;align-items:center;appearance:none;-webkit-appearance:none;min-height:44px;margin:0 0 0 auto;padding:0 16px;border-radius:14px;border:1.5px solid #13201C;background:#FFFFFF;font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+.pn-c::before{content:"Menu"}
+.pn-c:checked{background:#13201C;color:#FFFFFF}
+.pn-c:checked::before{content:"Tutup menu"}
+.pn-l,.pn-w{display:none;flex:1 1 100%}
+.pn-c:checked~.pn-l{display:block;padding:8px 0}
+.pn-c:checked~.pn-w{display:block;margin-top:0!important;padding-bottom:8px!important}
+}
+</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; flex-wrap: wrap; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 15px; line-height: 1.45">
+
+  <nav class="pn" style="flex: 1 1 220px; box-sizing: border-box; padding: 24px 16px; background: #FFFFFF; border-right: 1px solid #DDE2DB; display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px">
+      <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="none" stroke="#0E5A63" stroke-width="2" stroke-dasharray="3 3"/><path d="M12 2h4a6 6 0 0 1 6 6v8a6 6 0 0 1-6 6h-4z" fill="#0E5A63"/></svg>
+      <div><div style="font-weight: 700; font-size: 18px; line-height: 1.1">palakat</div><div style="font-size: 13px; color: #5E6A66">Jemaat Karunia</div></div>
+    </div>
+    <input type="checkbox" class="pn-c" aria-label="Menu">
+    <div class="pn-l">
+      <sc-for list="{{nav}}" as="n" hint-placeholder-count="7">
+        <a href="{{n.href}}" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 10px; text-decoration: none; font-weight: 600; background: {{n.bg}}; color: {{n.fg}}">{{n.n}}</a>
+      </sc-for>
+    </div>
+    <div class="pn-w" style="margin-top: auto; padding: 12px 8px 0; border-top: 1px solid #DDE2DB; font-size: 13px; color: #43514C"><sc-if value="{{tjk}}" hint-placeholder-val="{{true}}"><div><strong style="color: #13201C">Meiske L.</strong> · Bendahara<br>Wewenang Bendahara aktif</div></sc-if><sc-if value="{{jk}}" hint-placeholder-val="{{false}}"><div><strong style="color: #13201C">Yanti Sumual</strong> · Operator<br>Menjalankan jabatan kosong Bendahara Jemaat</div></sc-if></div>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 28px clamp(16px, 3vw, 40px) 40px; display: flex; flex-direction: column; gap: 18px">
+<sc-if value="{{jk}}" hint-placeholder-val="{{false}}"><div role="status" style="background: #13201C; color: #FFFFFF; border-radius: 14px; padding: 12px 16px; font-size: 14px"><strong>Anda menjalankan jabatan kosong Bendahara Jemaat sejak 16/11/2026 08.15.</strong> <span style="color: #D5DDD8">Setiap tindakan dicatat sebagai dijalankan oleh Operator Yanti Sumual.</span></div></sc-if>
+    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px">
+      <h1 style="margin: 0; font-size: 26px; font-weight: 700; flex: 1 1 260px">Laporan <span style="font-size: 15px; font-weight: 500; color: #5E6A66">· Oktober 2026</span></h1>
+      <sc-if value="{{resmi}}" hint-placeholder-val="{{false}}">
+        <a href="A4F01.dc.html" style="min-height: 44px; padding: 0 18px; border-radius: 12px; border: 0; background: #0E5A63; color: #FFFFFF; font-weight: 700; display: flex; align-items: center; justify-content: center; text-decoration: none; box-sizing: border-box">Unduh PDF</a>
+        <a href="WebExcel.dc.html" style="min-height: 44px; padding: 0 18px; border-radius: 12px; border: 1.5px solid #13201C; background: #FFFFFF; font-weight: 700; color: #13201C; display: flex; align-items: center; justify-content: center; text-decoration: none; box-sizing: border-box">Unduh Excel</a>
+      </sc-if>
+    </div>
+
+    <sc-if value="{{sementara}}" hint-placeholder-val="{{true}}">
+      <div style="border: 1.5px dashed #808D87; border-radius: 14px; padding: 12px 16px; display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: baseline"><strong>Laporan sementara</strong><span style="font-size: 14px; color: #43514C">Bukan laporan resmi. Angka masih dapat berubah sampai Oktober 2026 ditutup; file resmi dibuat setelah tutup buku.</span></div>
+    </sc-if>
+    <sc-if value="{{resmi}}" hint-placeholder-val="{{false}}">
+      <div style="background: #13201C; color: #FFFFFF; border-radius: 14px; padding: 12px 16px; display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: baseline"><strong>Laporan resmi</strong><span style="font-size: 14px; color: #D5DDD8">Dibekukan saat tutup buku 16/11/2026 11.05 · ID <span style="font-family: 'IBM Plex Mono', monospace">SNP-2026-10-01</span> · Versi Mata Anggaran 2026.1</span></div>
+    </sc-if>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+      <div style="flex: 999 1 560px; min-width: 0; background: #FFFFFF; border: {{kertasBd}}; border-radius: 6px; padding: clamp(20px, 4vw, 48px); display: flex; flex-direction: column; gap: 22px">
+        <div style="display: flex; flex-direction: column; gap: 2px; border-bottom: 2px solid #13201C; padding-bottom: 14px">
+          <div style="font-size: 13px; font-weight: 600; color: #43514C; letter-spacing: .4px">F01 · {{capTeks}}</div>
+          <div style="font-size: 22px; font-weight: 700; letter-spacing: .2px">LAPORAN PERBENDAHARAAN BULANAN</div>
+          <div>Jemaat Karunia · Periode laporan 1–31 Oktober 2026</div>
+          <div style="font-size: 13px; color: #5E6A66">Format bawaan aplikasi. Mencakup seluruh Jemaat: semua peruntukan dan semua kas/bank.</div>
+        </div>
+
+        <div>
+          <sc-for list="{{baris}}" as="b" hint-placeholder-count="8">
+            <div style="display: flex; align-items: baseline; gap: 12px; padding: 9px 0; border-top: {{b.garis}}">
+              <div style="flex: 1; font-weight: {{b.fw}}">{{b.k}} <sc-if value="{{b.cat}}" hint-placeholder-val="{{false}}"><span style="font-size: 13px; color: #5E6A66">· {{b.cat}}</span></sc-if></div>
+              <sc-if value="{{b.lihat}}" hint-placeholder-val="{{true}}"><a href="WebTransaksi.dc.html" style="font-size: 13px; font-weight: 600; min-height: 44px; display: inline-flex; align-items: center">Lihat transaksi</a></sc-if>
+              <div style="width: 150px; text-align: right; font-family: 'IBM Plex Mono', monospace; font-weight: {{b.nfw}}">{{b.v}}</div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <div style="font-weight: 700">Posisi Kas &amp; Bank per 31 Oktober 2026</div>
+          <div style="overflow-x: auto">
+            <table style="width: 100%; min-width: 600px; border-collapse: collapse; font-size: 14px">
+              <thead><tr><th style="text-align: left; padding: 8px 0; font-weight: 600; color: #43514C; border-bottom: 1px solid #13201C">Kas/Bank</th><th style="text-align: right; padding: 8px 0 8px 12px; font-weight: 600; color: #43514C; border-bottom: 1px solid #13201C">Saldo buku</th><th style="text-align: right; padding: 8px 0 8px 12px; font-weight: 600; color: #43514C; border-bottom: 1px solid #13201C">Hasil hitung kas</th><th style="text-align: right; padding: 8px 0 8px 12px; font-weight: 600; color: #43514C; border-bottom: 1px solid #13201C">Saldo rekening koran</th><th style="text-align: right; padding: 8px 0 8px 12px; font-weight: 600; color: #43514C; border-bottom: 1px solid #13201C">Selisih belum dijelaskan</th></tr></thead>
+              <tbody>
+                <tr><td style="padding: 8px 0; border-bottom: 1px solid #DDE2DB">Kas</td><td style="padding: 8px 0 8px 12px; border-bottom: 1px solid #DDE2DB; text-align: right; font-family: 'IBM Plex Mono', monospace">Rp8.750.000</td><td style="padding: 8px 0 8px 12px; border-bottom: 1px solid #DDE2DB; text-align: right; font-family: 'IBM Plex Mono', monospace">Rp8.750.000</td><td style="padding: 8px 0 8px 12px; border-bottom: 1px solid #DDE2DB"></td><td style="padding: 8px 0 8px 12px; border-bottom: 1px solid #DDE2DB; text-align: right; font-family: 'IBM Plex Mono', monospace">Rp0</td></tr>
+                <tr><td style="padding: 8px 0; border-bottom: 1px solid #DDE2DB">Bank BNI ··4821</td><td style="padding: 8px 0 8px 12px; border-bottom: 1px solid #DDE2DB; text-align: right; font-family: 'IBM Plex Mono', monospace">Rp24.600.000</td><td style="padding: 8px 0 8px 12px; border-bottom: 1px solid #DDE2DB"></td><td style="padding: 8px 0 8px 12px; border-bottom: 1px solid #DDE2DB; text-align: right; font-family: 'IBM Plex Mono', monospace">Rp24.100.000</td><td style="padding: 8px 0 8px 12px; border-bottom: 1px solid #DDE2DB; text-align: right; font-family: 'IBM Plex Mono', monospace">Rp0</td></tr>
+                <tr><td style="padding: 8px 0; border-bottom: 1px solid #DDE2DB">Bank SulutGo ··1107</td><td style="padding: 8px 0 8px 12px; border-bottom: 1px solid #DDE2DB; text-align: right; font-family: 'IBM Plex Mono', monospace">Rp5.115.000</td><td style="padding: 8px 0 8px 12px; border-bottom: 1px solid #DDE2DB"></td><td style="padding: 8px 0 8px 12px; border-bottom: 1px solid #DDE2DB; text-align: right; font-family: 'IBM Plex Mono', monospace">Rp5.115.000</td><td style="padding: 8px 0 8px 12px; border-bottom: 1px solid #DDE2DB; text-align: right; font-family: 'IBM Plex Mono', monospace">Rp0</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div style="font-size: 13px; color: #5E6A66">Bank BNI ··4821: setoran dalam perjalanan Rp500.000, dibawa ke November 2026. Hasil hitung kas dan saldo rekening koran tidak dijumlahkan.</div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 24px; margin-top: 8px">
+          <div style="display: flex; flex-direction: column; gap: 4px"><div style="font-size: 13px; color: #43514C">Bendahara</div><div style="height: 56px; border-bottom: 1px solid #13201C"></div><div style="font-weight: 600">Meiske Lumentut</div></div>
+          <div style="display: flex; flex-direction: column; gap: 4px"><div style="font-size: 13px; color: #43514C">Ketua BPMJ</div><div style="height: 56px; border-bottom: 1px solid #13201C"></div><div style="font-weight: 600">[NAMA DARI PENGATURAN]</div></div>
+        </div>
+      </div>
+
+      <aside style="flex: 1 1 280px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+        <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 4px">
+          <div style="font-size: 13px; color: #43514C">Format laporan</div>
+          <div style="font-weight: 700">Bawaan Palakat · v1</div>
+          <div style="font-size: 14px; margin-top: 6px"><strong>Persetujuan format: sudah dicatat</strong></div>
+          <div style="font-size: 14px"><span style="color: #43514C">Pemberi persetujuan:</span> [NAMA], Pimpinan Jemaat yang berwenang · 01/11/2026</div>
+          <div style="font-size: 13px; color: #5E6A66; border-top: 1px dashed #7F8C86; margin-top: 8px; padding-top: 8px">Dicatat oleh Meiske L., 02/11/2026 09.10. Persetujuan diberikan di luar aplikasi.</div>
+        </div>
+        <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 6px">
+          <div style="font-weight: 700">Isi Paket Laporan Bulanan GMIM</div>
+          <div style="font-size: 14px; color: #13201C; font-weight: 600">F01 Laporan Perbendaharaan Bulanan</div>
+          <a href="WebPaketLaporan.dc.html" style="font-size: 14px; font-weight: 600; min-height: 44px; display: inline-flex; align-items: center">Buka F02 sampai F14</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"jabatanKosong":{"editor":"boolean","default":false},"jenis":{"editor":"enum","options":["sementara","resmi"],"default":"sementara"},"$preview":{"width":1440,"height":1200}}'>
+class Component extends DCLogic {
+  rv0() {
+    var resmi = (this.props.jenis ?? 'sementara') === 'resmi';
+    var nav = [['Beranda', 'WebBeranda.dc.html'], ['Transaksi', 'WebTransaksi.dc.html'], ['Uang Muka dan Titipan', 'WebKewajiban.dc.html'], ['Rekonsiliasi', 'WebRekonsiliasi.dc.html'], ['Bulan dan tutup buku', 'WebTutupBuku.dc.html'], ['Laporan', 'WebPaketLaporan.dc.html'], ['Pengaturan', 'WebPengaturan.dc.html']];
+    var B = [
+      ['Saldo awal Kas/Bank', 'Rp36.250.000', '', 1, 0],
+      ['Pendapatan ekonomi', 'Rp14.820.000', '', 0, 1],
+      ['Belanja ekonomi', '−Rp11.455.000', '', 0, 1],
+      ['Dana Transit masuk', 'Rp2.400.000', 'titipan masuk', 0, 1],
+      ['Dana Transit keluar', '−Rp2.400.000', 'titipan disalurkan', 0, 1],
+      ['Uang Muka diberikan', '−Rp1.500.000', '', 0, 1],
+      ['Pengembalian sisa uang muka', 'Rp350.000', '', 0, 1],
+      ['Saldo akhir Kas/Bank', 'Rp38.465.000', '', 1, 0]
+    ];
+    return {
+      resmi: resmi, sementara: !resmi,
+      capTeks: resmi ? 'LAPORAN RESMI' : 'LAPORAN SEMENTARA · BUKAN LAPORAN RESMI',
+      kertasBd: resmi ? '1.5px solid #13201C' : '1.5px dashed #808D87',
+      nav: nav.map(function (n, i) { return { n: n[0], href: n[1], bg: i === 5 ? '#13201C' : 'transparent', fg: i === 5 ? '#FFFFFF' : '#13201C' }; }),
+      baris: B.map(function (b, i) { return { k: b[0], v: b[1], cat: b[2], fw: b[3] ? 700 : 500, nfw: b[3] ? 600 : 400, lihat: !!b[4], garis: i === 0 ? '0' : (b[3] ? '1.5px solid #13201C' : '1px solid #DDE2DB') }; })
+    };
+  }
+  tukarJk(o, d) {
+    var self = this, ganti = function (s) { var t = s.match(/\d\d\/\d\d\/\d{4}/g) || []; return s.indexOf('Meiske L.') < 0 || t.some(function (x) { return x !== '16/11/2026'; }) ? s : s.split('Meiske L.').join('Yanti Sumual, Operator'); };
+    if (d > 5 || !o || typeof o !== 'object') return o;
+    Object.keys(o).forEach(function (k) { var v = o[k]; if (typeof v === 'string') o[k] = ganti(v); else if (v && typeof v === 'object') self.tukarJk(v, d + 1); });
+    return o;
+  }
+  renderVals() {
+    var V = this.rv0(), jk = !!this.props.jabatanKosong;
+    if (jk && false) this.tukarJk(V, 0);
+    V.jk = jk; V.tjk = !jk; V.plk = jk ? 'Yanti Sumual, Operator' : 'Meiske L.'; V.plk2 = jk ? 'Yanti Sumual, Operator (menjalankan jabatan kosong Bendahara Jemaat)' : 'Meiske L.';
+    return V;
+  }
+}
+</script>
+</body>
+</html>

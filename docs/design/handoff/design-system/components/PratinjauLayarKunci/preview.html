@@ -1,0 +1,29 @@
+<!-- @dsCard group="Platform" height=248 width=412 -->
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>PratinjauLayarKunci — pratinjau</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+html, body { margin: 0; }
+body { background: var(--kertas); }
+/* tanah: komponen selalu tampil di atas kertas, apa pun latar bingkai pratinjau */
+.tanah { background: var(--kertas); color: var(--tinta); font-family: var(--font-sans); font-size: 15px; line-height: 1.45; padding: var(--s20); min-height: 100vh; box-sizing: border-box; }
+.pk { display: flex; flex-direction: column; gap: 10px; max-width: 372px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+input, textarea { color: inherit; }
+button:focus-visible, a:focus-visible { outline: 2px solid var(--laut); outline-offset: 2px; }
+a { color: var(--laut); }
+@media (prefers-reduced-motion: reduce) { * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+</style>
+</head>
+<body>
+<div class="tanah"><div class="pk">
+<div style="font-size: 13px; color: var(--tinta3)">Yang tampil di layar kunci</div>
+<div style="background: var(--tinta); color: var(--permukaan); border-radius: var(--radius-isian); padding: 10px 14px; font-size: 14px"><div style="font-weight: 700">Palakat</div><div>Data jemaat: 1 data menunggu verifikasi</div></div>
+<div style="background: var(--tinta); color: var(--permukaan); border-radius: var(--radius-isian); padding: 10px 14px; font-size: 14px"><div style="font-weight: 700">Palakat</div><div>Keuangan unit: 1 permintaan menunggu persetujuan</div></div>
+<div style="font-size: 13px; color: var(--tinta3)">Hanya modul dan jenis pekerjaannya. Tidak ada nama orang dan tidak ada jumlah uang di layar kunci.</div>
+</div></div>
+</body>
+</html>

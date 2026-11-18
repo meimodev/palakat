@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Harian (ponsel)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+input{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes masuk{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@keyframes naik{from{transform:translateY(100%)}to{transform:none}}
+@keyframes pudar{from{opacity:0}to{opacity:1}}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes cap{0%{opacity:0;transform:scale(1.7) rotate(-9deg)}55%{opacity:1;transform:scale(.94) rotate(-3deg)}100%{opacity:1;transform:scale(1) rotate(-3deg)}}
+@keyframes sapu{0%{transform:scaleX(0);opacity:.2}65%{transform:scaleX(1);opacity:.2}100%{transform:scaleX(1);opacity:0}}
+@keyframes isi{from{width:0}to{width:100%}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; display: flex; flex-direction: column; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 16px; line-height: 1.4">
+<sc-if value="{{jk}}" hint-placeholder-val="{{false}}"><div role="status" style="flex: none; background: #13201C; color: #FFFFFF; padding: 10px 24px 8px; font-size: 13px; line-height: 1.3; text-align: center"><strong>Menjalankan jabatan kosong</strong> · Bendahara Jemaat</div></sc-if>
+<div style="position: relative; flex: 1; min-height: 0">
+
+<sc-if value="{{isBeranda}}" hint-placeholder-val="{{true}}">
+<div style="position: absolute; inset: 0 0 84px 0; overflow-y: auto; padding: 24px 20px 28px; display: flex; flex-direction: column; gap: 22px">
+  <div style="display: flex; justify-content: space-between; align-items: center">
+    <div style="display: flex; align-items: center; gap: 10px">
+      <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="none" stroke="#0E5A63" stroke-width="2" stroke-dasharray="3 3"/><path d="M12 2h4a6 6 0 0 1 6 6v8a6 6 0 0 1-6 6h-4z" fill="#0E5A63"/></svg>
+      <div style="font-weight: 700; font-size: 17px">Jemaat Karunia</div>
+    </div>
+    <a href="PilihBulan.dc.html" aria-label="Pilih bulan, sekarang November 2026" style="font-size: 14px; font-weight: 600; color: #43514C; border: 1px solid #7F8C86; border-radius: 999px; padding: 0 14px; min-height: 44px; display: flex; align-items: center; text-decoration: none; box-sizing: border-box">November 2026</a>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 6px">
+    <div style="font-size: 14px; color: #43514C">Saldo buku semua Kas/Bank</div>
+    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 38px; font-weight: 500; letter-spacing: -1px; line-height: 1.1">{{total}}</div>
+    <div style="font-size: 13px; color: #5E6A66">Hanya transaksi yang sudah dibukukan</div>
+    <sc-if value="{{adaDraf}}" hint-placeholder-val="{{true}}">
+      <div style="align-self: flex-start; margin-top: 6px; border: 1.5px dashed #808D87; border-radius: 999px; padding: 6px 12px; font-size: 13px; color: #43514C"><span style="font-family: 'IBM Plex Mono', monospace">{{drafRp}}</span> · {{drafN}} draf · belum masuk saldo</div>
+    </sc-if>
+  </div>
+
+  <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 4px 16px">
+    <sc-for list="{{akunRows}}" as="a" hint-placeholder-count="3">
+      <div style="display: flex; justify-content: space-between; align-items: center; min-height: 46px; border-top: {{a.garis}}">
+        <div style="font-size: 15px">{{a.n}}</div>
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 15px; font-weight: 500">{{a.rp}}</div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 10px">
+    <div style="display: flex; align-items: center; gap: 8px">
+      <h2 style="margin: 0; font-size: 16px; font-weight: 700">Perlu tindakan</h2>
+      <div style="background: #A63C1C; color: #FFFFFF; font-size: 13px; font-weight: 700; border-radius: 999px; min-width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; padding: 0 6px; box-sizing: border-box">{{tindakanN}}</div>
+    </div>
+    <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 0 16px">
+      <a href="TutupBuku.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 60px; text-decoration: none; color: #13201C">
+        <div style="flex: 1"><div style="font-weight: 600; font-size: 15px">Oktober 2026 belum ditutup</div><div style="font-size: 13px; color: #A63C1C; font-weight: 600">1 hambatan · bulan berikutnya untuk tutup buku</div></div>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E6A66" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+      </a>
+      <sc-for list="{{tindakan}}" as="t" hint-placeholder-count="3">
+        <button onClick="{{bukaDaftar}}" style="display: flex; align-items: center; gap: 12px; min-height: 60px; width: 100%; background: none; border: 0; border-top: 1px solid #DDE2DB; padding: 0">
+          <div style="flex: 1"><div style="font-weight: 600; font-size: 15px">{{t.j}}</div><div style="font-size: 13px; color: #5E6A66">{{t.s}}</div></div>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E6A66" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
+      </sc-for>
+    </div>
+    <sc-if value="{{sepi}}" hint-placeholder-val="{{false}}">
+      <div style="border: 1.5px dashed #808D87; border-radius: 14px; padding: 14px 16px; font-size: 14px; color: #43514C"><strong style="color: #13201C">Belum ada transaksi di November.</strong> Bulan tanpa transaksi belum selesai: tiap Kas/Bank tetap perlu hitung kas atau rekening koran, lalu tutup buku.</div>
+    </sc-if>
+  </div>
+
+  <sc-if value="{{ramai}}" hint-placeholder-val="{{true}}">
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <h2 style="margin: 0; font-size: 16px; font-weight: 700">Untuk diketahui</h2>
+      <a href="Kewajiban.dc.html" style="font-size: 14px; color: #43514C; min-height: 44px; display: flex; align-items: center">2 uang muka dengan sisa belum dipertanggungjawabkan</a>
+    </div>
+  </sc-if>
+
+  <div style="display: flex; flex-wrap: wrap; gap: 0 22px; font-size: 14px; font-weight: 600; margin: -8px 0"><a href="TutupBuku.dc.html" style="min-height: 44px; min-width: 44px; display: inline-flex; align-items: center">Rekonsiliasi</a><a href="Laporan.dc.html" style="min-height: 44px; min-width: 44px; display: inline-flex; align-items: center">Buat laporan sementara</a></div>
+  <div style="display: flex; flex-direction: column; gap: 10px">
+    <h2 style="margin: 0; font-size: 16px; font-weight: 700">Bulan ini <span style="font-weight: 500; color: #5E6A66; font-size: 13px">· tanpa titipan, hanya yang sudah dibukukan</span></h2>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+      <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 12px 14px"><div style="font-size: 13px; color: #43514C">Pendapatan</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 16px; font-weight: 500">{{pend}}</div></div>
+      <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 12px 14px"><div style="font-size: 13px; color: #43514C">Belanja</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 16px; font-weight: 500">{{bel}}</div></div>
+    </div>
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 2px"><div style="font-size: 14px; color: #43514C">Surplus/Defisit bulan ini</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 16px; font-weight: 600">{{net}}</div></div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{isDaftar}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; inset: 0 0 84px 0; overflow-y: auto; padding: 24px 20px 28px; display: flex; flex-direction: column; gap: 14px; animation: pudar .2s">
+  <h1 style="margin: 0; font-size: 22px; font-weight: 700">Transaksi <span style="font-size: 14px; font-weight: 500; color: #5E6A66">· November 2026</span></h1>
+  <div style="display: flex; flex-wrap: wrap; gap: 0 22px; font-size: 14px; font-weight: 600; margin: -6px 0"><a href="PilihBulan.dc.html" style="min-height: 44px; min-width: 44px; display: inline-flex; align-items: center">Pilih bulan</a><a href="Draf.dc.html" style="min-height: 44px; min-width: 44px; display: inline-flex; align-items: center">1 draf di bulan yang sudah ditutup</a><a href="Cari.dc.html" style="min-height: 44px; min-width: 44px; display: inline-flex; align-items: center">Cari</a></div>
+  <div>
+    <sc-for list="{{filters}}" as="c" hint-placeholder-count="3">
+      <button onClick="{{c.pick}}" aria-pressed="{{c.on}}" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; margin: 0 8px 0 0; border-radius: 999px; border: 1.5px solid {{c.bd}}; background: {{c.bg}}; color: {{c.fg}}; font-weight: 600; font-size: 14px">{{c.n}}</button>
+    </sc-for>
+  </div>
+  <div>
+    <sc-for list="{{rows}}" as="r" hint-placeholder-count="5">
+      <div style="margin-bottom: 10px; background: {{r.bg}}; border: {{r.bd}}; border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
+          <div style="font-size: 13px; font-weight: 700; letter-spacing: .3px; padding: 3px 9px; border-radius: 6px; background: {{r.bbg}}; color: {{r.bfg}}; border: {{r.bbd}}">{{r.st}}</div>
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 16px; font-weight: 500; color: {{r.fg}}">{{r.rp}}</div>
+        </div>
+        <div style="font-weight: 600; font-size: 15px">{{r.ur}}</div>
+        <div style="font-size: 13px; color: #5E6A66"><span style="font-family: 'IBM Plex Mono', monospace">{{r.no}}</span> · {{r.tgl}} · {{r.ak}}</div>
+        <sc-if value="{{r.link}}" hint-placeholder-val="{{false}}"><div style="font-size: 13px; color: #43514C">{{r.link}}</div></sc-if>
+      </div>
+    </sc-for>
+    <sc-if value="{{daftarKosong}}" hint-placeholder-val="{{false}}"><div style="border: 1.5px dashed #808D87; border-radius: 14px; padding: 16px; font-size: 14px; color: #43514C">Belum ada transaksi yang cocok di November 2026.</div></sc-if>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{showNav}}" hint-placeholder-val="{{true}}">
+<nav style="position: absolute; left: 0; right: 0; bottom: 0; height: 84px; background: #FFFFFF; border-top: 1px solid #DDE2DB; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: start; padding-top: 8px; box-sizing: border-box">
+  <button onClick="{{keBeranda}}" style="background: none; border: 0; min-height: 52px; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 13px; font-weight: 600; color: {{navB}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7v9H4z"/></svg>Beranda</button>
+  <button onClick="{{bukaDaftar}}" style="background: none; border: 0; min-height: 52px; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 13px; font-weight: 600; color: {{navT}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h9"/></svg>Transaksi</button>
+  <div style="display: flex; justify-content: center"><button onClick="{{bukaSheet}}" aria-label="Catat transaksi" style="width: 58px; height: 58px; margin-top: -22px; border-radius: 50%; background: #0E5A63; color: #FFFFFF; border: 4px solid #F3F5F1; display: flex; align-items: center; justify-content: center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></div>
+  <a href="TutupBuku.dc.html" style="min-height: 52px; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 13px; font-weight: 600; color: #5E6A66; text-decoration: none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>Bulan</a>
+  <a href="Lainnya.dc.html" style="min-height: 52px; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 13px; font-weight: 600; color: #5E6A66; text-decoration: none"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>Lainnya</a>
+</nav>
+</sc-if>
+
+<sc-if value="{{toast}}" hint-placeholder-val="{{false}}">
+<div role="status" style="position: absolute; left: 20px; right: 20px; bottom: 100px; border: 1.5px dashed #7F8C86; background: #13201C; color: #FFFFFF; border-radius: 14px; padding: 12px 16px; font-size: 14px; font-weight: 600; animation: muncul .28s cubic-bezier(.2,.8,.2,1)">Draf tersimpan · belum masuk saldo</div>
+</sc-if>
+
+<sc-if value="{{sheet}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; inset: 0">
+  <button onClick="{{tutupSheet}}" aria-label="Kembali ke Beranda" style="position: absolute; inset: 0; width: 100%; background: rgba(19,32,28,.45); border: 0; animation: pudar .2s"></button>
+  <div style="position: absolute; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-radius: 22px 22px 0 0; padding: 10px 20px 28px; animation: naik .28s cubic-bezier(.2,.8,.2,1)">
+    <div style="width: 40px; height: 4px; border-radius: 2px; background: #7F8C86; margin: 0 auto 14px"></div>
+    <h2 style="margin: 0 0 6px; font-size: 18px; font-weight: 700">Catat apa?</h2>
+    <sc-for list="{{jenisList}}" as="j" hint-placeholder-count="4">
+      <button onClick="{{j.pick}}" style="display: flex; align-items: center; gap: 14px; width: 100%; min-height: 64px; background: none; border: 0; border-top: 1px solid #DDE2DB; padding: 0">
+        <div style="width: 44px; height: 44px; border-radius: 12px; background: #E1EEED; color: #0E5A63; display: flex; align-items: center; justify-content: center; font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 18px">{{j.tanda}}</div>
+        <div style="flex: 1"><div style="font-weight: 600">{{j.n}}</div><div style="font-size: 13px; color: #5E6A66">{{j.s}}</div></div>
+      </button>
+    </sc-for>
+    <div style="border-top: 1px solid #DDE2DB; padding-top: 4px"><div style="font-size: 13px; color: #5E6A66; padding-top: 8px">Catatan lain</div><a href="Persembahan.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; margin: 8px 8px 0 0; border-radius: 999px; border: 1.5px solid #7F8C86; font-weight: 600; font-size: 14px; color: #13201C; text-decoration: none">Persembahan beberapa bagian</a><a href="KasusBaru.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; margin: 8px 8px 0 0; border-radius: 999px; border: 1.5px solid #7F8C86; font-weight: 600; font-size: 14px; color: #13201C; text-decoration: none">Uang Muka, Titipan, klaim</a><a href="AlihPeruntukan.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; margin: 8px 8px 0 0; border-radius: 999px; border: 1.5px solid #7F8C86; font-weight: 600; font-size: 14px; color: #13201C; text-decoration: none">Alih peruntukan</a><a href="Pengembalian.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; margin: 8px 8px 0 0; border-radius: 999px; border: 1.5px solid #7F8C86; font-weight: 600; font-size: 14px; color: #13201C; text-decoration: none">Pengembalian</a><a href="AIFoto.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; margin: 8px 8px 0 0; border-radius: 999px; border: 1.5px solid #7F8C86; font-weight: 600; font-size: 14px; color: #13201C; text-decoration: none">Dari foto nota</a><a href="BantuanAI.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; margin: 8px 8px 0 0; border-radius: 999px; border: 1.5px solid #7F8C86; font-weight: 600; font-size: 14px; color: #13201C; text-decoration: none">Dari kalimat</a><a href="AIMataAnggaran.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; margin: 8px 8px 0 0; border-radius: 999px; border: 1.5px solid #7F8C86; font-weight: 600; font-size: 14px; color: #13201C; text-decoration: none">Usulan Mata Anggaran</a></div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{isForm}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column; background: #F3F5F1; animation: masuk .28s cubic-bezier(.2,.8,.2,1)">
+  <div style="display: flex; align-items: center; gap: 8px; padding: 14px 12px 8px">
+    <button onClick="{{keBeranda}}" aria-label="Kembali" style="flex: none; width: 44px; height: 44px; background: none; border: 0; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+    <h1 style="margin: 0; flex: 1; font-size: 18px; font-weight: 700">{{cfg.judul}}</h1>
+    <div style="font-size: 13px; font-weight: 600; color: {{simpanFg}}; padding-right: 8px">{{simpanTeks}}</div>
+  </div>
+  <sc-if value="{{simpanGagal}}" hint-placeholder-val="{{false}}">
+    <div role="alert" style="margin: 0 20px 8px; background: #F8E8E0; border: 1px solid #A63C1C; border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; gap: 10px; animation: muncul .2s"><div style="flex: 1; font-size: 14px; color: #13201C"><strong>Gagal disimpan.</strong> Isian Anda masih ada di layar ini.</div><button onClick="{{cobaLagi}}" style="min-height: 44px; padding: 0 14px; border-radius: 10px; border: 0; background: #A63C1C; color: #FFFFFF; font-weight: 700; font-size: 14px">Coba lagi</button></div>
+  </sc-if>
+  <div style="flex: 1; overflow-y: auto; padding: 8px 20px 20px; display: flex; flex-direction: column; gap: 18px">
+    <div>
+      <label for="jml" style="font-size: 14px; color: #43514C">Jumlah (Rp)</label>
+      <div style="display: flex; align-items: baseline; gap: 6px; font-family: 'IBM Plex Mono', monospace; border-bottom: 2px solid #13201C; padding-bottom: 4px">
+        <span style="font-size: 22px; color: #5E6A66">Rp</span>
+        <input id="jml" inputmode="numeric" placeholder="0" value="{{jumlahFmt}}" onChange="{{onJumlah}}" style="flex: 1; min-width: 0; width: 100%; border: 0; background: transparent; font-family: 'IBM Plex Mono', monospace; font-size: 38px; font-weight: 500; letter-spacing: -1px; padding: 0; min-height: 44px; box-sizing: border-box">
+      </div>
+    </div>
+
+    <div>
+      <div style="font-size: 14px; color: #43514C; margin-bottom: 8px">{{cfg.akun}}</div>
+      <div><sc-for list="{{akunChips}}" as="c" hint-placeholder-count="3"><button onClick="{{c.pick}}" aria-pressed="{{c.on}}" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; margin: 0 8px 8px 0; border-radius: 999px; border: 1.5px solid {{c.bd}}; background: {{c.bg}}; color: {{c.fg}}; font-weight: 600; font-size: 14px">{{c.n}}</button></sc-for></div>
+    </div>
+
+    <sc-if value="{{isPindah}}" hint-placeholder-val="{{false}}">
+      <div>
+        <div style="font-size: 14px; color: #43514C; margin-bottom: 8px">Ke Kas/Bank</div>
+        <div><sc-for list="{{keChips}}" as="c" hint-placeholder-count="3"><button onClick="{{c.pick}}" aria-pressed="{{c.on}}" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; margin: 0 8px 8px 0; border-radius: 999px; border: 1.5px solid {{c.bd}}; background: {{c.bg}}; color: {{c.fg}}; font-weight: 600; font-size: 14px">{{c.n}}</button></sc-for></div>
+        <div style="font-size: 13px; color: #5E6A66">Pindah antar Kas/Bank bukan Pendapatan dan bukan Belanja. Biaya bank dicatat sebagai Belanja tersendiri.</div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{bukanPindah}}" hint-placeholder-val="{{true}}">
+      <div style="display: flex; flex-direction: column; gap: 18px">
+        <div>
+          <div style="font-size: 14px; color: #43514C; margin-bottom: 8px">{{cfg.per}} <span style="color: #5E6A66">· uang siapa ini</span></div>
+          <div><sc-for list="{{perChips}}" as="c" hint-placeholder-count="3"><button onClick="{{c.pick}}" aria-pressed="{{c.on}}" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; margin: 0 8px 8px 0; border-radius: 999px; border: 1.5px solid {{c.bd}}; background: {{c.bg}}; color: {{c.fg}}; font-weight: 600; font-size: 14px">{{c.n}}</button></sc-for></div>
+        </div>
+        <div>
+          <div style="font-size: 14px; color: #43514C; margin-bottom: 8px">Lingkup</div>
+          <div><sc-for list="{{lingChips}}" as="c" hint-placeholder-count="4"><button onClick="{{c.pick}}" aria-pressed="{{c.on}}" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; margin: 0 8px 8px 0; border-radius: 999px; border: 1.5px solid {{c.bd}}; background: {{c.bg}}; color: {{c.fg}}; font-weight: 600; font-size: 14px">{{c.n}}</button></sc-for></div>
+        </div>
+        <div>
+          <div style="font-size: 14px; color: #43514C; margin-bottom: 8px">Mata Anggaran <span style="color: #5E6A66">· untuk apa</span></div>
+          <button onClick="{{bukaMa}}" style="width: 100%; min-height: 56px; display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 12px; background: {{maBg}}; border: {{maBd}}">
+            <div style="flex: 1"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #43514C">{{maKode}}</div><div style="font-weight: 600; font-size: 15px">{{maNama}}</div></div>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E6A66" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+          </button>
+        </div>
+        <div>
+          <label for="pihak" style="display: block; font-size: 14px; color: #43514C; margin-bottom: 8px">{{cfg.pihak}}</label>
+          <input id="pihak" value="{{pihak}}" onChange="{{onPihak}}" style="width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF">
+        </div>
+      </div>
+    </sc-if>
+
+    <div>
+      <label for="uraian" style="display: block; font-size: 14px; color: #43514C; margin-bottom: 8px">Uraian</label>
+      <input id="uraian" value="{{uraian}}" onChange="{{onUraian}}" style="width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF">
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; min-height: 48px; border-top: 1px solid #DDE2DB; border-bottom: 1px solid #DDE2DB"><div style="font-size: 14px; color: #43514C">Tanggal transaksi</div><a href="Tanggal.dc.html" style="font-weight: 600; min-height: 44px; display: flex; align-items: center; gap: 6px; color: #13201C">16 November 2026 <span style="color: #0E5A63; font-weight: 700">Ubah</span></a></div>
+
+    <div>
+      <div style="font-size: 14px; color: #43514C; margin-bottom: 8px">Dokumen pendukung</div>
+      <sc-if value="{{dokKosong}}" hint-placeholder-val="{{true}}">
+        <button onClick="{{lampirkan}}" style="width: 100%; min-height: 56px; border-radius: 12px; border: 1.5px dashed #808D87; background: transparent; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; color: #0E5A63"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Lampirkan dokumen pendukung</button>
+      </sc-if>
+      <sc-if value="{{dokUnggah}}" hint-placeholder-val="{{false}}">
+        <div style="border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF; padding: 12px 14px"><div style="font-size: 14px; font-weight: 600">Sedang diunggah…</div><div style="height: 4px; border-radius: 2px; background: #DDE2DB; margin-top: 8px; overflow: hidden"><div style="height: 100%; background: #0E5A63; animation: isi 1.2s linear both"></div></div></div>
+      </sc-if>
+      <sc-if value="{{dokAda}}" hint-placeholder-val="{{false}}">
+        <div style="border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF; padding: 12px 14px; display: flex; align-items: center; gap: 12px; animation: muncul .28s"><div style="width: 40px; height: 48px; border-radius: 6px; background: #E1EEED; border: 1px solid #7F8C86"></div><div style="flex: 1"><div style="font-size: 14px; font-weight: 600">nota-16-11.jpg · Terlampir</div><div style="font-size: 13px; color: #43514C">Diunggah, belum diverifikasi</div></div></div>
+      </sc-if>
+    </div>
+  </div>
+  <div style="padding: 12px 20px 22px; background: #FFFFFF; border-top: 1px solid #DDE2DB; display: flex; flex-direction: column; gap: 6px">
+    <button onClick="{{kePeriksa}}" style="min-height: 52px; border-radius: 14px; border: 0; background: #0E5A63; color: #FFFFFF; font-weight: 700; text-align: center">Periksa dan bukukan</button>
+    <button onClick="{{simpanDraf}}" style="min-height: 44px; border-radius: 14px; border: 0; background: none; color: #0E5A63; font-weight: 700; text-align: center">Simpan sebagai draf</button>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{isMa}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column; background: #FFFFFF; animation: naik .28s cubic-bezier(.2,.8,.2,1)">
+  <div style="display: flex; align-items: center; gap: 8px; padding: 14px 12px 8px">
+    <button onClick="{{keForm}}" aria-label="Kembali" style="flex: none; width: 44px; height: 44px; background: none; border: 0; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+    <h1 style="margin: 0; flex: 1; font-size: 18px; font-weight: 700">Pilih Mata Anggaran</h1>
+    <div style="font-size: 13px; font-weight: 700; background: #13201C; color: #FFFFFF; border-radius: 6px; padding: 4px 10px; margin-right: 8px">{{cfg.pohon}}</div>
+  </div>
+  <div style="padding: 4px 20px 10px"><input aria-label="Cari Mata Anggaran" placeholder="Cari nomor atau nama" value="{{cari}}" onChange="{{onCari}}" style="width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #7F8C86; background: #F3F5F1"></div>
+  <div style="flex: 1; overflow-y: auto; padding: 0 20px">
+    <sc-for list="{{maRows}}" as="r" hint-placeholder-count="5">
+      <div>
+        <sc-if value="{{r.grup}}" hint-placeholder-val="{{false}}">
+          <div style="padding: 14px 0 6px"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #5E6A66">{{r.k}}</div><div style="font-size: 14px; font-weight: 700; color: #43514C">{{r.n}}</div><div style="font-size: 13px; color: #5E6A66">Judul kelompok, tidak dapat dibukukan</div></div>
+        </sc-if>
+        <sc-if value="{{r.bisa}}" hint-placeholder-val="{{true}}">
+          <button onClick="{{r.pick}}" style="display: flex; align-items: center; gap: 12px; width: 100%; min-height: 60px; background: none; border: 0; border-top: 1px solid #DDE2DB; padding: 6px 0 6px 14px"><div style="flex: 1"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #43514C">{{cfg.pohon}} {{r.k}}</div><div style="font-weight: 600; font-size: 15px">{{r.n}}</div></div></button>
+        </sc-if>
+      </div>
+    </sc-for>
+  </div>
+  <div style="padding: 12px 20px 22px; border-top: 1px solid #DDE2DB; display: flex; flex-direction: column; gap: 8px"><a href="Bagi.dc.html" style="min-height: 48px; border-radius: 14px; border: 1.5px solid #13201C; color: #13201C; font-weight: 700; display: flex; align-items: center; justify-content: center; text-decoration: none">Bagi ke beberapa Mata Anggaran</a><button onClick="{{tanpaMa}}" style="width: 100%; min-height: 48px; border-radius: 14px; border: 1.5px dashed #808D87; background: none; font-weight: 700; color: #43514C; text-align: center">Simpan tanpa Mata Anggaran</button></div>
+</div>
+</sc-if>
+
+<sc-if value="{{isPeriksa}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column; background: #F3F5F1; animation: masuk .28s cubic-bezier(.2,.8,.2,1)">
+  <div style="display: flex; align-items: center; gap: 8px; padding: 14px 12px 8px; min-height: 44px">
+    <sc-if value="{{belumPosted}}" hint-placeholder-val="{{true}}"><button onClick="{{keForm}}" aria-label="Kembali" style="flex: none; width: 44px; height: 44px; background: none; border: 0; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button></sc-if>
+    <h1 style="margin: 0 0 0 8px; flex: 1; font-size: 18px; font-weight: 700">{{periksaJudul}}</h1>
+  </div>
+  <div style="flex: 1; overflow-y: auto; padding: 8px 20px 20px; display: flex; flex-direction: column; gap: 18px">
+
+    <sc-if value="{{belumPosted}}" hint-placeholder-val="{{true}}">
+      <div style="border: 1.5px dashed #808D87; border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 6px">
+        <div style="align-self: flex-start; font-size: 13px; font-weight: 700; border: 1.5px dashed #808D87; color: #43514C; border-radius: 6px; padding: 3px 9px">Draf · belum masuk saldo</div>
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 30px; font-weight: 500; color: #43514C">{{jumlahRp}}</div>
+        <div style="font-weight: 600">{{ringkas}}</div>
+        <div style="font-size: 13px; color: #5E6A66">{{ringkas2}}</div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{posted}}" hint-placeholder-val="{{false}}">
+      <div style="position: relative; overflow: hidden; border: 1.5px solid #13201C; background: #FFFFFF; border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 6px">
+        <div style="position: absolute; inset: 0; background: #0E5A63; transform-origin: left; animation: sapu .7s ease-out both; pointer-events: none"></div>
+        <div style="display: flex; justify-content: space-between; align-items: center">
+          <div style="font-size: 13px; font-weight: 700; background: #13201C; color: #FFFFFF; border-radius: 6px; padding: 4px 10px">Dibukukan</div>
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; font-weight: 600; color: #0E5A63; border: 2px solid #0E5A63; border-radius: 8px; padding: 4px 10px; animation: cap .55s cubic-bezier(.2,.8,.2,1) .35s both">No. Bukti {{noBukti}}</div>
+        </div>
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 30px; font-weight: 500; margin-top: 6px">{{jumlahRp}}</div>
+        <div style="font-weight: 600">{{ringkas}}</div>
+        <div style="font-size: 13px; color: #5E6A66">Dibukukan pada 16/11/2026 10.42 · tidak dapat diubah lagi</div>
+      </div>
+      <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 14px 16px; animation: muncul .3s .5s both">
+        <div style="font-size: 14px; color: #43514C">Saldo buku {{akunNama}}</div>
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 26px; font-weight: 500">{{hitung}}</div>
+        <div style="font-size: 13px; color: #5E6A66">Sebelumnya {{saldoLama}}</div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{belumPosted}}" hint-placeholder-val="{{true}}">
+      <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 4px 16px">
+        <sc-for list="{{cek}}" as="c" hint-placeholder-count="5">
+          <div style="display: flex; gap: 12px; align-items: flex-start; padding: 12px 0; border-top: {{c.garis}}; animation: muncul .3s {{c.delay}} both">
+            <sc-if value="{{c.ok}}" hint-placeholder-val="{{true}}"><svg width="22" height="22" viewBox="0 0 24 24" role="img" aria-label="Terpenuhi"><circle cx="12" cy="12" r="11" fill="#0E5A63"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></sc-if>
+            <sc-if value="{{c.gagal}}" hint-placeholder-val="{{false}}"><svg width="22" height="22" viewBox="0 0 24 24" role="img" aria-label="Belum terpenuhi"><rect x="1" y="1" width="22" height="22" rx="6" fill="#A63C1C"/><path d="M12 6.5v7M12 17v.5" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round"/></svg></sc-if>
+            <sc-if value="{{c.info}}" hint-placeholder-val="{{false}}"><svg width="22" height="22" viewBox="0 0 24 24" role="img" aria-label="Untuk diketahui"><circle cx="12" cy="12" r="10" fill="none" stroke="#5E6A66" stroke-width="2" stroke-dasharray="3 3"/></svg></sc-if>
+            <div style="flex: 1"><div style="font-size: 15px; font-weight: 600">{{c.t}}</div><sc-if value="{{c.s}}" hint-placeholder-val="{{false}}"><div style="font-size: 13px; color: #5E6A66">{{c.s}}</div></sc-if></div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+  </div>
+
+  <sc-if value="{{belumPosted}}" hint-placeholder-val="{{true}}">
+    <div style="padding: 12px 20px 22px; background: #FFFFFF; border-top: 1px solid #DDE2DB; display: flex; flex-direction: column; gap: 8px">
+      <sc-if value="{{bisaBukukan}}" hint-placeholder-val="{{true}}"><button onClick="{{bukukan}}" style="min-height: 52px; border-radius: 14px; border: 0; background: #0E5A63; color: #FFFFFF; font-weight: 700; text-align: center">Bukukan</button></sc-if>
+      <sc-if value="{{takBisaBukukan}}" hint-placeholder-val="{{false}}">
+        <div style="font-size: 14px; color: #A63C1C; font-weight: 600">Tidak dapat dilakukan: {{gagalN}} syarat belum terpenuhi. Tidak ada yang dibukukan.</div>
+        <button onClick="{{keForm}}" style="min-height: 52px; border-radius: 14px; border: 1.5px solid #13201C; background: #FFFFFF; font-weight: 700; text-align: center">Ubah</button>
+      </sc-if>
+    </div>
+  </sc-if>
+  <sc-if value="{{posted}}" hint-placeholder-val="{{false}}">
+    <div style="padding: 12px 20px 22px; background: #FFFFFF; border-top: 1px solid #DDE2DB; display: flex; flex-direction: column; gap: 6px; animation: muncul .3s .8s both">
+      <button onClick="{{keDetail}}" style="min-height: 52px; border-radius: 14px; border: 0; background: #0E5A63; color: #FFFFFF; font-weight: 700; text-align: center">Lihat transaksi</button>
+      <button onClick="{{keBeranda}}" style="min-height: 44px; border: 0; background: none; color: #0E5A63; font-weight: 700; text-align: center">Kembali ke Beranda</button>
+    </div>
+  </sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{isDetail}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column; background: #F3F5F1; animation: masuk .28s cubic-bezier(.2,.8,.2,1)">
+  <div style="display: flex; align-items: center; gap: 8px; padding: 14px 12px 8px">
+    <button onClick="{{keBeranda}}" aria-label="Kembali ke Beranda" style="flex: none; width: 44px; height: 44px; background: none; border: 0; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+    <h1 style="margin: 0; flex: 1; font-family: 'IBM Plex Mono', monospace; font-size: 17px; font-weight: 600">{{noBukti}}</h1>
+    <div style="font-size: 13px; font-weight: 700; background: #13201C; color: #FFFFFF; border-radius: 6px; padding: 4px 10px; margin-right: 8px">Dibukukan</div>
+  </div>
+  <div style="flex: 1; overflow-y: auto; padding: 8px 20px 24px; display: flex; flex-direction: column; gap: 16px">
+    <div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 34px; font-weight: 500; letter-spacing: -1px">{{jumlahRp}}</div><div style="font-weight: 600">{{ringkas}}</div></div>
+    <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 4px 16px">
+      <sc-for list="{{rinci}}" as="d" hint-placeholder-count="6">
+        <div style="display: flex; justify-content: space-between; gap: 16px; padding: 11px 0; border-top: {{d.garis}}"><div style="font-size: 14px; color: #43514C">{{d.k}}</div><div style="font-size: 14px; font-weight: 600; text-align: right">{{d.v}}</div></div>
+      </sc-for>
+    </div>
+    <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; gap: 12px">
+      <div style="flex: 1"><div style="font-size: 14px; color: #43514C">Dokumen pendukung</div><div style="font-weight: 600; font-size: 15px">{{dokStatus}}</div></div>
+      <sc-if value="{{bisaVerif}}" hint-placeholder-val="{{false}}"><button onClick="{{verifikasi}}" style="min-height: 44px; padding: 0 16px; border-radius: 12px; border: 1.5px solid #0E5A63; background: #FFFFFF; color: #0E5A63; font-weight: 700">Verifikasi</button></sc-if>
+    </div>
+    <div>
+      <h2 style="margin: 0 0 8px; font-size: 15px; font-weight: 700">Riwayat</h2>
+      <div style="font-size: 14px; color: #43514C; display: flex; flex-direction: column; gap: 4px"><div>10.42 · Dibukukan oleh {{plk}}</div><div>10.41 · Dokumen pendukung diunggah</div><div>10.39 · Draf dicatat oleh {{plk}}</div></div>
+    </div>
+    <div style="font-size: 13px; color: #5E6A66">Jumlah, tanggal, Kas/Bank, peruntukan, Lingkup dan Mata Anggaran tidak dapat diubah. Selama bulannya belum ditutup, kesalahan dikoreksi dengan pembalikan.</div>
+    <a href="Koreksi.dc.html" style="min-height: 48px; border-radius: 14px; border: 1.5px solid #13201C; background: #FFFFFF; color: #13201C; font-weight: 700; display: flex; align-items: center; justify-content: center; text-decoration: none">Koreksi dengan pembalikan</a>
+  </div>
+</div>
+</sc-if>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"jabatanKosong":{"editor":"boolean","default":false},"bulan":{"editor":"enum","options":["ramai","sepi"],"default":"ramai"},"gagalSimpan":{"editor":"boolean","default":false},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  state = { screen: 'beranda', sheet: false, toast: false, filter: 'Semua', jenis: 'belanja', jumlah: '', pihak: '', uraian: '', akun: null, ke: null, per: null, ling: null, ma: null, cari: '', dok: 'kosong', verif: false, posted: false, simpan: 'belum', sudahCoba: false, hitung: 0, saldoLama: 0, saldo: { kas: 8420000, bni: 24615000, bsg: 5380000 }, pend: 7540000, bel: 7940000, drafN: 2, drafRp: 800000, baru: null };
+  AKUN = [{ id: 'kas', n: 'Kas' }, { id: 'bni', n: 'Bank BNI ··4821' }, { id: 'bsg', n: 'Bank SulutGo ··1107' }];
+  PER = ['Umum Jemaat', 'Diakonia', 'Pembangunan'];
+  LING = ['Jemaat', 'Kolom 3', 'BIPRA Pemuda', 'Panitia Natal'];
+  CFG = {
+    belanja: { judul: 'Belanja', pohon: 'Belanja', akun: 'Kas/Bank', per: 'Diambil dari peruntukan', pihak: 'Dibayar kepada', tanda: -1 },
+    pendapatan: { judul: 'Pendapatan', pohon: 'Pendapatan', akun: 'Kas/Bank', per: 'Masuk ke peruntukan', pihak: 'Diterima dari (boleh tanpa nama)', tanda: 1 },
+    pindah: { judul: 'Pindah antar Kas/Bank', pohon: '', akun: 'Dari Kas/Bank', per: '', pihak: '', tanda: 0 }
+  };
+  MA = {
+    Belanja: [{ k: '5.00.00.00', n: 'BELANJA OPERASIONAL', grup: true }, { k: '5.01.02.00', n: 'Listrik, air dan telepon' }, { k: '5.02.01.00', n: 'Alat tulis dan fotokopi' }, { k: '5.03.03.00', n: 'Biaya administrasi bank' }, { k: '4.00.00.00', n: 'BELANJA PELAYANAN', grup: true }, { k: '4.03.03.00', n: 'Diakonia duka' }],
+    Pendapatan: [{ k: '1.3.53.00.00', n: 'PERSEMBAHAN', grup: true }, { k: '1.3.53.07.00', n: 'Persembahan Ibadah Minggu' }, { k: '1.3.53.09.00', n: 'Persembahan syukur' }, { k: '1.4.10.00.00', n: 'SUMBANGAN', grup: true }, { k: '1.4.10.02.00', n: 'Sumbangan donatur' }]
+  };
+  rp(n) { var s = String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return (n < 0 ? '−' : '') + 'Rp' + s; }
+  nama(id) { var a = this.AKUN.find(function (x) { return x.id === id; }); return a ? a.n : ''; }
+  componentWillUnmount() { clearInterval(this.t); clearTimeout(this.t2); clearTimeout(this.t3); clearTimeout(this.t4); }
+  ubah(patch) {
+    var gagal = (this.props.gagalSimpan ?? false) && !this.state.sudahCoba;
+    this.setState(Object.assign({ simpan: gagal ? 'gagal' : 'tersimpan' }, patch));
+  }
+  rv0() {
+    var self = this, s = this.state, rp = this.rp;
+    var sepi = (this.props.bulan ?? 'ramai') === 'sepi';
+    var cfg = this.CFG[s.jenis], pindah = s.jenis === 'pindah';
+    var j = parseInt(s.jumlah || '0', 10);
+    var chip = function (on) { return on ? { bg: '#13201C', fg: '#FFFFFF', bd: '#13201C' } : { bg: '#FFFFFF', fg: '#13201C', bd: '#7F8C86' }; };
+    var chips = function (list, cur, key) { return list.map(function (x) { var id = x.id || x, on = cur === id; return Object.assign({ n: x.n || x, on: on, pick: function () { var p = {}; p[key] = id; self.ubah(p); } }, chip(on)); }); };
+
+    // pemeriksaan sebelum bukukan
+    var cek = [];
+    cek.push(j > 0 ? { ok: true, t: 'Jumlah ' + rp(j) } : { gagal: true, t: 'Jumlah belum diisi' });
+    if (pindah) {
+      var okP = s.akun && s.ke && s.akun !== s.ke;
+      cek.push(okP ? { ok: true, t: 'Dari ' + this.nama(s.akun) + ' ke ' + this.nama(s.ke) } : { gagal: true, t: 'Kas/Bank asal dan tujuan belum dipilih', s: 'Keduanya harus berbeda' });
+      cek.push({ ok: true, t: 'Bukan Pendapatan dan bukan Belanja', s: 'Tidak memerlukan Mata Anggaran' });
+    } else {
+      cek.push(s.akun ? { ok: true, t: 'Kas/Bank: ' + this.nama(s.akun) } : { gagal: true, t: 'Kas/Bank belum dipilih' });
+      cek.push(s.per ? { ok: true, t: cfg.per + ': ' + s.per } : { gagal: true, t: 'Peruntukan belum dipilih' });
+      cek.push(s.ling ? { ok: true, t: 'Lingkup: ' + s.ling } : { gagal: true, t: 'Lingkup belum dipilih' });
+      cek.push(s.ma ? { ok: true, t: 'Mata Anggaran sudah dipilih', s: cfg.pohon + ' ' + s.ma.k + ' · ' + s.ma.n } : { gagal: true, t: 'Mata Anggaran belum dipilih', s: 'Tetap bisa disimpan sebagai draf' });
+      cek.push({ ok: true, t: 'Persetujuan: tidak diperlukan', s: 'Aturan: transaksi rutin di bawah batas Jemaat' });
+    }
+    cek.push(s.dok === 'terlampir' ? { ok: true, t: 'Dokumen pendukung: diunggah, belum diverifikasi', s: 'Wajib terverifikasi sebelum tutup buku' } : { info: true, t: 'Dokumen pendukung: wajib, belum ada', s: 'Boleh dibukukan, tetapi menjadi hambatan tutup buku' });
+    cek.forEach(function (c, i) { c.garis = i ? '1px solid #DDE2DB' : '0'; c.delay = (i * 90) + 'ms'; });
+    var gagalN = cek.filter(function (c) { return c.gagal; }).length;
+
+    // daftar transaksi
+    var B = { Dibukukan: { bbg: '#13201C', bfg: '#FFFFFF', bbd: '1.5px solid #13201C' }, Draf: { bbg: 'transparent', bfg: '#43514C', bbd: '1.5px dashed #808D87' }, Dibalik: { bbg: '#FFFFFF', bfg: '#43514C', bbd: '1.5px solid #5E6A66' } };
+    var data = sepi ? [] : [
+      { st: 'Dibukukan', no: 'BKU-2026-0146', tgl: '15/11/2026', ur: 'Persembahan Ibadah Minggu', ak: 'Kas', jm: 3450000 },
+      { st: 'Draf', no: 'Belum ada No. Bukti', tgl: '14/11/2026', ur: 'Fotokopi warta jemaat', ak: 'Kas', jm: -150000 },
+      { st: 'Dibukukan', no: 'BKU-2026-0144', tgl: '12/11/2026', ur: 'Pembalikan BKU-2026-0139', ak: 'Kas', jm: 750000 },
+      { st: 'Dibalik', no: 'BKU-2026-0139', tgl: '09/11/2026', ur: 'Konsumsi rapat majelis', ak: 'Kas', jm: -750000, link: 'Dibalik oleh No. Bukti BKU-2026-0144' },
+      { st: 'Draf', no: 'Belum ada No. Bukti', tgl: '08/11/2026', ur: 'Honor pemusik', ak: 'Bank BNI ··4821', jm: -650000 }
+    ];
+    if (s.baru) data = [s.baru].concat(data);
+    var rows = data.filter(function (r) { return s.filter === 'Semua' || r.st === s.filter; }).map(function (r) {
+      var d = r.st === 'Draf';
+      return Object.assign({}, r, B[r.st], { rp: rp(r.jm), bg: d ? 'transparent' : '#FFFFFF', bd: d ? '1.5px dashed #808D87' : '1px solid #DDE2DB', fg: d ? '#5E6A66' : '#13201C', link: r.link || (d ? 'Belum masuk saldo' : '') });
+    });
+
+    var total = s.saldo.kas + s.saldo.bni + s.saldo.bsg;
+    var drafN = sepi ? 0 : s.drafN, pend = sepi ? 0 : s.pend, bel = sepi ? 0 : s.bel;
+    var tindakan = sepi ? [] : [
+      { j: drafN + ' draf belum dibukukan', s: 'Belum masuk saldo' },
+      { j: '1 dokumen pendukung wajib, belum ada', s: 'BKU-2026-0143 · Rp600.000' },
+      { j: '1 Mata Anggaran belum dipilih', s: 'Draf · Honor pemusik' }
+    ];
+    var ringkas = pindah ? ('Dari ' + (this.nama(s.akun) || '…') + ' ke ' + (this.nama(s.ke) || '…')) : (s.uraian || s.pihak || cfg.judul);
+    var simpanTeks = { belum: 'Belum tersimpan', tersimpan: 'Tersimpan', gagal: 'Gagal disimpan', mencoba: 'Mencoba menyimpan lagi…' }[s.simpan];
+
+    return {
+      isBeranda: s.screen === 'beranda', isDaftar: s.screen === 'daftar', isForm: s.screen === 'form', isMa: s.screen === 'ma', isPeriksa: s.screen === 'periksa', isDetail: s.screen === 'detail',
+      showNav: s.screen === 'beranda' || s.screen === 'daftar', sheet: s.sheet, toast: s.toast,
+      navB: s.screen === 'beranda' ? '#0E5A63' : '#5E6A66', navT: s.screen === 'daftar' ? '#0E5A63' : '#5E6A66',
+      sepi: sepi, ramai: !sepi, total: rp(total), adaDraf: drafN > 0, drafN: drafN, drafRp: rp(s.drafRp), tindakanN: tindakan.length + 1, tindakan: tindakan,
+      akunRows: this.AKUN.map(function (a, i) { return { n: a.n, rp: rp(s.saldo[a.id]), garis: i ? '1px solid #DDE2DB' : '0' }; }),
+      pend: rp(pend), bel: rp(bel), net: rp(pend - bel),
+      filters: ['Semua', 'Draf', 'Dibukukan'].map(function (f) { var on = s.filter === f; return Object.assign({ n: f, on: on, pick: function () { self.setState({ filter: f }); } }, chip(on)); }),
+      rows: rows, daftarKosong: rows.length === 0,
+      jenisList: [
+        { n: 'Pendapatan', s: 'Uang masuk milik Jemaat', tanda: '+', id: 'pendapatan' },
+        { n: 'Belanja', s: 'Pembayaran langsung', tanda: '−', id: 'belanja' },
+        { n: 'Persembahan', s: 'Persembahan ibadah, dicatat sebagai Pendapatan', tanda: '+', id: 'pendapatan', ur: 'Persembahan Ibadah Minggu' },
+        { n: 'Pindah antar Kas/Bank', s: 'Termasuk setoran ke bank', tanda: '⇄', id: 'pindah' }
+      ].map(function (x) { return Object.assign(x, { pick: function () { self.setState({ screen: 'form', sheet: false, jenis: x.id, jumlah: '', pihak: '', uraian: x.ur || '', akun: null, ke: null, per: null, ling: null, ma: null, cari: '', dok: 'kosong', verif: false, posted: false, simpan: 'belum', sudahCoba: false }); } }); }),
+      cfg: cfg, isPindah: pindah, bukanPindah: !pindah,
+      jumlahFmt: s.jumlah ? s.jumlah.replace(/\B(?=(\d{3})+(?!\d))/g, '.') : '', jumlahRp: rp(j * (cfg.tanda || 1)),
+      pihak: s.pihak, uraian: s.uraian, cari: s.cari,
+      akunChips: chips(this.AKUN, s.akun, 'akun'), keChips: chips(this.AKUN, s.ke, 'ke'), perChips: chips(this.PER, s.per, 'per'), lingChips: chips(this.LING, s.ling, 'ling'),
+      maKode: s.ma ? cfg.pohon + ' ' + s.ma.k : 'Draf boleh disimpan tanpa Mata Anggaran', maNama: s.ma ? s.ma.n : 'Mata Anggaran belum dipilih',
+      maBg: s.ma ? '#FFFFFF' : 'transparent', maBd: s.ma ? '1px solid #7F8C86' : '1.5px dashed #808D87',
+      maRows: (this.MA[cfg.pohon] || []).filter(function (r) { var q = s.cari.toLowerCase(); return !q || r.grup || (r.k + ' ' + r.n).toLowerCase().indexOf(q) >= 0; }).map(function (r) { return { k: r.k, n: r.n, grup: !!r.grup, bisa: !r.grup, pick: function () { self.ubah({ ma: r, screen: 'form' }); } }; }),
+      dokKosong: s.dok === 'kosong', dokUnggah: s.dok === 'unggah', dokAda: s.dok === 'terlampir',
+      simpanTeks: simpanTeks, simpanFg: s.simpan === 'gagal' ? '#A63C1C' : (s.simpan === 'tersimpan' ? '#0E5A63' : '#5E6A66'), simpanGagal: s.simpan === 'gagal',
+      cek: cek, gagalN: gagalN, bisaBukukan: gagalN === 0, takBisaBukukan: gagalN > 0,
+      posted: s.posted, belumPosted: !s.posted, periksaJudul: s.posted ? 'Sudah dibukukan' : 'Periksa dan bukukan',
+      ringkas: ringkas, ringkas2: pindah ? 'Pindah antar Kas/Bank · 16 November 2026' : ((this.nama(s.akun) || 'Kas/Bank belum dipilih') + ' · 16 November 2026'),
+      noBukti: 'BKU-2026-0147', akunNama: this.nama(s.akun), hitung: rp(s.hitung), saldoLama: rp(s.saldoLama),
+      rinci: (pindah ? [['Dari Kas/Bank', this.nama(s.akun)], ['Ke Kas/Bank', this.nama(s.ke)]] : [['Kas/Bank', this.nama(s.akun)], [cfg.per, s.per], ['Lingkup', s.ling], ['Mata Anggaran', s.ma ? cfg.pohon + ' ' + s.ma.k + ' ' + s.ma.n : ''], ['Versi Mata Anggaran', '2026.1'], ['Persetujuan', 'Tidak diperlukan (aturan: transaksi rutin)']]).concat([['Tanggal transaksi', '16/11/2026'], ['Dicatat pada', '16/11/2026 10.39'], ['Dibukukan pada', '16/11/2026 10.42']]).map(function (d, i) { return { k: d[0], v: d[1], garis: i ? '1px solid #DDE2DB' : '0' }; }),
+      dokStatus: s.verif ? 'Terverifikasi (oleh Meiske L.)' : (s.dok === 'terlampir' ? 'Diunggah, belum diverifikasi' : 'Wajib, belum ada'), bisaVerif: s.dok === 'terlampir' && !s.verif,
+
+      keBeranda: function () { self.setState({ screen: 'beranda', sheet: false }); },
+      bukaDaftar: function () { self.setState({ screen: 'daftar' }); },
+      bukaSheet: function () { self.setState({ sheet: true }); },
+      tutupSheet: function () { self.setState({ sheet: false }); },
+      keForm: function () { self.setState({ screen: 'form' }); },
+      bukaMa: function () { self.setState({ screen: 'ma', cari: '' }); },
+      tanpaMa: function () { self.ubah({ ma: null, screen: 'form' }); },
+      kePeriksa: function () { self.setState({ screen: 'periksa' }); },
+      keDetail: function () { self.setState({ screen: 'detail' }); },
+      onJumlah: function (e) { self.ubah({ jumlah: e.target.value.replace(/\D/g, '').replace(/^0+/, '').slice(0, 12) }); },
+      onPihak: function (e) { self.ubah({ pihak: e.target.value }); },
+      onUraian: function (e) { self.ubah({ uraian: e.target.value }); },
+      onCari: function (e) { self.setState({ cari: e.target.value }); },
+      cobaLagi: function () { self.setState({ simpan: 'mencoba', sudahCoba: true }); clearTimeout(self.t2); self.t2 = setTimeout(function () { self.setState({ simpan: 'tersimpan' }); }, 1100); },
+      lampirkan: function () { self.setState({ dok: 'unggah' }); clearTimeout(self.t3); self.t3 = setTimeout(function () { self.ubah({ dok: 'terlampir' }); }, 1300); },
+      verifikasi: function () { self.setState({ verif: true }); },
+      simpanDraf: function () {
+        self.setState({ screen: 'beranda', toast: true, drafN: s.drafN + 1, drafRp: s.drafRp + j, baru: { st: 'Draf', no: 'Belum ada No. Bukti', tgl: '16/11/2026', ur: ringkas, ak: self.nama(s.akun) || 'Kas/Bank belum dipilih', jm: j * (cfg.tanda || 1) } });
+        clearTimeout(self.t4); self.t4 = setTimeout(function () { self.setState({ toast: false }); }, 2600);
+      },
+      bukukan: function () {
+        var saldo = Object.assign({}, s.saldo), lama = saldo[s.akun];
+        if (pindah) { saldo[s.akun] -= j; saldo[s.ke] += j; } else { saldo[s.akun] += cfg.tanda * j; }
+        var akhir = saldo[s.akun], i = 0;
+        self.setState({ posted: true, saldo: saldo, hitung: lama, saldoLama: lama, pend: s.pend + (s.jenis === 'pendapatan' ? j : 0), bel: s.bel + (s.jenis === 'belanja' ? j : 0), baru: { st: 'Dibukukan', no: 'BKU-2026-0147', tgl: '16/11/2026', ur: ringkas, ak: self.nama(s.akun), jm: j * (cfg.tanda || -1) } });
+        clearTimeout(self.t2); clearInterval(self.t);
+        self.t2 = setTimeout(function () { self.t = setInterval(function () { i++; var k = 1 - Math.pow(1 - i / 26, 3); self.setState({ hitung: Math.round(lama + (akhir - lama) * k) }); if (i >= 26) clearInterval(self.t); }, 30); }, 750);
+      }
+    };
+  }
+  tukarJk(o, d) {
+    var self = this, ganti = function (s) { var t = s.match(/\d\d\/\d\d\/\d{4}/g) || []; return s.indexOf('Meiske L.') < 0 || t.some(function (x) { return x !== '16/11/2026'; }) ? s : s.split('Meiske L.').join('Yanti Sumual, Operator'); };
+    if (d > 5 || !o || typeof o !== 'object') return o;
+    Object.keys(o).forEach(function (k) { var v = o[k]; if (typeof v === 'string') o[k] = ganti(v); else if (v && typeof v === 'object') self.tukarJk(v, d + 1); });
+    return o;
+  }
+  renderVals() {
+    var V = this.rv0(), jk = !!this.props.jabatanKosong;
+    if (jk && true) this.tukarJk(V, 0);
+    V.jk = jk; V.tjk = !jk; V.plk = jk ? 'Yanti Sumual, Operator' : 'Meiske L.'; V.plk2 = jk ? 'Yanti Sumual, Operator (menjalankan jabatan kosong Bendahara Jemaat)' : 'Meiske L.';
+    return V;
+  }
+}
+</script>
+</body>
+</html>

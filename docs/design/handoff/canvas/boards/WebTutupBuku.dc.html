@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Bulan dan tutup buku (web)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+input{font:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes lingkar{from{stroke-dashoffset:290}to{stroke-dashoffset:0}}
+@keyframes cap{0%{opacity:0;transform:scale(1.8)}60%{opacity:1;transform:scale(.92)}100%{opacity:1;transform:scale(1)}}
+@keyframes gelap{from{background:#FFFFFF}to{background:#13201C}}
+@keyframes putar{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+.pn-c{display:none}
+@media (max-width:860px){
+.pn{flex:1 1 100%!important;flex-direction:row!important;flex-wrap:wrap;align-items:center;gap:0 12px!important;padding:8px 16px!important;border-right:0!important;border-bottom:1px solid #DDE2DB}
+.pn-c{display:flex;align-items:center;appearance:none;-webkit-appearance:none;min-height:44px;margin:0 0 0 auto;padding:0 16px;border-radius:14px;border:1.5px solid #13201C;background:#FFFFFF;font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+.pn-c::before{content:"Menu"}
+.pn-c:checked{background:#13201C;color:#FFFFFF}
+.pn-c:checked::before{content:"Tutup menu"}
+.pn-l,.pn-w{display:none;flex:1 1 100%}
+.pn-c:checked~.pn-l{display:block;padding:8px 0}
+.pn-c:checked~.pn-w{display:block;margin-top:0!important;padding-bottom:8px!important}
+}
+</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; flex-wrap: wrap; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 15px; line-height: 1.45">
+
+  <nav class="pn" style="flex: 1 1 220px; box-sizing: border-box; padding: 24px 16px; background: #FFFFFF; border-right: 1px solid #DDE2DB; display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px">
+      <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="none" stroke="#0E5A63" stroke-width="2" stroke-dasharray="3 3"/><path d="M12 2h4a6 6 0 0 1 6 6v8a6 6 0 0 1-6 6h-4z" fill="#0E5A63"/></svg>
+      <div><div style="font-weight: 700; font-size: 18px; line-height: 1.1">palakat</div><div style="font-size: 13px; color: #5E6A66">Jemaat Karunia</div></div>
+    </div>
+    <input type="checkbox" class="pn-c" aria-label="Menu">
+    <div class="pn-l">
+      <sc-for list="{{nav}}" as="n" hint-placeholder-count="7">
+        <a href="{{n.href}}" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 10px; text-decoration: none; font-weight: 600; background: {{n.bg}}; color: {{n.fg}}">{{n.n}}</a>
+      </sc-for>
+    </div>
+    <div class="pn-w" style="margin-top: auto; padding: 12px 8px 0; border-top: 1px solid #DDE2DB; font-size: 13px; color: #43514C"><sc-if value="{{tjk}}" hint-placeholder-val="{{true}}"><div><strong style="color: #13201C">Meiske L.</strong> · Bendahara<br>Wewenang Bendahara aktif</div></sc-if><sc-if value="{{jk}}" hint-placeholder-val="{{false}}"><div><strong style="color: #13201C">Yanti Sumual</strong> · Operator<br>Menjalankan jabatan kosong Bendahara Jemaat</div></sc-if></div>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 28px clamp(16px, 3vw, 40px) 40px; display: flex; flex-direction: column; gap: 22px">
+<sc-if value="{{jk}}" hint-placeholder-val="{{false}}"><div role="status" style="background: #13201C; color: #FFFFFF; border-radius: 14px; padding: 12px 16px; font-size: 14px"><strong>Anda menjalankan jabatan kosong Bendahara Jemaat sejak 16/11/2026 08.15.</strong> <span style="color: #D5DDD8">Setiap tindakan dicatat sebagai dijalankan oleh Operator Yanti Sumual.</span></div></sc-if>
+    <div><h1 style="margin: 0; font-size: 26px; font-weight: 700">Bulan dan tutup buku</h1><div style="font-size: 14px; color: #43514C">Bulan ditutup satu per satu, mulai dari yang paling lama. Bulan tanpa transaksi tetap harus ditutup.</div></div>
+    <div style="display: flex; flex-wrap: wrap; gap: 0 22px; font-size: 14px; font-weight: 600; margin-top: -8px"><a href="WebKesiapan.dc.html" style="min-height: 44px; min-width: 44px; display: inline-flex; align-items: center">Pernyataan kesiapan</a><a href="WebAI.dc.html" style="min-height: 44px; min-width: 44px; display: inline-flex; align-items: center">Bantuan AI</a><a href="WebKejadian.dc.html" style="min-height: 44px; min-width: 44px; display: inline-flex; align-items: center">Kejadian setelah tutup buku</a></div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 14px">
+      <div style="background: #13201C; color: #FFFFFF; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 4px">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px"><div style="font-size: 17px; font-weight: 700">September 2026</div><span style="font-size: 13px; font-weight: 700; background: #FFFFFF; color: #13201C; border-radius: 6px; padding: 4px 10px">Sudah ditutup</span></div>
+        <div style="font-size: 13px; color: #D5DDD8">Periode laporan 15–30 September 2026</div>
+        <a href="WebLaporan.dc.html" style="font-size: 14px; font-weight: 700; color: #FFFFFF; margin-top: 4px; min-height: 44px; display: inline-flex; align-items: center">Lihat laporan resmi</a>
+      </div>
+      <div style="background: {{oktBg}}; color: {{oktFg}}; border: {{oktBd}}; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 4px; transition: background .6s, color .6s">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px"><div style="font-size: 17px; font-weight: 700">Oktober 2026</div><span style="font-size: 13px; font-weight: 700; border-radius: 6px; padding: 3px 9px; background: {{oktBadgeBg}}; color: {{oktBadgeFg}}; border: 1.5px solid {{oktBadgeBd}}">{{oktStatus}}</span></div>
+        <div style="font-size: 13px; color: {{oktSub}}">{{oktTeks}}</div>
+      </div>
+      <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 4px">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px"><div style="font-size: 17px; font-weight: 700">November 2026</div><span style="font-size: 13px; font-weight: 700; border: 1.5px solid #5E6A66; color: #43514C; border-radius: 6px; padding: 3px 9px">Belum ditutup</span></div>
+        <div style="font-size: 13px; color: #43514C">{{novTeks}}</div>
+      </div>
+    </div>
+
+    <sc-if value="{{isHambatan}}" hint-placeholder-val="{{false}}">
+      <div style="display: flex; flex-direction: column; gap: 12px">
+        <div style="display: flex; align-items: center; gap: 8px"><h2 style="margin: 0; font-size: 18px; font-weight: 700">Hambatan tutup buku Oktober 2026</h2><div style="background: #A63C1C; color: #FFFFFF; font-size: 13px; font-weight: 700; border-radius: 999px; min-width: 22px; height: 22px; display: flex; align-items: center; justify-content: center">2</div></div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr)); gap: 14px">
+          <div style="background: #FFFFFF; border: 1.5px solid #A63C1C; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 4px"><div style="font-weight: 700">Bank BNI ··4821 belum direkonsiliasi</div><div style="font-size: 14px; color: #43514C">Selisih belum dijelaskan Rp515.000</div><a href="WebRekonsiliasi.dc.html" style="margin-top: 8px; align-self: flex-start; min-height: 44px; padding: 0 16px; border-radius: 12px; background: #13201C; color: #FFFFFF; font-weight: 700; display: flex; align-items: center; text-decoration: none">Buka rekonsiliasi</a></div>
+          <div style="background: #FFFFFF; border: 1.5px solid #A63C1C; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 4px"><div style="font-weight: 700">1 dokumen pendukung belum diverifikasi</div><div style="font-size: 14px; color: #43514C"><span style="font-family: 'IBM Plex Mono', monospace">BKU-2026-0122</span> · Diakonia sakit · Rp300.000 · Diunggah, belum diverifikasi</div><a href="WebDokumen.dc.html" style="margin-top: 8px; align-self: flex-start; min-height: 44px; padding: 0 16px; border-radius: 12px; background: #13201C; color: #FFFFFF; font-weight: 700; display: flex; align-items: center; text-decoration: none">Buka dokumen pendukung</a></div>
+        </div>
+        <div style="font-size: 14px; color: #43514C">Untuk diketahui (tidak menghalangi tutup buku): 2 uang muka dengan sisa belum dipertanggungjawabkan.</div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{isKonfirmasi}}" hint-placeholder-val="{{true}}">
+      <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 18px; padding: clamp(18px, 2.4vw, 32px); display: grid; grid-template-columns: repeat(auto-fit, minmax(min(380px, 100%), 1fr)); gap: 28px; align-items: start">
+        <div style="display: flex; flex-direction: column; gap: 16px">
+          <div><h2 style="margin: 0 0 4px; font-size: 24px; font-weight: 700; line-height: 1.2">Tutup buku bulan Oktober 2026?</h2><div style="color: #43514C">Mohon baca ringkasan di bawah ini sebelum menutup buku.</div></div>
+          <div>
+            <div style="font-weight: 700; margin-bottom: 6px">Semua syarat wajib sudah terpenuhi:</div>
+            <sc-for list="{{syarat}}" as="t" hint-placeholder-count="8"><div style="display: flex; gap: 10px; align-items: flex-start; padding: 3px 0"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="flex: none; margin-top: 2px"><circle cx="12" cy="12" r="11" fill="#0E5A63"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><div style="font-size: 14px">{{t}}</div></div></sc-for>
+          </div>
+          <div style="font-size: 14px; color: #43514C"><div style="font-weight: 700; color: #13201C; margin-bottom: 4px">Untuk diketahui (tidak menghalangi tutup buku). Tetap ditampilkan di laporan, dan yang masih tersisa dibawa ke bulan berikutnya:</div>2 uang muka dengan sisa belum dipertanggungjawabkan; 1 setoran dalam perjalanan (belum tercatat di rekening koran)</div>
+          <div style="font-size: 14px; border-top: 1px solid #DDE2DB; padding-top: 12px">Laporan resmi mencakup <strong>1–31 Oktober 2026</strong> untuk seluruh Jemaat: semua peruntukan dan semua kas/bank. <a href="WebLaporan.dc.html" style="font-weight: 700">Lihat laporan sementara</a></div>
+          <div style="font-size: 14px; color: #43514C; display: flex; flex-direction: column; gap: 6px">
+            <div style="font-weight: 700; color: #13201C">Yang masih dapat Anda lakukan:</div>
+            <div>Mempertanggungjawabkan uang muka dan menyalurkan titipan yang masih tersisa, sebagai transaksi baru yang bertanggal di bulan sesudahnya.</div>
+            <div>Mencocokkan setoran dalam perjalanan dengan rekening koran bulan sesudahnya.</div>
+            <div>Melampirkan dokumen pendukung yang datang terlambat. Dokumen itu tetap disimpan, tetapi laporan resmi Oktober 2026 tidak berubah.</div>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 14px">
+          <div style="background: #13201C; color: #FFFFFF; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 10px">
+            <div style="font-size: 19px; font-weight: 700">Tutup buku bersifat permanen.</div>
+            <div style="font-size: 14px; color: #EAF0EC">Buku bulan Oktober 2026 menjadi final untuk semua pengguna, siapa pun.</div>
+            <div style="font-size: 14px; color: #EAF0EC">Transaksi Oktober 2026 tidak dapat diubah, dibalik, atau dikoreksi, bahkan dari bulan-bulan sesudahnya.</div>
+            <div style="font-size: 14px; color: #EAF0EC">Laporan resmi Oktober 2026 dibekukan dan tidak akan berubah.</div>
+            <div style="font-size: 14px; color: #EAF0EC">Kesalahan atau transaksi terlewat yang ditemukan di kemudian hari hanya dapat dicatat sebagai kejadian setelah tutup buku. Kejadian itu tidak mengubah angka apa pun, tidak menghapus selisih, dan tidak menghilangkan hambatan tutup buku.</div>
+            <div style="font-size: 14px; color: #EAF0EC">Kesalahan seperti itu dapat menghalangi rekonsiliasi atau tutup buku bulan-bulan sesudahnya. Bulan yang tidak dapat ditutup juga menahan tutup buku semua bulan setelahnya, dan aplikasi ini tidak menyediakan cara untuk memperbaikinya.</div>
+          </div>
+          <sc-if value="{{jk}}" hint-placeholder-val="{{false}}"><div style="background: #FFFFFF; border: 1.5px solid #13201C; border-radius: 14px; padding: 12px 14px; font-size: 14px">Ditutup oleh <strong>Yanti Sumual, Operator</strong>, yang menjalankan jabatan kosong Bendahara Jemaat. Nama dan keadaan ini tercatat pada tutup buku.</div></sc-if>
+<label style="display: flex; gap: 12px; align-items: flex-start; border: 1.5px solid #13201C; border-radius: 14px; padding: 14px; cursor: pointer">
+            <input type="checkbox" checked="{{centang}}" onChange="{{onCentang}}" style="width: 24px; height: 24px; flex: none; accent-color: #0E5A63; margin: 0">
+            <span style="font-size: 14px; font-weight: 600">Saya sudah membaca ringkasan dan laporan sementara. Saya mengerti bahwa tutup buku ini bersifat permanen dan transaksi Oktober 2026 tidak dapat dikoreksi lagi.</span>
+          </label>
+          <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center">
+            <button disabled="{{belumCentang}}" onPointerDown="{{tahanMulai}}" onPointerUp="{{tahanBatal}}" onPointerLeave="{{tahanBatal}}" onClick="{{tahanKlik}}" style="flex: 1 1 240px; position: relative; overflow: hidden; min-height: 54px; border-radius: 14px; border: 0; background: {{tutupBg}}; color: {{tutupFg}}; font-weight: 700; text-align: center; touch-action: none; user-select: none">
+              <span style="position: absolute; left: 0; top: 0; bottom: 0; width: {{tahanW}}; background: #0E5A63; transition: width {{tahanDur}} linear"></span>
+              <span style="position: relative">Tutup buku Oktober 2026</span>
+            </button>
+            <a href="WebBeranda.dc.html" style="min-height: 54px; padding: 0 20px; display: flex; align-items: center; font-weight: 700; color: #13201C; text-decoration: none">Kembali</a>
+          </div>
+          <div style="font-size: 13px; color: #5E6A66">{{tahanPetunjuk}}</div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{isProses}}" hint-placeholder-val="{{false}}">
+      <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 18px; min-height: 320px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px">
+        <svg width="52" height="52" viewBox="0 0 56 56" aria-hidden="true" style="animation: putar 1s linear infinite"><circle cx="28" cy="28" r="24" fill="none" stroke="#DDE2DB" stroke-width="4"/><path d="M28 4a24 24 0 0 1 24 24" fill="none" stroke="#13201C" stroke-width="4" stroke-linecap="round"/></svg>
+        <div role="status" style="font-weight: 700; font-size: 17px">Sedang menutup buku…</div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{isSudah}}" hint-placeholder-val="{{false}}">
+      <div style="color: #FFFFFF; border-radius: 18px; padding: clamp(20px, 3vw, 40px); display: flex; flex-wrap: wrap; align-items: center; gap: 28px; animation: gelap .7s ease-out both">
+        <svg width="104" height="104" viewBox="0 0 104 104" role="img" aria-label="Buku sudah ditutup" style="flex: none"><circle cx="52" cy="52" r="46" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-dasharray="290" transform="rotate(-90 52 52)" style="animation: lingkar .9s .3s ease-out both"/><g style="transform-origin: 52px 52px; animation: cap .5s 1.1s cubic-bezier(.2,.8,.2,1) both"><rect x="35" y="48" width="34" height="26" rx="5" fill="#FFFFFF"/><path d="M41 48v-8a11 11 0 0 1 22 0v8" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/></g></svg>
+        <div style="flex: 1 1 320px; display: flex; flex-direction: column; gap: 6px; animation: muncul .4s 1.4s both">
+          <h2 style="margin: 0; font-size: 24px; font-weight: 700; line-height: 1.2">Buku bulan Oktober 2026 sudah ditutup.</h2>
+          <div style="color: #D5DDD8">Angka laporan resmi sudah dibekukan; file laporannya sedang disiapkan.</div>
+          <div style="font-size: 13px; color: #D5DDD8">Dikonfirmasi oleh {{plk2}} · 16/11/2026 11.05</div>
+        </div>
+        <div style="flex: 1 1 320px; background: #FFFFFF; color: #13201C; border-radius: 14px; padding: 4px 16px; animation: muncul .4s 1.7s both">
+          <div style="display: flex; align-items: center; gap: 12px; min-height: 60px"><div style="flex: 1"><div style="font-weight: 600">Laporan resmi · PDF</div><div style="font-size: 13px; color: #43514C">{{pdfTeks}}</div></div><sc-if value="{{pdfSiap}}" hint-placeholder-val="{{false}}"><a href="A4F01.dc.html" style="min-height: 44px; padding: 0 14px; border-radius: 12px; border: 0; background: #0E5A63; color: #FFFFFF; font-weight: 700; display: flex; align-items: center; justify-content: center; text-decoration: none; box-sizing: border-box">Unduh PDF</a></sc-if></div>
+          <div style="display: flex; align-items: center; gap: 12px; min-height: 60px; border-top: 1px solid #DDE2DB"><div style="flex: 1"><div style="font-weight: 600">Laporan resmi · Excel</div><div style="font-size: 13px; color: {{xlsFg}}; font-weight: {{xlsFw}}">{{xlsTeks}}</div></div>
+            <sc-if value="{{xlsGagal}}" hint-placeholder-val="{{false}}"><button onClick="{{xlsCoba}}" style="min-height: 44px; padding: 0 14px; border-radius: 12px; border: 1.5px solid #A63C1C; background: #FFFFFF; color: #A63C1C; font-weight: 700">Coba lagi</button></sc-if>
+            <sc-if value="{{xlsSiap}}" hint-placeholder-val="{{false}}"><a href="WebExcel.dc.html" style="min-height: 44px; padding: 0 14px; border-radius: 12px; border: 0; background: #0E5A63; color: #FFFFFF; font-weight: 700; display: flex; align-items: center; justify-content: center; text-decoration: none; box-sizing: border-box">Unduh Excel</a></sc-if>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"jabatanKosong":{"editor":"boolean","default":false},"adaHambatan":{"editor":"boolean","default":false},"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  state = { tahap: 'konfirmasi', centang: false, tahan: false, pdf: 'siap0', xls: 'siap0' };
+  componentWillUnmount() { clearTimeout(this.t); clearTimeout(this.t2); clearTimeout(this.t3); clearTimeout(this.t4); }
+  tutupBuku() {
+    var self = this;
+    this.setState({ tahap: 'proses', tahan: false });
+    clearTimeout(this.t2);
+    this.t2 = setTimeout(function () { self.setState({ tahap: 'sudah' }); self.t3 = setTimeout(function () { self.setState({ pdf: 'siap', xls: 'gagal' }); }, 3600); }, 1500);
+  }
+  rv0() {
+    var self = this, s = this.state, hamb = this.props.adaHambatan ?? false, tutup = s.tahap === 'sudah';
+    var nav = [['Beranda', 'WebBeranda.dc.html'], ['Transaksi', 'WebTransaksi.dc.html'], ['Uang Muka dan Titipan', 'WebKewajiban.dc.html'], ['Rekonsiliasi', 'WebRekonsiliasi.dc.html'], ['Bulan dan tutup buku', 'WebTutupBuku.dc.html'], ['Laporan', 'WebPaketLaporan.dc.html'], ['Pengaturan', 'WebPengaturan.dc.html']];
+    return {
+      nav: nav.map(function (n, i) { return { n: n[0], href: n[1], bg: i === 4 ? '#13201C' : 'transparent', fg: i === 4 ? '#FFFFFF' : '#13201C' }; }),
+      isHambatan: hamb && !tutup, isKonfirmasi: !hamb && s.tahap === 'konfirmasi', isProses: s.tahap === 'proses', isSudah: tutup,
+      oktBg: tutup ? '#13201C' : '#FFFFFF', oktFg: tutup ? '#FFFFFF' : '#13201C', oktBd: tutup ? '2px solid #13201C' : '2px solid #13201C', oktSub: tutup ? '#D5DDD8' : '#43514C',
+      oktStatus: tutup ? 'Sudah ditutup' : 'Belum ditutup', oktBadgeBg: tutup ? '#FFFFFF' : 'transparent', oktBadgeFg: tutup ? '#13201C' : '#43514C', oktBadgeBd: tutup ? '#FFFFFF' : '#5E6A66',
+      oktTeks: tutup ? 'Periode laporan 1–31 Oktober 2026' : ('Berikutnya untuk tutup buku · ' + (hamb ? '2 hambatan' : 'tidak ada hambatan')),
+      novTeks: tutup ? 'Berikutnya untuk tutup buku · bulan berjalan' : 'Bulan berjalan · menunggu Oktober ditutup',
+      syarat: ['bulan sebelumnya sudah ditutup', 'semua 3 kas/bank sudah direkonsiliasi', 'Mata Anggaran sudah dipilih untuk semua transaksi', 'persetujuan yang wajib sudah dicatat', 'dokumen pendukung wajib sudah terverifikasi atau dikecualikan', 'tidak ada transaksi Draf atau Sudah diperiksa', 'tidak ada baris impor yang tertunda', 'persetujuan format laporan sudah dicatat'],
+      centang: s.centang, belumCentang: !s.centang,
+      tutupBg: s.centang ? '#13201C' : '#DDE2DB', tutupFg: s.centang ? '#FFFFFF' : '#5E6A66',
+      tahanW: s.tahan ? '100%' : '0%', tahanDur: s.tahan ? '1.6s' : '.2s',
+      tahanPetunjuk: s.centang ? 'Tekan dan tahan tombol sampai penuh.' : 'Centang pernyataan di atas untuk melanjutkan.',
+      pdfTeks: s.pdf === 'siap' ? 'Siap diunduh' : 'Sedang disiapkan', pdfSiap: s.pdf === 'siap',
+      xlsTeks: s.xls === 'gagal' ? 'File gagal dibuat. Angka tetap beku; cukup buat filenya lagi.' : (s.xls === 'siap' ? 'Siap diunduh' : 'Sedang disiapkan'), xlsGagal: s.xls === 'gagal', xlsSiap: s.xls === 'siap', xlsFg: s.xls === 'gagal' ? '#A63C1C' : '#43514C', xlsFw: s.xls === 'gagal' ? 700 : 400,
+      onCentang: function (e) { self.setState({ centang: e.target.checked }); },
+      tahanMulai: function () { if (!self.state.centang) return; self.setState({ tahan: true }); clearTimeout(self.t); self.t = setTimeout(function () { self.tutupBuku(); }, 1650); },
+      tahanBatal: function () { if (!self.state.tahan) return; clearTimeout(self.t); self.setState({ tahan: false }); },
+      tahanKlik: function (e) { if (e.detail === 0 && self.state.centang) self.tutupBuku(); },
+      xlsCoba: function () { self.setState({ xls: 'siap0' }); clearTimeout(self.t4); self.t4 = setTimeout(function () { self.setState({ xls: 'siap' }); }, 1800); }
+    };
+  }
+  tukarJk(o, d) {
+    var self = this, ganti = function (s) { var t = s.match(/\d\d\/\d\d\/\d{4}/g) || []; return s.indexOf('Meiske L.') < 0 || t.some(function (x) { return x !== '16/11/2026'; }) ? s : s.split('Meiske L.').join('Yanti Sumual, Operator'); };
+    if (d > 5 || !o || typeof o !== 'object') return o;
+    Object.keys(o).forEach(function (k) { var v = o[k]; if (typeof v === 'string') o[k] = ganti(v); else if (v && typeof v === 'object') self.tukarJk(v, d + 1); });
+    return o;
+  }
+  renderVals() {
+    var V = this.rv0(), jk = !!this.props.jabatanKosong;
+    if (jk && true) this.tukarJk(V, 0);
+    V.jk = jk; V.tjk = !jk; V.plk = jk ? 'Yanti Sumual, Operator' : 'Meiske L.'; V.plk2 = jk ? 'Yanti Sumual, Operator (menjalankan jabatan kosong Bendahara Jemaat)' : 'Meiske L.';
+    return V;
+  }
+}
+</script>
+</body>
+</html>

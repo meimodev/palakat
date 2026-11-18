@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Tanggal transaksi dan tanggal dokumen (web)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+input{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes isi{from{width:0}to{width:100%}}
+@keyframes titik{0%,100%{opacity:.25}50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+.pn-c{display:none}
+@media (max-width:860px){
+.pn{flex:1 1 100%!important;flex-direction:row!important;flex-wrap:wrap;align-items:center;gap:0 12px!important;padding:8px 16px!important;border-right:0!important;border-bottom:1px solid #DDE2DB}
+.pn-c{display:flex;align-items:center;appearance:none;-webkit-appearance:none;min-height:44px;margin:0 0 0 auto;padding:0 16px;border-radius:14px;border:1.5px solid #13201C;background:#FFFFFF;font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+.pn-c::before{content:"Menu"}
+.pn-c:checked{background:#13201C;color:#FFFFFF}
+.pn-c:checked::before{content:"Tutup menu"}
+.pn-l,.pn-w{display:none;flex:1 1 100%}
+.pn-c:checked~.pn-l{display:block;padding:8px 0}
+.pn-c:checked~.pn-w{display:block;margin-top:0!important;padding-bottom:8px!important}
+}
+</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; flex-wrap: wrap; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 15px; line-height: 1.45">
+
+  <nav class="pn" style="flex: 1 1 220px; box-sizing: border-box; padding: 24px 16px; background: #FFFFFF; border-right: 1px solid #DDE2DB; display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px">
+      <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="none" stroke="#0E5A63" stroke-width="2" stroke-dasharray="3 3"/><path d="M12 2h4a6 6 0 0 1 6 6v8a6 6 0 0 1-6 6h-4z" fill="#0E5A63"/></svg>
+      <div><div style="font-weight: 700; font-size: 18px; line-height: 1.1">palakat</div><div style="font-size: 13px; color: #5E6A66">Jemaat Karunia</div></div>
+    </div>
+    <input type="checkbox" class="pn-c" aria-label="Menu">
+    <div class="pn-l">
+      <sc-for list="{{nav}}" as="n" hint-placeholder-count="7">
+        <a href="{{n.href}}" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 10px; text-decoration: none; font-weight: 600; background: {{n.bg}}; color: {{n.fg}}">{{n.n}}</a>
+      </sc-for>
+    </div>
+    <div class="pn-w" style="margin-top: auto; padding: 12px 8px 0; border-top: 1px solid #DDE2DB; font-size: 13px; color: #43514C"><sc-if value="{{tjk}}" hint-placeholder-val="{{true}}"><div><strong style="color: #13201C">Meiske L.</strong> · Bendahara<br>Wewenang Bendahara aktif</div></sc-if><sc-if value="{{jk}}" hint-placeholder-val="{{false}}"><div><strong style="color: #13201C">Yanti Sumual</strong> · Operator<br>Menjalankan jabatan kosong Bendahara Jemaat</div></sc-if></div>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 28px clamp(16px, 3vw, 40px) 40px; display: flex; flex-direction: column; gap: 20px">
+<sc-if value="{{jk}}" hint-placeholder-val="{{false}}"><div role="status" style="background: #13201C; color: #FFFFFF; border-radius: 14px; padding: 12px 16px; font-size: 14px"><strong>Anda menjalankan jabatan kosong Bendahara Jemaat sejak 16/11/2026 08.15.</strong> <span style="color: #D5DDD8">Setiap tindakan dicatat sebagai dijalankan oleh Operator Yanti Sumual.</span></div></sc-if>
+<div><a href="WebCatat.dc.html" style="font-size: 14px; font-weight: 600">Catat transaksi</a><h1 style="margin: 2px 0 0; font-size: 26px; font-weight: 700">Tanggal transaksi</h1><div style="font-size: 14px; color: #43514C">Tanggal transaksi menentukan bulan laporan. Tanggal dokumen, dicatat dan dibukukan disimpan terpisah.</div></div>
+    <div style="display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start">
+      <div style="flex: 1 1 380px; max-width: 460px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+      <div style="display: flex; align-items: center; gap: 8px"><button onClick="{{prev}}" disabled="{{awal}}" aria-label="Bulan sebelumnya" style="flex: none; width: 44px; height: 44px; border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF; font-size: 20px; text-align: center">‹</button><div style="flex: 1; text-align: center"><div style="font-weight: 700; font-size: 17px">{{bulan}}</div><span style="font-size: 13px; font-weight: 700; border-radius: 6px; padding: 3px 9px; background: {{stBg}}; color: {{stFg}}; border: 1.5px solid #13201C">{{status}}</span></div><button onClick="{{next}}" disabled="{{akhir}}" aria-label="Bulan berikutnya" style="flex: none; width: 44px; height: 44px; border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF; font-size: 20px; text-align: center">›</button></div>
+      <div>
+        <div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; font-size: 13px; color: #5E6A66; text-align: center; padding-bottom: 6px"><div>Sen</div><div>Sel</div><div>Rab</div><div>Kam</div><div>Jum</div><div>Sab</div><div>Min</div></div>
+        <div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px"><sc-for list="{{cells}}" as="c" hint-placeholder-count="30"><button onClick="{{c.pick}}" disabled="{{c.mati}}" aria-pressed="{{c.on}}" style="height: 44px; padding: 0; border-radius: 12px; border: {{c.bd}}; background: {{c.bg}}; color: {{c.fg}}; font-weight: {{c.fw}}; text-align: center; visibility: {{c.vis}}">{{c.t}}</button></sc-for></div>
+      </div>
+      <sc-if value="{{tutup}}" hint-placeholder-val="{{false}}"><div style="font-size: 15px"><strong style="color: #A63C1C">Tidak dapat dipilih: September 2026 sudah ditutup.</strong> Yang masih dapat Anda lakukan: pilih tanggal di bulan yang belum ditutup, atau catat sebagai <a href="WebKejadian.dc.html" style="font-weight: 700">Kejadian setelah tutup buku</a>.</div></sc-if>
+      <sc-if value="{{nanti}}" hint-placeholder-val="{{false}}"><div style="font-size: 14px; color: #43514C">Tidak dapat dipilih: tanggal setelah hari ini, 16 November 2026.</div></sc-if>
+      <sc-if value="{{nov}}" hint-placeholder-val="{{true}}"><div style="font-size: 13px; color: #5E6A66">Hari ini 16 November 2026. Tanggal sesudahnya belum dapat dipilih.</div></sc-if>
+      <sc-if value="{{okt}}" hint-placeholder-val="{{false}}"><div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; border: 1.5px solid #13201C; padding: 12px 16px; font-size: 14px; animation: muncul .3s"><strong>Masuk laporan Oktober 2026</strong>, bulan berikutnya untuk tutup buku. Rekonsiliasi Oktober yang sudah dipastikan menjadi “Perlu dipastikan lagi”.</div></sc-if>
+</div>
+      <div style="flex: 999 1 380px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+      <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 4px 16px">
+        <div style="display: flex; justify-content: space-between; gap: 16px; align-items: baseline; padding: 12px 0"><div><div style="font-weight: 600">Tanggal transaksi</div><div style="font-size: 13px; color: #5E6A66">{{tglCat}}</div></div><div style="font-weight: 700; text-align: right">{{tglTeks}}</div></div>
+        <div style="padding: 12px 0; border-top: 1px solid #DDE2DB; display: flex; flex-direction: column; gap: 8px"><div><div style="font-weight: 600">Tanggal dokumen</div><div style="font-size: 13px; color: #5E6A66">Tanggal pada nota. Tidak memengaruhi bulan laporan.</div></div><div><sc-for list="{{dokChips}}" as="c" hint-placeholder-count="2"><button onClick="{{c.pick}}" aria-pressed="{{c.on}}" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; margin: 0 8px 8px 0; border-radius: 999px; border: 1.5px solid {{c.bd}}; background: {{c.bg}}; color: {{c.fg}}; font-weight: 600; font-size: 14px">{{c.n}}</button></sc-for></div><sc-if value="{{beda}}" hint-placeholder-val="{{false}}"><input aria-label="Tanggal dokumen" inputmode="numeric" placeholder="hh/bb/tttt" value="{{dokTeks}}" onChange="{{onDok}}" style="width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF; font-family: 'IBM Plex Mono', monospace; max-width: 220px"></sc-if></div>
+        <div style="display: flex; justify-content: space-between; gap: 16px; align-items: baseline; padding: 12px 0; border-top: 1px solid #DDE2DB"><div><div style="font-weight: 600">Dicatat pada</div><div style="font-size: 13px; color: #5E6A66">otomatis</div></div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 14px">16/11/2026 11.40</div></div>
+        <div style="display: flex; justify-content: space-between; gap: 16px; align-items: baseline; padding: 12px 0; border-top: 1px solid #DDE2DB"><div><div style="font-weight: 600">Dibukukan pada</div><div style="font-size: 13px; color: #5E6A66">otomatis, saat Bukukan</div></div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 14px">—</div></div>
+      </div>
+<div style="display: flex"><sc-if value="{{ada}}" hint-placeholder-val="{{true}}"><a href="WebCatat.dc.html" style="min-height: 52px; border-radius: 14px; border: 0; background: #0E5A63; color: #FFFFFF; font-weight: 700; text-align: center; padding: 0 20px; display: flex; align-items: center; justify-content: center; text-decoration: none"><span>Pakai {{tglTeks}}</span></a></sc-if><sc-if value="{{kosong}}" hint-placeholder-val="{{false}}"><button disabled="{{kosong}}" style="min-height: 52px; border-radius: 14px; border: 0; background: #0E5A63; color: #FFFFFF; font-weight: 700; text-align: center; padding: 0 20px; background: #DDE2DB; color: #5E6A66">Pilih tanggal dulu</button></sc-if></div></div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"jabatanKosong":{"editor":"boolean","default":false},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  rp(n) { var s = String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return (n < 0 ? '−' : '') + 'Rp' + s; }
+  navVals() { return [['Beranda', 'WebBeranda.dc.html'], ['Transaksi', 'WebTransaksi.dc.html'], ['Uang Muka dan Titipan', 'WebKewajiban.dc.html'], ['Rekonsiliasi', 'WebRekonsiliasi.dc.html'], ['Bulan dan tutup buku', 'WebTutupBuku.dc.html'], ['Laporan', 'WebPaketLaporan.dc.html'], ['Pengaturan', 'WebPengaturan.dc.html']].map(function (n, i) { return { n: n[0], href: n[1], bg: i === 1 ? '#13201C' : 'transparent', fg: i === 1 ? '#FFFFFF' : '#13201C' }; }); }
+  state = { bln: 10, hari: 14, dok: 'sama', dokTeks: '' };
+  vals() {
+    var self = this, s = this.state, chip = function (on) { return on ? { bg: '#13201C', fg: '#FFFFFF', bd: '#13201C' } : { bg: '#FFFFFF', fg: '#13201C', bd: '#7F8C86' }; };
+    var NB = { 8: 'September', 9: 'Oktober', 10: 'November', 11: 'Desember' }, tutup = s.bln === 8, nanti = s.bln === 11;
+    var n = new Date(2026, s.bln + 1, 0).getDate(), off = (new Date(2026, s.bln, 1).getDay() + 6) % 7;
+    var boleh = function (d) { return !tutup && !nanti && !(s.bln === 10 && d > 16); };
+    var sel = s.hari && boleh(s.hari) ? s.hari : null, cells = [], i;
+    for (i = 0; i < off; i++) cells.push({ t: '', vis: 'hidden', mati: true, bg: 'transparent', fg: '#13201C', bd: '0', fw: 400, on: false, pick: function () {} });
+    for (i = 1; i <= n; i++) (function (d) { var ok = boleh(d), on = d === sel, kini = s.bln === 10 && d === 16; cells.push({ t: String(d), vis: 'visible', mati: !ok, on: on, bg: on ? '#13201C' : (ok ? '#FFFFFF' : 'transparent'), fg: on ? '#FFFFFF' : (ok ? '#13201C' : '#808D87'), bd: on ? '1.5px solid #13201C' : (kini ? '1.5px solid #13201C' : (ok ? '1px solid #DDE2DB' : '0')), fw: on || kini ? 700 : 500, pick: function () { if (ok) self.setState({ hari: d }); } }); })(i);
+    var beda = s.dok === 'beda';
+    return {
+      bulan: NB[s.bln] + ' 2026', status: tutup ? 'Sudah ditutup' : 'Belum ditutup', stBg: tutup ? '#13201C' : '#FFFFFF', stFg: tutup ? '#FFFFFF' : '#13201C',
+      awal: s.bln === 8, akhir: s.bln === 11, prev: function () { if (s.bln > 8) self.setState({ bln: s.bln - 1, hari: null }); }, next: function () { if (s.bln < 11) self.setState({ bln: s.bln + 1, hari: null }); },
+      cells: cells, tutup: tutup, nanti: nanti, okt: s.bln === 9 && !!sel, nov: s.bln === 10,
+      ada: !!sel, kosong: !sel, tglTeks: sel ? sel + ' ' + NB[s.bln] + ' 2026' : 'Belum dipilih', tglCat: sel ? 'masuk laporan ' + NB[s.bln] + ' 2026' : 'menentukan bulan laporan',
+      dokChips: [['sama', 'Sama dengan tanggal transaksi'], ['beda', 'Berbeda']].map(function (c) { var on = s.dok === c[0]; return Object.assign({ n: c[1], on: on, pick: function () { self.setState({ dok: c[0] }); } }, chip(on)); }),
+      beda: beda, dokTeks: s.dokTeks, onDok: function (e) { self.setState({ dokTeks: e.target.value.replace(/[^\d\/]/g, '').slice(0, 10) }); }
+    };
+  }
+
+  rv0() { var V = this.vals(); if (this.navVals) V.nav = this.navVals(); return V; }
+  tukarJk(o, d) {
+    var self = this, ganti = function (s) { var t = s.match(/\d\d\/\d\d\/\d{4}/g) || []; return s.indexOf('Meiske L.') < 0 || t.some(function (x) { return x !== '16/11/2026'; }) ? s : s.split('Meiske L.').join('Yanti Sumual, Operator'); };
+    if (d > 5 || !o || typeof o !== 'object') return o;
+    Object.keys(o).forEach(function (k) { var v = o[k]; if (typeof v === 'string') o[k] = ganti(v); else if (v && typeof v === 'object') self.tukarJk(v, d + 1); });
+    return o;
+  }
+  renderVals() {
+    var V = this.rv0(), jk = !!this.props.jabatanKosong;
+    if (jk && false) this.tukarJk(V, 0);
+    V.jk = jk; V.tjk = !jk; V.plk = jk ? 'Yanti Sumual, Operator' : 'Meiske L.'; V.plk2 = jk ? 'Yanti Sumual, Operator (menjalankan jabatan kosong Bendahara Jemaat)' : 'Meiske L.';
+    return V;
+  }
+}
+</script>
+</body>
+</html>

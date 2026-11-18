@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Lihat file dokumen pendukung (ponsel)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+input{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes masuk{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@keyframes pudar{from{opacity:0}to{opacity:1}}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes isi{from{width:0}to{width:100%}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; display: flex; flex-direction: column; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 16px; line-height: 1.4">
+<sc-if value="{{jk}}" hint-placeholder-val="{{false}}"><div role="status" style="flex: none; background: #13201C; color: #FFFFFF; padding: 10px 24px 8px; font-size: 13px; line-height: 1.3; text-align: center"><strong>Menjalankan jabatan kosong</strong> · Bendahara Jemaat</div></sc-if>
+<div style="position: relative; flex: 1; min-height: 0">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column; background: #13201C; color: #FFFFFF">
+  <div style="display: flex; align-items: center; gap: 8px; padding: 14px 12px 4px"><a href="Dokumen.dc.html" aria-label="Kembali ke Dokumen pendukung" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #FFFFFF"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></a><h1 style="margin: 0; flex: 1; font-size: 16px; font-weight: 600; font-family: 'IBM Plex Mono', monospace">{{fileNama}}</h1></div>
+  <div style="flex: 1; min-height: 0; overflow: auto; display: flex; align-items: center; justify-content: center; padding: 24px"><div style="width: 230px; flex: none; background: #FBFAF6; color: #13201C; padding: 18px 16px; font-family: 'IBM Plex Mono', monospace; font-size: 13px; line-height: 1.55; box-shadow: 0 12px 32px rgba(0,0,0,.4); transform: {{skala}}; transition: transform .25s cubic-bezier(.2,.8,.2,1)"><div style="text-align: center; font-weight: 600">{{h.toko}}</div><div style="text-align: center">{{h.alamat}}</div><div style="border-top: 1px dashed #5E6A66; margin: 8px 0"></div><sc-for list="{{h.baris}}" as="b" hint-placeholder-count="2"><div style="display: flex; justify-content: space-between; gap: 8px"><span>{{b.n}}</span><span>{{b.rp}}</span></div></sc-for><div style="border-top: 1px dashed #5E6A66; margin: 8px 0"></div><div style="display: flex; justify-content: space-between; font-weight: 600"><span>TOTAL</span><span>{{h.total}}</span></div><div style="margin-top: 8px">{{h.tgl}}</div><div>{{h.kaki}}</div></div></div>
+    <div style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 16px 14px"><button onClick="{{prev}}" disabled="{{pertama}}" aria-label="Halaman sebelumnya" style="flex: none; width: 44px; height: 44px; border-radius: 12px; border: 1.5px solid #5E6A66; background: transparent; color: #FFFFFF; font-size: 20px; font-weight: 600; text-align: center">‹</button><span style="min-width: 70px; text-align: center; font-size: 14px">{{halTeks}}</span><button onClick="{{next}}" disabled="{{terakhir}}" aria-label="Halaman berikutnya" style="flex: none; width: 44px; height: 44px; border-radius: 12px; border: 1.5px solid #5E6A66; background: transparent; color: #FFFFFF; font-size: 20px; font-weight: 600; text-align: center">›</button><span style="width: 16px"></span><button onClick="{{kecil}}" disabled="{{min}}" aria-label="Perkecil" style="flex: none; width: 44px; height: 44px; border-radius: 12px; border: 1.5px solid #5E6A66; background: transparent; color: #FFFFFF; font-size: 20px; font-weight: 600; text-align: center">−</button><span style="min-width: 52px; text-align: center; font-family: 'IBM Plex Mono', monospace; font-size: 14px">{{zoomTeks}}</span><button onClick="{{besar}}" disabled="{{maks}}" aria-label="Perbesar" style="flex: none; width: 44px; height: 44px; border-radius: 12px; border: 1.5px solid #5E6A66; background: transparent; color: #FFFFFF; font-size: 20px; font-weight: 600; text-align: center">+</button></div>
+  <div style="background: #FFFFFF; color: #13201C; border-radius: 22px 22px 0 0; padding: 16px 20px 20px; display: flex; flex-direction: column; gap: 8px">
+      <div style="display: flex; justify-content: space-between; gap: 16px; align-items: baseline"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #43514C">BKU-2026-0147</div><div style="font-family: 'IBM Plex Mono', monospace; font-weight: 500">−Rp150.000</div></div>
+      <div style="font-weight: 600">Fotokopi warta jemaat</div>
+      <div><div style="font-size: 14px; color: #43514C">Dokumen pendukung · 2 file</div><div style="font-size: 18px; font-weight: 700; color: {{stFg}}">{{stTeks}}</div><div style="font-size: 13px; color: #5E6A66">Diunggah oleh {{plk}}, 16/11/2026 10.41</div></div>
+      <sc-if value="{{belum}}" hint-placeholder-val="{{true}}"><button onClick="{{verif}}" style="min-height: 52px; border-radius: 14px; border: 0; background: #0E5A63; color: #FFFFFF; font-weight: 700; text-align: center; padding: 0 20px">Verifikasi</button></sc-if>
+      <sc-if value="{{sudah}}" hint-placeholder-val="{{false}}"><div role="status" style="font-size: 14px; color: #43514C; animation: muncul .3s">Memenuhi syarat tutup buku November 2026.</div></sc-if>
+      <a href="Dokumen.dc.html" style="min-height: 44px; display: flex; align-items: center; justify-content: center; font-weight: 700">Tolak, lepaskan, atau catat pengecualian</a>
+</div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"jabatanKosong":{"editor":"boolean","default":false},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  rp(n) { var s = String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return (n < 0 ? '−' : '') + 'Rp' + s; }
+  state = { hal: 0, zoom: 1, st: 'unggah' };
+  vals() {
+    var self = this, s = this.state;
+    var H = [{ toko: 'TOKO SINAR', alamat: 'Jl. Pierre Tendean 7', baris: [{ n: 'Fotokopi warta', rp: '' }, { n: '300 lbr x 500', rp: '150.000' }], total: 'Rp150.000', tgl: '16/11/2026', kaki: 'Terima kasih' }, { toko: 'TANDA TERIMA', alamat: 'Jemaat Karunia', baris: [{ n: 'Diterima dari', rp: '' }, { n: 'Bendahara', rp: '150.000' }], total: 'Rp150.000', tgl: '16/11/2026', kaki: 'Penerima: Toko Sinar' }];
+    var ver = s.st === 'verif';
+    return {
+      h: H[s.hal], halTeks: (s.hal + 1) + ' dari 2', skala: 'scale(' + s.zoom + ')', zoomTeks: Math.round(s.zoom * 100) + '%',
+      besar: function () { self.setState({ zoom: Math.min(2, s.zoom + 0.25) }); }, kecil: function () { self.setState({ zoom: Math.max(0.75, s.zoom - 0.25) }); },
+      maks: s.zoom >= 2, min: s.zoom <= 0.75, pertama: s.hal === 0, terakhir: s.hal === 1,
+      prev: function () { self.setState({ hal: 0, zoom: 1 }); }, next: function () { self.setState({ hal: 1, zoom: 1 }); },
+      fileNama: s.hal === 0 ? 'nota-16-11.jpg' : 'tanda-terima-16-11.jpg',
+      stTeks: ver ? 'Terverifikasi (oleh Meiske L.)' : 'Diunggah, belum diverifikasi', stFg: ver ? '#13201C' : '#A63C1C', belum: !ver, sudah: ver,
+      verif: function () { self.setState({ st: 'verif' }); }
+    };
+  }
+
+  rv0() { var V = this.vals(); if (this.navVals) V.nav = this.navVals(); return V; }
+  tukarJk(o, d) {
+    var self = this, ganti = function (s) { var t = s.match(/\d\d\/\d\d\/\d{4}/g) || []; return s.indexOf('Meiske L.') < 0 || t.some(function (x) { return x !== '16/11/2026'; }) ? s : s.split('Meiske L.').join('Yanti Sumual, Operator'); };
+    if (d > 5 || !o || typeof o !== 'object') return o;
+    Object.keys(o).forEach(function (k) { var v = o[k]; if (typeof v === 'string') o[k] = ganti(v); else if (v && typeof v === 'object') self.tukarJk(v, d + 1); });
+    return o;
+  }
+  renderVals() {
+    var V = this.rv0(), jk = !!this.props.jabatanKosong;
+    if (jk && true) this.tukarJk(V, 0);
+    V.jk = jk; V.tjk = !jk; V.plk = jk ? 'Yanti Sumual, Operator' : 'Meiske L.'; V.plk2 = jk ? 'Yanti Sumual, Operator (menjalankan jabatan kosong Bendahara Jemaat)' : 'Meiske L.';
+    return V;
+  }
+}
+</script>
+</body>
+</html>

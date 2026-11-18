@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Uang Muka, Titipan, Penggantian biaya (web)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+input{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes isi{from{width:0}to{width:100%}}
+@keyframes titik{0%,100%{opacity:.25}50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+.pn-c{display:none}
+@media (max-width:860px){
+.pn{flex:1 1 100%!important;flex-direction:row!important;flex-wrap:wrap;align-items:center;gap:0 12px!important;padding:8px 16px!important;border-right:0!important;border-bottom:1px solid #DDE2DB}
+.pn-c{display:flex;align-items:center;appearance:none;-webkit-appearance:none;min-height:44px;margin:0 0 0 auto;padding:0 16px;border-radius:14px;border:1.5px solid #13201C;background:#FFFFFF;font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+.pn-c::before{content:"Menu"}
+.pn-c:checked{background:#13201C;color:#FFFFFF}
+.pn-c:checked::before{content:"Tutup menu"}
+.pn-l,.pn-w{display:none;flex:1 1 100%}
+.pn-c:checked~.pn-l{display:block;padding:8px 0}
+.pn-c:checked~.pn-w{display:block;margin-top:0!important;padding-bottom:8px!important}
+}
+</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; flex-wrap: wrap; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 15px; line-height: 1.45">
+
+  <nav class="pn" style="flex: 1 1 220px; box-sizing: border-box; padding: 24px 16px; background: #FFFFFF; border-right: 1px solid #DDE2DB; display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px">
+      <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="none" stroke="#0E5A63" stroke-width="2" stroke-dasharray="3 3"/><path d="M12 2h4a6 6 0 0 1 6 6v8a6 6 0 0 1-6 6h-4z" fill="#0E5A63"/></svg>
+      <div><div style="font-weight: 700; font-size: 18px; line-height: 1.1">palakat</div><div style="font-size: 13px; color: #5E6A66">Jemaat Karunia</div></div>
+    </div>
+    <input type="checkbox" class="pn-c" aria-label="Menu">
+    <div class="pn-l">
+      <sc-for list="{{nav}}" as="n" hint-placeholder-count="7">
+        <a href="{{n.href}}" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 10px; text-decoration: none; font-weight: 600; background: {{n.bg}}; color: {{n.fg}}">{{n.n}}</a>
+      </sc-for>
+    </div>
+    <div class="pn-w" style="margin-top: auto; padding: 12px 8px 0; border-top: 1px solid #DDE2DB; font-size: 13px; color: #43514C"><sc-if value="{{tjk}}" hint-placeholder-val="{{true}}"><div><strong style="color: #13201C">Meiske L.</strong> · Bendahara<br>Wewenang Bendahara aktif</div></sc-if><sc-if value="{{jk}}" hint-placeholder-val="{{false}}"><div><strong style="color: #13201C">Yanti Sumual</strong> · Operator<br>Menjalankan jabatan kosong Bendahara Jemaat</div></sc-if></div>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 28px clamp(16px, 3vw, 40px) 40px; display: flex; flex-direction: column; gap: 20px">
+<sc-if value="{{jk}}" hint-placeholder-val="{{false}}"><div role="status" style="background: #13201C; color: #FFFFFF; border-radius: 14px; padding: 12px 16px; font-size: 14px"><strong>Anda menjalankan jabatan kosong Bendahara Jemaat sejak 16/11/2026 08.15.</strong> <span style="color: #D5DDD8">Setiap tindakan dicatat sebagai dijalankan oleh Operator Yanti Sumual.</span></div></sc-if>
+    <div><h1 style="margin: 0; font-size: 26px; font-weight: 700">Uang Muka dan Titipan</h1><div style="font-size: 14px; color: #43514C">Uang yang masih berjalan, satu baris per kasus. Sisa dihitung dari catatannya dan tidak dapat diketik.</div></div>
+    <div style="display: flex; flex-wrap: wrap; gap: 0 22px; font-size: 14px; font-weight: 600; margin-top: -8px"><a href="WebKasusBaru.dc.html" style="min-height: 44px; min-width: 44px; display: inline-flex; align-items: center">+ Kasus baru</a><a href="WebKasus.dc.html" style="min-height: 44px; min-width: 44px; display: inline-flex; align-items: center">Catat pada kasus</a></div>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px"><sc-for list="{{tab}}" as="c" hint-placeholder-count="3"><button onClick="{{c.pick}}" aria-pressed="{{c.on}}" style="min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1.5px solid {{c.bd}}; background: {{c.bg}}; color: {{c.fg}}; font-weight: 600; font-size: 14px">{{c.n}}</button></sc-for></div>
+    <div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 40px">
+      <div><div style="font-size: 14px; color: #43514C">{{L.sisa}} · {{bukaN}} kasus</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 40px; font-weight: 500; letter-spacing: -1px; line-height: 1.1">{{totalSisa}}</div></div>
+      <sc-if value="{{adaLebih}}" hint-placeholder-val="{{false}}"><div><div style="font-size: 14px; color: #43514C">Lebih dari uang muka · {{lebihN}} kasus · tidak dikurangkan dari sisa di kiri</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 24px; font-weight: 500; color: #A63C1C">{{totalLebih}}</div></div></sc-if>
+      <div style="flex: 1 1 260px; font-size: 14px; color: #43514C">{{L.cat}}</div>
+    </div>
+    <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; overflow-x: auto">
+      <div style="min-width: 900px">
+        <div style="display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.1fr) 130px 130px 140px minmax(0, 1.5fr); gap: 16px; padding: 12px 18px; font-size: 13px; font-weight: 600; color: #43514C"><div>Kasus</div><div>{{L.pihak}}</div><div style="text-align: right">{{L.awal}}</div><div style="text-align: right">{{L.sudah}}</div><div style="text-align: right">{{L.sisaPendek}}</div><div>Status</div></div>
+        <sc-for list="{{rows}}" as="r" hint-placeholder-count="4">
+          <div style="display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.1fr) 130px 130px 140px minmax(0, 1.5fr); gap: 16px; align-items: center; min-height: 60px; padding: 8px 18px; border-top: 1px solid #DDE2DB; font-size: 14px">
+            <div><div style="font-weight: 600">{{r.judul}}</div><div style="font-size: 13px; color: #5E6A66">{{r.cat}}</div></div>
+            <div>{{r.pihak}}</div>
+            <div style="text-align: right; font-family: 'IBM Plex Mono', monospace">{{r.awal}}</div>
+            <div style="text-align: right; font-family: 'IBM Plex Mono', monospace">{{r.sudah}}</div>
+            <div style="text-align: right; font-family: 'IBM Plex Mono', monospace; font-weight: 600; color: {{r.fg}}">{{r.sisa}}</div>
+            <div><span style="display: inline-block; font-size: 13px; font-weight: 700; border-radius: 6px; padding: 3px 9px; background: {{r.sbg}}; color: {{r.sfg}}; border: {{r.sbd}}">{{r.status}}</span><sc-if value="{{r.tempo}}" hint-placeholder-val="{{false}}"><div style="font-size: 13px; color: #13201C; font-weight: {{r.tfw}}; margin-top: 3px">{{r.tempo}}</div></sc-if></div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    <div style="font-size: 13px; color: #5E6A66">{{L.kaki}}</div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"jabatanKosong":{"editor":"boolean","default":false},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  rp(n) { var s = String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return (n < 0 ? '−' : '') + 'Rp' + s; }
+  navVals() { return [['Beranda', 'WebBeranda.dc.html'], ['Transaksi', 'WebTransaksi.dc.html'], ['Uang Muka dan Titipan', 'WebKewajiban.dc.html'], ['Rekonsiliasi', 'WebRekonsiliasi.dc.html'], ['Bulan dan tutup buku', 'WebTutupBuku.dc.html'], ['Laporan', 'WebPaketLaporan.dc.html'], ['Pengaturan', 'WebPengaturan.dc.html']].map(function (n, i) { return { n: n[0], href: n[1], bg: i === 2 ? '#13201C' : 'transparent', fg: i === 2 ? '#FFFFFF' : '#13201C' }; }); }
+  state = { tab: 'um' };
+  rv0() {
+    var self = this, s = this.state, rp = this.rp, chip = function (on) { return on ? { bg: '#13201C', fg: '#FFFFFF', bd: '#13201C' } : { bg: '#FFFFFF', fg: '#13201C', bd: '#7F8C86' }; };
+    var LBL = {
+      um: { tab: 'Uang Muka', pihak: 'Diberikan kepada', awal: 'Diberikan', sudah: 'Sudah dicatat', sisaPendek: 'Sisa', sisa: 'Sisa belum dipertanggungjawabkan', cat: 'Uang muka bukan Belanja saat diberikan. Pertanggungjawaban yang diterima menjadi Belanja; pengembalian sisa bukan Pendapatan.', st: ['Belum dipertanggungjawabkan', 'Sebagian dipertanggungjawabkan', 'Sudah dipertanggungjawabkan'], kaki: 'Kasus yang belanjanya melebihi uang muka ditampilkan terpisah dan tidak pernah mengurangi sisa kasus lain. Kelebihannya dibayar lewat Penggantian biaya.' },
+      tt: { tab: 'Titipan', pihak: 'Titipan untuk', awal: 'Terkumpul', sudah: 'Disalurkan', sisaPendek: 'Sisa', sisa: 'Sisa belum disalurkan', cat: 'Uang titipan untuk pihak lain: bukan Pendapatan saat masuk, bukan Belanja saat disalurkan.', st: ['Belum disalurkan', 'Sebagian disalurkan', 'Sudah disalurkan'], kaki: 'Sentralisasi dari uang milik sendiri dicatat sebagai Belanja biasa, tidak di sini. Aturan Jemaat yang menentukan, bukan nomor Mata Anggarannya.' },
+      pb: { tab: 'Penggantian biaya', pihak: 'Dibayar kepada', awal: 'Klaim', sudah: 'Dibayar', sisaPendek: 'Belum dibayar', sisa: 'Belum dibayar', cat: 'Klaim belum masuk saldo. Pembayarannya mencatat Belanja satu kali.', st: ['Belum dibayar', 'Belum dibayar', 'Sudah dibayar'], kaki: 'Mengecek klaim tidak mengubah saldo.' }
+    };
+    var D = [
+      ['um', 'Panitia Natal', 'BKU-2026-0129 · 01/11/2026', 'Sdr. Rivo Mandagi', 1500000, 850000, 'Jatuh tempo 30/11/2026', 0],
+      ['um', 'Retret Pemuda', 'BKU-2026-0112 · 20/10/2026', 'Sdri. Natalia Rumengan', 800000, 300000, 'Lewat jatuh tempo (jatuh tempo: 10/11/2026)', 1],
+      ['um', 'Konsumsi syukur HUT', 'BKU-2026-0119 · 25/10/2026', 'Ibu Selvie Kalalo', 300000, 375000, '', 0],
+      ['um', 'Perjalanan dinas Wilayah', 'BKU-2026-0103 · 07/10/2026', 'Pnt. Jefry Wowor', 400000, 400000, '', 0],
+      ['tt', 'Sentralisasi November', 'Disimpan di Bank BNI ··4821', 'Sinode', 2400000, 1000000, '', 0],
+      ['tt', 'Persembahan khusus', 'Disimpan di Kas', 'Wilayah', 450000, 0, '', 0],
+      ['pb', 'Alat kebersihan gereja', 'Nota 12/11/2026 · klaim sudah dicek', 'Ibu Selvie Kalalo', 185000, 0, '', 0],
+      ['pb', 'Kelebihan konsumsi syukur HUT', 'Dari uang muka BKU-2026-0119', 'Ibu Selvie Kalalo', 75000, 0, '', 0],
+      ['pb', 'Bensin antar jemput', 'BKU-2026-0134 · 05/11/2026', 'Sdr. Rivo Mandagi', 120000, 120000, '', 0]
+    ].filter(function (d) { return d[0] === s.tab; });
+    var L = LBL[s.tab], buka = D.filter(function (d) { return d[4] - d[5] > 0; }), lebih = D.filter(function (d) { return d[4] - d[5] < 0; });
+    return {
+      nav: this.navVals(), L: L,
+      tab: ['um', 'tt', 'pb'].map(function (t) { var on = s.tab === t; return Object.assign({ n: LBL[t].tab, on: on, pick: function () { self.setState({ tab: t }); } }, chip(on)); }),
+      bukaN: buka.length, totalSisa: rp(buka.reduce(function (a, d) { return a + d[4] - d[5]; }, 0)),
+      adaLebih: lebih.length > 0, lebihN: lebih.length, totalLebih: rp(lebih.reduce(function (a, d) { return a + d[5] - d[4]; }, 0)),
+      rows: D.map(function (d) {
+        var x = d[4] - d[5], beres = x === 0, lb = x < 0;
+        return { judul: d[1], cat: d[2], pihak: d[3], awal: rp(d[4]), sudah: d[5] ? rp(d[5]) : '—', sisa: lb ? 'lebih ' + rp(-x) : rp(x), fg: lb ? '#A63C1C' : '#13201C',
+          status: lb ? 'Lebih dipertanggungjawabkan' : (beres ? L.st[2] : (d[5] ? L.st[1] : L.st[0])),
+          sbg: beres ? '#0E5A63' : '#FFFFFF', sfg: beres ? '#FFFFFF' : (lb ? '#A63C1C' : '#43514C'), sbd: beres ? '1.5px solid #0E5A63' : (lb ? '1.5px solid #A63C1C' : '1.5px solid #5E6A66'),
+          tempo: beres ? '' : d[6], tfw: d[7] ? 700 : 400 };
+      })
+    };
+  }
+  tukarJk(o, d) {
+    var self = this, ganti = function (s) { var t = s.match(/\d\d\/\d\d\/\d{4}/g) || []; return s.indexOf('Meiske L.') < 0 || t.some(function (x) { return x !== '16/11/2026'; }) ? s : s.split('Meiske L.').join('Yanti Sumual, Operator'); };
+    if (d > 5 || !o || typeof o !== 'object') return o;
+    Object.keys(o).forEach(function (k) { var v = o[k]; if (typeof v === 'string') o[k] = ganti(v); else if (v && typeof v === 'object') self.tukarJk(v, d + 1); });
+    return o;
+  }
+  renderVals() {
+    var V = this.rv0(), jk = !!this.props.jabatanKosong;
+    if (jk && false) this.tukarJk(V, 0);
+    V.jk = jk; V.tjk = !jk; V.plk = jk ? 'Yanti Sumual, Operator' : 'Meiske L.'; V.plk2 = jk ? 'Yanti Sumual, Operator (menjalankan jabatan kosong Bendahara Jemaat)' : 'Meiske L.';
+    return V;
+  }
+}
+</script>
+</body>
+</html>

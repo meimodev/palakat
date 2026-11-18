@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Cakupan keadaan</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+input{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes masuk{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@keyframes pudar{from{opacity:0}to{opacity:1}}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes isi{from{width:0}to{width:100%}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</helmet>
+<div style="width: 1400px; height: 1660px; box-sizing: border-box; padding: 56px; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 15px; line-height: 1.45; display: flex; flex-direction: column; gap: 32px">
+  <div><div style="font-size: 36px; font-weight: 700; line-height: 1.1; letter-spacing: -0.5px">Cakupan keadaan</div><div style="color: #43514C; margin-top: 4px">Tiap keadaan dari brief dan layar tempat ia digambar. Yang belum digambar hidup ditandai apa adanya.</div></div>
+  <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 0 18px">
+    <div style="display: grid; grid-template-columns: 190px minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1fr); gap: 16px; padding: 12px 0; font-size: 13px; font-weight: 700; color: #43514C"><div>Objek</div><div>Keadaan yang digambar</div><div>Layar</div><div>Belum digambar hidup</div></div>
+    <sc-for list="{{rows}}" as="r" hint-placeholder-count="16">
+      <div style="display: grid; grid-template-columns: 190px minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1fr); gap: 16px; padding: 10px 0; border-top: 1px solid #DDE2DB; font-size: 13px; align-items: start">
+        <div style="font-weight: 700; font-size: 14px">{{r.o}}</div><div>{{r.k}}</div>
+        <div><sc-for list="{{r.l}}" as="l" hint-placeholder-count="2"><a href="{{l.href}}" style="display: inline-block; margin: 0 10px 2px 0; font-weight: 600">{{l.n}}</a></sc-for></div>
+        <div style="color: {{r.fg}}; font-weight: {{r.fw}}">{{r.x}}</div>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1400,"height":1660}}'>
+class Component extends DCLogic {
+  rp(n) { var s = String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return (n < 0 ? '−' : '') + 'Rp' + s; }
+  renderVals() {
+    var R = [
+      ['Transaksi', 'Draf · Sudah diperiksa · Dibukukan · Dibalik · Dibatalkan', [['Main', 'Harian'], ['Pemeriksa', 'Pemeriksa kedua'], ['Koreksi', 'Koreksi'], ['Draf', 'Draf']], ''],
+      ['Mata Anggaran pada transaksi', 'Belum dipilih · sudah dipilih · dibagi ke beberapa baris', [['Main', 'Harian'], ['Bagi', 'Bagi']], ''],
+      ['Persetujuan', 'Tidak diperlukan (dengan aturannya) · belum dicatat · sudah dicatat', [['Main', 'Harian'], ['Koreksi', 'Koreksi'], ['Persetujuan', 'Ganti catatan']], ''],
+      ['Dokumen pendukung', 'Tidak diperlukan · Wajib, belum ada · Diunggah, belum diverifikasi · Terverifikasi · Dikecualikan · Status saat tutup buku', [['Dokumen', 'Dokumen pendukung']], ''],
+      ['File dokumen', 'Sedang diunggah · Gagal diunggah · Terlampir · Dilepas · Ditahan · Ditolak', [['Main', 'Harian'], ['Dokumen', 'Dokumen pendukung'], ['Kamera', 'Kamera'], ['LihatDokumen', 'Lihat file'], ['WebUnggah', 'Unggah di web']], ''],
+      ['Bulan', 'Belum ditutup · Sedang menutup buku · Sudah ditutup · tutup buku tidak terjadi', [['TutupBuku', 'Tutup buku'], ['WebTutupBuku', 'Web']], ''],
+      ['Syarat tutup buku', 'Hambatan dengan tautan perbaikan · Untuk diketahui', [['TutupBuku', 'Tutup buku'], ['Kejadian', 'Kejadian']], ''],
+      ['Pernyataan kesiapan', 'Sudah dinyatakan · Perlu dinyatakan lagi · belum ada · Dibebaskan', [['Kesiapan', 'Pernyataan kesiapan']], ''],
+      ['Rekonsiliasi', 'Rekening koran belum diisi · Sedang dikerjakan · Sudah diperiksa · Sudah dipastikan · Perlu dipastikan lagi', [['TutupBuku', 'Tutup buku'], ['WebRekonsiliasi', 'Web'], ['RekonIsi', 'Isi rekening koran']], ''],
+      ['Mutasi bank', 'Belum cocok · Sebagian cocok dengan sisanya · Cocok · satu ke banyak', [['WebRekonsiliasi', 'Web'], ['RekonIsi', 'Isi rekening koran']], ''],
+      ['Hitung kas', 'Belum dihitung · Dihitung: Rp0 · hasil hitung', [['HitungKas', 'Hitung kas'], ['WebHitungKas', 'Web']], ''],
+      ['Uang muka dan titipan', 'Belum · Sebagian · Sudah · Lewat jatuh tempo · lebih dari uang muka', [['Kewajiban', 'Ponsel'], ['WebKewajiban', 'Web'], ['KasusBaru', 'Kasus baru']], ''],
+      ['Impor', 'Ditampung · Lolos pengecekan · Sudah diperiksa · Sudah diimpor · Tidak diimpor', [['Impor', 'Ponsel'], ['WebImpor', 'Web']], ''],
+      ['Versi Mata Anggaran', 'Draf · Sudah diperiksa · Diterbitkan', [['MataAnggaran', 'Ponsel'], ['WebMataAnggaran', 'Web']], ''],
+      ['Laporan', 'Laporan sementara · Laporan resmi · Sedang disiapkan · Siap diunduh · File gagal dibuat', [['WebLaporan', 'F01'], ['TutupBuku', 'Tutup buku'], ['WebExcel', 'Excel'], ['A4F01', 'Halaman A4'], ['LihatTransaksi', 'Lihat transaksi']], ''],
+      ['Simpan', 'Belum tersimpan · Tersimpan · Mencoba menyimpan lagi · Gagal disimpan · sudah diubah sejak dibuka', [['Main', 'Harian'], ['Draf', 'Draf'], ['Sambungan', 'Sambungan']], ''],
+      ['Sambungan dan sesi', 'Tidak ada sambungan · tersambung lagi · sesi berakhir (lama tidak dipakai, diakhiri dari perangkat lain, wewenang berpindah)', [['Sambungan', 'Ponsel'], ['WebSambungan', 'Web'], ['Bendahara', 'Akhiri sesi']], ''],
+      ['Memuat', 'Sedang memuat · gagal memuat · Bukukan tidak terjadi · dimuat', [['Memuat', 'Ponsel'], ['WebMemuat', 'Web']], ''],
+      ['Tanggal', 'Tanggal transaksi · tanggal dokumen · dicatat pada · dibukukan pada · bulan sudah ditutup · setelah hari ini', [['Tanggal', 'Ponsel'], ['WebTanggal', 'Web']], ''],
+      ['Usulan AI', 'Belum dipakai · dipakai · diabaikan · kurang yakin · usulan lama (draf berubah) · AI tidak tersedia', [['BantuanAI', 'Dari kalimat'], ['AIFoto', 'Dari foto'], ['AIMataAnggaran', 'Mata Anggaran'], ['AIBulan', 'Akhir bulan']], ''],
+      ['Wewenang Bendahara', 'Menunggu verifikasi · aktif · dicabut · belum ada Bendahara aktif', [['Awal', 'Pengaturan awal'], ['Bendahara', 'Bendahara'], ['WebVerifikasi', 'Petugas verifikasi'], ['Masuk', 'Masuk, termasuk administrator sistem']], '']
+    ];
+    return { rows: R.map(function (r) { return { o: r[0], k: r[1], l: r[2].map(function (l) { return { href: l[0] + '.dc.html', n: l[1] }; }), x: r[3] || 'Tidak ada', fg: r[3] ? '#A63C1C' : '#5E6A66', fw: r[3] ? 600 : 400 }; }) };
+  }
+}
+</script>
+</body>
+</html>

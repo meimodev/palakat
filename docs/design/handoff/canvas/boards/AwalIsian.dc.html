@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Pengaturan awal: identitas dan daftar (ponsel)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+input{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes masuk{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@keyframes pudar{from{opacity:0}to{opacity:1}}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes isi{from{width:0}to{width:100%}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 16px; line-height: 1.4">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column"><div style="display: flex; align-items: center; gap: 8px; padding: 14px 12px 8px"><a href="Awal.dc.html" aria-label="Kembali ke langkah" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #13201C"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></a><div style="flex: 1"><h1 style="margin: 0; font-size: 18px; font-weight: 700">Pengaturan awal Jemaat</h1><div style="font-size: 14px; color: #43514C; font-size: 13px">Identitas, Kas/Bank, peruntukan, Lingkup</div></div></div><div style="flex: 1; overflow-y: auto; padding: 8px 20px 20px; display: flex; flex-direction: column; gap: 16px">
+      <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 12px">
+        <div><label for="fn" style="display: block; font-size: 14px; color: #43514C; margin-bottom: 6px">Nama Jemaat</label><input id="fn" value="{{nama}}" onChange="{{onNama}}" style="width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF"></div>
+        <div><div style="font-size: 14px; color: #43514C; margin-bottom: 8px">Zona waktu</div><div><sc-for list="{{zona}}" as="c" hint-placeholder-count="3"><button onClick="{{c.pick}}" aria-pressed="{{c.on}}" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; margin: 0 8px 8px 0; border-radius: 999px; border: 1.5px solid {{c.bd}}; background: {{c.bg}}; color: {{c.fg}}; font-weight: 600; font-size: 14px">{{c.n}}</button></sc-for></div></div>
+        <div style="display: flex; justify-content: space-between; gap: 16px; border-top: 1px solid #DDE2DB; padding-top: 10px"><div style="font-size: 14px; color: #43514C">Tahun buku</div><div style="font-weight: 600; text-align: right">Mulai 1 Januari · tidak dapat diubah</div></div>
+        <div style="display: flex; justify-content: space-between; gap: 16px; border-top: 1px solid #DDE2DB; padding-top: 10px"><div style="font-size: 14px; color: #43514C">Tanggal mulai pencatatan</div><div style="font-weight: 600">15 September 2026</div></div>
+        <div style="display: flex; justify-content: space-between; gap: 16px; border-top: 1px solid #DDE2DB; padding-top: 10px"><div style="font-size: 14px; color: #43514C">Bulan pertama pencatatan</div><div style="font-weight: 600; text-align: right">September 2026 · dari tanggal mulai</div></div>
+      </div>
+<div>
+      <sc-for list="{{bagian}}" as="b" hint-placeholder-count="5">
+        <div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px">
+          <div><div style="font-weight: 700; font-size: 16px">{{b.j}}</div><div style="font-size: 13px; color: #5E6A66">{{b.cat}}</div></div>
+          <div><sc-for list="{{b.butir}}" as="i" hint-placeholder-count="2"><span style="display: inline-flex; align-items: center; gap: 2px; min-height: 44px; padding: 0 4px 0 14px; margin: 0 8px 8px 0; border-radius: 999px; border: 1.5px solid #13201C; font-weight: 600; font-size: 14px">{{i.n}}<sc-if value="{{belumTerbit}}" hint-placeholder-val="{{true}}"><button onClick="{{i.buang}}" aria-label="{{i.label}}" style="flex: none; width: 44px; height: 44px; border: 0; background: none; display: inline-flex; align-items: center; justify-content: center; color: #5E6A66"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></sc-if></span></sc-for></div>
+          <sc-if value="{{b.kosong}}" hint-placeholder-val="{{false}}"><div style="font-size: 14px; color: {{b.kosongFg}}; font-weight: 600">{{b.kosongTeks}}</div></sc-if>
+          <sc-if value="{{belumTerbit}}" hint-placeholder-val="{{true}}"><div style="display: flex; gap: 8px"><input id="{{b.id}}" aria-label="{{b.j}}" placeholder="{{b.ph}}" value="{{b.v}}" onChange="{{b.on}}" style="width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF; flex: 1; min-width: 0"><button onClick="{{b.tambah}}" style="flex: none; min-height: 48px; padding: 0 16px; border-radius: 12px; border: 1.5px solid #13201C; background: #FFFFFF; font-weight: 700">Tambah</button></div></sc-if>
+        </div>
+      </sc-for>
+</div>
+      <sc-if value="{{satu}}" hint-placeholder-val="{{true}}"><div style="border: 1.5px dashed #808D87; border-radius: 14px; padding: 12px 16px; font-size: 14px; color: #43514C">Hanya ada satu peruntukan dan satu Lingkup. Saat mencatat, keduanya terisi sendiri dan diringkas; keduanya tetap tercatat di setiap transaksi.</div></sc-if>
+      <sc-if value="{{belumTerbit}}" hint-placeholder-val="{{true}}"><div style="font-size: 14px; color: #43514C">{{alasan}}</div><button onClick="{{terbitkan}}" disabled="{{takBisa}}" style="min-height: 52px; border-radius: 14px; border: 0; background: {{btnBg}}; color: {{btnFg}}; font-weight: 700; text-align: center; padding: 0 20px">Terbitkan pengaturan awal</button></sc-if>
+      <sc-if value="{{terbit}}" hint-placeholder-val="{{false}}"><div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; border: 1.5px solid #13201C; padding: 16px; animation: muncul .3s"><div style="font-weight: 700">Pengaturan awal diterbitkan</div><div style="font-size: 14px; color: #43514C">Berlaku mulai September 2026. Perubahan berikutnya dilakukan lewat Pengaturan dan berlaku mulai bulan tertentu. Yang sudah dipakai hanya dapat dinonaktifkan.</div></div></sc-if>
+</div></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  rp(n) { var s = String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return (n < 0 ? '−' : '') + 'Rp' + s; }
+  state = { nama: 'Jemaat Karunia', zona: 'WITA', terbit: false, isi: {}, d: { kas: ['Kas', 'Bank BNI ··4821'], per: ['Umum Jemaat'], ling: ['Jemaat'], um: [], tt: [] } };
+  vals() {
+    var self = this, s = this.state, chip = function (on) { return on ? { bg: '#13201C', fg: '#FFFFFF', bd: '#13201C' } : { bg: '#FFFFFF', fg: '#13201C', bd: '#7F8C86' }; };
+    var S = [['kas', 'Kas/Bank', 'Tempat uang berada. Jangan memakai nama peruntukan atau Lingkup.', 'Misalnya: Bank SulutGo ··1107'], ['per', 'Peruntukan', 'Uang siapa, bukan untuk apa.', 'Misalnya: Diakonia'], ['ling', 'Lingkup', 'Jemaat, Kolom, BIPRA, Komisi atau Panitia.', 'Misalnya: Kolom 3'], ['um', 'Uang muka yang masih berjalan', 'Per penerima dan peruntukan, pada tanggal mulai pencatatan.', 'Penerima · peruntukan · jumlah'], ['tt', 'Titipan yang masih dipegang', 'Per pihak yang berhak, pada tanggal mulai pencatatan.', 'Titipan untuk · jumlah']];
+    var okNama = s.nama.trim().length > 0, kurang = ['kas', 'per', 'ling'].filter(function (k) { return s.d[k].length === 0; });
+    var bisa = okNama && kurang.length === 0 && !s.terbit;
+    var satu = s.d.per.length === 1 && s.d.ling.length === 1;
+    return {
+      nama: s.nama, onNama: function (e) { if (!s.terbit) self.setState({ nama: e.target.value }); }, terbit: s.terbit, belumTerbit: !s.terbit,
+      zona: ['WIB', 'WITA', 'WIT'].map(function (z) { var on = s.zona === z; return Object.assign({ n: z, on: on, pick: function () { if (!s.terbit) self.setState({ zona: z }); } }, chip(on)); }),
+      bagian: S.map(function (b) {
+        var k = b[0], v = s.isi[k] || '';
+        return { id: 'f-' + k, j: b[1], cat: b[2], ph: b[3], v: v, kosong: s.d[k].length === 0, kosongTeks: (k === 'um' || k === 'tt') ? 'Tidak ada. Dicatat sebagai tidak ada, bukan dikosongkan.' : 'Belum ada. Paling sedikit satu.',
+          kosongFg: (k === 'um' || k === 'tt') ? '#43514C' : '#A63C1C',
+          butir: s.d[k].map(function (n, i) { return { n: n, label: 'Keluarkan ' + n, buang: function () { if (s.terbit) return; var d = Object.assign({}, s.d); d[k] = d[k].filter(function (_, j) { return j !== i; }); self.setState({ d: d }); } }; }),
+          on: function (e) { var a = Object.assign({}, s.isi); a[k] = e.target.value; self.setState({ isi: a }); },
+          tambah: function () { if (s.terbit || !v.trim()) return; var d = Object.assign({}, s.d), a = Object.assign({}, s.isi); d[k] = d[k].concat([v.trim()]); a[k] = ''; self.setState({ d: d, isi: a }); } };
+      }),
+      satu: satu, takBisa: !bisa, btnBg: bisa ? '#0E5A63' : '#DDE2DB', btnFg: bisa ? '#FFFFFF' : '#5E6A66',
+      alasan: !okNama ? 'Nama Jemaat belum diisi.' : (kurang.length ? 'Kas/Bank, peruntukan dan Lingkup masing-masing perlu paling sedikit satu.' : 'Setelah diterbitkan, perubahan dilakukan lewat Pengaturan dan berlaku mulai bulan tertentu.'),
+      terbitkan: function () { if (bisa) self.setState({ terbit: true }); }
+    };
+  }
+
+  renderVals() { var V = this.vals(); if (this.navVals) V.nav = this.navVals(); return V; }
+}
+</script>
+</body>
+</html>

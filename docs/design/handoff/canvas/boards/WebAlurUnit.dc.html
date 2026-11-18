@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Palakat · Alur · Keuangan unit (web)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E5A63}a:hover{color:#0A4249}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+input{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #0E5A63;outline-offset:2px}
+@keyframes muncul{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes isi{from{width:0}to{width:100%}}
+@keyframes titik{0%,100%{opacity:.25}50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+.pn-c{display:none}
+@media (max-width:860px){
+.pn{flex:1 1 100%!important;flex-direction:row!important;flex-wrap:wrap;align-items:center;gap:0 12px!important;padding:8px 16px!important;border-right:0!important;border-bottom:1px solid #DDE2DB}
+.pn-c{display:flex;align-items:center;appearance:none;-webkit-appearance:none;min-height:44px;margin:0 0 0 auto;padding:0 16px;border-radius:14px;border:1.5px solid #13201C;background:#FFFFFF;font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+.pn-c::before{content:"Menu"}
+.pn-c:checked{background:#13201C;color:#FFFFFF}
+.pn-c:checked::before{content:"Tutup menu"}
+.pn-l,.pn-w{display:none;flex:1 1 100%}
+.pn-c:checked~.pn-l{display:block;padding:8px 0}
+.pn-c:checked~.pn-w{display:block;margin-top:0!important;padding-bottom:8px!important}
+}
+</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; flex-wrap: wrap; background: #F3F5F1; color: #13201C; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 15px; line-height: 1.45">
+
+  <nav class="pn" style="flex: 1 1 220px; box-sizing: border-box; padding: 24px 16px; background: #FFFFFF; border-right: 1px solid #DDE2DB; display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px">
+      <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="none" stroke="#0E5A63" stroke-width="2" stroke-dasharray="3 3"/><path d="M12 2h4a6 6 0 0 1 6 6v8a6 6 0 0 1-6 6h-4z" fill="#0E5A63"/></svg>
+      <div><div style="font-weight: 700; font-size: 18px; line-height: 1.1">palakat</div><div style="font-size: 13px; color: #5E6A66">Jemaat Karunia</div></div>
+    </div>
+    <input type="checkbox" class="pn-c" aria-label="Menu">
+    <div class="pn-l">
+      <sc-for list="{{nav}}" as="n" hint-placeholder-count="7">
+        <a href="{{n.href}}" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 10px; text-decoration: none; font-weight: 600; background: {{n.bg}}; color: {{n.fg}}">{{n.n}}</a>
+      </sc-for>
+    </div>
+    <div class="pn-w" style="margin-top: auto; padding: 12px 8px 0; border-top: 1px solid #DDE2DB; font-size: 13px; color: #43514C"><strong style="color: #13201C">Meiske Lumentut</strong> · Bendahara Jemaat</div>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 28px clamp(16px, 3vw, 40px) 40px; display: flex; flex-direction: column; gap: 20px">
+<div><a href="WebBeranda.dc.html" style="font-size: 14px; font-weight: 600">Keuangan</a><h1 style="margin: 2px 0 0; font-size: 26px; font-weight: 700">Alur · Keuangan unit</h1><div style="font-size: 14px; color: #43514C">Bendahara Kolom 7 membukukan; Bendahara Jemaat menyelesaikan hambatan</div></div><div style="max-width: 1120px; display: flex; flex-direction: column; gap: 16px"><div style="display: flex; flex-direction: column; gap: 6px"><span style="font-size: 14px; color: #43514C">Dilihat sebagai</span><div style="display: flex; flex-wrap: wrap; gap: 8px"><sc-for list="{{aktor}}" as="c" hint-placeholder-count="2"><button onClick="{{c.pick}}" aria-pressed="{{c.on}}" style="min-height: 44px; padding: 0 14px; border-radius: 999px; font-weight: 600; font-size: 14px; {{c.st}}">{{c.n}}</button></sc-for></div></div><sc-if value="{{pesanAda}}" hint-placeholder-val="{{false}}"><div role="status" style="background: #E1EEED; border-radius: 12px; padding: 12px 14px; font-size: 14px"><span>{{pesan}}</span></div></sc-if><sc-if value="{{uUtama}}" hint-placeholder-val="{{false}}"><div style="border: 1.5px solid #13201C; border-radius: 12px; background: #FFFFFF; padding: 12px 14px; font-size: 14px"><strong>Keuangan unit: Kolom 7.</strong> Anda membukukan hanya di peruntukan Kolom 7, pada Kas/Bank yang dikelola Kolom 7.</div><div style="display: flex; flex-wrap: wrap; gap: 20px 28px; align-items: flex-start"><div style="flex: 1.3 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 12px"><div style="display: flex; flex-direction: column; gap: 6px"><span style="font-size: 14px; color: #43514C">Jenis</span><div style="display: flex; flex-wrap: wrap; gap: 8px"><sc-for list="{{jenisPil}}" as="c" hint-placeholder-count="2"><button onClick="{{c.pick}}" aria-pressed="{{c.on}}" style="min-height: 44px; padding: 0 14px; border-radius: 999px; font-weight: 600; font-size: 14px; {{c.st}}">{{c.n}}</button></sc-for></div></div><label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: #43514C"><span>Jumlah (Rp)</span><input value="{{jml}}" onChange="{{onJml}}" placeholder="0" style="width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF; min-height: 48px"><span style="font-size: 13px; color: #5E6A66"><span>{{jmlTeks}}</span></span></label><div style="display: flex; flex-direction: column; gap: 6px"><span style="font-size: 14px; color: #43514C">Kas/Bank</span><div style="display: flex; flex-wrap: wrap; gap: 8px"><sc-for list="{{kasPil}}" as="c" hint-placeholder-count="2"><button onClick="{{c.pick}}" aria-pressed="{{c.on}}" style="min-height: 44px; padding: 0 14px; border-radius: 999px; font-weight: 600; font-size: 14px; {{c.st}}">{{c.n}}</button></sc-for></div></div><label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: #43514C"><span>Uraian</span><input value="{{ur}}" onChange="{{onUr}}" placeholder="Contoh: Persembahan Ibadah Kolom" style="width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF; min-height: 48px"></label><sc-if value="{{sebabAda}}" hint-placeholder-val="{{false}}"><div style="font-size: 14px"><strong style="color: #A63C1C">Tidak dapat dilakukan: Bukukan.</strong> <span>{{sebab}}</span></div></sc-if><div style="display: flex; flex-wrap: wrap; gap: 8px"><button onClick="{{bukukan}}" aria-disabled="{{okX}}" style="min-height: 52px; border-radius: 14px; border: 0; font-weight: 700; text-align: center; padding: 0 16px; flex: 1 1 150px; max-width: 340px; {{okSt}}">Bukukan</button></div></div><div style="flex: 1 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 12px"><h2 style="margin: 0; font-size: 16px; font-weight: 700">Peruntukan Kolom 7 · November 2026</h2><sc-for list="{{buku}}" as="r" hint-placeholder-count="2"><div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 10px 16px; display: flex; flex-direction: column; gap: 2px"><div style="display: flex; justify-content: space-between; gap: 16px; align-items: center"><span style="font-weight: 600">{{r.j}}</span><span style="font-family: 'IBM Plex Mono', monospace">{{r.v}}</span></div><div style="font-size: 13px; color: #5E6A66"><span>{{r.s}}</span></div></div></sc-for><sc-if value="{{adaDraf}}" hint-placeholder-val="{{false}}"><div style="border: 1.5px dashed #808D87; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px"><div style="display: flex; justify-content: space-between; gap: 16px; align-items: center"><span style="font-weight: 700">Konsumsi ibadah Kolom</span><span style="flex: none; font-size: 13px; font-weight: 700; border-radius: 6px; padding: 3px 9px; color: #43514C; border: 1.5px dashed #808D87">Draf</span></div><div style="font-size: 14px; color: #43514C"><span>{{drafKet}}</span></div></div></sc-if></div></div></sc-if><sc-if value="{{jHambat}}" hint-placeholder-val="{{false}}"><div style="border: 1.5px dashed #808D87; border-radius: 14px; padding: 12px 14px; font-size: 14px"><strong>Tutup buku Oktober 2026 terhalang 1 hal dari Kolom 7.</strong> <span style="color: #43514C">Bendahara Jemaat dapat menyelesaikannya dengan alasan; Bendahara Kolom 7 diberi tahu.</span></div><div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px"><div style="display: flex; justify-content: space-between; gap: 16px; align-items: center"><span style="font-weight: 700">Konsumsi ibadah Kolom</span><span style="flex: none; font-size: 13px; font-weight: 700; border-radius: 6px; padding: 3px 9px; color: #43514C; border: 1.5px dashed #808D87">Draf</span></div><div style="display: flex; justify-content: space-between; gap: 16px; font-size: 14px"><span style="color: #43514C">Tanggal transaksi</span><span style="text-align: right; font-weight: 600">28/10/2026</span></div><div style="display: flex; justify-content: space-between; gap: 16px; font-size: 14px"><span style="color: #43514C">Jumlah (Rp)</span><span style="text-align: right; font-weight: 600"><span style="font-family: 'IBM Plex Mono', monospace; font-weight: 500">Rp185.000</span></span></div><div style="display: flex; justify-content: space-between; gap: 16px; font-size: 14px"><span style="color: #43514C">Dicatat oleh</span><span style="text-align: right; font-weight: 600">Deasy Tumbelaka, Bendahara Kolom 7</span></div><div style="font-size: 13px; color: #5E6A66">Draf di bulan yang akan ditutup menghalangi tutup buku seluruh Jemaat.</div></div><div style="display: flex; flex-wrap: wrap; gap: 8px"><button onClick="{{keAlasan}}" style="min-height: 52px; border-radius: 14px; border: 0; background: #13201C; color: #FFFFFF; font-weight: 700; text-align: center; padding: 0 16px; flex: 1 1 150px; max-width: 340px">Pindah tanggal ke November</button></div></sc-if><sc-if value="{{jAlasan}}" hint-placeholder-val="{{false}}"><div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px"><div style="display: flex; justify-content: space-between; gap: 16px; align-items: center"><span style="font-weight: 700">Pindah tanggal · Konsumsi ibadah Kolom</span><span style="flex: none; font-size: 13px; font-weight: 700; border-radius: 6px; padding: 3px 9px; color: #43514C; border: 1.5px dashed #808D87">Draf</span></div><div style="display: flex; justify-content: space-between; gap: 16px; font-size: 14px"><span style="color: #43514C">Tanggal transaksi baru</span><span style="text-align: right; font-weight: 600">02/11/2026</span></div><div style="font-size: 13px; color: #5E6A66">Hanya bulan yang Belum ditutup. Draf tetap Draf; tidak ada yang dibukukan.</div></div><label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: #43514C"><span>Alasan · wajib</span><textarea rows="3" value="{{alasan}}" onChange="{{onAlasan}}" style="width: 100%; box-sizing: border-box; padding: 12px 14px; border-radius: 12px; border: 1px solid #7F8C86; background: #FFFFFF; resize: none; font: inherit; color: inherit; min-height: 96px"></textarea></label><sc-if value="{{sebab2Ada}}" hint-placeholder-val="{{false}}"><div style="font-size: 14px"><strong style="color: #A63C1C">Tidak dapat dilakukan: Pindah tanggal.</strong> <span>{{sebab2}}</span></div></sc-if><div style="display: flex; flex-wrap: wrap; gap: 8px"><button onClick="{{pindah}}" aria-disabled="{{ok2X}}" style="min-height: 52px; border-radius: 14px; border: 0; font-weight: 700; text-align: center; padding: 0 16px; flex: 1 1 150px; max-width: 340px; {{ok2St}}">Pindah tanggal</button><button onClick="{{pulang}}" style="min-height: 44px; border: 0; background: none; color: #0E5A63; font-weight: 700; text-align: center; padding: 0 16px; flex: 1 1 150px; max-width: 340px">Kembali</button></div></sc-if><sc-if value="{{jBeres}}" hint-placeholder-val="{{false}}"><div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px"><div style="display: flex; justify-content: space-between; gap: 16px; align-items: center"><span style="font-weight: 700">Konsumsi ibadah Kolom</span><span style="flex: none; font-size: 13px; font-weight: 700; border-radius: 6px; padding: 3px 9px; color: #43514C; border: 1.5px dashed #808D87">Draf</span></div><div style="font-size: 14px; color: #43514C">Dipindah ke 02/11/2026</div><div style="font-size: 13px; color: #5E6A66"><span>{{beresTeks}}</span></div></div><div style="background: #E1EEED; border-radius: 12px; padding: 12px 14px; font-size: 14px"><strong>Tidak ada hambatan dari unit.</strong> Oktober 2026 dapat diperiksa untuk tutup buku.</div></sc-if><sc-if value="{{riwAda}}" hint-placeholder-val="{{false}}"><h2 style="margin: 0; font-size: 16px; font-weight: 700">Riwayat</h2><div style="background: #FFFFFF; border: 1px solid #DDE2DB; border-radius: 14px; padding: 4px 16px; display: flex; flex-direction: column"><sc-for list="{{riw}}" as="r" hint-placeholder-count="2"><div style="padding: 8px 0; border-top: 1px solid #DDE2DB; margin-top: -1px; font-size: 13px; color: #5E6A66"><span>{{r.t}}</span></div></sc-for></div></sc-if></div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"keadaan":{"editor":"enum","options":["Alur"],"default":"Alur"},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  rp(n) { var s = String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return (n < 0 ? '−' : '') + 'Rp' + s; }
+  navVals() { return [['Beranda', 'WebBerandaJabatan.dc.html'], ['Keuangan', 'WebBeranda.dc.html'], ['Dokumen gereja', 'WebDokumenGereja.dc.html'], ['Pengumuman', 'WebPengumuman.dc.html'], ['Warta Jemaat', 'WebWartaArsip.dc.html'], ['Data jemaat', 'WebDataAnggota.dc.html'], ['Ibadah dan kegiatan', 'Ibadah.dc.html'], ['Panitia', 'Panitia.dc.html'], ['Pemberitahuan', 'WebKotakMasuk.dc.html'], ['Pengaturan', 'WebPenugasan.dc.html']].map(function (n, i) { return { n: n[0], href: n[1], bg: i === 1 ? '#13201C' : 'transparent', fg: i === 1 ? '#FFFFFF' : '#13201C' }; }); }
+  state = { k: null };
+  vals() {
+    var self = this, O = ["Alur"], LS = {"draf": "color: #43514C; border: 1.5px dashed #808D87", "garis": "color: #43514C; border: 1.5px solid #5E6A66; background: #FFFFFF", "tinta": "color: #FFFFFF; background: #13201C; border: 1.5px solid #13201C", "laut": "color: #FFFFFF; background: #0E5A63; border: 1.5px solid #0E5A63", "lautg": "color: #0E5A63; background: #FFFFFF; border: 1.5px solid #0E5A63", "bata": "color: #A63C1C; background: #FFFFFF; border: 1.5px solid #A63C1C", "abu": "color: #43514C; background: #DDE2DB; border: 1.5px solid #DDE2DB"};
+    var k = this.state.k ?? (this.props.keadaan ?? O[0]); var ki = Math.max(0, O.indexOf(k));
+    var V = { keadaan: O[ki] };
+    O.forEach(function (o, i) { V['k' + i] = i === ki; V['go' + i] = function () { self.setState({ k: o }); }; });
+    var web = true, PS = ["AlurAnggota", "AlurBeranda", "AlurDana", "AlurIbadah", "AlurModul", "AlurNama", "AlurPanitia", "AlurPanitiaBaru", "AlurPelimpahan", "AlurPenugasan", "AlurPeristiwa", "AntreanVerifikasi", "CabutIzin", "Ibadah", "Kehadiran", "KeuanganUnit", "KonfirmasiKeluarga", "Modul", "Panitia", "Pelimpahan", "PemberiPersetujuan", "Peristiwa", "PermintaanDana", "PermohonanAnggota", "PersembahanSaya", "TampilanNama"], hal = function (n) { return (web && PS.indexOf(n) < 0 ? (n === 'Main' ? 'WebBeranda' : 'Web' + n) : n) + '.dc.html'; };
+    var baris = function (a) { return a.map(function (r) { return { j: r[0], s: r[1], l: r[2] || '', ls: LS[r[3] || 'garis'], h: r[4] ? hal(r[4]) : hal('AlurUnit') }; }); };
+    var E = (function () { var s = Object.assign({ pesan: '', riw: [] }, { v: 'utama', akt: 'Bendahara Kolom 7', jenis: '', jml: '', kas: '', ur: '', buku: [], beres: '', alasan: '' }, self.state.a || {});
+      var set = function (o) { self.setState({ a: Object.assign({}, s, o) }); };
+      var ke = function (v, o) { return function () { set(Object.assign({ v: v, pesan: '' }, o || {})); }; };
+      var ketik = function (k) { return function (e) { var o = {}; o[k] = e.target.value; set(o); }; };
+      var balik = function (k) { return function () { var o = {}; o[k] = !s[k]; set(o); }; };
+      var tgl = function (t) { var m = /^(\d\d)\/(\d\d)\/(\d{4})$/.exec((t || '').trim()); if (!m) return null; var d = +m[1], b = +m[2]; if (b < 1 || b > 12 || d < 1 || d > 31) return null; return (+m[3]) * 10000 + b * 100 + d; };
+      var HARI = 20261116, HARI_T = '16/11/2026';
+      var chip = function (on) { return on ? 'background: #13201C; color: #FFFFFF; border: 1.5px solid #13201C' : 'background: #FFFFFF; color: #13201C; border: 1.5px solid #7F8C86'; };
+      var pil = function (k, a) { return a.map(function (n) { return { n: n, on: s[k] === n, st: chip(s[k] === n), pick: function () { var o = { pesan: '' }; o[k] = n; set(o); } }; }); };
+      var V = { pesan: s.pesan, pesanAda: !!s.pesan, riw: s.riw.map(function (t) { return { t: t }; }), riwAda: s.riw.length > 0 };
+      ["utama", "alasan"].forEach(function (v) { V['v_' + v] = s.v === v; });
+      var ya = function (n, b) { V[n] = !!b; V[n + 'X'] = !b; V[n + 'St'] = b ? 'background: #13201C; color: #FFFFFF' : 'background: #DDE2DB; color: #43514C'; };
+      var sebab = function (n, t) { V[n] = t || ''; V[n + 'Ada'] = !!t; };
+      var catat = function (t) { return [HARI_T + ' · ' + t].concat(s.riw); };
+
+      var angka = function (k) { return function (e) { var o = {}; o[k] = e.target.value.replace(/\D/g, '').replace(/^0+(?=\d)/, '').slice(0, 11); set(o); }; };
+      var rpT = function (d) { return 'Rp' + (String(d || '0').replace(/\B(?=(\d{3})+(?!\d))/g, '.')); };
+
+      var unit = s.akt === 'Bendahara Kolom 7', n = +s.jml || 0;
+      var a = !s.jenis ? 'jenis belum dipilih.' : (n <= 0 ? 'jumlah belum diisi.' : (!s.kas ? 'Kas/Bank belum dipilih.' : (s.kas !== 'Kas Kolom 7' ? 'Kas/Bank ini tidak dikelola Kolom 7.' : (!s.ur.trim() ? 'uraian belum diisi.' : ''))));
+      ya('ok', !a); sebab('sebab', s.jenis || s.jml || s.kas || s.ur ? a : '');
+      var al = s.alasan.trim(); ya('ok2', !!al); sebab('sebab2', al && !al ? 'alasan terlalu pendek.' : '');
+      var R_ = Object.assign(V, {
+        aktor: pil('akt', ['Bendahara Kolom 7', 'Bendahara Jemaat']), uUtama: unit, jHambat: !unit && !s.beres && s.v !== 'alasan', jAlasan: !unit && !s.beres && s.v === 'alasan', jBeres: !unit && !!s.beres,
+        jenisPil: pil('jenis', ['Pendapatan', 'Belanja']), kasPil: pil('kas', ['Kas Kolom 7', 'Kas (dikelola Jemaat)']), jml: s.jml.replace(/\B(?=(\d{3})+(?!\d))/g, '.'), onJml: angka('jml'), jmlTeks: rpT(s.jml), ur: s.ur, onUr: ketik('ur'),
+        buku: [['Persembahan Ibadah Kolom', 'Rp320.000', 'BKU-2026-0151 · 12/11/2026 · Dibukukan']].concat(s.buku).map(function (x) { return { j: x[0], v: x[1], s: x[2] }; }),
+        adaDraf: true, drafKet: s.beres ? 'Dipindah ke 02/11/2026 oleh Bendahara Jemaat · alasan: ' + s.beres : '28/10/2026 · Rp185.000 · belum masuk saldo · menghalangi tutup buku Oktober 2026',
+        alasan: s.alasan, onAlasan: ketik('alasan'), keAlasan: ke('alasan', { alasan: '' }), pulang: ke('utama'), beresTeks: 'Diselesaikan oleh Bendahara Jemaat (alasan: ' + s.beres + ') · Meiske Lumentut, ' + HARI_T,
+        bukukan: function () { var t = s.jenis + ' ' + rpT(s.jml) + ' · ' + s.ur.trim(); set({ buku: [[s.ur.trim(), (s.jenis === 'Belanja' ? '−' : '') + rpT(s.jml), 'No. Bukti baru · ' + HARI_T + ' · Dibukukan · ' + s.jenis]].concat(s.buku), jenis: '', jml: '', kas: '', ur: '', pesan: 'Dibukukan di peruntukan Kolom 7.', riw: catat('Dibukukan: ' + t + ' · Deasy Tumbelaka, Bendahara Kolom 7') }); },
+        pindah: function () { set({ v: 'utama', beres: al, alasan: '', pesan: 'Deasy Tumbelaka diberi tahu lewat Pemberitahuan.', riw: catat('Draf Konsumsi ibadah Kolom dipindah ke 02/11/2026 · Diselesaikan oleh Bendahara Jemaat (alasan: ' + al + ')') }); }
+      });
+      [["bukukan", "ok"], ["pindah", "ok2"]].forEach(function (g) { var mentah = R_[g[0]]; R_[g[0] + 'Mentah'] = mentah; R_[g[0]] = function () { var F = self.vals(); if (F[g[1]]) F[g[0] + 'Mentah'](); }; });
+      return R_; })() || {};
+    for (var n in E) V[n] = E[n];
+    return V;
+  }
+
+  renderVals() { var V = this.vals(); if (this.navVals) V.nav = this.navVals(); return V; }
+}
+</script>
+</body>
+</html>
