@@ -13,20 +13,23 @@ void main() {
 }
 
 class PalakatPrototipe extends StatefulWidget {
-  PalakatPrototipe({super.key, GoRouter? router})
+  PalakatPrototipe({super.key, GoRouter? router, this.keadaan})
     : router = router ?? buatRouter();
   final GoRouter router;
+
+  /// Injected by tests to set tweaks; the app makes its own.
+  final PrototypeState? keadaan;
 
   @override
   State<PalakatPrototipe> createState() => _PalakatPrototipeState();
 }
 
 class _PalakatPrototipeState extends State<PalakatPrototipe> {
-  final _keadaan = PrototypeState();
+  late final _keadaan = widget.keadaan ?? PrototypeState();
 
   @override
   void dispose() {
-    _keadaan.dispose();
+    if (widget.keadaan == null) _keadaan.dispose();
     super.dispose();
   }
 
