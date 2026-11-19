@@ -22,62 +22,65 @@ class _WebPilihBulanScreenState extends State<WebPilihBulanScreen> {
     final c = context.warna;
     return Material(
       type: MaterialType.transparency,
-      child: HalamanWeb(
-        jabatanKosong: true,
-        nav: const NavSamping(
-          item: navKeuangan,
-          aktif: 1,
-          pengguna: PenggunaKeuangan(),
-        ),
-        isi: [
-          _BarisJudul(
-            tombol: TombolBulan(k: k, onTap: () => setState(k.toggle)),
-            teksTombol: TombolBulan.teks(k),
+      child: DefaultTextHeightBehavior(
+        textHeightBehavior: perilakuBarisCss,
+        child: HalamanWeb(
+          jabatanKosong: true,
+          nav: const NavSamping(
+            item: navKeuangan,
+            aktif: 1,
+            pengguna: PenggunaKeuangan(),
           ),
-          BarisLentur(
-            jarak: 24,
-            anak: [
-              Lentur(
-                dasar: 460,
-                tumbuh: 999,
-                child: DaftarBulan(k: k, jarak: 14),
-              ),
-              if (k.buka)
+          isi: [
+            _BarisJudul(
+              tombol: TombolBulan(k: k, onTap: () => setState(k.toggle)),
+              teksTombol: TombolBulan.teks(k),
+            ),
+            BarisLentur(
+              jarak: 24,
+              anak: [
                 Lentur(
-                  dasar: 340,
-                  child: Gerak(
-                    Kerangka.muncul,
-                    lama: const Duration(milliseconds: 300),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Semantics(
-                          header: true,
-                          child: const Text(
-                            'Pilih bulan',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
+                  dasar: 460,
+                  tumbuh: 999,
+                  child: DaftarBulan(k: k, jarak: 14),
+                ),
+                if (k.buka)
+                  Lentur(
+                    dasar: 340,
+                    child: Gerak(
+                      Kerangka.muncul,
+                      lama: const Duration(milliseconds: 300),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Semantics(
+                            header: true,
+                            child: const Text(
+                              'Pilih bulan',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Semua bulan sejak tanggal mulai pencatatan.',
-                          style: TextStyle(fontSize: 14, color: c.tinta2),
-                        ),
-                        const SizedBox(height: 12),
-                        PilihanBulan(
-                          k: k,
-                          onPilih: (n) => setState(() => k.pilih(n)),
-                        ),
-                      ],
+                          const SizedBox(height: 4),
+                          Text(
+                            'Semua bulan sejak tanggal mulai pencatatan.',
+                            style: TextStyle(fontSize: 14, color: c.tinta2),
+                          ),
+                          const SizedBox(height: 12),
+                          PilihanBulan(
+                            k: k,
+                            onPilih: (n) => setState(() => k.pilih(n)),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

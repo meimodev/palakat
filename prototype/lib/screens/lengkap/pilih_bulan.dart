@@ -137,6 +137,12 @@ class KeadaanPilihBulan {
 
 // ── Shared parts ──
 
+/// CSS half-leading: mixed sans/mono lines and glyph placement match the
+/// board. ponytail: belongs in the theme for every screen (sharedNeeds).
+const perilakuBarisCss = TextHeightBehavior(
+  leadingDistribution: TextLeadingDistribution.even,
+);
+
 /// The month pill: "‹bulan› · ‹status› ▾", `aria-expanded`.
 class TombolBulan extends StatelessWidget {
   const TombolBulan({super.key, required this.k, required this.onTap});
@@ -444,60 +450,63 @@ class _PilihBulanScreenState extends State<PilihBulanScreen> {
     final c = context.warna;
     return Material(
       type: MaterialType.transparency,
-      child: LayarPonsel(
-        jabatanKosong: true,
-        overlay: [
-          if (k.buka)
-            Positioned.fill(
-              child: LembarBawah(
-                judul: 'Pilih bulan',
-                anakJudul: 'Semua bulan sejak tanggal mulai pencatatan.',
-                pegangan: false,
-                latar: c.kertas,
-                padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
-                jarak: 0,
-                labelTirai: 'Kembali ke daftar',
-                masuk: Kerangka.muncul,
-                onTutup: () => setState(() => k.buka = false),
-                isi: [
-                  PilihanBulan(
-                    k: k,
-                    onPilih: (n) => setState(() => k.pilih(n)),
-                  ),
-                ],
+      child: DefaultTextHeightBehavior(
+        textHeightBehavior: perilakuBarisCss,
+        child: LayarPonsel(
+          jabatanKosong: true,
+          overlay: [
+            if (k.buka)
+              Positioned.fill(
+                child: LembarBawah(
+                  judul: 'Pilih bulan',
+                  anakJudul: 'Semua bulan sejak tanggal mulai pencatatan.',
+                  pegangan: false,
+                  latar: c.kertas,
+                  padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
+                  jarak: 0,
+                  labelTirai: 'Kembali ke daftar',
+                  masuk: Kerangka.muncul,
+                  onTutup: () => setState(() => k.buka = false),
+                  isi: [
+                    PilihanBulan(
+                      k: k,
+                      onPilih: (n) => setState(() => k.pilih(n)),
+                    ),
+                  ],
+                ),
               ),
-            ),
-        ],
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 24, 20, 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Semantics(
-                    header: true,
-                    child: const Text(
-                      'Transaksi',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w700,
+          ],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 24, 20, 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Semantics(
+                      header: true,
+                      child: const Text(
+                        'Transaksi',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  TombolBulan(k: k, onTap: () => setState(k.toggle)),
-                ],
+                    const SizedBox(height: 10),
+                    TombolBulan(k: k, onTap: () => setState(k.toggle)),
+                  ],
+                ),
               ),
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
-                child: DaftarBulan(k: k, jarak: 16),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
+                  child: DaftarBulan(k: k, jarak: 16),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
