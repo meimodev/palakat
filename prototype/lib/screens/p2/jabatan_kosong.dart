@@ -9,7 +9,6 @@ import '../../widgets/garis_status.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/penolakan.dart';
-import '../../widgets/pita_jabatan_kosong.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
 
@@ -71,8 +70,33 @@ class _JabatanKosongScreenState extends State<JabatanKosongScreen> {
     }
     final ki = (_o.indexOf(_k ?? tweak)).clamp(0, _o.length - 1);
 
-    const pita = PitaJabatanKosong.web(
-      padding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+    // PitaJabatanKosong.web's look, minus its live region: the board gives
+    // this banner no role (spec: plain text). Shared fix in the review notes.
+    final pita = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: c.tinta,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Text.rich(
+        TextSpan(
+          children: [
+            const TextSpan(
+              text:
+                  'Anda menjalankan jabatan kosong Bendahara Jemaat sejak '
+                  '16/11/2026 08.15.',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
+            TextSpan(
+              text:
+                  ' Setiap tindakan dicatat sebagai dijalankan oleh Operator '
+                  'Yanti Sumual.',
+              style: TextStyle(color: c.diTinta2),
+            ),
+          ],
+        ),
+        style: TextStyle(fontSize: 14, color: c.permukaan),
+      ),
     );
     final kecil = TextStyle(fontSize: 13, color: c.tinta3);
     Widget keterangan(String t) => Text(t, style: kecil);

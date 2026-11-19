@@ -102,7 +102,8 @@ class _WebPenugasanScreenState extends State<WebPenugasanScreen> {
         nilaiAwal: nilai,
         hanyaBaca: true,
         jarakLabel: 6,
-        gaya: TextStyle(fontSize: 14, color: c.tinta2),
+        // letterSpacing 0: TextField otherwise keeps M3 bodyLarge's 0.5.
+        gaya: TextStyle(fontSize: 14, color: c.tinta2, letterSpacing: 0),
       );
       if (petunjuk == null) return f;
       return kolom([f, Text(petunjuk, style: kecil)], 6);
