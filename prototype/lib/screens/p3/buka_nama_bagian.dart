@@ -91,7 +91,8 @@ class _BukaNamaPapanState extends State<BukaNamaPapan> {
       nilaiAwal: ki == 0 ? _alasan : '',
       label: 'Alasan · wajib',
       jarakLabel: 6,
-      gaya: TextStyle(fontSize: 14, color: c.tinta2),
+      // letterSpacing 0: TextField otherwise keeps the M3 bodyLarge 0.5.
+      gaya: TextStyle(fontSize: 14, color: c.tinta2, letterSpacing: 0),
       baris: 3,
       hanyaBaca: true,
     );

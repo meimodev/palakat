@@ -24,44 +24,54 @@ class WebBukaNamaScreen extends StatelessWidget {
           biasa: ' · Sekretaris Jemaat',
         ),
       ),
+      // CSS puts half the leading above and half below each line.
       isi: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // The 44 px target around the 14 px breadcrumb keeps its line.
-            const MarginNegatif(
-              atas: 12,
-              bawah: 12,
-              child: Tautan(
-                ke: 'WebWartaEditor',
-                cara: Cara.naik,
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  widthFactor: 1,
-                  heightFactor: 1,
-                  child: TautanTeks('Warta Jemaat', ukuran: 14),
+        for (final w in <Widget>[
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // The 44 px target around the 14 px breadcrumb keeps its line,
+              // which is the 15 px parent's strut (15 × 1.45 = 21.75), not 20.
+              const MarginNegatif(
+                atas: 12,
+                bawah: 10.25,
+                child: Tautan(
+                  ke: 'WebWartaEditor',
+                  cara: Cara.naik,
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    widthFactor: 1,
+                    heightFactor: 1,
+                    child: TautanTeks('Warta Jemaat', ukuran: 14),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 2),
-            Semantics(
-              header: true,
-              child: const Text(
-                'Tampilkan nama (pengecualian)',
-                style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700),
+              const SizedBox(height: 2),
+              Semantics(
+                header: true,
+                child: const Text(
+                  'Tampilkan nama (pengecualian)',
+                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700),
+                ),
               ),
+              Text(
+                'Hanya Sekretaris Jemaat, dengan alasan, dan tercatat',
+                style: TextStyle(fontSize: 14, color: c.tinta2),
+              ),
+            ],
+          ),
+          const BukaNamaPapan(
+            stem: 'WebBukaNama',
+            ke: 'WebWartaEditor',
+            web: true,
+          ),
+        ])
+          DefaultTextStyle.merge(
+            style: const TextStyle(
+              leadingDistribution: TextLeadingDistribution.even,
             ),
-            Text(
-              'Hanya Sekretaris Jemaat, dengan alasan, dan tercatat',
-              style: TextStyle(fontSize: 14, color: c.tinta2),
-            ),
-          ],
-        ),
-        const BukaNamaPapan(
-          stem: 'WebBukaNama',
-          ke: 'WebWartaEditor',
-          web: true,
-        ),
+            child: w,
+          ),
       ],
     );
   }
