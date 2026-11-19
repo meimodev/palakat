@@ -267,74 +267,84 @@ class _WebPersetujuanScreenState extends State<WebPersetujuanScreen> {
       if (_form != null)
         muncul(
           ValueKey('form-$_form'),
-          Kartu(
-            padding: const EdgeInsets.all(16),
-            child: kolom(10, [
-              kolom(0, [
-                Text(
-                  judulForm,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                Text(
-                  _ganti
-                      ? 'Catatan lama tidak diubah. Ia tetap ada di Riwayat '
-                            'dengan tanda digantikan.'
-                      : 'Anda mencatat persetujuan yang diberikan di luar '
-                            'aplikasi.',
-                  style: TextStyle(fontSize: 14, color: c.tinta2),
-                ),
-              ]),
-              kolom(0, [
-                label('Pemberi persetujuan', wajib: true),
-                IsianTeks(
-                  controller: _nama,
-                  labelSemantik: 'Pemberi persetujuan',
-                  onChanged: (_) => setState(() {}),
-                ),
-              ]),
-              kolom(0, [
-                label('Jabatan'),
-                IsianTeks(
-                  controller: _jab,
-                  labelSemantik: 'Jabatan',
-                  onChanged: (_) => setState(() {}),
-                ),
-              ]),
-              if (_ganti)
-                IsianAlasan(
-                  controller: _alasan,
-                  onChanged: (_) => setState(() {}),
-                  label: 'Alasan mengganti',
-                  contoh: 'Contoh: nama pemberi persetujuan keliru',
-                ),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  // Board: no refusal sentence, the "· wajib" labels are the
-                  // cue; the reason is the Semantics hint (spec Notes).
-                  TekanAria(
-                    onTap: _simpan,
-                    aktif: ok,
-                    petunjuk: ok ? null : tolak,
-                    radius: 12,
-                    child: RupaTombol(
-                      label: judulForm,
-                      isi: ok ? c.laut : c.garis,
-                      warnaTeks: ok ? c.diLaut : c.tinta3,
-                      radius: 12,
-                      tinggi: 46,
-                      paddingH: 20,
-                      lebarPenuh: false,
+          // TextField would otherwise add Material's 0.5 letter spacing to
+          // the typed text and the hint; the board's inputs inherit none.
+          DefaultTextStyle.merge(
+            style: const TextStyle(letterSpacing: 0),
+            child: Kartu(
+              padding: const EdgeInsets.all(16),
+              child: kolom(10, [
+                kolom(0, [
+                  Text(
+                    judulForm,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
-                  tombol('Kembali', _batal, JenisTombol.kedua),
-                ],
-              ),
-            ]),
+                  Text(
+                    _ganti
+                        ? 'Catatan lama tidak diubah. Ia tetap ada di Riwayat '
+                              'dengan tanda digantikan.'
+                        : 'Anda mencatat persetujuan yang diberikan di luar '
+                              'aplikasi.',
+                    style: TextStyle(fontSize: 14, color: c.tinta2),
+                  ),
+                ]),
+                kolom(0, [
+                  label('Pemberi persetujuan', wajib: true),
+                  IsianTeks(
+                    controller: _nama,
+                    labelSemantik: 'Pemberi persetujuan',
+                    onChanged: (_) => setState(() {}),
+                  ),
+                ]),
+                kolom(0, [
+                  label('Jabatan'),
+                  IsianTeks(
+                    controller: _jab,
+                    labelSemantik: 'Jabatan',
+                    onChanged: (_) => setState(() {}),
+                  ),
+                ]),
+                if (_ganti)
+                  // The inline-block textarea leaves the line box's descender gap
+                  // (4.75 px) below it in its div, as on the board.
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 4.75),
+                    child: IsianAlasan(
+                      controller: _alasan,
+                      onChanged: (_) => setState(() {}),
+                      label: 'Alasan mengganti',
+                      contoh: 'Contoh: nama pemberi persetujuan keliru',
+                    ),
+                  ),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    // Board: no refusal sentence, the "· wajib" labels are the
+                    // cue; the reason is the Semantics hint (spec Notes).
+                    TekanAria(
+                      onTap: _simpan,
+                      aktif: ok,
+                      petunjuk: ok ? null : tolak,
+                      radius: 12,
+                      child: RupaTombol(
+                        label: judulForm,
+                        isi: ok ? c.laut : c.garis,
+                        warnaTeks: ok ? c.diLaut : c.tinta3,
+                        radius: 12,
+                        tinggi: 46,
+                        paddingH: 20,
+                        lebarPenuh: false,
+                      ),
+                    ),
+                    tombol('Kembali', _batal, JenisTombol.kedua),
+                  ],
+                ),
+              ]),
+            ),
           ),
         ),
       if (_form == null && !_peringatan)
@@ -398,54 +408,65 @@ class _WebPersetujuanScreenState extends State<WebPersetujuanScreen> {
         ]),
     ]);
 
-    return Material(
-      type: MaterialType.transparency,
-      child: HalamanWeb(
-        jabatanKosong: true,
-        nav: NavSamping(
-          item: navKeuangan,
-          aktif: 1,
-          pengguna: const PenggunaKeuangan(),
-        ),
-        isi: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // The 44 px target hangs below the 14 / 1.45 line, as on the board.
-              MarginNegatif(
-                bawah: 44 - 14 * 1.45,
-                child: Tautan(
-                  ke: 'WebTransaksi',
-                  cara: Cara.naik,
-                  child: const TautanTeks('Transaksi', ukuran: 14),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 2),
-                child: Semantics(
-                  header: true,
-                  child: const Text(
-                    'Persetujuan di luar aplikasi',
-                    style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700),
+    // CSS puts half the leading above and half below each line; Flutter's
+    // default (proportional) sets glyphs lower than the board does.
+    return DefaultTextHeightBehavior(
+      textHeightBehavior: const TextHeightBehavior(
+        leadingDistribution: TextLeadingDistribution.even,
+      ),
+      child: Material(
+        type: MaterialType.transparency,
+        child: HalamanWeb(
+          jabatanKosong: true,
+          nav: NavSamping(
+            item: navKeuangan,
+            aktif: 1,
+            pengguna: const PenggunaKeuangan(),
+          ),
+          isi: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // The 44 px target hangs below the line; the inline link sits in
+                // the 15 / 1.45 line box of its div, as on the board.
+                MarginNegatif(
+                  bawah: 44 - 15 * 1.45,
+                  child: Tautan(
+                    ke: 'WebTransaksi',
+                    cara: Cara.naik,
+                    child: const TautanTeks('Transaksi', ukuran: 14),
                   ),
                 ),
-              ),
-              Text(
-                'Catatan yang keliru digantikan catatan baru, tidak diubah. '
-                'Perubahan pada transaksi membuat persetujuan perlu dicatat '
-                'lagi.',
-                style: TextStyle(fontSize: 14, color: c.tinta2),
-              ),
-            ],
-          ),
-          BarisLentur(
-            jarak: 24,
-            anak: [
-              Lentur(dasar: 360, child: draf),
-              Lentur(dasar: 440, tumbuh: 999, child: kanan),
-            ],
-          ),
-        ],
+                Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Semantics(
+                    header: true,
+                    child: const Text(
+                      'Persetujuan di luar aplikasi',
+                      style: TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+                Text(
+                  'Catatan yang keliru digantikan catatan baru, tidak diubah. '
+                  'Perubahan pada transaksi membuat persetujuan perlu dicatat '
+                  'lagi.',
+                  style: TextStyle(fontSize: 14, color: c.tinta2),
+                ),
+              ],
+            ),
+            BarisLentur(
+              jarak: 24,
+              anak: [
+                Lentur(dasar: 360, child: draf),
+                Lentur(dasar: 440, tumbuh: 999, child: kanan),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
