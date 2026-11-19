@@ -762,104 +762,119 @@ class _BarisPilih extends StatelessWidget {
   Widget _isi(BuildContext context, double maksAksi, TextStyle ket) {
     final c = context.warna;
     final r = baris;
-    return Row(
-      children: [
-        Expanded(
-          child: Tekan(
-            onTap: onTap,
-            radius: 12,
-            peran: PeranTekan.sakelar,
-            tercentang: on,
-            child: Container(
-              constraints: const BoxConstraints(minHeight: 60),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              child: Row(
-                children: [
-                  Container(
-                    width: 26,
-                    height: 26,
-                    decoration: BoxDecoration(
-                      color: on ? c.tinta : c.permukaan,
-                      border: Border.all(color: c.tinta, width: 2),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    alignment: Alignment.center,
-                    child: PalakatIkon(
-                      Ikon.centang,
-                      ukuran: 14,
-                      tebal: 3.4,
-                      warna: c.permukaan,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          r.n,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        r.no == null
-                            ? Text(r.tgl, style: ket)
-                            : Text.rich(
-                                TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: r.no,
-                                      style: const TextStyle(
-                                        fontFamily: PalakatText.mono,
-                                      ),
-                                    ),
-                                    TextSpan(text: ' · ${r.tgl}'),
-                                  ],
-                                ),
-                                style: ket,
-                              ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(rp(r.jm), style: _angka),
-                ],
-              ),
-            ),
-          ),
-        ),
-        if (aksi != null)
-          Container(
-            // Stretched on the board: 44 high beside the 60 px press target;
-            // taller only when the label wraps.
-            width:
-                8 +
-                math.min(
-                  _lebar(context, aksi!, _aksi) + 27,
-                  math.max(44, maksAksi),
-                ),
-            padding: const EdgeInsets.fromLTRB(0, 8, 8, 8),
+    // The board's row is `align-items: stretch`: the side action fills the
+    // row height less its 8 px margins.
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
             child: Tekan(
-              onTap: onAksi,
-              radius: 10,
+              onTap: onTap,
+              radius: 12,
+              peran: PeranTekan.sakelar,
+              tercentang: on,
               child: Container(
-                constraints: const BoxConstraints(minHeight: 44),
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  color: c.permukaan,
-                  border: Border.all(color: c.tinta, width: 1.5),
-                  borderRadius: BorderRadius.circular(10),
+                constraints: const BoxConstraints(minHeight: 60),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 8,
                 ),
-                child: Center(
-                  widthFactor: 1,
-                  heightFactor: 1,
-                  child: Text(aksi!, style: _aksi),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 26,
+                      height: 26,
+                      decoration: BoxDecoration(
+                        color: on ? c.tinta : c.permukaan,
+                        border: Border.all(color: c.tinta, width: 2),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      alignment: Alignment.center,
+                      child: PalakatIkon(
+                        Ikon.centang,
+                        ukuran: 14,
+                        tebal: 3.4,
+                        warna: c.permukaan,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            r.n,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          r.no == null
+                              ? Text(r.tgl, style: ket)
+                              : Text.rich(
+                                  TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: r.no,
+                                        style: const TextStyle(
+                                          fontFamily: PalakatText.mono,
+                                        ),
+                                      ),
+                                      TextSpan(text: ' · ${r.tgl}'),
+                                    ],
+                                  ),
+                                  style: ket,
+                                ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(rp(r.jm), style: _angka),
+                  ],
                 ),
               ),
             ),
           ),
-      ],
+          if (aksi != null)
+            Container(
+              width:
+                  8 +
+                  math.min(
+                    _lebar(context, aksi!, _aksi) + 27,
+                    math.max(44, maksAksi),
+                  ),
+              padding: const EdgeInsets.fromLTRB(0, 8, 8, 8),
+              child: Tekan(
+                onTap: onAksi,
+                radius: 10,
+                child: Container(
+                  constraints: const BoxConstraints(minHeight: 44),
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: c.permukaan,
+                    border: Border.all(color: c.tinta, width: 1.5),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Center(
+                    widthFactor: 1,
+                    heightFactor: 1,
+                    // CSS half-leading, so a wrapped label (390 wide) stays
+                    // off the bottom border.
+                    child: Text(
+                      aksi!,
+                      style: _aksi,
+                      textHeightBehavior: const TextHeightBehavior(
+                        leadingDistribution: TextLeadingDistribution.even,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
