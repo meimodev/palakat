@@ -138,7 +138,7 @@ mixin AlurKeluargaLogika<T extends StatefulWidget> on State<T> {
 
   // Operator, before import.
   List<Widget> get bukuKiri => [
-    const BarisInfo('Sumber', 'Buku anggota Kolom 7 · 2019–2026'),
+    const _BarisInfo('Sumber', 'Buku anggota Kolom 7 · 2019–2026'),
     _kartu([
       _kepala('Ferry Wenas', 'Lolos pengecekan', BentukLencana.garis),
       _kecil(
@@ -270,11 +270,19 @@ mixin AlurKeluargaLogika<T extends StatefulWidget> on State<T> {
             ),
           if (ada) _kecil('1 file terlampir'),
         ]),
-        KotakCentang(
-          nilai: izinF,
-          onUbah: (_) => setState(() => izinF = !izinF),
-          label: const Text(
-            'Formulir memuat izin penggunaan data pribadi, naskah versi 1.',
+        // The board's box has `margin: 2px 0 0`; KotakCentang has no such
+        // option, so the row moves down 2 and the label back up 2.
+        Padding(
+          padding: const EdgeInsets.only(top: 2),
+          child: KotakCentang(
+            nilai: izinF,
+            onUbah: (_) => setState(() => izinF = !izinF),
+            label: Transform.translate(
+              offset: const Offset(0, -2),
+              child: const Text(
+                'Formulir memuat izin penggunaan data pribadi, naskah versi 1.',
+              ),
+            ),
           ),
         ),
         if (sebab.isNotEmpty)
@@ -322,9 +330,9 @@ mixin AlurKeluargaLogika<T extends StatefulWidget> on State<T> {
             'Menunggu verifikasi',
             BentukLencana.garis,
           ),
-          BarisInfo('Anggota keluarga', _n),
-          const BarisInfo('Formulir', 'Terlampir · memuat izin data pribadi'),
-          const BarisInfo('Dimasukkan oleh', 'Yanti Sumual, Operator'),
+          _BarisInfo('Anggota keluarga', _n),
+          const _BarisInfo('Formulir', 'Terlampir · memuat izin data pribadi'),
+          const _BarisInfo('Dimasukkan oleh', 'Yanti Sumual, Operator'),
         ]),
         BarisTombol(
           anak: [
@@ -352,4 +360,52 @@ mixin AlurKeluargaLogika<T extends StatefulWidget> on State<T> {
   }
 
   Widget? get riwayat => riw.isEmpty ? null : RiwayatAlur(baris: riw);
+}
+
+/// The boards' info row: both spans `flex: 0 1 auto`, so on overflow each
+/// shrinks in proportion to its own width and the label wraps too (KitAlur's
+/// BarisInfo never shrinks the label).
+// ponytail: ignores CSS's min-content floor; fine for these short labels.
+class _BarisInfo extends StatelessWidget {
+  const _BarisInfo(this.label, this.nilai);
+
+  final String label, nilai;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.warna;
+    final dasar = DefaultTextStyle.of(context).style
+        .merge(const TextStyle(fontSize: 14));
+    final gayaLabel = dasar.copyWith(color: c.tinta2);
+    final gayaNilai = dasar.copyWith(
+      color: c.tinta,
+      fontWeight: FontWeight.w600,
+    );
+    int lebar(String t, TextStyle g) {
+      final p = TextPainter(
+        text: TextSpan(text: t, style: g),
+        textDirection: TextDirection.ltr,
+        textScaler: MediaQuery.textScalerOf(context),
+      )..layout();
+      final w = p.width.ceil();
+      p.dispose();
+      return w;
+    }
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Flexible(
+          flex: lebar(label, gayaLabel),
+          child: Text(label, style: gayaLabel),
+        ),
+        const SizedBox(width: 16),
+        Flexible(
+          flex: lebar(nilai, gayaNilai),
+          child: Text(nilai, textAlign: TextAlign.right, style: gayaNilai),
+        ),
+      ],
+    );
+  }
 }
