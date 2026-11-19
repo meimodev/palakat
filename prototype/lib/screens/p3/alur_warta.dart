@@ -174,32 +174,38 @@ class _AlurWartaScreenState extends State<AlurWartaScreen> {
     return Material(
       type: MaterialType.transparency,
       child: LayarPonsel(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const KepalaPonsel(
-              judul: 'Alur · Warta mingguan',
-              anakJudul: 'Dari pengumuman sampai edisi 22/11/2026 terbit',
-              kembaliKe: 'WartaArsip',
-              labelKembali: 'Kembali ke Warta Jemaat',
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                // A new view starts at the top (spec 19, shared rules).
-                key: ValueKey(_v),
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    for (final (i, w) in isi.indexed) ...[
-                      if (i > 0) const SizedBox(height: 16),
-                      w,
+        // CSS puts line-height leading half above, half below the glyphs.
+        child: DefaultTextStyle.merge(
+          style: const TextStyle(
+            leadingDistribution: TextLeadingDistribution.even,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const KepalaPonsel(
+                judul: 'Alur · Warta mingguan',
+                anakJudul: 'Dari pengumuman sampai edisi 22/11/2026 terbit',
+                kembaliKe: 'WartaArsip',
+                labelKembali: 'Kembali ke Warta Jemaat',
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  // A new view starts at the top (spec 19, shared rules).
+                  key: ValueKey(_v),
+                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      for (final (i, w) in isi.indexed) ...[
+                        if (i > 0) const SizedBox(height: 16),
+                        w,
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
