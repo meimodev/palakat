@@ -29,7 +29,6 @@ mixin KesiapanLogika<T extends StatefulWidget> on State<T> {
   };
   final Map<String, String> _als = {};
   String? _form;
-  String? _peran;
   final _alasan = TextEditingController();
   final _fokus = FocusNode();
 
@@ -40,13 +39,10 @@ mixin KesiapanLogika<T extends StatefulWidget> on State<T> {
     super.dispose();
   }
 
-  /// Reads the tweak; a switch closes the form and keeps `f` and `als`.
-  bool bendahara(BuildContext context) {
-    final p = context.tweak<String>(stem, 'masukSebagai');
-    if (_peran != null && _peran != p) _form = null;
-    _peran = p;
-    return p == 'Bendahara';
-  }
+  /// Reads the tweak. A switch keeps all state, the open form included, as
+  /// on the board (CONVENTIONS: board parity over the spec's recommendation).
+  bool bendahara(BuildContext context) =>
+      context.tweak<String>(stem, 'masukSebagai') == 'Bendahara';
 
   bool get _ok => _alasan.text.trim().isNotEmpty;
   bool _perlu(String id) => _f[id] == 'lagi' || _f[id] == 'belum';
