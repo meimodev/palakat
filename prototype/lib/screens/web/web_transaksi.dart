@@ -37,6 +37,12 @@ typedef _Trx = ({
 const _filter = ['Semua', 'Draf', 'Dibukukan', 'Dibalik', 'Dibatalkan'];
 const _bukukan = 'Periksa dan bukukan';
 
+/// CSS half-leading for the two large texts (h1 26, amount 32), where
+/// Flutter's proportional default sits 2–4 px lower than Chrome. ponytail:
+/// small text keeps the default because Chrome's rounded line boxes match it
+/// better; HalamanWeb could set this for all text (sharedNeeds).
+const _rata = TextLeadingDistribution.even;
+
 /// The board's `data` (rows in board order, not by date). Row 0 changes once
 /// booked ([buku]).
 List<_Trx> _data(bool buku) => [
@@ -530,7 +536,7 @@ class _Kepala extends StatelessWidget {
       )..layout();
       final w = tp.width;
       tp.dispose();
-      return (w + tepi).ceilToDouble() + 1;
+      return (w + tepi).ceilToDouble();
     }
 
     const bulan = 'November 2026 · Belum ditutup';
@@ -542,7 +548,11 @@ class _Kepala extends StatelessWidget {
           dasar: 200,
           child: Text(
             'Transaksi',
-            style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700),
+            style: TextStyle(
+              fontSize: 26,
+              fontWeight: FontWeight.w700,
+              leadingDistribution: _rata,
+            ),
           ),
         ),
         Lentur(
@@ -717,6 +727,7 @@ class _Panel extends StatelessWidget {
                     fontSize: 32,
                     fontWeight: FontWeight.w500,
                     letterSpacing: -1,
+                    leadingDistribution: _rata,
                     color: draf || p.st == 'Dibatalkan' ? c.tinta2 : c.tinta,
                   ),
                 ),
