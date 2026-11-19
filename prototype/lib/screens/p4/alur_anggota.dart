@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../../shell/perangkat_prototipe.dart';
+import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
 import '../../widgets/chip_pilihan.dart';
+import '../../widgets/garis.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/penolakan.dart';
@@ -142,13 +144,20 @@ class _AlurAnggotaState extends State<AlurAnggotaScreen> {
         keteranganAlur(context, tidakTampil),
         if (_st == 'Diverifikasi')
           // An <a> is content-box on the board: max-width 340 plus padding
-          // and line exceed 350, so it fills the row.
-          const Tombol(
-            'Atur Tampilan nama saya',
-            onPressed: null,
-            jenis: JenisTombol.kedua,
-            ukuran: UkuranTombol.sedang,
+          // and line exceed 350, so it fills the row, and min-height 48
+          // plus the 1.5 line top and bottom makes it 51 tall.
+          Tautan(
             ke: 'AlurNama',
+            radius: 14,
+            child: RupaTombol(
+              label: 'Atur Tampilan nama saya',
+              isi: c.permukaan,
+              garis: GarisBorder.penuh(c.tinta, radius: 14),
+              warnaTeks: c.tinta,
+              radius: 14,
+              tinggi: 51,
+              paddingH: 16,
+            ),
           ),
       ];
     } else if (antre && _v != 'kembali') {
