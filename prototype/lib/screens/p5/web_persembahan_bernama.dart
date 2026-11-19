@@ -1,9 +1,97 @@
 import 'package:flutter/material.dart';
 
-import '../../shell/belum_dibangun.dart';
+import '../../shell/halaman_web.dart';
+import '../../shell/nav_samping.dart';
+import '../../shell/tautan.dart';
+import '../../theme/palakat_tema.dart';
+import '../../widgets/kecil.dart';
+import '../../widgets/tata_letak.dart';
+import 'persembahan_bernama_blok.dart';
 
-class WebPersembahanBernamaScreen extends StatelessWidget {
+/// Web · Persembahan bernama (spec 22): PersembahanBernama on the laptop,
+/// platform side nav with Keuangan active.
+class WebPersembahanBernamaScreen extends StatefulWidget {
   const WebPersembahanBernamaScreen({super.key});
+
   @override
-  Widget build(BuildContext context) => const BelumDibangun(stem: 'WebPersembahanBernama');
+  State<WebPersembahanBernamaScreen> createState() =>
+      _WebPersembahanBernamaScreenState();
+}
+
+class _WebPersembahanBernamaScreenState
+    extends State<WebPersembahanBernamaScreen>
+    with KeadaanPemberi {
+  @override
+  Widget build(BuildContext context) {
+    final c = context.warna;
+    final i = ki(context, 'WebPersembahanBernama');
+    return Material(
+      type: MaterialType.transparency,
+      child: HalamanWeb(
+        nav: const NavSamping(
+          item: navPlatform,
+          aktif: 1,
+          pengguna: PenggunaNav(
+            tebal: 'Meiske Lumentut',
+            biasa: ' · Bendahara Jemaat',
+          ),
+        ),
+        isi: [
+          Column(
+            key: kunciIsi,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // The link line (14 × 1.45) inside its 44 target.
+              const MarginNegatif(
+                bawah: 44 - 14 * 1.45,
+                child: Tautan(
+                  ke: 'WebBeranda',
+                  cara: Cara.naik,
+                  child: TautanTeks('Keuangan', ukuran: 14),
+                ),
+              ),
+              const SizedBox(height: 2),
+              Semantics(
+                header: true,
+                child: const Text(
+                  'Persembahan bernama',
+                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700),
+                ),
+              ),
+              Text(
+                'Nama pemberi dicatat hanya bila sampulnya bernama',
+                style: TextStyle(fontSize: 14, color: c.tinta2),
+              ),
+            ],
+          ),
+          Align(
+            alignment: Alignment.topLeft,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1120),
+              child: BarisLentur(
+                jarak: 28,
+                jarakBaris: 20,
+                anak: [
+                  const Lentur(dasar: 420, tumbuh: 1.3, child: KartuSampul()),
+                  Lentur(
+                    dasar: 340,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      spacing: 12,
+                      children: blokPemberi(
+                        context,
+                        ki: i,
+                        pilih: pilih,
+                        ke: 'PersembahanSaya',
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
