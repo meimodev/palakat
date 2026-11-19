@@ -1,3 +1,6 @@
+import 'dart:math' as math;
+
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 import '../../mock/jabatan_kosong.dart';
@@ -196,6 +199,7 @@ class _Kertas extends StatelessWidget {
           fontFamily: PalakatText.mono,
           fontSize: 13,
           height: 1.55,
+          leadingDistribution: TextLeadingDistribution.even,
           color: c.tinta,
         ),
         child: Column(
@@ -221,24 +225,25 @@ class _Kertas extends StatelessWidget {
         ),
       ),
     );
-    // ponytail: scrolls vertically only; the 230-wide paper never outgrows
-    // the viewer's width before scaling, and scaling does not scroll.
+    // `overflow: auto` with a centred, scaled paper: the scaled paper's
+    // right and bottom overflow can be scrolled to, its left and top cannot.
     return LayoutBuilder(
-      builder: (context, k) => SingleChildScrollView(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(minHeight: k.maxHeight),
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Center(
-              child: AnimatedScale(
-                scale: zoom,
-                duration: context.gerak(const Duration(milliseconds: 250)),
-                curve: PalakatMotion.keluar,
-                child: kertas,
-              ),
+      builder: (context, k) => TweenAnimationBuilder<double>(
+        tween: Tween(end: zoom),
+        duration: context.gerak(const Duration(milliseconds: 250)),
+        curve: PalakatMotion.keluar,
+        builder: (context, s, kertas) => SingleChildScrollView(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: _Skala(
+              lebar: k.maxWidth,
+              tinggi: k.maxHeight,
+              skala: s,
+              child: Transform.scale(scale: s, child: kertas),
             ),
           ),
         ),
+        child: kertas,
       ),
     );
   }
@@ -252,6 +257,48 @@ class _Kertas extends StatelessWidget {
       Text(rp),
     ],
   );
+}
+
+/// Centres [child] (laid out unscaled) in a [lebar] × [tinggi] viewport and
+/// grows to the right and bottom edges of the child scaled by [skala].
+class _Skala extends SingleChildRenderObjectWidget {
+  const _Skala({
+    required this.lebar,
+    required this.tinggi,
+    required this.skala,
+    super.child,
+  });
+  final double lebar, tinggi, skala;
+
+  @override
+  _RenderSkala createRenderObject(BuildContext context) =>
+      _RenderSkala(lebar, tinggi, skala);
+
+  @override
+  void updateRenderObject(BuildContext context, _RenderSkala r) => r
+    ..lebar = lebar
+    ..tinggi = tinggi
+    ..skala = skala
+    ..markNeedsLayout();
+}
+
+class _RenderSkala extends RenderShiftedBox {
+  _RenderSkala(this.lebar, this.tinggi, this.skala) : super(null);
+  double lebar, tinggi, skala;
+
+  @override
+  void performLayout() {
+    final anak = child!..layout(const BoxConstraints(), parentUsesSize: true);
+    final u = anak.size;
+    (anak.parentData! as BoxParentData).offset = Offset(
+      (lebar - u.width) / 2,
+      (tinggi - u.height) / 2,
+    );
+    size = Size(
+      math.max(lebar, (lebar + u.width * skala) / 2),
+      math.max(tinggi, (tinggi + u.height * skala) / 2),
+    );
+  }
 }
 
 /// ‹ "1 dari 2" › · − "100%" +: row, centred, gap 8, padding 10 16 14.
@@ -312,22 +359,27 @@ class _Kendali extends StatelessWidget {
       child: LayoutBuilder(
         builder: (context, k) => FittedBox(
           fit: BoxFit.scaleDown,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              tombol('‹', 'Halaman sebelumnya', prev),
-              const SizedBox(width: 8),
-              label('${hal + 1} dari 2', 70),
-              const SizedBox(width: 8),
-              tombol('›', 'Halaman berikutnya', next),
-              // gap 8 + spacer + gap 8; 346 = everything else.
-              SizedBox(width: 16 + (k.maxWidth - 346).clamp(0, 16)),
-              tombol('−', 'Perkecil', kecil),
-              const SizedBox(width: 8),
-              label('${(zoom * 100).round()}%', 52, mono: true),
-              const SizedBox(width: 8),
-              tombol('+', 'Perbesar', besar),
-            ],
+          child: DefaultTextStyle.merge(
+            style: const TextStyle(
+              leadingDistribution: TextLeadingDistribution.even,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                tombol('‹', 'Halaman sebelumnya', prev),
+                const SizedBox(width: 8),
+                label('${hal + 1} dari 2', 70),
+                const SizedBox(width: 8),
+                tombol('›', 'Halaman berikutnya', next),
+                // gap 8 + spacer + gap 8; 346 = everything else.
+                SizedBox(width: 16 + (k.maxWidth - 346).clamp(0, 16)),
+                tombol('−', 'Perkecil', kecil),
+                const SizedBox(width: 8),
+                label('${(zoom * 100).round()}%', 52, mono: true),
+                const SizedBox(width: 8),
+                tombol('+', 'Perbesar', besar),
+              ],
+            ),
           ),
         ),
       ),
