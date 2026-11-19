@@ -78,19 +78,26 @@ class _PemeriksaScreenState extends State<PemeriksaScreen> {
       borderRadius: BorderRadius.circular(16),
       child: Stack(
         children: [
-          AnimatedContainer(
+          // Only the background has the 300 ms transition; the edge switches at once.
+          TweenAnimationBuilder<Color?>(
+            tween: ColorTween(
+              end: draf ? c.permukaan.withValues(alpha: 0) : c.permukaan,
+            ),
             duration: gerakMati(context)
                 ? Duration.zero
                 : const Duration(milliseconds: 300),
-            width: double.infinity,
-            padding: const EdgeInsets.all(18),
-            decoration: ShapeDecoration(
-              color: draf ? c.permukaan.withValues(alpha: 0) : c.permukaan,
-              shape: buku
-                  ? GarisBorder.penuh(c.tinta, radius: 16)
-                  : periksa
-                  ? GarisBorder.penuh(c.laut, radius: 16)
-                  : GarisBorder.putus(c.putus, radius: 16),
+            builder: (context, isi, child) => Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(18),
+              decoration: ShapeDecoration(
+                color: isi,
+                shape: buku
+                    ? GarisBorder.penuh(c.tinta, radius: 16)
+                    : periksa
+                    ? GarisBorder.penuh(c.laut, radius: 16)
+                    : GarisBorder.putus(c.putus, radius: 16),
+              ),
+              child: child,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -375,7 +382,9 @@ class _Cap extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
-        'No. Bukti BKU-2026-0151',
+        // U+200B: Chrome breaks after the hyphen when the stamp shrinks; ICU does not.
+        'No. Bukti BKU-2026-​0151',
+        semanticsLabel: 'No. Bukti BKU-2026-0151',
         style: TextStyle(
           fontFamily: PalakatText.mono,
           fontSize: 14,
