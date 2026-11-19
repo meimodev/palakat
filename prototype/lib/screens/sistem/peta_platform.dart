@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 import '../../shell/halaman_lembar.dart';
 import '../../shell/tautan.dart';
@@ -24,17 +25,29 @@ class PetaPlatformScreen extends StatefulWidget {
 typedef _Tautan = ({String teks, String ke});
 typedef _Entri = ({String nama, List<_Tautan> tautan, String keadaan});
 
-final List<_Tautan> _semua = [
+/// Every link in drawing order: the 84 column links, then the card's four.
+/// [label] names the entry too, since the hit layer reads apart from it.
+final List<({String teks, String ke, String label})> _semua = [
   for (final k in _kolom)
-    for (final e in k.entri) ...e.tautan,
-  ..._bawah,
+    for (final e in k.entri)
+      for (final t in e.tautan)
+        (teks: t.teks, ke: t.ke, label: '${e.nama} · ${t.teks}'),
+  for (final t in _bawah) (teks: t.teks, ke: t.ke, label: t.teks),
 ];
+final int _jumlahKolom = _semua.length - _bawah.length;
+
+/// The plain 15 px `tinta` separator between the card's links.
+const _pemisah = ' · ';
 
 class _PetaPlatformScreenState extends State<PetaPlatformScreen> {
   final _kunciLapis = GlobalKey();
-  final _kunci = [for (final _ in _semua) GlobalKey()];
+  final _kunci = [for (var i = 0; i < _jumlahKolom; i++) GlobalKey()];
+  final _kunciBaris = GlobalKey();
   final _sorot = ValueNotifier<int?>(null);
-  List<Rect> _kotak = const [];
+
+  /// Hit areas with the index of the link they open (a wrapped link has one
+  /// per line).
+  List<({Rect r, int i})> _kotak = const [];
 
   @override
   void dispose() {
@@ -48,22 +61,40 @@ class _PetaPlatformScreenState extends State<PetaPlatformScreen> {
     final lapis = _kunciLapis.currentContext?.findRenderObject() as RenderBox?;
     if (lapis == null || !lapis.hasSize) return;
     final teks = <Rect>[];
-    for (final k in _kunci) {
+    final milik = <int>[];
+    for (final (i, k) in _kunci.indexed) {
       final b = k.currentContext?.findRenderObject() as RenderBox?;
       if (b == null || !b.hasSize) return;
       teks.add(b.localToGlobal(Offset.zero, ancestor: lapis) & b.size);
+      milik.add(i);
     }
-    final baru = luasSentuh(teks, Offset.zero & lapis.size);
+    // The card's links wrap inside one paragraph, as inline links do.
+    final p = _kunciBaris.currentContext?.findRenderObject();
+    if (p is! RenderParagraph || !p.hasSize) return;
+    final ke = p.getTransformTo(lapis);
+    var awal = 0;
+    for (final (j, t) in _bawah.indexed) {
+      if (j > 0) awal += _pemisah.length;
+      final pilih = TextSelection(
+        baseOffset: awal,
+        extentOffset: awal + t.teks.length,
+      );
+      for (final b in p.getBoxesForSelection(pilih)) {
+        teks.add(MatrixUtils.transformRect(ke, b.toRect()));
+        milik.add(_jumlahKolom + j);
+      }
+      awal += t.teks.length;
+    }
+    final luas = luasSentuh(teks, Offset.zero & lapis.size);
+    final baru = [for (final (n, r) in luas.indexed) (r: r, i: milik[n])];
     if (!listEquals(baru, _kotak)) setState(() => _kotak = baru);
   }
 
-  Widget _teks(int i, {double ukuran = 13, FontWeight? berat}) => _TeksTautan(
+  Widget _teks(int i) => _TeksTautan(
     key: _kunci[i],
     teks: _semua[i].teks,
     indeks: i,
     sorot: _sorot,
-    ukuran: ukuran,
-    berat: berat,
   );
 
   @override
@@ -121,14 +152,28 @@ class _PetaPlatformScreenState extends State<PetaPlatformScreen> {
             style: TextStyle(fontWeight: FontWeight.w700),
           ),
           for (final p in _berubah) paragraf(p.$1, p.$2),
-          Wrap(
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              for (var i = 0; i < _bawah.length; i++) ...[
-                if (i > 0) const Text(' · '),
-                _teks(n++, ukuran: 14, berat: FontWeight.w700),
-              ],
-            ],
+          ExcludeSemantics(
+            child: ValueListenableBuilder<int?>(
+              valueListenable: _sorot,
+              builder: (context, s, _) => Text.rich(
+                key: _kunciBaris,
+                TextSpan(
+                  children: [
+                    for (final (j, t) in _bawah.indexed) ...[
+                      if (j > 0) const TextSpan(text: _pemisah),
+                      TextSpan(
+                        text: t.teks,
+                        style: _gayaTautan(
+                          s == _jumlahKolom + j ? c.lautTua : c.laut,
+                          14,
+                          FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
           ),
         ],
       ),
@@ -208,7 +253,7 @@ class _PetaPlatformScreenState extends State<PetaPlatformScreen> {
                 ),
               ],
             ),
-            for (final (i, r) in _kotak.indexed)
+            for (final (n, (:r, :i)) in _kotak.indexed)
               Positioned.fromRect(
                 rect: r,
                 child: MouseRegion(
@@ -216,10 +261,13 @@ class _PetaPlatformScreenState extends State<PetaPlatformScreen> {
                   onExit: (_) {
                     if (_sorot.value == i) _sorot.value = null;
                   },
-                  child: Tautan(
-                    ke: _semua[i].ke,
-                    label: _semua[i].teks,
-                    child: const SizedBox.expand(),
+                  child: _satuTarget(
+                    n == 0 || _kotak[n - 1].i != i,
+                    Tautan(
+                      ke: _semua[i].ke,
+                      label: _semua[i].label,
+                      child: const SizedBox.expand(),
+                    ),
                   ),
                 ),
               ),
@@ -229,6 +277,19 @@ class _PetaPlatformScreenState extends State<PetaPlatformScreen> {
     );
   }
 }
+
+/// A wrapped link's second line opens the same board but is one stop for
+/// keyboard and screen reader only on its first line.
+Widget _satuTarget(bool pertama, Widget child) =>
+    pertama ? child : ExcludeSemantics(child: ExcludeFocus(child: child));
+
+TextStyle _gayaTautan(Color w, double ukuran, [FontWeight? berat]) => TextStyle(
+  fontSize: ukuran,
+  fontWeight: berat,
+  color: w,
+  decoration: TextDecoration.underline,
+  decorationColor: w,
+);
 
 /// One map entry: top rule, name and links on a baseline, then the states.
 class _BlokEntri extends StatelessWidget {
@@ -299,15 +360,11 @@ class _TeksTautan extends StatelessWidget {
     required this.teks,
     required this.indeks,
     required this.sorot,
-    required this.ukuran,
-    this.berat,
   });
 
   final String teks;
   final int indeks;
   final ValueNotifier<int?> sorot;
-  final double ukuran;
-  final FontWeight? berat;
 
   @override
   Widget build(BuildContext context) {
@@ -315,19 +372,10 @@ class _TeksTautan extends StatelessWidget {
     return ExcludeSemantics(
       child: ValueListenableBuilder<int?>(
         valueListenable: sorot,
-        builder: (context, s, _) {
-          final w = s == indeks ? c.lautTua : c.laut;
-          return Text(
-            teks,
-            style: TextStyle(
-              fontSize: ukuran,
-              fontWeight: berat,
-              color: w,
-              decoration: TextDecoration.underline,
-              decorationColor: w,
-            ),
-          );
-        },
+        builder: (context, s, _) => Text(
+          teks,
+          style: _gayaTautan(s == indeks ? c.lautTua : c.laut, 13),
+        ),
       ),
     );
   }
@@ -335,7 +383,8 @@ class _TeksTautan extends StatelessWidget {
 
 /// Hit areas for links drawn at [teks]: each at least 44 × 44 around its
 /// text, kept inside [batas]; where two overlap they split at the midpoint
-/// between the texts, so the nearer link wins.
+/// between the texts, so the nearer link wins, and each regrows to 44 on
+/// its far side.
 @visibleForTesting
 List<Rect> luasSentuh(List<Rect> teks, Rect batas) {
   double geser(double a, double z, double min, double max) =>
@@ -357,46 +406,57 @@ List<Rect> luasSentuh(List<Rect> teks, Rect batas) {
       ),
     );
   }
-  for (var i = 0; i < k.length; i++) {
-    for (var j = i + 1; j < k.length; j++) {
-      if (!k[i].overlaps(k[j])) continue;
-      final (a, b) = (teks[i], teks[j]);
-      final gx = math.max(b.left - a.right, a.left - b.right);
-      final gy = math.max(b.top - a.bottom, a.top - b.bottom);
-      if (gx >= gy) {
-        final (p, q) = a.left <= b.left ? (i, j) : (j, i);
-        final m = (teks[p].right + teks[q].left) / 2;
-        k[p] = Rect.fromLTRB(
-          k[p].left,
-          k[p].top,
-          math.min(k[p].right, m),
-          k[p].bottom,
-        );
-        k[q] = Rect.fromLTRB(
-          math.max(k[q].left, m),
-          k[q].top,
-          k[q].right,
-          k[q].bottom,
-        );
-      } else {
-        final (p, q) = a.top <= b.top ? (i, j) : (j, i);
-        final m = (teks[p].bottom + teks[q].top) / 2;
-        k[p] = Rect.fromLTRB(
-          k[p].left,
-          k[p].top,
-          k[p].right,
-          math.min(k[p].bottom, m),
-        );
-        k[q] = Rect.fromLTRB(
-          k[q].left,
-          math.max(k[q].top, m),
-          k[q].right,
-          k[q].bottom,
-        );
+  // Second pass without regrowth: cuts what a regrown side reached into.
+  for (final tumbuh in [44.0, 0.0]) {
+    for (var i = 0; i < k.length; i++) {
+      for (var j = i + 1; j < k.length; j++) {
+        if (!k[i].overlaps(k[j])) continue;
+        final (a, b) = (teks[i], teks[j]);
+        final gx = math.max(b.left - a.right, a.left - b.right);
+        final gy = math.max(b.top - a.bottom, a.top - b.bottom);
+        if (gx >= gy) {
+          final (p, q) = a.left <= b.left ? (i, j) : (j, i);
+          final m = (teks[p].right + teks[q].left) / 2;
+          // Cut at the midpoint, then grow the far side back to 44.
+          final kp = math.min(k[p].right, m);
+          final kq = math.max(k[q].left, m);
+          k[p] = Rect.fromLTRB(
+            math.min(k[p].left, kp - tumbuh),
+            k[p].top,
+            kp,
+            k[p].bottom,
+          );
+          k[q] = Rect.fromLTRB(
+            kq,
+            k[q].top,
+            math.max(k[q].right, kq + tumbuh),
+            k[q].bottom,
+          );
+        } else {
+          final (p, q) = a.top <= b.top ? (i, j) : (j, i);
+          final m = (teks[p].bottom + teks[q].top) / 2;
+          final kp = math.min(k[p].bottom, m);
+          final kq = math.max(k[q].top, m);
+          k[p] = Rect.fromLTRB(
+            k[p].left,
+            math.min(k[p].top, kp - tumbuh),
+            k[p].right,
+            kp,
+          );
+          k[q] = Rect.fromLTRB(
+            k[q].left,
+            kq,
+            k[q].right,
+            math.max(k[q].bottom, kq + tumbuh),
+          );
+        }
       }
     }
   }
-  return k;
+  // ponytail: a link cut at the layer's edge (column 4's "Web") stays under
+  // 44 wide; the layer cannot reach into the sheet padding without a shared
+  // inline hit-slop option on Tautan.
+  return [for (final r in k) r.intersect(batas)];
 }
 
 const _berubah = [
