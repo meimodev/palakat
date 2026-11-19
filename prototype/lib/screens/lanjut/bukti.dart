@@ -112,44 +112,51 @@ class _BuktiScreenState extends State<BuktiScreen> {
     final c = context.warna;
     return LayarPonsel(
       jabatanKosong: true,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const KepalaPonsel(
-            judul: 'Daftar Bukti Kas',
-            anakJudul: 'November 2026 · Belum ditutup',
-            kembaliKe: 'Lainnya',
-            labelKembali: 'Kembali ke Lainnya',
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
-            child: ChipPilihan<String>(
-              pilihan: const [
-                (nilai: 'Daftar', teks: 'Daftar'),
-                (nilai: 'Celah nomor', teks: 'Celah nomor'),
-              ],
-              terpilih: _tab,
-              onPilih: (t) => setState(() {
-                _tab = t;
-                _versi++;
-              }),
-              jarakBaris: 0,
+      // CSS splits line-height leading evenly above and below each font;
+      // without this the mono spans make mixed lines taller than the board.
+      child: DefaultTextStyle.merge(
+        style: const TextStyle(
+          leadingDistribution: TextLeadingDistribution.even,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const KepalaPonsel(
+              judul: 'Daftar Bukti Kas',
+              anakJudul: 'November 2026 · Belum ditutup',
+              kembaliKe: 'Lainnya',
+              labelKembali: 'Kembali ke Lainnya',
             ),
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              key: ValueKey(_versi),
-              padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
-              child: _tab == 'Daftar'
-                  ? _daftar(c)
-                  : Gerak(
-                      Kerangka.pudar,
-                      lama: const Duration(milliseconds: 200),
-                      child: _celahNomor(c),
-                    ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
+              child: ChipPilihan<String>(
+                pilihan: const [
+                  (nilai: 'Daftar', teks: 'Daftar'),
+                  (nilai: 'Celah nomor', teks: 'Celah nomor'),
+                ],
+                terpilih: _tab,
+                onPilih: (t) => setState(() {
+                  _tab = t;
+                  _versi++;
+                }),
+                jarakBaris: 0,
+              ),
             ),
-          ),
-        ],
+            Expanded(
+              child: SingleChildScrollView(
+                key: ValueKey(_versi),
+                padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+                child: _tab == 'Daftar'
+                    ? _daftar(c)
+                    : Gerak(
+                        Kerangka.pudar,
+                        lama: const Duration(milliseconds: 200),
+                        child: _celahNomor(c),
+                      ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

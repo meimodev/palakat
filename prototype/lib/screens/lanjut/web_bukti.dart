@@ -147,6 +147,25 @@ Widget _tautanSebaris({
 class _WebBuktiScreenState extends State<WebBuktiScreen> {
   String _tab = _tabs.first;
 
+  /// Width of "Lihat transaksi" at 14/700: the link's flex basis.
+  double _lebarLihat(BuildContext context) {
+    final tp = TextPainter(
+      text: const TextSpan(
+        text: 'Lihat transaksi',
+        style: TextStyle(
+          fontFamily: PalakatText.sans,
+          fontSize: 14,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+      textScaler: MediaQuery.textScalerOf(context),
+    )..layout();
+    final w = tp.width.ceilToDouble();
+    tp.dispose();
+    return w;
+  }
+
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
@@ -159,156 +178,175 @@ class _WebBuktiScreenState extends State<WebBuktiScreen> {
         pengguna: PenggunaKeuangan(),
       ),
       isi: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Breadcrumb in a 15 / 1.45 line.
-            _tautanSebaris(
-              ke: 'WebPaketLaporan',
-              cara: Cara.naik,
-              tinggi: 15 * 1.45,
-              child: const TautanTeks('Laporan', ukuran: 14),
-            ),
-            const SizedBox(height: 2),
-            Semantics(
-              header: true,
-              child: Text.rich(
-                TextSpan(
-                  text: 'Daftar Bukti Kas ',
-                  children: [
-                    TextSpan(
-                      text: '· November 2026 · Belum ditutup',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                        color: c.tinta3,
+        for (final w in <Widget>[
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Breadcrumb in a 15 / 1.45 line.
+              _tautanSebaris(
+                ke: 'WebPaketLaporan',
+                cara: Cara.naik,
+                tinggi: 15 * 1.45,
+                child: const TautanTeks('Laporan', ukuran: 14),
+              ),
+              const SizedBox(height: 2),
+              Semantics(
+                header: true,
+                child: Text.rich(
+                  TextSpan(
+                    text: 'Daftar Bukti Kas ',
+                    children: [
+                      TextSpan(
+                        text: '· November 2026 · Belum ditutup',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          color: c.tinta3,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                style: const TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.w700,
+                    ],
+                  ),
+                  style: const TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
-            ),
-          ],
-        ),
-        Builder(
-          builder: (context) => ChipPilihan<String>(
-            pilihan: [for (final t in _tabs) (nilai: t, teks: t)],
-            terpilih: _tab,
-            padding: 16,
-            jarakBaris: 0,
-            onPilih: (t) {
-              // A view change jumps to the top (CONVENTIONS).
-              final s = Scrollable.maybeOf(context);
-              if (s != null && s.position.pixels > 0) s.position.jumpTo(0);
-              setState(() => _tab = t);
-            },
+            ],
           ),
-        ),
-        if (_tab == _tabs[0]) ...[
-          _tabel(c),
-          Text(
-            'Contoh 6 dari 51 baris. No. Bukti dibuat aplikasi; nomor dari '
-            'catatan lama tampil terpisah sebagai No. bukti asal. Transaksi '
-            'yang dibalik tetap ada di daftar.',
-            style: keterangan,
-          ),
-        ],
-        if (_tab == _tabs[1]) ...[
-          _celahNomor(c),
-          Text(
-            'Daftar celah nomor hanya terlihat oleh yang melihat seluruh '
-            'Jemaat. Akses terbatas per peruntukan tidak melihat halaman ini.',
-            style: keterangan,
-          ),
-        ],
-        if (_tab == _tabs[2]) ...[
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: ShapeDecoration(
-              shape: GarisBorder.putus(c.putus, radius: 14),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+          // `flex-wrap: wrap; gap: 8px`: wrapped chips keep 8 between rows.
+          Builder(
+            builder: (context) => Wrap(
+              spacing: 8,
+              runSpacing: 8,
               children: [
-                const Text(
-                  'Daftar perlu tindakan (tidak resmi)',
-                  style: TextStyle(fontWeight: FontWeight.w700),
-                ),
-                Text(
-                  'Bukan bagian laporan resmi dan tidak mengubah jumlah apa '
-                  'pun.',
-                  style: TextStyle(fontSize: 14, color: c.tinta2),
-                ),
-              ],
-            ),
-          ),
-          Kartu(
-            padding: const EdgeInsets.symmetric(horizontal: 18),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                for (var i = 0; i < _tindak.length; i++)
-                  Container(
-                    // CSS content-box: min-height 56 plus padding 8 8.
-                    constraints: const BoxConstraints(minHeight: 72),
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    alignment: Alignment.centerLeft,
-                    decoration: BoxDecoration(
-                      border: i == 0
-                          ? null
-                          : Border(top: BorderSide(color: c.garis)),
-                    ),
-                    child: BarisLentur(
-                      jarak: 16,
-                      jarakBaris: 8,
-                      rata: CrossAxisAlignment.center,
-                      anak: [
-                        Lentur(
-                          dasar: 320,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                _tindak[i].$1,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              Text(_tindak[i].$2, style: keterangan),
-                            ],
-                          ),
-                        ),
-                        // ponytail: CSS sizes the link to its text; 110 is
-                        // "Lihat transaksi" at 14/700, enough for the wrap.
-                        Lentur(
-                          dasar: 110,
-                          tumbuh: 0,
-                          child: Tautan(
-                            ke: 'WebTransaksi',
-                            child: const SizedBox(
-                              height: 44,
-                              child: Align(
-                                alignment: Alignment.centerRight,
-                                child: TautanTeks(
-                                  'Lihat transaksi',
-                                  ukuran: 14,
-                                  berat: FontWeight.w700,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                for (final t in _tabs)
+                  ChipSatu(
+                    teks: t,
+                    dipilih: t == _tab,
+                    padding: 16,
+                    onTap: () {
+                      // A view change jumps to the top (CONVENTIONS).
+                      final s = Scrollable.maybeOf(context);
+                      if (s != null && s.position.pixels > 0) {
+                        s.position.jumpTo(0);
+                      }
+                      setState(() => _tab = t);
+                    },
                   ),
               ],
             ),
           ),
-        ],
+          if (_tab == _tabs[0]) ...[
+            _tabel(c),
+            Text(
+              'Contoh 6 dari 51 baris. No. Bukti dibuat aplikasi; nomor dari '
+              'catatan lama tampil terpisah sebagai No. bukti asal. Transaksi '
+              'yang dibalik tetap ada di daftar.',
+              style: keterangan,
+            ),
+          ],
+          if (_tab == _tabs[1]) ...[
+            _celahNomor(c),
+            Text(
+              'Daftar celah nomor hanya terlihat oleh yang melihat seluruh '
+              'Jemaat. Akses terbatas per peruntukan tidak melihat halaman ini.',
+              style: keterangan,
+            ),
+          ],
+          if (_tab == _tabs[2]) ...[
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: ShapeDecoration(
+                shape: GarisBorder.putus(c.putus, radius: 14),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Text(
+                    'Daftar perlu tindakan (tidak resmi)',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  Text(
+                    'Bukan bagian laporan resmi dan tidak mengubah jumlah apa '
+                    'pun.',
+                    style: TextStyle(fontSize: 14, color: c.tinta2),
+                  ),
+                ],
+              ),
+            ),
+            Kartu(
+              padding: const EdgeInsets.symmetric(horizontal: 18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (var i = 0; i < _tindak.length; i++)
+                    Container(
+                      // CSS content-box: min-height 56 plus padding 8 8.
+                      constraints: const BoxConstraints(minHeight: 72),
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      alignment: Alignment.centerLeft,
+                      decoration: BoxDecoration(
+                        border: i == 0
+                            ? null
+                            : Border(top: BorderSide(color: c.garis)),
+                      ),
+                      child: BarisLentur(
+                        jarak: 16,
+                        jarakBaris: 8,
+                        rata: CrossAxisAlignment.center,
+                        anak: [
+                          Lentur(
+                            dasar: 320,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  _tindak[i].$1,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                Text(_tindak[i].$2, style: keterangan),
+                              ],
+                            ),
+                          ),
+                          // CSS sizes the inline-flex link to its text: flush
+                          // right beside the text, flush left once it wraps.
+                          Lentur(
+                            dasar: _lebarLihat(context),
+                            tumbuh: 0,
+                            child: Tautan(
+                              ke: 'WebTransaksi',
+                              child: const SizedBox(
+                                height: 44,
+                                child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: TautanTeks(
+                                    'Lihat transaksi',
+                                    ukuran: 14,
+                                    berat: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ])
+          // CSS splits line-height leading evenly above and below each
+          // font; Flutter's default puts mixed-size and mono lines lower.
+          DefaultTextStyle.merge(
+            style: const TextStyle(
+              leadingDistribution: TextLeadingDistribution.even,
+            ),
+            child: w,
+          ),
       ],
     );
   }
