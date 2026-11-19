@@ -19,6 +19,12 @@ const Map<String, String> maBagi = {
   '5.05.02.00': 'Sewa peralatan',
 };
 
+/// CSS spreads a line's extra height evenly above and below the glyphs;
+/// Flutter's default puts it in proportion to ascent and descent.
+const cssLeading = TextHeightBehavior(
+  leadingDistribution: TextLeadingDistribution.even,
+);
+
 class BarisBagi {
   BarisBagi(this.k, this.v);
 
@@ -236,29 +242,43 @@ class _IsianBarisBagiState extends State<IsianBarisBagi> {
                 tampil: _fokus.hasFocus,
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(minHeight: 44),
-                  child: Align(
+                  child: Stack(
                     alignment: Alignment.centerRight,
-                    child: Material(
-                      type: MaterialType.transparency,
-                      child: TextField(
-                        controller: widget.controller,
-                        focusNode: _fokus,
-                        onChanged: widget.onChanged,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: const [
-                          RupiahInputFormatter(sisakanNol: true),
-                        ],
-                        textAlign: TextAlign.right,
-                        style: gaya,
-                        cursorColor: c.laut,
-                        decoration: InputDecoration(
-                          isCollapsed: true,
-                          border: InputBorder.none,
-                          hintText: '—',
-                          hintStyle: gaya.copyWith(color: c.tinta3),
+                    children: [
+                      // The placeholder: Chrome sets it flush right, without
+                      // the caret room the figure gets.
+                      if (widget.controller.text.isEmpty)
+                        ExcludeSemantics(
+                          child: Text(
+                            '—',
+                            style: gaya.copyWith(color: c.tinta3),
+                          ),
+                        ),
+                      // Flutter keeps room for the caret after right-aligned
+                      // text; Chrome draws the figure 4 px further right.
+                      Transform.translate(
+                        offset: const Offset(4, 0),
+                        child: Material(
+                          type: MaterialType.transparency,
+                          child: TextField(
+                            controller: widget.controller,
+                            focusNode: _fokus,
+                            onChanged: widget.onChanged,
+                            keyboardType: TextInputType.number,
+                            inputFormatters: const [
+                              RupiahInputFormatter(sisakanNol: true),
+                            ],
+                            textAlign: TextAlign.right,
+                            style: gaya,
+                            cursorColor: c.tinta,
+                            decoration: const InputDecoration(
+                              isCollapsed: true,
+                              border: InputBorder.none,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
               ),

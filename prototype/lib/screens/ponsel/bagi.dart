@@ -26,202 +26,210 @@ class _BagiScreenState extends State<BagiScreen> with LogikaBagi {
   Widget build(BuildContext context) {
     final c = context.warna;
     final pilihanSisa = pilihan;
-    return LayarPonsel(
-      jabatanKosong: true,
-      overlay: [
-        if (pilih)
-          Positioned.fill(
-            child: LembarBawah(
-              judul: 'Pilih Mata Anggaran',
-              labelTirai: 'Kembali ke pembagian',
-              jarak: 0,
-              onTutup: tutupPilih,
-              isi: [
-                for (final k in pilihanSisa)
-                  Tekan(
-                    onTap: () => tambah(k),
-                    child: Container(
-                      constraints: const BoxConstraints(minHeight: 60),
-                      padding: const EdgeInsets.symmetric(vertical: 8),
+    return DefaultTextHeightBehavior(
+      textHeightBehavior: cssLeading,
+      child: LayarPonsel(
+        jabatanKosong: true,
+        overlay: [
+          if (pilih)
+            Positioned.fill(
+              child: LembarBawah(
+                judul: 'Pilih Mata Anggaran',
+                labelTirai: 'Kembali ke pembagian',
+                jarak: 0,
+                onTutup: tutupPilih,
+                isi: [
+                  for (final k in pilihanSisa)
+                    Tekan(
+                      onTap: () => tambah(k),
+                      child: Container(
+                        constraints: const BoxConstraints(minHeight: 60),
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        decoration: BoxDecoration(
+                          border: Border(top: BorderSide(color: c.garis)),
+                        ),
+                        // A `<button>` centres its content in the 60 px.
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Belanja $k',
+                              style: TextStyle(
+                                fontFamily: PalakatText.mono,
+                                fontSize: 13,
+                                color: c.tinta2,
+                              ),
+                            ),
+                            Text(
+                              maBagi[k]!,
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  if (pilihanSisa.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      child: Text(
+                        'Semua baris contoh sudah dipakai.',
+                        style: TextStyle(fontSize: 14, color: c.tinta2),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+        ],
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const KepalaPonsel(
+              judul: 'Bagi ke beberapa Mata Anggaran',
+              anakJudul: 'Belanja · Toko Sinar · satu pembayaran',
+              kembaliKe: 'Main',
+              labelKembali: 'Kembali ke transaksi',
+              ujung: LencanaStatus(
+                'Belanja',
+                bentuk: BentukLencana.tinta,
+                kepala: true,
+              ),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Jumlah (Rp)',
+                          style: TextStyle(fontSize: 14, color: c.tinta2),
+                        ),
+                        const Text(
+                          'Rp1.250.000',
+                          style: TextStyle(
+                            fontFamily: PalakatText.mono,
+                            fontSize: 34,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: -1,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    BatangPembagian(total: jumlahBagi, bagian: bagian(context)),
+                    const SizedBox(height: 8),
+                    SisaPembagian(
+                      label: labelSisa,
+                      jumlah: sisa.abs(),
+                      pas: sisa == 0,
+                    ),
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
-                        border: Border(top: BorderSide(color: c.garis)),
+                        color: c.permukaan,
+                        border: Border.all(color: c.garis),
+                        borderRadius: BorderRadius.circular(14),
                       ),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Text(
-                            'Belanja $k',
-                            style: TextStyle(
-                              fontFamily: PalakatText.mono,
-                              fontSize: 13,
-                              color: c.tinta2,
-                            ),
-                          ),
-                          Text(
-                            maBagi[k]!,
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                          for (var i = 0; i < baris.length; i++)
+                            _baris(context, i),
                         ],
                       ),
                     ),
-                  ),
-                if (pilihanSisa.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    child: Text(
-                      'Semua baris contoh sudah dipakai.',
-                      style: TextStyle(fontSize: 14, color: c.tinta2),
+                    const SizedBox(height: 16),
+                    Tekan(
+                      onTap: bukaPilih,
+                      radius: 12,
+                      child: Container(
+                        constraints: const BoxConstraints(minHeight: 48),
+                        alignment: Alignment.center,
+                        decoration: ShapeDecoration(
+                          shape: GarisBorder.putus(c.putus, radius: 12),
+                        ),
+                        child: Text(
+                          '+ Tambah baris',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            color: c.laut,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-              ],
+                    const SizedBox(height: 16),
+                    Text(
+                      'Pembayaran ini tetap satu transaksi dengan satu No. Bukti. '
+                      'Di laporan, jumlahnya tampil sekali dengan daftar Mata '
+                      'Anggarannya.',
+                      style: TextStyle(fontSize: 13, color: c.tinta3),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ),
-      ],
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const KepalaPonsel(
-            judul: 'Bagi ke beberapa Mata Anggaran',
-            anakJudul: 'Belanja · Toko Sinar · satu pembayaran',
-            kembaliKe: 'Main',
-            labelKembali: 'Kembali ke transaksi',
-            ujung: LencanaStatus(
-              'Belanja',
-              bentuk: BentukLencana.tinta,
-              kepala: true,
-            ),
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+            Container(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 22),
+              decoration: BoxDecoration(
+                color: c.permukaan,
+                border: Border(top: BorderSide(color: c.garis)),
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Jumlah (Rp)',
-                        style: TextStyle(fontSize: 14, color: c.tinta2),
-                      ),
-                      const Text(
-                        'Rp1.250.000',
-                        style: TextStyle(
-                          fontFamily: PalakatText.mono,
-                          fontSize: 34,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: -1,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  BatangPembagian(total: jumlahBagi, bagian: bagian(context)),
-                  const SizedBox(height: 8),
-                  SisaPembagian(
-                    label: labelSisa,
-                    jumlah: sisa.abs(),
-                    pas: sisa == 0,
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: c.permukaan,
-                      border: Border.all(color: c.garis),
-                      borderRadius: BorderRadius.circular(14),
+                  if (!pas) ...[
+                    Text(
+                      alasan,
+                      style: TextStyle(fontSize: 14, color: c.tinta2),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        for (var i = 0; i < baris.length; i++)
-                          _baris(context, i),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Tekan(
-                    onTap: bukaPilih,
-                    radius: 12,
-                    child: Container(
-                      constraints: const BoxConstraints(minHeight: 48),
-                      alignment: Alignment.center,
-                      decoration: ShapeDecoration(
-                        shape: GarisBorder.putus(c.putus, radius: 12),
-                      ),
-                      child: Text(
-                        '+ Tambah baris',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          color: c.laut,
+                    const SizedBox(height: 8),
+                  ],
+                  if (dipakai) ...[
+                    Gerak(
+                      Kerangka.muncul,
+                      lama: const Duration(milliseconds: 300),
+                      child: Semantics(
+                        liveRegion: true,
+                        container: true,
+                        child: Text(
+                          status,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: c.laut,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Pembayaran ini tetap satu transaksi dengan satu No. Bukti. '
-                    'Di laporan, jumlahnya tampil sekali dengan daftar Mata '
-                    'Anggarannya.',
-                    style: TextStyle(fontSize: 13, color: c.tinta3),
+                    const SizedBox(height: 8),
+                  ],
+                  TekanAria(
+                    onTap: pakai,
+                    aktif: pas,
+                    petunjuk: pas ? null : alasan,
+                    radius: 14,
+                    child: RupaTombol(
+                      label: 'Pakai pembagian ini',
+                      isi: pas ? c.laut : c.garis,
+                      warnaTeks: pas ? c.diLaut : c.tinta3,
+                      radius: 14,
+                      tinggi: 52,
+                      paddingH: 6,
+                    ),
                   ),
                 ],
               ),
             ),
-          ),
-          Container(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 22),
-            decoration: BoxDecoration(
-              color: c.permukaan,
-              border: Border(top: BorderSide(color: c.garis)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (!pas) ...[
-                  Text(alasan, style: TextStyle(fontSize: 14, color: c.tinta2)),
-                  const SizedBox(height: 8),
-                ],
-                if (dipakai) ...[
-                  Gerak(
-                    Kerangka.muncul,
-                    lama: const Duration(milliseconds: 300),
-                    child: Semantics(
-                      liveRegion: true,
-                      container: true,
-                      child: Text(
-                        status,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: c.laut,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                ],
-                TekanAria(
-                  onTap: pakai,
-                  aktif: pas,
-                  petunjuk: pas ? null : alasan,
-                  radius: 14,
-                  child: RupaTombol(
-                    label: 'Pakai pembagian ini',
-                    isi: pas ? c.laut : c.garis,
-                    warnaTeks: pas ? c.diLaut : c.tinta3,
-                    radius: 14,
-                    tinggi: 52,
-                    paddingH: 6,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -264,8 +272,15 @@ class _BagiScreenState extends State<BagiScreen> with LogikaBagi {
                       ),
                     ),
                     ExcludeSemantics(
+                      // An inline label: its line keeps the 16 / 1.4 strut.
                       child: Text(
                         b.nama,
+                        strutStyle: const StrutStyle(
+                          fontFamily: PalakatText.sans,
+                          fontSize: 16,
+                          height: 1.4,
+                          leadingDistribution: TextLeadingDistribution.even,
+                        ),
                         style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,

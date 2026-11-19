@@ -155,61 +155,64 @@ class _WebBagiScreenState extends State<WebBagiScreen> with LogikaBagi {
       ],
     );
 
-    return HalamanWeb(
-      jabatanKosong: true,
-      nav: const NavSamping(
-        item: navKeuangan,
-        aktif: 1,
-        pengguna: PenggunaKeuangan(),
-      ),
-      isi: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // An inline link on a 15 / 1.45 line (21.75); the 44 px target
-            // overhangs below.
-            MarginNegatif(
-              bawah: 44 - 21.75,
-              child: Tautan(
-                ke: 'WebCatat',
-                cara: Cara.naik,
-                // Tekan stretches its child to 44 high: keep the line on top.
-                child: const Align(
-                  alignment: Alignment.topLeft,
-                  widthFactor: 1,
-                  child: SizedBox(
-                    height: 21.75,
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      widthFactor: 1,
-                      child: TautanTeks('Catat transaksi', ukuran: 14),
+    return DefaultTextHeightBehavior(
+      textHeightBehavior: cssLeading,
+      child: HalamanWeb(
+        jabatanKosong: true,
+        nav: const NavSamping(
+          item: navKeuangan,
+          aktif: 1,
+          pengguna: PenggunaKeuangan(),
+        ),
+        isi: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // An inline link on a 15 / 1.45 line (21.75); the 44 px target
+              // overhangs below.
+              MarginNegatif(
+                bawah: 44 - 21.75,
+                child: Tautan(
+                  ke: 'WebCatat',
+                  cara: Cara.naik,
+                  // Tekan stretches its child to 44 high: keep the line on top.
+                  child: const Align(
+                    alignment: Alignment.topLeft,
+                    widthFactor: 1,
+                    child: SizedBox(
+                      height: 21.75,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        widthFactor: 1,
+                        child: TautanTeks('Catat transaksi', ukuran: 14),
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(height: 2),
-            Semantics(
-              header: true,
-              child: const Text(
-                'Bagi ke beberapa Mata Anggaran',
-                style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700),
+              const SizedBox(height: 2),
+              Semantics(
+                header: true,
+                child: const Text(
+                  'Bagi ke beberapa Mata Anggaran',
+                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700),
+                ),
               ),
-            ),
-            Text(
-              'Belanja · Toko Sinar · satu pembayaran, satu No. Bukti',
-              style: kecil,
-            ),
-          ],
-        ),
-        BarisLentur(
-          jarak: 28,
-          anak: [
-            Lentur(dasar: 480, tumbuh: 999, child: kiri),
-            Lentur(dasar: 340, child: samping),
-          ],
-        ),
-      ],
+              Text(
+                'Belanja · Toko Sinar · satu pembayaran, satu No. Bukti',
+                style: kecil,
+              ),
+            ],
+          ),
+          BarisLentur(
+            jarak: 28,
+            anak: [
+              Lentur(dasar: 480, tumbuh: 999, child: kiri),
+              Lentur(dasar: 340, child: samping),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -262,9 +265,8 @@ class _WebBagiScreenState extends State<WebBagiScreen> with LogikaBagi {
             ),
           ),
           if (bisaSisa(b))
-            // ponytail: the button's own width ("Isi sisa" 14/700 + 24).
             Lentur(
-              dasar: 80,
+              dasar: _lebarIsiSisa(context),
               tumbuh: 0,
               child: IsiSisaBagi(onTap: () => isiSisa(b)),
             ),
@@ -296,5 +298,24 @@ class _WebBagiScreenState extends State<WebBagiScreen> with LogikaBagi {
         ],
       ),
     );
+  }
+
+  /// The button's own width (flex basis auto): "Isi sisa" 14/700 plus 0 12.
+  double _lebarIsiSisa(BuildContext context) {
+    final tp = TextPainter(
+      text: TextSpan(
+        text: 'Isi sisa',
+        style: TextStyle(
+          fontFamily: PalakatText.sans,
+          fontSize: 14,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+      textScaler: MediaQuery.textScalerOf(context),
+    )..layout();
+    final w = tp.width + 24;
+    tp.dispose();
+    return w;
   }
 }
