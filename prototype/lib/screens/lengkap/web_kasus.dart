@@ -709,8 +709,9 @@ class _WebKasusScreenState extends State<WebKasusScreen> {
             );
           },
         ),
+        // Not keyed: like the board's CSS transition, the width also
+        // animates when another case opens.
         BatangPembagian(
-          key: ValueKey(cur.id),
           total: cur.awal,
           tinggi: 14,
           durasi: const Duration(milliseconds: 500),
@@ -830,9 +831,9 @@ class _WebKasusScreenState extends State<WebKasusScreen> {
         ],
       ),
     );
+    // Not keyed: switching the action keeps the open panel (no replay).
     return Gerak(
       Kerangka.muncul,
-      key: ValueKey(akt.id),
       lama: const Duration(milliseconds: 300),
       child: Container(
         padding: const EdgeInsets.all(16),
