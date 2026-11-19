@@ -950,7 +950,8 @@ class _WebTutupBukuScreenState extends State<WebTutupBukuScreen> {
               anak: [
                 const Lentur(dasar: 104, tumbuh: 0, child: SegelGembok()),
                 Lentur(dasar: 320, child: teks),
-                Lentur(dasar: 320, child: berkas),
+                // flex-basis 320 is the content box; padding 0 16 adds 32.
+                Lentur(dasar: 352, child: berkas),
               ],
             ),
           ),
