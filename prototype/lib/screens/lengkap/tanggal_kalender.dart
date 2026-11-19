@@ -51,6 +51,7 @@ mixin TanggalLogika<T extends StatefulWidget> on State<T> {
   void _next() => setState(() {
     bln++;
     hari = null;
+    _layangKejadian = false; // the link goes away under the pointer
   });
 
   /// "‹", month name over the status badge, "›".
@@ -85,34 +86,49 @@ mixin TanggalLogika<T extends StatefulWidget> on State<T> {
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              // The badge is an inline span: the 16 / 1.4 line box sets the
-              // height, its padding and line spill over; its 13 px text sits
-              // on the line's baseline, a little below centre.
-              SizedBox(
-                height: 22.4,
-                child: OverflowBox(
-                  maxHeight: double.infinity,
-                  child: Container(
-                    transform: Matrix4.translationValues(0, 2, 0),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 9,
-                      vertical: 3,
-                    ),
-                    decoration: ShapeDecoration(
-                      color: tutup ? c.tinta : c.permukaan,
-                      shape: GarisBorder.penuh(c.tinta, radius: 6),
-                    ),
-                    child: Text(
-                      tutup ? 'Sudah ditutup' : 'Belum ditutup',
-                      style: TextStyle(
-                        fontSize: 13,
-                        height: 1,
-                        fontWeight: FontWeight.w700,
-                        color: tutup ? c.permukaan : c.tinta,
+              // The badge is an inline span in the page's line (16 / 1.4 on
+              // the phone, 15 / 1.45 on the web): the line box sets the
+              // height, its padding and line spill over. Its box is the 13 px
+              // font's content area (1.26 em) plus padding and line, sitting
+              // on the line's baseline (CSS half-leading with the font's
+              // 1.038 / 0.222 em ascent and descent).
+              Builder(
+                builder: (context) {
+                  final g = DefaultTextStyle.of(context).style;
+                  final f = g.fontSize ?? 16, lh = f * (g.height ?? 1.4);
+                  final dasar = (lh - 1.26 * f) / 2 + 1.038 * f;
+                  return SizedBox(
+                    height: lh,
+                    child: OverflowBox(
+                      maxHeight: double.infinity,
+                      child: Container(
+                        transform: Matrix4.translationValues(
+                          0,
+                          dasar - 5.304 - lh / 2,
+                          0,
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 9,
+                          vertical: 3,
+                        ),
+                        decoration: ShapeDecoration(
+                          color: tutup ? c.tinta : c.permukaan,
+                          shape: GarisBorder.penuh(c.tinta, radius: 6),
+                        ),
+                        child: Text(
+                          tutup ? 'Sudah ditutup' : 'Belum ditutup',
+                          style: TextStyle(
+                            fontSize: 13,
+                            height: 1.26,
+                            leadingDistribution: TextLeadingDistribution.even,
+                            fontWeight: FontWeight.w700,
+                            color: tutup ? c.permukaan : c.tinta,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
+                  );
+                },
               ),
             ],
           ),

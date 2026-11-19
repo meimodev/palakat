@@ -38,51 +38,57 @@ class _TanggalScreenState extends State<TanggalScreen>
       type: MaterialType.transparency,
       child: LayarPonsel(
         jabatanKosong: true,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const KepalaPonsel(
-              judul: 'Tanggal transaksi',
-              anakJudul: 'Belanja · draf',
-              kembaliKe: 'Main',
-              labelKembali: 'Kembali ke isian',
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    for (var i = 0; i < isi.length; i++) ...[
-                      if (i > 0) const SizedBox(height: 16),
-                      isi[i],
+        // CSS half-leading: the board's text sits centred in its line box.
+        child: DefaultTextStyle.merge(
+          style: const TextStyle(
+            leadingDistribution: TextLeadingDistribution.even,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const KepalaPonsel(
+                judul: 'Tanggal transaksi',
+                anakJudul: 'Belanja · draf',
+                kembaliKe: 'Main',
+                labelKembali: 'Kembali ke isian',
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      for (var i = 0; i < isi.length; i++) ...[
+                        if (i > 0) const SizedBox(height: 16),
+                        isi[i],
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
-            ),
-            Container(
-              padding: const EdgeInsets.fromLTRB(20, 12, 20, 22),
-              decoration: BoxDecoration(
-                color: c.permukaan,
-                border: Border(top: BorderSide(color: c.garis)),
+              Container(
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 22),
+                decoration: BoxDecoration(
+                  color: c.permukaan,
+                  border: Border(top: BorderSide(color: c.garis)),
+                ),
+                child: sel != null
+                    ? Tombol(
+                        'Pakai $tglTeks',
+                        onPressed: null,
+                        ke: 'Main',
+                        cara: Cara.naik,
+                        paddingH: 20,
+                      )
+                    : const Tombol(
+                        'Pilih tanggal dulu',
+                        onPressed: null,
+                        nonaktif: true,
+                        paddingH: 20,
+                      ),
               ),
-              child: sel != null
-                  ? Tombol(
-                      'Pakai $tglTeks',
-                      onPressed: null,
-                      ke: 'Main',
-                      cara: Cara.naik,
-                      paddingH: 20,
-                    )
-                  : const Tombol(
-                      'Pilih tanggal dulu',
-                      onPressed: null,
-                      nonaktif: true,
-                      paddingH: 20,
-                    ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
