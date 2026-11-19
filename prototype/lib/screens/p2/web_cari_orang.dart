@@ -11,7 +11,8 @@ import '../../widgets/lencana_status.dart';
 import '../../widgets/tata_letak.dart';
 import 'cari_orang.dart';
 
-/// The rows' web targets (`hal()` with `web = true`), by index.
+/// The rows' web targets (`hal()` with `web = true`), by index. Records so
+/// each target is a literal `ke: '…'` for the links test.
 const _keWeb = [
   (ke: 'WebDataAnggota'),
   (ke: 'WebDataAnggota'),
@@ -58,10 +59,11 @@ class WebCariOrangScreen extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 44 px target, drawn as the 20 px line the board has.
+            // 44 px target, drawn as the board's line: the inline 14 px link
+            // sits on the div's 15/1.45 strut.
             const MarginNegatif(
-              atas: (44 - 14 * 1.45) / 2,
-              bawah: (44 - 14 * 1.45) / 2,
+              atas: (44 - 15 * 1.45) / 2,
+              bawah: (44 - 15 * 1.45) / 2,
               child: Tautan(
                 ke: 'WebBerandaJabatan',
                 cara: Cara.naik,
