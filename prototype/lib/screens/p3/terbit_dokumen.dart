@@ -242,14 +242,19 @@ class IsiTerbitDokumen extends StatelessWidget {
           ]),
         ),
         _BarisTautan(
+          garis: 3,
           anak: [
-            Tombol(
-              'Lihat di Dokumen gereja',
-              jenis: JenisTombol.kedua,
-              ukuran: UkuranTombol.sedang,
-              onPressed: null,
-              ke: induk,
-              cara: Cara.naik,
+            // Content-box `<a>`: min-height 48 plus its 1.5 line top and bottom.
+            ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 51),
+              child: Tombol(
+                'Lihat di Dokumen gereja',
+                jenis: JenisTombol.kedua,
+                ukuran: UkuranTombol.sedang,
+                onPressed: null,
+                ke: induk,
+                cara: Cara.naik,
+              ),
             ),
             Tombol(
               'Terbitkan revisi baru',
@@ -311,13 +316,16 @@ class IsiTerbitDokumen extends StatelessWidget {
 }
 
 /// A K9 button row whose first button is an `<a>`: links are content-box,
-/// so its basis and max-width carry the 0 16 padding (182 / 372), where a
-/// `<button>` is border-box (150 / 340). Items on one line stretch to the
-/// tallest.
+/// so its basis and max-width carry the 0 16 padding and its line [garis]
+/// (182 / 372 plus the line), where a `<button>` is border-box (150 / 340).
+/// Items on one line stretch to the tallest.
 class _BarisTautan extends StatelessWidget {
-  const _BarisTautan({required this.anak});
+  const _BarisTautan({required this.anak, this.garis = 0});
 
   final List<Widget> anak;
+
+  /// Both widths of the link's line (3 for the 1.5 outline, 0 for ink).
+  final double garis;
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
@@ -326,8 +334,8 @@ class _BarisTautan extends StatelessWidget {
         [
           for (final (i, a) in anak.indexed)
             Lentur(
-              dasar: i == 0 ? 182 : 150,
-              maks: i == 0 ? 372 : 340,
+              dasar: i == 0 ? 182 + garis : 150,
+              maks: i == 0 ? 372 + garis : 340,
               child: a,
             ),
         ],
