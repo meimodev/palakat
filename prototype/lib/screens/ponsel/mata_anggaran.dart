@@ -162,18 +162,19 @@ class _Versi extends StatelessWidget {
         ? tukarJkPapan('MataAnggaran', jk, teksVersiUsulanDiterbitkan)
         : 'Belum berlaku · $berlakuVersiUsulan';
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const KepalaPonsel(
-          judul: 'Versi Mata Anggaran',
-          kembaliKe: 'Lainnya',
-          labelKembali: 'Kembali ke Lainnya',
-        ),
-        Expanded(
-          child: Gerak(
-            Kerangka.pudar,
-            lama: const Duration(milliseconds: 200),
+    // The whole view fades in (`pudar` on the board's view container).
+    return Gerak(
+      Kerangka.pudar,
+      lama: const Duration(milliseconds: 200),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const KepalaPonsel(
+            judul: 'Versi Mata Anggaran',
+            kembaliKe: 'Lainnya',
+            labelKembali: 'Kembali ke Lainnya',
+          ),
+          Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
               child: Column(
@@ -271,8 +272,8 @@ class _Versi extends StatelessWidget {
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
