@@ -193,15 +193,30 @@ class PanelBantuanAI extends StatelessWidget {
             ].indexed) ...[
               if (i > 0) const SizedBox(width: 8),
               Expanded(
-                child: Tombol(
-                  t,
-                  onPressed: f,
-                  jenis: j,
-                  ukuran: UkuranTombol.ringkas,
-                  paddingH: 6,
-                  // The board disables Ubah too but keeps its normal look.
-                  nonaktif: i == 0 && s.basi,
-                ),
+                // The board disables Ubah too but keeps its normal look.
+                child: i == 1 && s.basi
+                    ? TekanAria(
+                        onTap: () {},
+                        aktif: false,
+                        radius: 12,
+                        child: RupaTombol(
+                          label: t,
+                          isi: c.permukaan,
+                          garis: GarisBorder.penuh(c.tinta, radius: 12),
+                          warnaTeks: c.tinta,
+                          radius: 12,
+                          tinggi: 46,
+                          paddingH: 6,
+                        ),
+                      )
+                    : Tombol(
+                        t,
+                        onPressed: f,
+                        jenis: j,
+                        ukuran: UkuranTombol.ringkas,
+                        paddingH: 6,
+                        nonaktif: i == 0 && s.basi,
+                      ),
               ),
             ],
           ],
