@@ -430,17 +430,22 @@ class _AlurIbadahScreenState extends State<AlurIbadahScreen> {
             child: SingleChildScrollView(
               controller: _gulir,
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: 16,
-                children: [
-                  ...switch (_v) {
-                    'hitung' => hitung,
-                    'koreksi' => koreksi,
-                    _ => jadwal,
-                  },
-                  if (_riw.isNotEmpty) RiwayatAlur(baris: _riw),
-                ],
+              // ponytail: IsianTeks inherits the theme bodyLarge's 0.5
+              // letterSpacing; drop this once IsianTeks sets 0 itself.
+              child: DefaultTextStyle.merge(
+                style: const TextStyle(letterSpacing: 0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  spacing: 16,
+                  children: [
+                    ...switch (_v) {
+                      'hitung' => hitung,
+                      'koreksi' => koreksi,
+                      _ => jadwal,
+                    },
+                    if (_riw.isNotEmpty) RiwayatAlur(baris: _riw),
+                  ],
+                ),
               ),
             ),
           ),

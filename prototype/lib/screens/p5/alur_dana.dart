@@ -314,10 +314,15 @@ class _AlurDanaScreenState extends State<AlurDanaScreen> {
               child: SingleChildScrollView(
                 controller: _gulir,
                 padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  spacing: 16,
-                  children: isi,
+                // ponytail: IsianTeks inherits the theme bodyLarge's 0.5
+                // letterSpacing; drop this once IsianTeks sets 0 itself.
+                child: DefaultTextStyle.merge(
+                  style: const TextStyle(letterSpacing: 0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    spacing: 16,
+                    children: isi,
+                  ),
                 ),
               ),
             ),
