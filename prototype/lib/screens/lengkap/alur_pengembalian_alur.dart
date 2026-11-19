@@ -440,7 +440,7 @@ class _BarisKv extends StatelessWidget {
           if (wa < minA) wa = minA;
           if (wb < minB) wa = math.max(minA, w - minB);
         }
-        return Row(
+        final baris = Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(
@@ -453,6 +453,11 @@ class _BarisKv extends StatelessWidget {
             ),
           ],
         );
+        // A mono span in a sans line box: Chrome rounds each font's ascent
+        // and descent, so the board's mono rows are 1 px taller (21.3 vs 20.3).
+        return mono
+            ? Padding(padding: const EdgeInsets.only(bottom: 1), child: baris)
+            : baris;
       },
     );
   }
