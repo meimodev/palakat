@@ -362,12 +362,16 @@ class _Bidik extends StatelessWidget {
                   child: Tekan(
                     onTap: ambil,
                     minLebar: 88,
-                    child: const Align(
-                      alignment: Alignment.centerLeft,
-                      widthFactor: 1,
-                      child: Text(
-                        'Pilih file',
-                        style: TextStyle(fontWeight: FontWeight.w700),
+                    // The browser's default button padding (1 px 6 px).
+                    child: const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 6),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        widthFactor: 1,
+                        child: Text(
+                          'Pilih file',
+                          style: TextStyle(fontWeight: FontWeight.w700),
+                        ),
                       ),
                     ),
                   ),
