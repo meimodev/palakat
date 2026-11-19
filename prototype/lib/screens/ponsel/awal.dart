@@ -297,18 +297,15 @@ class _Langkah extends StatelessWidget {
                 ),
               ],
             ),
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Tautan(
-                ke: 'AwalIsian',
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  widthFactor: 1,
-                  child: TautanTeks(
-                    'Isi identitas, Kas/Bank, peruntukan dan Lingkup',
-                    berat: FontWeight.w700,
-                    ukuran: 15,
-                  ),
+            // `display: flex` <a>: the target spans the column's width.
+            const Tautan(
+              ke: 'AwalIsian',
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: TautanTeks(
+                  'Isi identitas, Kas/Bank, peruntukan dan Lingkup',
+                  berat: FontWeight.w700,
+                  ukuran: 15,
                 ),
               ),
             ),
@@ -1113,6 +1110,8 @@ class _IsianBarisState extends State<_IsianBaris> {
       fontFamily: PalakatText.mono,
       fontSize: 17,
       fontWeight: FontWeight.w500,
+      // TextField merges the theme bodyLarge, whose M3 default adds 0.5.
+      letterSpacing: 0,
       color: c.tinta,
     );
     // `input{font:inherit}`: line height 1.4, centred in the 44 box.
@@ -1144,22 +1143,34 @@ class _IsianBarisState extends State<_IsianBaris> {
                 tampil: widget.fokus.hasFocus,
                 child: Material(
                   type: MaterialType.transparency,
-                  child: TextField(
-                    controller: widget.controller,
-                    focusNode: widget.fokus,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: const [
-                      RupiahInputFormatter(sisakanNol: true),
-                    ],
-                    textAlign: TextAlign.right,
-                    style: gaya,
-                    cursorColor: c.laut,
-                    decoration: InputDecoration(
-                      isDense: true,
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(vertical: tengah),
-                      hintText: '—',
-                      hintStyle: gaya.copyWith(color: c.tinta3),
+                  // Flutter keeps cursorWidth + 1 free right of right-aligned
+                  // text; shift it so the figure ends where the board's does.
+                  child: Transform.translate(
+                    offset: const Offset(3, 0),
+                    child: TextField(
+                      controller: widget.controller,
+                      focusNode: widget.fokus,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: const [
+                        RupiahInputFormatter(sisakanNol: true),
+                      ],
+                      textAlign: TextAlign.right,
+                      style: gaya,
+                      cursorColor: c.laut,
+                      decoration: InputDecoration(
+                        isDense: true,
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(vertical: tengah),
+                        // The field is shifted 3 px right; the placeholder is not caret-inset.
+                        hint: Transform.translate(
+                          offset: const Offset(-3, 0),
+                          child: Text(
+                            '—',
+                            textAlign: TextAlign.right,
+                            style: gaya.copyWith(color: c.tinta3),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),

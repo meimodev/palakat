@@ -342,21 +342,50 @@ class _WebAwalScreenState extends State<WebAwalScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Wrap(
-          crossAxisAlignment: WrapCrossAlignment.end,
-          spacing: 16,
-          runSpacing: 8,
-          children: [
-            const Text(
-              'Saldo awal pencatatan',
-              style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700),
-            ),
-            Text(
-              'Per 15 September 2026, tanggal mulai pencatatan · bulan '
-              'pertama pencatatan: September 2026',
-              style: TextStyle(fontSize: 14, color: c.tinta2),
-            ),
-          ],
+        // `flex-wrap: wrap; align-items: baseline; gap: 8px 16px`: one
+        // baseline-aligned line when both fit, else stacked.
+        LayoutBuilder(
+          builder: (context, k) {
+            const gayaJudul = TextStyle(
+              fontSize: 19,
+              fontWeight: FontWeight.w700,
+            );
+            final gayaSub = TextStyle(fontSize: 14, color: c.tinta2);
+            const judul = 'Saldo awal pencatatan';
+            final h2 = Semantics(
+              header: true,
+              child: const Text(judul, style: gayaJudul),
+            );
+            const sub =
+                'Per 15 September 2026, tanggal mulai pencatatan · bulan '
+                'pertama pencatatan: September 2026';
+            final dasar = DefaultTextStyle.of(context).style;
+            double ukur(String t, TextStyle g) => (TextPainter(
+              text: TextSpan(text: t, style: dasar.merge(g)),
+              textDirection: TextDirection.ltr,
+              textScaler: MediaQuery.textScalerOf(context),
+            )..layout()).width;
+            if (ukur(judul, gayaJudul) + 16 + ukur(sub, gayaSub) <=
+                k.maxWidth) {
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  h2,
+                  const SizedBox(width: 16),
+                  Text(sub, style: gayaSub),
+                ],
+              );
+            }
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                h2,
+                const SizedBox(height: 8),
+                Text(sub, style: gayaSub),
+              ],
+            );
+          },
         ),
         const SizedBox(height: 14),
         Container(
@@ -676,7 +705,12 @@ class _SelState extends State<_Sel> {
   Widget build(BuildContext context) {
     final c = context.warna;
     final kosong = widget.controller.text.isEmpty;
-    const gaya = TextStyle(fontFamily: PalakatText.mono, fontSize: 15);
+    // letterSpacing 0: TextField merges the theme bodyLarge (M3 default 0.5).
+    const gaya = TextStyle(
+      fontFamily: PalakatText.mono,
+      fontSize: 15,
+      letterSpacing: 0,
+    );
     return CincinFokus(
       tampil: _fokus.hasFocus,
       radius: 10,
@@ -694,22 +728,34 @@ class _SelState extends State<_Sel> {
           label: widget.label,
           child: Material(
             type: MaterialType.transparency,
-            child: TextField(
-              controller: widget.controller,
-              focusNode: _fokus,
-              keyboardType: TextInputType.number,
-              inputFormatters: const [
-                RupiahInputFormatter(sisakanNol: true, maks: 12),
-              ],
-              textAlign: TextAlign.right,
-              textAlignVertical: TextAlignVertical.center,
-              style: gaya.copyWith(color: c.tinta),
-              cursorColor: c.laut,
-              decoration: InputDecoration(
-                isCollapsed: true,
-                border: InputBorder.none,
-                hintText: '—',
-                hintStyle: gaya.copyWith(color: c.tinta3),
+            // Flutter keeps cursorWidth + 1 free right of right-aligned text;
+            // shift it so the figure ends at the board's 10 px padding.
+            child: Transform.translate(
+              offset: const Offset(3, 0),
+              child: TextField(
+                controller: widget.controller,
+                focusNode: _fokus,
+                keyboardType: TextInputType.number,
+                inputFormatters: const [
+                  RupiahInputFormatter(sisakanNol: true, maks: 12),
+                ],
+                textAlign: TextAlign.right,
+                textAlignVertical: TextAlignVertical.center,
+                style: gaya.copyWith(color: c.tinta),
+                cursorColor: c.laut,
+                decoration: InputDecoration(
+                  isCollapsed: true,
+                  border: InputBorder.none,
+                  // The field is shifted 3 px right; the placeholder is not caret-inset.
+                  hint: Transform.translate(
+                    offset: const Offset(-3, 0),
+                    child: Text(
+                      '—',
+                      textAlign: TextAlign.right,
+                      style: gaya.copyWith(color: c.tinta3),
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
