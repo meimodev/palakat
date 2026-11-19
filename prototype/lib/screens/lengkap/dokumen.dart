@@ -121,6 +121,9 @@ class _Dokumen extends ChangeNotifier {
   Map<String, _Item> it = _awal();
   final alasan = TextEditingController();
 
+  /// The textarea's focus: tapping its label focuses it (board `label for`).
+  final fokus = FocusNode();
+
   void ulang() {
     pilih = 'a';
     form = null;
@@ -168,6 +171,7 @@ class _Dokumen extends ChangeNotifier {
   @override
   void dispose() {
     alasan.dispose();
+    fokus.dispose();
     super.dispose();
   }
 }
@@ -626,20 +630,24 @@ class _Form extends StatelessWidget {
             : 'Sementara (draf EC07). File yang ditolak tetap ada di Riwayat, dan statusnya dihitung lagi.',
         style: TextStyle(fontSize: 14, color: c.tinta2),
       ),
-      Text.rich(
-        TextSpan(
-          children: [
-            const TextSpan(text: 'Alasan '),
-            TextSpan(
-              text: '· wajib',
-              style: TextStyle(color: c.tinta, fontWeight: FontWeight.w700),
-            ),
-          ],
+      GestureDetector(
+        onTap: k.fokus.requestFocus,
+        child: Text.rich(
+          TextSpan(
+            children: [
+              const TextSpan(text: 'Alasan '),
+              TextSpan(
+                text: '· wajib',
+                style: TextStyle(color: c.tinta, fontWeight: FontWeight.w700),
+              ),
+            ],
+          ),
+          style: TextStyle(fontSize: 14, color: c.tinta2),
         ),
-        style: TextStyle(fontSize: 14, color: c.tinta2),
       ),
       IsianTeks(
         controller: k.alasan,
+        focusNode: k.fokus,
         labelSemantik: 'Alasan · wajib',
         onChanged: (_) => k.ubahAlasan(),
         baris: 2,
