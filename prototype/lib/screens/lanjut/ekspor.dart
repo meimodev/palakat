@@ -160,7 +160,8 @@ class _EksporScreenState extends State<EksporScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  if (_st == _St.belum) Tombol('Buat ekspor', onPressed: _buat),
+                  if (_st == _St.belum)
+                    Tombol('Buat ekspor', onPressed: _buat, paddingH: 6),
                   if (jalan)
                     Semantics(
                       liveRegion: true,
@@ -180,6 +181,7 @@ class _EksporScreenState extends State<EksporScreen> {
                           ? 'Diunduh · ekspor-jemaat-karunia-2026-11-16.zip'
                           : 'Unduh ekspor (belum lengkap)',
                       onPressed: () => setState(() => _diunduh = true),
+                      paddingH: 6,
                     ),
                     const SizedBox(height: 8),
                     Tombol(

@@ -178,9 +178,10 @@ class _WebEksporScreenState extends State<WebEksporScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // 44 target in the 21.75 px line box of the 15/1.45 parent div.
               MarginNegatif(
-                atas: 12,
-                bawah: 12,
+                atas: 11.125,
+                bawah: 11.125,
                 child: Tautan(
                   ke: 'WebPengaturan',
                   cara: Cara.naik,
@@ -308,8 +309,8 @@ class _Butir extends StatelessWidget {
             : const LencanaStatus('Disertakan', bentuk: BentukLencana.laut),
     };
     return Container(
-      // CSS content-box: min-height 64 plus padding 8 0.
-      constraints: const BoxConstraints(minHeight: 80),
+      // CSS content-box: min-height 64 plus padding 8 0 plus the top rule.
+      constraints: BoxConstraints(minHeight: i == 0 ? 80 : 81),
       padding: const EdgeInsets.symmetric(vertical: 8),
       decoration: i == 0
           ? null
