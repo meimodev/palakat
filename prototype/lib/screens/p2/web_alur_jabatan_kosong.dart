@@ -10,7 +10,6 @@ import '../../widgets/garis_status.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/penolakan.dart';
-import '../../widgets/pita_jabatan_kosong.dart';
 import '../../widgets/riwayat_alur.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
@@ -130,10 +129,11 @@ class _WebAlurJabatanKosongScreenState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // The 44 px target overlaps the line above and below, so the
-              // block keeps the board's 20 px link line.
+              // block keeps the board's 22 px line (the 14 px link sits on
+              // the div's 15/1.45 strut).
               MarginNegatif(
                 atas: 12,
-                bawah: 12,
+                bawah: 10,
                 child: Tautan(
                   ke: 'WebJabatanKosong',
                   cara: Cara.naik,
@@ -215,11 +215,33 @@ class _WebAlurJabatanKosongScreenState
           ],
         ),
       ],
+      // The board's running banner has no role="status" (spec 15), and the
+      // shared PitaJabatanKosong.web is always a live region, so it is
+      // drawn here.
       if (_jalan)
-        const PitaJabatanKosong.web(
-          jabatan: 'Penatua Kolom 2',
-          sejak: null,
-          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            color: c.tinta,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Text.rich(
+            TextSpan(
+              children: [
+                const TextSpan(
+                  text: 'Anda menjalankan jabatan kosong Penatua Kolom 2.',
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
+                TextSpan(
+                  text:
+                      ' Setiap tindakan dicatat sebagai dijalankan oleh '
+                      'Operator Yanti Sumual.',
+                  style: TextStyle(color: c.diTinta2),
+                ),
+              ],
+            ),
+            style: TextStyle(fontSize: 14, color: c.permukaan),
+          ),
         ),
       if (_terisi)
         Kartu(
