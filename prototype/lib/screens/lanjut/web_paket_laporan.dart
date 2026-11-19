@@ -330,8 +330,13 @@ class _WebPaketLaporanScreenState extends State<WebPaketLaporanScreen> {
                           WidgetSpan(
                             alignment: PlaceholderAlignment.baseline,
                             baseline: TextBaseline.alphabetic,
-                            // white-space: nowrap: may overhang the column.
-                            child: _Menggantung(child: _Tanda(r.$5!)),
+                            // white-space: nowrap: may overhang the column;
+                            // an inline border does not grow the line box.
+                            child: MarginNegatif(
+                              atas: 1.5,
+                              bawah: 1.5,
+                              child: _Menggantung(child: _Tanda(r.$5!)),
+                            ),
                           ),
                         ],
                       ],
@@ -417,6 +422,14 @@ class _Judul extends StatelessWidget {
           ],
         ),
         style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w700),
+        // CSS line box: a wrapped line holding only the 15 px span keeps
+        // the h1's 26 × 1.45 height.
+        strutStyle: const StrutStyle(
+          fontFamily: PalakatText.sans,
+          fontSize: 26,
+          height: 1.45,
+          leadingDistribution: TextLeadingDistribution.even,
+        ),
       ),
     );
     const pdf = Tombol(
@@ -436,25 +449,57 @@ class _Judul extends StatelessWidget {
       paddingH: 18,
       lebarPenuh: false,
     );
+    // flex-wrap with the h1 at basis 320: the buttons join its line while
+    // they fit, in order (the button width is its 700 label + 2 × 18).
+    final gaya = DefaultTextStyle.of(context).style
+        .copyWith(fontWeight: FontWeight.w700);
+    double lebar(String s) =>
+        (TextPainter(
+          text: TextSpan(text: s, style: gaya),
+          textDirection: TextDirection.ltr,
+          textScaler: MediaQuery.textScalerOf(context),
+        )..layout()).width +
+        36;
+    final wPdf = lebar('Unduh PDF');
     return LayoutBuilder(
-      builder: (context, k) => k.maxWidth >= 592
-          ? Row(
-              children: [
-                Expanded(child: judul),
-                const SizedBox(width: 12),
-                pdf,
-                const SizedBox(width: 12),
-                excel,
-              ],
-            )
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                judul,
-                const SizedBox(height: 12),
-                const Wrap(spacing: 12, runSpacing: 12, children: [pdf, excel]),
-              ],
-            ),
+      builder: (context, k) {
+        final w = k.maxWidth;
+        if (w >= 320 + 12 + wPdf + 12 + lebar('Unduh Excel')) {
+          return Row(
+            children: [
+              Expanded(child: judul),
+              const SizedBox(width: 12),
+              pdf,
+              const SizedBox(width: 12),
+              excel,
+            ],
+          );
+        }
+        if (w >= 320 + 12 + wPdf) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(child: judul),
+                  const SizedBox(width: 12),
+                  pdf,
+                ],
+              ),
+              const SizedBox(height: 12),
+              excel,
+            ],
+          );
+        }
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            judul,
+            const SizedBox(height: 12),
+            const Wrap(spacing: 12, runSpacing: 12, children: [pdf, excel]),
+          ],
+        );
+      },
     );
   }
 }
@@ -561,7 +606,12 @@ class _Gulir extends StatelessWidget {
       child: SizedBox(
         width: math.max(minLebar, k.maxWidth),
         child: DefaultTextStyle.merge(
-          style: const TextStyle(fontSize: 13),
+          // CSS splits line-height evenly; mixed fonts on a baseline row
+          // would otherwise grow each row.
+          style: const TextStyle(
+            fontSize: 13,
+            leadingDistribution: TextLeadingDistribution.even,
+          ),
           child: child,
         ),
       ),
