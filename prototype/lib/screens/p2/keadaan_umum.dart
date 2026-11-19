@@ -80,9 +80,21 @@ class IsiKeadaanUmum extends StatelessWidget {
   final Widget kembali;
   final Widget masuk;
 
-  static Widget baris(Widget tombol) => BarisLentur(
+  /// [tambah]: the board's link buttons are `<a>` (content-box), so their
+  /// basis and max-width exclude padding 32 and the line (350 on the phone,
+  /// 375 / 372 on web); "Coba lagi" is a border-box `<button>` (340).
+  static Widget baris(Widget tombol, {double tambah = 0}) => BarisLentur(
     jarak: 8,
-    anak: [Lentur(dasar: 150, maks: 340, child: tombol)],
+    anak: [Lentur(dasar: 150 + tambah, maks: 340 + tambah, child: tombol)],
+  );
+
+  /// The outline link's `min-height: 48` is content-box too: 48 + 2 × 1.5.
+  static Widget barisKembali(Widget tombol) => baris(
+    ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: 51),
+      child: tombol,
+    ),
+    tambah: 35,
   );
 
   @override
@@ -147,7 +159,7 @@ class IsiKeadaanUmum extends StatelessWidget {
           'Bila ini keliru, hubungi Pimpinan Jemaat yang berwenang; '
           'penugasan jabatan tidak diubah dari sini.',
         ),
-        baris(kembali),
+        barisKembali(kembali),
       ],
       'Modul tidak aktif' => [
         Kartu(
@@ -169,7 +181,7 @@ class IsiKeadaanUmum extends StatelessWidget {
           'Nama modulnya tidak disebut: modul yang tidak aktif tidak '
           'meninggalkan jejak.',
         ),
-        baris(kembali),
+        barisKembali(kembali),
       ],
       'Sesi berakhir' => [
         const Kartu(
@@ -190,7 +202,7 @@ class IsiKeadaanUmum extends StatelessWidget {
             style: TextStyle(fontSize: 14),
           ),
         ),
-        baris(masuk),
+        baris(masuk, tambah: 32),
       ],
       _ => [
         const Rangka(
