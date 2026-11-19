@@ -234,7 +234,11 @@ Widget _isian(
   hanyaBaca: true,
   jarakLabel: 6,
   baris: baris,
-  gaya: TextStyle(fontSize: 14, color: context.warna.tinta2),
+  // TextField keeps 3 px (caret 2 + gap 1) at the right; give it back so the
+  // text area wraps where the board's readonly textarea does.
+  padding: baris > 1 ? const EdgeInsets.fromLTRB(14, 12, 11, 12) : null,
+  // TextField merges the theme's bodyLarge (M3 letter spacing 0.5) under it.
+  gaya: TextStyle(fontSize: 14, color: context.warna.tinta2, letterSpacing: 0),
 );
 
 /// The draft form card (Draf view).
