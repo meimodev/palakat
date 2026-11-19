@@ -64,30 +64,25 @@ class WebImporBukuScreen extends StatefulWidget {
 
 class _WebImporBukuScreenState extends State<WebImporBukuScreen> {
   String? _k;
-  String? _tweakLama;
+  int? _kiLama;
   final _isi = GlobalKey();
 
-  void _keAtas() => WidgetsBinding.instance.addPostFrameCallback((_) {
-    final ctx = _isi.currentContext;
-    if (ctx != null) Scrollable.maybeOf(ctx)?.position.jumpTo(0);
-  });
-
-  void _pilih(String k) {
-    setState(() => _k = k);
-    _keAtas();
-  }
+  void _pilih(String k) => setState(() => _k = k);
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
+    // Board parity (CONVENTIONS): a panel change does not reset `k`.
     final tweak = context.tweak<String>(_stem, 'keadaan');
-    // A panel change resets the local view (spec 19, "Tweak views").
-    if (_tweakLama != null && _tweakLama != tweak) {
-      _k = null;
-      _keAtas();
-    }
-    _tweakLama = tweak;
     final ki = _keadaan.indexOf(_k ?? tweak).clamp(0, 2);
+    // Every view change jumps the page to the top (CONVENTIONS).
+    if (_kiLama != null && _kiLama != ki) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final ctx = _isi.currentContext;
+        if (ctx != null) Scrollable.maybeOf(ctx)?.position.jumpTo(0);
+      });
+    }
+    _kiLama = ki;
 
     final redup = TextStyle(fontSize: 13, color: c.tinta3);
     // `flex: 1 1 150px; max-width: 340px` on a border-box `<button>`; the
@@ -234,12 +229,16 @@ class _WebImporBukuScreenState extends State<WebImporBukuScreen> {
         ),
         barisTombol([
           tautan(
-            const Tombol(
-              'Lihat konfirmasi keluarga',
-              jenis: JenisTombol.kedua,
-              ukuran: UkuranTombol.sedang,
-              onPressed: null,
-              ke: 'KonfirmasiKeluarga',
+            // Content-box `<a>`: min-height 48 plus the 1.5 line twice.
+            ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 51),
+              child: const Tombol(
+                'Lihat konfirmasi keluarga',
+                jenis: JenisTombol.kedua,
+                ukuran: UkuranTombol.sedang,
+                onPressed: null,
+                ke: 'KonfirmasiKeluarga',
+              ),
             ),
           ),
         ]),
@@ -252,46 +251,60 @@ class _WebImporBukuScreenState extends State<WebImporBukuScreen> {
         aktif: 5,
         pengguna: PenggunaNav(tebal: 'Yanti Sumual', biasa: ' · Operator'),
       ),
+      // CSS splits line-height leading evenly; Flutter's default does not.
       isi: [
-        Column(
-          key: _isi,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // The 44 target (child drawn at its top) overhangs the 20.3 line.
-            const MarginNegatif(
-              bawah: 23.7,
-              child: Tautan(
-                ke: 'WebDataAnggota',
-                cara: Cara.naik,
-                child: TautanTeks('Data jemaat', ukuran: 14),
+        for (final w in [
+          Column(
+            key: _isi,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // The 44 target (child drawn at its top) overhangs the line,
+              // which the div's 15 px strut makes 21.75 tall (not 14 × 1.45);
+              // the 14 px text sits 1.1 down on that strut's baseline.
+              const MarginNegatif(
+                bawah: 44 - 21.75,
+                child: Tautan(
+                  ke: 'WebDataAnggota',
+                  cara: Cara.naik,
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 1.1),
+                    child: TautanTeks('Data jemaat', ukuran: 14),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 2),
+              const Text(
+                'Impor buku anggota',
+                style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700),
+              ),
+              Text(
+                'Operator memasukkan buku anggota kertas; belum ada yang '
+                'menjadi anggota aktif',
+                style: TextStyle(fontSize: 14, color: c.tinta2),
+              ),
+            ],
+          ),
+          Align(
+            alignment: Alignment.topLeft,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1120),
+              child: BarisLentur(
+                jarak: 28,
+                jarakBaris: 20,
+                anak: [
+                  Lentur(dasar: 420, tumbuh: 1.3, child: kiri),
+                  Lentur(dasar: 340, child: kanan),
+                ],
               ),
             ),
-            const SizedBox(height: 2),
-            const Text(
-              'Impor buku anggota',
-              style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700),
-            ),
-            Text(
-              'Operator memasukkan buku anggota kertas; belum ada yang '
-              'menjadi anggota aktif',
-              style: TextStyle(fontSize: 14, color: c.tinta2),
-            ),
-          ],
-        ),
-        Align(
-          alignment: Alignment.topLeft,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1120),
-            child: BarisLentur(
-              jarak: 28,
-              jarakBaris: 20,
-              anak: [
-                Lentur(dasar: 420, tumbuh: 1.3, child: kiri),
-                Lentur(dasar: 340, child: kanan),
-              ],
-            ),
           ),
-        ),
+        ])
+          DefaultTextStyle.merge(
+            style: const TextStyle(
+              leadingDistribution: TextLeadingDistribution.even,
+            ),
+            child: w,
+          ),
       ],
     );
   }
