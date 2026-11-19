@@ -19,6 +19,12 @@ const _mono = TextStyle(fontFamily: PalakatText.mono);
 /// The board's `onChange`: digits only, leading zeros before a digit dropped
 /// ("007" → "7", "0" stays), at most 5 characters, caret at the end.
 class _FormatLembar extends TextInputFormatter {
+  _FormatLembar(this.onInput);
+
+  /// The board's `onChange` runs on every input event, also when the cleaned
+  /// text is unchanged ("a" typed after saving still clears `tersimpan`).
+  final VoidCallback onInput;
+
   @override
   TextEditingValue formatEditUpdate(
     TextEditingValue lama,
@@ -28,6 +34,7 @@ class _FormatLembar extends TextInputFormatter {
         .replaceAll(RegExp(r'\D'), '')
         .replaceFirst(RegExp(r'^0+(?=\d)'), '');
     if (s.length > 5) s = s.substring(0, 5);
+    onInput();
     return TextEditingValue(
       text: s,
       selection: TextSelection.collapsed(offset: s.length),
@@ -104,8 +111,13 @@ class _WebHitungKasScreenState extends State<WebHitungKasScreen> {
         Expanded(child: d),
       ],
     );
-    Widget kanan(String s, TextStyle g) =>
-        Text(s, textAlign: TextAlign.right, style: g);
+    Widget kanan(String s, TextStyle g) => Text(
+      s,
+      textAlign: TextAlign.right,
+      softWrap: false,
+      overflow: TextOverflow.visible,
+      style: g,
+    );
     Widget barisAside(String a, Widget b) => Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -175,7 +187,7 @@ class _WebHitungKasScreenState extends State<WebHitungKasScreen> {
                   child: _BarisPecahan(
                     pecahan: HitungKas.pecahan[i],
                     controller: _sel[i],
-                    onChanged: (_) => setState(() {
+                    onInput: () => setState(() {
                       _nol = false;
                       _tersimpan = false;
                     }),
@@ -227,7 +239,19 @@ class _WebHitungKasScreenState extends State<WebHitungKasScreen> {
                   : hitungKasKosongTeks,
               style: TextStyle(fontSize: 13, color: c.tinta3),
             );
-            if (k.maxWidth >= 200 + 12 + 240) {
+            final label = TextPainter(
+              text: TextSpan(
+                text: 'Kas kosong: catat Rp0',
+                style: DefaultTextStyle.of(context).style
+                    .copyWith(fontWeight: FontWeight.w700),
+              ),
+              textDirection: TextDirection.ltr,
+              textScaler: MediaQuery.textScalerOf(context),
+            )..layout();
+            // The button's own width: padding 0 16 plus the 1.5 border twice.
+            final lebarTombol = label.width + 32 + 3;
+            label.dispose();
+            if (k.maxWidth >= lebarTombol + 12 + 240) {
               return Row(
                 children: [
                   tombol,
@@ -281,39 +305,48 @@ class _WebHitungKasScreenState extends State<WebHitungKasScreen> {
                 decoration: BoxDecoration(
                   border: Border(top: BorderSide(color: c.tinta, width: 1.5)),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                  textBaseline: TextBaseline.alphabetic,
-                  children: [
-                    const Flexible(
-                      child: Text(
-                        'Selisih belum dijelaskan',
-                        style: TextStyle(fontWeight: FontWeight.w700),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Flexible(
-                      child: AnimatedDefaultTextStyle(
-                        duration: context.gerak(
-                          const Duration(milliseconds: 300),
+                child: LayoutBuilder(
+                  builder: (context, k) => Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: [
+                      const Flexible(
+                        child: Text(
+                          'Selisih belum dijelaskan',
+                          style: TextStyle(fontWeight: FontWeight.w700),
                         ),
-                        style: PalakatText.isiWeb.merge(
-                          _mono.copyWith(
-                            fontSize: 28,
-                            fontWeight: FontWeight.w600,
-                            height: 1.45,
-                            color: !dihitung
-                                ? c.tinta3
-                                : selisih == 0
-                                ? c.laut
-                                : c.bata,
+                      ),
+                      const SizedBox(width: 12),
+                      // Never breaks (CSS min-content); only the label wraps.
+                      // The cap only guards narrow test fonts against overflow.
+                      ConstrainedBox(
+                        constraints: BoxConstraints(maxWidth: k.maxWidth - 12),
+                        child: AnimatedDefaultTextStyle(
+                          duration: context.gerak(
+                            const Duration(milliseconds: 300),
+                          ),
+                          style: PalakatText.isiWeb.merge(
+                            _mono.copyWith(
+                              fontSize: 28,
+                              fontWeight: FontWeight.w600,
+                              height: 1.45,
+                              color: !dihitung
+                                  ? c.tinta3
+                                  : selisih == 0
+                                  ? c.laut
+                                  : c.bata,
+                            ),
+                          ),
+                          child: Text(
+                            dihitung ? rp(selisih.abs()) : kosong,
+                            softWrap: false,
+                            overflow: TextOverflow.visible,
                           ),
                         ),
-                        child: Text(dihitung ? rp(selisih.abs()) : kosong),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 10),
@@ -480,13 +513,13 @@ class _BarisPecahan extends StatefulWidget {
   const _BarisPecahan({
     required this.pecahan,
     required this.controller,
-    required this.onChanged,
+    required this.onInput,
     required this.grid,
   });
 
   final int pecahan;
   final TextEditingController controller;
-  final ValueChanged<String> onChanged;
+  final VoidCallback onInput;
   final Widget Function(Widget, Widget, Widget) grid;
 
   @override
@@ -495,6 +528,7 @@ class _BarisPecahan extends StatefulWidget {
 
 class _BarisPecahanState extends State<_BarisPecahan> {
   final _fokus = FocusNode();
+  late final _format = _FormatLembar(() => widget.onInput());
 
   @override
   void initState() {
@@ -543,8 +577,7 @@ class _BarisPecahanState extends State<_BarisPecahan> {
             child: TextField(
               controller: widget.controller,
               focusNode: _fokus,
-              onChanged: widget.onChanged,
-              inputFormatters: [_FormatLembar()],
+              inputFormatters: [_format],
               keyboardType: TextInputType.number,
               textAlign: TextAlign.right,
               style: gaya,
@@ -560,6 +593,8 @@ class _BarisPecahanState extends State<_BarisPecahan> {
       Text(
         d.isEmpty ? kosong : rp(int.parse(d) * widget.pecahan),
         textAlign: TextAlign.right,
+        softWrap: false,
+        overflow: TextOverflow.visible,
         style: _mono.copyWith(color: d.isEmpty ? c.tinta3 : c.tinta),
       ),
     );
