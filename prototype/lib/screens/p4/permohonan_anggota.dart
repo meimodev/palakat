@@ -4,10 +4,14 @@ import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import '../../shell/prototipe_state.dart';
 import '../../theme/palakat_tema.dart';
+import '../../shell/tautan.dart';
 import '../../widgets/alur_kit.dart';
+import '../../widgets/garis.dart';
+import '../../widgets/ikon.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tata_letak.dart';
+import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 
 const _mengisi = 'Mengisi';
@@ -96,13 +100,20 @@ class _PermohonanAnggotaScreenState extends State<PermohonanAnggotaScreen> {
       _izinBelum => [
         const _FormulirSaya(),
         izin(sendiri),
+        // `<button disabled>`: not focusable, nothing happens.
         BarisTombol(
           anak: [
-            Tombol(
-              'Ajukan permohonan',
-              onPressed: null,
-              nonaktif: true,
-              warnaTeks: c.tinta2,
+            Tekan(
+              onTap: null,
+              radius: 14,
+              child: RupaTombol(
+                label: 'Ajukan permohonan',
+                isi: c.garis,
+                warnaTeks: c.tinta2,
+                radius: 14,
+                tinggi: 52,
+                paddingH: 16,
+              ),
             ),
           ],
         ),
@@ -172,16 +183,20 @@ class _PermohonanAnggotaScreenState extends State<PermohonanAnggotaScreen> {
               'Verifikasi bukan persetujuan keuangan dan tidak dilakukan oleh '
               'pemohon sendiri.',
         ),
-        const BarisTombol(
-          anak: [
-            Tombol(
-              'Atur tampilan nama saya',
-              onPressed: null,
-              jenis: JenisTombol.kedua,
-              ukuran: UkuranTombol.sedang,
-              ke: 'TampilanNama',
-            ),
-          ],
+        // The board's `<a>` is content-box: max-width 340 + padding + line
+        // is wider than the row, so it fills it; min height 48 + 2 × 1.5.
+        Tautan(
+          ke: 'TampilanNama',
+          radius: 14,
+          child: RupaTombol(
+            label: 'Atur tampilan nama saya',
+            isi: c.permukaan,
+            garis: GarisBorder.penuh(c.tinta, radius: 14),
+            warnaTeks: c.tinta,
+            radius: 14,
+            tinggi: 51,
+            paddingH: 16,
+          ),
         ),
       ],
       _tidakDiterima => [
@@ -318,7 +333,47 @@ class _KartuIzin extends StatelessWidget {
           'pilih. Saya dapat mencabut izin dan meminta data saya dihapus.',
           style: TextStyle(fontSize: 14, color: c.tinta2),
         ),
-        KotakCentang(nilai: nilai, onUbah: onUbah, label: Text(kalimat)),
+        // KotakCentang has no `margin: 2px 0 0` for its box; the same look,
+        // drawn here with it. The whole row is the target.
+        Tekan(
+          onTap: () => onUbah(!nilai),
+          tercentang: nilai,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: SizedBox.square(
+                  dimension: 24,
+                  child: DecoratedBox(
+                    decoration: ShapeDecoration(
+                      color: nilai ? c.laut : c.permukaan,
+                      shape: nilai
+                          ? RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4),
+                            )
+                          : GarisBorder.penuh(c.garisTegas, radius: 4),
+                    ),
+                    child: nilai
+                        ? Center(
+                            child: PalakatIkon(
+                              Ikon.centang,
+                              ukuran: 16,
+                              warna: c.diLaut,
+                              tebal: 3,
+                            ),
+                          )
+                        : null,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(kalimat, style: const TextStyle(fontSize: 14)),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }

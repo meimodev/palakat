@@ -4,10 +4,13 @@ import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import '../../shell/prototipe_state.dart';
 import '../../theme/palakat_tema.dart';
+import '../../shell/tautan.dart';
 import '../../widgets/alur_kit.dart';
+import '../../widgets/garis.dart';
 import '../../widgets/garis_status.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
+import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
 
 const _o = ['Ditampung', 'Lolos pengecekan', 'Sudah diimpor'];
@@ -119,33 +122,15 @@ class _ImporBukuScreenState extends State<ImporBukuScreen> {
             'Kemungkinan data ganda ditandai, tidak pernah digabung sendiri.',
             style: catatan,
           ),
-          // Not BarisTombol's 171 + 171: Chrome keeps the link at least as
-          // wide as "Tinjau kemungkinan", so the board draws 154 + 188.
-          // ponytail: fixed ratio for the 350 phone column only.
-          IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Expanded(
-                  flex: 154,
-                  child: Tombol(
-                    'Impor 26 baris',
-                    jenis: JenisTombol.tinta,
-                    onPressed: () => setState(() => _k = _o[2]),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                const Expanded(
-                  flex: 188,
-                  child: Tombol(
-                    'Tinjau kemungkinan data ganda',
-                    onPressed: null,
-                    jenis: JenisTombol.kedua,
-                    ukuran: UkuranTombol.sedang,
-                    ke: 'DataGanda',
-                  ),
-                ),
-              ],
+          _BarisTombol(
+            tombol: Tombol(
+              'Impor 26 baris',
+              jenis: JenisTombol.tinta,
+              onPressed: () => setState(() => _k = _o[2]),
+            ),
+            tautan: const _TautanKedua(
+              'Tinjau kemungkinan data ganda',
+              ke: 'DataGanda',
             ),
           ),
         ],
@@ -173,16 +158,11 @@ class _ImporBukuScreenState extends State<ImporBukuScreen> {
               style: const TextStyle(fontSize: 14),
             ),
           ),
-          const BarisTombol(
-            anak: [
-              Tombol(
-                'Lihat konfirmasi keluarga',
-                onPressed: null,
-                jenis: JenisTombol.kedua,
-                ukuran: UkuranTombol.sedang,
-                ke: 'KonfirmasiKeluarga',
-              ),
-            ],
+          // Alone, the link's content-box max width (340 + 32 + 3) is wider
+          // than the row, so it fills it.
+          const _TautanKedua(
+            'Lihat konfirmasi keluarga',
+            ke: 'KonfirmasiKeluarga',
           ),
         ],
       },
@@ -289,4 +269,73 @@ class _KartuBaris extends StatelessWidget {
       ),
     );
   }
+}
+
+/// The board's `<a>` button (secondary look). Unlike `<button>` it is
+/// content-box: min height 48 + 2 × 1.5 line, max width 340 + 32 + 3.
+class _TautanKedua extends StatelessWidget {
+  const _TautanKedua(this.label, {required this.ke});
+
+  final String label, ke;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.warna;
+    return Tautan(
+      ke: ke,
+      radius: 14,
+      child: RupaTombol(
+        label: label,
+        isi: c.permukaan,
+        garis: GarisBorder.penuh(c.tinta, radius: 14),
+        warnaTeks: c.tinta,
+        radius: 14,
+        tinggi: 51,
+        paddingH: 16,
+      ),
+    );
+  }
+}
+
+/// Button row with a `<button>` (flex 1 1 150px, max 340) and an `<a>`
+/// (content-box: basis 150 + 35, max 340 + 35): at 350 that is 154 + 188,
+/// not BarisTombol's equal split. Same line stretches to the taller one.
+class _BarisTombol extends StatelessWidget {
+  const _BarisTombol({required this.tombol, required this.tautan});
+
+  final Widget tombol, tautan;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, b) {
+      final lebar = BarisLentur.lebar(
+        const [
+          Lentur(dasar: 150, maks: 340, child: SizedBox()),
+          Lentur(dasar: 185, maks: 375, child: SizedBox()),
+        ],
+        8,
+        b.maxWidth,
+      );
+      if (lebar.length > 1) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(width: lebar[0][0], child: tombol),
+            const SizedBox(height: 8),
+            SizedBox(width: lebar[1][0], child: tautan),
+          ],
+        );
+      }
+      return IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(width: lebar[0][0], child: tombol),
+            const SizedBox(width: 8),
+            SizedBox(width: lebar[0][1], child: tautan),
+          ],
+        ),
+      );
+    },
+  );
 }
