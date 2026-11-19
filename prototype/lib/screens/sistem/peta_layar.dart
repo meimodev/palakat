@@ -52,14 +52,20 @@ class PetaLayarScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 40),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    _Tanda('T1 jalur pertama', 1, legenda: true),
-                    _Tanda('T2 dan T3', 2, legenda: true),
-                    _Tanda('Sementara', 0, legenda: true),
-                  ],
+                // A flex row: its items stretch, so the borderless T1 badge
+                // is as tall as the outlined ones.
+                IntrinsicHeight(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _Tanda('T1 jalur pertama', 1, legenda: true),
+                      const SizedBox(width: 8),
+                      _Tanda('T2 dan T3', 2, legenda: true),
+                      const SizedBox(width: 8),
+                      _Tanda('Sementara', 0, legenda: true),
+                    ],
+                  ),
                 ),
               ],
             ),
