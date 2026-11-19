@@ -33,14 +33,21 @@ class _DataGandaScreenState extends State<DataGandaScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final keadaan = context.tweak<String>(_stem, 'keadaan');
-    // A panel change resets the in-board view (spec: "changing it resets k").
-    if (_keadaan != null && keadaan != _keadaan) _k = null;
+    // Board parity (CONVENTIONS, settled conflicts): a panel change does not
+    // reset k; it changes the view only while k is null.
+    if (_keadaan != null && keadaan != _keadaan && _k == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _keAtas());
+    }
     _keadaan = keadaan;
+  }
+
+  void _keAtas() {
+    if (mounted && _gulir.hasClients) _gulir.jumpTo(0);
   }
 
   void _ke(String k) {
     setState(() => _k = k);
-    if (_gulir.hasClients) _gulir.jumpTo(0);
+    _keAtas();
   }
 
   @override

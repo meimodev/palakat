@@ -6,10 +6,13 @@ import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
+import '../../widgets/garis.dart';
 import '../../widgets/garis_status.dart';
+import '../../widgets/ikon.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tombol.dart';
+import '../../widgets/tekan.dart';
 import '../../widgets/tombol_bersyarat.dart';
 
 const _stem = 'CabutIzin';
@@ -37,20 +40,26 @@ class _CabutIzinScreenState extends State<CabutIzinScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final keadaan = context.tweak<String>(_stem, 'keadaan');
-    // A panel change resets the in-board view (spec: "Changing it resets k").
-    if (_keadaan != null && keadaan != _keadaan) {
-      _k = null;
+    // Board parity (CONVENTIONS, settled conflicts): a panel change does not
+    // reset k; it changes the view only while k is null.
+    if (_keadaan != null && keadaan != _keadaan && _k == null) {
       _centang = false;
+      WidgetsBinding.instance.addPostFrameCallback((_) => _keAtas());
     }
     _keadaan = keadaan;
   }
 
+  void _keAtas() {
+    if (mounted && _gulir.hasClients) _gulir.jumpTo(0);
+  }
+
+  // A new view re-creates the board's checkbox, so it comes back unticked.
   void _ke(String k) {
     setState(() {
       _k = k;
       _centang = false;
     });
-    if (_gulir.hasClients) _gulir.jumpTo(0);
+    _keAtas();
   }
 
   @override
@@ -135,26 +144,21 @@ class _CabutIzinScreenState extends State<CabutIzinScreen> {
                       ],
                     ),
                   if (k == _konfirmasi) ...[
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(minHeight: 44),
-                      child: KotakCentang(
-                        nilai: _centang,
-                        onUbah: (v) => setState(() => _centang = v),
-                        label: Text(
-                          'Saya mengerti data saya akan dihapus dan tidak '
-                          'dapat dikembalikan. Untuk menjadi anggota lagi saya '
-                          'harus mengajukan permohonan baru.',
-                          style: TextStyle(color: c.tinta),
-                        ),
-                      ),
+                    _Pernyataan(
+                      nilai: _centang,
+                      onUbah: () => setState(() => _centang = !_centang),
                     ),
                     BarisTombol(
                       anak: [
+                        // The board's checkbox is not wired and its button is
+                        // `disabled`: the condition is never met. Pressable
+                        // per CONVENTIONS (TombolBersyarat); a press does
+                        // nothing.
                         TombolBersyarat(
                           label: 'Cabut izin dan hapus data saya',
                           tindakan: 'Cabut izin dan hapus data saya',
-                          alasan: _centang ? '' : _keterangan,
-                          onPressed: () => _ke(_dihapus),
+                          alasan: _keterangan,
+                          onPressed: () {},
                           sudahMulai: false,
                         ),
                         Tombol(
@@ -217,6 +221,65 @@ class _CabutIzinScreenState extends State<CabutIzinScreen> {
                     ]),
                 ],
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Statement checkbox (board `<label>`): the whole row toggles; row gap 12,
+/// top-aligned, min-height 44, 14 px. The 24 px box has margin-top 2, which
+/// the shared KotakCentang row lacks; its look is KotakCentang's.
+class _Pernyataan extends StatelessWidget {
+  const _Pernyataan({required this.nilai, required this.onUbah});
+
+  final bool nilai;
+  final VoidCallback onUbah;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.warna;
+    return Tekan(
+      onTap: onUbah,
+      tercentang: nilai,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: SizedBox.square(
+              dimension: 24,
+              child: DecoratedBox(
+                decoration: ShapeDecoration(
+                  color: nilai ? c.laut : c.permukaan,
+                  shape: nilai
+                      ? RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4),
+                        )
+                      : GarisBorder.penuh(c.garisTegas, radius: 4),
+                ),
+                child: nilai
+                    ? Center(
+                        child: PalakatIkon(
+                          Ikon.centang,
+                          ukuran: 16,
+                          warna: c.diLaut,
+                          tebal: 3,
+                        ),
+                      )
+                    : null,
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Saya mengerti data saya akan dihapus dan tidak dapat '
+              'dikembalikan. Untuk menjadi anggota lagi saya harus '
+              'mengajukan permohonan baru.',
+              style: TextStyle(fontSize: 14, color: c.tinta),
             ),
           ),
         ],
