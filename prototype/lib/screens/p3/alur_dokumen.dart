@@ -123,6 +123,8 @@ class AlurDokumenScreen extends StatelessWidget {
         ),
         Expanded(
           child: SingleChildScrollView(
+            // A publish returns to the list at the top, where its banner is.
+            key: ValueKey(a.riw.length),
             padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
             child: kolomAlur(isi, 16),
           ),

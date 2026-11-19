@@ -18,6 +18,22 @@ class WebAlurDokumenScreen extends StatefulWidget {
 
 class _WebAlurDokumenScreenState extends State<WebAlurDokumenScreen> {
   final _a = AlurDokumenData();
+  final _kunci = GlobalKey();
+  var _v = 'daftar';
+
+  @override
+  void initState() {
+    super.initState();
+    _a.addListener(_keAtas);
+  }
+
+  /// A view change jumps to the top (CONVENTIONS, "Scroll on view change").
+  void _keAtas() {
+    if (_a.v == _v) return;
+    _v = _a.v;
+    final c = _kunci.currentContext;
+    if (c != null) Scrollable.maybeOf(c)?.position.jumpTo(0);
+  }
 
   @override
   void dispose() {
@@ -38,6 +54,7 @@ class _WebAlurDokumenScreenState extends State<WebAlurDokumenScreen> {
     isi: [
       const _Judul(),
       Align(
+        key: _kunci,
         alignment: AlignmentDirectional.topStart,
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1120),
