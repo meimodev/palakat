@@ -12,22 +12,24 @@ class KasUnitScreen extends StatelessWidget {
   Widget build(BuildContext context) => const Material(
     type: MaterialType.transparency,
     child: LayarPonsel(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          KepalaPonsel(
-            judul: 'Alur · Kas/Bank unit',
-            anakJudul: 'Menetapkan Kas/Bank yang dikelola sebuah unit',
-            kembaliKe: 'Lainnya',
-            labelKembali: 'Kembali ke Pengaturan',
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.fromLTRB(20, 8, 20, 20),
-              child: KasUnitIsi(),
+      child: CssLeading(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            KepalaPonsel(
+              judul: 'Alur · Kas/Bank unit',
+              anakJudul: 'Menetapkan Kas/Bank yang dikelola sebuah unit',
+              kembaliKe: 'Lainnya',
+              labelKembali: 'Kembali ke Pengaturan',
             ),
-          ),
-        ],
+            Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.fromLTRB(20, 8, 20, 20),
+                child: KasUnitIsi(),
+              ),
+            ),
+          ],
+        ),
       ),
     ),
   );

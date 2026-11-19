@@ -87,14 +87,16 @@ class _KasUnitIsiState extends State<KasUnitIsi> {
   Widget build(BuildContext context) {
     final c = context.warna;
     final anak = _v == 'daftar' ? _daftar(c) : _tambah(c);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        for (var i = 0; i < anak.length; i++) ...[
-          if (i > 0) const SizedBox(height: 16),
-          anak[i],
+    return CssLeading(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (var i = 0; i < anak.length; i++) ...[
+            if (i > 0) const SizedBox(height: 16),
+            anak[i],
+          ],
         ],
-      ],
+      ),
     );
   }
 
@@ -150,11 +152,13 @@ class _KasUnitIsiState extends State<KasUnitIsi> {
   List<Widget> _tambah(PalakatWarna c) {
     final alasan = _alasan();
     final kiri = [
-      IsianAlur(
-        label: 'Nama Kas/Bank',
-        controller: _nama,
-        petunjuk: 'Contoh: Kas Panitia Natal 2026',
-        onChanged: (_) => setState(() {}),
+      _TanpaJarakHuruf(
+        child: IsianAlur(
+          label: 'Nama Kas/Bank',
+          controller: _nama,
+          petunjuk: 'Contoh: Kas Panitia Natal 2026',
+          onChanged: (_) => setState(() {}),
+        ),
       ),
       // Board pills sit in a gap-8 wrap with no bottom margin.
       MarginNegatif(
@@ -223,5 +227,40 @@ class _KasUnitIsiState extends State<KasUnitIsi> {
         ],
       ),
     ];
+  }
+}
+
+/// CSS half-leading: the boards split a line's extra height evenly above and
+/// below the glyphs; Flutter's default puts more above (text 1–2 px low).
+class CssLeading extends StatelessWidget {
+  const CssLeading({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => DefaultTextStyle.merge(
+    style: const TextStyle(leadingDistribution: TextLeadingDistribution.even),
+    child: child,
+  );
+}
+
+/// The M3 TextField takes `bodyLarge` (letter-spacing 0.5) under its text and
+/// placeholder; the board's input has none.
+class _TanpaJarakHuruf extends StatelessWidget {
+  const _TanpaJarakHuruf({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Theme.of(context);
+    return Theme(
+      data: t.copyWith(
+        textTheme: t.textTheme.copyWith(
+          bodyLarge: t.textTheme.bodyLarge?.copyWith(letterSpacing: 0),
+        ),
+      ),
+      child: child,
+    );
   }
 }

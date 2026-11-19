@@ -27,34 +27,36 @@ class WebKasUnitScreen extends StatelessWidget {
           ),
         ),
         isi: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // A 44 px target drawn as the board's line box (15 × 1.45).
-              const MarginNegatif(
-                atas: 11.125,
-                bawah: 11.125,
-                child: Tautan(
-                  ke: 'WebPengaturan',
-                  cara: Cara.naik,
-                  child: Align(
-                    alignment: AlignmentDirectional.centerStart,
-                    widthFactor: 1,
-                    heightFactor: 1,
-                    child: TautanTeks('Pengaturan', ukuran: 14),
+          CssLeading(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // A 44 px target drawn as the board's line box (15 × 1.45).
+                const MarginNegatif(
+                  atas: 11.125,
+                  bawah: 11.125,
+                  child: Tautan(
+                    ke: 'WebPengaturan',
+                    cara: Cara.naik,
+                    child: Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      widthFactor: 1,
+                      heightFactor: 1,
+                      child: TautanTeks('Pengaturan', ukuran: 14),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                'Alur · Kas/Bank unit',
-                style: PalakatText.judulHalaman.copyWith(color: c.tinta),
-              ),
-              Text(
-                'Menetapkan Kas/Bank yang dikelola sebuah unit',
-                style: TextStyle(fontSize: 14, color: c.tinta2),
-              ),
-            ],
+                const SizedBox(height: 2),
+                Text(
+                  'Alur · Kas/Bank unit',
+                  style: PalakatText.judulHalaman.copyWith(color: c.tinta),
+                ),
+                Text(
+                  'Menetapkan Kas/Bank yang dikelola sebuah unit',
+                  style: TextStyle(fontSize: 14, color: c.tinta2),
+                ),
+              ],
+            ),
           ),
           Align(
             alignment: AlignmentDirectional.topStart,
