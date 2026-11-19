@@ -1,6 +1,8 @@
-import 'package:flutter/gestures.dart';
+import 'dart:math' as math;
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
@@ -14,94 +16,119 @@ import '../../widgets/tombol.dart';
 // the root: 16 on the phone, 15 on the web.
 
 /// Profile card; [ke] is the "Ganti nomor ponsel" target.
-class KartuProfil extends StatelessWidget {
+///
+/// The link is a TextSpan so it wraps with its sentence, as the board's `<a>`
+/// does; its 44 px target is a transparent [Tautan] laid over each of its line
+/// boxes after layout, kept inside the card's 16 px padding.
+class KartuProfil extends StatefulWidget {
   const KartuProfil({super.key, required this.ke});
   final String ke;
 
   @override
-  Widget build(BuildContext context) {
-    final c = context.warna;
-    return Kartu(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const Text(
-            'Meiske Lumentut',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            'Bendahara · Jemaat Karunia · Wewenang Bendahara aktif',
-            style: TextStyle(fontSize: 14, color: c.tinta2),
-          ),
-          const SizedBox(height: 2),
-          _TautanSebaris(
-            awal: 'Masuk dengan kode ke nomor ponsel · ',
-            tautan: 'Ganti nomor ponsel',
-            ke: ke,
-          ),
-        ],
-      ),
-    );
-  }
+  State<KartuProfil> createState() => _KartuProfilState();
 }
 
-/// A sentence ending in an inline link that wraps with the text, as the
-/// board's `<a>` does.
-// ponytail: the link is a TextSpan, so its target is the text's own line box
-// (about 18 px tall), not 44 px; a taller target would change the card's
-// line layout the board draws.
-class _TautanSebaris extends StatefulWidget {
-  const _TautanSebaris({
-    required this.awal,
-    required this.tautan,
-    required this.ke,
-  });
-  final String awal, tautan, ke;
-
-  @override
-  State<_TautanSebaris> createState() => _TautanSebarisState();
-}
-
-class _TautanSebarisState extends State<_TautanSebaris> {
-  late final _ketuk = TapGestureRecognizer()
-    ..onTap = () => Tautan(
-      ke: widget.ke,
-      child: const SizedBox(),
-    ).buka(GoRouter.of(context));
+class _KartuProfilState extends State<KartuProfil> {
+  static const _awal = 'Masuk dengan kode ke nomor ponsel · ';
+  static const _tautan = 'Ganti nomor ponsel';
+  final _teks = GlobalKey();
+  List<Rect> _kotak = const [];
   bool _layang = false;
 
-  @override
-  void dispose() {
-    _ketuk.dispose();
-    super.dispose();
+  void _layangi(bool v) {
+    if (mounted) setState(() => _layang = v);
+  }
+
+  void _ukur() {
+    if (!mounted) return;
+    final p = _teks.currentContext?.findRenderObject();
+    final kartu = context.findRenderObject();
+    if (p is! RenderParagraph || kartu is! RenderBox || !p.hasSize) return;
+    final asal = p.localToGlobal(Offset.zero, ancestor: kartu);
+    final kotak = [
+      for (final b in p.getBoxesForSelection(
+        const TextSelection(
+          baseOffset: _awal.length,
+          extentOffset: _awal.length + _tautan.length,
+        ),
+      ))
+        Rect.fromCenter(
+          center: b.toRect().shift(asal).center,
+          width: math.max(b.right - b.left, 44),
+          height: math.max(b.bottom - b.top, 44),
+        ),
+    ];
+    if (!listEquals(kotak, _kotak)) setState(() => _kotak = kotak);
   }
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
     final warna = _layang ? c.lautTua : c.laut;
-    return Text.rich(
-      TextSpan(
-        text: widget.awal,
-        children: [
-          TextSpan(
-            text: widget.tautan,
-            recognizer: _ketuk,
-            mouseCursor: SystemMouseCursors.click,
-            onEnter: (_) => setState(() => _layang = true),
-            onExit: (_) => setState(() => _layang = false),
-            style: TextStyle(
-              fontWeight: FontWeight.w700,
-              color: warna,
-              decoration: TextDecoration.underline,
-              decorationColor: warna,
+    return LayoutBuilder(
+      builder: (context, _) {
+        WidgetsBinding.instance.addPostFrameCallback((_) => _ukur());
+        return Stack(
+          children: [
+            Kartu(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Text(
+                    'Meiske Lumentut',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Bendahara · Jemaat Karunia · Wewenang Bendahara aktif',
+                    style: TextStyle(fontSize: 14, color: c.tinta2),
+                  ),
+                  const SizedBox(height: 2),
+                  Text.rich(
+                    key: _teks,
+                    TextSpan(
+                      text: _awal,
+                      children: [
+                        TextSpan(
+                          text: _tautan,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            color: warna,
+                            decoration: TextDecoration.underline,
+                            decorationColor: warna,
+                          ),
+                        ),
+                      ],
+                    ),
+                    style: TextStyle(fontSize: 13, color: c.tinta3),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
-      style: TextStyle(fontSize: 13, color: c.tinta3),
+            // One focus stop and one semantics node for the whole link.
+            for (final (i, r) in _kotak.indexed)
+              Positioned.fromRect(
+                rect: r,
+                child: MouseRegion(
+                  onEnter: (_) => _layangi(true),
+                  onExit: (_) => _layangi(false),
+                  child: ExcludeFocus(
+                    excluding: i > 0,
+                    child: ExcludeSemantics(
+                      excluding: i > 0,
+                      child: Tautan(
+                        ke: widget.ke,
+                        label: _tautan,
+                        child: const SizedBox.expand(),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 }
@@ -149,7 +176,8 @@ class KartuSesi extends StatelessWidget {
           Tautan(
             ke: ke,
             child: Container(
-              constraints: const BoxConstraints(minHeight: 52),
+              // min-height 52 is content-box on the board: plus the 1 px rule.
+              constraints: const BoxConstraints(minHeight: 53),
               decoration: BoxDecoration(
                 border: Border(top: BorderSide(color: c.garis)),
               ),
