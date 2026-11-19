@@ -296,7 +296,7 @@ class _AlurBerandaState extends State<AlurBerandaScreen> {
       const LencanaStatus('Diajukan', bentuk: BentukLencana.garis),
       const [
         BarisInfo('Jumlah (Rp)', 'Rp750.000', mono: true),
-        BarisInfo(
+        _BarisInfoSusut(
           'Diajukan oleh',
           'Pnt. Hendrik Rumagit, Ketua Komisi Diakonia',
         ),
@@ -322,4 +322,67 @@ class _AlurBerandaState extends State<AlurBerandaScreen> {
       ],
     ),
   ];
+}
+
+/// [BarisInfo] whose two spans shrink as CSS flex items do (`flex-shrink: 1`,
+/// weighted by their widths, never below their longest word): on the board the
+/// label "Diajukan oleh" wraps beside the long value. BarisInfo never shrinks
+/// its label.
+class _BarisInfoSusut extends StatelessWidget {
+  const _BarisInfoSusut(this.label, this.nilai);
+
+  final String label;
+  final String nilai;
+
+  static const _jarak = 16.0;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.warna;
+    final dasar = DefaultTextStyle.of(context).style
+        .merge(const TextStyle(fontSize: 14));
+    final gayaLabel = dasar.copyWith(color: c.tinta2);
+    final gayaNilai = dasar.copyWith(
+      color: c.tinta,
+      fontWeight: FontWeight.w600,
+    );
+    final skala = MediaQuery.textScalerOf(context);
+    double lebar(String t, TextStyle g) {
+      final p = TextPainter(
+        text: TextSpan(text: t, style: g),
+        textDirection: TextDirection.ltr,
+        textScaler: skala,
+      )..layout();
+      final w = p.width;
+      p.dispose();
+      return w;
+    }
+
+    return LayoutBuilder(
+      builder: (context, ruang) {
+        final wL = lebar(label, gayaLabel), wN = lebar(nilai, gayaNilai);
+        final lebih = wL + wN + _jarak - ruang.maxWidth;
+        final kata = label
+            .split(' ')
+            .map((k) => lebar(k, gayaLabel))
+            .reduce((a, b) => a > b ? a : b);
+        final l = lebih <= 0
+            ? wL
+            : (wL - lebih * wL / (wL + wN)).clamp(kata, wL);
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: l.ceilToDouble(),
+              child: Text(label, style: gayaLabel),
+            ),
+            const SizedBox(width: _jarak),
+            Expanded(
+              child: Text(nilai, textAlign: TextAlign.right, style: gayaNilai),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
