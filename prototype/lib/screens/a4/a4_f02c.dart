@@ -10,8 +10,9 @@ import 'a4_f02b_buku.dart';
 class A4F02cScreen extends StatelessWidget {
   const A4F02cScreen({super.key});
 
+  // U+200B after "dan BKU-": Chrome breaks the line there, Flutter would not
   static const _catatan =
-      '31 baris. Pembayaran yang dibagi ke beberapa Mata Anggaran dicetak satu kali dengan semua nomornya. Pembalikan dicetak sebagai angka negatif di kolom yang sama dengan transaksi asalnya. Nomor di antara BKU-2026-0098 dan BKU-2026-0133 yang tidak tampil di sini bukan arus kas/bank Oktober 2026; semuanya terdaftar di F12 Daftar Bukti Kas.';
+      '31 baris. Pembayaran yang dibagi ke beberapa Mata Anggaran dicetak satu kali dengan semua nomornya. Pembalikan dicetak sebagai angka negatif di kolom yang sama dengan transaksi asalnya. Nomor di antara BKU-2026-0098 dan BKU-\u200B2026-0133 yang tidak tampil di sini bukan arus kas/bank Oktober 2026; semuanya terdaftar di F12 Daftar Bukti Kas.';
 
   static const _kasBank = [
     ('Kas', 'kas'),
