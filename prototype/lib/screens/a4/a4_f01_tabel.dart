@@ -93,7 +93,9 @@ class BarisA4 extends StatelessWidget {
 /// Inline print tag after the uraian text: 1 px `tinta` border, radius 4,
 /// padding 0 5, 600, no wrap.
 WidgetSpan tandaCetak(BuildContext context, String teks) => WidgetSpan(
-  alignment: PlaceholderAlignment.middle,
+  // inline-block sits on the text baseline, growing the line box as in CSS
+  alignment: PlaceholderAlignment.baseline,
+  baseline: TextBaseline.alphabetic,
   child: Container(
     padding: const EdgeInsets.symmetric(horizontal: 5),
     decoration: BoxDecoration(
