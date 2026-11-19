@@ -33,10 +33,22 @@ mixin KeadaanBeranda<T extends StatefulWidget> on State<T> {
   String get stem;
   final scroll = ScrollController();
   String? _k, _tweakLama;
+  bool _tertutup = false;
 
   /// Option index of the view shown (the board's `ki`).
   int indeks(BuildContext context) {
     final t = context.tweak<String>(stem, 'keadaan');
+    // Leaving the route (a pushed board on top) resets `k`, as the canvas
+    // reloads the board on return; applied when the route is current again.
+    final kini = ModalRoute.isCurrentOf(context) ?? true;
+    if (!kini) _tertutup = true;
+    if (kini && _tertutup) {
+      _tertutup = false;
+      if (_k != null) {
+        _k = null;
+        _keAtas();
+      }
+    }
     if (_tweakLama != null && t != _tweakLama) {
       _k = null;
       _keAtas();
