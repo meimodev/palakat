@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../../mock/format.dart';
@@ -337,14 +339,17 @@ mixin AlurUnitLogika<T extends StatefulWidget> on State<T> {
         ),
         _kartu([
           const KepalaKartu(judul: 'Konsumsi ibadah Kolom', ujung: _draf),
-          const BarisInfo('Tanggal transaksi', '28/10/2026'),
-          const BarisInfo(
+          const _BarisInfo('Tanggal transaksi', '28/10/2026'),
+          const _BarisInfo(
             'Jumlah (Rp)',
             'Rp185.000',
             mono: true,
             berat: FontWeight.w500,
           ),
-          const BarisInfo('Dicatat oleh', 'Deasy Tumbelaka, Bendahara Kolom 7'),
+          const _BarisInfo(
+            'Dicatat oleh',
+            'Deasy Tumbelaka, Bendahara Kolom 7',
+          ),
           Text(
             'Draf di bulan yang akan ditutup menghalangi tutup buku seluruh '
             'Jemaat.',
@@ -370,7 +375,7 @@ mixin AlurUnitLogika<T extends StatefulWidget> on State<T> {
             judul: 'Pindah tanggal · Konsumsi ibadah Kolom',
             ujung: _draf,
           ),
-          const BarisInfo('Tanggal transaksi baru', '02/11/2026'),
+          const _BarisInfo('Tanggal transaksi baru', '02/11/2026'),
           Text(
             'Hanya bulan yang Belum ditutup. Draf tetap Draf; tidak ada yang '
             'dibukukan.',
@@ -423,5 +428,78 @@ mixin AlurUnitLogika<T extends StatefulWidget> on State<T> {
 }
 
 /// Blocks with a [jarak] gap between them (the boards' column `gap`).
-Widget kolomAlurUnit(List<Widget> anak, double jarak) =>
-    AlurUnitLogika._kolom(anak, jarak);
+// ponytail: letterSpacing 0 stops TextField taking the M3 bodyLarge 0.5
+// spacing (the theme merges Typography defaults); drop once lib/theme sets it.
+Widget kolomAlurUnit(List<Widget> anak, double jarak) => DefaultTextStyle.merge(
+  style: const TextStyle(letterSpacing: 0),
+  child: AlurUnitLogika._kolom(anak, jarak),
+);
+
+/// KitAlur's info row, but sized like the boards' flex row: both spans start
+/// at their one-line width and, when they do not fit, shrink in proportion to
+/// it (CSS `flex-shrink: 1`), so a long value also wraps the label
+/// ('Dicatat oleh' on the phone). The shared BarisInfo never wraps the label.
+class _BarisInfo extends StatelessWidget {
+  const _BarisInfo(
+    this.label,
+    this.nilai, {
+    this.mono = false,
+    this.berat = FontWeight.w600,
+  });
+
+  final String label, nilai;
+  final bool mono;
+  final FontWeight berat;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.warna;
+    final dasar = DefaultTextStyle.of(context).style
+        .merge(const TextStyle(fontSize: 14));
+    final gl = dasar.copyWith(color: c.tinta2);
+    final gn = dasar.copyWith(
+      color: c.tinta,
+      fontWeight: berat,
+      fontFamily: mono ? PalakatText.mono : null,
+    );
+    final skala = MediaQuery.textScalerOf(context);
+    double lebar(String t, TextStyle g) {
+      final p = TextPainter(
+        text: TextSpan(text: t, style: g),
+        textDirection: TextDirection.ltr,
+        textScaler: skala,
+      )..layout();
+      final w = p.width;
+      p.dispose();
+      return w;
+    }
+
+    return LayoutBuilder(
+      builder: (context, k) {
+        final ruang = k.maxWidth - 16;
+        final l = lebar(label, gl), n = lebar(nilai, gn);
+        final lebih = l + n - ruang;
+        final lebarLabel = lebih <= 0
+            ? l
+            : math.max(
+                // min-content: the longest word.
+                label.split(' ').map((w) => lebar(w, gl)).reduce(math.max),
+                l - lebih * l / (l + n),
+              );
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: lebarLabel.ceilToDouble(),
+              child: Text(label, style: gl),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(nilai, textAlign: TextAlign.right, style: gn),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
