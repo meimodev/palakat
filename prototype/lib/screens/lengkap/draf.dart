@@ -268,13 +268,25 @@ class _DrafScreenState extends State<DrafScreen> {
       ),
     ];
 
-    Widget kedua(String label, VoidCallback onTap) => Tombol(
-      label,
-      onPressed: onTap,
-      jenis: JenisTombol.kedua,
-      ukuran: UkuranTombol.sedang,
-      paddingH: 20,
-    );
+    Widget kedua(String label, VoidCallback onTap, {bool kunci = false}) {
+      final tombol = Tombol(
+        label,
+        onPressed: onTap,
+        jenis: JenisTombol.kedua,
+        ukuran: UkuranTombol.sedang,
+        paddingH: 20,
+      );
+      // Board `disabled` with its full look kept: announced as disabled, the
+      // conflict card above is the reason.
+      return kunci
+          ? Semantics(
+              button: true,
+              enabled: false,
+              label: label,
+              child: ExcludeSemantics(child: tombol),
+            )
+          : tombol;
+    }
 
     final bawah = Container(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 22),
@@ -295,8 +307,16 @@ class _DrafScreenState extends State<DrafScreen> {
                 paddingH: 20,
               ),
             if (!kosong) ...[
-              kedua('Pindah tanggal', () => _buka(_Lembar.pindah, konflik)),
-              kedua('Batalkan', () => _buka(_Lembar.batal, konflik)),
+              kedua(
+                'Pindah tanggal',
+                () => _buka(_Lembar.pindah, konflik),
+                kunci: konflik,
+              ),
+              kedua(
+                'Batalkan',
+                () => _buka(_Lembar.batal, konflik),
+                kunci: konflik,
+              ),
             ],
             if (kosong)
               kedua('Hapus draf', () => setState(() => _st = _St.hapus)),
@@ -330,9 +350,14 @@ class _DrafScreenState extends State<DrafScreen> {
                   terpilih: _ke,
                   onPilih: (b) => setState(() => _ke = b),
                 ),
-              IsianAlasan(
-                controller: _alasan,
-                onChanged: (_) => setState(() {}),
+              // The board's textarea is inline in a div: the line box adds
+              // about 5 px below it.
+              Padding(
+                padding: const EdgeInsets.only(bottom: 5),
+                child: IsianAlasan(
+                  controller: _alasan,
+                  onChanged: (_) => setState(() {}),
+                ),
               ),
               Tombol(
                 pindah ? 'Pindah tanggal ke $_ke' : 'Batalkan draf',
