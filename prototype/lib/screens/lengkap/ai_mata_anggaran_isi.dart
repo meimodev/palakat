@@ -139,6 +139,8 @@ class IsiUsulanMA {
     controller: k.uraian,
     label: 'Uraian',
     jarakLabel: 6,
+    // TextField merges over the theme's bodyLarge (letter-spacing 0.5).
+    gaya: const TextStyle(letterSpacing: 0),
     onChanged: (v) => ubah(() => k.ur = v),
   );
 
