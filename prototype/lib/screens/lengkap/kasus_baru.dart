@@ -122,6 +122,7 @@ class _KasusBaruScreenState extends State<KasusBaruScreen> {
   int? _akun;
   String? _per, _ling, _ma, _tempo;
   bool _selesai = false;
+  final _gulir = ScrollController();
 
   _Jenis get _k => _cfg[_tab]!;
   bool get _um => _tab == 'um';
@@ -147,7 +148,13 @@ class _KasusBaruScreenState extends State<KasusBaruScreen> {
     return '';
   }
 
+  /// A view change jumps to the top (CONVENTIONS, settled conflicts).
+  void _keAtas() {
+    if (_gulir.hasClients) _gulir.jumpTo(0);
+  }
+
   void _kosongkan() {
+    _keAtas();
     _pihak.clear();
     _jm.clear();
     _ur.clear();
@@ -166,6 +173,7 @@ class _KasusBaruScreenState extends State<KasusBaruScreen> {
     _pihak.dispose();
     _jm.dispose();
     _ur.dispose();
+    _gulir.dispose();
     super.dispose();
   }
 
@@ -392,7 +400,8 @@ class _KasusBaruScreenState extends State<KasusBaruScreen> {
               ke: 'Kamera',
               radius: 12,
               child: Container(
-                constraints: const BoxConstraints(minHeight: 44),
+                // Content-box `<a>`: min-height 44 plus the 1.5 line.
+                constraints: const BoxConstraints(minHeight: 47),
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 alignment: Alignment.center,
                 decoration: ShapeDecoration(
@@ -608,14 +617,20 @@ class _KasusBaruScreenState extends State<KasusBaruScreen> {
             ),
           ),
           const SizedBox(height: 10),
-          const Tombol(
-            'Buka di Uang yang masih berjalan',
-            onPressed: null,
-            jenis: JenisTombol.kedua,
-            ukuran: UkuranTombol.sedang,
-            paddingH: 0,
+          // An `<a>` is content-box: min-height 48 plus the 1.5 line.
+          Tautan(
             ke: 'Kewajiban',
             cara: Cara.naik,
+            radius: 14,
+            child: RupaTombol(
+              label: 'Buka di Uang yang masih berjalan',
+              isi: c.permukaan,
+              garis: GarisBorder.penuh(c.tinta, radius: 14),
+              warnaTeks: c.tinta,
+              radius: 14,
+              tinggi: 51,
+              paddingH: 0,
+            ),
           ),
           const SizedBox(height: 10),
           Tombol(
@@ -628,6 +643,7 @@ class _KasusBaruScreenState extends State<KasusBaruScreen> {
     );
 
     final gulir = SingleChildScrollView(
+      controller: _gulir,
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -678,7 +694,10 @@ class _KasusBaruScreenState extends State<KasusBaruScreen> {
                 tindakan: k.tombol,
                 alasan: alasan,
                 periksa: _alasan,
-                onPressed: () => setState(() => _selesai = true),
+                onPressed: () => setState(() {
+                  _keAtas();
+                  _selesai = true;
+                }),
                 warnaSiap: JenisTombol.utama,
                 teksBelumRedup: true,
                 gayaAlasan: GayaAlasan.pendamping,

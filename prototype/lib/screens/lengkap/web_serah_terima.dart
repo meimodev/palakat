@@ -63,9 +63,10 @@ class _WebSerahTerimaScreenState extends State<WebSerahTerimaScreen> {
     final judul = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // The board's inline link sits in a 15/1.45 line box (21.75 high).
         MarginNegatif(
-          atas: 11.85,
-          bawah: 11.85,
+          atas: 11.125,
+          bawah: 11.125,
           child: Tautan(
             ke: 'WebPengaturan',
             cara: Cara.naik,
