@@ -77,7 +77,7 @@ class PanelAIFoto extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final titik = GarisLurus(warna: c.garisTegas, gaya: GayaGaris.titik);
+    final titik = _GarisTitik(c.garisTegas);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
@@ -307,6 +307,8 @@ class IsianAIFoto extends StatelessWidget {
                 fontSize: 34,
                 fontWeight: FontWeight.w500,
                 letterSpacing: -1,
+                // CSS splits the line-height leading evenly above and below.
+                leadingDistribution: TextLeadingDistribution.even,
                 color: p ? c.tinta : c.tinta3,
               ),
             ),
@@ -410,6 +412,40 @@ class _BarisIsian extends StatelessWidget {
       },
     );
   }
+}
+
+/// `border-top: 1px dotted`: 1 px dots on a 2 px pitch, snapped to whole
+/// pixels as Chrome draws them (the shared GarisLurus smears them to grey at
+/// fractional offsets).
+class _GarisTitik extends StatelessWidget {
+  const _GarisTitik(this.warna);
+  final Color warna;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    width: double.infinity,
+    height: 1,
+    child: CustomPaint(painter: _TitikPainter(warna)),
+  );
+}
+
+class _TitikPainter extends CustomPainter {
+  _TitikPainter(this.warna);
+  final Color warna;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final m = canvas.getTransform();
+    double snap(double t) => t.roundToDouble() - t;
+    final y = snap(m[13]);
+    final cat = Paint()..color = warna;
+    for (var x = snap(m[12]); x + 1 <= size.width + .5; x += 2) {
+      canvas.drawRect(Rect.fromLTWH(x, y, 1, 1), cat);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_TitikPainter old) => old.warna != warna;
 }
 
 /// `role="status"`.
