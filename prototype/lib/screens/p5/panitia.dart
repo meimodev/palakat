@@ -59,10 +59,14 @@ class PanitiaScreen extends StatelessWidget {
 const _p = panitiaNatal;
 const _t = panitiaPenutupan;
 
-/// Text link 14/700, start-aligned, the column-wide strip is the target.
-Widget _teksTautan(String teks) => Align(
+/// Text link 14/700 (an inline-flex `<a>`, min-height 44): start-aligned,
+/// the target is as wide as its text.
+Widget _teksTautan(String teks, {required String ke}) => Align(
   alignment: AlignmentDirectional.centerStart,
-  child: TautanTeks(teks, berat: FontWeight.w700, ukuran: 14),
+  child: Tautan(
+    ke: ke,
+    child: TautanTeks(teks, berat: FontWeight.w700, ukuran: 14),
+  ),
 );
 
 /// Head row: title 700 and a mono 500 amount.
@@ -142,10 +146,7 @@ List<Widget> _isi(String k) => switch (k) {
         BarisPolos(
           'Dokumen gereja · Serah terima aset panitia · ${_t.asetKepada}',
         ),
-        Tautan(
-          ke: 'DokumenGereja',
-          child: _teksTautan('Buka di Dokumen gereja'),
-        ),
+        _teksTautan('Buka di Dokumen gereja', ke: 'DokumenGereja'),
       ],
     ),
   ],
@@ -179,7 +180,7 @@ List<Widget> _isi(String k) => switch (k) {
       'Dibuat oleh Pimpinan Jemaat yang berwenang dari SK-nya. Hanya ia yang '
       'memindahkan tahap.',
     ),
-    Tautan(ke: 'AlurPanitiaBaru', child: _teksTautan('Membentuk Panitia baru')),
+    _teksTautan('Membentuk Panitia baru', ke: 'AlurPanitiaBaru'),
   ],
 };
 

@@ -74,13 +74,17 @@ List<Widget> _isi(String k, ValueChanged<String> pilih) => switch (k) {
     ),
     const BarisTombol(
       anak: [
-        Tombol(
-          'Catat pembayaran',
-          onPressed: null,
-          jenis: JenisTombol.kedua,
-          ukuran: UkuranTombol.sedang,
-          ke: 'Main',
-          cara: Cara.ganti,
+        // An `<a>` on the board: content-box, min-height 48 plus the 1.5 lines.
+        SizedBox(
+          height: 51,
+          child: Tombol(
+            'Catat pembayaran',
+            onPressed: null,
+            jenis: JenisTombol.kedua,
+            ukuran: UkuranTombol.sedang,
+            ke: 'Main',
+            cara: Cara.ganti,
+          ),
         ),
       ],
     ),

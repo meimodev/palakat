@@ -39,13 +39,17 @@ class PapanKeadaan extends StatefulWidget {
 class _PapanKeadaanState extends State<PapanKeadaan> {
   String? _k;
 
-  /// The panel value `_k` was picked under; a different one means reset.
-  Object? _kDari;
+  /// The panel value last seen; any change of it drops `_k`.
+  String? _panel;
 
   @override
   Widget build(BuildContext context) {
     final panel = context.tweak<String>(widget.stem, 'keadaan');
-    final v = _k != null && _kDari == panel ? _k! : panel;
+    if (panel != _panel) {
+      _panel = panel;
+      _k = null;
+    }
+    final v = _k ?? panel;
     final k = widget.opsi.contains(v) ? v : widget.opsi.first;
     return LayarPonsel(
       child: Column(
@@ -60,13 +64,7 @@ class _PapanKeadaanState extends State<PapanKeadaan> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 spacing: 16,
-                children: widget.isi(
-                  k,
-                  (o) => setState(() {
-                    _k = o;
-                    _kDari = panel;
-                  }),
-                ),
+                children: widget.isi(k, (o) => setState(() => _k = o)),
               ),
             ),
           ),
