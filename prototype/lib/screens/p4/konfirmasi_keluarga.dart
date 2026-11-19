@@ -6,6 +6,7 @@ import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
+import '../../widgets/garis.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tombol.dart';
@@ -99,11 +100,8 @@ class _State extends State<KonfirmasiKeluargaScreen> {
         BarisTombol(
           anak: [
             verifikasi,
-            const Tombol(
+            const _TombolTautan(
               'Kembalikan dengan alasan',
-              onPressed: null,
-              jenis: JenisTombol.kedua,
-              ukuran: UkuranTombol.sedang,
               ke: 'AntreanVerifikasi',
             ),
           ],
@@ -148,11 +146,8 @@ class _State extends State<KonfirmasiKeluargaScreen> {
         ),
         const BarisTombol(
           anak: [
-            Tombol(
+            _TombolTautan(
               'Buka data keluarga',
-              onPressed: null,
-              jenis: JenisTombol.kedua,
-              ukuran: UkuranTombol.sedang,
               ke: 'DataAnggota',
               cara: Cara.naik,
             ),
@@ -200,6 +195,35 @@ class _KartuKeluarga extends StatelessWidget {
           Text(_anggota, style: TextStyle(fontSize: 14, color: c.tinta2)),
           Text(catatan, style: TextStyle(fontSize: 13, color: c.tinta3)),
         ],
+      ),
+    );
+  }
+}
+
+/// The board's secondary link-button: an `<a>` is content-box, so min-height
+/// 48 plus the 1.5 lines makes it 51 tall (a `<button>` is 48).
+class _TombolTautan extends StatelessWidget {
+  const _TombolTautan(this.label, {required this.ke, this.cara = Cara.dorong});
+
+  final String label;
+  final String ke;
+  final Cara cara;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.warna;
+    return Tautan(
+      ke: ke,
+      cara: cara,
+      radius: 14,
+      child: RupaTombol(
+        label: label,
+        isi: c.permukaan,
+        garis: GarisBorder.penuh(c.tinta, radius: 14),
+        warnaTeks: c.tinta,
+        radius: 14,
+        tinggi: 51,
+        paddingH: 16,
       ),
     );
   }

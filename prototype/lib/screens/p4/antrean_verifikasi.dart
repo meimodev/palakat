@@ -33,6 +33,9 @@ class _State extends State<AntreanVerifikasiScreen> {
   String? _k;
   String? _keadaan;
 
+  /// Bumped by the self link: the canvas reloads the board (scroll to top).
+  int _muat = 0;
+
   void _ke(String k) => setState(() => _k = k);
 
   @override
@@ -55,7 +58,7 @@ class _State extends State<AntreanVerifikasiScreen> {
           Expanded(
             // A new key per view: the scroll area jumps to the top.
             child: SingleChildScrollView(
-              key: ValueKey(view),
+              key: ValueKey((view, _muat)),
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -97,7 +100,8 @@ class _State extends State<AntreanVerifikasiScreen> {
           nilaiAwal: 'Nama di surat baptis “Gabriel J. Wenas”; mohon samakan.',
           label: 'Alasan · wajib',
           jarakLabel: 6,
-          gaya: TextStyle(fontSize: 14, color: c.tinta2),
+          // letterSpacing 0: TextField otherwise keeps the M3 bodyLarge 0.5.
+          gaya: TextStyle(fontSize: 14, color: c.tinta2, letterSpacing: 0),
           baris: 3,
           hanyaBaca: true,
         ),
@@ -234,13 +238,17 @@ class _State extends State<AntreanVerifikasiScreen> {
           diajukan,
           ke: 'Peristiwa',
         ),
-        // Self link (spec deviation): opens the view drawn for this case.
+        // Self link: the canvas reloads the board, so `k` resets and the
+        // panel's view shows (board parity; CONVENTIONS "Settled conflicts").
         _Baris(
           'Perubahan data · Keluarga Rumagit',
           'Milik keluarga Anda sendiri · diteruskan ke Syamas Kolom 7',
           const LencanaStatus('Ke Syamas', bentuk: BentukLencana.abu),
           ke: 'AntreanVerifikasi',
-          diSini: () => _ke(_k2),
+          diSini: () => setState(() {
+            _k = null;
+            _muat++;
+          }),
         ),
         Text(
           'Anda melihat data lengkap hanya untuk anggota dan keluarga Kolom '
