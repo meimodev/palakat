@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import '../../theme/palakat_tema.dart';
-import '../../widgets/alur_kit.dart';
 import '../../widgets/chip_pilihan.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/penolakan.dart';
@@ -74,15 +73,23 @@ class _PemberiPersetujuanScreenState extends State<PemberiPersetujuanScreen> {
                 'Permintaan dari $k',
                 style: const TextStyle(fontWeight: FontWeight.w700),
               ),
-              ChipPilihan<String>(
-                pilihan: [for (final n in pil) (nilai: n, teks: n)],
-                terpilih: _t[k],
-                jarakBaris: 0,
-                onPilih: (n) => setState(() {
-                  _t[k] = n;
-                  _simpan = false;
-                  _pesan = '';
-                }),
+              // The board's pills sit in a flex row with `gap: 8px` both ways,
+              // not ChipPilihan's `margin: 0 8px 8px 0`.
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final n in pil)
+                    ChipSatu(
+                      teks: n,
+                      dipilih: _t[k] == n,
+                      onTap: () => setState(() {
+                        _t[k] = n;
+                        _simpan = false;
+                        _pesan = '';
+                      }),
+                    ),
+                ],
               ),
             ],
           ),
@@ -108,17 +115,19 @@ class _PemberiPersetujuanScreenState extends State<PemberiPersetujuanScreen> {
         warnaSiap: JenisTombol.tinta,
         baris: const [],
       ),
+      // The board's link is an `<a>`, so content-box: its max-width 340 and
+      // min-height 48 exclude padding and the 1.5 line, which makes it span
+      // the whole 350 column and stand 51 high.
       if (_simpan)
-        const BarisTombol(
-          anak: [
-            Tombol(
-              'Aktifkan modul Persetujuan di aplikasi',
-              onPressed: null,
-              jenis: JenisTombol.kedua,
-              ukuran: UkuranTombol.sedang,
-              ke: 'AlurModul',
-            ),
-          ],
+        ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 51),
+          child: const Tombol(
+            'Aktifkan modul Persetujuan di aplikasi',
+            onPressed: null,
+            jenis: JenisTombol.kedua,
+            ukuran: UkuranTombol.sedang,
+            ke: 'AlurModul',
+          ),
         ),
       if (_riw.isNotEmpty) RiwayatAlur(baris: _riw),
     ];
