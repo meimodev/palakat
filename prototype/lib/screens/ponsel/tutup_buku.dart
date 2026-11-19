@@ -419,13 +419,19 @@ class _BulanState extends State<_Bulan> {
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 6),
-                    child: Tombol(
-                      'Hitung kas · Kas belum dihitung',
-                      onPressed: null,
+                    // An `<a>` is content-box: min height 44 + the 1.5 line.
+                    child: Tautan(
                       ke: 'HitungKas',
-                      jenis: JenisTombol.kedua,
-                      ukuran: UkuranTombol.kecil,
-                      paddingH: 0,
+                      radius: 12,
+                      child: RupaTombol(
+                        label: 'Hitung kas · Kas belum dihitung',
+                        isi: null,
+                        garis: GarisBorder.penuh(c.tinta, radius: 12),
+                        warnaTeks: c.tinta,
+                        radius: 12,
+                        tinggi: 47,
+                        paddingH: 0,
+                      ),
                     ),
                   ),
                 ],
@@ -1802,8 +1808,10 @@ class _BarisFile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
+    // The board's min height 60 is content-box: the 1 px rule adds to it.
     return Container(
-      constraints: const BoxConstraints(minHeight: 60),
+      constraints: BoxConstraints(minHeight: garisAtas ? 61 : 60),
+      padding: EdgeInsets.only(top: garisAtas ? 1 : 0),
       decoration: garisAtas
           ? BoxDecoration(
               border: Border(top: BorderSide(color: c.garis)),
