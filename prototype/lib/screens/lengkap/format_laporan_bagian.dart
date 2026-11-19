@@ -16,12 +16,17 @@ import '../../widgets/tombol_bersyarat.dart';
 class DataFormatLaporan {
   final nama = TextEditingController();
   final jabatan = TextEditingController(text: 'Ketua BPMJ');
+
+  /// The label is drawn by the screen (bold suffix), so a tap on it focuses
+  /// the field through this node, as `<label for="en">` does.
+  final fokusNama = FocusNode();
   String cara = 'notulen rapat';
   bool ada = false;
 
   void dispose() {
     nama.dispose();
     jabatan.dispose();
+    fokusNama.dispose();
   }
 }
 
@@ -124,22 +129,29 @@ List<Widget> bagianPersetujuan(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         ExcludeSemantics(
-          child: Text.rich(
-            TextSpan(
-              text: 'Pemberi persetujuan ',
-              children: [
-                TextSpan(
-                  text: '· wajib',
-                  style: TextStyle(color: c.tinta, fontWeight: FontWeight.w700),
-                ),
-              ],
+          child: GestureDetector(
+            onTap: d.fokusNama.requestFocus,
+            child: Text.rich(
+              TextSpan(
+                text: 'Pemberi persetujuan ',
+                children: [
+                  TextSpan(
+                    text: '· wajib',
+                    style: TextStyle(
+                      color: c.tinta,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+              style: kecil,
             ),
-            style: kecil,
           ),
         ),
         const SizedBox(height: 6),
         IsianTeks(
           controller: d.nama,
+          focusNode: d.fokusNama,
           labelSemantik: _wajib,
           petunjuk: 'Nama lengkap',
           onChanged: (_) => ubah(() {}),
@@ -163,7 +175,8 @@ List<Widget> bagianPersetujuan(
       onPilih: (v) => ubah(() => d.cara = v),
     ),
     Container(
-      constraints: const BoxConstraints(minHeight: 44),
+      // CSS min-height 44 is the content box; the 1 px rule adds to it.
+      constraints: const BoxConstraints(minHeight: 45),
       decoration: BoxDecoration(
         border: Border(top: BorderSide(color: c.garis)),
       ),
