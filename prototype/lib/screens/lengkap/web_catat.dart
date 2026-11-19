@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../../mock/format.dart';
@@ -372,6 +374,7 @@ class _WebCatatScreenState extends State<WebCatatScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               IsianTeks(
+                gaya: _tanpaJarakHuruf,
                 controller: _cariC,
                 latar: c.kertas,
                 minTinggi: 44,
@@ -414,12 +417,14 @@ class _WebCatatScreenState extends State<WebCatatScreen> {
       jarak: 18,
       anak: [
         IsianTeks(
+          gaya: _tanpaJarakHuruf,
           label: l.pihak,
           jarakLabel: 6,
           controller: _pihakC,
           onChanged: (_) => setState(() {}),
         ),
         IsianTeks(
+          gaya: _tanpaJarakHuruf,
           label: 'Uraian',
           jarakLabel: 6,
           controller: _urC,
@@ -502,61 +507,7 @@ class _WebCatatScreenState extends State<WebCatatScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // CSS flex items shrink and wrap; LencanaStatus never wraps.
-              Flexible(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 9,
-                    vertical: 3,
-                  ),
-                  decoration: ShapeDecoration(
-                    color: _posted ? c.tinta : null,
-                    shape: _posted
-                        ? GarisBorder.penuh(c.tinta, radius: 6)
-                        : GarisBorder.putus(c.putus, radius: 6),
-                  ),
-                  child: Text(
-                    _posted ? 'Dibukukan' : 'Draf · belum masuk saldo',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: _posted ? c.permukaan : c.tinta2,
-                    ),
-                  ),
-                ),
-              ),
-              if (_posted) ...[
-                const SizedBox(width: 16),
-                Flexible(
-                  child: Gerak(
-                    Kerangka.muncul,
-                    key: const ValueKey('cap'),
-                    lama: const Duration(milliseconds: 400),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: ShapeDecoration(
-                        shape: GarisBorder.penuh(c.laut, tebal: 2, radius: 8),
-                      ),
-                      child: Text(
-                        'No. Bukti BKU-2026-0147',
-                        style: _mono.copyWith(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: c.laut,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ],
-          ),
+          _BarisLencana(posted: _posted),
           const SizedBox(height: 6),
           Text(
             rp(j * l.tanda),
@@ -719,6 +670,137 @@ List<Widget> _jarak(double g, List<Widget> anak) => [
   ],
 ];
 
+/// The card's top row (space-between, gap 16, centred): the status badge
+/// and, once posted, the stamp. Both shrink as CSS flex items do (in
+/// proportion to their widths, never below their longest word), so they sit
+/// on one line whenever they fit, as on the board.
+class _BarisLencana extends StatelessWidget {
+  const _BarisLencana({required this.posted});
+
+  final bool posted;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.warna;
+    final dasar = DefaultTextStyle.of(context).style;
+    final lencana = posted ? 'Dibukukan' : 'Draf · belum masuk saldo';
+    final gayaLencana = dasar.copyWith(
+      fontSize: 13,
+      fontWeight: FontWeight.w700,
+      color: posted ? c.permukaan : c.tinta2,
+    );
+    const cap = 'No. Bukti BKU-2026-0147';
+    final gayaCap = dasar.merge(
+      _mono.copyWith(fontSize: 14, fontWeight: FontWeight.w600, color: c.laut),
+    );
+    final skala = MediaQuery.textScalerOf(context);
+    // Padding + line, both sides: badge 9 + 1.5, stamp 10 + 2.
+    const tepiL = 21.0, tepiC = 24.0;
+    return LayoutBuilder(
+      builder: (context, k) {
+        final (a, aMin) = _ukur(lencana, gayaLencana, skala);
+        var (wa, wb) = (math.min(a + tepiL, k.maxWidth), 0.0);
+        var sebaris = false;
+        if (posted) {
+          final (b, bMin) = _ukur(cap, gayaCap, skala);
+          // At 1440 the board fits both by a fraction of a pixel (Chrome
+          // snaps text to layout units); our rounded-up widths overshoot by
+          // up to 2 px, so treat that as fitting and keep the stamp on one line.
+          final lebih = a + tepiL + b + tepiC + 16 - k.maxWidth;
+          sebaris = lebih > 0 && lebih <= 2;
+          (wa, wb) = sebaris
+              ? (a + tepiL, b + tepiC - lebih)
+              : _susut(
+                  a + tepiL,
+                  aMin + tepiL,
+                  b + tepiC,
+                  bMin + tepiC,
+                  k.maxWidth,
+                  16,
+                );
+        }
+        return Row(
+          children: [
+            SizedBox(
+              width: wa,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
+                decoration: ShapeDecoration(
+                  color: posted ? c.tinta : null,
+                  shape: posted
+                      ? GarisBorder.penuh(c.tinta, radius: 6)
+                      : GarisBorder.putus(c.putus, radius: 6),
+                ),
+                child: Text(lencana, style: gayaLencana),
+              ),
+            ),
+            if (posted) ...[
+              const Spacer(),
+              SizedBox(
+                width: wb,
+                child: Gerak(
+                  Kerangka.muncul,
+                  key: const ValueKey('cap'),
+                  lama: const Duration(milliseconds: 400),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: ShapeDecoration(
+                      shape: GarisBorder.penuh(c.laut, tebal: 2, radius: 8),
+                    ),
+                    child: Text(cap, style: gayaCap, softWrap: !sebaris),
+                  ),
+                ),
+              ),
+            ],
+          ],
+        );
+      },
+    );
+  }
+}
+
+/// (max-content, min-content) widths of [teks], rounded up.
+(double, double) _ukur(String teks, TextStyle gaya, TextScaler skala) {
+  double lebar(String s) {
+    final tp = TextPainter(
+      text: TextSpan(text: s, style: gaya),
+      textDirection: TextDirection.ltr,
+      textScaler: skala,
+    )..layout();
+    final w = tp.width.ceilToDouble();
+    tp.dispose();
+    return w;
+  }
+
+  return (lebar(teks), teks.split(' ').map(lebar).reduce(math.max));
+}
+
+/// CSS `flex-shrink: 1` for two items of widths [a] and [b] in [w] with [gap].
+(double, double) _susut(
+  double a,
+  double aMin,
+  double b,
+  double bMin,
+  double w,
+  double gap,
+) {
+  final lebih = a + b + gap - w;
+  if (lebih <= 0) return (a, b);
+  var x = a - lebih * a / (a + b);
+  var y = b - lebih * b / (a + b);
+  if (x < aMin) {
+    x = aMin;
+    y = w - gap - x;
+  } else if (y < bMin) {
+    y = bMin;
+    x = w - gap - y;
+  }
+  return (math.max(0, x), math.max(0, y));
+}
+
 /// Group heading, not pressable: padding 10 0 4, inline code, name, note.
 class _Grup extends StatelessWidget {
   const _Grup(this.r);
@@ -813,3 +895,7 @@ class _Baris extends StatelessWidget {
     );
   }
 }
+
+/// TextField takes the theme's M3 letter spacing 0.5 unless the style sets
+/// one; the boards' inputs inherit 'normal' (0).
+const _tanpaJarakHuruf = TextStyle(letterSpacing: 0);

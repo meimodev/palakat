@@ -221,6 +221,7 @@ class _WebVerifikasiScreenState extends State<WebVerifikasiScreen> {
     );
 
     Widget isian(String teks) => IsianTeks(
+      gaya: _tanpaJarakHuruf,
       controller: _alasan,
       labelSemantik: '$teks · wajib',
       baris: 2,
@@ -488,7 +489,7 @@ class _WebVerifikasiScreenState extends State<WebVerifikasiScreen> {
         BarisLentur(
           jarak: 28,
           anak: [
-            Lentur(dasar: 320, child: antrean),
+            Lentur(dasar: 322, child: antrean),
             Lentur(
               dasar: 520,
               tumbuh: 999,
@@ -662,9 +663,9 @@ class _BarisCentang extends StatelessWidget {
                   ? Center(
                       child: PalakatIkon(
                         Ikon.centang,
-                        ukuran: 16,
+                        ukuran: 22,
                         warna: c.diLaut,
-                        tebal: 3,
+                        tebal: 3.6,
                       ),
                     )
                   : null,
@@ -677,3 +678,7 @@ class _BarisCentang extends StatelessWidget {
     );
   }
 }
+
+/// TextField takes the theme's M3 letter spacing 0.5 unless the style sets
+/// one; the boards' inputs inherit 'normal' (0).
+const _tanpaJarakHuruf = TextStyle(letterSpacing: 0);
