@@ -323,7 +323,7 @@ List<Widget> blokDraf(
 List<Widget> isianPengembalian(KeadaanPengembalian k) => [
   _IsianJumlah(k),
   if (k.lebih) const _Lebih(),
-  IsianAlasan(controller: k.alasan, onChanged: k.ubah),
+  _Turun(k),
   TombolBersyarat(
     label: 'Simpan sebagai draf',
     tindakan: 'Simpan sebagai draf',
@@ -335,6 +335,36 @@ List<Widget> isianPengembalian(KeadaanPengembalian k) => [
     onPressed: k.simpan,
   ),
 ];
+
+/// IsianAlasan plus the space the board's inline-block textarea leaves under
+/// its baseline: the root line's half-leading and descent (Plus Jakarta Sans
+/// descent 0.222 em, content 1.26 em), about 4.7 px.
+class _Turun extends StatelessWidget {
+  const _Turun(this.k);
+  final KeadaanPengembalian k;
+
+  @override
+  Widget build(BuildContext context) {
+    final g = DefaultTextStyle.of(context).style;
+    final fs = g.fontSize ?? 16;
+    final tema = Theme.of(context);
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: fs * ((g.height ?? 1.4) - 1.26) / 2 + fs * 0.222,
+      ),
+      // The TextField merges the theme's bodyLarge, whose letter spacing
+      // (0.5, from Material's typography) the board's textarea does not have.
+      child: Theme(
+        data: tema.copyWith(
+          textTheme: tema.textTheme.copyWith(
+            bodyLarge: tema.textTheme.bodyLarge?.copyWith(letterSpacing: 0),
+          ),
+        ),
+        child: IsianAlasan(controller: k.alasan, onChanged: k.ubah),
+      ),
+    );
+  }
+}
 
 class _Lebih extends StatelessWidget {
   const _Lebih();
@@ -382,6 +412,7 @@ class _IsianJumlahState extends State<_IsianJumlah> {
       fontFamily: PalakatText.mono,
       fontFeatures: const [FontFeature.tabularFigures()],
       fontSize: 30,
+      letterSpacing: 0, // the TextField would merge bodyLarge's 0.5
       fontWeight: FontWeight.w500,
     );
     return Column(
