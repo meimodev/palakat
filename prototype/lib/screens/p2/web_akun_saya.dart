@@ -41,6 +41,11 @@ class _WebAkunSayaState extends State<WebAkunSayaScreen> {
   List<String> _riw = const [];
   List<String> _dev = const ['Ponsel lain · Samsung A15 · terakhir 12/11/2026'];
 
+  // Scroll on view change: jump to top (CONVENTIONS). HalamanWeb owns the
+  // scroll view, so it is reached from a context inside it.
+  final _isiKunci = GlobalKey();
+  _V _vLalu = _V.akun;
+
   @override
   void dispose() {
     _hpBaru.dispose();
@@ -156,6 +161,13 @@ class _WebAkunSayaState extends State<WebAkunSayaScreen> {
   Widget build(BuildContext context) {
     final c = context.warna;
     final kodeTampil = _v == _V.kodeBaru || _v == _V.kodeEmail;
+    if (_v != _vLalu) {
+      _vLalu = _v;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final k = _isiKunci.currentContext;
+        if (k != null) Scrollable.maybeOf(k)?.position.jumpTo(0);
+      });
+    }
     final blok = switch (_v) {
       _V.akun => _akun(),
       _V.ganti => _ganti(),
@@ -221,6 +233,7 @@ class _WebAkunSayaState extends State<WebAkunSayaScreen> {
             ],
           ),
           Align(
+            key: _isiKunci,
             alignment: Alignment.topLeft,
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 1120),

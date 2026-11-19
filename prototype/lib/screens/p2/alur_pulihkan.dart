@@ -12,6 +12,7 @@ import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/penolakan.dart';
 import '../../widgets/riwayat_alur.dart';
+import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
 
@@ -273,13 +274,29 @@ class _AlurPulihkanState extends State<AlurPulihkanScreen> {
           ),
         ]),
       ),
-      KotakCentang(
-        nilai: _kenal,
-        onUbah: (v) => _set(() => _kenal = v),
-        label: Text(
-          'Saya sudah bertemu atau berbicara langsung dengan orang ini, dan '
-          'nomor baru itu memang miliknya.',
-          style: TextStyle(color: context.warna.tinta),
+      // The board's checkbox has `margin: 2px 0 0`, which KotakCentang with a
+      // label lacks: the row is drawn here, the whole row is the target.
+      Tekan(
+        onTap: () => _set(() => _kenal = !_kenal),
+        tercentang: _kenal,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: ExcludeSemantics(
+                child: KotakCentang(nilai: _kenal, onUbah: null),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'Saya sudah bertemu atau berbicara langsung dengan orang ini, '
+                'dan nomor baru itu memang miliknya.',
+                style: TextStyle(fontSize: 14, color: context.warna.tinta),
+              ),
+            ),
+          ],
         ),
       ),
       if (alasan2.isNotEmpty)
