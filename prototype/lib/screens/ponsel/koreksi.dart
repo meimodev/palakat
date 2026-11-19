@@ -263,14 +263,19 @@ List<Widget> _sela(List<Widget> w, double jarak) => [
   for (final (i, x) in w.indexed) ...[if (i > 0) SizedBox(height: jarak), x],
 ];
 
-Widget _gulir(EdgeInsets padding, double jarak, List<Widget> anak) =>
-    SingleChildScrollView(
-      padding: padding,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: _sela(anak, jarak),
-      ),
-    );
+Widget _gulir(
+  EdgeInsets padding,
+  double jarak,
+  List<Widget> anak, [
+  ScrollController? kendali,
+]) => SingleChildScrollView(
+  controller: kendali,
+  padding: padding,
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: _sela(anak, jarak),
+  ),
+);
 
 /// Header badge: 13/700, radius 6, padding 4 10 inside a 1.5 line.
 class _LencanaKepala extends StatelessWidget {
@@ -301,8 +306,30 @@ class _LencanaKepala extends StatelessWidget {
 
 // ── detail ────────────────────────────────────────────────────────────────
 
-class _Detail extends StatelessWidget {
+class _Detail extends StatefulWidget {
   const _Detail();
+  @override
+  State<_Detail> createState() => _DetailState();
+}
+
+class _DetailState extends State<_Detail> {
+  final _guliran = ScrollController();
+  var _diAtas = true;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // The board remounts detail on every return: back on top, at the top.
+    final diAtas = ModalRoute.isCurrentOf(context) ?? true;
+    if (diAtas && !_diAtas && _guliran.hasClients) _guliran.jumpTo(0);
+    _diAtas = diAtas;
+  }
+
+  @override
+  void dispose() {
+    _guliran.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -320,224 +347,232 @@ class _Detail extends StatelessWidget {
       ke: 'Kamera',
     );
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        KepalaPonsel(
-          judul: 'BKU-2026-0139',
-          judulMono: true,
-          kembaliKe: 'Main',
-          labelKembali: 'Kembali ke Beranda',
-          ujung: _LencanaKepala(dibalik: p.dibalik),
-        ),
-        Expanded(
-          child: _gulir(const EdgeInsets.fromLTRB(20, 8, 20, 24), 16, [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  rp(-750000),
-                  style: _mono.copyWith(
-                    fontSize: 34,
-                    fontWeight: FontWeight.w500,
-                    letterSpacing: -1,
+    // `pudar .2s` on the view's root, inside the route's own `masuk`.
+    return Gerak(
+      Kerangka.pudar,
+      lama: const Duration(milliseconds: 200),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          KepalaPonsel(
+            judul: 'BKU-2026-0139',
+            judulMono: true,
+            kembaliKe: 'Main',
+            labelKembali: 'Kembali ke Beranda',
+            ujung: _LencanaKepala(dibalik: p.dibalik),
+          ),
+          Expanded(
+            child: _gulir(const EdgeInsets.fromLTRB(20, 8, 20, 24), 16, [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    rp(-750000),
+                    style: _mono.copyWith(
+                      fontSize: 34,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: -1,
+                    ),
+                  ),
+                  const Text(
+                    'Konsumsi rapat majelis',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  Text(
+                    'Belanja · ${tutup ? '9 Oktober 2026' : '9 November 2026'}',
+                    style: TextStyle(fontSize: 14, color: c.tinta2),
+                  ),
+                ],
+              ),
+              if (p.dibalik)
+                Tekan(
+                  onTap: () => context.push('/$_stem/hasil'),
+                  radius: 12,
+                  child: Container(
+                    constraints: const BoxConstraints(minHeight: 48),
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    alignment: Alignment.centerLeft,
+                    decoration: ShapeDecoration(
+                      color: c.permukaan,
+                      shape: GarisBorder.penuh(c.tinta, radius: 12),
+                    ),
+                    child: Text.rich(
+                      TextSpan(
+                        children: [
+                          const TextSpan(text: 'Dibalik oleh No. Bukti '),
+                          TextSpan(text: 'BKU-2026-0144', style: _mono),
+                          const TextSpan(text: ' · lihat rangkaian'),
+                        ],
+                      ),
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ),
-                const Text(
-                  'Konsumsi rapat majelis',
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-                Text(
-                  'Belanja · ${tutup ? '9 Oktober 2026' : '9 November 2026'}',
-                  style: TextStyle(fontSize: 14, color: c.tinta2),
-                ),
-              ],
-            ),
-            if (p.dibalik)
-              Tekan(
-                onTap: () => context.push('/$_stem/hasil'),
-                radius: 12,
-                child: Container(
-                  constraints: const BoxConstraints(minHeight: 48),
-                  padding: const EdgeInsets.symmetric(horizontal: 14),
-                  alignment: Alignment.centerLeft,
-                  decoration: ShapeDecoration(
-                    color: c.permukaan,
-                    shape: GarisBorder.penuh(c.tinta, radius: 12),
+              if (tutup)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: c.tinta,
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text.rich(
                     TextSpan(
                       children: [
-                        const TextSpan(text: 'Dibalik oleh No. Bukti '),
-                        TextSpan(text: 'BKU-2026-0144', style: _mono),
-                        const TextSpan(text: ' · lihat rangkaian'),
+                        TextSpan(
+                          text: '$bulan sudah ditutup.',
+                          style: const TextStyle(fontWeight: FontWeight.w700),
+                        ),
+                        const TextSpan(
+                          text:
+                              ' Transaksi ini final dan laporan resminya '
+                              'dibekukan.',
+                        ),
                       ],
                     ),
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
+                    style: TextStyle(fontSize: 14, color: c.permukaan),
+                  ),
+                ),
+              _Rincian([
+                ('Kas/Bank', 'Kas', false),
+                ('Diambil dari peruntukan', 'Umum Jemaat', false),
+                ('Lingkup', 'Jemaat', false),
+                (
+                  'Mata Anggaran',
+                  'Belanja 5.02.01.00 Alat tulis dan fotokopi',
+                  false,
+                ),
+                ('Versi Mata Anggaran', '2026.1', false),
+                (
+                  'Dibukukan pada',
+                  '${tutup ? '09/10/2026' : '09/11/2026'} 14.12',
+                  false,
+                ),
+              ]),
+              _KartuPersetujuan(
+                p: p,
+                bisa: !p.ap && !tutup && !p.dibalik,
+                plk: plk(jk),
+              ),
+              Kartu(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      'Dokumen pendukung',
+                      style: TextStyle(fontSize: 14, color: c.tinta2),
                     ),
-                  ),
-                ),
-              ),
-            if (tutup)
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  color: c.tinta,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(
-                        text: '$bulan sudah ditutup.',
-                        style: const TextStyle(fontWeight: FontWeight.w700),
-                      ),
-                      const TextSpan(
-                        text:
-                            ' Transaksi ini final dan laporan resminya '
-                            'dibekukan.',
-                      ),
-                    ],
-                  ),
-                  style: TextStyle(fontSize: 14, color: c.permukaan),
-                ),
-              ),
-            _Rincian([
-              ('Kas/Bank', 'Kas', false),
-              ('Diambil dari peruntukan', 'Umum Jemaat', false),
-              ('Lingkup', 'Jemaat', false),
-              (
-                'Mata Anggaran',
-                'Belanja 5.02.01.00 Alat tulis dan fotokopi',
-                false,
-              ),
-              ('Versi Mata Anggaran', '2026.1', false),
-              (
-                'Dibukukan pada',
-                '${tutup ? '09/10/2026' : '09/11/2026'} 14.12',
-                false,
-              ),
-            ]),
-            _KartuPersetujuan(
-              p: p,
-              bisa: !p.ap && !tutup && !p.dibalik,
-              plk: plk(jk),
-            ),
-            Kartu(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    'Dokumen pendukung',
-                    style: TextStyle(fontSize: 14, color: c.tinta2),
-                  ),
-                  const Text(
-                    'Terverifikasi (oleh Meiske L.)',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-                  ),
-                  if (tutup)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4),
-                      child: Text(
-                        'Status saat tutup buku: Terverifikasi · Status '
-                        'sekarang: Terverifikasi',
-                        style: caption,
+                    const Text(
+                      'Terverifikasi (oleh Meiske L.)',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                ],
-              ),
-            ),
-            if (p.kejadianAda && tutup)
-              Gerak(
-                Kerangka.muncul,
-                lama: const Duration(milliseconds: 300),
-                child: Kartu(
-                  status: GarisStatus.terpilih,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      _JudulKejadian(),
+                    if (tutup)
                       Padding(
                         padding: const EdgeInsets.only(top: 4),
                         child: Text(
-                          p.kejadian,
-                          style: TextStyle(fontSize: 14, color: c.tinta2),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 6),
-                        child: Text(
-                          'Angka dan laporan resmi $bulan tidak berubah.',
+                          'Status saat tutup buku: Terverifikasi · Status '
+                          'sekarang: Terverifikasi',
                           style: caption,
                         ),
                       ),
-                    ],
-                  ),
+                  ],
                 ),
               ),
-            if (buka)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: _sela([
-                  Tombol(
-                    'Koreksi dengan pembalikan',
-                    onPressed: () => context.push('/$_stem/pembalikan'),
-                    jenis: JenisTombol.tinta,
-                  ),
-                  lampirkan,
-                  Text(
-                    'Jumlah, tanggal, Kas/Bank, peruntukan, Lingkup dan Mata '
-                    'Anggaran tidak dapat diubah langsung.',
-                    style: caption,
-                  ),
-                ], 8),
-              ),
-            if (tutup)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: _sela([
-                  Text.rich(
-                    TextSpan(
+              if (p.kejadianAda && tutup)
+                Gerak(
+                  Kerangka.muncul,
+                  lama: const Duration(milliseconds: 300),
+                  child: Kartu(
+                    status: GarisStatus.terpilih,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        TextSpan(
-                          text:
-                              'Tidak dapat dilakukan: koreksi dengan '
-                              'pembalikan.',
-                          style: TextStyle(
-                            color: c.tinta,
-                            fontWeight: FontWeight.w700,
+                        _JudulKejadian(),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Text(
+                            p.kejadian,
+                            style: TextStyle(fontSize: 14, color: c.tinta2),
                           ),
                         ),
-                        TextSpan(
-                          text:
-                              ' $bulan sudah ditutup. Yang masih dapat Anda '
-                              'lakukan:',
+                        Padding(
+                          padding: const EdgeInsets.only(top: 6),
+                          child: Text(
+                            'Angka dan laporan resmi $bulan tidak berubah.',
+                            style: caption,
+                          ),
                         ),
                       ],
                     ),
-                    style: TextStyle(fontSize: 14, color: c.tinta2),
                   ),
-                  Tombol(
-                    'Catat kejadian',
-                    onPressed: () => context.push('/$_stem/kejadian'),
-                    jenis: JenisTombol.tinta,
-                  ),
-                  lampirkan,
-                  Text(
-                    'Dokumen susulan hanya mengubah Status sekarang, bukan '
-                    'laporan resmi.',
-                    style: caption,
-                  ),
-                ], 8),
-              ),
-          ]),
-        ),
-      ],
+                ),
+              if (buka)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: _sela([
+                    Tombol(
+                      'Koreksi dengan pembalikan',
+                      onPressed: () => context.push('/$_stem/pembalikan'),
+                      jenis: JenisTombol.tinta,
+                    ),
+                    lampirkan,
+                    Text(
+                      'Jumlah, tanggal, Kas/Bank, peruntukan, Lingkup dan Mata '
+                      'Anggaran tidak dapat diubah langsung.',
+                      style: caption,
+                    ),
+                  ], 8),
+                ),
+              if (tutup)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: _sela([
+                    Text.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(
+                            text:
+                                'Tidak dapat dilakukan: koreksi dengan '
+                                'pembalikan.',
+                            style: TextStyle(
+                              color: c.tinta,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          TextSpan(
+                            text:
+                                ' $bulan sudah ditutup. Yang masih dapat Anda '
+                                'lakukan:',
+                          ),
+                        ],
+                      ),
+                      style: TextStyle(fontSize: 14, color: c.tinta2),
+                    ),
+                    Tombol(
+                      'Catat kejadian',
+                      onPressed: () => context.push('/$_stem/kejadian'),
+                      jenis: JenisTombol.tinta,
+                    ),
+                    lampirkan,
+                    Text(
+                      'Dokumen susulan hanya mengubah Status sekarang, bukan '
+                      'laporan resmi.',
+                      style: caption,
+                    ),
+                  ], 8),
+                ),
+            ], _guliran),
+          ),
+        ],
+      ),
     );
   }
 }
