@@ -462,6 +462,7 @@ class _Kisi extends StatelessWidget {
                 fontFamily: PalakatText.mono,
                 fontSize: 13,
                 color: c.tinta,
+                leadingDistribution: TextLeadingDistribution.even,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -514,7 +515,6 @@ class _Kisi extends StatelessWidget {
                                 mono: true,
                                 warna: c.tinta2,
                                 latar: c.kertas,
-                                tumpah: true,
                               ),
                               for (var i = 0; i < n; i++)
                                 () {
