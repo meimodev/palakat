@@ -292,11 +292,11 @@ class RinciKejadian extends StatelessWidget {
                           child: Text(
                             rinci[i].$2,
                             textAlign: TextAlign.right,
-                            style: TextStyle(
+                            // Sans, as drawn: the board wins over the spec's
+                            // "mono (recommended)" (review-log).
+                            style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
-                              // CONVENTIONS: every code is mono (spec Notes).
-                              fontFamily: i == 1 ? PalakatText.mono : null,
                             ),
                           ),
                         ),
