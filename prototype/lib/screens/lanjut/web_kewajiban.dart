@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show OverflowBoxFit;
 
 import '../../mock/format.dart';
 import '../../shell/halaman_web.dart';
@@ -207,108 +208,116 @@ class _WebKewajibanScreenState extends State<WebKewajibanScreen> {
 
     return Material(
       type: MaterialType.transparency,
-      child: HalamanWeb(
-        jabatanKosong: true,
-        nav: NavSamping(
-          item: navKeuangan,
-          aktif: 2,
-          pengguna: const PenggunaKeuangan(),
+      child: DefaultTextHeightBehavior(
+        textHeightBehavior: const TextHeightBehavior(
+          leadingDistribution: TextLeadingDistribution.even,
         ),
-        isi: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Semantics(
-                header: true,
-                child: const Text(
-                  'Uang Muka dan Titipan',
-                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700),
-                ),
-              ),
-              Text(
-                'Uang yang masih berjalan, satu baris per kasus. Sisa '
-                'dihitung dari catatannya dan tidak dapat diketik.',
-                style: tinta2,
-              ),
-            ],
+        child: HalamanWeb(
+          jabatanKosong: true,
+          nav: NavSamping(
+            item: navKeuangan,
+            aktif: 2,
+            pengguna: const PenggunaKeuangan(),
           ),
-          MarginNegatif(
-            atas: 8,
-            child: DefaultTextStyle.merge(
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-              child: Wrap(
-                spacing: 22,
-                children: [
-                  Tautan(ke: 'WebKasusBaru', child: tautan('+ Kasus baru')),
-                  Tautan(ke: 'WebKasus', child: tautan('Catat pada kasus')),
-                ],
+          isi: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Semantics(
+                  header: true,
+                  child: const Text(
+                    'Uang Muka dan Titipan',
+                    style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700),
+                  ),
+                ),
+                Text(
+                  'Uang yang masih berjalan, satu baris per kasus. Sisa '
+                  'dihitung dari catatannya dan tidak dapat diketik.',
+                  style: tinta2,
+                ),
+              ],
+            ),
+            MarginNegatif(
+              atas: 8,
+              child: DefaultTextStyle.merge(
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+                child: Wrap(
+                  spacing: 22,
+                  children: [
+                    Tautan(ke: 'WebKasusBaru', child: tautan('+ Kasus baru')),
+                    Tautan(ke: 'WebKasus', child: tautan('Catat pada kasus')),
+                  ],
+                ),
               ),
             ),
-          ),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              for (final t in const ['um', 'tt', 'pb'])
-                ChipSatu(
-                  teks: _lbl[t]!.tab,
-                  dipilih: _tab == t,
-                  padding: 16,
-                  onTap: () => setState(() => _tab = t),
-                ),
-            ],
-          ),
-          Builder(
-            builder: (context) {
-              final gTotal = mono.copyWith(fontSize: 40, height: 1.1);
-              final gLebih = mono.copyWith(
-                fontSize: 24,
-                letterSpacing: 0,
-                color: c.bata,
-              );
-              final kalimatA = '${lb.sisa} · ${buka.length} kasus';
-              final totalA = rp(buka.fold(0, (a, x) => a + x.$5 - x.$6));
-              final kalimatB =
-                  'Lebih dari uang muka · ${lebih.length} kasus · tidak '
-                  'dikurangkan dari sisa di kiri';
-              final totalB = rp(lebih.fold(0, (a, x) => a + x.$6 - x.$5));
-              Widget blok(String atas, String bawah, TextStyle g) => Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(atas, style: tinta2),
-                  Text(bawah, style: g),
-                ],
-              );
-              return BarisLentur(
-                jarak: 40,
-                jarakBaris: 12,
-                rata: CrossAxisAlignment.end,
-                anak: [
-                  Lentur(
-                    dasar: _lebar(context, [
-                      (kalimatA, tinta2),
-                      (totalA, gTotal),
-                    ]),
-                    tumbuh: 0,
-                    child: blok(kalimatA, totalA, gTotal),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final t in const ['um', 'tt', 'pb'])
+                  ChipSatu(
+                    teks: _lbl[t]!.tab,
+                    dipilih: _tab == t,
+                    padding: 16,
+                    onTap: () => setState(() => _tab = t),
                   ),
-                  if (lebih.isNotEmpty)
+              ],
+            ),
+            Builder(
+              builder: (context) {
+                final gTotal = mono.copyWith(fontSize: 40, height: 1.1);
+                final gLebih = mono.copyWith(
+                  fontSize: 24,
+                  letterSpacing: 0,
+                  color: c.bata,
+                );
+                final kalimatA = '${lb.sisa} · ${buka.length} kasus';
+                final totalA = rp(buka.fold(0, (a, x) => a + x.$5 - x.$6));
+                final kalimatB =
+                    'Lebih dari uang muka · ${lebih.length} kasus · tidak '
+                    'dikurangkan dari sisa di kiri';
+                final totalB = rp(lebih.fold(0, (a, x) => a + x.$6 - x.$5));
+                Widget blok(String atas, String bawah, TextStyle g) => Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(atas, style: tinta2),
+                    Text(bawah, style: g),
+                  ],
+                );
+                return BarisLentur(
+                  jarak: 40,
+                  jarakBaris: 12,
+                  rata: CrossAxisAlignment.end,
+                  anak: [
                     Lentur(
                       dasar: _lebar(context, [
-                        (kalimatB, tinta2),
-                        (totalB, gLebih),
+                        (kalimatA, tinta2),
+                        (totalA, gTotal),
                       ]),
                       tumbuh: 0,
-                      child: blok(kalimatB, totalB, gLebih),
+                      child: blok(kalimatA, totalA, gTotal),
                     ),
-                  Lentur(dasar: 260, child: Text(lb.cat, style: tinta2)),
-                ],
-              );
-            },
-          ),
-          _Tabel(lb: lb, baris: d),
-          Text(lb.kaki, style: TextStyle(fontSize: 13, color: c.tinta3)),
-        ],
+                    if (lebih.isNotEmpty)
+                      Lentur(
+                        dasar: _lebar(context, [
+                          (kalimatB, tinta2),
+                          (totalB, gLebih),
+                        ]),
+                        tumbuh: 0,
+                        child: blok(kalimatB, totalB, gLebih),
+                      ),
+                    Lentur(dasar: 260, child: Text(lb.cat, style: tinta2)),
+                  ],
+                );
+              },
+            ),
+            _Tabel(lb: lb, baris: d),
+            Text(lb.kaki, style: TextStyle(fontSize: 13, color: c.tinta3)),
+          ],
+        ),
       ),
     );
   }
@@ -449,24 +458,14 @@ class _Tabel extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
-                decoration: ShapeDecoration(
-                  color: beres ? c.laut : c.permukaan,
-                  shape: GarisBorder.penuh(
-                    beres ? c.laut : (lebihBelanja ? c.bata : c.tinta3),
-                    radius: 6,
-                  ),
-                ),
-                child: _Pas(
-                  status,
-                  TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: beres
-                        ? c.diLaut
-                        : (lebihBelanja ? c.bata : c.tinta2),
-                  ),
+              _Lencana(
+                teks: status,
+                isi: beres ? c.laut : c.permukaan,
+                garis: beres ? c.laut : (lebihBelanja ? c.bata : c.tinta3),
+                gaya: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: beres ? c.diLaut : (lebihBelanja ? c.bata : c.tinta2),
                 ),
               ),
               if (tempo.isNotEmpty)
@@ -489,24 +488,49 @@ class _Tabel extends StatelessWidget {
   }
 }
 
-/// Badge text that wraps like the board's inline-block, but keeps one line
-/// when Flutter's glyphs come out up to 2 px wider than Chrome's (the
-/// "Sebagian dipertanggungjawabkan" badge just fits its column at 1440).
-class _Pas extends StatelessWidget {
-  const _Pas(this.teks, this.gaya);
+/// The board's inline-block status badge (padding 3 9, 1.5 line, radius 6).
+/// Shrink-to-fit like CSS: it wraps only at spaces, and a word longer than
+/// the column pushes the badge past it (Chrome) instead of breaking
+/// mid-word. Keeps one line when Flutter's glyphs come out up to 2 px wider
+/// than Chrome's ("Sebagian dipertanggungjawabkan" just fits at 1440).
+class _Lencana extends StatelessWidget {
+  const _Lencana({
+    required this.teks,
+    required this.isi,
+    required this.garis,
+    required this.gaya,
+  });
   final String teks;
+  final Color isi, garis;
   final TextStyle gaya;
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, k) {
-      final w = _lebar(context, [(teks, gaya)]);
-      final pas = w <= k.maxWidth + 2;
-      return Text(
-        teks,
-        style: gaya,
-        softWrap: !pas,
-        overflow: TextOverflow.visible,
+      const tepi = 2 * (9 + 1.5);
+      final ruang = k.maxWidth - tepi;
+      final penuh = _lebar(context, [(teks, gaya)]);
+      final kata = _lebar(context, [
+        for (final w in teks.split(' ')) (w, gaya),
+      ]);
+      final satuBaris = penuh <= ruang + 2;
+      final lebar = (satuBaris ? penuh : (kata > ruang ? kata : ruang)) + tepi;
+      return SizedBox(
+        width: lebar.clamp(0.0, k.maxWidth),
+        child: OverflowBox(
+          alignment: Alignment.topLeft,
+          minWidth: lebar,
+          maxWidth: lebar,
+          fit: OverflowBoxFit.deferToChild,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
+            decoration: ShapeDecoration(
+              color: isi,
+              shape: GarisBorder.penuh(garis, radius: 6),
+            ),
+            child: Text(teks, style: gaya, softWrap: !satuBaris),
+          ),
+        ),
       );
     },
   );

@@ -459,19 +459,27 @@ class _KewajibanKendaliState extends State<KewajibanKendali> {
       papan: _papan,
       child: Material(
         type: MaterialType.transparency,
-        child: ListenableBuilder(
-          listenable: _papan,
-          builder: (context, navigator) => LayarPonsel(
-            jabatanKosong: true,
-            overlay: [if (_papan.akt != null) _Lembar(papan: _papan)],
-            child: navigator!,
+        // CSS splits line-height leading evenly above and below the glyphs.
+        child: DefaultTextHeightBehavior(
+          textHeightBehavior: _leadingRata,
+          child: ListenableBuilder(
+            listenable: _papan,
+            builder: (context, navigator) => LayarPonsel(
+              jabatanKosong: true,
+              overlay: [if (_papan.akt != null) _Lembar(papan: _papan)],
+              child: navigator!,
+            ),
+            child: widget.child,
           ),
-          child: widget.child,
         ),
       ),
     ),
   );
 }
+
+const _leadingRata = TextHeightBehavior(
+  leadingDistribution: TextLeadingDistribution.even,
+);
 
 class KewajibanScreen extends StatelessWidget {
   const KewajibanScreen({super.key, this.anak, this.param = const {}});
@@ -773,10 +781,16 @@ class _RinciState extends State<_Rinci> {
                     ),
                     const SizedBox(height: 16),
                     BatangPembagian(
-                      total: cur.awal,
+                      // The board's width is a whole percentage.
+                      total: 100,
                       tinggi: 14,
                       durasi: const Duration(milliseconds: 500),
-                      bagian: [BagianBatang(cur.awal - csisa, c.tinta)],
+                      bagian: [
+                        BagianBatang(
+                          ((cur.awal - csisa) / cur.awal * 100).round(),
+                          c.tinta,
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 16),
                     Wrap(
