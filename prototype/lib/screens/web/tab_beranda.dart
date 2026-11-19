@@ -101,9 +101,7 @@ class TabBerandaScreen extends StatelessWidget {
       ],
     );
 
-    final ubin = KisiOtomatis(
-      minLebar: 150,
-      jarak: 12,
+    final ubin = _KisiRata(
       anak: [
         for (final (k, v, s) in angka)
           Kartu(
@@ -112,8 +110,12 @@ class TabBerandaScreen extends StatelessWidget {
               children: [
                 Text(k, style: TextStyle(fontSize: 13, color: c.tinta2)),
                 const SizedBox(height: 2),
+                // One word in CSS: it never breaks; on a narrow tile it runs
+                // past the padding, as on the board at 1280.
                 Text(
                   rp(sepi ? 0 : v),
+                  softWrap: false,
+                  overflow: TextOverflow.visible,
                   style: const TextStyle(
                     fontFamily: PalakatText.mono,
                     fontSize: 19,
@@ -234,7 +236,7 @@ class TabBerandaScreen extends StatelessWidget {
         pengguna: PenggunaKeuangan(ikutJabatanKosong: false),
       ),
       jarak: 24,
-      isi: [
+      isi: leadingCss([
         const KepalaTab(
           'Beranda',
           ujung: [Tautan(ke: 'WebPilihBulan', radius: 999, child: PilBulan())],
@@ -259,7 +261,7 @@ class TabBerandaScreen extends StatelessWidget {
         ),
         KisiOtomatis(minLebar: 360, jarak: 24, anak: [saldo, ubin]),
         KisiOtomatis(minLebar: 360, jarak: 24, anak: [perlu, posisi]),
-      ],
+      ]),
     );
   }
 }
@@ -278,13 +280,16 @@ class _TabelKas extends StatelessWidget {
     final kepala = TextStyle(fontWeight: FontWeight.w600, color: c.tinta2);
     const mono = TextStyle(fontFamily: PalakatText.mono);
 
-    Widget sel(Widget anak, {bool kanan = true}) => Padding(
-      padding: pad,
-      child: Align(
-        alignment: kanan ? Alignment.centerRight : Alignment.centerLeft,
-        child: anak,
-      ),
-    );
+    // Body cells: 1 more on top, since a TableRow's rule takes no layout
+    // space and the board's `border-top` does.
+    Widget sel(Widget anak, {bool kanan = true, bool garisAtas = true}) =>
+        Padding(
+          padding: garisAtas ? pad.copyWith(top: 13) : pad,
+          child: Align(
+            alignment: kanan ? Alignment.centerRight : Alignment.centerLeft,
+            child: anak,
+          ),
+        );
     Widget belum(String teks) => Text.rich(
       TextSpan(
         text: '— ',
@@ -292,6 +297,7 @@ class _TabelKas extends StatelessWidget {
       ),
       textAlign: TextAlign.right,
       style: TextStyle(color: c.tinta2),
+      strutStyle: _barisCampur,
     );
     TableRow baris(String nama, int saldo, Widget hitung, Widget koran) =>
         TableRow(
@@ -328,28 +334,21 @@ class _TabelKas extends StatelessWidget {
                   children: [
                     TableRow(
                       children: [
-                        sel(Text('Kas/Bank', style: kepala), kanan: false),
-                        sel(
-                          Text(
-                            'Saldo buku',
-                            style: kepala,
-                            textAlign: TextAlign.right,
+                        for (final (i, t) in const [
+                          'Kas/Bank',
+                          'Saldo buku',
+                          'Hasil hitung kas',
+                          'Saldo rekening koran',
+                        ].indexed)
+                          sel(
+                            Text(
+                              t,
+                              style: kepala,
+                              textAlign: i == 0 ? null : TextAlign.right,
+                            ),
+                            kanan: i > 0,
+                            garisAtas: false,
                           ),
-                        ),
-                        sel(
-                          Text(
-                            'Hasil hitung kas',
-                            style: kepala,
-                            textAlign: TextAlign.right,
-                          ),
-                        ),
-                        sel(
-                          Text(
-                            'Saldo rekening koran',
-                            style: kepala,
-                            textAlign: TextAlign.right,
-                          ),
-                        ),
                       ],
                     ),
                     baris(
@@ -382,6 +381,7 @@ class _TabelKas extends StatelessWidget {
                         ),
                         textAlign: TextAlign.right,
                         style: TextStyle(color: c.tinta2),
+                        strutStyle: _barisCampur,
                       ),
                       const SizedBox.shrink(),
                     ),
@@ -408,6 +408,16 @@ class _TabelKas extends StatelessWidget {
   }
 }
 
+// Chrome draws a 14 px line that holds a 13 px span 21 high, not 20.3
+// (metrics rounded per font size): the Kas and Bank BNI rows are 88 and 67.
+const _barisCampur = StrutStyle(
+  fontFamily: PalakatText.sans,
+  fontSize: 14,
+  height: 1.5,
+  forceStrutHeight: true,
+  leadingDistribution: TextLeadingDistribution.even,
+);
+
 // The HTML auto table layout at its 520 minimum, measured off the board at
 // 834 (121.9 · 132.8 · 130.9 · 134.4); cols 2 and 4 get .6 and .4 from col 1
 // so "Rp24.615.000" (100.8 px mono) and "koran belum diisi" (102.3 px) still
@@ -420,3 +430,38 @@ const _lebarKolom = {
   2: FlexColumnWidth(130.9),
   3: FlexColumnWidth(134.8),
 };
+
+/// The tile grid: `auto-fit, minmax(min(150px, 100%), 1fr)`, gap 12, with the
+/// grid's default `align-items: stretch`, so tiles in one row share the
+/// tallest one's height (KisiOtomatis aligns them to the top).
+class _KisiRata extends StatelessWidget {
+  const _KisiRata({required this.anak});
+  final List<Widget> anak;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, k) {
+      final n = KisiOtomatis.kolom(k.maxWidth, 150, 12, anak.length);
+      final lebar = (k.maxWidth - 12 * (n - 1)) / n;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (var i = 0; i < anak.length; i += n) ...[
+            if (i > 0) const SizedBox(height: 12),
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (var j = i; j < anak.length && j < i + n; j++) ...[
+                    if (j > i) const SizedBox(width: 12),
+                    SizedBox(width: lebar, child: anak[j]),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ],
+      );
+    },
+  );
+}

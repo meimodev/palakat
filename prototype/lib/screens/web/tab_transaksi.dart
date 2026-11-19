@@ -1,4 +1,7 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 import '../../mock/format.dart';
 import '../../motion/kerangka.dart';
@@ -245,7 +248,7 @@ class _TabTransaksiScreenState extends State<TabTransaksiScreen> {
         aktif: 1,
         pengguna: PenggunaKeuangan(ikutJabatanKosong: false),
       ),
-      isi: [
+      isi: leadingCss([
         KepalaTab(
           'Transaksi',
           ujung: [
@@ -297,7 +300,7 @@ class _TabTransaksiScreenState extends State<TabTransaksiScreen> {
             Lentur(dasar: 360, child: _panel(c, data[_pilih])),
           ],
         ),
-      ],
+      ]),
     );
   }
 
@@ -365,6 +368,7 @@ class _TabTransaksiScreenState extends State<TabTransaksiScreen> {
                         ],
                       ),
                       style: TextStyle(fontSize: 13, color: c.tinta2),
+                      strutStyle: _strutNoBukti,
                     ),
                     if (r.cat.isNotEmpty)
                       Text(
@@ -468,49 +472,42 @@ class _TabTransaksiScreenState extends State<TabTransaksiScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Flexible(
-                      child: _lencana(
-                        c,
-                        p.st,
-                        draf ? 'Draf · belum masuk saldo' : null,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Flexible(
-                      child: baruBuku
-                          ? Gerak(
-                              Kerangka.cap,
-                              lama: const Duration(milliseconds: 550),
-                              tunda: const Duration(milliseconds: 350),
-                              kurva: PalakatMotion.keluar,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: c.laut, width: 2),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(
-                                  'No. Bukti ${p.no}',
-                                  style: mono14.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: c.laut,
-                                  ),
-                                ),
-                              ),
-                            )
-                          : Text(
-                              p.no.isEmpty ? 'Belum ada No. Bukti' : p.no,
-                              textAlign: TextAlign.right,
-                              style: mono14.copyWith(color: c.tinta2),
+                _DuaSisi(
+                  jarak: 8,
+                  tengah: true,
+                  kiri: _lencana(
+                    c,
+                    p.st,
+                    draf ? 'Draf · belum masuk saldo' : null,
+                  ),
+                  kanan: baruBuku
+                      ? Gerak(
+                          Kerangka.cap,
+                          lama: const Duration(milliseconds: 550),
+                          tunda: const Duration(milliseconds: 350),
+                          kurva: PalakatMotion.keluar,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
                             ),
-                    ),
-                  ],
+                            decoration: BoxDecoration(
+                              border: Border.all(color: c.laut, width: 2),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              'No. Bukti ${p.no}',
+                              style: mono14.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: c.laut,
+                              ),
+                            ),
+                          ),
+                        )
+                      : Text(
+                          p.no.isEmpty ? 'Belum ada No. Bukti' : p.no,
+                          style: mono14.copyWith(color: c.tinta2),
+                        ),
                 ),
                 const SizedBox(height: 6),
                 Text(
@@ -555,31 +552,21 @@ class _TabTransaksiScreenState extends State<TabTransaksiScreen> {
                   : BoxDecoration(
                       border: Border(top: BorderSide(color: c.garis)),
                     ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Flexible(
-                    flex: 2,
-                    child: Text(
-                      p.rinci[i].$1,
-                      style: TextStyle(fontSize: 14, color: c.tinta2),
-                    ),
+              child: _DuaSisi(
+                jarak: 16,
+                kiri: Text(
+                  p.rinci[i].$1,
+                  style: TextStyle(fontSize: 14, color: c.tinta2),
+                ),
+                kanan: Text(
+                  p.rinci[i].$2,
+                  textAlign: TextAlign.right,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: p.rinci[i].$3 ? c.bata : c.tinta,
                   ),
-                  const SizedBox(width: 16),
-                  Flexible(
-                    flex: 3,
-                    child: Text(
-                      p.rinci[i].$2,
-                      textAlign: TextAlign.right,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: p.rinci[i].$3 ? c.bata : c.tinta,
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
         ],
@@ -670,4 +657,140 @@ Widget _lencana(PalakatWarna c, String st, [String? label]) {
       style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: teks),
     ),
   );
+}
+
+// The "No. Bukti · Kas/Bank" line of a table row (13 px sans holding a mono
+// span) measures 20 on the board, not 18.85: rows are 76 and 57 high, not 75
+// and 56. Set from the board shot; TabBeranda's draft pill, the same markup
+// outside a grid, measures 18.85.
+const _strutNoBukti = StrutStyle(
+  fontFamily: PalakatText.sans,
+  fontSize: 13,
+  height: 20 / 13,
+  forceStrutHeight: true,
+  leadingDistribution: TextLeadingDistribution.even,
+);
+
+/// Two flex items `flex: 0 1 auto` with `justify-content: space-between` and
+/// a [jarak] gap, as CSS shrinks them: when their max-content widths do not
+/// fit, each loses space in proportion to that width, but not below its
+/// min-content width (the longest word). [kanan] starts where its share
+/// starts, so left-aligned text wraps in place. [tengah]: centred, else top.
+class _DuaSisi extends MultiChildRenderObjectWidget {
+  _DuaSisi({
+    required this.jarak,
+    this.tengah = false,
+    required Widget kiri,
+    required Widget kanan,
+  }) : super(children: [kiri, kanan]);
+
+  final double jarak;
+  final bool tengah;
+
+  @override
+  _RenderDuaSisi createRenderObject(BuildContext context) =>
+      _RenderDuaSisi(jarak, tengah);
+
+  @override
+  void updateRenderObject(BuildContext context, _RenderDuaSisi r) => r
+    ..jarak = jarak
+    ..tengah = tengah;
+}
+
+class _DataDuaSisi extends ContainerBoxParentData<RenderBox> {}
+
+class _RenderDuaSisi extends RenderBox
+    with
+        ContainerRenderObjectMixin<RenderBox, _DataDuaSisi>,
+        RenderBoxContainerDefaultsMixin<RenderBox, _DataDuaSisi> {
+  _RenderDuaSisi(this._jarak, this._tengah);
+
+  double _jarak;
+  set jarak(double v) {
+    if (v == _jarak) return;
+    _jarak = v;
+    markNeedsLayout();
+  }
+
+  bool _tengah;
+  set tengah(bool v) {
+    if (v == _tengah) return;
+    _tengah = v;
+    markNeedsLayout();
+  }
+
+  RenderBox get _a => firstChild!;
+  RenderBox get _b => childAfter(firstChild!)!;
+
+  @override
+  void setupParentData(RenderBox child) {
+    if (child.parentData is! _DataDuaSisi) child.parentData = _DataDuaSisi();
+  }
+
+  (double, double) _lebar(double w) {
+    final ka = _a.getMaxIntrinsicWidth(double.infinity);
+    final kb = _b.getMaxIntrinsicWidth(double.infinity);
+    final ruang = w - _jarak;
+    if (ka + kb <= ruang) return (ka, kb);
+    final ma = _a.getMinIntrinsicWidth(double.infinity);
+    final mb = _b.getMinIntrinsicWidth(double.infinity);
+    var wa = ka * ruang / (ka + kb);
+    if (wa < ma) wa = ma;
+    if (ruang - wa < mb) wa = ruang - mb;
+    return (math.max(0, wa), math.max(0, ruang - wa));
+  }
+
+  @override
+  double computeMinIntrinsicWidth(double height) =>
+      _a.getMinIntrinsicWidth(height) +
+      _jarak +
+      _b.getMinIntrinsicWidth(height);
+
+  @override
+  double computeMaxIntrinsicWidth(double height) =>
+      _a.getMaxIntrinsicWidth(height) +
+      _jarak +
+      _b.getMaxIntrinsicWidth(height);
+
+  @override
+  double computeMinIntrinsicHeight(double width) {
+    final (wa, wb) = _lebar(width);
+    return math.max(_a.getMinIntrinsicHeight(wa), _b.getMinIntrinsicHeight(wb));
+  }
+
+  @override
+  double computeMaxIntrinsicHeight(double width) =>
+      computeMinIntrinsicHeight(width);
+
+  @override
+  Size computeDryLayout(BoxConstraints constraints) {
+    final (wa, wb) = _lebar(constraints.maxWidth);
+    final ha = _a.getDryLayout(BoxConstraints(maxWidth: wa)).height;
+    final hb = _b.getDryLayout(BoxConstraints(maxWidth: wb)).height;
+    return constraints.constrain(Size(constraints.maxWidth, math.max(ha, hb)));
+  }
+
+  @override
+  void performLayout() {
+    final w = constraints.maxWidth;
+    final (wa, wb) = _lebar(w);
+    _a.layout(BoxConstraints(maxWidth: wa), parentUsesSize: true);
+    _b.layout(BoxConstraints(maxWidth: wb), parentUsesSize: true);
+    final h = math.max(_a.size.height, _b.size.height);
+    size = constraints.constrain(Size(w, h));
+    double y(RenderBox r) => _tengah ? (h - r.size.height) / 2 : 0;
+    (_a.parentData! as _DataDuaSisi).offset = Offset(0, y(_a));
+    (_b.parentData! as _DataDuaSisi).offset = Offset(
+      w - math.max(wb, _b.size.width),
+      y(_b),
+    );
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) =>
+      defaultPaint(context, offset);
+
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) =>
+      defaultHitTestChildren(result, position: position);
 }

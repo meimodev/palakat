@@ -73,6 +73,18 @@ class PilBulan extends StatelessWidget {
   }
 }
 
+/// CSS spreads line-height leading evenly above and below the glyphs;
+/// Flutter's default splits it by ascent and descent, which moves the mono
+/// figures (line height 1.05 or 1.45) by 2 to 4 px. Wraps each child of
+/// `main`, since HalamanWeb's DefaultTextStyle does not set it.
+List<Widget> leadingCss(List<Widget> isi) => [
+  for (final w in isi)
+    DefaultTextStyle.merge(
+      style: const TextStyle(leadingDistribution: TextLeadingDistribution.even),
+      child: w,
+    ),
+];
+
 /// An inline `<a>` (laut, underlined) as a 44 × 44 target, text centred.
 class TautanTab extends StatelessWidget {
   const TautanTab(
