@@ -263,6 +263,9 @@ class _Isian extends StatelessWidget {
             jarakLabel: 6,
             hanyaBaca: true,
             nilaiAwal: nilai,
+            // TextField starts from the Material bodyLarge (letterSpacing
+            // 0.5); the board's inputs have none.
+            gaya: const TextStyle(letterSpacing: 0),
           ),
           if (petunjuk != null) ...[
             const SizedBox(height: 6),

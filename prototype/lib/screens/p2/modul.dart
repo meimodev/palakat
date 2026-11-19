@@ -199,6 +199,9 @@ class _ModulScreenState extends State<ModulScreen> {
               jarakLabel: 6,
               baris: 3,
               hanyaBaca: true,
+              // TextField starts from the Material bodyLarge (letterSpacing
+              // 0.5); the board's textarea has none.
+              gaya: TextStyle(letterSpacing: 0),
               nilaiAwal: 'Sekretaris Jemaat sedang berganti; diaktifkan lagi setelah penugasan baru.',
             ),
           ),
@@ -341,10 +344,12 @@ class _TautanBaris extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Tautan(
     ke: ke,
-    child: ConstrainedBox(
+    // Full-width child, so hovering anywhere on the row turns it `lautTua`.
+    child: Container(
       constraints: const BoxConstraints(minHeight: 44),
-      child: Align(
-        alignment: Alignment.centerLeft,
+      alignment: Alignment.centerLeft,
+      child: SizedBox(
+        width: double.infinity,
         child: TautanTeks(teks, berat: FontWeight.w700, ukuran: 14),
       ),
     ),
