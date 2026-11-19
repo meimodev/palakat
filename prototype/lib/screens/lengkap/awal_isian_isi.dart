@@ -105,6 +105,13 @@ class KeadaanAwalIsian extends ChangeNotifier {
   }
 }
 
+/// Inputs: undo the Material bodyLarge `letterSpacing: 0.5` that TextField
+/// merges under IsianTeks, and clip the placeholder like Chrome (no ellipsis).
+const _gayaIsian = TextStyle(letterSpacing: 0, overflow: TextOverflow.clip);
+
+/// Chrome draws the input text ~2 px higher than Flutter's centred line.
+const _padIsian = EdgeInsets.fromLTRB(14, 0, 14, 3);
+
 Widget _kolom(List<Widget> anak, double jarak) => Column(
   crossAxisAlignment: CrossAxisAlignment.stretch,
   mainAxisSize: MainAxisSize.min,
@@ -144,6 +151,8 @@ class KartuIdentitas extends StatelessWidget {
           controller: k.nama,
           label: 'Nama Jemaat',
           jarakLabel: 6,
+          gaya: _gayaIsian,
+          padding: _padIsian,
           hanyaBaca: k.terbit,
           onChanged: (_) => k.ubah(),
         ),
@@ -248,6 +257,8 @@ class _KartuDaftar extends StatelessWidget {
                   controller: k.isi[kunci],
                   labelSemantik: judul,
                   petunjuk: ph,
+                  gaya: _gayaIsian,
+                  padding: _padIsian,
                   onChanged: (_) => k.ubah(),
                 ),
               ),
