@@ -70,6 +70,14 @@ class _LangkahMasukState extends State<LangkahMasuk> {
   @override
   Widget build(BuildContext context) {
     final tinggi = DefaultTextStyle.of(context).style.height;
+    // CSS line-height splits the leading evenly above and below the glyphs.
+    return DefaultTextStyle.merge(
+      style: const TextStyle(leadingDistribution: TextLeadingDistribution.even),
+      child: _isi(context, tinggi),
+    );
+  }
+
+  Widget _isi(BuildContext context, double? tinggi) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -196,19 +204,7 @@ class _LangkahMasukState extends State<LangkahMasuk> {
           style: TextStyle(fontSize: 15, color: c.tinta2),
         ),
       ),
-      MergeSemantics(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              'Kode enam angka',
-              style: TextStyle(fontSize: 14, color: c.tinta2),
-            ),
-            const SizedBox(height: 6),
-            _IsianKode(controller: _kode, onChanged: () => setState(() {})),
-          ],
-        ),
-      ),
+      _IsianKode(controller: _kode, onChanged: () => setState(() {})),
       _tombol('Masuk', _okK, 'Kode enam angka', _masuk),
       Tombol('Pakai nomor lain', onPressed: _ulang, jenis: JenisTombol.teks),
     ]);
@@ -283,7 +279,11 @@ class _LangkahMasukState extends State<LangkahMasuk> {
           'Yang perlu bertindak:',
           'Petugas verifikasi, setelah BPMJ mengirim surat penunjukan Anda.',
         ),
-        widget.awal,
+        // `<a>` is content-box: min-height 48 plus the 1.5 px line twice.
+        ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 51),
+          child: widget.awal,
+        ),
       ]),
     };
     // Keyed on the outcome: a tweak change mounts it again and replays muncul.
@@ -388,7 +388,7 @@ class _IsianKodeState extends State<_IsianKode> {
         letterSpacing: 8,
       ),
     );
-    return CincinFokus(
+    final kotak = CincinFokus(
       tampil: _fokus.hasFocus,
       radius: 12,
       child: Container(
@@ -418,6 +418,23 @@ class _IsianKodeState extends State<_IsianKode> {
             decoration: const InputDecoration.collapsed(hintText: null),
           ),
         ),
+      ),
+    );
+    // `<label for="ik">`: tapping the label focuses the field.
+    return MergeSemantics(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          GestureDetector(
+            onTap: _fokus.requestFocus,
+            child: Text(
+              'Kode enam angka',
+              style: TextStyle(fontSize: 14, color: c.tinta2),
+            ),
+          ),
+          const SizedBox(height: 6),
+          kotak,
+        ],
       ),
     );
   }
