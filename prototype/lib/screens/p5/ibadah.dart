@@ -50,7 +50,12 @@ class _IbadahScreenState extends State<IbadahScreen> {
     final t = context.tweak<String>('Ibadah', 'keadaan');
     if (t != _tweak) {
       // A panel change resets the in-board view (spec 22, shared rules).
-      if (_tweak != null && _gulir.hasClients) _gulir.jumpTo(0);
+      // Not during build: jumping fires scroll notifications.
+      if (_tweak != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted && _gulir.hasClients) _gulir.jumpTo(0);
+        });
+      }
       _tweak = t;
       _k = null;
     }
@@ -108,12 +113,16 @@ class _IbadahScreenState extends State<IbadahScreen> {
       ),
       const BarisTombol(
         anak: [
-          Tombol(
-            'Tugaskan penghitung kehadiran',
-            onPressed: null,
-            jenis: JenisTombol.kedua,
-            ukuran: UkuranTombol.sedang,
-            ke: 'Kehadiran',
+          // An `<a>` is content-box: min-height 48 plus the 1.5 line twice.
+          SizedBox(
+            height: 51,
+            child: Tombol(
+              'Tugaskan penghitung kehadiran',
+              onPressed: null,
+              jenis: JenisTombol.kedua,
+              ukuran: UkuranTombol.sedang,
+              ke: 'Kehadiran',
+            ),
           ),
         ],
       ),
@@ -128,12 +137,16 @@ class _IbadahScreenState extends State<IbadahScreen> {
       ),
       const BarisTombol(
         anak: [
-          Tombol(
-            'Buka jumlah kehadiran',
-            onPressed: null,
-            jenis: JenisTombol.kedua,
-            ukuran: UkuranTombol.sedang,
-            ke: 'Kehadiran',
+          // An `<a>` is content-box: min-height 48 plus the 1.5 line twice.
+          SizedBox(
+            height: 51,
+            child: Tombol(
+              'Buka jumlah kehadiran',
+              onPressed: null,
+              jenis: JenisTombol.kedua,
+              ukuran: UkuranTombol.sedang,
+              ke: 'Kehadiran',
+            ),
           ),
         ],
       ),

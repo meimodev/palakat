@@ -60,7 +60,12 @@ class _KehadiranScreenState extends State<KehadiranScreen> {
     final t = context.tweak<String>('Kehadiran', 'keadaan');
     if (t != _tweak) {
       // A panel change resets the in-board view, keeps the count.
-      if (_tweak != null && _gulir.hasClients) _gulir.jumpTo(0);
+      // Not during build: jumping fires scroll notifications.
+      if (_tweak != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted && _gulir.hasClients) _gulir.jumpTo(0);
+        });
+      }
       _tweak = t;
       _k = null;
     }
