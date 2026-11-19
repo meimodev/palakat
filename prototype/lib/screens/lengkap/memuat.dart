@@ -87,54 +87,57 @@ class _MemuatScreenState extends State<MemuatScreen>
           )
         : isiPeriksa(context, st);
     return LayarPonsel(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          kepala,
-          Expanded(
-            child: SingleChildScrollView(
-              key: ValueKey(beranda),
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-              child: kolom(16, isi),
-            ),
-          ),
-          if (!beranda)
-            Container(
-              padding: const EdgeInsets.fromLTRB(20, 12, 20, 22),
-              decoration: BoxDecoration(
-                color: c.permukaan,
-                border: Border(top: BorderSide(color: c.garis)),
+      child: DefaultTextHeightBehavior(
+        textHeightBehavior: cssLeading,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            kepala,
+            Expanded(
+              child: SingleChildScrollView(
+                key: ValueKey(beranda),
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+                child: kolom(16, isi),
               ),
-              child: kolom(8, [
-                if (st == KeadaanMemuat.aksi) ...[
-                  Tombol(
-                    'Coba lagi',
-                    onPressed: cobaBuku,
-                    jenis: JenisTombol.tinta,
-                  ),
-                  const Tombol(
-                    'Biarkan sebagai draf',
-                    onPressed: null,
-                    jenis: JenisTombol.teks,
-                    ke: 'Main',
-                    cara: Cara.naik,
-                  ),
-                ] else
-                  Tautan(
-                    ke: 'Main',
-                    cara: Cara.naik,
-                    radius: 14,
-                    child: rupaTautanKedua(
-                      context,
-                      'Kembali ke Beranda',
-                      tinggi: 48,
-                      radius: 14,
-                      paddingH: 0,
-                    ),
-                  ),
-              ]),
             ),
-        ],
+            if (!beranda)
+              Container(
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 22),
+                decoration: BoxDecoration(
+                  color: c.permukaan,
+                  border: Border(top: BorderSide(color: c.garis)),
+                ),
+                child: kolom(8, [
+                  if (st == KeadaanMemuat.aksi) ...[
+                    Tombol(
+                      'Coba lagi',
+                      onPressed: cobaBuku,
+                      jenis: JenisTombol.tinta,
+                    ),
+                    const Tombol(
+                      'Biarkan sebagai draf',
+                      onPressed: null,
+                      jenis: JenisTombol.teks,
+                      ke: 'Main',
+                      cara: Cara.naik,
+                    ),
+                  ] else
+                    Tautan(
+                      ke: 'Main',
+                      cara: Cara.naik,
+                      radius: 14,
+                      child: rupaTautanKedua(
+                        context,
+                        'Kembali ke Beranda',
+                        tinggi: 48,
+                        radius: 14,
+                        paddingH: 0,
+                      ),
+                    ),
+                ]),
+              ),
+          ],
+        ),
       ),
     );
   }

@@ -37,6 +37,12 @@ Widget rupaTautanKedua(
   );
 }
 
+/// CSS half-leading (even), so text sits where the board's line boxes put it.
+// ponytail: local until lib/theme sets it app-wide (reported as a shared need).
+const cssLeading = TextHeightBehavior(
+  leadingDistribution: TextLeadingDistribution.even,
+);
+
 /// Shared by Memuat and WebMemuat: their state logic and the blocks both
 /// boards draw identically (text size is inherited: 16 phone, 15 web).
 
@@ -49,28 +55,18 @@ const _dariTweak = {
   'Bukukan tidak terjadi': KeadaanMemuat.aksi,
 };
 
-/// The logic class: `state = { st: null }`, `coba`, `cobaBuku`. A change of
-/// the `keadaan` tweak resets `st` and cancels the timer (spec Notes).
+/// The logic class: `state = { st: null }`, `coba`, `cobaBuku`. As on the
+/// canvas, a handler-set `st` overrides the `keadaan` tweak until the board
+/// is reopened (CONVENTIONS board parity; the spec's reset is only advised).
 mixin PengendaliMemuat<T extends StatefulWidget> on State<T> {
   String get stem;
 
   KeadaanMemuat? _st;
-  String? _keadaan;
   Timer? _timer;
 
-  KeadaanMemuat get st => _st ?? _dariTweak[_keadaan]!;
+  KeadaanMemuat get st =>
+      _st ?? _dariTweak[context.tweak<String>(stem, 'keadaan')]!;
   bool get beranda => st.index <= KeadaanMemuat.ada.index;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final k = context.tweak<String>(stem, 'keadaan');
-    if (_keadaan != null && k != _keadaan) {
-      _timer?.cancel();
-      _st = null;
-    }
-    _keadaan = k;
-  }
 
   void coba() {
     setState(() => _st = KeadaanMemuat.muat);

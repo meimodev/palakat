@@ -29,10 +29,10 @@ class _WebMemuatScreenState extends State<WebMemuatScreen>
         : Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Breadcrumb: a 44 px target over the 14 × 1.45 line.
+              // Breadcrumb: a 44 px target over the inline link's 15 × 1.45 line box.
               const MarginNegatif(
-                atas: 11.85,
-                bawah: 11.85,
+                atas: 11.125,
+                bawah: 11.125,
                 child: Tautan(
                   ke: 'WebTransaksi',
                   cara: Cara.naik,
@@ -77,12 +77,16 @@ class _WebMemuatScreenState extends State<WebMemuatScreen>
               runSpacing: 8,
               children: [
                 if (st == KeadaanMemuat.aksi) ...[
-                  Tombol(
-                    'Coba lagi',
-                    onPressed: cobaBuku,
-                    jenis: JenisTombol.tinta,
-                    ukuran: UkuranTombol.ringkas,
-                    lebarPenuh: false,
+                  // Flex-wrap stretches it to the 49 px link beside it.
+                  SizedBox(
+                    height: 49,
+                    child: Tombol(
+                      'Coba lagi',
+                      onPressed: cobaBuku,
+                      jenis: JenisTombol.tinta,
+                      ukuran: UkuranTombol.ringkas,
+                      lebarPenuh: false,
+                    ),
                   ),
                   Tautan(
                     ke: 'WebTransaksi',
@@ -112,23 +116,26 @@ class _WebMemuatScreenState extends State<WebMemuatScreen>
               ],
             ),
           ];
-    return HalamanWeb(
-      // The board keeps "Beranda" active in both views.
-      nav: const NavSamping(
-        item: navKeuangan,
-        aktif: 0,
-        pengguna: PenggunaKeuangan(ikutJabatanKosong: false),
-      ),
-      isi: [
-        Align(alignment: Alignment.centerLeft, child: judul),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 560),
-            child: kolom(16, isi),
-          ),
+    return DefaultTextHeightBehavior(
+      textHeightBehavior: cssLeading,
+      child: HalamanWeb(
+        // The board keeps "Beranda" active in both views.
+        nav: const NavSamping(
+          item: navKeuangan,
+          aktif: 0,
+          pengguna: PenggunaKeuangan(ikutJabatanKosong: false),
         ),
-      ],
+        isi: [
+          Align(alignment: Alignment.centerLeft, child: judul),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 560),
+              child: kolom(16, isi),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
