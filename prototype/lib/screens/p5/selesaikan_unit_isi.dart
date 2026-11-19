@@ -101,11 +101,15 @@ List<Widget> blokSelesaikan(
     onPressed: () => s.pergi(0),
     jenis: JenisTombol.teks,
   );
-  Widget isian(TextEditingController t) => IsianAlur(
-    label: 'Alasan · wajib',
-    controller: t,
-    baris: 3,
-    hanyaBaca: true,
+  // The M3 TextField adds bodyLarge's 0.5 letter spacing; the board has none.
+  Widget isian(TextEditingController t) => DefaultTextStyle.merge(
+    style: const TextStyle(letterSpacing: 0),
+    child: IsianAlur(
+      label: 'Alasan · wajib',
+      controller: t,
+      baris: 3,
+      hanyaBaca: true,
+    ),
   );
 
   switch (s.ki) {
@@ -150,6 +154,7 @@ List<Widget> blokSelesaikan(
                   ),
                 ],
               ),
+              strutStyle: barisCampur(context),
               style: TextStyle(fontSize: 14, color: c.tinta2),
             ),
             kecil(
@@ -294,6 +299,17 @@ List<Widget> blokSelesaikan(
   }
 }
 
+/// A 14 px line holding a mono span inside sans text. Chrome rounds each
+/// font's ascent and descent to whole pixels (sans 15/3, mono 14/4) and the
+/// line box spans both, so it is one pixel taller than `14 × line-height`.
+StrutStyle barisCampur(BuildContext context) => StrutStyle(
+  fontFamily: PalakatText.sans,
+  fontSize: 14,
+  height: (14 * (DefaultTextStyle.of(context).style.height ?? 1.4) + 1) / 14,
+  leadingDistribution: TextLeadingDistribution.even,
+  forceStrutHeight: true,
+);
+
 /// The board's card: `permukaan`, 1 `garis`, radius 14, padding 14 16,
 /// column gap 6, head row title 700 + badge.
 class _KartuUnit extends StatelessWidget {
@@ -352,15 +368,7 @@ class _Info extends StatelessWidget {
           Text(
             nilai,
             textAlign: TextAlign.right,
-            // The CSS line box keeps the parent's sans strut around the
-            // mono span, which makes these rows a little taller.
-            strutStyle: mono
-                ? StrutStyle(
-                    fontFamily: PalakatText.sans,
-                    fontSize: 14,
-                    height: DefaultTextStyle.of(context).style.height,
-                  )
-                : null,
+            strutStyle: mono ? barisCampur(context) : null,
             style: TextStyle(
               color: warna ?? c.tinta,
               fontFamily: mono ? PalakatText.mono : null,
