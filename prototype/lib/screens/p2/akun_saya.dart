@@ -265,10 +265,7 @@ class _AkunSayaScreenState extends State<AkunSayaScreen> {
     onChanged: (_) => setState(() {}),
     petunjuk: '••••••',
     keyboard: TextInputType.number,
-    formatter: [
-      FilteringTextInputFormatter.digitsOnly,
-      LengthLimitingTextInputFormatter(6),
-    ],
+    formatter: [_AngkaSaja(6)],
   );
 
   List<Widget> _akun(BuildContext context) {
@@ -434,10 +431,7 @@ class _AkunSayaScreenState extends State<AkunSayaScreen> {
         petunjuk: '08…',
         keterangan: 'Contoh: 081298765432',
         keyboard: TextInputType.phone,
-        formatter: [
-          FilteringTextInputFormatter.digitsOnly,
-          LengthLimitingTextInputFormatter(13),
-        ],
+        formatter: [_AngkaSaja(13)],
       ),
       if (_hpBaru.text.isNotEmpty && a.isNotEmpty)
         _penolakan('Kirim kode ke nomor baru', a),
@@ -521,4 +515,33 @@ class _AkunSayaScreenState extends State<AkunSayaScreen> {
       ],
     ),
   ];
+}
+
+/// The board's `value.replace(/\D/g, '').slice(0, maks)`: digits only, then
+/// the end is cut, so typing into a full field keeps the new digit (Flutter's
+/// LengthLimitingTextInputFormatter would refuse it).
+class _AngkaSaja extends TextInputFormatter {
+  _AngkaSaja(this.maks);
+
+  final int maks;
+
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue lama,
+    TextEditingValue baru,
+  ) {
+    final t = baru.text.replaceAll(RegExp(r'\D'), '');
+    final s = t.length > maks ? t.substring(0, maks) : t;
+    if (s == baru.text) return baru;
+    final ujung = baru.selection.end.clamp(0, baru.text.length);
+    final kursor = baru.text
+        .substring(0, ujung)
+        .replaceAll(RegExp(r'\D'), '')
+        .length
+        .clamp(0, s.length);
+    return TextEditingValue(
+      text: s,
+      selection: TextSelection.collapsed(offset: kursor),
+    );
+  }
 }
