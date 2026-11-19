@@ -10,6 +10,7 @@ import '../../widgets/alur_kit.dart';
 import '../../widgets/garis_status.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
+import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
 
 const _stem = 'PersembahanSaya';
@@ -97,7 +98,7 @@ class _PersembahanSayaScreenState extends State<PersembahanSayaScreen> {
           'Di Warta Jemaat nama Anda mengikuti Tampilan nama yang Anda pilih: Tanpa nama.',
           style: s13,
         ),
-        BarisTombol(
+        _BarisTombolTautan(
           anak: [
             Tombol(
               'Ubah Tampilan nama',
@@ -249,4 +250,49 @@ class _PersembahanSayaScreenState extends State<PersembahanSayaScreen> {
       ),
     );
   }
+}
+
+/// BarisTombol whose first child is an `<a>` link-button. The board's `<a>`
+/// is content-box (Chrome's `<button>` is border-box), so its flex-basis 150
+/// and max-width 340 grow by padding 32 and border 3: 185 and 375. On the
+/// phone the two first-line buttons are then 188.5 and 153.5 wide, as drawn.
+class _BarisTombolTautan extends StatelessWidget {
+  const _BarisTombolTautan({required this.anak});
+
+  final List<Widget> anak;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, ruang) {
+      final lentur = [
+        for (final (i, a) in anak.indexed)
+          i == 0
+              ? Lentur(dasar: 185, maks: 375, child: a)
+              : Lentur(dasar: 150, maks: 340, child: a),
+      ];
+      final semua = BarisLentur.lebar(lentur, 8, ruang.maxWidth);
+      var i = 0;
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (final (n, b) in semua.indexed) ...[
+            if (n > 0) const SizedBox(height: 8),
+            IntrinsicHeight(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (final (k, w) in b.indexed) ...[
+                    if (k > 0) const SizedBox(width: 8),
+                    SizedBox(width: w, child: anak[i++]),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ],
+      );
+    },
+  );
 }
