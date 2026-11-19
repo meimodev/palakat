@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -137,9 +139,11 @@ class _PersembahanKendaliState extends State<PersembahanKendali> {
     keadaan: _keadaan,
     child: GenerasiPapan(
       generasi: _generasi,
-      child: LayarPonsel(
-        jabatanKosong: true,
-        child: Material(type: MaterialType.transparency, child: widget.child),
+      // Material outside LayarPonsel: inside, its bodyMedium text style
+      // would replace the phone's 16 / 1.4 body text.
+      child: Material(
+        type: MaterialType.transparency,
+        child: LayarPonsel(jabatanKosong: true, child: widget.child),
       ),
     ),
   );
@@ -612,27 +616,13 @@ class _Hasil extends StatelessWidget {
 
     Widget baris(String judul, String sub, String nilai) => Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  judul,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                Text(sub, style: ket13),
-              ],
-            ),
-          ),
-          const SizedBox(width: 12),
-          Text(nilai, style: jumlah),
-        ],
+      child: _BarisSusut(
+        judul: (
+          judul,
+          const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+        ),
+        sub: (sub, ket13),
+        nilai: (nilai, jumlah),
       ),
     );
 
@@ -757,13 +747,20 @@ class _Hasil extends StatelessWidget {
                 style: const TextStyle(fontSize: 14),
               ),
               const SizedBox(height: 8),
-              const Tombol(
-                'Catat setoran ke bank',
-                onPressed: null,
+              // An `<a>`, content-box: min-height 44 plus the 1.5 line twice.
+              Tautan(
                 ke: 'Main',
                 cara: Cara.ganti,
-                jenis: JenisTombol.kedua,
-                ukuran: UkuranTombol.kecil,
+                radius: 12,
+                child: RupaTombol(
+                  label: 'Catat setoran ke bank',
+                  isi: c.permukaan,
+                  garis: GarisBorder.penuh(c.tinta, radius: 12),
+                  warnaTeks: c.tinta,
+                  radius: 12,
+                  tinggi: 47,
+                  paddingH: 0,
+                ),
               ),
             ],
           ),
@@ -808,6 +805,81 @@ class _Hasil extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// A Hasil row as the board's flex row (space-between, gap 12): both sides
+/// keep their max-content width when they fit; otherwise both shrink in
+/// proportion to it, neither below its longest word, so "+ Rp450.000"
+/// breaks after "+" as on the board.
+class _BarisSusut extends StatelessWidget {
+  const _BarisSusut({
+    required this.judul,
+    required this.sub,
+    required this.nilai,
+  });
+  final (String, TextStyle) judul, sub, nilai;
+
+  @override
+  Widget build(BuildContext context) {
+    final dasar = DefaultTextStyle.of(context).style;
+    final skala = MediaQuery.textScalerOf(context);
+    double lebar(String t, TextStyle g) {
+      final tp = TextPainter(
+        text: TextSpan(text: t, style: dasar.merge(g)),
+        textDirection: TextDirection.ltr,
+        textScaler: skala,
+      )..layout();
+      final w = tp.width;
+      tp.dispose();
+      return w;
+    }
+
+    double kata((String, TextStyle) t) =>
+        t.$1.split(' ').map((k) => lebar(k, t.$2)).reduce(math.max);
+
+    final kiri = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(judul.$1, style: judul.$2),
+        Text(sub.$1, style: sub.$2),
+      ],
+    );
+    final kanan = Text(nilai.$1, style: nilai.$2);
+    return LayoutBuilder(
+      builder: (context, k) {
+        const jarak = 12.0;
+        final ada = k.maxWidth - jarak;
+        final l = math.max(lebar(judul.$1, judul.$2), lebar(sub.$1, sub.$2));
+        final r = lebar(nilai.$1, nilai.$2);
+        if (l + r <= ada) {
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(child: kiri),
+              const SizedBox(width: jarak),
+              kanan,
+            ],
+          );
+        }
+        final lebih = l + r - ada;
+        var rw = r - lebih * r / (l + r);
+        final rMin = kata(nilai);
+        final lMin = math.max(kata(judul), kata(sub));
+        if (rw < rMin) rw = rMin;
+        if (ada - rw < lMin) rw = ada - lMin;
+        // + 0.5: room for sub-pixel rounding, so the longest word never splits.
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(child: kiri),
+            const SizedBox(width: jarak),
+            SizedBox(width: rw + 0.5, child: kanan),
+          ],
+        );
+      },
     );
   }
 }
