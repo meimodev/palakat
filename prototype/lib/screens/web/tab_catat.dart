@@ -80,6 +80,10 @@ const _tautanAtas = [
 
 enum _Cek { ok, gagal, info }
 
+/// TextField merges the theme's bodyLarge (letter spacing 0.5) under
+/// IsianTeks's style; the board's inputs inherit 0.
+const _isian = TextStyle(letterSpacing: 0);
+
 /// Tablet · Catat transaksi (spec 13-tabberanda.md, TabCatat).
 class TabCatatScreen extends StatefulWidget {
   const TabCatatScreen({super.key});
@@ -368,6 +372,7 @@ class _TabCatatScreenState extends State<TabCatatScreen> {
                 petunjuk: 'Cari nomor atau nama',
                 latar: c.kertas,
                 minTinggi: 44,
+                gaya: _isian,
                 onChanged: (_) => setState(() {}),
               ),
               for (final r in PemilihMataAnggaran.saring(
@@ -472,12 +477,14 @@ class _TabCatatScreenState extends State<TabCatatScreen> {
           label: l.pihak,
           controller: _pihakC,
           jarakLabel: 6,
+          gaya: _isian,
           onChanged: (_) => setState(() {}),
         ),
         IsianTeks(
           label: 'Uraian',
           controller: _urC,
           jarakLabel: 6,
+          gaya: _isian,
           onChanged: (_) => setState(() {}),
         ),
       ],
