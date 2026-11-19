@@ -185,10 +185,14 @@ class _Pratinjau extends StatelessWidget {
       children: [
         Row(
           children: [
-            const Expanded(
-              child: Text(
-                'Pratinjau halaman 1',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+            Expanded(
+              // Board h2.
+              child: Semantics(
+                header: true,
+                child: const Text(
+                  'Pratinjau halaman 1',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                ),
               ),
             ),
             const SizedBox(width: 16),
