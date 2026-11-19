@@ -234,11 +234,19 @@ class _AlurNamaScreenState extends State<AlurNamaScreen> {
         ],
       ),
     ),
-    KotakCentang(
-      nilai: _paham,
-      onUbah: (v) => setState(() => _paham = v),
-      label: const Text(
-        'Saya mengerti data saya akan dihapus dan tidak dapat dikembalikan. Untuk menjadi anggota lagi saya harus mengajukan permohonan baru.',
+    // The board's box has `margin: 2px 0 0`; the label stays at the top.
+    // Paint-only shifts keep the row's laid-out height.
+    Transform.translate(
+      offset: const Offset(0, 2),
+      child: KotakCentang(
+        nilai: _paham,
+        onUbah: (v) => setState(() => _paham = v),
+        label: Transform.translate(
+          offset: const Offset(0, -2),
+          child: const Text(
+            'Saya mengerti data saya akan dihapus dan tidak dapat dikembalikan. Untuk menjadi anggota lagi saya harus mengajukan permohonan baru.',
+          ),
+        ),
       ),
     ),
     BarisTombol(
