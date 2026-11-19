@@ -61,7 +61,8 @@ mixin LogikaCari<T extends StatefulWidget> on State<T> {
       labelSemantik: 'Cari transaksi',
       petunjuk: 'Cari dengan kata sehari-hari',
       minTinggi: 52,
-      gaya: const TextStyle(fontSize: 16),
+      // letterSpacing 0: the theme's M3 bodyLarge (0.5) leaks into TextField.
+      gaya: const TextStyle(fontSize: 16, letterSpacing: 0),
       onChanged: onQ,
     ),
     if (cocok) ...[
