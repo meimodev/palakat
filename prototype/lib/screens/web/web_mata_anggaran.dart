@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show OverflowBoxFit;
 
 import '../../mock/jabatan_kosong.dart';
 import '../../motion/kerangka.dart';
@@ -93,7 +94,7 @@ double _lebarTeks(BuildContext context, String teks, TextStyle gaya) {
   )..layout();
   final w = tp.width;
   tp.dispose();
-  return w.ceilToDouble() + 1;
+  return w.ceilToDouble();
 }
 
 class WebMataAnggaranScreen extends StatefulWidget {
@@ -121,7 +122,6 @@ class _WebMataAnggaranScreenState extends State<WebMataAnggaranScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.warna;
     final jk = context.prototipe.jabatanKosong;
     final kosongN = _boleh.values.where((v) => v.isEmpty).length;
     final vTeks = tukarJkPapan(
@@ -132,6 +132,17 @@ class _WebMataAnggaranScreenState extends State<WebMataAnggaranScreen> {
           : '2 baris baru · 1 nama berubah dibanding versi 2026.1 · usulan berlaku mulai Desember 2026',
     );
 
+    // CSS splits a line's leading evenly above and below the glyphs.
+    return DefaultTextHeightBehavior(
+      textHeightBehavior: const TextHeightBehavior(
+        leadingDistribution: TextLeadingDistribution.even,
+      ),
+      child: _halaman(context, vTeks, kosongN),
+    );
+  }
+
+  Widget _halaman(BuildContext context, String vTeks, int kosongN) {
+    final c = context.warna;
     return HalamanWeb(
       nav: NavSamping(
         item: navKeuangan,
@@ -439,7 +450,11 @@ class _WebMataAnggaranScreenState extends State<WebMataAnggaranScreen> {
 
   Widget _tabel(BuildContext context) {
     final c = context.warna;
-    Widget kisi(List<Widget> sel) => Row(
+    Widget kisi(
+      List<Widget> sel, {
+      CrossAxisAlignment rata = CrossAxisAlignment.center,
+    }) => Row(
+      crossAxisAlignment: rata,
       children: [
         SizedBox(width: 170, child: sel[0]),
         const SizedBox(width: 16),
@@ -478,12 +493,13 @@ class _WebMataAnggaranScreenState extends State<WebMataAnggaranScreen> {
                         fontWeight: FontWeight.w600,
                         color: c.tinta2,
                       ),
+                      // The header grid stretches its cells: text sits on top.
                       child: kisi(const [
                         Text('No. MA'),
                         Text('Nama Mata Anggaran'),
                         Text('Jenis baris'),
                         Text('Boleh untuk'),
-                      ]),
+                      ], rata: CrossAxisAlignment.start),
                     ),
                   ),
                   for (final r in _data[_tab]!) _baris(context, r, kisi),
@@ -499,10 +515,23 @@ class _WebMataAnggaranScreenState extends State<WebMataAnggaranScreen> {
   Widget _baris(
     BuildContext context,
     _Baris r,
-    Widget Function(List<Widget>) kisi,
+    Widget Function(List<Widget>, {CrossAxisAlignment rata}) kisi,
   ) {
     final c = context.warna;
     final cur = _boleh[r.k] ?? '';
+    final gayaNama = TextStyle(
+      fontWeight: r.grup ? FontWeight.w700 : FontWeight.w500,
+    );
+    final gayaTanda = TextStyle(
+      fontSize: 13,
+      fontWeight: FontWeight.w700,
+      height: 1.25,
+      color: c.laut,
+    );
+    // CSS never breaks inside a word: one wider than the column spills over.
+    final lebarKata = [
+      for (final w in r.n.split(' ')) _lebarTeks(context, w, gayaNama),
+    ].reduce(math.max);
     return Container(
       // content-box min-height 56, plus padding 6 + 6 and the 1 px line.
       constraints: const BoxConstraints(minHeight: 69),
@@ -517,43 +546,53 @@ class _WebMataAnggaranScreenState extends State<WebMataAnggaranScreen> {
           r.k,
           style: const TextStyle(fontFamily: PalakatText.mono, fontSize: 14),
         ),
-        Text.rich(
-          TextSpan(
-            children: [
+        LayoutBuilder(
+          builder: (context, k) {
+            final nama = Text.rich(
               TextSpan(
-                text: r.n,
-                style: TextStyle(
-                  fontWeight: r.grup ? FontWeight.w700 : FontWeight.w500,
-                ),
-              ),
-              if (r.tanda.isNotEmpty) ...[
-                const TextSpan(text: ' '),
-                WidgetSpan(
-                  alignment: PlaceholderAlignment.baseline,
-                  baseline: TextBaseline.alphabetic,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 7,
-                      vertical: 1,
-                    ),
-                    decoration: ShapeDecoration(
-                      shape: GarisBorder.penuh(c.laut, radius: 6),
-                    ),
-                    child: Text(
-                      r.tanda,
-                      softWrap: false,
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        height: 1.25,
-                        color: c.laut,
+                children: [
+                  TextSpan(text: r.n, style: gayaNama),
+                  if (r.tanda.isNotEmpty) ...[
+                    const TextSpan(text: ' '),
+                    WidgetSpan(
+                      alignment: PlaceholderAlignment.baseline,
+                      baseline: TextBaseline.alphabetic,
+                      // white-space: nowrap; a tag wider than the column
+                      // takes a line of its own and spills over it.
+                      child: OverflowBox(
+                        alignment: Alignment.centerLeft,
+                        fit: OverflowBoxFit.deferToChild,
+                        minWidth: 0,
+                        maxWidth: double.infinity,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 7,
+                            vertical: 1,
+                          ),
+                          decoration: ShapeDecoration(
+                            shape: GarisBorder.penuh(c.laut, radius: 6),
+                          ),
+                          child: Text(
+                            r.tanda,
+                            softWrap: false,
+                            style: gayaTanda,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
-              ],
-            ],
-          ),
+                  ],
+                ],
+              ),
+            );
+            if (lebarKata <= k.maxWidth) return nama;
+            return OverflowBox(
+              alignment: Alignment.topLeft,
+              fit: OverflowBoxFit.deferToChild,
+              minWidth: 0,
+              maxWidth: lebarKata,
+              child: nama,
+            );
+          },
         ),
         Text(
           r.grup ? 'Judul kelompok, tidak dapat dibukukan' : 'Dapat dibukukan',

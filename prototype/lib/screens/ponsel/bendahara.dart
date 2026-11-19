@@ -129,11 +129,17 @@ class BendaharaScreen extends StatelessWidget {
         context.tweak<String>('Bendahara', 'keadaan') != 'Bendahara aktif';
     return ColoredBox(
       color: context.warna.kertas,
-      child: kosong
-          ? const _Kosong()
-          : anak == 'serah'
-          ? const _Serah()
-          : const _Utama(),
+      // CSS splits a line's leading evenly above and below the glyphs.
+      child: DefaultTextHeightBehavior(
+        textHeightBehavior: const TextHeightBehavior(
+          leadingDistribution: TextLeadingDistribution.even,
+        ),
+        child: kosong
+            ? const _Kosong()
+            : anak == 'serah'
+            ? const _Serah()
+            : const _Utama(),
+      ),
     );
   }
 }
@@ -154,7 +160,7 @@ double _lebarTeks(BuildContext context, String teks, TextStyle gaya) {
   )..layout();
   final w = tp.width;
   tp.dispose();
-  return w.ceilToDouble() + 1;
+  return w.ceilToDouble();
 }
 
 /// CSS `display: flex; justify-content: space-between; align-items: center`
