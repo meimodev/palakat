@@ -9,7 +9,7 @@ import '../../theme/palakat_tema.dart';
 import '../../widgets/chip_pilihan.dart';
 import '../../widgets/garis.dart';
 import '../../widgets/garis_status.dart';
-import '../../widgets/isian_jumlah.dart';
+import '../../widgets/input_format.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
@@ -93,18 +93,7 @@ class _IsiUbahPengaturanState extends State<IsiUbahPengaturan> {
 
   void _ubah(VoidCallback f) => setState(f);
 
-  void _onBatas(String v) {
-    // IsianJumlah keeps 11 digits; the board keeps 10.
-    final angka = hanyaAngka(v, max: 10);
-    final teks = titik(angka);
-    if (teks != v) {
-      _batas.value = TextEditingValue(
-        text: teks,
-        selection: TextSelection.collapsed(offset: teks.length),
-      );
-    }
-    _ubah(() => d.batas = angka);
-  }
+  void _onBatas(String v) => _ubah(() => d.batas = hanyaAngka(v, max: 10));
 
   @override
   Widget build(BuildContext context) {
@@ -254,14 +243,7 @@ class _IsiUbahPengaturanState extends State<IsiUbahPengaturan> {
             style: TextStyle(fontWeight: FontWeight.w600),
           ),
         ),
-        IsianJumlah(
-          label: 'Wajib untuk Belanja mulai dari',
-          controller: _batas,
-          onChanged: _onBatas,
-          ukuran: UkuranJumlah.sedang,
-          petunjuk: '',
-          lebarMaks: 280,
-        ),
+        _IsianBatas(controller: _batas, onChanged: _onBatas),
         mulai,
       ],
     };
@@ -356,6 +338,124 @@ class _FormatAwalan extends TextInputFormatter {
     return TextEditingValue(
       text: t,
       selection: TextSelection.collapsed(offset: t.length),
+    );
+  }
+}
+
+/// The approval threshold: IsianJumlah's 26 px look, but at most 10 digits
+/// and the figure centred in its 44 px box as the board's input is
+/// (IsianJumlah sets `maks` 11 and draws the figure at the box top).
+class _IsianBatas extends StatefulWidget {
+  const _IsianBatas({required this.controller, required this.onChanged});
+
+  final TextEditingController controller;
+  final ValueChanged<String> onChanged;
+
+  @override
+  State<_IsianBatas> createState() => _IsianBatasState();
+}
+
+class _IsianBatasState extends State<_IsianBatas> {
+  final _fokus = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _fokus.addListener(_ubah);
+  }
+
+  void _ubah() => setState(() {});
+
+  @override
+  void dispose() {
+    _fokus.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.warna;
+    final dasar = DefaultTextStyle.of(context).style;
+    final angka = dasar.copyWith(
+      fontFamily: PalakatText.mono,
+      fontSize: 26,
+      fontWeight: FontWeight.w500,
+    );
+    const label = 'Wajib untuk Belanja mulai dari';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // An inline <label>: it sits on the parent's 16 px line box.
+        ExcludeSemantics(
+          child: GestureDetector(
+            onTap: _fokus.requestFocus,
+            child: Text(
+              label,
+              strutStyle: StrutStyle.fromTextStyle(dasar),
+              style: TextStyle(fontSize: 14, color: c.tinta2),
+            ),
+          ),
+        ),
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 280),
+          child: Container(
+            padding: const EdgeInsets.only(bottom: 4),
+            decoration: BoxDecoration(
+              border: Border(bottom: BorderSide(color: c.tinta, width: 2)),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              children: [
+                ExcludeSemantics(
+                  child: Text(
+                    'Rp',
+                    style: TextStyle(
+                      fontFamily: PalakatText.mono,
+                      fontSize: 18,
+                      color: c.tinta3,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Semantics(
+                    label: label,
+                    child: CincinFokus(
+                      tampil: _fokus.hasFocus,
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(minHeight: 44),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          heightFactor: 1,
+                          child: Material(
+                            type: MaterialType.transparency,
+                            child: TextField(
+                              controller: widget.controller,
+                              focusNode: _fokus,
+                              onChanged: widget.onChanged,
+                              keyboardType: TextInputType.number,
+                              inputFormatters: const [
+                                RupiahInputFormatter(maks: 10),
+                              ],
+                              style: angka,
+                              cursorColor: c.laut,
+                              decoration: const InputDecoration(
+                                isCollapsed: true,
+                                border: InputBorder.none,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
