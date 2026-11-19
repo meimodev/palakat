@@ -10,7 +10,6 @@ import '../../theme/palakat_tema.dart';
 import '../../widgets/garis.dart';
 import '../../widgets/garis_status.dart';
 import '../../widgets/input_format.dart';
-import '../../widgets/isian_jumlah.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tahapan.dart';
 import '../../widgets/tekan.dart';
@@ -218,12 +217,9 @@ mixin RekonIsiLogika<W extends StatefulWidget> on State<W> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            IsianJumlah(
-              label: 'Saldo rekening koran',
+            _IsianSaldo(
               controller: _saldo,
               onChanged: (_) => setState(() {}),
-              ukuran: UkuranJumlah.sedang,
-              petunjuk: '—',
               hanyaBaca: !kerja,
             ),
             const SizedBox(height: 4),
@@ -557,21 +553,7 @@ mixin RekonIsiLogika<W extends StatefulWidget> on State<W> {
                     child: Center(
                       widthFactor: 1,
                       heightFactor: 1,
-                      child: Text.rich(
-                        TextSpan(
-                          children: [
-                            const TextSpan(text: 'Cocokkan · '),
-                            const WidgetSpan(child: SizedBox(width: 4)),
-                            TextSpan(
-                              text: '${_t[k]!.$1} · ${rp(_t[k]!.$3)}',
-                              style: const TextStyle(
-                                fontFamily: PalakatText.mono,
-                              ),
-                            ),
-                          ],
-                        ),
-                        style: t13.copyWith(fontWeight: FontWeight.w700),
-                      ),
+                      child: _IsiCocokkan('${_t[k]!.$1} · ${rp(_t[k]!.$3)}'),
                     ),
                   ),
                 ),
@@ -606,6 +588,167 @@ mixin RekonIsiLogika<W extends StatefulWidget> on State<W> {
             style: TextStyle(fontSize: 14, color: c.tinta2),
           ),
       ], 6),
+    );
+  }
+}
+
+/// The inside of a "Cocokkan · …" button. The board's button is inline-flex,
+/// so "Cocokkan ·" and the mono span are two flex items that shrink in
+/// proportion to their own widths and wrap separately.
+class _IsiCocokkan extends StatelessWidget {
+  const _IsiCocokkan(this.kode);
+  final String kode;
+
+  @override
+  Widget build(BuildContext context) {
+    final gaya = DefaultTextStyle.of(context).style
+        .merge(const TextStyle(fontSize: 13, fontWeight: FontWeight.w700));
+    final mono = gaya.copyWith(fontFamily: PalakatText.mono);
+    final skala = MediaQuery.textScalerOf(context);
+    int lebar(String t, TextStyle s) {
+      final tp = TextPainter(
+        text: TextSpan(text: t, style: s),
+        textDirection: TextDirection.ltr,
+        textScaler: skala,
+      )..layout();
+      final w = (tp.width * 100).ceil();
+      tp.dispose();
+      return w;
+    }
+
+    const awal = 'Cocokkan ·';
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Flexible(
+          flex: lebar(awal, gaya),
+          child: Text(awal, style: gaya),
+        ),
+        const SizedBox(width: 4),
+        Flexible(
+          flex: lebar(kode, mono),
+          child: Text(kode, style: mono),
+        ),
+      ],
+    );
+  }
+}
+
+/// The saldo field: IsianJumlah at 26 px, but the board keeps 12 digits
+/// (`slice(0, 12)`) and IsianJumlah's formatter stops at 11.
+// ponytail: drop for IsianJumlah(ukuran: sedang, petunjuk: '—') once it takes `maks`.
+class _IsianSaldo extends StatefulWidget {
+  const _IsianSaldo({
+    required this.controller,
+    required this.onChanged,
+    required this.hanyaBaca,
+  });
+  final TextEditingController controller;
+  final ValueChanged<String> onChanged;
+  final bool hanyaBaca;
+
+  @override
+  State<_IsianSaldo> createState() => _IsianSaldoState();
+}
+
+class _IsianSaldoState extends State<_IsianSaldo> {
+  final _fokus = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _fokus.addListener(_ubah);
+  }
+
+  void _ubah() => setState(() {});
+
+  @override
+  void dispose() {
+    _fokus.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.warna;
+    final dasar = DefaultTextStyle.of(context).style;
+    final angka = dasar.copyWith(
+      fontFamily: PalakatText.mono,
+      fontFeatures: const [FontFeature.tabularFigures()],
+      fontSize: 26,
+      fontWeight: FontWeight.w500,
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ExcludeSemantics(
+          child: GestureDetector(
+            onTap: _fokus.requestFocus,
+            child: Text(
+              'Saldo rekening koran',
+              strutStyle: StrutStyle.fromTextStyle(dasar),
+              style: TextStyle(fontSize: 14, color: c.tinta2),
+            ),
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.only(bottom: 4),
+          decoration: BoxDecoration(
+            border: Border(bottom: BorderSide(color: c.tinta, width: 2)),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              ExcludeSemantics(
+                child: Text(
+                  'Rp',
+                  style: TextStyle(
+                    fontFamily: PalakatText.mono,
+                    fontSize: 18,
+                    color: c.tinta3,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Semantics(
+                  label: 'Saldo rekening koran',
+                  child: CincinFokus(
+                    tampil: _fokus.hasFocus,
+                    child: Material(
+                      type: MaterialType.transparency,
+                      child: TextField(
+                        controller: widget.controller,
+                        focusNode: _fokus,
+                        onChanged: widget.onChanged,
+                        readOnly: widget.hanyaBaca,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: const [RupiahInputFormatter(maks: 12)],
+                        textAlignVertical: TextAlignVertical.center,
+                        style: angka,
+                        cursorColor: c.laut,
+                        decoration: InputDecoration(
+                          isCollapsed: true,
+                          border: InputBorder.none,
+                          // min-height 44 with the line centred, as in Chrome.
+                          contentPadding: EdgeInsets.symmetric(
+                            vertical: ((44 - 26 * (dasar.height ?? 1.4)) / 2)
+                                .clamp(0, 22),
+                          ),
+                          hintText: '—',
+                          hintStyle: angka.copyWith(color: c.tinta3),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
