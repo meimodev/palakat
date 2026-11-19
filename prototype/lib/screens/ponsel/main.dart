@@ -76,7 +76,8 @@ const Map<String, _Cfg> _cfg = {
     tanda: 1,
   ),
   'pindah': (
-    judul: 'Pindah antar Kas/Bank',
+    // U+2060 keeps "Kas/Bank" whole: Chrome does not break after the slash.
+    judul: 'Pindah antar Kas/\u2060Bank',
     pohon: '',
     akun: 'Dari Kas/Bank',
     per: '',
