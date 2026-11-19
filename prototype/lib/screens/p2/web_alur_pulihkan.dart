@@ -336,11 +336,20 @@ class _WebAlurPulihkanState extends State<WebAlurPulihkanScreen> {
           mono: true,
         ),
       ]),
-      KotakCentang(
-        nilai: _kenal,
-        onUbah: (_) => _set(() => _kenal = !_kenal),
-        label: const Text(
-          'Saya sudah bertemu atau berbicara langsung dengan orang ini, dan nomor baru itu memang miliknya.',
+      // The board's box has `margin: 2px 0 0`; the shared row has none, so
+      // the row is drawn 2 lower and the sentence 2 back up (layout unchanged:
+      // the row keeps its 44 min height, as the board's label).
+      Transform.translate(
+        offset: const Offset(0, 2),
+        child: KotakCentang(
+          nilai: _kenal,
+          onUbah: (_) => _set(() => _kenal = !_kenal),
+          label: Transform.translate(
+            offset: const Offset(0, -2),
+            child: const Text(
+              'Saya sudah bertemu atau berbicara langsung dengan orang ini, dan nomor baru itu memang miliknya.',
+            ),
+          ),
         ),
       ),
       if (!_kenal)
