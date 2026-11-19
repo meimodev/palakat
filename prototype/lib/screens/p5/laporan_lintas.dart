@@ -53,10 +53,11 @@ const _stat = [
   ['96', '31', '2', '38', 'Kolom 7 saja'],
 ];
 
-/// Money card per reach: uj, uv, uk.
+/// Money card per reach: uj, uv, uk. U+2060 keeps "Kas/Bank" whole: Chrome
+/// does not break after the slash there, Flutter would.
 const _uang = [
   [
-    'Saldo buku semua Kas/Bank',
+    'Saldo buku semua Kas/\u2060Bank',
     'Rp38.415.000',
     'Keuangan · hanya yang sudah dibukukan',
   ],
@@ -71,7 +72,7 @@ const _uang = [
     'Panitia · tahap Aktif',
   ],
   [
-    'Saldo buku semua Kas/Bank',
+    'Saldo buku semua Kas/\u2060Bank',
     'Rp38.415.000',
     'Keuangan · hanya yang sudah dibukukan',
   ],
