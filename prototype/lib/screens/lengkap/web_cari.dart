@@ -1,9 +1,54 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
-import '../../shell/belum_dibangun.dart';
+import '../../shell/halaman_web.dart';
+import '../../shell/nav_samping.dart';
+import '../../widgets/tata_letak.dart';
+import 'cari_bagian.dart';
 
-class WebCariScreen extends StatelessWidget {
+/// Web · Cari dan tanya (spec 08, WebCari).
+class WebCariScreen extends StatefulWidget {
   const WebCariScreen({super.key});
+
   @override
-  Widget build(BuildContext context) => const BelumDibangun(stem: 'WebCari');
+  State<WebCariScreen> createState() => _WebCariScreenState();
+}
+
+class _WebCariScreenState extends State<WebCariScreen> with LogikaCari {
+  @override
+  Widget build(BuildContext context) => HalamanWeb(
+    jabatanKosong: true,
+    nav: const NavSamping(
+      item: navKeuangan,
+      aktif: 1,
+      pengguna: PenggunaKeuangan(),
+    ),
+    isi: [
+      Semantics(
+        header: true,
+        child: const Text(
+          'Cari',
+          style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700),
+        ),
+      ),
+      BarisLentur(
+        jarak: 24,
+        anak: [
+          Lentur(
+            dasar: 480,
+            tumbuh: 999,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final (i, w) in hasil(ke: 'WebTransaksi').indexed) ...[
+                  if (i > 0) const SizedBox(height: 16),
+                  w,
+                ],
+              ],
+            ),
+          ),
+          Lentur(dasar: 380, child: panelAi()),
+        ],
+      ),
+    ],
+  );
 }
