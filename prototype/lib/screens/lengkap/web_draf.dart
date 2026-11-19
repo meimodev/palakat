@@ -103,11 +103,24 @@ class _WebDrafScreenState extends State<WebDrafScreen> {
       ],
     );
 
-    Widget tombol(String label, VoidCallback onTap) => Tombol(
+    // The board's button row is a wrapping flex row with `align-items:
+    // stretch`: a 48 button that shares the first line with the 52 high
+    // "Periksa dan bukukan" grows to 52.
+    final bisaBuku = draf && !tutup && !kosong;
+    final gayaTombol = DefaultTextStyle.of(context).style
+        .copyWith(fontWeight: FontWeight.w700);
+    double lebarTombol(String label) =>
+        (TextPainter(
+          text: TextSpan(text: label, style: gayaTombol),
+          textDirection: TextDirection.ltr,
+          textScaler: MediaQuery.textScalerOf(context),
+        )..layout()).width +
+        43; // padding 2 × 20 + the 1.5 line on each side
+    Widget tombol(String label, VoidCallback onTap, bool tinggi) => Tombol(
       label,
       onPressed: onTap,
       jenis: JenisTombol.kedua,
-      ukuran: UkuranTombol.sedang,
+      ukuran: tinggi ? UkuranTombol.besar : UkuranTombol.sedang,
       paddingH: 20,
       lebarPenuh: false,
     );
@@ -241,30 +254,52 @@ class _WebDrafScreenState extends State<WebDrafScreen> {
           ),
         ),
       if (draf)
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              if (!tutup && !kosong)
-                const Tombol(
-                  'Periksa dan bukukan',
-                  onPressed: null,
-                  ke: 'WebCatat',
-                  paddingH: 20,
-                  lebarPenuh: false,
-                ),
-              if (!kosong) ...[
-                // Kept in full look while the conflict locks them; the
-                // conflict card above is the reason.
-                tombol('Pindah tanggal', () => _buka('pindah')),
-                tombol('Batalkan', () => _buka('batal')),
-              ],
-              if (kosong)
-                tombol('Hapus draf', () => setState(() => _st = 'hapus')),
-            ],
-          ),
+        LayoutBuilder(
+          builder: (context, batas) {
+            // Which of Pindah tanggal / Batalkan still fit on the first line.
+            var x = bisaBuku ? lebarTombol('Periksa dan bukukan') : 0.0;
+            bool sebaris(String label) {
+              if (!bisaBuku) return false;
+              x += 8 + lebarTombol(label);
+              return x <= batas.maxWidth;
+            }
+
+            final pindahTinggi = sebaris('Pindah tanggal');
+            final batalTinggi = pindahTinggi && sebaris('Batalkan');
+            return Align(
+              alignment: Alignment.centerLeft,
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  if (bisaBuku)
+                    const Tombol(
+                      'Periksa dan bukukan',
+                      onPressed: null,
+                      ke: 'WebCatat',
+                      paddingH: 20,
+                      lebarPenuh: false,
+                    ),
+                  if (!kosong) ...[
+                    // Kept in full look while the conflict locks them; the
+                    // conflict card above is the reason.
+                    tombol(
+                      'Pindah tanggal',
+                      () => _buka('pindah'),
+                      pindahTinggi,
+                    ),
+                    tombol('Batalkan', () => _buka('batal'), batalTinggi),
+                  ],
+                  if (kosong)
+                    tombol(
+                      'Hapus draf',
+                      () => setState(() => _st = 'hapus'),
+                      false,
+                    ),
+                ],
+              ),
+            );
+          },
         ),
       kolom([
         const Text(
@@ -323,6 +358,8 @@ class _WebDrafScreenState extends State<WebDrafScreen> {
                   ],
                   terpilih: _ke,
                   onPilih: (b) => setState(() => _ke = b),
+                  // The inline chips' line box sits 2 px lower on the board.
+                  jarakLabel: 10,
                 ),
               // The inline textarea leaves a line-box descent (4 px) under it.
               Padding(
