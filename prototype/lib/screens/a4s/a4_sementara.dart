@@ -33,7 +33,6 @@ class A4SementaraScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tinta2 = context.warna.tinta2;
     return HalamanA4(
       ukuran: const Size(794, 1123),
       kode: 'F01 · LAPORAN SEMENTARA · BUKAN LAPORAN RESMI',
@@ -72,15 +71,18 @@ class A4SementaraScreen extends StatelessWidget {
                 sel: [
                   tambah == null
                       ? baris
-                      : Text.rich(
-                          TextSpan(
-                            children: [
-                              TextSpan(text: '$baris '),
-                              TextSpan(
-                                text: tambah,
-                                style: TextStyle(color: tinta2),
-                              ),
-                            ],
+                      // Builder: read tinta2 under the page's light Theme, not the app's.
+                      : Builder(
+                          builder: (context) => Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(text: '$baris '),
+                                TextSpan(
+                                  text: tambah,
+                                  style: TextStyle(color: context.warna.tinta2),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                   jumlah,
