@@ -376,11 +376,7 @@ class _BarisF01 extends StatelessWidget {
           if (catatan.isNotEmpty)
             TextSpan(
               text: '· $catatan',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w400,
-                color: c.tinta3,
-              ),
+              style: TextStyle(fontSize: 13, color: c.tinta3),
             ),
         ],
       ),
@@ -466,63 +462,82 @@ class _TabelPosisi extends StatelessWidget {
         style: gaya(i, kepala),
       ),
     );
-    // CSS auto table layout: spare width goes to each column in proportion
-    // to its max-content width.
+    // CSS auto table layout: each column's min-content (longest word) and
+    // max-content width, both plus its 12 px left padding.
     final dasar = DefaultTextStyle.of(context).style.copyWith(fontSize: 14);
     final skala = MediaQuery.textScalerOf(context);
-    double lebarTeks(String t, int i, bool kepala) {
-      final tp = TextPainter(
-        text: TextSpan(text: t, style: dasar.merge(gaya(i, kepala))),
-        textDirection: TextDirection.ltr,
-        textScaler: skala,
-      )..layout();
-      final w = tp.width + (i == 0 ? 0 : 12);
-      tp.dispose();
-      return w;
+    final minK = List.filled(_kepala.length, 0.0);
+    final maksK = List.filled(_kepala.length, 0.0);
+    for (var i = 0; i < _kepala.length; i++) {
+      for (final (t, kepala) in [
+        (_kepala[i], true),
+        for (final r in _posisi) (r[i], false),
+      ]) {
+        final tp = TextPainter(
+          text: TextSpan(text: t, style: dasar.merge(gaya(i, kepala))),
+          textDirection: TextDirection.ltr,
+          textScaler: skala,
+        )..layout();
+        final pad = i == 0 ? 0.0 : 12.0;
+        minK[i] = math.max(minK[i], tp.minIntrinsicWidth.ceilToDouble() + pad);
+        maksK[i] = math.max(
+          maksK[i],
+          tp.maxIntrinsicWidth.ceilToDouble() + pad,
+        );
+        tp.dispose();
+      }
     }
-
-    final kolom = {
+    final jumlahMin = minK.reduce((a, b) => a + b);
+    final jumlahMaks = maksK.reduce((a, b) => a + b);
+    // Table width W: at least max-content → spare width in proportion to
+    // max-content; else min-content plus a share of (max − min).
+    Map<int, TableColumnWidth> kolom(double w) => {
       for (var i = 0; i < _kepala.length; i++)
-        i: FlexColumnWidth(
-          [
-            lebarTeks(_kepala[i], i, true),
-            for (final r in _posisi) lebarTeks(r[i], i, false),
-          ].reduce(math.max),
+        i: FixedColumnWidth(
+          w >= jumlahMaks
+              ? maksK[i] * w / jumlahMaks
+              : minK[i] +
+                    (w - jumlahMin) *
+                        (maksK[i] - minK[i]) /
+                        (jumlahMaks - jumlahMin),
         ),
     };
     return LayoutBuilder(
-      builder: (context, k) => SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: SizedBox(
-          width: math.max(600, k.maxWidth),
-          child: DefaultTextStyle.merge(
-            style: const TextStyle(fontSize: 14),
-            child: Table(
-              columnWidths: kolom,
-              defaultVerticalAlignment: TableCellVerticalAlignment.baseline,
-              textBaseline: TextBaseline.alphabetic,
-              children: [
-                TableRow(
-                  decoration: BoxDecoration(
-                    border: Border(bottom: BorderSide(color: c.tinta)),
-                  ),
-                  children: [
-                    for (final (i, t) in _kepala.indexed)
-                      sel(t, i, kepala: true),
-                  ],
-                ),
-                for (final r in _posisi)
+      builder: (context, k) {
+        final w = math.max(math.max(600.0, k.maxWidth), jumlahMin);
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: SizedBox(
+            width: w,
+            child: DefaultTextStyle.merge(
+              style: const TextStyle(fontSize: 14),
+              child: Table(
+                columnWidths: kolom(w),
+                // td/th default to vertical-align: middle.
+                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                children: [
                   TableRow(
                     decoration: BoxDecoration(
-                      border: Border(bottom: BorderSide(color: c.garis)),
+                      border: Border(bottom: BorderSide(color: c.tinta)),
                     ),
-                    children: [for (final (i, t) in r.indexed) sel(t, i)],
+                    children: [
+                      for (final (i, t) in _kepala.indexed)
+                        sel(t, i, kepala: true),
+                    ],
                   ),
-              ],
+                  for (final r in _posisi)
+                    TableRow(
+                      decoration: BoxDecoration(
+                        border: Border(bottom: BorderSide(color: c.garis)),
+                      ),
+                      children: [for (final (i, t) in r.indexed) sel(t, i)],
+                    ),
+                ],
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
