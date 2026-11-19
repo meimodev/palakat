@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show RenderTable;
 
 import '../../mock/format.dart';
 import '../../mock/mock.dart';
@@ -146,6 +147,10 @@ class WebBerandaScreen extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             rp(sepi ? 0 : v),
+            // CSS has no break point inside the figure: it overflows the
+            // narrow tile instead of splitting.
+            softWrap: false,
+            overflow: TextOverflow.visible,
             style: mono.copyWith(fontSize: 19, fontWeight: FontWeight.w500),
           ),
           Text(s, style: TextStyle(fontSize: 13, color: c.tinta3)),
@@ -219,12 +224,27 @@ class WebBerandaScreen extends StatelessWidget {
             ),
           )
         else
-          const ButirPerhatian(
-            tingkat: TingkatPerhatian.untukDiketahui,
-            judul: berandaUntukDiketahui,
-            ke: 'WebKewajiban',
-            cara: Cara.ganti,
-            web: true,
+          // Not ButirPerhatian: its 44 px link box would push the line
+          // 12 px lower than the board's inline link.
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 8),
+              const JudulBagian('Untuk diketahui', web: true),
+              const SizedBox(height: 6),
+              _TautanSebaris(
+                ke: 'WebKewajiban',
+                cara: Cara.ganti,
+                tinggiBaris: 14 * 1.45,
+                child: TautanTeks(
+                  berandaUntukDiketahui,
+                  berat: FontWeight.w400,
+                  ukuran: 14,
+                  warna: c.tinta2,
+                ),
+              ),
+            ],
           ),
       ],
     );
@@ -368,22 +388,14 @@ class _TabelKasBank extends StatelessWidget {
     );
     final kosong = sel(const SizedBox.shrink());
 
-    // Inline link: a 44 × 44 target that keeps the line's height.
-    const tinggiBaris = 13 * 1.45;
-    final hitung = MarginNegatif(
-      atas: (44 - tinggiBaris) / 2,
-      bawah: (44 - tinggiBaris) / 2,
-      child: Tautan(
-        ke: 'WebHitungKas',
-        child: const Align(
-          widthFactor: 1,
-          child: TautanTeks('Hitung kas', berat: FontWeight.w700, ukuran: 13),
-        ),
-      ),
+    const hitung = _TautanSebaris(
+      ke: 'WebHitungKas',
+      tinggiBaris: 14 * 1.45, // the cell's 14 px line box
+      child: TautanTeks('Hitung kas', berat: FontWeight.w700, ukuran: 13),
     );
 
-    final tabel = Table(
-      defaultColumnWidth: const _LebarOtomatis(),
+    Table tabel(double lebar) => Table(
+      defaultColumnWidth: _LebarOtomatis(lebar),
       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
       children: [
         TableRow(
@@ -459,7 +471,7 @@ class _TabelKasBank extends StatelessWidget {
               width: lebar,
               child: DefaultTextStyle.merge(
                 style: const TextStyle(fontSize: 14),
-                child: tabel,
+                child: tabel(lebar),
               ),
             ),
           );
@@ -505,26 +517,80 @@ class _KisiSama extends StatelessWidget {
   );
 }
 
-/// CSS `table-layout: auto`, roughly: columns start at their max-content
-/// width, and a shortfall or surplus is shared in proportion to it, never
-/// below min-content.
+/// CSS `table-layout: auto` (Chrome): a table narrower than the sum of the
+/// columns' max-content widths gives each column its min-content width plus
+/// the same share of its (max − min); a wider one scales max-content up.
+/// Every column is given its final width here, because [RenderTable]'s own
+/// shrinking is not proportional.
 class _LebarOtomatis extends TableColumnWidth {
-  const _LebarOtomatis();
+  const _LebarOtomatis(this.lebar);
+
+  /// The table's width (its card, at least 520).
+  final double lebar;
+
+  static double _terlebar(Iterable<RenderBox> sel, {required bool min}) =>
+      sel.fold(0.0, (m, c) {
+        final w = min
+            ? c.getMinIntrinsicWidth(double.infinity)
+            : c.getMaxIntrinsicWidth(double.infinity);
+        return w > m ? w : m;
+      });
+
+  double _lebarKolom(Iterable<RenderBox> cells) {
+    final tabel = cells.first.parent! as RenderTable;
+    final kolom = [for (var x = 0; x < tabel.columns; x++) tabel.column(x)];
+    final mins = [for (final k in kolom) _terlebar(k, min: true)];
+    final maks = [for (final k in kolom) _terlebar(k, min: false)];
+    final i = kolom.indexWhere((k) => k.first == cells.first);
+    final sMin = mins.fold(0.0, (a, b) => a + b);
+    final sMaks = maks.fold(0.0, (a, b) => a + b);
+    if (lebar >= sMaks) return maks[i] * lebar / sMaks;
+    if (lebar <= sMin) return mins[i];
+    return mins[i] + (maks[i] - mins[i]) * (lebar - sMin) / (sMaks - sMin);
+  }
 
   @override
   double minIntrinsicWidth(Iterable<RenderBox> cells, double containerWidth) =>
-      cells.fold(0.0, (m, c) {
-        final w = c.getMinIntrinsicWidth(double.infinity);
-        return w > m ? w : m;
-      });
+      _lebarKolom(cells);
 
   @override
   double maxIntrinsicWidth(Iterable<RenderBox> cells, double containerWidth) =>
-      cells.fold(0.0, (m, c) {
-        final w = c.getMaxIntrinsicWidth(double.infinity);
-        return w > m ? w : m;
-      });
+      _lebarKolom(cells);
+}
+
+/// An inline text link with a 44 px high target that keeps its line
+/// height, also when it wraps.
+class _TautanSebaris extends StatelessWidget {
+  const _TautanSebaris({
+    required this.ke,
+    required this.tinggiBaris,
+    required this.child,
+    this.cara = Cara.dorong,
+  });
+
+  final String ke;
+  final Cara cara;
+  final double tinggiBaris;
+  final Widget child;
 
   @override
-  double? flex(Iterable<RenderBox> cells) => maxIntrinsicWidth(cells, 0);
+  Widget build(BuildContext context) {
+    final sisa = (44 - tinggiBaris) / 2;
+    return MarginNegatif(
+      atas: sisa,
+      bawah: sisa,
+      child: Tautan(
+        ke: ke,
+        cara: cara,
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: sisa),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            widthFactor: 1,
+            child: child,
+          ),
+        ),
+      ),
+    );
+  }
 }
