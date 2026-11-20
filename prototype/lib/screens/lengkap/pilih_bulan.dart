@@ -149,7 +149,12 @@ class TombolBulan extends StatelessWidget {
   final KeadaanPilihBulan k;
   final VoidCallback onTap;
 
-  static String teks(KeadaanPilihBulan k) => '${k.bulan} · ${k.kini.st} ▾';
+  /// The label up to the '▾', which [_Segitiga] draws (no bundled font has
+  /// U+25BE, so as text it falls back to a missing-glyph box).
+  static String teks(KeadaanPilihBulan k) => '${k.bulan} · ${k.kini.st} ';
+
+  /// Advance of the drawn '▾' (Chrome's fallback glyph on the board).
+  static const lebarSegitiga = 7.0;
 
   @override
   Widget build(BuildContext context) {
@@ -168,8 +173,17 @@ class TombolBulan extends StatelessWidget {
           ),
           child: Align(
             widthFactor: 1,
-            child: Text(
-              teks(k),
+            child: Text.rich(
+              TextSpan(
+                text: teks(k),
+                children: const [
+                  WidgetSpan(
+                    alignment: PlaceholderAlignment.baseline,
+                    baseline: TextBaseline.alphabetic,
+                    child: _Segitiga(),
+                  ),
+                ],
+              ),
               style: const TextStyle(fontWeight: FontWeight.w700),
             ),
           ),
@@ -177,6 +191,36 @@ class TombolBulan extends StatelessWidget {
       ),
     );
   }
+}
+
+/// The board's '▾': a 6 × 5 down-triangle 1 px above the baseline, in the
+/// text colour.
+class _Segitiga extends StatelessWidget {
+  const _Segitiga();
+
+  @override
+  Widget build(BuildContext context) => CustomPaint(
+    size: const Size(TombolBulan.lebarSegitiga, 6),
+    painter: _SegitigaPainter(DefaultTextStyle.of(context).style.color!),
+  );
+}
+
+class _SegitigaPainter extends CustomPainter {
+  _SegitigaPainter(this.warna);
+  final Color warna;
+
+  @override
+  void paint(Canvas canvas, Size size) => canvas.drawPath(
+    Path()
+      ..moveTo(0.5, 0)
+      ..lineTo(6.5, 0)
+      ..lineTo(3.5, 5)
+      ..close(),
+    Paint()..color = warna,
+  );
+
+  @override
+  bool shouldRepaint(_SegitigaPainter old) => old.warna != warna;
 }
 
 /// The list column: closed banner, rows plus caption, or the empty box.

@@ -102,7 +102,8 @@ class _BarisJudul extends StatelessWidget {
       textDirection: TextDirection.ltr,
       textScaler: MediaQuery.textScalerOf(context),
     )..layout();
-    final lebarTombol = tp.width + 32 + 3; // padding 0 16, 1.5 line
+    final lebarTombol = // padding 0 16, 1.5 line
+        tp.width + TombolBulan.lebarSegitiga + 32 + 3;
     tp.dispose();
     const judul = Text(
       'Transaksi',
