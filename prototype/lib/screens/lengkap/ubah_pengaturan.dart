@@ -82,12 +82,16 @@ class _IsiUbahPengaturanState extends State<IsiUbahPengaturan> {
   late final _akhir = TextEditingController(text: d.akhir);
   late final _awalan = TextEditingController(text: d.awalan);
   late final _batas = TextEditingController(text: titik(d.batas));
+  final _fokusAkhir = FocusNode();
+  final _fokusAwalan = FocusNode();
 
   @override
   void dispose() {
     for (final k in [_nama, _akhir, _awalan, _batas]) {
       k.dispose();
     }
+    _fokusAkhir.dispose();
+    _fokusAwalan.dispose();
     super.dispose();
   }
 
@@ -123,11 +127,15 @@ class _IsiUbahPengaturanState extends State<IsiUbahPengaturan> {
       (v) => d.mulai = v,
     );
 
-    Widget sempit(String judul, Widget isian) => Column(
+    // `<label for>`: tapping the label focuses its field.
+    Widget sempit(String judul, FocusNode fokus, Widget isian) => Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(judul, style: label),
+        GestureDetector(
+          onTap: fokus.requestFocus,
+          child: Text(judul, style: label),
+        ),
         const SizedBox(height: 6),
         ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 160),
@@ -177,8 +185,10 @@ class _IsiUbahPengaturanState extends State<IsiUbahPengaturan> {
         if (d.jenis == 'Bank')
           sempit(
             'Empat angka akhir No. rekening',
+            _fokusAkhir,
             IsianTeks(
               controller: _akhir,
+              focusNode: _fokusAkhir,
               labelSemantik: 'Empat angka akhir No. rekening',
               gaya: mono,
               keyboardType: TextInputType.number,
@@ -203,8 +213,10 @@ class _IsiUbahPengaturanState extends State<IsiUbahPengaturan> {
         ),
         sempit(
           'Awalan seri Biasa · 2 sampai 4 huruf',
+          _fokusAwalan,
           IsianTeks(
             controller: _awalan,
+            focusNode: _fokusAwalan,
             labelSemantik: 'Awalan seri Biasa · 2 sampai 4 huruf',
             gaya: mono,
             formatters: const [_FormatAwalan()],

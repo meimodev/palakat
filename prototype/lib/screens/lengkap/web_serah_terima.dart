@@ -168,29 +168,21 @@ class _WebSerahTerimaScreenState extends State<WebSerahTerimaScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Flexible(child: Text('Meiske Lumentut', style: tebal)),
-              const SizedBox(width: 16),
-              ConstrainedBox(
-                // CSS shrinks the badge last; the cap only matters for test fonts.
-                constraints: const BoxConstraints(maxWidth: 280),
-                child: aktif
-                    ? _Lencana(
-                        'Wewenang berakhir',
-                        isi: c.permukaan,
-                        teks: c.tinta2,
-                        garis: GarisBorder.penuh(c.tinta3, radius: 6),
-                      )
-                    : _Lencana(
-                        'Wewenang Bendahara aktif',
-                        isi: c.laut,
-                        teks: c.diLaut,
-                        garis: GarisBorder.penuh(c.laut, radius: 6),
-                      ),
-              ),
-            ],
+          _JudulLencana(
+            judul: 'Meiske Lumentut',
+            lencana: aktif
+                ? _Lencana(
+                    'Wewenang berakhir',
+                    isi: c.permukaan,
+                    teks: c.tinta2,
+                    garis: GarisBorder.penuh(c.tinta3, radius: 6),
+                  )
+                : _Lencana(
+                    'Wewenang Bendahara aktif',
+                    isi: c.laut,
+                    teks: c.diLaut,
+                    garis: GarisBorder.penuh(c.laut, radius: 6),
+                  ),
           ),
           Text(
             aktif
@@ -213,29 +205,20 @@ class _WebSerahTerimaScreenState extends State<WebSerahTerimaScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Flexible(child: Text('Bendahara baru', style: tebal)),
-              const SizedBox(width: 16),
-              ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 280),
-                child: aktif
-                    ? _Lencana(
-                        'Wewenang Bendahara aktif',
-                        isi: c.laut,
-                        teks: c.diLaut,
-                        garis: GarisBorder.penuh(c.laut, radius: 6),
-                      )
-                    : _Lencana(
-                        tunggu
-                            ? 'Menunggu verifikasi wewenang'
-                            : 'Belum dikirim',
-                        teks: c.tinta2,
-                        garis: GarisBorder.putus(c.putus, radius: 6),
-                      ),
-              ),
-            ],
+          _JudulLencana(
+            judul: 'Bendahara baru',
+            lencana: aktif
+                ? _Lencana(
+                    'Wewenang Bendahara aktif',
+                    isi: c.laut,
+                    teks: c.diLaut,
+                    garis: GarisBorder.penuh(c.laut, radius: 6),
+                  )
+                : _Lencana(
+                    tunggu ? 'Menunggu verifikasi wewenang' : 'Belum dikirim',
+                    teks: c.tinta2,
+                    garis: GarisBorder.putus(c.putus, radius: 6),
+                  ),
           ),
           const SizedBox(height: 10),
           if (_tahap == 'belum') ...[
@@ -484,6 +467,68 @@ class _WebSerahTerimaScreenState extends State<WebSerahTerimaScreen> {
 }
 
 /// Post badge: 13/700, radius 6, padding 3 9, 1.5 line.
+/// The board's `justify-content: space-between` row of a bold title and a
+/// badge, gap 16: when both do not fit, CSS shrinks each in proportion to
+/// its width (never below its longest word), so both may wrap.
+class _JudulLencana extends StatelessWidget {
+  const _JudulLencana({required this.judul, required this.lencana});
+
+  final String judul;
+  final _Lencana lencana;
+
+  static const _gayaJudul = TextStyle(fontWeight: FontWeight.w700);
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, k) {
+      final dasar = DefaultTextStyle.of(context).style;
+      final skala = MediaQuery.textScalerOf(context);
+      double lebar(String t, TextStyle g) {
+        final tp = TextPainter(
+          text: TextSpan(text: t, style: dasar.merge(g)),
+          textDirection: TextDirection.ltr,
+          textScaler: skala,
+        )..layout();
+        final w = tp.width;
+        tp.dispose();
+        return w;
+      }
+
+      double kata(String t, TextStyle g) =>
+          t.split(' ').map((s) => lebar(s, g)).reduce((a, b) => a > b ? a : b);
+      const tepi = 9 * 2 + 1.5 * 2;
+      final a = lebar(judul, _gayaJudul);
+      final b = lebar(lencana.label, _Lencana.gaya) + tepi;
+      final ruang = k.maxWidth - 16;
+      final pas = a + b <= ruang;
+      var (wa, wb) = (a, b);
+      if (!pas) {
+        final lebih = a + b - ruang;
+        final minA = kata(judul, _gayaJudul);
+        final minB = kata(lencana.label, _Lencana.gaya) + tepi;
+        wa = a - lebih * a / (a + b);
+        wb = b - lebih * b / (a + b);
+        if (wa < minA) (wa, wb) = (minA, ruang - minA);
+        if (wb < minB) (wb, wa) = (minB, ruang - minB);
+        wa = wa < minA ? minA : wa;
+        wb = wb < minB ? minB : wb;
+      }
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // At natural size nothing is pinned, so rounding cannot wrap.
+          SizedBox(
+            width: pas ? null : wa,
+            child: Text(judul, style: _gayaJudul),
+          ),
+          const SizedBox(width: 16),
+          SizedBox(width: pas ? null : wb, child: lencana),
+        ],
+      );
+    },
+  );
+}
+
 class _Lencana extends StatelessWidget {
   const _Lencana(
     this.label, {
@@ -501,9 +546,8 @@ class _Lencana extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
     decoration: ShapeDecoration(color: isi, shape: garis),
-    child: Text(
-      label,
-      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: teks),
-    ),
+    child: Text(label, style: gaya.copyWith(color: teks)),
   );
+
+  static const gaya = TextStyle(fontSize: 13, fontWeight: FontWeight.w700);
 }

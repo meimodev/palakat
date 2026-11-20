@@ -486,7 +486,9 @@ class _BarisLegenda extends StatelessWidget {
         final w = _susut(
           [namaMin, u, v],
           [namaMin, _lebarMin(context, ubah, gayaUbah), v],
-          tersedia,
+          // Flutter measures these runs up to ~2 px wider than Chrome, which
+          // fits Diakonia "+ Rp1.000.000" exactly at 390; overhang instead.
+          tersedia + 2,
         );
         // The value keeps its width and runs past the row's end, unclipped.
         return Row(
