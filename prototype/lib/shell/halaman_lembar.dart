@@ -4,9 +4,10 @@ import '../theme/palakat_tema.dart';
 
 /// Sheet form (CONVENTIONS, navigation.md 1.7): PetaLayar 1760 × 1860,
 /// Cakupan 1400 × 1660, Keputusan 1280 × 1320, PetaPlatform 1280 × 2100.
-/// A fixed-size `kertas` page, padding 56, 15 / 1.45, column gap [jarak];
-/// it scrolls both ways and has no app chrome. Content beyond the page is
-/// clipped, as the board's fixed box would cut it.
+/// A fixed-size `kertas` page, padding 56, 15 / 1.45 with CSS's even
+/// leading, column gap [jarak]; centred in larger windows, it scrolls both
+/// ways and has no app chrome. Content beyond the page is clipped, as the
+/// board's fixed box would cut it.
 class HalamanLembar extends StatelessWidget {
   const HalamanLembar({
     super.key,
@@ -26,25 +27,42 @@ class HalamanLembar extends StatelessWidget {
     final c = context.warna;
     return ColoredBox(
       color: c.kertas,
-      child: DefaultTextStyle(
-        style: PalakatText.isiWeb.copyWith(color: c.tinta, height: 1.45),
-        child: SingleChildScrollView(
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: SizedBox.fromSize(
-              size: ukuran,
+      // CSS splits line-height leading evenly above and below the text.
+      child: DefaultTextHeightBehavior(
+        textHeightBehavior: const TextHeightBehavior(
+          leadingDistribution: TextLeadingDistribution.even,
+        ),
+        child: DefaultTextStyle(
+          style: PalakatText.isiWeb.copyWith(color: c.tinta, height: 1.45),
+          child: LayoutBuilder(
+            builder: (context, k) => SingleChildScrollView(
               child: SingleChildScrollView(
-                primary: false,
-                physics: const NeverScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(56),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    for (var i = 0; i < isi.length; i++) ...[
-                      if (i > 0) SizedBox(height: jarak),
-                      isi[i],
-                    ],
-                  ],
+                scrollDirection: Axis.horizontal,
+                // Centred in a window larger than the sheet.
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minWidth: k.maxWidth,
+                    minHeight: k.maxHeight,
+                  ),
+                  child: Center(
+                    child: SizedBox.fromSize(
+                      size: ukuran,
+                      child: SingleChildScrollView(
+                        primary: false,
+                        physics: const NeverScrollableScrollPhysics(),
+                        padding: const EdgeInsets.all(56),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            for (var i = 0; i < isi.length; i++) ...[
+                              if (i > 0) SizedBox(height: jarak),
+                              isi[i],
+                            ],
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),

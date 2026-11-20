@@ -7,7 +7,10 @@ import '../theme/palakat_tema.dart';
 /// A4 page scaffold (components.md 4.7, navigation.md 1.7): a fixed white
 /// page, always in the light palette (paper does not follow the dark theme),
 /// centred on `kertas` with 24 margin, scaled down to fit narrower windows,
-/// scrolling. Content beyond the page is clipped (`overflow: hidden`).
+/// scrolling; at the frame size or narrower the margin is 0. Content beyond
+/// the page is clipped (`overflow: hidden`). [isi] is built inside the page's
+/// light Theme: read colours inside the [isi] widgets (a Builder), never from
+/// the calling screen's context, which is dark under Gelap.
 class HalamanA4 extends StatelessWidget {
   const HalamanA4({
     super.key,
@@ -63,13 +66,16 @@ class HalamanA4 extends StatelessWidget {
       color: latar,
       child: LayoutBuilder(
         builder: (context, k) {
+          // No margin up to the frame size, where the board's page fills the
+          // frame edge to edge.
+          final m = k.maxWidth >= ukuran.width + 48 ? 24.0 : 0.0;
           final skala = math.min(
             1.0,
-            math.max(0.0, k.maxWidth - 48) / ukuran.width,
+            math.max(0.0, k.maxWidth - 2 * m) / ukuran.width,
           );
           return SingleChildScrollView(
             child: Padding(
-              padding: const EdgeInsets.all(24),
+              padding: EdgeInsets.all(m),
               child: Center(
                 child: SizedBox(
                   width: ukuran.width * skala,

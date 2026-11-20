@@ -127,6 +127,7 @@ class _CabutIzinScreenState extends State<CabutIzinScreen> {
                   ],
                   if (k == _penjelasan)
                     BarisTombol(
+                      tautan: const {1: 32},
                       anak: [
                         Tombol(
                           'Lanjutkan',
