@@ -2,6 +2,17 @@
 
 18 November 2026. The plan for building every board of the Palakat design as one clickable Flutter prototype with mock data. It is written so an autonomous build run (a goal) can execute it end to end and check itself.
 
+## Status
+
+20 November 2026: **built and verified.** All 199 boards are in `prototype/`, milestones M0 to M9 are done, and every item of "Definition of done for the whole prototype" below is checked:
+
+- `fvm flutter analyze` is clean, and `fvm flutter test` passes 1557 tests (1 skipped: the on-demand screenshot test).
+- `fvm flutter build web --release` succeeds, and the built site works when served statically, deep links included.
+- The M9 review compared every board with its source in 1807 states: each tweak option, child route and handler state, at the frame size, at 860 wide, at 390 wide for laptop and tablet boards, in the dark theme and with reduce motion. `review-log.md` records 109 differences fixed and 199 accepted, and has no open rows. Accepted differences are engine or harness limits or listed deviations, such as about 0.4 px of extra height per text line.
+- `review-log.md` section 4 lists, for the product owner, the 273 places where a spec recommends behaviour the board does not have. The prototype follows the board (CONVENTIONS, "Board parity by default").
+
+Run and check it as described in "Running and checking the prototype" below.
+
 ## Goal
 
 Copy this block as the goal for the build run.
@@ -18,7 +29,8 @@ Copy this block as the goal for the build run.
 | `motion.md` | Every animation on the boards and its Flutter implementation | M1, and any screen with motion |
 | `navigation.md` | Shells, side-nav variants, the route table for all 199 boards, the link graph, the launcher | M2, and wiring every screen |
 | `mock-data.md` | Data model and seed values, including where boards disagree | M0, M1, every screen |
-| `rules-checklist.md` | Every product and design rule as a check | Every review |
+| `rules-checklist.md` | Every product and design rule as a check; section 4 lists the board breaches fixed in the prototype (4.1) or kept as drawn (4.2) | Every review |
+| `review-log.md` | The M9 review: every difference found per board and pass, how it was resolved, and the notes for the product owner. Generated from the review agents' reports | Checking a board; deciding open product questions |
 | `board-manifest.json` | Generated per board: frame, tweaks, links, inbound links, keyframes, timers | Generating the registry; tests |
 | `icon-inventory.json` | Generated: the distinct inline SVG icons on the boards | M1 |
 
@@ -119,16 +131,44 @@ After M2, each screens file is a unit of work that touches only its own screen f
 
 Suggested split for parallel workers: one worker per milestone M3 to M8, or one per screens file when more are available. Each worker reads `CONVENTIONS.md`, its screens file, and the parts of `components.md`, `motion.md`, `navigation.md` and `mock-data.md` its boards cite.
 
+What the first build run learned about running workers in parallel:
+
+- Each worker in its own git worktree is about 1 GB once Flutter has built in it. Remove a worker's worktree as soon as its branch is merged; leftover worktrees filled 220 GB of disk.
+- Each screenshot runs its own `flutter test` process and a headless Chrome. On a 16 GB machine, keep it to at most 4 workers at once, one screenshot at a time each, and never the whole test suite from inside a worker.
+- Workers report needed shared-file changes instead of making them. Apply them afterwards in one pass, grouped so that no two agents own the same shared file. A change that alters how a shared widget draws is checked with before-and-after shots of every board that uses it.
+
 ## Definition of done for the whole prototype
 
-- [ ] 199 routes, one per board, each built from its spec (no stub left: `grep -r "Belum dibangun" prototype/lib/screens` returns nothing).
-- [ ] Every board's tweaks are in the Keadaan panel with the canvas's names, options and defaults, and each option changes the screen as specified.
-- [ ] Every link on every board works (`links_test.dart` green) and Back returns.
-- [ ] Every handler in every board's logic class has its Flutter equivalent (spec "Interactions" lists, checked in the review pass).
-- [ ] Every animation in `motion.md` is implemented, used where the specs say, and off under reduce motion.
-- [ ] No hex colour outside `lib/theme/` except the three illustration colours in CONVENTIONS.
-- [ ] `fvm flutter analyze` clean, `fvm flutter test` green, `fvm flutter build web --release` succeeds.
-- [ ] `docs/build/review-log.md` has no open rows.
+All checked on 20 November 2026.
+
+- [x] 199 routes, one per board, each built from its spec (no stub left: `grep -r "Belum dibangun" prototype/lib/screens` returns nothing).
+- [x] Every board's tweaks are in the Keadaan panel with the canvas's names, options and defaults, and each option changes the screen as specified.
+- [x] Every link on every board works (`links_test.dart` green) and Back returns. Every child route also opens directly by URL (`deep_link_test.dart`).
+- [x] Every handler in every board's logic class has its Flutter equivalent (spec "Interactions" lists, checked in the review pass).
+- [x] Every animation in `motion.md` is implemented, used where the specs say, and off under reduce motion.
+- [x] No hex colour outside `lib/theme/` except the three illustration colours in CONVENTIONS (rules-checklist G12 has no hits).
+- [x] `fvm flutter analyze` clean, `fvm flutter test` green, `fvm flutter build web --release` succeeds.
+- [x] `docs/build/review-log.md` has no open rows.
+
+## Running and checking the prototype
+
+Flutter 3.47.8 through fvm, from `prototype/`:
+
+| What | Command |
+| --- | --- |
+| Run it in Chrome | `fvm flutter run -d chrome`, or `fvm flutter run -d web-server --web-port 8080` and open `http://localhost:8080/#/<Stem>` |
+| Analyze | `fvm flutter analyze` |
+| All tests | `fvm flutter test` (about 1550 tests; run alone, it loads every board at every frame size and tweak) |
+| One board's tests | `fvm flutter test test/routes_test.dart --plain-name '/<Stem> '` (the same filter works for `rules_test.dart`) |
+| Release build | `fvm flutter build web --release`, output in `build/web/`, served as static files |
+| Regenerate the registry and router | `python3 tool/gen_boards.py`, after changing the `json child-routes` block of `navigation.md`. Never hand-edit or `dart format` `lib/boards.dart`, `lib/router.dart` or `lib/theme/palakat_tokens.dart` |
+| Compare a board with its source | `tool/compare.sh <Stem> [tweak=value] [--click TEXT] [--type TEXT] [--route /Stem/child] [--width W --height H]` writes `build/shots/pair/<name>.png`, board left and app right. `tool/app_shot.sh <Stem> --gelap` renders the dark theme. See `prototype/tool/SHOTS.md` |
+
+Tests added during M9:
+
+- `rules_test.dart`: the rules-checklist widget sweeps W1 to W7 and X09, over every board and tweak.
+- `deep_link_test.dart`: all 31 child routes opened by URL, then Back.
+- `shot_test.dart`: the app side of the screenshot harness, skipped unless a shot is requested.
 
 ## Decisions taken for the prototype
 
