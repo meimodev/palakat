@@ -184,7 +184,8 @@ class _WebPersembahanScreenState extends State<WebPersembahanScreen> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        'No. Bukti BKU-2026-0148',
+                        // U+200B: Chrome breaks after the hyphens; Flutter does not.
+                        'No. Bukti BKU-\u200B2026-\u200B0148',
                         style: mono.copyWith(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,

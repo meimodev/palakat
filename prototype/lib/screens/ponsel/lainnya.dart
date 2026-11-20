@@ -51,7 +51,8 @@ const _riwayat = [
     '15/11/2026 12.20 · Persembahan Ibadah Minggu',
   ),
   (
-    'Meiske L. membuat pembalikan BKU-2026-0144',
+    // U+200B: Chrome breaks after the hyphen; Flutter (UAX 14) does not.
+    'Meiske L. membuat pembalikan BKU-\u200B2026-\u200B0144',
     '12/11/2026 09.31 · Alasan: Mata Anggaran keliru',
   ),
   (
