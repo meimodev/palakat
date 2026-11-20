@@ -277,6 +277,7 @@ class _TabCatatScreenState extends State<TabCatatScreen> {
       label: 'Jumlah (Rp)',
       controller: _jmC,
       ukuran: UkuranJumlah.lebar,
+      maks: 12,
       lebarMaks: 420,
       hanyaBaca: _posted,
       onChanged: (v) => _ubah(() => _jm = hanyaAngka(v, max: 12)),

@@ -91,6 +91,7 @@ class _CatatState extends State<_Catat> {
                   label: 'Jumlah (Rp)',
                   controller: _jumlah,
                   ukuran: UkuranJumlah.besar,
+                  maks: 12,
                   onChanged: (v) =>
                       m.ubah(() => m.jumlah = hanyaAngka(v, max: 12)),
                 ),
