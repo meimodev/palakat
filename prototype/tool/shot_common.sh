@@ -1,18 +1,19 @@
 # Shared by board_shot.sh, app_shot.sh, compare.sh. Source it; see SHOTS.md.
-# Parses: <Stem> [tweak=value ...] [--out F] [--width W --height H] [--click TEXT]... [--route /Stem/x] [--ms N]
+# Parses: <Stem> [tweak=value ...] [--out F] [--width W --height H] [--click TEXT | --type TEXT | --wait MS]... [--route /Stem/x] [--ms N]
+# CANVAS= / BOARDS= in the environment point at another canvas or a scratch copy of the boards.
 set -euo pipefail
 
 PROTO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 REPO="$(cd "$PROTO/.." && pwd)"
-CANVAS="$REPO/docs/design/handoff/canvas"
-BOARDS="$CANVAS/boards"
+CANVAS="${CANVAS:-$REPO/docs/design/handoff/canvas}"
+BOARDS="${BOARDS:-$CANVAS/boards}"
 CHROME="${CHROME:-/Applications/Google Chrome.app/Contents/MacOS/Google Chrome}"
 
 STEM="" OUT="" DEFW="" DEFH="" WIDTH="" HEIGHT="" ROUTE="" MS=""
 TWEAKS=() CLICKS=()
 
 parse_args() {
-  [[ $# -ge 1 && "$1" != -* ]] || { echo "usage: $(basename "$0") <Stem> [tweak=value ...] [--out file.png] [--width W --height H] [--click TEXT]... [--route /Stem/child] [--ms N]" >&2; exit 2; }
+  [[ $# -ge 1 && "$1" != -* ]] || { echo "usage: $(basename "$0") <Stem> [tweak=value ...] [--out file.png] [--width W --height H] [--click TEXT | --type TEXT | --wait MS]... [--route /Stem/child] [--ms N]" >&2; exit 2; }
   STEM="$1"; shift
   [[ -f "$BOARDS/$STEM.dc.html" ]] || { echo "no board $BOARDS/$STEM.dc.html" >&2; exit 2; }
   while [[ $# -gt 0 ]]; do
@@ -21,6 +22,9 @@ parse_args() {
       --width) WIDTH="$2"; shift 2 ;;
       --height) HEIGHT="$2"; shift 2 ;;
       --click) CLICKS+=("$2"); shift 2 ;;
+      # Steps run in order with the clicks: type into the focused (else first) field; wait MS.
+      --type) CLICKS+=("ketik:$2"); shift 2 ;;
+      --wait) [[ "$2" =~ ^[0-9]+$ ]] || { echo "--wait needs milliseconds" >&2; exit 2; }; CLICKS+=("tunggu:$2"); shift 2 ;;
       --route) ROUTE="$2"; shift 2 ;;
       --ms) MS="$2"; shift 2 ;;
       *=*) TWEAKS+=("$1"); shift ;;
