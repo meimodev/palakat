@@ -1,55 +1,101 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../mock/mock.dart';
+import '../../app/layar.dart';
+import '../../core/format.dart';
+import '../../domain/core/core.dart';
+import '../../providers/actor.dart';
+import '../../providers/core_repositories.dart';
+import '../../providers/revision.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import '../../shell/tautan.dart';
-import '../../theme/palakat_tema.dart';
-import '../../widgets/garis_status.dart';
+import '../../widgets/alur_kit.dart';
 import '../../widgets/kecil.dart';
-import '../../widgets/lencana_status.dart';
+import '../../widgets/lencana_modul.dart';
+import '../../widgets/penolakan.dart';
+import '../../widgets/riwayat_alur.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
-import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
+import '../../widgets/tombol_bersyarat.dart';
+import 'inti_bagian.dart';
 
-const _o = [
-  'Daftar modul',
-  'Mengaktifkan Data jemaat',
-  'Menonaktifkan Warta Jemaat',
-  'Dilihat jabatan lain',
-];
+enum _Tampil { daftar, aktif, mati }
 
-/// 47 · Modul (docs/build/screens/14-berandajabatan.md). State `{ k: null }`;
-/// view = `k ?? keadaan`. Nothing in the list changes after a confirmation.
-class ModulScreen extends StatefulWidget {
+/// 47 · Modul + 57 · Alur · Modul (screens/14, screens/15; phone only): the
+/// module registry (WorkspaceRepository). Switching on follows the
+/// dependency order; switching off needs a reason and leaves the module Hanya
+/// baca (PMP 8). Menus, home rows and routes follow at once (D21).
+class ModulScreen extends ConsumerStatefulWidget {
   const ModulScreen({super.key});
 
   @override
-  State<ModulScreen> createState() => _ModulScreenState();
+  ConsumerState<ModulScreen> createState() => _ModulScreenState();
 }
 
-class _ModulScreenState extends State<ModulScreen> {
-  String? _k, _t;
+class _ModulScreenState extends ConsumerState<ModulScreen> {
+  final _alasan = TextEditingController();
+  var _tampil = _Tampil.daftar;
+  Module? _sel;
+  String _pesan = '';
+  Refusal? _tolak;
 
-  void _ke(int i) => setState(() => _k = _o[i]);
+  @override
+  void dispose() {
+    _alasan.dispose();
+    super.dispose();
+  }
+
+  void _ke(_Tampil t, [VoidCallback? ubah]) {
+    setState(() {
+      ubah?.call();
+      _tampil = t;
+      _tolak = null;
+    });
+    keAtas(context);
+  }
+
+  String? _perlu(Module m) {
+    final n = m.needs;
+    return n != null && !ref.read(canProvider).moduleActive(n)
+        ? 'modul ${n.label} harus aktif lebih dulu.'
+        : null;
+  }
+
+  Future<void> _ubah(ModuleState m, ModuleStatus ke) async {
+    final actor = ref.read(actorProvider);
+    if (actor == null) return;
+    final alasan = _alasan.text.trim();
+    final r = await ref
+        .read(workspaceRepositoryProvider)
+        .setModuleStatus(
+          actor,
+          m.module,
+          ke,
+          reason: ke == ModuleStatus.active ? null : alasan,
+          expectedRevision: m.revision,
+          idempotencyKey: kunciInti(ref),
+        );
+    if (!mounted) return;
+    if (r.refusal case final t?) return setState(() => _tolak = t);
+    _ke(_Tampil.daftar, () {
+      _alasan.clear();
+      _pesan = ke == ModuleStatus.active
+          ? 'Modul ${m.module.label} aktif sejak ${ref.read(hariIniProvider)}.'
+          : 'Modul ${m.module.label} dinonaktifkan dan menjadi Hanya baca · '
+                'alasan: $alasan.';
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final t = belumDipindah<String>('Daftar modul');
-    if (t != _t) {
-      // A panel change resets the in-board view.
-      _t = t;
-      _k = null;
-    }
-    final ki = math.max(0, _o.indexOf(_k ?? t));
-    final isi = switch (ki) {
-      1 => _aktifkan(context),
-      2 => _nonaktifkan(context),
-      3 => _dilihat(context),
-      _ => _daftar(),
+    ref.watch(revisionProvider);
+    final semua = ref.watch(workspaceRepositoryProvider).modules();
+    final m = semua.where((x) => x.module == _sel).firstOrNull;
+    final isi = switch (_tampil) {
+      _Tampil.aktif when m != null => _aktifkan(m),
+      _Tampil.mati when m != null => _matikan(m),
+      _ => _daftar(semua),
     };
     return LayarPonsel(
       child: Column(
@@ -57,24 +103,16 @@ class _ModulScreenState extends State<ModulScreen> {
         children: [
           const KepalaPonsel(
             judul: 'Modul',
-            anakJudul: 'Pimpinan Jemaat yang berwenang mengaktifkan modul saat orangnya siap',
+            anakJudul:
+                'Pimpinan Jemaat yang berwenang mengaktifkan modul saat '
+                'orangnya siap',
             kembaliKe: Layar.beranda,
             labelKembali: 'Kembali ke Beranda',
           ),
           Expanded(
-            // Keyed by view: every view change starts at the top.
             child: SingleChildScrollView(
-              key: ValueKey(ki),
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  for (final (i, w) in isi.indexed) ...[
-                    if (i > 0) const SizedBox(height: 16),
-                    w,
-                  ],
-                ],
-              ),
+              child: susun(isi),
             ),
           ),
         ],
@@ -82,102 +120,148 @@ class _ModulScreenState extends State<ModulScreen> {
     );
   }
 
-  List<Widget> _daftar() => [
-    const _KisiModul(),
-    _BarisTombol([
-      Tombol(
-        'Aktifkan modul',
-        onPressed: () => _ke(1),
-        jenis: JenisTombol.kedua,
-        ukuran: UkuranTombol.sedang,
-      ),
-      Tombol(
-        'Nonaktifkan modul',
-        onPressed: () => _ke(2),
-        jenis: JenisTombol.kedua,
-        ukuran: UkuranTombol.sedang,
-      ),
-    ]),
-    const _Keterangan(
-      'Modul yang tidak aktif tidak tampil di navigasi, pencarian, pemberitahuan atau keadaan kosong mana pun.',
-    ),
-    const _TautanBaris(
-      'Tabel pemberi persetujuan',
-      ke: Layar.pemberiPersetujuan,
-    ),
-    const _TautanBaris('Kas/Bank yang dikelola unit', ke: Layar.kasUnit),
-  ];
+  static KeadaanModul _keadaan(ModuleStatus s) => switch (s) {
+    ModuleStatus.active => KeadaanModul.aktif,
+    ModuleStatus.off => KeadaanModul.tidakAktif,
+    ModuleStatus.readOnly => KeadaanModul.hanyaBaca,
+  };
 
-  List<Widget> _aktifkan(BuildContext context) {
-    final c = context.warna;
+  List<Widget> _daftar(List<ModuleState> semua) {
+    final orang = ref.read(peopleRepositoryProvider);
+    final riwayat = [
+      for (final a
+          in ref
+              .watch(auditRepositoryProvider)
+              .list(const AuditFilter(actionPrefix: 'module.')))
+        '${tgl(a.at)} · ${a.summary}'
+            '${a.reason == null ? '' : ' · alasan: ${a.reason}'}'
+            ' · Oleh ${a.personName}',
+    ];
     return [
-      _KartuKonfirmasi(
+      if (_pesan.isNotEmpty) Pesan(Text(_pesan)),
+      KisiOtomatis(
+        minLebar: 300,
+        jarak: 16,
         anak: [
-          const _JudulLencana(
-            'Aktifkan modul: Data jemaat',
-            LencanaStatus('Tidak aktif', bentuk: BentukLencana.draf),
+          for (final m in semua)
+            Kartu(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: susun([
+                KepalaKartu(
+                  judul: m.module.label,
+                  ujung: LencanaModul.modul(_keadaan(m.status)),
+                ),
+                Catatan(
+                  m.module.needs != null
+                      ? 'Perlu: ${m.module.needs!.label} aktif'
+                      : m.status == ModuleStatus.readOnly
+                      ? 'Riwayat tetap dapat dibaca'
+                      : 'Tidak bergantung pada modul lain',
+                ),
+                if (m.changedAt case final t?)
+                  Catatan(
+                    '${m.status == ModuleStatus.active ? 'Diaktifkan' : 'Dinonaktifkan'}'
+                    ' ${tgl(t)} oleh ${orang.person(m.changedBy ?? '')?.name ?? ''}',
+                  ),
+                // Keuangan, the first card, never shows a button (AlurModul).
+                if (m.module != Module.finance)
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: m.status == ModuleStatus.active
+                        ? Tombol(
+                            'Nonaktifkan modul',
+                            jenis: JenisTombol.teks,
+                            ukuran: UkuranTombol.kecil,
+                            lebarPenuh: false,
+                            onPressed: () => _ke(_Tampil.mati, () {
+                              _sel = m.module;
+                              _alasan.clear();
+                              _pesan = '';
+                            }),
+                          )
+                        : Tombol(
+                            'Aktifkan modul',
+                            jenis: JenisTombol.kedua,
+                            ukuran: UkuranTombol.sedang,
+                            lebarPenuh: false,
+                            onPressed: () => _ke(_Tampil.aktif, () {
+                              _sel = m.module;
+                              _pesan = '';
+                            }),
+                          ),
+                  ),
+              ], jarak: 4),
+            ),
+        ],
+      ),
+      const Catatan(
+        'Modul yang tidak aktif tidak tampil di navigasi, pencarian, '
+        'pemberitahuan atau keadaan kosong mana pun.',
+      ),
+      DeretTautan(
+        anak: [
+          Tautan(
+            ke: Layar.pemberiPersetujuan,
+            child: const TautanTeks('Tabel pemberi persetujuan', ukuran: 14),
           ),
-          Text(
-            'Yang harus ada lebih dulu:',
-            style: TextStyle(fontSize: 14, color: c.tinta2),
-          ),
-          const KunciNilai(
-            'Aturan Kategori BIPRA',
-            'Ketentuan GMIM · tidak dapat diubah gereja',
-          ),
-          const KunciNilai(
-            'Naskah Izin penggunaan data pribadi',
-            modulNaskahIzin,
-          ),
-          const KunciNilai(
-            'Penatua Kolom untuk setiap Kolom',
-            '11 dari 12 terisi',
-          ),
-          const _Keterangan(
-            'Kolom 2 belum punya Penatua. Operator dapat menjalankan jabatan kosong itu.',
+          Tautan(
+            ke: Layar.kasUnit,
+            child: const TautanTeks('Kas/Bank yang dikelola unit', ukuran: 14),
           ),
         ],
       ),
-      _KartuKonfirmasi(
-        anak: [
-          const Text(
-            'Kategori BIPRA',
-            style: TextStyle(fontWeight: FontWeight.w700),
-          ),
-          for (final (k, n) in _bipra) KunciNilai(k, n),
-          const _Keterangan(
-            'Yang pernah menikah tetap Bapa atau Ibu, termasuk yang ditinggal pasangannya. Yang belum pernah menikah tetap Pemuda, berapa pun umurnya. Yang menikah sebelum 18 tahun menjadi Bapa atau Ibu.',
-          ),
-          const _Keterangan(
-            'Dihitung sendiri dari tanggal lahir, jenis kelamin dan status pernikahan. Bila GMIM mengubah ketentuannya, Palakat memperbaruinya dengan tanggal berlaku.',
-          ),
-        ],
-      ),
-      const _Keterangan(
-        'Setelah aktif, anggota dan keluarga diminta mengonfirmasi datanya dan memberi izin. Yang Belum dikonfirmasi tidak tampil di publikasi apa pun.',
-      ),
-      _BarisTombol([
-        Tombol(
-          'Aktifkan modul',
-          onPressed: () => _ke(0),
-          jenis: JenisTombol.tinta,
-        ),
-        Tombol('Kembali', onPressed: () => _ke(0), jenis: JenisTombol.teks),
-      ]),
+      RiwayatAlur(baris: riwayat),
     ];
   }
 
-  List<Widget> _nonaktifkan(BuildContext context) {
-    final c = context.warna;
+  Widget _kembali() => Tombol(
+    'Kembali',
+    jenis: JenisTombol.teks,
+    ukuran: UkuranTombol.kecil,
+    onPressed: () => _ke(_Tampil.daftar, () => _pesan = ''),
+  );
+
+  List<Widget> _aktifkan(ModuleState m) {
+    final perlu = _perlu(m.module) ?? '';
     return [
-      _KartuKonfirmasi(
-        anak: [
-          const _JudulLencana(
-            'Nonaktifkan modul: Warta Jemaat',
-            LencanaStatus('Aktif', bentuk: BentukLencana.laut),
+      Kartu(
+        child: susun([
+          KepalaKartu(
+            judul: 'Aktifkan modul: ${m.module.label}',
+            ujung: const LencanaModul.modul(KeadaanModul.tidakAktif),
           ),
-          Text.rich(
-            const TextSpan(
+          if (m.module.needs case final n?)
+            BarisInfo('Harus aktif lebih dulu', n.label),
+          const Catatan(
+            'Mengaktifkan modul membuka layarnya bagi jabatan yang berwenang. '
+            'Tidak ada data yang dibuat sendiri oleh aplikasi.',
+          ),
+        ], jarak: 6),
+      ),
+      if (_tolak case final t?)
+        Penolakan(tindakan: t.action, sebab: t.because, jalan: const []),
+      TombolBersyarat(
+        label: 'Aktifkan modul',
+        tindakan: 'Aktifkan modul',
+        alasan: perlu,
+        periksa: () => _perlu(m.module) ?? '',
+        onPressed: () => _ubah(m, ModuleStatus.active),
+        baris: [_kembali()],
+      ),
+    ];
+  }
+
+  List<Widget> _matikan(ModuleState m) {
+    String syarat() => _alasan.text.trim().isEmpty ? 'Alasan · wajib' : '';
+    return [
+      Kartu(
+        child: susun([
+          KepalaKartu(
+            judul: 'Nonaktifkan modul: ${m.module.label}',
+            ujung: const LencanaModul.modul(KeadaanModul.aktif),
+          ),
+          const Text.rich(
+            TextSpan(
               children: [
                 TextSpan(
                   text: 'Menonaktifkan tidak menghapus apa pun. Modul menjadi ',
@@ -188,234 +272,33 @@ class _ModulScreenState extends State<ModulScreen> {
                 ),
                 TextSpan(
                   text:
-                      ': $modulWartaEdisi tetap dapat dibaca, '
-                      'tetapi tidak ada edisi baru.',
+                      ': yang sudah ada tetap dapat dibaca, tetapi tidak ada '
+                      'yang baru.',
                 ),
               ],
             ),
-            style: TextStyle(fontSize: 14, color: c.tinta2),
+            style: TextStyle(fontSize: 14),
           ),
-          // The textarea inherits the label's 14 `tinta2` (`font: inherit`).
-          DefaultTextStyle.merge(
-            style: TextStyle(fontSize: 14, color: c.tinta2),
-            child: const IsianTeks(
-              label: 'Alasan · wajib',
-              jarakLabel: 6,
-              baris: 3,
-              hanyaBaca: true,
-              // TextField starts from the Material bodyLarge (letterSpacing
-              // 0.5); the board's textarea has none.
-              gaya: TextStyle(letterSpacing: 0),
-              nilaiAwal: 'Sekretaris Jemaat sedang berganti; diaktifkan lagi setelah penugasan baru.',
-            ),
-          ),
-        ],
+        ], jarak: 6),
       ),
-      _BarisTombol([
-        Tombol(
-          'Nonaktifkan modul',
-          onPressed: () => _ke(0),
-          jenis: JenisTombol.tinta,
-        ),
-        Tombol('Kembali', onPressed: () => _ke(0), jenis: JenisTombol.teks),
-      ]),
+      IsianAlur(
+        label: 'Alasan · wajib',
+        controller: _alasan,
+        onChanged: (_) => setState(() => _tolak = null),
+        baris: 3,
+      ),
+      if (_tolak case final t?)
+        Penolakan(tindakan: t.action, sebab: t.because, jalan: const []),
+      // P12: no minimum length, so no sentence; the hint names the field.
+      TombolBersyarat(
+        label: 'Nonaktifkan modul',
+        tindakan: 'Nonaktifkan modul',
+        alasan: syarat(),
+        periksa: syarat,
+        sudahMulai: false,
+        onPressed: () => _ubah(m, ModuleStatus.readOnly),
+        baris: [_kembali()],
+      ),
     ];
-  }
-
-  List<Widget> _dilihat(BuildContext context) => [
-    const Kartu(
-      status: GarisStatus.terpilih,
-      radius: 12,
-      padding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      child: Text.rich(
-        TextSpan(
-          children: [
-            TextSpan(
-              text: 'Hanya Pimpinan Jemaat yang berwenang',
-              style: TextStyle(fontWeight: FontWeight.w700),
-            ),
-            TextSpan(
-              text: ' yang mengaktifkan atau menonaktifkan modul. Anda dapat melihat daftarnya.',
-            ),
-          ],
-        ),
-        style: TextStyle(fontSize: 14),
-      ),
-    ),
-    const _KisiModul(),
-  ];
-}
-
-const _bipra = [
-  ('Anak', 'sampai sebelum 12 tahun'),
-  ('Remaja', '12 tahun sampai 17 tahun 364 hari'),
-  ('Pemuda', '18 tahun ke atas, belum pernah menikah'),
-  ('Bapa · Ibu', 'sudah menikah'),
-];
-
-/// Grid of min 300 columns, gap 16, one card per module.
-class _KisiModul extends StatelessWidget {
-  const _KisiModul();
-
-  @override
-  Widget build(BuildContext context) => KisiOtomatis(
-    minLebar: 300,
-    jarak: 16,
-    anak: [
-      for (final m in semuaModul)
-        Kartu(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _JudulLencana(
-                m.nama,
-                LencanaStatus(m.status, bentuk: m.gaya.bentuk),
-              ),
-              const SizedBox(height: 4),
-              _Keterangan(m.keterangan),
-            ],
-          ),
-        ),
-    ],
-  );
-}
-
-/// Card padding 14/16, column gap 6.
-class _KartuKonfirmasi extends StatelessWidget {
-  const _KartuKonfirmasi({required this.anak});
-  final List<Widget> anak;
-
-  @override
-  Widget build(BuildContext context) => Kartu(
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        for (final (i, w) in anak.indexed) ...[
-          if (i > 0) const SizedBox(height: 6),
-          w,
-        ],
-      ],
-    ),
-  );
-}
-
-/// Row space-between, gap 16, centred: 700 title, badge (flex none).
-class _JudulLencana extends StatelessWidget {
-  const _JudulLencana(this.judul, this.lencana);
-  final String judul;
-  final Widget lencana;
-
-  @override
-  Widget build(BuildContext context) => Row(
-    children: [
-      Expanded(
-        child: Text(judul, style: const TextStyle(fontWeight: FontWeight.w700)),
-      ),
-      const SizedBox(width: 16),
-      lencana,
-    ],
-  );
-}
-
-class _Keterangan extends StatelessWidget {
-  const _Keterangan(this.teks);
-  final String teks;
-
-  @override
-  Widget build(BuildContext context) =>
-      Text(teks, style: TextStyle(fontSize: 13, color: context.warna.tinta3));
-}
-
-/// The board's button row: wrap, gap 8, each `flex: 1 1 150px; max-width: 340px`.
-class _BarisTombol extends StatelessWidget {
-  const _BarisTombol(this.anak);
-  final List<Widget> anak;
-
-  @override
-  Widget build(BuildContext context) => BarisLentur(
-    jarak: 8,
-    rata: CrossAxisAlignment.center,
-    anak: [for (final w in anak) Lentur(dasar: 150, maks: 340, child: w)],
-  );
-}
-
-/// Underlined text link 14/700, min height 44, full-width target, text left.
-class _TautanBaris extends StatelessWidget {
-  const _TautanBaris(this.teks, {required this.ke});
-  final String teks;
-  final Layar ke;
-
-  @override
-  Widget build(BuildContext context) => Tautan(
-    ke: ke,
-    // Full-width child, so hovering anywhere on the row turns it `lautTua`.
-    child: Container(
-      constraints: const BoxConstraints(minHeight: 44),
-      alignment: Alignment.centerLeft,
-      child: SizedBox(
-        width: double.infinity,
-        child: TautanTeks(teks, berat: FontWeight.w700, ukuran: 14),
-      ),
-    ),
-  );
-}
-
-/// A key/value row (14; key `tinta2`, value 600 right-aligned): CSS
-/// `display: flex; justify-content: space-between; gap: 16px` where both
-/// spans shrink by their max-content width and never below their longest word.
-class KunciNilai extends StatelessWidget {
-  const KunciNilai(this.kunci, this.nilai, {super.key});
-  final String kunci, nilai;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.warna;
-    final dasar = DefaultTextStyle.of(context).style
-        .copyWith(fontSize: 14, color: c.tinta);
-    final gk = dasar.copyWith(color: c.tinta2);
-    final gn = dasar.copyWith(fontWeight: FontWeight.w600);
-    final skala = MediaQuery.textScalerOf(context);
-    return LayoutBuilder(
-      builder: (context, b) {
-        (double, double) ukur(String s, TextStyle g) {
-          final p = TextPainter(
-            text: TextSpan(text: s, style: g),
-            textDirection: TextDirection.ltr,
-            textScaler: skala,
-          )..layout();
-          final r = (
-            p.minIntrinsicWidth.ceilToDouble(),
-            p.width.ceilToDouble(),
-          );
-          p.dispose();
-          return r;
-        }
-
-        final (minK, k) = ukur(kunci, gk);
-        final (minN, n) = ukur(nilai, gn);
-        var lk = k, ln = n;
-        final lebih = k + n + 16 - b.maxWidth;
-        if (lebih > 0) {
-          lk = math.max(minK, k - lebih * k / (k + n));
-          ln = math.max(minN, k + n - lebih - lk);
-        }
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            SizedBox(
-              width: lk,
-              child: Text(kunci, style: gk),
-            ),
-            const SizedBox(width: 16),
-            SizedBox(
-              width: math.min(ln, b.maxWidth - lk - 16),
-              child: Text(nilai, style: gn, textAlign: TextAlign.right),
-            ),
-          ],
-        );
-      },
-    );
   }
 }

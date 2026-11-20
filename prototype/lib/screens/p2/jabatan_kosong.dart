@@ -1,346 +1,360 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/layar.dart';
 import '../../core/format.dart';
+import '../../domain/core/core.dart';
 import '../../providers/actor.dart';
-
+import '../../providers/core_repositories.dart';
+import '../../providers/keuangan/beranda.dart';
+import '../../providers/revision.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
+import '../../widgets/alur_kit.dart';
 import '../../widgets/garis_status.dart';
 import '../../widgets/kecil.dart';
+import '../../widgets/lencana_modul.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/penolakan.dart';
 import '../../widgets/pita_jabatan_kosong.dart';
+import '../../widgets/riwayat_alur.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
-import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
+import '../../widgets/tombol_bersyarat.dart';
+import 'inti_bagian.dart';
 
-/// The `keadaan` options, in board order (`O`).
-const _o = [
-  'Pita di setiap layar',
-  'Konfirmasi tutup buku',
-  'Tercatat di Riwayat',
-  'Wajib pemeriksa kedua',
-  'Jabatan sudah terisi',
-];
-
-/// 49 · Menjalankan jabatan kosong (screens/14, JabatanKosong). State
-/// `{ k: null }`; the view is `k ?? keadaan`.
-class JabatanKosongScreen extends ConsumerStatefulWidget {
+/// 49 · Menjalankan jabatan kosong + 54 · Alur (screens/14, screens/15): the
+/// vacant posts from RoleRepository; the Operator takes one over with a reason
+/// and an acknowledgement (`coverVacancy`, DL12). The cover ends by itself
+/// when a holder is assigned; the strip, band and footer follow it (D18).
+class JabatanKosongScreen extends StatelessWidget {
   const JabatanKosongScreen({super.key});
 
   @override
-  ConsumerState<JabatanKosongScreen> createState() =>
-      _JabatanKosongScreenState();
+  Widget build(BuildContext context) => LayarPonsel(
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const KepalaPonsel(
+          judul: 'Menjalankan jabatan kosong',
+          anakJudul:
+              'Operator menjalankan jabatan kosong sampai ada '
+              'pemegangnya',
+          kembaliKe: Layar.beranda,
+          labelKembali: 'Kembali ke Beranda',
+        ),
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+            child: const IsiJabatanKosong(),
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
-class _JabatanKosongScreenState extends ConsumerState<JabatanKosongScreen> {
-  final _gulir = ScrollController();
-  String? _k;
-  String? _tweak;
-  bool _centang = false;
+/// The body shared by JabatanKosongScreen and WebJabatanKosongScreen.
+class IsiJabatanKosong extends ConsumerStatefulWidget {
+  const IsiJabatanKosong({super.key, this.web = false});
+  final bool web;
+
+  @override
+  ConsumerState<IsiJabatanKosong> createState() => _IsiJabatanKosongState();
+}
+
+class _IsiJabatanKosongState extends ConsumerState<IsiJabatanKosong> {
+  final _alasan = TextEditingController();
+  var _paham = false;
+  String? _postId;
+  String _pesan = '';
+  Refusal? _tolak;
 
   @override
   void dispose() {
-    _gulir.dispose();
+    _alasan.dispose();
     super.dispose();
   }
 
-  void _keAtas() => WidgetsBinding.instance.addPostFrameCallback((_) {
-    if (_gulir.hasClients) _gulir.jumpTo(0);
-  });
+  void _lihat(String? postId, [VoidCallback? ubah]) {
+    setState(() {
+      ubah?.call();
+      _postId = postId;
+      _tolak = null;
+    });
+    keAtas(context);
+  }
 
-  /// The board's `go<i>`.
-  void _ke(int i) => setState(() {
-    _k = _o[i];
-    _centang = false;
-    _keAtas();
-  });
+  String _syarat() {
+    if (_alasan.text.trim().isEmpty) return 'alasan belum diisi.';
+    if (!_paham) return 'pernyataan belum dicentang.';
+    return '';
+  }
+
+  Future<void> _jalankan(PostView p) async {
+    final actor = ref.read(actorProvider);
+    if (actor == null) return;
+    final r = await ref
+        .read(roleRepositoryProvider)
+        .coverVacancy(
+          actor,
+          p.post.id,
+          reason: _alasan.text.trim(),
+          expectedRevision: p.post.revision,
+          idempotencyKey: kunciInti(ref),
+        );
+    if (!mounted) return;
+    if (r.refusal case final t?) return setState(() => _tolak = t);
+    _lihat(null, () {
+      _pesan =
+          'Anda menjalankan jabatan kosong ${p.post.title} sejak '
+          '${ref.read(hariIniProvider)}.';
+      _alasan.clear();
+      _paham = false;
+    });
+  }
+
+  String _nama(String id) =>
+      ref.read(peopleRepositoryProvider).person(id)?.name ?? '—';
 
   @override
   Widget build(BuildContext context) {
-    final c = context.warna;
-    final tweak = belumDipindah<String>('Pita di setiap layar');
-    if (tweak != _tweak) {
-      // A panel change resets `k` (screens/14 intro).
-      if (_tweak != null) {
-        _k = null;
-        _centang = false;
-        _keAtas();
-      }
-      _tweak = tweak;
-    }
-    final ki = (_o.indexOf(_k ?? tweak)).clamp(0, _o.length - 1);
+    ref.watch(revisionProvider);
+    final posts = ref.watch(roleRepositoryProvider).posts();
+    final p = posts.where((x) => x.post.id == _postId).firstOrNull;
+    return susun(
+      p != null && p.vacant && p.cover == null ? _mulai(p) : _daftar(posts),
+    );
+  }
 
-    // The board gives this banner no role (spec: plain text).
-    final jalan = ref.watch(jalanJabatanProvider('bendahara-jemaat'));
-    final pita = PitaJabatanKosong.web(
-      sejak: jalan.sejak == null ? null : tglJam(jalan.sejak!),
-      operator: jalan.operator,
-      siaran: false,
-      padding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-    );
-    final kecil = TextStyle(fontSize: 13, color: c.tinta3);
-    Widget keterangan(String t) => Text(t, style: kecil);
-    Widget tombol(List<Widget> anak) => BarisLentur(
-      jarak: 8,
-      anak: [for (final a in anak) Lentur(dasar: 150, maks: 340, child: a)],
-    );
-    Widget barisJudul(Widget judul, Widget ujung) => Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Flexible(child: judul),
-        const SizedBox(width: 16),
-        ujung,
-      ],
-    );
-    Widget kartu(List<Widget> anak) => Kartu(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          for (var i = 0; i < anak.length; i++) ...[
-            if (i > 0) const SizedBox(height: 6),
-            anak[i],
-          ],
-        ],
-      ),
-    );
-    const tebal = TextStyle(fontWeight: FontWeight.w700);
-    final teks14 = TextStyle(fontSize: 14, color: c.tinta2);
-
-    final List<Widget> isi = switch (ki) {
-      0 => [
-        pita,
-        kartu([
-          barisJudul(
-            const Text('Saldo buku semua Kas/\u2060Bank', style: tebal),
-            Text(
-              'Rp38.415.000',
-              style: PalakatText.jumlah.copyWith(color: c.tinta),
-            ),
-          ),
-          keterangan('Hanya transaksi yang sudah dibukukan'),
-        ]),
-        kartu([
-          barisJudul(
-            const Text('Perlu tindakan', style: tebal),
-            const LencanaStatus('4', bentuk: BentukLencana.bata),
-          ),
-          Text(
-            'Oktober 2026 belum ditutup · 2 draf belum dibukukan',
-            style: teks14,
-          ),
-        ]),
-        keterangan(
-          'Pita ini tampil di setiap layar Keuangan selama jabatan '
-          'dijalankan: Beranda, Transaksi, Rekonsiliasi, Tutup buku, Laporan.',
-        ),
-        tombol([
-          Tombol(
-            'Lihat konfirmasi tutup buku',
-            onPressed: () => _ke(1),
-            jenis: JenisTombol.kedua,
-            ukuran: UkuranTombol.sedang,
-          ),
-        ]),
-      ],
-      1 => [
-        pita,
-        kartu([
-          const Text(
-            'Tutup buku bulan Oktober 2026?',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-          ),
+  List<Widget> _daftar(List<PostView> posts) {
+    final actor = ref.watch(actorProvider);
+    final saya = actor?.personId;
+    final jejak = saya == null
+        ? const <AuditRecord>[]
+        : ref
+              .watch(auditRepositoryProvider)
+              .list(AuditFilter(personId: saya))
+              .where(
+                (a) => a.action == 'role.cover' || a.via is ViaVacancyCover,
+              )
+              .toList();
+    // A post this Operator ran that now has a holder: "sudah terisi".
+    final terisi = [
+      for (final p in posts)
+        if (p.holder case final h?)
+          if (jejak.any(
+            (a) =>
+                a.action == 'role.cover' &&
+                a.ref?.id == p.post.id &&
+                h.recordedAt != null &&
+                !h.recordedAt!.isBefore(a.at),
+          ))
+            (p, h),
+    ];
+    final kosong = [
+      for (final p in posts)
+        if (p.vacant) p,
+    ];
+    final riwayat = [
+      for (final a in jejak)
+        '${tgl(a.at)} · ${a.summary} · oleh ${a.actorLine}',
+    ];
+    return [
+      if (_pesan.isNotEmpty) Pesan(Text(_pesan)),
+      for (final (p, h) in terisi)
+        KotakTerpilih(
           Text.rich(
             TextSpan(
               children: [
-                const TextSpan(text: 'Ditutup oleh '),
                 TextSpan(
-                  text: 'Yanti Sumual, Operator',
-                  style: TextStyle(fontWeight: FontWeight.w700, color: c.tinta),
+                  text: '${p.post.title} sudah terisi:',
+                  style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
-                const TextSpan(
+                TextSpan(
                   text:
-                      ', yang menjalankan jabatan kosong Bendahara Jemaat. '
-                      'Nama dan keadaan ini tercatat pada tutup buku.',
+                      ' ${_nama(h.personId)}, sejak ${h.start}. Anda tidak '
+                      'lagi menjalankan jabatan ini.',
                 ),
               ],
             ),
-            style: teks14,
           ),
-          KotakCentang(
-            nilai: _centang,
-            onUbah: (v) => setState(() => _centang = v),
-            jarakAtas: 2,
-            label: const Text(
-              'Saya sudah membaca ringkasan dan laporan sementara. Saya '
-              'mengerti bahwa tutup buku ini bersifat permanen dan transaksi '
-              'Oktober 2026 tidak dapat dikoreksi lagi.',
-            ),
-          ),
-        ]),
-        tombol([
-          // Disabled on the board for good (no handler); see spec Notes.
-          TekanAria(
-            onTap: () {},
-            aktif: false,
-            radius: 14,
-            petunjuk: 'Tombol aktif setelah pernyataan di atas dicentang.',
-            child: RupaTombol(
-              label: 'Tutup buku Oktober 2026',
-              isi: c.garis,
-              warnaTeks: c.tinta2,
-              radius: 14,
-              tinggi: 52,
-              paddingH: 16,
-            ),
-          ),
-          // Stretched to the 52 px neighbour, as the board's flex row does.
-          ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 52),
-            child: Tombol(
-              'Kembali',
-              onPressed: () => _ke(0),
-              jenis: JenisTombol.teks,
-            ),
-          ),
-        ]),
-        keterangan('Tombol aktif setelah pernyataan di atas dicentang.'),
-      ],
-      2 => [
-        kartu([
-          barisJudul(
-            Text(
-              'BKU-2026-0146',
-              style: TextStyle(
-                fontFamily: PalakatText.mono,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: c.tinta,
-              ),
-            ),
-            LencanaStatus.uang(StatusUang.dibukukan),
-          ),
-          Text('Dibukukan pada 16/11/2026 11.42', style: teks14),
-          keterangan(
-            'Oleh Yanti Sumual, Operator · menjalankan jabatan kosong '
-            'Bendahara Jemaat',
-          ),
-        ]),
-        kartu([
-          barisJudul(
-            const Text('Rekonsiliasi Kas · Oktober 2026', style: tebal),
-            LencanaStatus.uang(StatusUang.sudahDipastikan),
-          ),
-          keterangan(
-            'Oleh Yanti Sumual, Operator · menjalankan jabatan kosong '
-            'Bendahara Jemaat · 16/11/2026 10.20',
-          ),
-        ]),
-        keterangan(
-          'Riwayat menyimpan orang yang bertindak dan jabatan yang '
-          'dijalankannya. Bendahara baru nanti tidak mewarisi tindakan ini '
-          'sebagai miliknya.',
         ),
-      ],
-      3 => [
-        pita,
-        const Penolakan(
-          tindakan: 'Bukukan',
-          sebab:
-              'Wajib pemeriksa kedua aktif, dan draf ini Anda catat sendiri.',
-          jalan: [],
+      if (kosong.isEmpty)
+        const KotakKosong(
+          'Tidak ada jabatan kosong',
+          teks: 'Setiap jabatan sudah ada pemegangnya.',
         ),
-        keterangan(
-          'Menjalankan jabatan kosong tidak menggantikan orang kedua. Yang '
-          'dapat memeriksa: Pnt. Jefry Wowor.',
-        ),
-        tombol([
-          Tombol(
-            'Biarkan sebagai draf',
-            onPressed: () => _ke(0),
-            jenis: JenisTombol.kedua,
-            ukuran: UkuranTombol.sedang,
-          ),
-        ]),
-      ],
-      _ => [
-        Kartu(
-          status: GarisStatus.terpilih,
-          radius: 12,
+      for (final p in kosong) ..._kosong(p, saya),
+      RiwayatAlur(baris: riwayat),
+      const Catatan(
+        'Menjalankan jabatan kosong tidak memberi wewenang atas data keluarga '
+        'sendiri, dan berakhir sendiri begitu pemegang jabatan ditugaskan.',
+      ),
+    ];
+  }
+
+  List<Widget> _kosong(PostView p, String? saya) {
+    final cover = p.cover;
+    final milikSaya = cover != null && cover.personId == saya;
+    // DP19: a term that ran out leaves the post vacant the next day; one
+    // ended live (endedAt) leaves it vacant at once.
+    final h = p.lastHolder;
+    final sejak = h?.end == null
+        ? null
+        : h!.endedAt != null
+        ? h.end!
+        : h.end!.tambahHari(1);
+    final unit =
+        ref.read(orgRepositoryProvider).scope(p.post.scopeId)?.name ?? '';
+    return [
+      if (milikSaya)
+        PitaJabatanKosong.web(
+          jabatan: p.post.title,
+          sejak: tglJam(cover.startedAt),
+          operator: _nama(cover.personId),
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          child: const Text.rich(
-            TextSpan(
-              children: [
-                TextSpan(text: 'Bendahara Jemaat sudah terisi:', style: tebal),
-                TextSpan(
-                  text: ' Deitje Kawengian, wewenang aktif sejak 18/11/2026.',
+          siaran: false,
+        ),
+      Kartu(
+        status: GarisStatus.draf,
+        child: susun([
+          KepalaKartu(
+            judul: p.post.title,
+            ujung: const LencanaModul.jabatan(KeadaanJabatan.jabatanKosong),
+          ),
+          Baris2(sejak == null ? 'Belum ada pemegang' : 'Kosong sejak $sejak'),
+          Catatan(
+            cover == null
+                ? 'Selama kosong, pekerjaan ${p.post.title} di $unit tidak '
+                      'berjalan.'
+                : 'Dijalankan ${_nama(cover.personId)}, Operator sejak '
+                      '${tglJam(cover.startedAt)}',
+          ),
+          if (cover == null)
+            BarisTombol(
+              anak: [
+                Tombol(
+                  'Jalankan jabatan kosong',
+                  jenis: JenisTombol.tinta,
+                  onPressed: () => _lihat(p.post.id, () => _pesan = ''),
                 ),
               ],
             ),
-            style: TextStyle(fontSize: 14),
+        ], jarak: 6),
+      ),
+      if (milikSaya && p.post.role == Role.bendaharaJemaat) ..._keuangan(),
+    ];
+  }
+
+  /// The "Pita di setiap layar" cards while running the Bendahara post.
+  List<Widget> _keuangan() {
+    final b = ref.watch(berandaKeuanganProvider);
+    final saldo = Kartu(
+      child: susun([
+        KepalaKartu(
+          judul: 'Saldo buku semua Kas/Bank',
+          ujung: Text(
+            rp(b.saldoBuku),
+            style: PalakatText.jumlah.copyWith(color: context.warna.tinta),
           ),
         ),
-        const Penolakan(
-          tindakan: 'Bukukan',
-          sebab: 'Anda tidak lagi menjalankan jabatan Bendahara Jemaat.',
-          jalan: [],
+        const Catatan('Hanya transaksi yang sudah dibukukan'),
+      ], jarak: 6),
+    );
+    final perlu = Kartu(
+      child: susun([
+        KepalaKartu(
+          judul: 'Perlu tindakan',
+          ujung: LencanaStatus(
+            '${b.perluTindakan.length}',
+            bentuk: BentukLencana.bata,
+          ),
         ),
-        keterangan(
-          'Draf yang Anda siapkan tetap ada dan dapat dibukukan oleh '
-          'Bendahara Jemaat.',
-        ),
-        // An `<a>` is content-box: max-width 340 + padding 32 + line 3 = 375
-        // wide (so the full 350 here), 48 + 3 = 51 high.
-        const SizedBox(
-          height: 51,
-          child: Tombol(
-            'Kembali ke Beranda',
+        Baris2('${b.drafJumlah} draf belum dibukukan'),
+      ], jarak: 6),
+    );
+    return [
+      if (widget.web)
+        BarisLentur(
+          jarak: 28,
+          jarakBaris: 20,
+          anak: [
+            Lentur(dasar: 420, tumbuh: 1.3, child: saldo),
+            Lentur(dasar: 340, child: perlu),
+          ],
+        )
+      else ...[
+        saldo,
+        perlu,
+      ],
+      const Catatan(
+        'Pita ini tampil di setiap layar Keuangan selama jabatan dijalankan: '
+        'Beranda, Transaksi, Rekonsiliasi, Tutup buku, Laporan.',
+      ),
+      BarisTombol(
+        anak: [
+          const Tombol(
+            'Buka Keuangan',
             onPressed: null,
             jenis: JenisTombol.kedua,
-            ukuran: UkuranTombol.sedang,
-            ke: Layar.beranda,
-            cara: Cara.naik,
+            ke: Layar.keuangan,
           ),
-        ),
-      ],
-    };
+        ],
+      ),
+    ];
+  }
 
-    return Material(
-      type: MaterialType.transparency,
-      child: LayarPonsel(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const KepalaPonsel(
-              judul: 'Menjalankan jabatan kosong',
-              anakJudul:
-                  'Contoh keadaan: jabatan Bendahara Jemaat belum ada '
-                  'pemegangnya',
-              kembaliKe: Layar.beranda,
-              labelKembali: 'Kembali ke Beranda',
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                controller: _gulir,
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    for (var i = 0; i < isi.length; i++) ...[
-                      if (i > 0) const SizedBox(height: 16),
-                      isi[i],
-                    ],
-                  ],
-                ),
-              ),
-            ),
-          ],
+  List<Widget> _mulai(PostView p) {
+    final alasan = _syarat();
+    return [
+      Kartu(
+        child: susun([
+          KepalaKartu(
+            judul: p.post.title,
+            ujung: const LencanaModul.jabatan(KeadaanJabatan.jabatanKosong),
+          ),
+          const Baris2(
+            'Anda akan menjalankan jabatan ini atas nama sendiri. Nama Anda, '
+            'bukan nama jabatan, yang tercatat pada setiap tindakan.',
+          ),
+        ], jarak: 6),
+      ),
+      IsianAlur(
+        label: 'Alasan · wajib',
+        controller: _alasan,
+        onChanged: (_) => setState(() => _tolak = null),
+        baris: 3,
+      ),
+      KotakCentang(
+        nilai: _paham,
+        onUbah: (v) => setState(() => _paham = v),
+        jarakAtas: 2,
+        label: const Text(
+          'Saya mengerti setiap tindakan saya tercatat sebagai dijalankan oleh '
+          'Operator, dan jabatan ini kembali kepada pemegangnya begitu '
+          'ditugaskan.',
         ),
       ),
-    );
+      if (_tolak case final t?)
+        Penolakan(tindakan: t.action, sebab: t.because, jalan: const []),
+      TombolBersyarat(
+        label: 'Jalankan jabatan kosong',
+        tindakan: 'Jalankan jabatan kosong',
+        alasan: alasan,
+        periksa: _syarat,
+        sudahMulai: _alasan.text.trim().isNotEmpty || _paham,
+        onPressed: () => _jalankan(p),
+        baris: [
+          Tombol(
+            'Batalkan',
+            jenis: JenisTombol.teks,
+            ukuran: UkuranTombol.kecil,
+            onPressed: () => _lihat(null, () => _pesan = ''),
+          ),
+        ],
+      ),
+    ];
   }
 }

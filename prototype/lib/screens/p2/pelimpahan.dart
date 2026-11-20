@@ -1,58 +1,116 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/layar.dart';
+import '../../core/format.dart';
+import '../../core/tanggal.dart';
+import '../../domain/core/core.dart';
+import '../../providers/actor.dart';
+import '../../providers/core_repositories.dart';
+import '../../providers/revision.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/tautan.dart';
-import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
-import '../../widgets/garis_status.dart';
 import '../../widgets/kecil.dart';
+import '../../widgets/lencana_modul.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/penolakan.dart';
+import '../../widgets/riwayat_alur.dart';
 import '../../widgets/tombol.dart';
-import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
+import '../../widgets/tombol_bersyarat.dart';
+import 'inti_bagian.dart';
 
-const _o = ['Daftar pelimpahan', 'Buat pelimpahan', 'Berakhir sendiri'];
+/// The tasks a post holder may delegate, by the capability their post gives
+/// (PMP 5): the label is followed by the unit's name.
+const _tugas = {
+  Capability.membershipVerify: 'Verifikasi data',
+  Capability.servicesApprove: 'Menyetujui jadwal ibadah',
+};
 
-/// 50 · Pelimpahan tugas (spec 14). State `{k: null}`; the view is
-/// `k ?? keadaan`. A panel change resets `k`; every view change scrolls up.
-class PelimpahanScreen extends StatefulWidget {
+/// 50 · Pelimpahan tugas + 55 · Alur (screens/14, screens/15; phone only):
+/// the delegations from and to the signed-in person (RoleRepository), and a
+/// new one through `delegate`: one task, one unit, an end date after today;
+/// it ends by itself on that date.
+class PelimpahanScreen extends ConsumerStatefulWidget {
   const PelimpahanScreen({super.key});
+
   @override
-  State<PelimpahanScreen> createState() => _PelimpahanState();
+  ConsumerState<PelimpahanScreen> createState() => _PelimpahanScreenState();
 }
 
-class _PelimpahanState extends State<PelimpahanScreen> {
-  String? _k, _keadaan, _tampil;
-  final _gulir = ScrollController();
+class _PelimpahanScreenState extends ConsumerState<PelimpahanScreen> {
+  final _sampai = TextEditingController();
+  var _form = false;
+  String? _kepada;
+  DelegatedTask? _tugasDipilih;
+  String _pesan = '';
+  Refusal? _tolak;
 
   @override
   void dispose() {
-    _gulir.dispose();
+    _sampai.dispose();
     super.dispose();
   }
 
-  void _ke(String v) => setState(() => _k = v);
+  Tanggal get _hari => ref.read(hariIniProvider);
+
+  void _lihat(bool form, [VoidCallback? ubah]) {
+    setState(() {
+      ubah?.call();
+      _form = form;
+      _tolak = null;
+    });
+    keAtas(context);
+  }
+
+  String _nama(String id) =>
+      ref.read(peopleRepositoryProvider).person(id)?.name ?? '—';
+
+  String _syarat() {
+    final actor = ref.read(actorProvider);
+    if (_kepada == null) return 'penerima belum dipilih.';
+    if (_kepada == actor?.personId) {
+      return 'tugas tidak dapat dilimpahkan kepada diri sendiri.';
+    }
+    if (_tugasDipilih == null) return 'tugas belum dipilih.';
+    if (_sampai.text.trim().isEmpty) return 'tanggal berakhir belum diisi.';
+    final t = tanggalKetik(_sampai.text);
+    if (t == null) {
+      return 'tanggal berakhir tidak dikenali. Contoh: ${_hari.tambahHari(14)}.';
+    }
+    if (t <= _hari) return 'tanggal berakhir harus setelah hari ini ($_hari).';
+    return '';
+  }
+
+  Future<void> _buat() async {
+    final actor = ref.read(actorProvider);
+    if (actor == null) return;
+    final r = await ref
+        .read(roleRepositoryProvider)
+        .delegate(
+          actor,
+          _tugasDipilih!,
+          _kepada!,
+          _hari,
+          tanggalKetik(_sampai.text)!,
+          idempotencyKey: kunciInti(ref),
+        );
+    if (!mounted) return;
+    if (r.refusal case final t?) return setState(() => _tolak = t);
+    _lihat(false, () {
+      _pesan = '${_nama(_kepada!)} diberi tahu lewat Pemberitahuan.';
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final keadaan = belumDipindah<String>('Daftar pelimpahan');
-    if (keadaan != _keadaan) {
-      _keadaan = keadaan;
-      _k = null;
-    }
-    final tampil = _k ?? keadaan;
-    if (tampil != _tampil) {
-      if (_tampil != null) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (_gulir.hasClients) _gulir.jumpTo(0);
-        });
-      }
-      _tampil = tampil;
-    }
-    final c = context.warna;
-
+    ref.watch(revisionProvider);
+    final actor = ref.watch(actorProvider);
+    final isi = actor == null
+        ? const <Widget>[]
+        : _form
+        ? _isiForm(actor)
+        : _daftar(actor);
     return LayarPonsel(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -65,17 +123,8 @@ class _PelimpahanState extends State<PelimpahanScreen> {
           ),
           Expanded(
             child: SingleChildScrollView(
-              controller: _gulir,
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: 16,
-                children: switch (_o.indexOf(tampil)) {
-                  1 => _buat(c),
-                  2 => _berakhir(c),
-                  _ => _daftar(c),
-                },
-              ),
+              child: susun(isi),
             ),
           ),
         ],
@@ -83,171 +132,170 @@ class _PelimpahanState extends State<PelimpahanScreen> {
     );
   }
 
-  List<Widget> _daftar(PalakatWarna c) => [
-    _KartuPelimpahan(
-      judul: 'Penatua Kolom 7 → Sym. Greis Mamahit',
-      lencana: const LencanaStatus('Aktif', bentuk: BentukLencana.laut),
-      rincian: 'Verifikasi data Kolom 7 · 16/11/2026 sampai 30/11/2026',
-      catatan:
-          'Dilimpahkan oleh Pnt. Hendrik Rumagit. Tidak memindahkan wewenang '
-          'persetujuan ibadah.',
-    ),
-    _KartuPelimpahan(
-      judul: 'Sekretaris Jemaat → Yanti Sumual',
-      lencana: const LencanaStatus('Berakhir', bentuk: BentukLencana.abu),
-      rincian: 'Menyusun draf pengumuman · 03/11/2026 sampai 10/11/2026',
-      catatan: 'Berakhir sendiri pada tanggalnya.',
-    ),
-    BarisTombol(
-      anak: [
-        Tombol(
-          'Buat pelimpahan',
-          onPressed: () => _ke(_o[1]),
-          jenis: JenisTombol.tinta,
-        ),
-      ],
-    ),
-  ];
-
-  List<Widget> _buat(PalakatWarna c) {
-    Widget isian(String label, String nilai) => IsianTeks(
-      key: ValueKey(label),
-      label: label,
-      nilaiAwal: nilai,
-      jarakLabel: 6,
-      hanyaBaca: true,
-      gaya: TextStyle(fontSize: 14, color: c.tinta2),
-    );
+  List<Widget> _daftar(Actor actor) {
+    final hari = ref.watch(hariIniProvider);
+    final role = ref.watch(roleRepositoryProvider);
+    final semua = role.delegations(personId: actor.personId).reversed.toList();
+    final riwayat = [
+      for (final a
+          in ref
+              .watch(auditRepositoryProvider)
+              .list(const AuditFilter(actionPrefix: 'role.delegate')))
+        if (a.personId == actor.personId)
+          '${tgl(a.at)} · ${a.summary} · ${a.actorLine}',
+    ];
     return [
-      Kartu(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: 12,
-          children: [
-            isian('Yang melimpahkan', 'Pnt. Hendrik Rumagit · Penatua Kolom 7'),
-            isian('Kepada', 'Sym. Greis Mamahit'),
-            isian('Tugas', 'Verifikasi data anggota'),
-            isian('Unit', 'Kolom 7'),
-            // grid minmax(300px, 1fr): one column in the 316 px card.
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: 16,
-              children: [
-                isian('Mulai', '16/11/2026'),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  spacing: 6,
-                  children: [
-                    isian('Sampai', '30/11/2026'),
-                    Text(
-                      'Wajib: pelimpahan selalu punya tanggal akhir',
-                      style: TextStyle(fontSize: 13, color: c.tinta3),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
+      if (_pesan.isNotEmpty) Pesan(Text(_pesan)),
+      if (semua.isEmpty)
+        const KotakKosong(
+          'Belum ada pelimpahan',
+          teks:
+              'Limpahkan satu tugas kepada pelayan lain bila Anda berhalangan. '
+              'Pelimpahan selalu punya tanggal berakhir.',
         ),
-      ),
-      Text(
-        'Pelimpahan tugas administrasi tidak memindahkan wewenang. Setiap '
-        'tindakan mencatat pelaku, jabatan yang dijalankan, unit, atas nama '
-        'siapa dan waktunya.',
-        style: TextStyle(fontSize: 13, color: c.tinta3),
-      ),
+      for (final d in semua) _kartu(d, actor, hari),
       BarisTombol(
         anak: [
           Tombol(
-            'Simpan pelimpahan',
-            onPressed: () => _ke(_o[0]),
+            'Buat pelimpahan',
             jenis: JenisTombol.tinta,
+            onPressed: () => _lihat(true, () {
+              _pesan = '';
+              _kepada = null;
+              _tugasDipilih = null;
+              _sampai.clear();
+            }),
           ),
+        ],
+      ),
+      const Catatan(
+        'Pelimpahan tugas administrasi tidak memindahkan wewenang. Setiap '
+        'tindakan mencatat pelaku, jabatan yang dijalankan, unit, atas nama '
+        'siapa dan waktunya.',
+      ),
+      RiwayatAlur(baris: riwayat),
+    ];
+  }
+
+  Widget _kartu(Delegation d, Actor actor, Tanggal hari) {
+    final dari = d.fromAssignmentId == null
+        ? null
+        : ref
+              .read(roleRepositoryProvider)
+              .assignmentsOf(d.fromPersonId)
+              .where((a) => a.id == d.fromAssignmentId)
+              .firstOrNull;
+    final pos = dari == null
+        ? _nama(d.fromPersonId)
+        : ref
+                  .read(roleRepositoryProvider)
+                  .posts()
+                  .where((p) => p.post.id == dari.postId)
+                  .firstOrNull
+                  ?.post
+                  .title ??
+              _nama(d.fromPersonId);
+    final aktif = d.inForce(hari);
+    final belum = hari < d.start;
+    final Widget lencana = aktif
+        ? const LencanaModul.jabatan(KeadaanJabatan.aktif)
+        : belum
+        ? const LencanaStatus('Terjadwal', bentuk: BentukLencana.garis)
+        : const LencanaModul.jabatan(KeadaanJabatan.berakhir);
+    final catatan = !aktif && !belum
+        ? 'Berakhir sendiri pada tanggalnya.'
+        : d.fromPersonId == actor.personId
+        ? 'Dilimpahkan oleh ${_nama(d.fromPersonId)}. Berlaku sampai ${d.end} '
+              '· berakhir sendiri pada tanggalnya.'
+        : 'Dari ${_nama(d.fromPersonId)}. Anda dapat menjalankan tugas ini '
+              'sampai ${d.end}.';
+    return Kartu(
+      child: susun([
+        KepalaKartu(judul: '$pos → ${_nama(d.toPersonId)}', ujung: lencana),
+        Baris2('${d.task.label} · ${d.start} sampai ${d.end}'),
+        Catatan(catatan),
+      ], jarak: 6),
+    );
+  }
+
+  List<Widget> _isiForm(Actor actor) {
+    final hari = ref.watch(hariIniProvider);
+    final can = ref.watch(canProvider);
+    final role = ref.watch(roleRepositoryProvider);
+    final org = ref.watch(orgRepositoryProvider);
+    final milik = [
+      for (final g in can.grantsOf(actor.personId, at: hari))
+        if (g.kind == GrantKind.assignment) g,
+    ];
+    final lingkup = {for (final g in milik) g.scopeId};
+    final kepada = <String>{
+      for (final p in role.posts())
+        if (lingkup.contains(p.post.scopeId))
+          if (p.holder case final h?)
+            if (h.personId != actor.personId) h.personId,
+      actor.personId,
+    }.toList();
+    final tugas = [
+      for (final g in milik)
+        for (final e in _tugas.entries)
+          if (g.capabilities.contains(e.key))
+            DelegatedTask(
+              capability: e.key,
+              scopeId: g.scopeId,
+              label: '${e.value} ${org.scope(g.scopeId)?.name ?? ''}',
+            ),
+    ];
+    final alasan = _syarat();
+    return [
+      GrupChip(
+        label: 'Dilimpahkan kepada',
+        pilihan: [for (final id in kepada) _nama(id)],
+        terpilih: _kepada == null ? null : kepada.indexOf(_kepada!),
+        onPilih: (i) => setState(() {
+          _kepada = kepada[i];
+          _pesan = '';
+          _tolak = null;
+        }),
+      ),
+      GrupChip(
+        label: 'Tugas',
+        pilihan: [for (final t in tugas) t.label],
+        terpilih: _tugasDipilih == null
+            ? null
+            : tugas.indexWhere((t) => t.label == _tugasDipilih!.label),
+        onPilih: (i) => setState(() {
+          _tugasDipilih = tugas[i];
+          _pesan = '';
+          _tolak = null;
+        }),
+      ),
+      IsianAlur(
+        label: 'Berlaku sampai',
+        controller: _sampai,
+        onChanged: (_) => setState(() => _tolak = null),
+        petunjuk: 'hh/bb/tttt',
+        keterangan: 'Wajib. Pelimpahan berakhir sendiri pada tanggal ini.',
+        keyboard: TextInputType.datetime,
+      ),
+      if (_tolak case final t?)
+        Penolakan(tindakan: t.action, sebab: t.because, jalan: const []),
+      TombolBersyarat(
+        label: 'Buat pelimpahan',
+        tindakan: 'Buat pelimpahan',
+        alasan: alasan,
+        periksa: _syarat,
+        sudahMulai:
+            _kepada != null || _tugasDipilih != null || _sampai.text.isNotEmpty,
+        onPressed: _buat,
+        baris: [
           Tombol(
             'Batalkan',
-            onPressed: () => _ke(_o[0]),
             jenis: JenisTombol.teks,
+            ukuran: UkuranTombol.kecil,
+            onPressed: () => _lihat(false, () => _pesan = ''),
           ),
         ],
       ),
     ];
-  }
-
-  List<Widget> _berakhir(PalakatWarna c) => [
-    Kartu(
-      status: GarisStatus.draf,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      child: Text.rich(
-        TextSpan(
-          children: [
-            const TextSpan(
-              text: 'Pelimpahan berakhir 30/11/2026.',
-              style: TextStyle(fontWeight: FontWeight.w700),
-            ),
-            TextSpan(
-              text:
-                  ' Verifikasi data Kolom 7 kembali hanya kepada Pnt. Hendrik '
-                  'Rumagit.',
-              style: TextStyle(color: c.tinta2),
-            ),
-          ],
-        ),
-        style: const TextStyle(fontSize: 14),
-      ),
-    ),
-    const Penolakan(
-      tindakan: 'Verifikasi data',
-      sebab: 'Pelimpahan tugas Anda untuk Kolom 7 sudah berakhir.',
-      jalan: [],
-    ),
-    // An `<a>` is content-box: max-width 340 + padding 32 + line 3 = 375
-    // wide, 48 + 3 = 51 high.
-    Align(
-      alignment: Alignment.topLeft,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 375),
-        child: const SizedBox(
-          width: double.infinity,
-          height: 51,
-          child: Tombol(
-            'Kembali ke Beranda',
-            onPressed: null,
-            ke: Layar.beranda,
-            cara: Cara.naik,
-            jenis: JenisTombol.kedua,
-            ukuran: UkuranTombol.sedang,
-          ),
-        ),
-      ),
-    ),
-  ];
-}
-
-/// Delegation card: `permukaan`, 1 `garis`, radius 14, padding 14 16, gap 6.
-class _KartuPelimpahan extends StatelessWidget {
-  const _KartuPelimpahan({
-    required this.judul,
-    required this.lencana,
-    required this.rincian,
-    required this.catatan,
-  });
-
-  final String judul, rincian, catatan;
-  final Widget lencana;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.warna;
-    return Kartu(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: 6,
-        children: [
-          KepalaKartu(judul: judul, ujung: lencana),
-          Text(rincian, style: TextStyle(fontSize: 14, color: c.tinta2)),
-          Text(catatan, style: TextStyle(fontSize: 13, color: c.tinta3)),
-        ],
-      ),
-    );
   }
 }
