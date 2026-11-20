@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:palakat_prototype/boards.dart';
 import 'package:palakat_prototype/main.dart';
 import 'package:palakat_prototype/router.dart';
-import 'package:palakat_prototype/shell/belum_dibangun.dart';
+import 'package:palakat_prototype/shell/layar_ponsel.dart';
 import 'package:palakat_prototype/shell/panel_keadaan.dart';
 import 'package:palakat_prototype/shell/peluncur.dart';
 import 'package:palakat_prototype/shell/perangkat_prototipe.dart';
@@ -185,13 +185,13 @@ void main() {
       tester.view.physicalSize = const Size(1440, 600);
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
-      final layar = tester.getRect(find.byType(BelumDibangun));
+      final layar = tester.getRect(find.byType(LayarPonsel).first);
       expect(
         layar.height,
         closeTo(552, 0.5),
       ); // (600 − 48) high: scaled down by FittedBox, still 390 × 844 inside
       expect(
-        MediaQuery.sizeOf(tester.element(find.byType(BelumDibangun))),
+        MediaQuery.sizeOf(tester.element(find.byType(LayarPonsel).first)),
         const Size(390, 844),
       );
     },
