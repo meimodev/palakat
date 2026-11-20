@@ -2,7 +2,6 @@ import 'package:flutter/widgets.dart';
 
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis_status.dart';
@@ -11,8 +10,9 @@ import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
-const _stem = 'WebImporBuku';
 const _keadaan = ['Ditampung', 'Lolos pengecekan', 'Sudah diimpor'];
 
 /// The board's four rows: name, book text, read as, ket, kind
@@ -73,7 +73,7 @@ class _WebImporBukuScreenState extends State<WebImporBukuScreen> {
   Widget build(BuildContext context) {
     final c = context.warna;
     // Board parity (CONVENTIONS): a panel change does not reset `k`.
-    final tweak = context.tweak<String>(_stem, 'keadaan');
+    final tweak = belumDipindah<String>('Ditampung');
     final ki = _keadaan.indexOf(_k ?? tweak).clamp(0, 2);
     // Every view change jumps the page to the top (CONVENTIONS).
     if (_kiLama != null && _kiLama != ki) {
@@ -198,7 +198,7 @@ class _WebImporBukuScreenState extends State<WebImporBukuScreen> {
               'Tinjau kemungkinan data ganda',
               jenis: JenisTombol.kedua,
               onPressed: null,
-              ke: 'WebDataGanda',
+              ke: Layar.dataGanda,
             ),
           ),
         ]),
@@ -227,30 +227,13 @@ class _WebImporBukuScreenState extends State<WebImporBukuScreen> {
             style: const TextStyle(fontSize: 14),
           ),
         ),
-        barisTombol([
-          tautan(
-            // Content-box `<a>`: min-height 48 plus the 1.5 line twice.
-            ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 51),
-              child: const Tombol(
-                'Lihat konfirmasi keluarga',
-                jenis: JenisTombol.kedua,
-                ukuran: UkuranTombol.sedang,
-                onPressed: null,
-                ke: 'KonfirmasiKeluarga',
-              ),
-            ),
-          ),
-        ]),
+        // "Lihat konfirmasi keluarga" opens a phone-only screen: left out
+        // on the web (README 7.1 rule 4).
       ],
     });
 
     return HalamanWeb(
-      nav: const NavSamping(
-        item: navPlatform,
-        aktif: 5,
-        pengguna: PenggunaNav(tebal: 'Yanti Sumual', biasa: ' · Operator'),
-      ),
+      nav: const NavSamping(item: navPlatform, aktif: 5),
       // CSS splits line-height leading evenly; Flutter's default does not.
       isi: [
         for (final w in [
@@ -264,7 +247,7 @@ class _WebImporBukuScreenState extends State<WebImporBukuScreen> {
               const MarginNegatif(
                 bawah: 44 - 21.75,
                 child: Tautan(
-                  ke: 'WebDataAnggota',
+                  ke: Layar.dataAnggota,
                   cara: Cara.naik,
                   child: Padding(
                     padding: EdgeInsets.only(top: 1.1),

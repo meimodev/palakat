@@ -8,6 +8,7 @@ import '../../widgets/garis_status.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
 
 /// Shared by AIMataAnggaran and WebAIMataAnggaran: the boards' identical
 /// logic class (`DEF`, `U`, state `{ur, dasar, st, pilihan}`) and regions
@@ -60,7 +61,7 @@ class IsiUsulanMA {
   final void Function(VoidCallback) ubah;
 
   /// "Pilih sendiri": Bagi / WebBagi.
-  final String keBagi;
+  final Layar keBagi;
 
   List<_Baris> get _usul => _u[mode]!;
   String get ur => k.ur ?? _def[mode]!;

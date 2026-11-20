@@ -4,12 +4,13 @@ import '../../mock/kolaborasi.dart';
 import '../../mock/model.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/prototipe_state.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 const _opsi = [
   'Draf',
@@ -47,7 +48,7 @@ class _IbadahScreenState extends State<IbadahScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tweak<String>('Ibadah', 'keadaan');
+    final t = belumDipindah<String>('Draf');
     if (t != _tweak) {
       // A panel change resets the in-board view (spec 22, shared rules).
       // Not during build: jumping fires scroll notifications.
@@ -67,7 +68,7 @@ class _IbadahScreenState extends State<IbadahScreen> {
           const KepalaPonsel(
             judul: 'Ibadah dan kegiatan',
             anakJudul: 'Jadwal dan persetujuan; tanpa daftar petugas pelayanan',
-            kembaliKe: 'BerandaJabatan',
+            kembaliKe: Layar.beranda,
             labelKembali: 'Kembali ke Beranda',
           ),
           Expanded(
@@ -122,7 +123,8 @@ class _IbadahScreenState extends State<IbadahScreen> {
               onPressed: null,
               jenis: JenisTombol.kedua,
               ukuran: UkuranTombol.sedang,
-              ke: 'Kehadiran',
+              ke: Layar.kehadiran,
+              param: {'ibadah': belumDipindahId},
             ),
           ),
         ],
@@ -147,7 +149,8 @@ class _IbadahScreenState extends State<IbadahScreen> {
               onPressed: null,
               jenis: JenisTombol.kedua,
               ukuran: UkuranTombol.sedang,
-              ke: 'Kehadiran',
+              ke: Layar.kehadiran,
+              param: {'ibadah': belumDipindahId},
             ),
           ),
         ],

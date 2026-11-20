@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../motion/kerangka.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/butir_perhatian.dart';
@@ -14,6 +13,8 @@ import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// One AI suggestion of the board's `U` list.
 typedef _Usul = ({
@@ -61,9 +62,7 @@ class _WebAIScreenState extends State<WebAIScreen> {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final pct = int.parse(
-      context.tweak<String>('WebAI', 'biayaAI').replaceAll('%', ''),
-    );
+    final pct = int.parse(belumDipindah<String>('75%').replaceAll('%', ''));
     final mati = pct >= 100;
     final biayaCat = mati
         ? 'Batas tercapai.'
@@ -95,7 +94,8 @@ class _WebAIScreenState extends State<WebAIScreen> {
           perbaikan: Tombol(
             'Buka rekonsiliasi',
             onPressed: null,
-            ke: 'WebRekonsiliasi',
+            ke: Layar.tutupBuku,
+            anak: 'rekonsiliasi',
             jenis: JenisTombol.tinta,
             ukuran: UkuranTombol.kecil,
             lebarPenuh: false,
@@ -246,12 +246,8 @@ class _WebAIScreenState extends State<WebAIScreen> {
     );
 
     return HalamanWeb(
-      jabatanKosong: true,
-      nav: const NavSamping(
-        item: navKeuangan,
-        aktif: 4,
-        pengguna: PenggunaKeuangan(),
-      ),
+      layarKeuangan: true,
+      nav: const NavSamping(item: navKeuangan, aktif: 4),
       isi: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -261,7 +257,7 @@ class _WebAIScreenState extends State<WebAIScreen> {
               atas: (44 - 15 * 1.45) / 2,
               bawah: (44 - 15 * 1.45) / 2,
               child: Tautan(
-                ke: 'WebTutupBuku',
+                ke: Layar.tutupBuku,
                 cara: Cara.naik,
                 child: const Center(
                   widthFactor: 1,

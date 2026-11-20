@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../mock/mock.dart';
-import '../../shell/kendali.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tekan.dart';
 import 'kejadian_bagian.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// 22 · Kejadian setelah tutup buku (07-kejadian.md). Owns the board state
 /// shared by `/Kejadian` (list) and `/Kejadian/rinci` (detail).
@@ -23,22 +22,9 @@ class KejadianKendali extends StatefulWidget {
 
 class _KejadianKendaliState extends State<KejadianKendali> {
   final _s = KeadaanKejadian();
-  var _generasi = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    ulangPapan['Kejadian'] = _ulang;
-  }
-
-  void _ulang() => setState(() {
-    _s.ulang();
-    _generasi++;
-  });
 
   @override
   void dispose() {
-    if (ulangPapan['Kejadian'] == _ulang) ulangPapan.remove('Kejadian');
     _s.dispose();
     super.dispose();
   }
@@ -46,10 +32,7 @@ class _KejadianKendaliState extends State<KejadianKendali> {
   @override
   Widget build(BuildContext context) => _Lingkup(
     notifier: _s,
-    child: GenerasiPapan(
-      generasi: _generasi,
-      child: LayarPonsel(jabatanKosong: true, child: widget.child),
-    ),
+    child: LayarPonsel(layarKeuangan: true, child: widget.child),
   );
 }
 
@@ -68,7 +51,7 @@ class KejadianScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = _Lingkup.of(context);
-    final hambat = context.tweak<bool>('Kejadian', 'menghambatBulanBerikutnya');
+    final hambat = belumDipindah<bool>(true);
     return anak == 'rinci'
         ? _Rinci(s: s, hambat: hambat)
         : _Daftar(s: s, hambat: hambat);
@@ -94,7 +77,7 @@ class _Daftar extends StatelessWidget {
         children: [
           const KepalaPonsel(
             judul: 'Kejadian setelah tutup buku',
-            kembaliKe: 'TutupBuku',
+            kembaliKe: Layar.tutupBuku,
             labelKembali: 'Kembali ke Bulan',
           ),
           Expanded(
@@ -109,7 +92,7 @@ class _Daftar extends StatelessWidget {
                       radius: 14,
                       onTap: () {
                         s.pick(k.no);
-                        GoRouter.of(context).push('/Kejadian/rinci');
+                        context.dorongKe(Layar.kejadian, anak: 'rinci');
                       },
                       child: Kartu(
                         child: IsiKartuKejadian(
@@ -145,7 +128,7 @@ class _Rinci extends StatelessWidget {
       KepalaPonsel(
         judul: 'Kejadian',
         // `tutupRinci`: back to the list view.
-        onKembali: () => context.kembaliKe('/Kejadian'),
+        onKembali: () => context.naikKe(Layar.kejadian),
       ),
       Expanded(
         child: SingleChildScrollView(

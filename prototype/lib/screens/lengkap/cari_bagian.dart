@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../mock/mock.dart';
 import '../../motion/kerangka.dart';
 import '../../shell/tautan.dart';
@@ -11,6 +11,7 @@ import '../../widgets/garis_status.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
 
 /// Parts shared by Cari and WebCari (spec 08): the same state, handlers,
 /// search, answer, rows and AI panel.
@@ -55,7 +56,7 @@ mixin LogikaCari<T extends StatefulWidget> on State<T> {
   }
 
   /// Search field, answer and rows (or the empty box): Cari 2a–2d.
-  List<Widget> hasil({required String ke}) => [
+  List<Widget> hasil({required Layar ke}) => [
     IsianTeks(
       controller: q,
       labelSemantik: 'Cari transaksi',
@@ -240,7 +241,7 @@ class _Jawaban extends StatelessWidget {
 
 class _Baris extends StatelessWidget {
   const _Baris({required this.ke});
-  final String ke;
+  final Layar ke;
 
   @override
   Widget build(BuildContext context) {

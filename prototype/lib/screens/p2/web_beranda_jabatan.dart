@@ -11,36 +11,7 @@ import '../../widgets/ikon.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import 'beranda_jabatan_isi.dart';
-
-/// Row targets of `berandaJabatan`, per person, "Perlu tindakan" then
-/// "Untuk diketahui" (the board's `hal()` with `web = true`).
-const _tujuan = [
-  [
-    (ke: 'AntreanVerifikasi'),
-    (ke: 'Ibadah'),
-    (ke: 'PermintaanDana'),
-    (ke: 'KonfirmasiKeluarga'),
-  ],
-  [(ke: 'WebBeranda'), (ke: 'WebSelesaikanUnit'), (ke: 'WebBeranda')],
-  [
-    (ke: 'WebPengumuman'),
-    (ke: 'WebPermohonanSurat'),
-    (ke: 'WebWartaEditor'),
-    (ke: 'WebPengumuman'),
-  ],
-  [
-    (ke: 'KonfirmasiKeluarga'),
-    (ke: 'WebPermohonanSurat'),
-    (ke: 'WebJabatanKosong'),
-    (ke: 'WebImporBuku'),
-  ],
-  [
-    (ke: 'WebPermohonanSurat'),
-    (ke: 'WebWartaArsip'),
-    (ke: 'WebPengumuman'),
-    (ke: 'PersembahanSaya'),
-  ],
-];
+import '../../app/layar.dart';
 
 /// Web · Beranda: the combined Beranda on the laptop, home of every platform
 /// web board.
@@ -66,15 +37,7 @@ class _WebBerandaJabatanScreenState extends State<WebBerandaJabatanScreen>
       controller: scroll,
       automaticallyInheritForPlatforms: TargetPlatform.values.toSet(),
       child: HalamanWeb(
-        nav: NavSamping(
-          item: navPlatform,
-          aktif: 0,
-          pengguna: const PenggunaNav(
-            tebal: 'Jemaat Karunia',
-            biasa: ' · satu akun, semua jabatan',
-          ),
-          diSini: ulang,
-        ),
+        nav: NavSamping(item: navPlatform, aktif: 0, diSini: ulang),
         isi: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -84,7 +47,7 @@ class _WebBerandaJabatanScreenState extends State<WebBerandaJabatanScreen>
                 atas: 11.125,
                 bawah: 11.125,
                 child: Tautan(
-                  ke: 'WebBerandaJabatan',
+                  ke: Layar.beranda,
                   cara: Cara.naik,
                   diSini: ulang,
                   child: const SizedBox(
@@ -133,23 +96,23 @@ class _WebBerandaJabatanScreenState extends State<WebBerandaJabatanScreen>
 
   List<Widget> _daftar(int ki) {
     final d = berandaJabatan[ki];
-    final ke = _tujuan[ki];
-    final semua = [...d.tindak, ...d.tahu];
-    assert(() {
-      for (final (i, r) in semua.indexed) {
-        if (keWeb(r.ke) != ke[i].ke) return false;
-      }
-      return true;
-    }(), 'WebBerandaJabatan row targets differ from berandaJabatan');
+    // Rows to phone-only screens are left out on the web (README 7.1 rule 4).
+    final tindak = [
+      for (final r in d.tindak)
+        if (r.ke.web) r,
+    ];
+    final semua = [
+      ...tindak,
+      for (final r in d.tahu)
+        if (r.ke.web) r,
+    ];
     Widget kolom(String judul, int dari, int sampai) => Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (sampai > dari) ...[
           JudulBagian(judul),
           const SizedBox(height: 12),
-          _KotakDaftar([
-            for (var i = dari; i < sampai; i++) (r: semua[i], ke: ke[i].ke),
-          ]),
+          _KotakDaftar([for (var i = dari; i < sampai; i++) semua[i]]),
         ],
       ],
     );
@@ -162,17 +125,17 @@ class _WebBerandaJabatanScreenState extends State<WebBerandaJabatanScreen>
           Lentur(
             dasar: 420,
             tumbuh: 1.3,
-            child: kolom('Perlu tindakan', 0, d.tindak.length),
+            child: kolom('Perlu tindakan', 0, tindak.length),
           ),
           Lentur(
             dasar: 340,
-            child: kolom('Untuk diketahui', d.tindak.length, semua.length),
+            child: kolom('Untuk diketahui', tindak.length, semua.length),
           ),
         ],
       ),
       const Keterangan(kalimatBeranda),
       const Tautan(
-        ke: 'WebAkunSaya',
+        ke: Layar.akun,
         child: SizedBox(
           height: 44,
           child: Align(
@@ -189,7 +152,7 @@ class _WebBerandaJabatanScreenState extends State<WebBerandaJabatanScreen>
 /// none above the first.
 class _KotakDaftar extends StatelessWidget {
   const _KotakDaftar(this.baris);
-  final List<({ItemKotak r, String ke})> baris;
+  final List<ItemKotak> baris;
 
   @override
   Widget build(BuildContext context) {
@@ -203,8 +166,7 @@ class _KotakDaftar extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          for (final (i, b) in baris.indexed)
-            _Baris(b.r, ke: b.ke, pertama: i == 0),
+          for (final (i, b) in baris.indexed) _Baris(b, pertama: i == 0),
         ],
       ),
     );
@@ -212,9 +174,8 @@ class _KotakDaftar extends StatelessWidget {
 }
 
 class _Baris extends StatelessWidget {
-  const _Baris(this.r, {required this.ke, required this.pertama});
+  const _Baris(this.r, {required this.pertama});
   final ItemKotak r;
-  final String ke;
   final bool pertama;
 
   @override
@@ -226,7 +187,8 @@ class _Baris extends StatelessWidget {
     );
     final sub = Text(r.sub, style: TextStyle(fontSize: 13, color: c.tinta3));
     return Tautan(
-      ke: ke,
+      ke: r.ke,
+      param: r.param,
       child: Container(
         // `<a>` is content-box: min-height 52 + padding 16 + the 1 px rule
         // (the first row's rule is hidden above the box).

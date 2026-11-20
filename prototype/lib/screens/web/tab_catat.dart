@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../mock/mock.dart';
 import '../../motion/kerangka.dart';
 import '../../shell/nav_samping.dart';
@@ -17,6 +17,8 @@ import '../../widgets/pemilih_mata_anggaran.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// The board's `CFG` per kind.
 typedef _Jenis = ({
@@ -68,14 +70,30 @@ final _ma = {
 
 /// Link row under the title (push).
 const _tautanAtas = [
-  (ke: 'WebBagi', teks: 'Bagi ke beberapa Mata Anggaran'),
-  (ke: 'WebPersembahan', teks: 'Persembahan'),
-  (ke: 'WebAlihPeruntukan', teks: 'Alih peruntukan'),
-  (ke: 'WebAIFoto', teks: 'Dari foto nota'),
-  (ke: 'WebPersetujuan', teks: 'Ganti catatan persetujuan'),
-  (ke: 'WebTanggal', teks: 'Tanggal transaksi'),
-  (ke: 'WebAIMataAnggaran', teks: 'Usulan Mata Anggaran'),
-  (ke: 'WebBantuanAI', teks: 'Dari kalimat'),
+  (
+    ke: Layar.bagi,
+    teks: 'Bagi ke beberapa Mata Anggaran',
+    param: <String, String>{},
+  ),
+  (ke: Layar.persembahan, teks: 'Persembahan', param: <String, String>{}),
+  (
+    ke: Layar.alihPeruntukan,
+    teks: 'Alih peruntukan',
+    param: <String, String>{},
+  ),
+  (ke: Layar.aiFoto, teks: 'Dari foto nota', param: <String, String>{}),
+  (
+    ke: Layar.persetujuan,
+    param: {'id': belumDipindahId},
+    teks: 'Ganti catatan persetujuan',
+  ),
+  (ke: Layar.tanggal, teks: 'Tanggal transaksi', param: <String, String>{}),
+  (
+    ke: Layar.aiMataAnggaran,
+    teks: 'Usulan Mata Anggaran',
+    param: <String, String>{},
+  ),
+  (ke: Layar.bantuanAi, teks: 'Dari kalimat', param: <String, String>{}),
 ];
 
 enum _Cek { ok, gagal, info }
@@ -223,7 +241,7 @@ class _TabCatatScreenState extends State<TabCatatScreen> {
           atas: 11,
           bawah: 11,
           child: Tautan(
-            ke: 'WebTransaksi',
+            ke: Layar.transaksi,
             cara: Cara.naik,
             child: const Align(
               alignment: Alignment.centerLeft,
@@ -251,6 +269,7 @@ class _TabCatatScreenState extends State<TabCatatScreen> {
         for (final t in _tautanAtas)
           Tautan(
             ke: t.ke,
+            param: t.param,
             child: Align(
               alignment: Alignment.centerLeft,
               widthFactor: 1,
@@ -764,7 +783,7 @@ class _TabCatatScreenState extends State<TabCatatScreen> {
               ),
               const Tombol(
                 'Simpan sebagai draf',
-                ke: 'WebTransaksi',
+                ke: Layar.transaksi,
                 cara: Cara.ganti,
                 onPressed: null,
                 jenis: JenisTombol.kedua,
@@ -796,11 +815,7 @@ class _TabCatatScreenState extends State<TabCatatScreen> {
     return Material(
       type: MaterialType.transparency,
       child: HalamanTablet(
-        nav: const NavSamping(
-          item: navKeuangan,
-          aktif: 1,
-          pengguna: PenggunaKeuangan(ikutJabatanKosong: false),
-        ),
+        nav: const NavSamping(item: navKeuangan, aktif: 1),
         isi: [
           judul,
           deret,

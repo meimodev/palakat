@@ -1,7 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-import '../../mock/format.dart';
-import '../../shell/prototipe_state.dart';
+import '../../core/format.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis_status.dart';
 import '../../widgets/kecil.dart';
@@ -9,6 +8,8 @@ import '../../widgets/lencana_status.dart';
 import '../../widgets/penolakan.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// Shared by PersembahanBernama and WebPersembahanBernama: the `keadaan`
 /// options, the transaction card and the five view blocks (spec 22).
@@ -30,7 +31,7 @@ mixin KeadaanPemberi<T extends StatefulWidget> on State<T> {
   final kunciIsi = GlobalKey();
 
   int ki(BuildContext context, String stem) {
-    final t = context.tweak<String>(stem, 'keadaan');
+    final t = belumDipindah<String>('Tanpa nama');
     if (t != _tweak) {
       _tweak = t;
       _k = null;
@@ -102,12 +103,13 @@ class KartuSampul extends StatelessWidget {
 }
 
 /// The view blocks under the transaction card, as flat children of the
-/// board's column. [ke] is the "Lihat yang dilihat anggota" target.
+/// board's column. [ke] is the "Lihat yang dilihat anggota" target; null
+/// leaves the button out (the web has no PersembahanSaya, README 7.1 rule 4).
 List<Widget> blokPemberi(
   BuildContext context, {
   required int ki,
   required ValueChanged<int> pilih,
-  required String ke,
+  Layar? ke,
 }) {
   final c = context.warna;
   final kecil = TextStyle(fontSize: 13, color: c.tinta3);
@@ -220,20 +222,21 @@ List<Widget> blokPemberi(
       tombol([
         // An `<a>` is content-box: basis, max-width and min-height exclude
         // its padding 16 + 16 and line 1.5 + 1.5.
-        Lentur(
-          dasar: 185,
-          maks: 375,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 51),
-            child: Tombol(
-              'Lihat yang dilihat anggota',
-              jenis: JenisTombol.kedua,
-              ukuran: UkuranTombol.sedang,
-              ke: ke,
-              onPressed: null,
+        if (ke != null)
+          Lentur(
+            dasar: 185,
+            maks: 375,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 51),
+              child: Tombol(
+                'Lihat yang dilihat anggota',
+                jenis: JenisTombol.kedua,
+                ukuran: UkuranTombol.sedang,
+                ke: ke,
+                onPressed: null,
+              ),
             ),
           ),
-        ),
         teks('Lepas nama', 51, 0),
       ]),
     ],

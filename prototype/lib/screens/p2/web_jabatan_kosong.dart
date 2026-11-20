@@ -2,7 +2,6 @@ import 'package:flutter/widgets.dart';
 
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
@@ -13,8 +12,9 @@ import '../../widgets/penolakan.dart';
 import '../../widgets/pita_jabatan_kosong.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
-const _stem = 'WebJabatanKosong';
 const _o = [
   'Pita di setiap layar',
   'Konfirmasi tutup buku',
@@ -40,7 +40,7 @@ class _WebJabatanKosongState extends State<WebJabatanKosongScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final keadaan = context.tweak<String>(_stem, 'keadaan');
+    final keadaan = belumDipindah<String>('Pita di setiap layar');
     if (keadaan != _keadaan) {
       _keadaan = keadaan;
       _k = null;
@@ -59,11 +59,7 @@ class _WebJabatanKosongState extends State<WebJabatanKosongScreen> {
     final c = context.warna;
 
     return HalamanWeb(
-      nav: const NavSamping(
-        item: navPlatform,
-        aktif: 1,
-        pengguna: PenggunaNav(tebal: 'Yanti Sumual', biasa: ' · Operator'),
-      ),
+      nav: const NavSamping(item: navPlatform, aktif: 1),
       isi: [
         Column(
           key: _atas,
@@ -73,7 +69,7 @@ class _WebJabatanKosongState extends State<WebJabatanKosongScreen> {
               atas: (44 - 15 * 1.45) / 2,
               bawah: (44 - 15 * 1.45) / 2,
               child: const Tautan(
-                ke: 'WebBerandaJabatan',
+                ke: Layar.beranda,
                 cara: Cara.naik,
                 child: Align(
                   alignment: Alignment.centerLeft,
@@ -357,7 +353,7 @@ class _WebJabatanKosongState extends State<WebJabatanKosongScreen> {
           child: Tombol(
             'Kembali ke Beranda',
             onPressed: null,
-            ke: 'WebBerandaJabatan',
+            ke: Layar.beranda,
             cara: Cara.naik,
             jenis: JenisTombol.kedua,
             ukuran: UkuranTombol.sedang,

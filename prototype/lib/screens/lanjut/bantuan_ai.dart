@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/tombol.dart';
 import 'bantuan_ai_bagian.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// 14 · Bantuan AI saat mencatat (spec 05-kewajiban.md, BantuanAI).
 class BantuanAIScreen extends StatefulWidget {
@@ -28,9 +29,9 @@ class _BantuanAIScreenState extends State<BantuanAIScreen> {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final keadaanAI = context.tweak<String>('BantuanAI', 'keadaanAI');
+    final keadaanAI = belumDipindah<String>('tersedia');
     return LayarPonsel(
-      jabatanKosong: true,
+      layarKeuangan: true,
       // No Material here: it would reset the inherited 16 px text style.
       child: ListenableBuilder(
         listenable: _s,
@@ -39,7 +40,7 @@ class _BantuanAIScreenState extends State<BantuanAIScreen> {
           children: [
             KepalaPonsel(
               judul: 'Belanja',
-              kembaliKe: 'Main',
+              kembaliKe: Layar.keuangan,
               labelKembali: 'Kembali ke Beranda',
               ujung: Text(
                 simpanTeks(_s),
@@ -80,7 +81,7 @@ class _BantuanAIScreenState extends State<BantuanAIScreen> {
                   Tombol(
                     'Periksa dan bukukan',
                     onPressed: null,
-                    ke: 'Main',
+                    ke: Layar.keuangan,
                     cara: Cara.ganti,
                   ),
                   SizedBox(height: 6),
@@ -88,7 +89,7 @@ class _BantuanAIScreenState extends State<BantuanAIScreen> {
                     'Simpan sebagai draf',
                     onPressed: null,
                     jenis: JenisTombol.teks,
-                    ke: 'Main',
+                    ke: Layar.keuangan,
                     cara: Cara.ganti,
                   ),
                 ],

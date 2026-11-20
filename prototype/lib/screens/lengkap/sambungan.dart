@@ -2,20 +2,18 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../motion/kerangka.dart';
 import '../../motion/urutan.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/perangkat_prototipe.dart';
-import '../../shell/prototipe_state.dart';
-import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis.dart';
 import '../../widgets/ikon.dart';
 import '../../widgets/tombol.dart';
-
-const _stem = 'Sambungan';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
+import '../../providers/session.dart';
 
 /// Session-ended variants of the `keadaan` tweak: (h1, caption, "Masuk lagi").
 const _sesi = {
@@ -61,7 +59,7 @@ class _SambunganScreenState extends State<SambunganScreen> {
   void _coba() {
     if (_st != _St.putus) return;
     // Read at press time, as the board's closure does.
-    final pulih = context.prototipe.tweak(_stem, 'sambunganKembali') as bool;
+    final pulih = belumDipindah(false);
     final n = _n;
     setState(() => _st = _St.coba);
     _timer = Timer(const Duration(milliseconds: 1600), () {
@@ -77,38 +75,18 @@ class _SambunganScreenState extends State<SambunganScreen> {
     });
   }
 
-  /// "Ulangi contoh" (Keadaan panel); also stops a running retry.
-  void _ulang() {
-    _timer?.cancel();
-    setState(() {
-      _st = _St.putus;
-      _n = 1;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    final keadaan = context.tweak<String>(_stem, 'keadaan');
+    final keadaan = belumDipindah<String>('Tidak ada sambungan');
     final sesi = _sesi[keadaan];
-    return AlatPrototipe(
-      stem: _stem,
-      alat: [
-        Tombol(
-          'Ulangi contoh',
-          onPressed: _ulang,
-          jenis: JenisTombol.teks,
-          lebarPenuh: false,
-        ),
-      ],
-      child: LayarPonsel(
-        child: sesi == null
-            ? _form(context)
-            : Gerak(
-                Kerangka.pudar,
-                lama: const Duration(milliseconds: 250),
-                child: _Sesi(sesi),
-              ),
-      ),
+    return LayarPonsel(
+      child: sesi == null
+          ? _form(context)
+          : Gerak(
+              Kerangka.pudar,
+              lama: const Duration(milliseconds: 250),
+              child: _Sesi(sesi),
+            ),
     );
   }
 
@@ -302,7 +280,7 @@ class _SambunganScreenState extends State<SambunganScreen> {
       children: [
         const KepalaPonsel(
           judul: 'Belanja',
-          kembaliKe: 'Main',
+          kembaliKe: Layar.keuangan,
           labelKembali: 'Kembali ke Beranda',
         ),
         Expanded(
@@ -327,16 +305,16 @@ class _SambunganScreenState extends State<SambunganScreen> {
               jenis: JenisTombol.tinta,
               paddingH: 20,
             ),
-            _St.coba => const Tombol(
+            _St.coba => Tombol(
               'Mencoba menyimpan lagi…',
               onPressed: null,
               nonaktif: true,
               paddingH: 20,
             ),
-            _St.simpan => const Tombol(
+            _St.simpan => Tombol(
               'Periksa dan bukukan',
               onPressed: null,
-              ke: 'Main',
+              ke: Layar.keuangan,
               paddingH: 20,
             ),
           },
@@ -412,11 +390,9 @@ class _Sesi extends StatelessWidget {
             ),
           ),
           if (s.$3)
-            const Tombol(
+            Tombol(
               'Masuk lagi',
-              onPressed: null,
-              ke: 'Masuk',
-              cara: Cara.ganti,
+              onPressed: () => keluarSesi(context),
               paddingH: 20,
             )
           else

@@ -25,12 +25,8 @@ class _WebPilihBulanScreenState extends State<WebPilihBulanScreen> {
       child: DefaultTextHeightBehavior(
         textHeightBehavior: perilakuBarisCss,
         child: HalamanWeb(
-          jabatanKosong: true,
-          nav: const NavSamping(
-            item: navKeuangan,
-            aktif: 1,
-            pengguna: PenggunaKeuangan(),
-          ),
+          layarKeuangan: true,
+          nav: const NavSamping(item: navKeuangan, aktif: 1),
           isi: [
             _BarisJudul(
               tombol: TombolBulan(k: k, onTap: () => setState(k.toggle)),

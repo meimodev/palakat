@@ -1,25 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../theme/palakat_tema.dart';
 import '../widgets/pita_jabatan_kosong.dart';
 import 'nav_samping.dart';
-import 'prototipe_state.dart';
+import '../providers/session.dart';
 
 /// Laptop page scaffold (components.md 4.4): `kertas`, body 15 / 1.45, at
 /// least the window height, scrolls as one page. [nav] beside `main` when
 /// the window is wider than 860, above it otherwise (see [_HalamanSempit]).
 ///
 /// `main`: padding 28 `clamp(16px, 3vw, 40px)` 40, column gap [jarak]; its
-/// first child is `PitaJabatanKosong.web` while [jabatanKosong] and the global
-/// switch are on.
-class HalamanWeb extends StatelessWidget {
+/// first child is `PitaJabatanKosong.web` on a finance screen while the actor
+/// covers the vacant Bendahara post.
+class HalamanWeb extends ConsumerWidget {
   const HalamanWeb({
     super.key,
     required this.nav,
     required this.isi,
     this.jarak = 20,
-    this.jabatanKosong = false,
+    this.layarKeuangan = false,
     this.tengah = false,
   });
 
@@ -33,8 +34,9 @@ class HalamanWeb extends StatelessWidget {
   /// WebTutupBuku), 18 (WebLaporan).
   final double jarak;
 
-  /// The board carries the `jabatanKosong` tweak.
-  final bool jabatanKosong;
+  /// A finance screen: the band shows on it while [vacancyCoverProvider] is
+  /// true (D18).
+  final bool layarKeuangan;
 
   /// Centre `main`'s children in its height (at least the window, or its
   /// wrapped line below 860): the boards' single `flex: 1` box that centres a
@@ -42,11 +44,9 @@ class HalamanWeb extends StatelessWidget {
   final bool tengah;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
-    final pita =
-        jabatanKosong &&
-        (PrototypeState.maybeOf(context)?.jabatanKosong ?? false);
+    final pita = layarKeuangan && ref.watch(vacancyCoverProvider);
     final anak = [if (pita) const PitaJabatanKosong.web(), ...isi];
     final utama = Padding(
       padding: EdgeInsets.fromLTRB(

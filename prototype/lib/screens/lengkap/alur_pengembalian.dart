@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import 'alur_pengembalian_alur.dart';
+import '../../app/layar.dart';
 
 /// 102 · Alur · Pengembalian (screens/13, AlurPengembalian): pick the
 /// original voucher, enter the refund, see it Dibukukan or Draf. The three
@@ -19,7 +20,7 @@ class AlurPengembalianScreen extends StatelessWidget {
           judul: 'Alur · Pengembalian',
           anakJudul:
               'Uang kembali dari pemasok, atau dikembalikan kepada donatur',
-          kembaliKe: 'Pengembalian',
+          kembaliKe: Layar.pengembalian,
           labelKembali: 'Kembali ke Pengembalian',
         ),
         Expanded(

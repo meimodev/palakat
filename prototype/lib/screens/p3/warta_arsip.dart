@@ -8,6 +8,8 @@ import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tombol.dart';
 import 'warta_arsip_bagian.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// 68 · Warta Jemaat (spec 18-wartaeditor.md, WartaArsip).
 class WartaArsipScreen extends StatefulWidget {
@@ -26,7 +28,7 @@ class _WartaArsipScreenState extends State<WartaArsipScreen>
       for (final r in edisiWarta)
         // Each row links to this same board: a self link, nothing happens.
         Tautan(
-          ke: 'WartaArsip',
+          ke: Layar.warta,
           radius: 14,
           child: ConstrainedBox(
             // content-box min-height 44 + padding 12 12 + 1 px line.
@@ -69,7 +71,7 @@ class _WartaArsipScreenState extends State<WartaArsipScreen>
             judul: 'Warta Jemaat',
             anakJudul:
                 'Edisi yang sudah diterbitkan, persis seperti saat diterbitkan',
-            kembaliKe: 'BerandaJabatan',
+            kembaliKe: Layar.beranda,
             labelKembali: 'Kembali ke Beranda',
           ),
           Expanded(
@@ -84,7 +86,8 @@ class _WartaArsipScreenState extends State<WartaArsipScreen>
                     const Tombol(
                       'Susun edisi 22/11/2026',
                       jenis: JenisTombol.tinta,
-                      ke: 'WartaEditor',
+                      ke: Layar.wartaEdisi,
+                      param: {'edisi': belumDipindahId},
                       onPressed: null,
                     ),
                   ),
@@ -92,7 +95,8 @@ class _WartaArsipScreenState extends State<WartaArsipScreen>
                     const Tombol(
                       'Susun edisi pertama',
                       jenis: JenisTombol.tinta,
-                      ke: 'WartaEditor',
+                      ke: Layar.wartaEdisi,
+                      param: {'edisi': belumDipindahId},
                       onPressed: null,
                     ),
                   ),

@@ -1,14 +1,14 @@
 import 'package:flutter/widgets.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../motion/kerangka.dart';
-import '../../shell/kendali.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/lembar_bawah.dart';
 import '../../widgets/tombol.dart';
 import 'keluar_akun.dart';
+import '../../app/layar.dart';
+import '../../providers/session.dart';
 
 /// Board state `st`: 'akun' or 'tanya' (sheet open). 'keluar' is the child
 /// route `/Keluar/keluar`.
@@ -32,63 +32,43 @@ class KeluarKendali extends StatefulWidget {
 
 class _KeluarKendaliState extends State<KeluarKendali> {
   final _st = ValueNotifier('akun');
-  int _generasi = 0;
-
-  void _ulang() => setState(() {
-    _st.value = 'akun';
-    _generasi++;
-  });
-
-  @override
-  void initState() {
-    super.initState();
-    ulangPapan['Keluar'] = _ulang;
-  }
 
   @override
   void dispose() {
-    if (ulangPapan['Keluar'] == _ulang) ulangPapan.remove('Keluar');
     _st.dispose();
     super.dispose();
   }
 
   void _batal() => _st.value = 'akun';
 
-  // Close the sheet, then the signed-out view (go, `pudar` 250 ms).
+  // Close the sheet and sign out: the router shows the picker (D7, D19).
   void _keluar() {
     _st.value = 'akun';
-    GoRouter.of(context).go('/Keluar/keluar');
+    keluarSesi(context);
   }
 
   @override
-  Widget build(BuildContext context) => GenerasiPapan(
-    generasi: _generasi,
-    child: _Keadaan(
-      st: _st,
-      child: ValueListenableBuilder(
-        valueListenable: _st,
-        builder: (context, st, _) => LayarPonsel(
-          overlay: [
-            if (st == 'tanya')
-              Positioned.fill(
-                child: LembarBawah(
-                  judul: judulTanya,
-                  anakJudul: kalimatTanya,
-                  pegangan: false,
-                  jarak: 12,
-                  masuk: Kerangka.muncul,
-                  labelTirai: 'Kembali ke Akun',
-                  onTutup: _batal,
-                  isi: tombolTanya(
-                    context,
-                    onKeluar: _keluar,
-                    onKembali: _batal,
-                  ),
-                ),
+  Widget build(BuildContext context) => _Keadaan(
+    st: _st,
+    child: ValueListenableBuilder(
+      valueListenable: _st,
+      builder: (context, st, _) => LayarPonsel(
+        overlay: [
+          if (st == 'tanya')
+            Positioned.fill(
+              child: LembarBawah(
+                judul: judulTanya,
+                anakJudul: kalimatTanya,
+                pegangan: false,
+                jarak: 12,
+                masuk: Kerangka.muncul,
+                labelTirai: 'Kembali ke Akun',
+                onTutup: _batal,
+                isi: tombolTanya(context, onKeluar: _keluar, onKembali: _batal),
               ),
-          ],
-          child: widget.child,
-        ),
+            ),
+        ],
+        child: widget.child,
       ),
     ),
   );
@@ -117,7 +97,7 @@ class _Akun extends StatelessWidget {
         children: [
           const KepalaPonsel(
             judul: 'Akun',
-            kembaliKe: 'Lainnya',
+            kembaliKe: Layar.pengaturan,
             labelKembali: 'Kembali ke Lainnya',
           ),
           const Expanded(
@@ -126,9 +106,9 @@ class _Akun extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  KartuProfil(ke: 'AkunSaya'),
+                  KartuProfil(ke: Layar.akun),
                   SizedBox(height: 16),
-                  KartuSesi(ke: 'Bendahara'),
+                  KartuSesi(ke: Layar.bendahara),
                   SizedBox(height: 16),
                   KalimatKeluar(),
                 ],
@@ -165,7 +145,7 @@ class _SudahKeluar extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [IsiSudahKeluar(ke: 'Masuk')],
+        children: [IsiSudahKeluar()],
       ),
     ),
   );

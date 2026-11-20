@@ -4,6 +4,7 @@ import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import '../../theme/palakat_tema.dart';
 import 'kesiapan_isi.dart';
+import '../../app/layar.dart';
 
 /// 101 · Pernyataan kesiapan per peruntukan (phone).
 class KesiapanScreen extends StatefulWidget {
@@ -35,7 +36,7 @@ class _KesiapanScreenState extends State<KesiapanScreen>
           KepalaPonsel(
             judul: 'Pernyataan kesiapan',
             anakJudul: 'Oktober 2026 · masuk sebagai ${siapaKesiapan(bend)}',
-            kembaliKe: 'TutupBuku',
+            kembaliKe: Layar.tutupBuku,
             labelKembali: 'Kembali ke Bulan',
           ),
           Expanded(

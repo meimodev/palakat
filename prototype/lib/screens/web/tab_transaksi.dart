@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../motion/kerangka.dart';
 import '../../motion/urutan.dart';
 import '../../shell/nav_samping.dart';
@@ -17,6 +17,8 @@ import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import 'tab_beranda_kit.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// Tablet · Transaksi (spec 13): WebTransaksi at 834 wide, no vacancy tweak.
 /// State `{filter, pilih, buku}` as the board's logic class.
@@ -44,15 +46,50 @@ typedef _Baris = ({
 
 /// The board's `TUJU`: action label → board (push). Other labels → WebKoreksi.
 const _tuju = [
-  (n: 'Verifikasi', ke: 'WebLihatDokumen'),
-  (n: 'Lampirkan dokumen pendukung', ke: 'WebUnggah'),
-  (n: 'Catat pengecualian', ke: 'WebDokumen'),
-  (n: 'Koreksi dengan pembalikan', ke: 'WebKoreksi'),
-  (n: 'Pilih Mata Anggaran', ke: 'WebCatat'),
-  (n: 'Ubah', ke: 'WebCatat'),
-  (n: 'Catat persetujuan', ke: 'WebPersetujuan'),
-  (n: 'Batalkan', ke: 'WebDraf'),
-  (n: 'Pindah tanggal', ke: 'WebDraf'),
+  (
+    n: 'Verifikasi',
+    ke: Layar.lihatDokumen,
+    param: {'id': belumDipindahId},
+    anak: null,
+  ),
+  (
+    n: 'Lampirkan dokumen pendukung',
+    ke: Layar.fotoDokumen,
+    anak: 'unggah',
+    param: <String, String>{},
+  ),
+  (
+    n: 'Catat pengecualian',
+    ke: Layar.dokumen,
+    param: <String, String>{},
+    anak: null,
+  ),
+  (
+    n: 'Koreksi dengan pembalikan',
+    ke: Layar.koreksi,
+    param: {'id': belumDipindahId},
+    anak: null,
+  ),
+  (
+    n: 'Pilih Mata Anggaran',
+    ke: Layar.catat,
+    param: <String, String>{},
+    anak: null,
+  ),
+  (n: 'Ubah', ke: Layar.catat, param: <String, String>{}, anak: null),
+  (
+    n: 'Catat persetujuan',
+    ke: Layar.persetujuan,
+    param: {'id': belumDipindahId},
+    anak: null,
+  ),
+  (n: 'Batalkan', ke: Layar.draf, param: {'id': belumDipindahId}, anak: null),
+  (
+    n: 'Pindah tanggal',
+    ke: Layar.draf,
+    param: {'id': belumDipindahId},
+    anak: null,
+  ),
 ];
 
 const _filter = ['Semua', 'Draf', 'Dibukukan', 'Dibalik', 'Dibatalkan'];
@@ -243,20 +280,16 @@ class _TabTransaksiScreenState extends State<TabTransaksiScreen> {
     final c = context.warna;
     final data = _data;
     return HalamanTablet(
-      nav: const NavSamping(
-        item: navKeuangan,
-        aktif: 1,
-        pengguna: PenggunaKeuangan(ikutJabatanKosong: false),
-      ),
+      nav: const NavSamping(item: navKeuangan, aktif: 1),
       isi: leadingCss([
         KepalaTab(
           'Transaksi',
           ujung: [
-            const Tautan(ke: 'WebPilihBulan', radius: 999, child: PilBulan()),
+            const Tautan(ke: Layar.pilihBulan, radius: 999, child: PilBulan()),
             const Tombol(
               'Impor',
               onPressed: null,
-              ke: 'WebImpor',
+              ke: Layar.impor,
               jenis: JenisTombol.kedua,
               ukuran: UkuranTombol.kecil,
               lebarPenuh: false,
@@ -264,7 +297,7 @@ class _TabTransaksiScreenState extends State<TabTransaksiScreen> {
             const Tombol(
               '+ Catat transaksi',
               onPressed: null,
-              ke: 'WebCatat',
+              ke: Layar.catat,
               ukuran: UkuranTombol.kecil,
               paddingH: 18,
               lebarPenuh: false,
@@ -274,11 +307,19 @@ class _TabTransaksiScreenState extends State<TabTransaksiScreen> {
         const DeretTautan(
           web: true,
           anak: [
-            TautanTab('Daftar Bukti Kas', ke: 'WebBukti'),
-            TautanTab('Koreksi dengan pembalikan', ke: 'WebKoreksi'),
-            TautanTab('Draf di bulan yang sudah ditutup', ke: 'WebDraf'),
-            TautanTab('Pengembalian', ke: 'WebPengembalian'),
-            TautanTab('Cari', ke: 'WebCari'),
+            TautanTab('Daftar Bukti Kas', ke: Layar.bukti),
+            TautanTab(
+              'Koreksi dengan pembalikan',
+              ke: Layar.koreksi,
+              param: {'id': belumDipindahId},
+            ),
+            TautanTab(
+              'Draf di bulan yang sudah ditutup',
+              ke: Layar.draf,
+              param: {'id': belumDipindahId},
+            ),
+            TautanTab('Pengembalian', ke: Layar.pengembalian),
+            TautanTab('Cari', ke: Layar.cari),
           ],
         ),
         Wrap(
@@ -596,10 +637,13 @@ class _TabTransaksiScreenState extends State<TabTransaksiScreen> {
           lebarPenuh: false,
         );
       }
+      final t = _tuju.where((t) => t.n == n).firstOrNull;
       return Tombol(
         n,
         onPressed: null,
-        ke: _tuju.where((t) => t.n == n).firstOrNull?.ke ?? 'WebKoreksi',
+        ke: t?.ke ?? Layar.koreksi,
+        param: t?.param ?? const {'id': belumDipindahId},
+        anak: t?.anak,
         jenis: jenis,
         ukuran: UkuranTombol.kecil,
         ukuranTeks: 14,

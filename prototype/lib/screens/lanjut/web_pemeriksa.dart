@@ -2,11 +2,10 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../motion/kerangka.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
-import '../../shell/prototipe_state.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis.dart';
 import '../../widgets/lencana_status.dart';
@@ -14,6 +13,7 @@ import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import 'pemeriksa_baris.dart';
+import '../../app/belum_dipindah.dart';
 
 enum _St { draf, periksa, buku }
 
@@ -70,8 +70,7 @@ class _WebPemeriksaScreenState extends State<WebPemeriksaScreen> {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final bend =
-        context.tweak<String>('WebPemeriksa', 'masukSebagai') == 'Bendahara';
+    final bend = belumDipindah<String>('Pemeriksa kedua') == 'Bendahara';
     final cur = _daftar.firstWhere((x) => x.id == _pilih);
     final k = _st[cur.id]!;
     VoidCallback set(_St v) =>
@@ -316,14 +315,7 @@ class _WebPemeriksaScreenState extends State<WebPemeriksaScreen> {
     return Material(
       type: MaterialType.transparency,
       child: HalamanWeb(
-        nav: const NavSamping(
-          item: navKeuangan,
-          aktif: 1,
-          pengguna: PenggunaNav(
-            biasa: 'Jemaat Karunia',
-            baris2: 'Wajib pemeriksa kedua: hidup',
-          ),
-        ),
+        nav: const NavSamping(item: navKeuangan, aktif: 1),
         isi: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,

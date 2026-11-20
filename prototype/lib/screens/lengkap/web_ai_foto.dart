@@ -6,6 +6,7 @@ import '../../shell/tautan.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import 'ai_foto_bagian.dart';
+import '../../app/layar.dart';
 
 /// Web · Bantuan AI dari foto nota (spec 10-aifoto.md, WebAIFoto).
 class WebAIFotoScreen extends StatefulWidget {
@@ -28,12 +29,8 @@ class _WebAIFotoScreenState extends State<WebAIFotoScreen> {
   Widget build(BuildContext context) => Material(
     type: MaterialType.transparency,
     child: HalamanWeb(
-      jabatanKosong: true,
-      nav: const NavSamping(
-        item: navKeuangan,
-        aktif: 1,
-        pengguna: PenggunaKeuangan(),
-      ),
+      layarKeuangan: true,
+      nav: const NavSamping(item: navKeuangan, aktif: 1),
       isi: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -43,7 +40,7 @@ class _WebAIFotoScreenState extends State<WebAIFotoScreen> {
               atas: 11.125,
               bawah: 11.125,
               child: Tautan(
-                ke: 'WebCatat',
+                ke: Layar.catat,
                 cara: Cara.naik,
                 child: const SizedBox(
                   height: 44,

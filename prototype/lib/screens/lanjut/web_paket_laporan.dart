@@ -3,11 +3,10 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../mock/mock.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis.dart';
@@ -16,10 +15,11 @@ import '../../widgets/pita_laporan.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 part 'web_paket_laporan_data.dart';
 
-const _stem = 'WebPaketLaporan';
 const _f02Kolom = <double?>[78, 104, 104, null, 100, 100, 104];
 
 /// Web · Paket Laporan F01–F14 (spec 05-kewajiban.md). One view; state
@@ -38,18 +38,14 @@ class _WebPaketLaporanScreenState extends State<WebPaketLaporanScreen> {
   Widget build(BuildContext context) {
     final c = context.warna;
     final terbatas =
-        context.tweak<String>(_stem, 'salinan') != 'Seluruh Jemaat';
+        belumDipindah<String>('Seluruh Jemaat') != 'Seluruh Jemaat';
     final cap = terbatas ? ' · TERBATAS · Peruntukan Diakonia' : '';
     final p = _daftarLaporan.firstWhere((f) => f.$1 == _pilih);
     final isi = p.$1 == 'F02' && terbatas ? _isiF02Terbatas : p.$3;
 
     return HalamanWeb(
-      jabatanKosong: true,
-      nav: const NavSamping(
-        item: navKeuangan,
-        aktif: 5,
-        pengguna: PenggunaKeuangan(),
-      ),
+      layarKeuangan: true,
+      nav: const NavSamping(item: navKeuangan, aktif: 5),
       isi: [
         _Judul(),
         DeretTautan(
@@ -57,13 +53,17 @@ class _WebPaketLaporanScreenState extends State<WebPaketLaporanScreen> {
           anak: const [
             _TautanDeret(
               teks: 'Persetujuan format laporan',
-              ke: 'WebFormatLaporan',
+              ke: Layar.formatLaporan,
             ),
-            _TautanDeret(teks: 'Celah nomor', ke: 'WebBukti'),
-            _TautanDeret(teks: 'Halaman A4', ke: 'A4F01'),
+            _TautanDeret(teks: 'Celah nomor', ke: Layar.bukti),
+            _TautanDeret(
+              teks: 'Halaman A4',
+              ke: Layar.laporanResmi,
+              param: {'periode': belumDipindahId, 'bentuk': 'f01'},
+            ),
             _TautanDeret(
               teks: 'Lihat transaksi di balik sebuah angka',
-              ke: 'WebLihatTransaksi',
+              ke: Layar.lihatTransaksi,
             ),
           ],
         ),
@@ -198,7 +198,7 @@ class _WebPaketLaporanScreenState extends State<WebPaketLaporanScreen> {
             child: Tombol(
               'Buka halaman F01',
               onPressed: null,
-              ke: 'WebLaporan',
+              ke: Layar.laporan,
               jenis: JenisTombol.kedua,
               ukuran: UkuranTombol.kecil,
               paddingH: 18,
@@ -446,7 +446,8 @@ class _Judul extends StatelessWidget {
     const pdf = Tombol(
       'Unduh PDF',
       onPressed: null,
-      ke: 'A4F01',
+      ke: Layar.laporanResmi,
+      param: {'periode': belumDipindahId, 'bentuk': 'f01'},
       ukuran: UkuranTombol.kecil,
       paddingH: 18,
       lebarPenuh: false,
@@ -454,7 +455,8 @@ class _Judul extends StatelessWidget {
     const excel = Tombol(
       'Unduh Excel',
       onPressed: null,
-      ke: 'WebExcel',
+      ke: Layar.laporanResmi,
+      param: {'periode': belumDipindahId, 'bentuk': 'excel'},
       jenis: JenisTombol.kedua,
       ukuran: UkuranTombol.kecil,
       paddingH: 18,
@@ -517,12 +519,19 @@ class _Judul extends StatelessWidget {
 
 /// A 14/600 `laut` link of the link row: min 44×44, text centred vertically.
 class _TautanDeret extends StatelessWidget {
-  const _TautanDeret({required this.teks, required this.ke});
-  final String teks, ke;
+  const _TautanDeret({
+    required this.teks,
+    required this.ke,
+    this.param = const {},
+  });
+  final String teks;
+  final Layar ke;
+  final Map<String, String> param;
 
   @override
   Widget build(BuildContext context) => Tautan(
     ke: ke,
+    param: param,
     child: Align(widthFactor: 1, heightFactor: 1, child: TautanTeks(teks)),
   );
 }
@@ -541,7 +550,7 @@ class _NoBukti extends StatelessWidget {
       atas: lebih,
       bawah: lebih,
       child: Tautan(
-        ke: 'WebTransaksi',
+        ke: Layar.transaksi,
         child: Align(
           alignment: Alignment.centerLeft,
           widthFactor: 1,

@@ -7,6 +7,7 @@ import '../shell/tautan.dart';
 import '../theme/palakat_tema.dart';
 import 'garis.dart';
 import 'tekan.dart';
+import '../app/layar.dart';
 
 enum JenisTombol {
   utama,
@@ -54,6 +55,8 @@ class Tombol extends StatelessWidget {
     this.paddingH,
     this.warnaTeks,
     this.ke,
+    this.param = const {},
+    this.anak,
     this.cara = Cara.dorong,
   });
 
@@ -83,7 +86,11 @@ class Tombol extends StatelessWidget {
 
   /// When set, the button is a [Tautan] to this board (navigation.md 3.1);
   /// [onPressed] is then not used.
-  final String? ke;
+  final Layar? ke;
+
+  /// Path parameters and child route of [ke].
+  final Map<String, String> param;
+  final String? anak;
 
   /// Push, go or up for [ke].
   final Cara cara;
@@ -136,7 +143,14 @@ class Tombol extends StatelessWidget {
       return TekanAria(onTap: () {}, aktif: false, radius: r, child: rupa);
     }
     if (ke != null) {
-      return Tautan(ke: ke!, cara: cara, radius: r, child: rupa);
+      return Tautan(
+        ke: ke!,
+        param: param,
+        anak: anak,
+        cara: cara,
+        radius: r,
+        child: rupa,
+      );
     }
     return Tekan(onTap: onPressed, radius: r, child: rupa);
   }

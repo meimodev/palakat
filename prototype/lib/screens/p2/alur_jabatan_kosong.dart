@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/perangkat_prototipe.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
 import '../../widgets/garis_status.dart';
@@ -13,6 +12,7 @@ import '../../widgets/penolakan.dart';
 import '../../widgets/riwayat_alur.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
+import '../../app/layar.dart';
 
 const _hariT = '16/11/2026';
 const _sebabSendiri =
@@ -44,7 +44,8 @@ class _AlurJabatanKosongScreenState extends State<AlurJabatanKosongScreen> {
   String _pesan = '';
   final _riw = <String>[];
   final _beres = <int>{};
-  bool _mulai = false, _paham = false, _jalan = false, _terisi = false;
+  bool _mulai = false, _paham = false, _jalan = false;
+  final _terisi = false;
 
   @override
   void dispose() {
@@ -77,57 +78,36 @@ class _AlurJabatanKosongScreenState extends State<AlurJabatanKosongScreen> {
     );
   });
 
-  void _isiJabatan() => setState(() {
-    _jalan = false;
-    _terisi = true;
-    _pesan = '';
-    _catat(
-      'Penatua Kolom 2 ditugaskan kepada Pnt. Altje Rompas · menjalankan jabatan kosong berakhir',
-    );
-  });
-
   @override
   Widget build(BuildContext context) {
     final body = _mulai ? _isiMulai(context) : _isiDaftar(context);
-    return AlatPrototipe(
-      stem: 'AlurJabatanKosong',
-      alat: [
-        Tombol(
-          'Contoh: pemegang jabatan ditugaskan',
-          jenis: JenisTombol.teks,
-          ukuran: UkuranTombol.kecil,
-          nonaktif: !_jalan,
-          onPressed: _isiJabatan,
-        ),
-      ],
-      child: LayarPonsel(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const KepalaPonsel(
-              judul: 'Alur · Menjalankan jabatan kosong',
-              anakJudul:
-                  'Operator menjalankan Penatua Kolom 2 sampai ada pemegangnya',
-              kembaliKe: 'JabatanKosong',
-              labelKembali: 'Kembali ke Menjalankan jabatan kosong',
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                controller: _gulir,
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    for (final (i, w) in body.indexed) ...[
-                      if (i > 0) const SizedBox(height: 16),
-                      w,
-                    ],
+    return LayarPonsel(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const KepalaPonsel(
+            judul: 'Alur · Menjalankan jabatan kosong',
+            anakJudul:
+                'Operator menjalankan Penatua Kolom 2 sampai ada pemegangnya',
+            kembaliKe: Layar.jabatanKosong,
+            labelKembali: 'Kembali ke Menjalankan jabatan kosong',
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              controller: _gulir,
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (final (i, w) in body.indexed) ...[
+                    if (i > 0) const SizedBox(height: 16),
+                    w,
                   ],
-                ),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

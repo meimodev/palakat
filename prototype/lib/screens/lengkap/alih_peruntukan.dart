@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../mock/mock.dart';
 import '../../motion/kerangka.dart';
 import '../../shell/kepala_ponsel.dart';
@@ -13,6 +13,7 @@ import '../../widgets/isian_jumlah.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
+import '../../app/layar.dart';
 
 /// Saldo buku of Bank BNI ··4821 on 16/11/2026: it never changes here.
 final int _saldoBni = saldoNovember['bni']!;
@@ -271,14 +272,14 @@ class _AlihPeruntukanScreenState extends State<AlihPeruntukanScreen>
   Widget build(BuildContext context) => Material(
     type: MaterialType.transparency,
     child: LayarPonsel(
-      jabatanKosong: true,
+      layarKeuangan: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const KepalaPonsel(
             judul: 'Alih peruntukan',
             anakJudul: 'Dalam satu Kas/Bank',
-            kembaliKe: 'Main',
+            kembaliKe: Layar.keuangan,
             labelKembali: 'Kembali ke Beranda',
           ),
           Expanded(

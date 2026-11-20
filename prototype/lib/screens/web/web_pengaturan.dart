@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import '../../motion/kerangka.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis.dart';
@@ -16,6 +15,8 @@ import '../../widgets/sakelar.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 const _kas = [
   (id: 'kas', n: 'Kas', mati: false),
@@ -66,7 +67,7 @@ class _WebPengaturanScreenState extends State<WebPengaturanScreen> {
   Widget build(BuildContext context) {
     final c = context.warna;
     final kosong =
-        context.tweak<String>('WebPengaturan', 'keadaan') != 'Bendahara aktif';
+        belumDipindah<String>('Bendahara aktif') != 'Bendahara aktif';
     final riwayat = kosong
         ? [
             (
@@ -98,7 +99,7 @@ class _WebPengaturanScreenState extends State<WebPengaturanScreen> {
       ],
     );
 
-    Widget kepala(String judul, String tautan, {required String ke}) => Row(
+    Widget kepala(String judul, String tautan, {required Layar ke}) => Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.baseline,
       textBaseline: TextBaseline.alphabetic,
@@ -135,7 +136,7 @@ class _WebPengaturanScreenState extends State<WebPengaturanScreen> {
 
     final jemaat = kartu(
       kolom([
-        kepala('Jemaat Karunia', 'Pengaturan awal Jemaat', ke: 'WebAwal'),
+        kepala('Jemaat Karunia', 'Pengaturan awal Jemaat', ke: Layar.awal),
         Text(
           'WITA · tahun buku mulai 1 Januari (tidak dapat diubah)',
           style: ket14,
@@ -148,7 +149,7 @@ class _WebPengaturanScreenState extends State<WebPengaturanScreen> {
           padding: const EdgeInsets.only(top: 4),
           child: Align(
             alignment: Alignment.centerLeft,
-            child: _Tautan('Ekspor data Jemaat', ke: 'WebEkspor'),
+            child: _Tautan('Ekspor data Jemaat', ke: Layar.ekspor),
           ),
         ),
       ], 4),
@@ -246,7 +247,7 @@ class _WebPengaturanScreenState extends State<WebPengaturanScreen> {
 
     final mataAnggaran = kartu(
       kolom([
-        kepala('Mata Anggaran', 'Buka versi 2026.2', ke: 'WebMataAnggaran'),
+        kepala('Mata Anggaran', 'Buka versi 2026.2', ke: Layar.mataAnggaran),
         Text(
           'Versi 2026.1 · Diterbitkan · berlaku mulai September 2026',
           style: ket14,
@@ -330,7 +331,7 @@ class _WebPengaturanScreenState extends State<WebPengaturanScreen> {
 
     final format = kartu(
       kolom([
-        kepala('Format laporan', 'Lihat laporan', ke: 'WebLaporan'),
+        kepala('Format laporan', 'Lihat laporan', ke: Layar.laporan),
         Text(
           'Bawaan Palakat v1 · Persetujuan format: sudah dicatat · 01/11/2026',
           style: ket14,
@@ -398,15 +399,7 @@ class _WebPengaturanScreenState extends State<WebPengaturanScreen> {
     return Material(
       type: MaterialType.transparency,
       child: HalamanWeb(
-        nav: NavSamping(
-          item: navKeuangan,
-          aktif: 6,
-          pengguna: PenggunaNav(
-            biasa: kosong
-                ? 'Anda masuk sebagai Pengelola teknis. Hanya dapat melihat.'
-                : 'Meiske L. · Bendahara · Wewenang Bendahara aktif',
-          ),
-        ),
+        nav: NavSamping(item: navKeuangan, aktif: 6),
         isi: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -427,23 +420,28 @@ class _WebPengaturanScreenState extends State<WebPengaturanScreen> {
           const DeretTautan(
             web: true,
             anak: [
-              _Tautan('Tambah dan ubah', ke: 'WebUbahPengaturan', ukuran: null),
+              _Tautan(
+                'Tambah dan ubah',
+                ke: Layar.ubahPengaturan,
+                ukuran: null,
+              ),
               _Tautan(
                 'Persetujuan format laporan',
-                ke: 'WebFormatLaporan',
+                ke: Layar.formatLaporan,
                 ukuran: null,
               ),
               _Tautan(
                 'Wajib pemeriksa kedua',
-                ke: 'WebPemeriksa',
+                ke: Layar.pemeriksa,
                 ukuran: null,
               ),
               _Tautan(
                 'Serah terima Bendahara',
-                ke: 'WebSerahTerima',
+                ke: Layar.bendahara,
+                anak: 'serah',
                 ukuran: null,
               ),
-              _Tautan('Akun dan keluar', ke: 'WebKeluar', ukuran: null),
+              _Tautan('Akun dan keluar', ke: Layar.keluar, ukuran: null),
             ],
           ),
           if (kosong)
@@ -533,13 +531,15 @@ class _H2 extends StatelessWidget {
 /// A board `<a>`: 14/600 (or inherited), `laut`, min 44 × 44, text centred
 /// vertically. Drill-ins push.
 class _Tautan extends StatelessWidget {
-  const _Tautan(this.teks, {required this.ke, this.ukuran = 14});
+  const _Tautan(this.teks, {required this.ke, this.anak, this.ukuran = 14});
   final String teks;
-  final String ke;
+  final Layar ke;
+  final String? anak;
   final double? ukuran;
   @override
   Widget build(BuildContext context) => Tautan(
     ke: ke,
+    anak: anak,
     child: Center(
       widthFactor: 1,
       heightFactor: 1,
@@ -630,7 +630,8 @@ class _BarisSerah extends StatelessWidget {
           child: const Tombol(
             label,
             onPressed: null,
-            ke: 'WebSerahTerima',
+            ke: Layar.bendahara,
+            anak: 'serah',
             jenis: JenisTombol.kedua,
             ukuran: UkuranTombol.kecil,
             ukuranTeks: 14,

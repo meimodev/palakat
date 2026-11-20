@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../mock/mock.dart';
 import '../../motion/kerangka.dart';
-import '../../shell/kendali.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import '../../shell/tautan.dart';
@@ -16,6 +15,8 @@ import '../../widgets/pita_peran.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import 'terbatas_data.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// Board state `{ cari }`, shared by the list and the transaction view (the
 /// view itself, `buka`, is the route `/Terbatas/transaksi/:no`).
@@ -38,22 +39,9 @@ class TerbatasKendali extends StatefulWidget {
 
 class _TerbatasKendaliState extends State<TerbatasKendali> {
   final _cari = TextEditingController();
-  int _generasi = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    ulangPapan['Terbatas'] = _ulang;
-  }
-
-  void _ulang() => setState(() {
-    _cari.clear();
-    _generasi++;
-  });
 
   @override
   void dispose() {
-    if (ulangPapan['Terbatas'] == _ulang) ulangPapan.remove('Terbatas');
     _cari.dispose();
     super.dispose();
   }
@@ -62,10 +50,7 @@ class _TerbatasKendaliState extends State<TerbatasKendali> {
   Widget build(BuildContext context) => Material(
     type: MaterialType.transparency,
     child: LayarPonsel(
-      child: _Cari(
-        notifier: _cari,
-        child: GenerasiPapan(generasi: _generasi, child: widget.child),
-      ),
+      child: _Cari(notifier: _cari, child: widget.child),
     ),
   );
 }
@@ -130,9 +115,9 @@ class _Daftar extends StatelessWidget {
               _BarisDaftar(
                 r: rows[i],
                 pertama: i == 0,
-                onTap: () =>
-                    GoRouter.of(context)
-                        .push('/Terbatas/transaksi/${rows[i].no}'),
+                onTap: () => GoRouter.of(
+                  context,
+                ).push(Layar.terbatas.lokasi(anak: 'transaksi/${rows[i].no}')),
               ),
             if (rows.isEmpty)
               Padding(
@@ -171,7 +156,8 @@ class _Daftar extends StatelessWidget {
               ukuran: UkuranTombol.kecil,
               paddingH: 14,
               lebarPenuh: false,
-              ke: 'A4Terbatas',
+              ke: Layar.laporanTerbatas,
+              param: {'periode': belumDipindahId, 'bentuk': 'pdf'},
             ),
           ],
         ),
@@ -275,7 +261,7 @@ class _Rinci extends StatelessWidget {
     if (d == null) {
       // navigation.md 5.4: a `no` that names no transaction goes to the list.
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (context.mounted) GoRouter.of(context).go('/Terbatas');
+        if (context.mounted) context.gantiKe(Layar.terbatas);
       });
       return const SizedBox.shrink();
     }
@@ -300,7 +286,7 @@ class _Rinci extends StatelessWidget {
           KepalaPonsel(
             judul: d.no,
             judulMono: true,
-            onKembali: () => context.kembaliKe('/Terbatas'),
+            onKembali: () => context.naikKe(Layar.terbatas),
             ujung: LencanaStatus.uang(StatusUang.dibukukan, kepala: true),
           ),
           Expanded(

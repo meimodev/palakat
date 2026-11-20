@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import 'awal_isian_isi.dart';
+import '../../app/layar.dart';
 
 /// 24 · Pengaturan awal: identitas dan daftar (phone).
 class AwalIsianScreen extends StatefulWidget {
@@ -31,7 +32,7 @@ class _AwalIsianScreenState extends State<AwalIsianScreen> {
           const KepalaPonsel(
             judul: 'Pengaturan awal Jemaat',
             anakJudul: 'Identitas, Kas/Bank, peruntukan, Lingkup',
-            kembaliKe: 'Awal',
+            kembaliKe: Layar.awal,
             labelKembali: 'Kembali ke langkah',
           ),
           Expanded(

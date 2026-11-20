@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import 'format_laporan_bagian.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// 23 · Persetujuan format laporan (screens/07-kejadian.md).
 class FormatLaporanScreen extends StatefulWidget {
@@ -26,12 +28,16 @@ class _FormatLaporanScreenState extends State<FormatLaporanScreen> {
     final anak = [
       ...bagianPersetujuan(context, _d, setState),
       ...kartuFormat(context, [
-        tombolContoh('Lihat contoh PDF', ke: 'Laporan'),
-        tombolContoh('Lihat contoh Excel', ke: 'WebExcel'),
+        tombolContoh('Lihat contoh PDF', ke: Layar.laporan),
+        tombolContoh(
+          'Lihat contoh Excel',
+          ke: Layar.laporanResmi,
+          param: {'periode': belumDipindahId, 'bentuk': 'excel'},
+        ),
       ]),
     ];
     return LayarPonsel(
-      jabatanKosong: true,
+      layarKeuangan: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -39,7 +45,7 @@ class _FormatLaporanScreenState extends State<FormatLaporanScreen> {
             judul: 'Format laporan',
             anakJudul:
                 'Wajib sebelum tutup buku pertama · contoh 3 Oktober 2026',
-            kembaliKe: 'Lainnya',
+            kembaliKe: Layar.pengaturan,
             labelKembali: 'Kembali ke Lainnya',
           ),
           Expanded(

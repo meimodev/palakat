@@ -4,7 +4,6 @@ import 'package:flutter/widgets.dart';
 
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis.dart';
@@ -12,6 +11,8 @@ import '../../widgets/kecil.dart';
 import '../../widgets/pita_laporan.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// F01 lines of WebLaporan.dc.html (`B`): label, value, note, total, link.
 const _baris = [
@@ -37,15 +38,11 @@ class WebLaporanScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final resmi = context.tweak<String>('WebLaporan', 'jenis') == 'resmi';
+    final resmi = belumDipindah<String>('sementara') == 'resmi';
     return HalamanWeb(
-      nav: const NavSamping(
-        item: navKeuangan,
-        aktif: 5,
-        pengguna: PenggunaKeuangan(),
-      ),
+      nav: const NavSamping(item: navKeuangan, aktif: 5),
       jarak: 18,
-      jabatanKosong: true,
+      layarKeuangan: true,
       isi: [
         _BarisJudul(resmi: resmi),
         if (resmi)
@@ -142,7 +139,7 @@ class WebLaporanScreen extends StatelessWidget {
                       const Align(
                         alignment: Alignment.centerLeft,
                         child: Tautan(
-                          ke: 'WebPaketLaporan',
+                          ke: Layar.paketLaporan,
                           cara: Cara.naik,
                           child: SizedBox(
                             height: 44,
@@ -219,7 +216,8 @@ class _BarisJudul extends StatelessWidget {
           child: const Tombol(
             'Unduh PDF',
             onPressed: null,
-            ke: 'A4F01',
+            ke: Layar.laporanResmi,
+            param: {'periode': belumDipindahId, 'bentuk': 'f01'},
             ukuran: UkuranTombol.kecil,
             paddingH: 18,
           ),
@@ -230,7 +228,8 @@ class _BarisJudul extends StatelessWidget {
           child: const Tombol(
             'Unduh Excel',
             onPressed: null,
-            ke: 'WebExcel',
+            ke: Layar.laporanResmi,
+            param: {'periode': belumDipindahId, 'bentuk': 'excel'},
             jenis: JenisTombol.kedua,
             ukuran: UkuranTombol.kecil,
             paddingH: 18,
@@ -456,7 +455,7 @@ class _BarisF01 extends StatelessWidget {
                 SizedBox(
                   width: wTautan,
                   child: const Tautan(
-                    ke: 'WebTransaksi',
+                    ke: Layar.transaksi,
                     child: SizedBox(
                       height: 44,
                       child: Align(

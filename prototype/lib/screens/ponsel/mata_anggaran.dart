@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../mock/jabatan_kosong.dart';
 import '../../mock/keuangan.dart';
 import '../../mock/model.dart';
 import '../../motion/kerangka.dart';
 import '../../motion/urutan.dart';
-import '../../shell/kendali.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/chip_pilihan.dart';
@@ -20,6 +17,7 @@ import '../../widgets/lembar_bawah.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
 
 // ---------- Board state (MataAnggaran.dc.html logic class) ----------
 
@@ -85,24 +83,9 @@ class MataAnggaranKendali extends StatefulWidget {
 
 class _MataAnggaranKendaliState extends State<MataAnggaranKendali> {
   final _k = _Keadaan();
-  int _generasi = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    ulangPapan['MataAnggaran'] = _ulang;
-  }
-
-  void _ulang() => setState(() {
-    _k.ulang();
-    _generasi++;
-  });
 
   @override
   void dispose() {
-    if (ulangPapan['MataAnggaran'] == _ulang) {
-      ulangPapan.remove('MataAnggaran');
-    }
     _k.dispose();
     super.dispose();
   }
@@ -110,17 +93,14 @@ class _MataAnggaranKendaliState extends State<MataAnggaranKendali> {
   @override
   Widget build(BuildContext context) => _Lingkup(
     notifier: _k,
-    child: GenerasiPapan(
-      generasi: _generasi,
-      child: Material(
-        type: MaterialType.transparency,
-        child: ListenableBuilder(
-          listenable: _k,
-          builder: (context, _) => LayarPonsel(
-            jabatanKosong: true,
-            overlay: [if (_k.sheet) _LembarTerbit(k: _k)],
-            child: widget.child,
-          ),
+    child: Material(
+      type: MaterialType.transparency,
+      child: ListenableBuilder(
+        listenable: _k,
+        builder: (context, _) => LayarPonsel(
+          layarKeuangan: true,
+          overlay: [if (_k.sheet) _LembarTerbit(k: _k)],
+          child: widget.child,
         ),
       ),
     ),
@@ -155,11 +135,10 @@ class _Versi extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.warna;
     final k = _Lingkup.of(context);
-    final jk = context.prototipe.jabatanKosong;
     final terbit = k.st == _St.terbit;
     const judul = TextStyle(fontSize: 18, fontWeight: FontWeight.w700);
     final v2Teks = terbit
-        ? tukarJkPapan('MataAnggaran', jk, teksVersiUsulanDiterbitkan)
+        ? teksVersiUsulanDiterbitkan
         : 'Belum berlaku · $berlakuVersiUsulan';
 
     // The whole view fades in (`pudar` on the board's view container).
@@ -171,7 +150,7 @@ class _Versi extends StatelessWidget {
         children: [
           const KepalaPonsel(
             judul: 'Versi Mata Anggaran',
-            kembaliKe: 'Lainnya',
+            kembaliKe: Layar.pengaturan,
             labelKembali: 'Kembali ke Lainnya',
           ),
           Expanded(
@@ -187,7 +166,8 @@ class _Versi extends StatelessWidget {
                     style: TextStyle(fontSize: 14, color: c.tinta2),
                   ),
                   Tekan(
-                    onTap: () => context.push('/MataAnggaran/rinci'),
+                    onTap: () =>
+                        context.dorongKe(Layar.mataAnggaran, anak: 'rinci'),
                     radius: 16,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(16),
@@ -287,7 +267,7 @@ class _Rinci extends StatelessWidget {
   static void _keVersi(BuildContext context) {
     final k = _Lingkup.baca(context);
     k.ubah(() => k.sheet = false);
-    context.kembaliKe('/MataAnggaran');
+    context.naikKe(Layar.mataAnggaran);
   }
 
   @override
@@ -616,6 +596,6 @@ class _LembarTerbit extends StatelessWidget {
   /// `terbitkan` also switches the board to the Versi view.
   static void _keRoot(BuildContext context) {
     final router = GoRouter.of(context);
-    kembaliKeDengan(router, '/MataAnggaran');
+    kembaliKeDengan(router, Layar.mataAnggaran.jalur);
   }
 }

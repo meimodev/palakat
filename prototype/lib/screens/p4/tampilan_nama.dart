@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/prototipe_state.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
 import '../../widgets/garis_status.dart';
@@ -10,8 +9,9 @@ import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
-const _stem = 'TampilanNama';
 const _awal = 'Keluarga + Kolom';
 const _bentuk = [
   ('Nama lengkap', 'Novita Wenas'),
@@ -40,7 +40,7 @@ class _TampilanNamaScreenState extends State<TampilanNamaScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final t = context.tweak<String>(_stem, 'keadaan');
+    final t = belumDipindah<String>('Pilihan pribadi');
     if (_tweak != null && t != _tweak) {
       _k = null;
       _mode = _awal;
@@ -177,7 +177,7 @@ class _TampilanNamaScreenState extends State<TampilanNamaScreen> {
             judul: 'Tampilan nama saya di publikasi',
             anakJudul:
                 'Pilihan Anda wajib diikuti di Warta Jemaat dan publikasi lain',
-            kembaliKe: 'DataAnggota',
+            kembaliKe: Layar.dataAnggota,
             labelKembali: 'Kembali ke Data jemaat',
           ),
           Expanded(

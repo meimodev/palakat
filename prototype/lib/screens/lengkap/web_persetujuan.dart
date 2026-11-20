@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../motion/kerangka.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
@@ -13,6 +13,7 @@ import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
 
 /// One approval record of the board's `rec` list; [id] keys its history card.
 class _Rec {
@@ -418,12 +419,8 @@ class _WebPersetujuanScreenState extends State<WebPersetujuanScreen> {
       child: Material(
         type: MaterialType.transparency,
         child: HalamanWeb(
-          jabatanKosong: true,
-          nav: NavSamping(
-            item: navKeuangan,
-            aktif: 1,
-            pengguna: const PenggunaKeuangan(),
-          ),
+          layarKeuangan: true,
+          nav: NavSamping(item: navKeuangan, aktif: 1),
           isi: [
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -433,7 +430,7 @@ class _WebPersetujuanScreenState extends State<WebPersetujuanScreen> {
                 MarginNegatif(
                   bawah: 44 - 15 * 1.45,
                   child: Tautan(
-                    ke: 'WebTransaksi',
+                    ke: Layar.transaksi,
                     cara: Cara.naik,
                     child: const TautanTeks('Transaksi', ukuran: 14),
                   ),

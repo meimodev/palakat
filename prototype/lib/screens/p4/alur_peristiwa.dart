@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../shell/perangkat_prototipe.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
 import '../../widgets/chip_pilihan.dart';
@@ -12,6 +11,7 @@ import '../../widgets/riwayat_alur.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
 import 'alur_anggota_bagian.dart';
+import '../../app/layar.dart';
 
 /// 83 · Alur · Peristiwa (21-aluranggota.md): Novita Wenas reports a life
 /// event with its letter; the Penatua Kolom 7 verifies or returns it.
@@ -28,7 +28,8 @@ class _AlurPeristiwaState extends State<AlurPeristiwaScreen> {
   final _tanggal = TextEditingController();
   final _alasan = TextEditingController();
 
-  String _pesan = '', _v = 'isi', _akt = 'Pemohon';
+  String _pesan = '', _v = 'isi';
+  final _akt = 'Pemohon';
   String _jenis = '', _untuk = '', _st = '', _kembali = '';
   bool _sentuh = false, _file = false;
   List<String> _riw = const [];
@@ -158,29 +159,16 @@ class _AlurPeristiwaState extends State<AlurPeristiwaScreen> {
         ),
       ];
     }
-    return AlatPrototipe(
-      stem: 'AlurPeristiwa',
-      alat: [
-        DilihatSebagai(
-          pilihan: aktorAlur,
-          terpilih: _akt,
-          onPilih: (a) => setState(() {
-            _akt = a;
-            _pesan = '';
-          }),
-        ),
+    return KerangkaAlur(
+      kembaliKe: Layar.dataAnggota,
+      judul: 'Alur · Peristiwa',
+      anakJudul: 'Dari mengajukan sampai Diverifikasi dan boleh masuk Warta',
+      tampilan: tampilan,
+      blok: [
+        if (_pesan.isNotEmpty) Pesan(Text(_pesan)),
+        ...isi,
+        if (_riw.isNotEmpty) RiwayatAlur(baris: _riw),
       ],
-      child: KerangkaAlur(
-        kembaliKe: 'DataAnggota',
-        judul: 'Alur · Peristiwa',
-        anakJudul: 'Dari mengajukan sampai Diverifikasi dan boleh masuk Warta',
-        tampilan: tampilan,
-        blok: [
-          if (_pesan.isNotEmpty) Pesan(Text(_pesan)),
-          ...isi,
-          if (_riw.isNotEmpty) RiwayatAlur(baris: _riw),
-        ],
-      ),
     );
   }
 

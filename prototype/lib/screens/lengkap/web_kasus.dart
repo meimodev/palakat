@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../motion/hitung.dart';
 import '../../motion/kerangka.dart';
 import '../../shell/halaman_web.dart';
@@ -17,6 +17,7 @@ import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
 
 /// One entry on a case (board `entri`).
 typedef _Entri = ({String n, String no, String t, String cat, int jm});
@@ -453,12 +454,8 @@ class _WebKasusScreenState extends State<WebKasusScreen> {
         : _rinci(cur, L);
 
     return HalamanWeb(
-      jabatanKosong: true,
-      nav: const NavSamping(
-        item: navKeuangan,
-        aktif: 2,
-        pengguna: PenggunaKeuangan(),
-      ),
+      layarKeuangan: true,
+      nav: const NavSamping(item: navKeuangan, aktif: 2),
       isi: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -468,7 +465,7 @@ class _WebKasusScreenState extends State<WebKasusScreen> {
               atas: 12,
               bawah: 12,
               child: Tautan(
-                ke: 'WebKewajiban',
+                ke: Layar.kewajiban,
                 cara: Cara.naik,
                 child: const SizedBox(
                   height: 44,

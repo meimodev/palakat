@@ -10,6 +10,7 @@ import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
 import 'web_excel_data.dart';
+import '../../app/layar.dart';
 
 /// Web · Contoh file Excel (spec 08-cari.md, WebExcel): the October 2026
 /// report pack as a workbook, one sheet per form F01–F14.
@@ -33,30 +34,28 @@ class _WebExcelScreenState extends State<WebExcelScreen> {
     );
 
     return HalamanWeb(
-      jabatanKosong: true,
-      nav: NavSamping(
-        item: navKeuangan,
-        aktif: 5,
-        pengguna: const PenggunaKeuangan(),
-      ),
+      layarKeuangan: true,
+      nav: NavSamping(item: navKeuangan, aktif: 5),
       isi: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // The link is a 44 px target; the line keeps its text height.
-            MarginNegatif(
-              atas: 12,
-              bawah: 12,
-              child: Tautan(
-                ke: 'WebPaketLaporan',
-                cara: Cara.naik,
-                child: const Center(
-                  widthFactor: 1,
-                  heightFactor: 1,
-                  child: TautanTeks('Laporan', ukuran: 14),
+            // The phone shows this page without WebPaketLaporan behind it.
+            if (adaLayar(context, Layar.paketLaporan))
+              // The link is a 44 px target; the line keeps its text height.
+              MarginNegatif(
+                atas: 12,
+                bawah: 12,
+                child: Tautan(
+                  ke: Layar.paketLaporan,
+                  cara: Cara.naik,
+                  child: const Center(
+                    widthFactor: 1,
+                    heightFactor: 1,
+                    child: TautanTeks('Laporan', ukuran: 14),
+                  ),
                 ),
               ),
-            ),
             const SizedBox(height: 2),
             Semantics(
               header: true,

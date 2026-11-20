@@ -2,7 +2,6 @@ import 'package:flutter/widgets.dart';
 
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/ikon.dart';
@@ -10,15 +9,17 @@ import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tata_letak.dart';
 import 'cari_orang.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
-/// The rows' web targets (`hal()` with `web = true`), by index. Records so
-/// each target is a literal `ke: '…'` for the links test.
+/// The rows' web targets (`hal()` with `web = true`), by index. A row to a
+/// phone-only screen is left out on the web (README 7.1 rule 4).
 const _keWeb = [
-  (ke: 'WebDataAnggota'),
-  (ke: 'WebDataAnggota'),
-  (ke: 'KonfirmasiKeluarga'),
-  (ke: 'WebPermohonanSurat'),
-  (ke: 'WebBeranda'),
+  (ke: Layar.dataAnggota),
+  (ke: Layar.dataAnggota),
+  (ke: Layar.konfirmasiKeluarga),
+  (ke: Layar.surat),
+  (ke: Layar.keuangan),
 ];
 
 class WebCariOrangScreen extends StatelessWidget {
@@ -27,9 +28,7 @@ class WebCariOrangScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final ki = indeksCariOrang(
-      context.tweak<String>('WebCariOrang', 'keadaan'),
-    );
+    final ki = indeksCariOrang(belumDipindah<String>('Dilihat Operator'));
     final n = jumlahCariOrang(ki);
 
     final isi = <Widget>[
@@ -43,18 +42,14 @@ class WebCariOrangScreen extends StatelessWidget {
       ],
       if (ki == 0)
         TautanPulihkan(
-          tautan: (isi) => Tautan(ke: 'WebAlurPulihkan', child: isi),
+          tautan: (isi) => Tautan(ke: Layar.cariOrang, child: isi),
         ),
       if (ki == 2) const KosongCariOrang(),
       const CatatanCariOrang(),
     ];
 
     return HalamanWeb(
-      nav: const NavSamping(
-        item: navPlatform,
-        aktif: 0,
-        pengguna: PenggunaNav(tebal: 'Yanti Sumual', biasa: ' · Operator'),
-      ),
+      nav: const NavSamping(item: navPlatform, aktif: 0),
       isi: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -65,7 +60,7 @@ class WebCariOrangScreen extends StatelessWidget {
               atas: (44 - 15 * 1.45) / 2,
               bawah: (44 - 15 * 1.45) / 2,
               child: Tautan(
-                ke: 'WebBerandaJabatan',
+                ke: Layar.beranda,
                 cara: Cara.naik,
                 child: SizedBox(
                   height: 44,
@@ -133,42 +128,43 @@ class _Tabel extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           for (var i = 0; i < hasil.length; i++)
-            Tautan(
-              ke: _keWeb[i].ke,
-              child: Container(
-                // content min 52 + padding 16 (+ the rule)
-                constraints: BoxConstraints(minHeight: i == 0 ? 68 : 69),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 18,
-                  vertical: 8,
-                ),
-                decoration: i == 0
-                    ? null
-                    : BoxDecoration(
-                        border: Border(top: BorderSide(color: c.garis)),
-                      ),
-                child: Row(
-                  children: [
-                    Expanded(child: _NamaKonteks(hasil[i])),
-                    const SizedBox(width: 16),
-                    if (hasil[i].l.isNotEmpty)
-                      LencanaStatus(hasil[i].l, bentuk: hasil[i].b),
-                    const SizedBox(width: 16),
-                    SizedBox(
-                      width: 20,
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: PalakatIkon(
-                          Ikon.lanjut,
-                          ukuran: 18,
-                          warna: c.tinta3,
+            if (_keWeb[i].ke.web)
+              Tautan(
+                ke: _keWeb[i].ke,
+                child: Container(
+                  // content min 52 + padding 16 (+ the rule)
+                  constraints: BoxConstraints(minHeight: i == 0 ? 68 : 69),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 8,
+                  ),
+                  decoration: i == 0
+                      ? null
+                      : BoxDecoration(
+                          border: Border(top: BorderSide(color: c.garis)),
+                        ),
+                  child: Row(
+                    children: [
+                      Expanded(child: _NamaKonteks(hasil[i])),
+                      const SizedBox(width: 16),
+                      if (hasil[i].l.isNotEmpty)
+                        LencanaStatus(hasil[i].l, bentuk: hasil[i].b),
+                      const SizedBox(width: 16),
+                      SizedBox(
+                        width: 20,
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: PalakatIkon(
+                            Ikon.lanjut,
+                            ukuran: 18,
+                            warna: c.tinta3,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
         ],
       ),
     );

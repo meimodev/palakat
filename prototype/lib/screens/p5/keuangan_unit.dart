@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
@@ -11,6 +10,8 @@ import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/penolakan.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// The `keadaan` options, in board order (`O`).
 const _o = [
@@ -39,7 +40,7 @@ class _KeuanganUnitScreenState extends State<KeuanganUnitScreen> {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final tweak = context.tweak<String>('KeuanganUnit', 'keadaan');
+    final tweak = belumDipindah<String>('Beranda unit');
     // A tweak change in the Keadaan panel resets the button-set view.
     if (tweak != _tweakTadi) {
       _tweakTadi = tweak;
@@ -62,7 +63,7 @@ class _KeuanganUnitScreenState extends State<KeuanganUnitScreen> {
             judul: 'Keuangan Kolom 7',
             anakJudul: 'Layar keuangan yang sama, terbatas pada peruntukan dan Kas/Bank unit',
             // The board links its back arrow to itself: a reload, so k resets.
-            kembaliKe: 'KeuanganUnit',
+            kembaliKe: Layar.keuanganUnit,
             labelKembali: 'Kembali ke Keuangan',
             diSini: () => setState(() => _k = null),
           ),
@@ -206,7 +207,7 @@ class _KeuanganUnitScreenState extends State<KeuanganUnitScreen> {
       'Uang Kolom 7 yang ada di Kas/Bank Jemaat dibukukan oleh Bendahara Jemaat.',
     ),
     Tautan(
-      ke: 'KasUnit',
+      ke: Layar.kasUnit,
       child: ConstrainedBox(
         constraints: const BoxConstraints(minHeight: 44),
         child: const Align(

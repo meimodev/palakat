@@ -4,6 +4,7 @@ import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import '../../widgets/chip_pilihan.dart';
 import 'lihat_transaksi_rinci.dart';
+import '../../app/layar.dart';
 
 /// 42 · Lihat transaksi di balik angka laporan (phone).
 class LihatTransaksiScreen extends StatefulWidget {
@@ -21,14 +22,14 @@ class _LihatTransaksiScreenState extends State<LihatTransaksiScreen> {
     return Material(
       type: MaterialType.transparency,
       child: LayarPonsel(
-        jabatanKosong: true,
+        layarKeuangan: true,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const KepalaPonsel(
               judul: 'Lihat transaksi',
               anakJudul: 'Dari angka di laporan',
-              kembaliKe: 'Laporan',
+              kembaliKe: Layar.laporan,
               labelKembali: 'Kembali ke Laporan',
             ),
             Padding(
@@ -45,7 +46,7 @@ class _LihatTransaksiScreenState extends State<LihatTransaksiScreen> {
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-                child: RinciAngkaLaporan(pilih: _pilih, ke: 'PilihBulan'),
+                child: RinciAngkaLaporan(pilih: _pilih, ke: Layar.pilihBulan),
               ),
             ),
           ],

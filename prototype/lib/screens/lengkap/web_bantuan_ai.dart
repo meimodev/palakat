@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
 import '../lanjut/bantuan_ai_bagian.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// Web · Bantuan AI dari kalimat (spec 05-kewajiban.md, WebBantuanAI).
 class WebBantuanAIScreen extends StatefulWidget {
@@ -30,18 +31,14 @@ class _WebBantuanAIScreenState extends State<WebBantuanAIScreen> {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final keadaanAI = context.tweak<String>('WebBantuanAI', 'keadaanAI');
+    final keadaanAI = belumDipindah<String>('tersedia');
     final keterangan = TextStyle(fontSize: 13, color: c.tinta3);
     // No Material here: it would reset the inherited 15 px text style.
     return ListenableBuilder(
       listenable: _s,
       builder: (context, _) => HalamanWeb(
-        jabatanKosong: true,
-        nav: const NavSamping(
-          item: navKeuangan,
-          aktif: 1,
-          pengguna: PenggunaKeuangan(),
-        ),
+        layarKeuangan: true,
+        nav: const NavSamping(item: navKeuangan, aktif: 1),
         isi: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -51,7 +48,7 @@ class _WebBantuanAIScreenState extends State<WebBantuanAIScreen> {
                 atas: 12,
                 bawah: 12,
                 child: Tautan(
-                  ke: 'WebCatat',
+                  ke: Layar.catat,
                   cara: Cara.naik,
                   child: Align(
                     alignment: Alignment.centerLeft,
@@ -134,7 +131,7 @@ class _WebBantuanAIScreenState extends State<WebBantuanAIScreen> {
                           child: Tombol(
                             'Periksa dan bukukan',
                             onPressed: null,
-                            ke: 'WebCatat',
+                            ke: Layar.catat,
                             cara: Cara.ganti,
                             ukuran: UkuranTombol.ringkas,
                             lebarPenuh: false,
@@ -146,7 +143,7 @@ class _WebBantuanAIScreenState extends State<WebBantuanAIScreen> {
                             'Simpan sebagai draf',
                             onPressed: null,
                             jenis: JenisTombol.kedua,
-                            ke: 'WebTransaksi',
+                            ke: Layar.transaksi,
                             cara: Cara.ganti,
                             ukuran: UkuranTombol.ringkas,
                             lebarPenuh: false,

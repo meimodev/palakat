@@ -2,7 +2,6 @@ import 'package:flutter/widgets.dart';
 
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
@@ -12,8 +11,9 @@ import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/penolakan.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
-const _stem = 'AntreanVerifikasi';
 const _k0 = 'Antrean',
     _k1 = 'Kembalikan dengan alasan',
     _k2 = 'Milik keluarga sendiri',
@@ -40,7 +40,7 @@ class _State extends State<AntreanVerifikasiScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final keadaan = context.tweak<String>(_stem, 'keadaan');
+    final keadaan = belumDipindah<String>('Antrean');
     if (_keadaan != null && keadaan != _keadaan) _k = null;
     _keadaan = keadaan;
     final view = _k ?? keadaan;
@@ -52,7 +52,7 @@ class _State extends State<AntreanVerifikasiScreen> {
             judul: 'Verifikasi data',
             anakJudul:
                 'Hanya data Kolom 7; milik keluarga sendiri pergi ke Syamas',
-            kembaliKe: 'DataAnggota',
+            kembaliKe: Layar.dataAnggota,
             labelKembali: 'Kembali ke Data jemaat',
           ),
           Expanded(
@@ -184,13 +184,14 @@ class _State extends State<AntreanVerifikasiScreen> {
           'Permohonan menjadi anggota · Kevin Rompas',
           'Kolom 2 · diajukan 15/11/2026',
           diajukan,
-          ke: 'PermohonanAnggota',
+          ke: Layar.permohonanAnggota,
+          param: {'id': belumDipindahId},
         ),
         const _Baris(
           'Peristiwa: Kematian · Yohanis Rompas',
           'Kolom 2 · diajukan keluarga 16/11/2026',
           diajukan,
-          ke: 'Peristiwa',
+          ke: Layar.peristiwa,
         ),
       ],
       _k4 => [
@@ -218,25 +219,26 @@ class _State extends State<AntreanVerifikasiScreen> {
           'Permohonan menjadi anggota · Novita Wenas',
           'Diajukan 16/11/2026 · izin data pribadi diberikan',
           diajukan,
-          ke: 'PermohonanAnggota',
+          ke: Layar.permohonanAnggota,
+          param: {'id': belumDipindahId},
         ),
         const _Baris(
           'Konfirmasi keluarga · Wenas-Lasut',
           '4 orang dari buku anggota',
           diajukan,
-          ke: 'KonfirmasiKeluarga',
+          ke: Layar.konfirmasiKeluarga,
         ),
         const _Baris(
           'Peristiwa: Baptisan · Gabriel Wenas',
           'Diajukan 15/11/2026',
           diajukan,
-          ke: 'Peristiwa',
+          ke: Layar.peristiwa,
         ),
         const _Baris(
           'Peristiwa: Pindah Kolom · Keluarga Lasut',
           'Dari Kolom 4 ke Kolom 7 · berlaku 01/12/2026',
           diajukan,
-          ke: 'Peristiwa',
+          ke: Layar.peristiwa,
         ),
         // Self link: the canvas reloads the board, so `k` resets and the
         // panel's view shows (board parity; CONVENTIONS "Settled conflicts").
@@ -244,7 +246,7 @@ class _State extends State<AntreanVerifikasiScreen> {
           'Perubahan data · Keluarga Rumagit',
           'Milik keluarga Anda sendiri · diteruskan ke Syamas Kolom 7',
           const LencanaStatus('Ke Syamas', bentuk: BentukLencana.abu),
-          ke: 'AntreanVerifikasi',
+          ke: Layar.verifikasi,
           diSini: () => setState(() {
             _k = null;
             _muat++;
@@ -268,12 +270,14 @@ class _Baris extends StatelessWidget {
     this.keterangan,
     this.lencana, {
     required this.ke,
+    this.param = const {},
     this.diSini,
   });
 
   final String judul, keterangan;
   final Widget lencana;
-  final String ke;
+  final Layar ke;
+  final Map<String, String> param;
   final VoidCallback? diSini;
 
   @override
@@ -281,6 +285,7 @@ class _Baris extends StatelessWidget {
     final c = context.warna;
     return Tautan(
       ke: ke,
+      param: param,
       radius: 14,
       diSini: diSini,
       child: Container(

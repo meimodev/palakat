@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../mock/mock.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis.dart';
@@ -11,6 +10,8 @@ import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
 import 'kejadian_bagian.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// Web · Kejadian setelah tutup buku (07-kejadian.md): list and detail side
 /// by side under the standard side nav.
@@ -31,19 +32,12 @@ class _WebKejadianScreenState extends State<WebKejadianScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final hambat = context.tweak<bool>(
-      'WebKejadian',
-      'menghambatBulanBerikutnya',
-    );
+    final hambat = belumDipindah<bool>(true);
     return ListenableBuilder(
       listenable: _s,
       builder: (context, _) => HalamanWeb(
-        jabatanKosong: true,
-        nav: const NavSamping(
-          item: navKeuangan,
-          aktif: 4,
-          pengguna: PenggunaKeuangan(),
-        ),
+        layarKeuangan: true,
+        nav: const NavSamping(item: navKeuangan, aktif: 4),
         isi: [
           _Judul(),
           if (hambat) const PernyataanHambatan(),
@@ -74,7 +68,7 @@ class _Judul extends StatelessWidget {
         atas: (44 - 15 * 1.45) / 2,
         bawah: (44 - 15 * 1.45) / 2,
         child: Tautan(
-          ke: 'WebTutupBuku',
+          ke: Layar.tutupBuku,
           cara: Cara.naik,
           child: SizedBox(
             height: 44,

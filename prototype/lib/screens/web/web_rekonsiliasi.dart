@@ -2,13 +2,12 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../mock/mock.dart';
 import '../../motion/hitung.dart';
 import '../../motion/kerangka.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis.dart';
@@ -16,6 +15,7 @@ import '../../widgets/ikon.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
+import '../../app/layar.dart';
 
 /// One selectable row: a bank mutation (m1…m3) or a posted transaction
 /// (t1…t4, with its No. Bukti).
@@ -76,7 +76,6 @@ class _WebRekonsiliasiState extends State<WebRekonsiliasiScreen> {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final jk = PrototypeState.maybeOf(context)?.jabatanKosong ?? false;
 
     final dipakaiM = [for (final g in _grup) ...g.m, if (_biayaOn) 'm3'];
     final dipakaiT = [for (final g in _grup) ...g.t, if (_perjalanan) 't4'];
@@ -100,18 +99,14 @@ class _WebRekonsiliasiState extends State<WebRekonsiliasiScreen> {
 
     final nol = _target == 0, habis = mutasi.isEmpty;
     final bisaPasti = nol && habis && !_pasti;
-    final pastiAlasan = tukarJkPapan(
-      'WebRekonsiliasi',
-      jk,
-      _pasti
-          ? 'Dipastikan oleh Meiske L. Perubahan pada buku membuatnya perlu '
-                'dipastikan lagi.'
-          : (!nol
-                ? 'Selisih belum dijelaskan harus Rp0.'
-                : (!habis
-                      ? 'Masih ada mutasi bank yang belum cocok.'
-                      : 'Selisih Rp0 dan semua mutasi bank sudah cocok.')),
-    );
+    final pastiAlasan = _pasti
+        ? 'Dipastikan oleh Meiske L. Perubahan pada buku membuatnya perlu '
+              'dipastikan lagi.'
+        : (!nol
+              ? 'Selisih belum dijelaskan harus Rp0.'
+              : (!habis
+                    ? 'Masih ada mutasi bank yang belum cocok.'
+                    : 'Selisih Rp0 dan semua mutasi bank sudah cocok.'));
 
     void toggle(List<String> sel, String id) => setState(() {
       sel.contains(id) ? sel.remove(id) : sel.add(id);
@@ -193,12 +188,8 @@ class _WebRekonsiliasiState extends State<WebRekonsiliasiScreen> {
     return Material(
       type: MaterialType.transparency,
       child: HalamanWeb(
-        jabatanKosong: true,
-        nav: NavSamping(
-          item: navKeuangan,
-          aktif: 3,
-          pengguna: const PenggunaKeuangan(),
-        ),
+        layarKeuangan: true,
+        nav: NavSamping(item: navKeuangan, aktif: 3),
         isi: [
           // Title row.
           Row(
@@ -239,7 +230,7 @@ class _WebRekonsiliasiState extends State<WebRekonsiliasiScreen> {
             web: true,
             anak: [
               Tautan(
-                ke: 'WebRekonIsi',
+                ke: Layar.rekeningKoran,
                 child: const Center(
                   widthFactor: 1,
                   heightFactor: 1,
@@ -247,7 +238,7 @@ class _WebRekonsiliasiState extends State<WebRekonsiliasiScreen> {
                 ),
               ),
               Tautan(
-                ke: 'WebHitungKas',
+                ke: Layar.hitungKas,
                 cara: Cara.ganti,
                 child: const Center(
                   widthFactor: 1,
@@ -263,7 +254,7 @@ class _WebRekonsiliasiState extends State<WebRekonsiliasiScreen> {
             runSpacing: 8,
             children: [
               Tautan(
-                ke: 'WebHitungKas',
+                ke: Layar.hitungKas,
                 cara: Cara.ganti,
                 radius: 999,
                 child: _Chip(

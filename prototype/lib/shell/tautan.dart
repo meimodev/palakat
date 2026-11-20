@@ -1,23 +1,27 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../app/layar.dart';
+import '../app/tata.dart';
+import '../providers/layout.dart';
 import '../widgets/tekan.dart';
-import 'kendali.dart';
 
 /// How a [Tautan] opens its target (navigation.md, Quick reference).
 enum Cara {
-  /// `push('/X')`: drill-ins.
+  /// `push`: drill-ins.
   dorong,
 
-  /// `go('/X')`: side-nav and tab items, sign in and out, "finish and go home".
+  /// `go`: side-nav and tab items, sign in and out, "finish and go home".
   ganti,
 
-  /// `kembaliKe('/X')`: back arrows, breadcrumbs, "Kembali …" links.
+  /// Pop when the page directly below is the target or one of its child
+  /// routes, otherwise `go`: back arrows, breadcrumbs, "Kembali …" links.
   naik,
 }
 
 /// Page locations of the router's stack, bottom to top, with shell and pushed
-/// matches flattened (navigation.md 5.1): `['/', '/Main', '/Main/catat']`.
+/// matches flattened (navigation.md 5.1): `['/', '/keuangan', '/keuangan/catat']`.
 List<String> tumpukanHalaman(GoRouter router) {
   final hasil = <String>[];
   void jalan(List<RouteMatchBase> daftar) {
@@ -48,24 +52,49 @@ void kembaliKeDengan(GoRouter router, String lokasi) {
   router.go(lokasi);
 }
 
+/// Whether the current layout has a screen for [ke]: a screen drawn for both
+/// layouts leaves out a link the other layout lacks (D13).
+bool adaLayar(BuildContext context, Layar ke) => ke.adaUntuk(
+  ProviderScope.containerOf(context, listen: false).read(layoutProvider),
+);
+
 extension TautanKonteks on BuildContext {
-  /// `context.kembaliKe('/Main')`: see [kembaliKeDengan].
-  void kembaliKe(String lokasi) => kembaliKeDengan(GoRouter.of(this), lokasi);
+  /// Kind "up" to a screen: see [kembaliKeDengan].
+  void naikKe(Layar ke, {Map<String, String> param = const {}, String? anak}) =>
+      kembaliKeDengan(GoRouter.of(this), ke.lokasi(param: param, anak: anak));
+
+  /// `push` to a screen or one of its child routes.
+  void dorongKe(
+    Layar ke, {
+    Map<String, String> param = const {},
+    String? anak,
+  }) => GoRouter.of(this).push(ke.lokasi(param: param, anak: anak));
+
+  /// `go` to a screen or one of its child routes.
+  void gantiKe(
+    Layar ke, {
+    Map<String, String> param = const {},
+    String? anak,
+  }) => GoRouter.of(this).go(ke.lokasi(param: param, anak: anak));
 }
 
-/// Every control that opens another board (CONVENTIONS, components.md 1.6,
-/// navigation.md 3.1). [ke] is a board stem (`'WebBukti'`) or a child route of
-/// the board itself (`'Main/catat'`).
+/// Every control that opens another screen (README 3.6): [ke] with its path
+/// parameters [param], or its child route [anak] (`'rinci'`, `'kasus/7'`).
 ///
 /// - A link to the page open now (kind self) does not navigate: it calls
 ///   [diSini], or does nothing.
-/// - [Cara.dorong] to a board with child routes that is already in the stack
-///   pops down to `/<ke>` and resets that board (navigation.md 2.1, 5.1).
-class Tautan extends StatelessWidget {
+/// - [Cara.dorong] to a phone screen with child routes that is already in the
+///   stack pops down to it ([layarBerKendali]; a ShellRoute has one navigator
+///   key).
+/// - A link to a screen the current layout does not have fails an assert in
+///   debug (D13).
+class Tautan extends ConsumerWidget {
   const Tautan({
     super.key,
     required this.ke,
     required this.child,
+    this.param = const {},
+    this.anak,
     this.cara = Cara.dorong,
     this.label,
     this.radius = 0,
@@ -74,7 +103,9 @@ class Tautan extends StatelessWidget {
     this.minTinggi = 44,
   });
 
-  final String ke;
+  final Layar ke;
+  final Map<String, String> param;
+  final String? anak;
   final Widget child;
   final Cara cara;
 
@@ -88,24 +119,36 @@ class Tautan extends StatelessWidget {
   final VoidCallback? diSini;
 
   /// Target minimum, passed to [Tekan]; below 44 only where the board draws
-  /// a smaller fixed size (PetaLayar rows, Cakupan inline links).
+  /// a smaller fixed size.
   final double minLebar;
   final double minTinggi;
 
   @override
-  Widget build(BuildContext context) => Tekan(
-    onTap: () => buka(GoRouter.of(context)),
-    label: label,
-    radius: radius,
-    peran: PeranTekan.tautan,
-    minLebar: minLebar,
-    minTinggi: minTinggi,
-    child: child,
-  );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final tata = ref.watch(layoutProvider);
+    assert(
+      ke.adaUntuk(tata),
+      'Tautan ke Layar.${ke.name}: tidak ada layar untuk Tata.${tata.name}',
+    );
+    return Tekan(
+      onTap: () => buka(context),
+      label: label,
+      radius: radius,
+      peran: PeranTekan.tautan,
+      minLebar: minLebar,
+      minTinggi: minTinggi,
+      child: child,
+    );
+  }
 
-  /// What a press does; public so chrome outside the navigator can reuse it.
-  void buka(GoRouter router) {
-    final tujuan = '/$ke';
+  /// What a press does; public so a text span or chip can reuse it.
+  void buka(BuildContext context) {
+    final router = GoRouter.of(context);
+    final tata = ProviderScope.containerOf(
+      context,
+      listen: false,
+    ).read(layoutProvider);
+    final tujuan = ke.lokasi(param: param, anak: anak);
     final t = tumpukanHalaman(router);
     if (t.isNotEmpty && t.last == tujuan) {
       diSini?.call();
@@ -117,12 +160,13 @@ class Tautan extends StatelessWidget {
       case Cara.naik:
         kembaliKeDengan(router, tujuan);
       case Cara.dorong:
-        final ulang = ulangPapan[ke];
-        if (ulang == null) {
+        if (tata != Tata.ponsel ||
+            !layarBerKendali.contains(ke) ||
+            !t.contains(tujuan)) {
           router.push(tujuan);
           return;
         }
-        // The board is in the stack: pop down to its root page, then reset it.
+        // The screen is in the stack: pop down to it.
         var s = t;
         while (s.length > 1 && s.last != tujuan) {
           router.pop();
@@ -130,7 +174,6 @@ class Tautan extends StatelessWidget {
           if (baru.length >= s.length) break; // a pop that did not apply
           s = baru;
         }
-        ulang();
     }
   }
 }

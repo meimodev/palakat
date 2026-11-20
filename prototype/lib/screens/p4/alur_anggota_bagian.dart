@@ -10,6 +10,7 @@ import '../../widgets/lencana_status.dart';
 import '../../widgets/penolakan.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
+import '../../app/layar.dart';
 
 /// Parts AlurAnggota and AlurPeristiwa draw identically (21-aluranggota.md):
 /// the board's "two-person step" with the same header, cards and return form.
@@ -44,7 +45,7 @@ class KerangkaAlur extends StatelessWidget {
   final String judul, anakJudul, tampilan;
 
   /// Up link of the back arrow; a literal in each screen file (links_test).
-  final String kembaliKe;
+  final Layar kembaliKe;
   final List<Widget> blok;
 
   @override

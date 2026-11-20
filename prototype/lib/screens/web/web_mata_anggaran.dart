@@ -3,12 +3,10 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show OverflowBoxFit;
 
-import '../../mock/jabatan_kosong.dart';
 import '../../motion/kerangka.dart';
 import '../../motion/urutan.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/chip_pilihan.dart';
@@ -18,6 +16,7 @@ import '../../widgets/lencana_status.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
 
 /// One Mata Anggaran row of the board's `DATA` (spec 04, WebMataAnggaran).
 typedef _Baris = ({String k, String n, bool grup, String tanda});
@@ -122,15 +121,10 @@ class _WebMataAnggaranScreenState extends State<WebMataAnggaranScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final jk = context.prototipe.jabatanKosong;
     final kosongN = _boleh.values.where((v) => v.isEmpty).length;
-    final vTeks = tukarJkPapan(
-      'WebMataAnggaran',
-      jk,
-      _terbit
-          ? 'Berlaku mulai Desember 2026 · diterbitkan oleh Meiske L., 16/11/2026 · tidak dapat diubah'
-          : '2 baris baru · 1 nama berubah dibanding versi 2026.1 · usulan berlaku mulai Desember 2026',
-    );
+    final vTeks = _terbit
+        ? 'Berlaku mulai Desember 2026 · diterbitkan oleh Meiske L., 16/11/2026 · tidak dapat diubah'
+        : '2 baris baru · 1 nama berubah dibanding versi 2026.1 · usulan berlaku mulai Desember 2026';
 
     // CSS splits a line's leading evenly above and below the glyphs.
     return DefaultTextHeightBehavior(
@@ -144,12 +138,8 @@ class _WebMataAnggaranScreenState extends State<WebMataAnggaranScreen> {
   Widget _halaman(BuildContext context, String vTeks, int kosongN) {
     final c = context.warna;
     return HalamanWeb(
-      nav: NavSamping(
-        item: navKeuangan,
-        aktif: 6,
-        pengguna: const PenggunaKeuangan(),
-      ),
-      jabatanKosong: true,
+      nav: NavSamping(item: navKeuangan, aktif: 6),
+      layarKeuangan: true,
       isi: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -158,7 +148,7 @@ class _WebMataAnggaranScreenState extends State<WebMataAnggaranScreen> {
             MarginNegatif(
               bawah: 44 - 15 * 1.45,
               child: Tautan(
-                ke: 'WebPengaturan',
+                ke: Layar.pengaturan,
                 cara: Cara.naik,
                 child: const TautanTeks('Pengaturan', ukuran: 14),
               ),
@@ -289,10 +279,7 @@ class _WebMataAnggaranScreenState extends State<WebMataAnggaranScreen> {
               children: [
                 for (var i = 0; i < teks.length; i++) ...[
                   if (i > 0) const SizedBox(width: 8),
-                  SizedBox(
-                    width: lebar[i],
-                    child: chip(i, teks[i]),
-                  ),
+                  SizedBox(width: lebar[i], child: chip(i, teks[i])),
                 ],
               ],
             );

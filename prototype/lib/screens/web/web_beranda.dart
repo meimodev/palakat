@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show RenderTable;
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../mock/mock.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/butir_perhatian.dart';
@@ -13,6 +12,8 @@ import '../../widgets/garis.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// Web · Beranda (docs/build/screens/02-awal.md): the Bendahara's laptop
 /// home. No state of its own; the `bulan` tweak (ramai / sepi) and the
@@ -23,14 +24,14 @@ class WebBerandaScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final sepi = context.tweak<String>('WebBeranda', 'bulan') == 'sepi';
+    final sepi = belumDipindah<String>('ramai') == 'sepi';
     const mono = TextStyle(fontFamily: PalakatText.mono);
     final tindakan = sepi
         ? berandaPerluTindakan.sublist(0, 1)
         : berandaPerluTindakan;
 
     final bulan = Tautan(
-      ke: 'WebPilihBulan',
+      ke: Layar.pilihBulan,
       radius: 22,
       child: Container(
         constraints: const BoxConstraints(minHeight: 44),
@@ -68,7 +69,7 @@ class WebBerandaScreen extends StatelessWidget {
             ),
     );
 
-    Widget tautanTeks(String teks, {required String ke}) => Tautan(
+    Widget tautanTeks(String teks, {required Layar ke}) => Tautan(
       ke: ke,
       child: Align(
         alignment: Alignment.centerLeft,
@@ -77,17 +78,22 @@ class WebBerandaScreen extends StatelessWidget {
       ),
     );
 
-    Widget aksi(String label, {required String ke, bool utama = true}) =>
-        Tombol(
-          label,
-          onPressed: null,
-          ke: ke,
-          cara: ke == 'WebLaporan' ? Cara.dorong : Cara.ganti,
-          jenis: utama ? JenisTombol.utama : JenisTombol.kedua,
-          ukuran: UkuranTombol.kecil,
-          paddingH: 18,
-          lebarPenuh: false,
-        );
+    Widget aksi(
+      String label, {
+      required Layar ke,
+      String? anak,
+      bool utama = true,
+    }) => Tombol(
+      label,
+      onPressed: null,
+      ke: ke,
+      anak: anak,
+      cara: ke == Layar.laporan ? Cara.dorong : Cara.ganti,
+      jenis: utama ? JenisTombol.utama : JenisTombol.kedua,
+      ukuran: UkuranTombol.kecil,
+      paddingH: 18,
+      lebarPenuh: false,
+    );
 
     final saldo = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -186,7 +192,7 @@ class WebBerandaScreen extends StatelessWidget {
                   tingkat: TingkatPerhatian.perluTindakan,
                   judul: t.$1,
                   keterangan: t.$2,
-                  ke: i == 0 ? 'WebTutupBuku' : 'WebTransaksi',
+                  ke: i == 0 ? Layar.tutupBuku : Layar.transaksi,
                   cara: Cara.ganti,
                   warnaKeterangan: i == 0 ? c.bata : null,
                   pertama: i == 0,
@@ -234,7 +240,7 @@ class WebBerandaScreen extends StatelessWidget {
               const JudulBagian('Untuk diketahui', web: true),
               const SizedBox(height: 6),
               _TautanSebaris(
-                ke: 'WebKewajiban',
+                ke: Layar.kewajiban,
                 cara: Cara.ganti,
                 tinggiBaris: 14 * 1.45,
                 child: TautanTeks(
@@ -286,31 +292,32 @@ class WebBerandaScreen extends StatelessWidget {
     return Material(
       type: MaterialType.transparency,
       child: HalamanWeb(
-        jabatanKosong: true,
+        layarKeuangan: true,
         jarak: 24,
-        nav: const NavSamping(
-          item: navKeuangan,
-          aktif: 0,
-          pengguna: PenggunaKeuangan(),
-        ),
+        nav: const NavSamping(item: navKeuangan, aktif: 0),
         isi: [
           kepala,
           DeretTautan(
             web: true,
             anak: [
-              tautanTeks('Pemberitahuan', ke: 'WebPemberitahuan'),
-              tautanTeks('Cari dan tanya', ke: 'WebCari'),
+              tautanTeks('Pemberitahuan', ke: Layar.pemberitahuan),
+              tautanTeks('Cari dan tanya', ke: Layar.cari),
             ],
           ),
           Wrap(
             spacing: 8,
             runSpacing: 8,
             children: [
-              aksi('+ Pendapatan', ke: 'WebTransaksi'),
-              aksi('− Belanja', ke: 'WebTransaksi'),
-              aksi('+ Persembahan', ke: 'WebTransaksi'),
-              aksi('Rekonsiliasi', ke: 'WebRekonsiliasi', utama: false),
-              aksi('Buat laporan sementara', ke: 'WebLaporan', utama: false),
+              aksi('+ Pendapatan', ke: Layar.transaksi),
+              aksi('− Belanja', ke: Layar.transaksi),
+              aksi('+ Persembahan', ke: Layar.transaksi),
+              aksi(
+                'Rekonsiliasi',
+                ke: Layar.tutupBuku,
+                anak: 'rekonsiliasi',
+                utama: false,
+              ),
+              aksi('Buat laporan sementara', ke: Layar.laporan, utama: false),
             ],
           ),
           KisiOtomatis(
@@ -392,7 +399,7 @@ class _TabelKasBank extends StatelessWidget {
     final kosong = sel(const SizedBox.shrink());
 
     const hitung = _TautanSebaris(
-      ke: 'WebHitungKas',
+      ke: Layar.hitungKas,
       tinggiBaris: 14 * 1.45, // the cell's 14 px line box
       child: TautanTeks('Hitung kas', berat: FontWeight.w700, ukuran: 13),
     );
@@ -572,7 +579,7 @@ class _TautanSebaris extends StatelessWidget {
     this.cara = Cara.dorong,
   });
 
-  final String ke;
+  final Layar ke;
   final Cara cara;
   final double tinggiBaris;
   final Widget child;

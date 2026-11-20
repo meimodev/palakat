@@ -9,6 +9,7 @@ import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
 import 'keluar_akun.dart';
+import '../../app/layar.dart';
 
 /// `st`: 'akun' (button shown), 'tanya' (confirmation panel), 'keluar'
 /// (signed-out card in place of the main column; the side nav stays).
@@ -28,11 +29,7 @@ class _WebKeluarScreenState extends State<WebKeluarScreen> {
     final c = context.warna;
     return HalamanWeb(
       tengah: _st == 'keluar',
-      nav: const NavSamping(
-        item: navKeuangan,
-        aktif: 6,
-        pengguna: PenggunaKeuangan(ikutJabatanKosong: false),
-      ),
+      nav: const NavSamping(item: navKeuangan, aktif: 6),
       isi: _st == 'keluar' ? [_sudahKeluar(context)] : _akun(c),
     );
   }
@@ -46,7 +43,7 @@ class _WebKeluarScreenState extends State<WebKeluarScreen> {
           atas: 11.125,
           bawah: 11.125,
           child: Tautan(
-            ke: 'WebPengaturan',
+            ke: Layar.pengaturan,
             cara: Cara.naik,
             child: const SizedBox(
               height: 44,
@@ -78,9 +75,9 @@ class _WebKeluarScreenState extends State<WebKeluarScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const KartuProfil(ke: 'WebAkunSaya'),
+              const KartuProfil(ke: Layar.akun),
               const SizedBox(height: 16),
-              const KartuSesi(ke: 'WebSerahTerima'),
+              const KartuSesi(ke: Layar.bendahara, anak: 'serah'),
               const SizedBox(height: 16),
               const KalimatKeluar(),
               if (_st == 'akun') ...[
@@ -154,7 +151,7 @@ class _WebKeluarScreenState extends State<WebKeluarScreen> {
             border: Border.all(color: c.garis),
             borderRadius: BorderRadius.circular(18),
           ),
-          child: const IsiSudahKeluar(ke: 'WebMasuk'),
+          child: const IsiSudahKeluar(),
         ),
       ),
     );

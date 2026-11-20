@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
@@ -13,6 +12,8 @@ import '../../widgets/lencana_status.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// The `keadaan` options of TerbitDokumen and WebTerbitDokumen, in order.
 const pilihanTerbitDokumen = [
@@ -33,7 +34,7 @@ mixin KeadaanTerbitDokumen<T extends StatefulWidget> on State<T> {
 
   /// Index of the view shown now (an unknown tweak value falls back to 0).
   int tampilan(BuildContext context) {
-    final t = context.tweak<String>(stemTerbit, 'keadaan');
+    final t = belumDipindah<String>('Mengisi');
     if (t != _tweak) {
       if (_tweak != null) _keAtas();
       _tweak = t;
@@ -82,14 +83,18 @@ class _TerbitDokumenScreenState extends State<TerbitDokumenScreen>
             const KepalaPonsel(
               judul: 'Terbitkan dokumen',
               anakJudul: 'Unggah salinan bertanda tangan, pilih untuk siapa',
-              kembaliKe: 'DokumenGereja',
+              kembaliKe: Layar.dokumenGereja,
               labelKembali: 'Kembali ke Dokumen gereja',
             ),
             Expanded(
               child: SingleChildScrollView(
                 controller: gulir,
                 padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-                child: IsiTerbitDokumen(ki: ki, ke: ke, induk: 'DokumenGereja'),
+                child: IsiTerbitDokumen(
+                  ki: ki,
+                  ke: ke,
+                  induk: Layar.dokumenGereja,
+                ),
               ),
             ),
           ],
@@ -113,7 +118,7 @@ class IsiTerbitDokumen extends StatelessWidget {
   final ValueChanged<int> ke;
 
   /// Up target of "Lihat di Dokumen gereja" and "Terbitkan revisi 2".
-  final String induk;
+  final Layar induk;
 
   @override
   Widget build(BuildContext context) {

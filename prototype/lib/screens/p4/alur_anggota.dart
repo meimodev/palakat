@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../shell/perangkat_prototipe.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
@@ -13,6 +12,7 @@ import '../../widgets/riwayat_alur.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
 import 'alur_anggota_bagian.dart';
+import '../../app/layar.dart';
 
 /// 82 · Alur · Menjadi anggota (21-aluranggota.md): Novita Wenas asks to
 /// become a member; the Penatua Kolom 7 verifies or returns it.
@@ -30,7 +30,8 @@ class _AlurAnggotaState extends State<AlurAnggotaScreen> {
   final _lahir = TextEditingController();
   final _alasan = TextEditingController();
 
-  String _pesan = '', _v = 'isi', _akt = 'Pemohon';
+  String _pesan = '', _v = 'isi';
+  final _akt = 'Pemohon';
   String _jk = '', _nikah = '', _kolom = '', _st = '', _kembali = '';
   bool _izin = false, _sentuh = false;
   List<String> _riw = const [];
@@ -147,7 +148,7 @@ class _AlurAnggotaState extends State<AlurAnggotaScreen> {
           // and line exceed 350, so it fills the row, and min-height 48
           // plus the 1.5 line top and bottom makes it 51 tall.
           Tautan(
-            ke: 'AlurNama',
+            ke: Layar.tampilanNama,
             radius: 14,
             child: RupaTombol(
               label: 'Atur Tampilan nama saya',
@@ -198,29 +199,16 @@ class _AlurAnggotaState extends State<AlurAnggotaScreen> {
         ),
       ];
     }
-    return AlatPrototipe(
-      stem: 'AlurAnggota',
-      alat: [
-        DilihatSebagai(
-          pilihan: aktorAlur,
-          terpilih: _akt,
-          onPilih: (a) => setState(() {
-            _akt = a;
-            _pesan = '';
-          }),
-        ),
+    return KerangkaAlur(
+      kembaliKe: Layar.dataAnggota,
+      judul: 'Alur · Menjadi anggota',
+      anakJudul: 'Dari mengisi sendiri sampai Diverifikasi Penatua Kolom',
+      tampilan: tampilan,
+      blok: [
+        if (_pesan.isNotEmpty) Pesan(Text(_pesan)),
+        ...isi,
+        if (_riw.isNotEmpty) RiwayatAlur(baris: _riw),
       ],
-      child: KerangkaAlur(
-        kembaliKe: 'DataAnggota',
-        judul: 'Alur · Menjadi anggota',
-        anakJudul: 'Dari mengisi sendiri sampai Diverifikasi Penatua Kolom',
-        tampilan: tampilan,
-        blok: [
-          if (_pesan.isNotEmpty) Pesan(Text(_pesan)),
-          ...isi,
-          if (_riw.isNotEmpty) RiwayatAlur(baris: _riw),
-        ],
-      ),
     );
   }
 

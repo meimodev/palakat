@@ -5,12 +5,12 @@ import 'package:flutter/widgets.dart';
 
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/prototipe_state.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
 import '../../widgets/garis_status.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
+import '../../app/belum_dipindah.dart';
 
 /// The `keadaan` phone frame of spec 22 (PermintaanDana, Panitia): header
 /// with back, a scroll column (padding 8 20 20, gap 16) showing `k ?? keadaan`.
@@ -45,7 +45,7 @@ class _PapanKeadaanState extends State<PapanKeadaan> {
 
   @override
   Widget build(BuildContext context) {
-    final panel = context.tweak<String>(widget.stem, 'keadaan');
+    final panel = belumDipindah<String>('Menunggu persetujuan');
     if (panel != _panel) {
       _panel = panel;
       _k = null;

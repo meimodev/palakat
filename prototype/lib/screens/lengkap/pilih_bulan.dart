@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../motion/kerangka.dart';
 import '../../shell/layar_ponsel.dart';
 import '../../theme/palakat_tema.dart';
@@ -497,7 +497,7 @@ class _PilihBulanScreenState extends State<PilihBulanScreen> {
       child: DefaultTextHeightBehavior(
         textHeightBehavior: perilakuBarisCss,
         child: LayarPonsel(
-          jabatanKosong: true,
+          layarKeuangan: true,
           overlay: [
             if (k.buka)
               Positioned.fill(

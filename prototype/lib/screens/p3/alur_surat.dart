@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import 'alur_surat_alur.dart';
+import '../../app/layar.dart';
 
 /// 70 · Alur · Permohonan surat (screens/19-alursurat.md).
 class AlurSuratScreen extends StatelessWidget {
@@ -17,7 +18,7 @@ class AlurSuratScreen extends StatelessWidget {
           judul: 'Alur · Permohonan surat',
           anakJudul:
               'Dari permohonan anggota sampai surat diterbitkan atau tidak',
-          kembaliKe: 'PermohonanSurat',
+          kembaliKe: Layar.surat,
           labelKembali: 'Kembali ke Permohonan surat',
         ),
         Expanded(

@@ -11,6 +11,7 @@ import '../../widgets/penolakan.dart';
 import '../../widgets/riwayat_alur.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
+import '../../app/layar.dart';
 
 const _hariT = '16/11/2026';
 
@@ -207,9 +208,9 @@ class _AlurPanitiaBaruState extends State<AlurPanitiaBaruScreen> {
         const Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _TautanKedua('Tetapkan Kas/Bank Panitia', ke: 'KasUnit'),
+            _TautanKedua('Tetapkan Kas/Bank Panitia', ke: Layar.kasUnit),
             SizedBox(height: 8),
-            _TautanKedua('Lihat penutupan Panitia', ke: 'AlurPanitia'),
+            _TautanKedua('Lihat penutupan Panitia', ke: Layar.panitia),
           ],
         ),
       if (_riw.isNotEmpty) RiwayatAlur(baris: _riw),
@@ -226,7 +227,7 @@ class _AlurPanitiaBaruState extends State<AlurPanitiaBaruScreen> {
           const KepalaPonsel(
             judul: 'Alur · Membentuk Panitia',
             anakJudul: 'Dari keputusan gereja sampai Panitia Aktif',
-            kembaliKe: 'Panitia',
+            kembaliKe: Layar.panitia,
             labelKembali: 'Kembali ke Panitia',
           ),
           Expanded(
@@ -253,7 +254,8 @@ class _AlurPanitiaBaruState extends State<AlurPanitiaBaruScreen> {
 class _TautanKedua extends StatelessWidget {
   const _TautanKedua(this.label, {required this.ke});
 
-  final String label, ke;
+  final String label;
+  final Layar ke;
 
   @override
   Widget build(BuildContext context) => ConstrainedBox(

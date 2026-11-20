@@ -3,10 +3,9 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../motion/kerangka.dart';
 import '../../motion/urutan.dart';
-import '../../shell/kendali.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import '../../shell/tautan.dart';
@@ -21,6 +20,7 @@ import '../../widgets/penolakan.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
+import '../../app/layar.dart';
 
 /// One part of the offering: name, digits typed, owner, Kas/Bank ('' = none).
 class _Bagian {
@@ -113,23 +113,9 @@ class PersembahanKendali extends StatefulWidget {
 
 class _PersembahanKendaliState extends State<PersembahanKendali> {
   final _keadaan = _Keadaan();
-  int _generasi = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    ulangPapan['Persembahan'] = _ulang;
-  }
-
-  void _ulang() {
-    if (!mounted) return;
-    _keadaan.ulang();
-    setState(() => _generasi++);
-  }
 
   @override
   void dispose() {
-    if (ulangPapan['Persembahan'] == _ulang) ulangPapan.remove('Persembahan');
     _keadaan.dispose();
     super.dispose();
   }
@@ -137,14 +123,11 @@ class _PersembahanKendaliState extends State<PersembahanKendali> {
   @override
   Widget build(BuildContext context) => _Lingkup(
     keadaan: _keadaan,
-    child: GenerasiPapan(
-      generasi: _generasi,
-      // Material outside LayarPonsel: inside, its bodyMedium text style
-      // would replace the phone's 16 / 1.4 body text.
-      child: Material(
-        type: MaterialType.transparency,
-        child: LayarPonsel(jabatanKosong: true, child: widget.child),
-      ),
+    // Material outside LayarPonsel: inside, its bodyMedium text style
+    // would replace the phone's 16 / 1.4 body text.
+    child: Material(
+      type: MaterialType.transparency,
+      child: LayarPonsel(layarKeuangan: true, child: widget.child),
     ),
   );
 }
@@ -200,7 +183,7 @@ class _IsiState extends State<_Isi> {
   void _bukukan() {
     widget.k.ubah(() => widget.k.posted = true);
     // Back from Hasil leaves the board, not to an editable form.
-    GoRouter.of(context).replace('/Persembahan/hasil');
+    GoRouter.of(context).replace(Layar.persembahan.lokasi(anak: 'hasil'));
   }
 
   @override
@@ -390,7 +373,7 @@ class _IsiState extends State<_Isi> {
         const KepalaPonsel(
           judul: 'Persembahan',
           anakJudul: 'Ibadah Minggu · 15 November 2026',
-          kembaliKe: 'Main',
+          kembaliKe: Layar.keuangan,
           labelKembali: 'Kembali ke Beranda',
         ),
         Expanded(
@@ -573,7 +556,7 @@ class _Sampul extends StatelessWidget {
               ),
             ),
           const Tautan(
-            ke: 'PersembahanBernama',
+            ke: Layar.persembahanBernama,
             child: Center(
               widthFactor: 1,
               heightFactor: 1,
@@ -751,7 +734,7 @@ class _Hasil extends StatelessWidget {
               const SizedBox(height: 8),
               // An `<a>`, content-box: min-height 44 plus the 1.5 line twice.
               Tautan(
-                ke: 'Main',
+                ke: Layar.keuangan,
                 cara: Cara.ganti,
                 radius: 12,
                 child: RupaTombol(

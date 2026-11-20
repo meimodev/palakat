@@ -4,6 +4,7 @@ import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import '../../shell/tautan.dart';
 import 'pengembalian_isi.dart';
+import '../../app/layar.dart';
 
 /// 25 · Pengembalian (spec 07-kejadian.md): a refund saved as a Draf linked
 /// to its original voucher, per kind (donatur / pemasok).
@@ -25,7 +26,7 @@ class _PengembalianScreenState extends State<PengembalianScreen> {
 
   @override
   Widget build(BuildContext context) => LayarPonsel(
-    jabatanKosong: true,
+    layarKeuangan: true,
     child: ListenableBuilder(
       listenable: _k,
       builder: (context, _) {
@@ -37,7 +38,7 @@ class _PengembalianScreenState extends State<PengembalianScreen> {
             const KepalaPonsel(
               judul: 'Pengembalian',
               anakJudul: 'Terkait dengan transaksi asal',
-              kembaliKe: 'Main',
+              kembaliKe: Layar.keuangan,
               labelKembali: 'Kembali ke Beranda',
             ),
             Padding(
@@ -53,7 +54,7 @@ class _PengembalianScreenState extends State<PengembalianScreen> {
                     CatatanAturan(
                       c: c,
                       tautan: const Tautan(
-                        ke: 'AlurPengembalian',
+                        ke: Layar.pengembalian,
                         child: SizedBox(),
                       ),
                     ),

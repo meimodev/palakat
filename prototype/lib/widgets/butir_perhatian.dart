@@ -7,6 +7,7 @@ import 'garis_status.dart';
 import 'ikon.dart';
 import 'kecil.dart';
 import 'tekan.dart';
+import '../app/layar.dart';
 
 enum TingkatPerhatian { hambatan, perluTindakan, untukDiketahui }
 
@@ -30,6 +31,8 @@ class ButirPerhatian extends StatelessWidget {
     this.perbaikan,
     this.labelTingkat = false,
     this.ke,
+    this.param = const {},
+    this.anak,
     this.cara = Cara.dorong,
     this.onTap,
     this.warnaKeterangan,
@@ -49,7 +52,11 @@ class ButirPerhatian extends StatelessWidget {
   final bool labelTingkat;
 
   /// Row or link target (literal: navigation.md 3.1).
-  final String? ke;
+  final Layar? ke;
+
+  /// Path parameters and child route of [ke].
+  final Map<String, String> param;
+  final String? anak;
   final Cara cara;
   final VoidCallback? onTap;
 
@@ -64,7 +71,15 @@ class ButirPerhatian extends StatelessWidget {
   final bool web;
 
   Widget _tekan(Widget child) {
-    if (ke != null) return Tautan(ke: ke!, cara: cara, child: child);
+    if (ke != null) {
+      return Tautan(
+        ke: ke!,
+        param: param,
+        anak: anak,
+        cara: cara,
+        child: child,
+      );
+    }
     if (onTap != null) return Tekan(onTap: onTap, child: child);
     return child;
   }

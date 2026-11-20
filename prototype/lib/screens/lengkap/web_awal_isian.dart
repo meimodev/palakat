@@ -6,6 +6,7 @@ import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/tata_letak.dart';
 import 'awal_isian_isi.dart';
+import '../../app/layar.dart';
 
 /// Web · Pengaturan awal: identitas dan daftar.
 class WebAwalIsianScreen extends StatefulWidget {
@@ -30,19 +31,14 @@ class _WebAwalIsianScreenState extends State<WebAwalIsianScreen> {
     return Material(
       type: MaterialType.transparency,
       child: HalamanWeb(
-        nav: const NavSamping(
-          item: navKeuangan,
-          aktif: 6,
-          // No jabatanKosong on this board: the footer stays Meiske L.
-          pengguna: PenggunaKeuangan(ikutJabatanKosong: false),
-        ),
+        nav: const NavSamping(item: navKeuangan, aktif: 6),
         isi: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
               Tautan(
-                ke: 'WebAwal',
+                ke: Layar.awal,
                 cara: Cara.naik,
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(minHeight: 44),

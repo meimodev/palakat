@@ -4,11 +4,10 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../motion/kerangka.dart';
 import '../../motion/ulang.dart';
 import '../../motion/urutan.dart';
-import '../../shell/kendali.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import '../../shell/tautan.dart';
@@ -22,6 +21,7 @@ import '../../widgets/lencana_status.dart';
 import '../../widgets/logo.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
 
 const _kas = 3200000;
 
@@ -116,32 +116,16 @@ class AwalKendali extends StatefulWidget {
 
 class _AwalKendaliState extends State<AwalKendali> {
   final _k = _Awal();
-  int _generasi = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    ulangPapan['Awal'] = _ulang;
-  }
-
-  void _ulang() {
-    _k.ulang();
-    setState(() => _generasi++);
-  }
 
   @override
   void dispose() {
-    if (ulangPapan['Awal'] == _ulang) ulangPapan.remove('Awal');
     _k.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) => LayarPonsel(
-    child: _Lingkup(
-      notifier: _k,
-      child: GenerasiPapan(generasi: _generasi, child: widget.child),
-    ),
+    child: _Lingkup(notifier: _k, child: widget.child),
   );
 }
 
@@ -299,7 +283,7 @@ class _Langkah extends StatelessWidget {
             ),
             // `display: flex` <a>: the target spans the column's width.
             const Tautan(
-              ke: 'AwalIsian',
+              ke: Layar.awalIsian,
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: TautanTeks(
@@ -362,7 +346,7 @@ class _Langkah extends StatelessWidget {
                         style: TextStyle(fontSize: 14, color: c.diTinta2),
                       ),
                       Tautan(
-                        ke: 'Main',
+                        ke: Layar.keuangan,
                         cara: Cara.ganti,
                         radius: 12,
                         child: Container(
@@ -413,7 +397,7 @@ class _BarisLangkah extends StatelessWidget {
     final (judul, sub, st, ke) = l;
     final bisa = ke != null && (st == 'kini' || st == 'tunggu' || st == 'ok');
     return Tekan(
-      onTap: bisa ? () => GoRouter.of(context).push('/Awal/$ke') : null,
+      onTap: bisa ? () => context.dorongKe(Layar.awal, anak: ke) : null,
       child: Container(
         constraints: const BoxConstraints(minHeight: 72),
         padding: const EdgeInsets.symmetric(vertical: 10),
@@ -550,7 +534,10 @@ class _Tunjuk extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const KepalaPonsel(judul: 'Penunjukan Bendahara', kembaliKe: 'Awal'),
+        const KepalaPonsel(
+          judul: 'Penunjukan Bendahara',
+          kembaliKe: Layar.awal,
+        ),
         Expanded(
           child: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
@@ -612,7 +599,7 @@ class _Tunjuk extends StatelessWidget {
               child: Tombol(
                 'Lanjut ke saldo awal pencatatan',
                 onPressed: null,
-                ke: 'Awal',
+                ke: Layar.awal,
                 cara: Cara.naik,
               ),
             ),
@@ -732,7 +719,9 @@ class _SaldoState extends State<_Saldo> {
     // Deep link while authority is not active: the board never allows it.
     if (!_awal(context).aktif) {
       final router = GoRouter.of(context);
-      WidgetsBinding.instance.addPostFrameCallback((_) => router.go('/Awal'));
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => router.go(Layar.awal.jalur),
+      );
     }
   }
 
@@ -881,7 +870,7 @@ class _SaldoState extends State<_Saldo> {
         const KepalaPonsel(
           judul: 'Saldo awal pencatatan',
           anakJudul: 'Per 15 September 2026, tanggal mulai pencatatan',
-          kembaliKe: 'Awal',
+          kembaliKe: Layar.awal,
         ),
         Expanded(
           child: SingleChildScrollView(
@@ -911,7 +900,7 @@ class _SaldoState extends State<_Saldo> {
               'Kembali ke pengaturan awal',
               onPressed: null,
               jenis: JenisTombol.kedua,
-              ke: 'Awal',
+              ke: Layar.awal,
               cara: Cara.naik,
             ),
         ]),

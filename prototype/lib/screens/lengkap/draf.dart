@@ -4,7 +4,6 @@ import '../../mock/jabatan_kosong.dart';
 import '../../motion/kerangka.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/chip_pilihan.dart';
@@ -15,6 +14,8 @@ import '../../widgets/lencana_status.dart';
 import '../../widgets/penolakan.dart';
 import '../../widgets/status_simpan.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// 20 · Draf: pindah tanggal, batalkan, hapus (docs/build/screens/06-bukti.md).
 class DrafScreen extends StatefulWidget {
@@ -80,11 +81,10 @@ class _DrafScreenState extends State<DrafScreen> {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final p = PrototypeState.of(context);
-    final jk = p.jabatanKosong;
-    final konflik = (p.tweak('Draf', 'konflik') as bool) && !_muat;
-    final kosong = p.tweak('Draf', 'drafKosong') as bool;
-    String t(String s) => tukarJkPapan('Draf', jk, s);
+    final jk = belumDipindah(false);
+    final konflik = belumDipindah(false) && !_muat;
+    final kosong = belumDipindah(false);
+    String t(String s) => s;
     final tutup = _bulan == _bulanTutup;
     final draf = _st == _St.draf;
     final pindah = _lembar == _Lembar.pindah;
@@ -302,7 +302,7 @@ class _DrafScreenState extends State<DrafScreen> {
               const Tombol(
                 'Periksa dan bukukan',
                 onPressed: null,
-                ke: 'Main',
+                ke: Layar.keuangan,
                 cara: Cara.ganti,
                 paddingH: 20,
               ),
@@ -377,14 +377,14 @@ class _DrafScreenState extends State<DrafScreen> {
           );
 
     return LayarPonsel(
-      jabatanKosong: true,
+      layarKeuangan: true,
       overlay: [if (lembar != null) Positioned.fill(child: lembar)],
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const KepalaPonsel(
             judul: 'Draf',
-            kembaliKe: 'Main',
+            kembaliKe: Layar.keuangan,
             labelKembali: 'Kembali ke Beranda',
           ),
           Expanded(

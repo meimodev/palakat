@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../mock/mock.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/tautan.dart';
@@ -10,6 +10,7 @@ import '../../widgets/lencana_status.dart';
 import '../../widgets/penolakan.dart';
 import '../../widgets/tombol.dart';
 import 'permintaan_dana_keadaan.dart';
+import '../../app/layar.dart';
 
 const _opsi = [
   'Menunggu persetujuan',
@@ -32,7 +33,7 @@ class PermintaanDanaScreen extends StatelessWidget {
     kepala: const KepalaPonsel(
       judul: 'Permintaan dana',
       anakJudul: 'Minta, periksa, setujui, bayar, verifikasi: lima tindakan yang terpisah',
-      kembaliKe: 'KeuanganUnit',
+      kembaliKe: Layar.keuanganUnit,
       labelKembali: 'Kembali ke Keuangan',
     ),
     isi: _isi,
@@ -83,7 +84,7 @@ List<Widget> _isi(String k, ValueChanged<String> pilih) => switch (k) {
             onPressed: null,
             jenis: JenisTombol.kedua,
             ukuran: UkuranTombol.sedang,
-            ke: 'Main',
+            ke: Layar.keuangan,
             cara: Cara.ganti,
           ),
         ),

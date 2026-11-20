@@ -1,13 +1,13 @@
 import 'package:flutter/widgets.dart';
 
 import '../../mock/mock.dart';
-import '../../shell/prototipe_state.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
 import '../../widgets/bertindak_sebagai.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tombol.dart';
+import '../../app/belum_dipindah.dart';
 
 /// Shared by BerandaJabatan and WebBerandaJabatan (spec 14): the `keadaan`
 /// state, the two post-choice views and the small parts both boards draw.
@@ -37,7 +37,7 @@ mixin KeadaanBeranda<T extends StatefulWidget> on State<T> {
 
   /// Option index of the view shown (the board's `ki`).
   int indeks(BuildContext context) {
-    final t = context.tweak<String>(stem, 'keadaan');
+    final t = belumDipindah<String>('Beberapa jabatan');
     // Leaving the route (a pushed board on top) resets `k`, as the canvas
     // reloads the board on return; applied when the route is current again.
     final kini = ModalRoute.isCurrentOf(context) ?? true;

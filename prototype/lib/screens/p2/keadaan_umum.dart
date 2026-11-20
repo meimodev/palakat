@@ -2,7 +2,6 @@ import 'package:flutter/widgets.dart';
 
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis.dart';
@@ -12,6 +11,9 @@ import '../../widgets/penolakan.dart';
 import '../../widgets/rangka.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
+import '../../providers/session.dart';
 
 /// The `keadaan` options of KeadaanUmum and WebKeadaanUmum, in board order.
 const opsiKeadaanUmum = [
@@ -39,7 +41,7 @@ mixin KeadaanUmumState<T extends StatefulWidget> on State<T> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final t = context.tweak<String>(stem, 'keadaan');
+    final t = belumDipindah<String>('Memuat');
     if (_tweak != null && t != _tweak) {
       _k = null;
       _keAtas();
@@ -252,7 +254,7 @@ class _KeadaanUmumScreenState extends State<KeadaanUmumScreen>
         const KepalaPonsel(
           judul: 'Keadaan umum',
           anakJudul: 'Satu pola untuk semua modul',
-          kembaliKe: 'BerandaJabatan',
+          kembaliKe: Layar.beranda,
           labelKembali: 'Kembali ke Beranda',
         ),
         Expanded(
@@ -262,20 +264,18 @@ class _KeadaanUmumScreenState extends State<KeadaanUmumScreen>
             child: IsiKeadaanUmum(
               keadaan: keadaan,
               onCobaLagi: () => pilih('Memuat'),
-              kembali: const Tombol(
+              kembali: Tombol(
                 'Kembali ke Beranda',
                 onPressed: null,
                 jenis: JenisTombol.kedua,
                 ukuran: UkuranTombol.sedang,
-                ke: 'BerandaJabatan',
+                ke: Layar.beranda,
                 cara: Cara.naik,
               ),
-              masuk: const Tombol(
+              masuk: Tombol(
                 'Masuk lagi',
-                onPressed: null,
+                onPressed: () => keluarSesi(context),
                 jenis: JenisTombol.tinta,
-                ke: 'AlurMasuk',
-                cara: Cara.ganti,
               ),
             ),
           ),

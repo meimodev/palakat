@@ -5,7 +5,6 @@ import '../../motion/kerangka.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
 import '../../shell/panel_samping.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/chip_pilihan.dart';
@@ -17,8 +16,9 @@ import '../../widgets/penolakan.dart';
 import '../../widgets/status_simpan.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
-const _stem = 'WebDraf';
 const _september = 'September 2026';
 
 /// WebDraf: a draft dated in closed September 2026; Pindah tanggal and
@@ -47,7 +47,7 @@ class _WebDrafScreenState extends State<WebDrafScreen> {
     super.dispose();
   }
 
-  bool get _konflik => context.tweak<bool>(_stem, 'konflik') && !_muat;
+  bool get _konflik => belumDipindah<bool>(false) && !_muat;
   bool get _ok => IsianAlasan.terisi(_alasan.text);
 
   void _buka(String sheet) {
@@ -82,13 +82,13 @@ class _WebDrafScreenState extends State<WebDrafScreen> {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final jk = context.prototipe.jabatanKosong;
-    final kosong = context.tweak<bool>(_stem, 'drafKosong');
+    final jk = belumDipindah(false);
+    final kosong = belumDipindah<bool>(false);
     final konflik = _konflik;
     final draf = _st == 'draf';
     final tutup = _bulan == _september;
     final oleh = plk(jk);
-    String t(String s) => tukarJkPapan(_stem, jk, s);
+    String t(String s) => s;
     final teks13 = TextStyle(fontSize: 13, color: c.tinta3);
     final teks14 = TextStyle(fontSize: 14, color: c.tinta2);
 
@@ -276,7 +276,7 @@ class _WebDrafScreenState extends State<WebDrafScreen> {
                     const Tombol(
                       'Periksa dan bukukan',
                       onPressed: null,
-                      ke: 'WebCatat',
+                      ke: Layar.catat,
                       paddingH: 20,
                       lebarPenuh: false,
                     ),
@@ -388,12 +388,8 @@ class _WebDrafScreenState extends State<WebDrafScreen> {
     return Material(
       type: MaterialType.transparency,
       child: HalamanWeb(
-        jabatanKosong: true,
-        nav: const NavSamping(
-          item: navKeuangan,
-          aktif: 1,
-          pengguna: PenggunaKeuangan(),
-        ),
+        layarKeuangan: true,
+        nav: const NavSamping(item: navKeuangan, aktif: 1),
         isi: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -402,7 +398,7 @@ class _WebDrafScreenState extends State<WebDrafScreen> {
                 atas: 12,
                 bawah: 12,
                 child: Tautan(
-                  ke: 'WebTransaksi',
+                  ke: Layar.transaksi,
                   cara: Cara.naik,
                   child: const Align(
                     widthFactor: 1,

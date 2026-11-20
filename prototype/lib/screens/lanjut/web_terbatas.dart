@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../mock/mock.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
@@ -14,6 +14,8 @@ import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import 'terbatas_data.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 class WebTerbatasScreen extends StatefulWidget {
   const WebTerbatasScreen({super.key});
@@ -74,14 +76,7 @@ class _WebTerbatasScreenState extends State<WebTerbatasScreen> {
     return Material(
       type: MaterialType.transparency,
       child: HalamanWeb(
-        nav: const NavSamping(
-          item: navTerbatas,
-          aktif: 0,
-          pengguna: PenggunaNav(
-            tebal: 'Dkn. Olga Tamba',
-            baris2: 'Akses terbatas: Peruntukan Diakonia',
-          ),
-        ),
+        nav: const NavSamping(item: navTerbatas, aktif: 0),
         isi: [
           const PitaPeran(
             jenis: JenisPita.peran,
@@ -395,7 +390,8 @@ class _Samping extends StatelessWidget {
                   ukuran: UkuranTombol.kecil,
                   paddingH: 14,
                   lebarPenuh: false,
-                  ke: 'A4Terbatas',
+                  ke: Layar.laporanTerbatas,
+                  param: {'periode': belumDipindahId, 'bentuk': 'pdf'},
                 ),
               ),
               Lentur(
@@ -408,7 +404,8 @@ class _Samping extends StatelessWidget {
                   ukuran: UkuranTombol.kecil,
                   paddingH: 14,
                   lebarPenuh: false,
-                  ke: 'WebExcelTerbatas',
+                  ke: Layar.laporanTerbatas,
+                  param: {'periode': belumDipindahId, 'bentuk': 'excel'},
                 ),
               ),
             ],

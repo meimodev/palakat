@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import 'cari_bagian.dart';
+import '../../app/layar.dart';
 
 /// 28 · Cari dan tanya (spec 08, Cari).
 class CariScreen extends StatefulWidget {
@@ -15,14 +16,14 @@ class CariScreen extends StatefulWidget {
 class _CariScreenState extends State<CariScreen> with LogikaCari {
   @override
   Widget build(BuildContext context) => LayarPonsel(
-    jabatanKosong: true,
+    layarKeuangan: true,
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const KepalaPonsel(
           judul: 'Cari',
           anakJudul: 'Jemaat Karunia',
-          kembaliKe: 'Main',
+          kembaliKe: Layar.keuangan,
           labelKembali: 'Kembali ke Beranda',
         ),
         Expanded(
@@ -32,7 +33,7 @@ class _CariScreenState extends State<CariScreen> with LogikaCari {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 for (final (i, w) in [
-                  ...hasil(ke: 'Main'),
+                  ...hasil(ke: Layar.keuangan),
                   panelAi(),
                 ].indexed) ...[if (i > 0) const SizedBox(height: 16), w],
               ],

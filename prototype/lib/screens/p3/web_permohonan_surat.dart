@@ -10,6 +10,7 @@ import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tata_letak.dart';
 import 'permohonan_surat_bagian.dart';
+import '../../app/layar.dart';
 
 /// Web · Permohonan surat (17-keadaanumum.md): PermohonanSurat at the desk.
 class WebPermohonanSuratScreen extends StatefulWidget {
@@ -72,14 +73,7 @@ class _WebPermohonanSuratScreenState extends State<WebPermohonanSuratScreen>
       ],
     };
     return HalamanWeb(
-      nav: const NavSamping(
-        item: navPlatform,
-        aktif: 2,
-        pengguna: PenggunaNav(
-          tebal: 'Olvie Pangemanan',
-          biasa: ' · Sekretaris Jemaat',
-        ),
-      ),
+      nav: const NavSamping(item: navPlatform, aktif: 2),
       isi: [
         Column(
           key: kunciAtas,
@@ -91,7 +85,7 @@ class _WebPermohonanSuratScreenState extends State<WebPermohonanSuratScreen>
               atas: 11,
               bawah: 11,
               child: Tautan(
-                ke: 'WebDokumenGereja',
+                ke: Layar.dokumenGereja,
                 cara: Cara.naik,
                 child: SizedBox(
                   height: 44,
@@ -138,7 +132,7 @@ class _Baris extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.warna;
     return Tautan(
-      ke: 'WebPermohonanSurat',
+      ke: Layar.surat,
       child: Container(
         constraints: const BoxConstraints(minHeight: 68),
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import '../../theme/palakat_tema.dart';
@@ -13,6 +13,7 @@ import '../../widgets/penolakan.dart';
 import '../../widgets/riwayat_alur.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
+import '../../app/layar.dart';
 
 const _hari = '16/11/2026';
 const _hariAngka = 20261116;
@@ -423,7 +424,7 @@ class _AlurIbadahScreenState extends State<AlurIbadahScreen> {
           const KepalaPonsel(
             judul: 'Alur · Ibadah dan kehadiran',
             anakJudul: 'Dari menjadwalkan sampai Jumlah kehadiran Ditetapkan',
-            kembaliKe: 'Ibadah',
+            kembaliKe: Layar.ibadah,
             labelKembali: 'Kembali ke Ibadah dan kegiatan',
           ),
           Expanded(

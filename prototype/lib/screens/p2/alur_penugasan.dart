@@ -12,6 +12,7 @@ import '../../widgets/penolakan.dart';
 import '../../widgets/riwayat_alur.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
+import '../../app/layar.dart';
 
 const _hariT = '16/11/2026';
 const _hari = 20261116;
@@ -122,7 +123,7 @@ class _AlurPenugasanScreenState extends State<AlurPenugasanScreen> {
           const KepalaPonsel(
             judul: 'Alur · Penugasan jabatan',
             anakJudul: 'Dari jabatan kosong sampai ada pemegangnya',
-            kembaliKe: 'Penugasan',
+            kembaliKe: Layar.penugasan,
             labelKembali: 'Kembali ke Penugasan jabatan',
           ),
           Expanded(

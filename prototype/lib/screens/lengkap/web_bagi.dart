@@ -12,6 +12,7 @@ import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import '../ponsel/bagi_logika.dart';
+import '../../app/layar.dart';
 
 /// Web · Bagi ke beberapa Mata Anggaran (spec 03, WebBagi). Same logic as
 /// Bagi; the picker is inline option chips instead of a sheet.
@@ -158,12 +159,8 @@ class _WebBagiScreenState extends State<WebBagiScreen> with LogikaBagi {
     return DefaultTextHeightBehavior(
       textHeightBehavior: cssLeading,
       child: HalamanWeb(
-        jabatanKosong: true,
-        nav: const NavSamping(
-          item: navKeuangan,
-          aktif: 1,
-          pengguna: PenggunaKeuangan(),
-        ),
+        layarKeuangan: true,
+        nav: const NavSamping(item: navKeuangan, aktif: 1),
         isi: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -173,7 +170,7 @@ class _WebBagiScreenState extends State<WebBagiScreen> with LogikaBagi {
               MarginNegatif(
                 bawah: 44 - 21.75,
                 child: Tautan(
-                  ke: 'WebCatat',
+                  ke: Layar.catat,
                   cara: Cara.naik,
                   // Tekan stretches its child to 44 high: keep the line on top.
                   child: const Align(

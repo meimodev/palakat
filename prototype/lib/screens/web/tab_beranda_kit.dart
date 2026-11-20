@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/kecil.dart';
+import '../../app/layar.dart';
 
 /// Shared parts of the tablet finance boards (TabBeranda, TabTransaksi):
 /// the h1 header row, the month pill and the inline text links. Every link
@@ -46,7 +47,7 @@ class KepalaTab extends StatelessWidget {
 }
 
 /// The month pill "November 2026 · Belum ditutup"; the screen wraps it in
-/// `Tautan(ke: 'WebPilihBulan', radius: 999, …)` (push).
+/// `Tautan(ke: Layar.pilihBulan, radius: 999, …)` (push).
 class PilBulan extends StatelessWidget {
   const PilBulan({super.key});
 
@@ -91,13 +92,17 @@ class TautanTab extends StatelessWidget {
     this.teks, {
     super.key,
     required this.ke,
+    this.param = const {},
+    this.anak,
     this.cara = Cara.dorong,
     this.ukuran,
     this.berat = FontWeight.w600,
   });
 
   final String teks;
-  final String ke;
+  final Layar ke;
+  final Map<String, String> param;
+  final String? anak;
   final Cara cara;
   final double? ukuran;
   final FontWeight berat;
@@ -105,6 +110,8 @@ class TautanTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Tautan(
     ke: ke,
+    param: param,
+    anak: anak,
     cara: cara,
     child: Align(
       widthFactor: 1,

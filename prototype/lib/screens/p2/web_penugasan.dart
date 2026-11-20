@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../mock/mock.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis_status.dart';
@@ -12,8 +11,8 @@ import '../../widgets/lencana_status.dart';
 import '../../widgets/penolakan.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
-
-const _stem = 'WebPenugasan';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// The `keadaan` options, in board order (`O`).
 const _o = [
@@ -58,7 +57,7 @@ class _WebPenugasanScreenState extends State<WebPenugasanScreen> {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final tweak = context.tweak<String>(_stem, 'keadaan');
+    final tweak = belumDipindah<String>('Daftar jabatan');
     if (tweak != _tweak) {
       if (_tweak != null) {
         _k = null;
@@ -286,7 +285,7 @@ class _WebPenugasanScreenState extends State<WebPenugasanScreen> {
           atas: lebihTautan,
           bawah: lebihTautan,
           child: Tautan(
-            ke: 'WebBerandaJabatan',
+            ke: Layar.beranda,
             cara: Cara.naik,
             child: const Align(
               alignment: Alignment.centerLeft,
@@ -310,16 +309,7 @@ class _WebPenugasanScreenState extends State<WebPenugasanScreen> {
     return Material(
       type: MaterialType.transparency,
       child: HalamanWeb(
-        nav: NavSamping(
-          item: navPlatform,
-          aktif: 9,
-          diSini: _ulang,
-          pengguna: const PenggunaNav(
-            tebal: 'Pdt. Lidya Rondonuwu',
-            biasa: ' · Ketua Jemaat',
-            baris2: 'Pimpinan Jemaat yang berwenang',
-          ),
-        ),
+        nav: NavSamping(item: navPlatform, aktif: 7, diSini: _ulang),
         isi: [
           judul,
           Align(

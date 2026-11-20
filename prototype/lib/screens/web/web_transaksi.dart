@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../motion/kerangka.dart';
 import '../../motion/urutan.dart';
 import '../../shell/halaman_web.dart';
@@ -13,10 +13,25 @@ import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
-/// One action of the detail panel: a link (push) to [ke], or, with [ke]
-/// empty, the in-board "Periksa dan bukukan" button.
-typedef _Aksi = ({String n, String ke, bool utama});
+/// One action of the detail panel: a link (push) to [ke], or, with no [ke],
+/// the in-board "Periksa dan bukukan" button.
+class _Aksi {
+  const _Aksi(
+    this.n,
+    this.ke, {
+    this.param = const {},
+    this.anak,
+    required this.utama,
+  });
+  final String n;
+  final Layar? ke;
+  final Map<String, String> param;
+  final String? anak;
+  final bool utama;
+}
 
 /// One fact row: key, value, value in `bata`.
 typedef _Fakta = (String, String, bool);
@@ -64,15 +79,40 @@ List<_Trx> _data(bool buku) => [
     ],
     aksi: buku
         ? [
-            (n: 'Verifikasi', ke: 'WebLihatDokumen', utama: true),
-            (n: 'Lampirkan dokumen pendukung', ke: 'WebUnggah', utama: false),
-            (n: 'Koreksi dengan pembalikan', ke: 'WebKoreksi', utama: false),
+            _Aksi(
+              'Verifikasi',
+              Layar.lihatDokumen,
+              param: {'id': belumDipindahId},
+              utama: true,
+            ),
+            _Aksi(
+              'Lampirkan dokumen pendukung',
+              Layar.fotoDokumen,
+              anak: 'unggah',
+              utama: false,
+            ),
+            _Aksi(
+              'Koreksi dengan pembalikan',
+              Layar.koreksi,
+              param: {'id': belumDipindahId},
+              utama: false,
+            ),
           ]
         : [
-            (n: _bukukan, ke: '', utama: true),
-            (n: 'Ubah', ke: 'WebCatat', utama: false),
-            (n: 'Pindah tanggal', ke: 'WebDraf', utama: false),
-            (n: 'Batalkan', ke: 'WebDraf', utama: false),
+            _Aksi(_bukukan, null, utama: true),
+            _Aksi('Ubah', Layar.catat, utama: false),
+            _Aksi(
+              'Pindah tanggal',
+              Layar.draf,
+              param: {'id': belumDipindahId},
+              utama: false,
+            ),
+            _Aksi(
+              'Batalkan',
+              Layar.draf,
+              param: {'id': belumDipindahId},
+              utama: false,
+            ),
           ],
     catatan: buku
         ? 'Jumlah, tanggal, Kas/Bank, peruntukan, Lingkup dan Mata Anggaran tidak dapat diubah lagi.'
@@ -94,11 +134,26 @@ List<_Trx> _data(bool buku) => [
       ('Dokumen pendukung', 'Wajib, belum ada', true),
     ],
     aksi: const [
-      (n: 'Pilih Mata Anggaran', ke: 'WebCatat', utama: true),
-      (n: 'Catat persetujuan', ke: 'WebPersetujuan', utama: false),
-      (n: 'Lampirkan dokumen pendukung', ke: 'WebUnggah', utama: false),
-      (n: 'Ubah', ke: 'WebCatat', utama: false),
-      (n: 'Batalkan', ke: 'WebDraf', utama: false),
+      _Aksi('Pilih Mata Anggaran', Layar.catat, utama: true),
+      _Aksi(
+        'Catat persetujuan',
+        Layar.persetujuan,
+        param: {'id': belumDipindahId},
+        utama: false,
+      ),
+      _Aksi(
+        'Lampirkan dokumen pendukung',
+        Layar.fotoDokumen,
+        anak: 'unggah',
+        utama: false,
+      ),
+      _Aksi('Ubah', Layar.catat, utama: false),
+      _Aksi(
+        'Batalkan',
+        Layar.draf,
+        param: {'id': belumDipindahId},
+        utama: false,
+      ),
     ],
     catatan: 'Tidak dapat dilakukan: Bukukan. Mata Anggaran belum dipilih dan persetujuan belum dicatat.',
   ),
@@ -123,8 +178,18 @@ List<_Trx> _data(bool buku) => [
       ('Dibukukan pada', '15/11/2026 12.20', false),
     ],
     aksi: const [
-      (n: 'Lampirkan dokumen pendukung', ke: 'WebUnggah', utama: false),
-      (n: 'Koreksi dengan pembalikan', ke: 'WebKoreksi', utama: false),
+      _Aksi(
+        'Lampirkan dokumen pendukung',
+        Layar.fotoDokumen,
+        anak: 'unggah',
+        utama: false,
+      ),
+      _Aksi(
+        'Koreksi dengan pembalikan',
+        Layar.koreksi,
+        param: {'id': belumDipindahId},
+        utama: false,
+      ),
     ],
     catatan:
         'Koreksi hanya lewat pembalikan, selama November 2026 belum ditutup.',
@@ -145,9 +210,19 @@ List<_Trx> _data(bool buku) => [
       ('Dibukukan pada', '11/11/2026 16.05', false),
     ],
     aksi: const [
-      (n: 'Lampirkan dokumen pendukung', ke: 'WebUnggah', utama: true),
-      (n: 'Catat pengecualian', ke: 'WebDokumen', utama: false),
-      (n: 'Koreksi dengan pembalikan', ke: 'WebKoreksi', utama: false),
+      _Aksi(
+        'Lampirkan dokumen pendukung',
+        Layar.fotoDokumen,
+        anak: 'unggah',
+        utama: true,
+      ),
+      _Aksi('Catat pengecualian', Layar.dokumen, utama: false),
+      _Aksi(
+        'Koreksi dengan pembalikan',
+        Layar.koreksi,
+        param: {'id': belumDipindahId},
+        utama: false,
+      ),
     ],
     catatan: 'Menjadi hambatan tutup buku sampai dokumen terverifikasi atau dikecualikan dengan alasan.',
   ),
@@ -164,7 +239,14 @@ List<_Trx> _data(bool buku) => [
       ('Alasan', 'Mata Anggaran keliru', false),
       ('Dibukukan pada', '12/11/2026 09.31', false),
     ],
-    aksi: const [(n: 'Lihat transaksi asal', ke: 'WebKoreksi', utama: false)],
+    aksi: const [
+      _Aksi(
+        'Lihat transaksi asal',
+        Layar.koreksi,
+        param: {'id': belumDipindahId},
+        utama: false,
+      ),
+    ],
     catatan: 'Pembalikan tidak dapat diubah atau dibalik.',
   ),
   (
@@ -182,8 +264,18 @@ List<_Trx> _data(bool buku) => [
       ('Dibukukan pada', '09/11/2026 14.12', false),
     ],
     aksi: const [
-      (n: 'Lihat pembalikan', ke: 'WebKoreksi', utama: false),
-      (n: 'Lihat transaksi koreksi', ke: 'WebKoreksi', utama: false),
+      _Aksi(
+        'Lihat pembalikan',
+        Layar.koreksi,
+        param: {'id': belumDipindahId},
+        utama: false,
+      ),
+      _Aksi(
+        'Lihat transaksi koreksi',
+        Layar.koreksi,
+        param: {'id': belumDipindahId},
+        utama: false,
+      ),
     ],
     catatan: 'Transaksi asal tetap tampil di daftar dan laporan.',
   ),
@@ -225,26 +317,39 @@ class _WebTransaksiScreenState extends State<WebTransaksiScreen> {
     return Material(
       type: MaterialType.transparency,
       child: HalamanWeb(
-        jabatanKosong: true,
-        nav: const NavSamping(
-          item: navKeuangan,
-          aktif: 1,
-          pengguna: PenggunaKeuangan(),
-        ),
+        layarKeuangan: true,
+        nav: const NavSamping(item: navKeuangan, aktif: 1),
         isi: [
           const _Kepala(),
           DeretTautan(
             web: true,
             anak: [
-              for (final (:t, :ke) in const [
-                (t: 'Daftar Bukti Kas', ke: 'WebBukti'),
-                (t: 'Koreksi dengan pembalikan', ke: 'WebKoreksi'),
-                (t: 'Draf di bulan yang sudah ditutup', ke: 'WebDraf'),
-                (t: 'Pengembalian', ke: 'WebPengembalian'),
-                (t: 'Cari', ke: 'WebCari'),
+              for (final (:t, :ke, :param) in const [
+                (
+                  t: 'Daftar Bukti Kas',
+                  ke: Layar.bukti,
+                  param: <String, String>{},
+                ),
+                (
+                  t: 'Koreksi dengan pembalikan',
+                  ke: Layar.koreksi,
+                  param: {'id': belumDipindahId},
+                ),
+                (
+                  t: 'Draf di bulan yang sudah ditutup',
+                  ke: Layar.draf,
+                  param: {'id': belumDipindahId},
+                ),
+                (
+                  t: 'Pengembalian',
+                  ke: Layar.pengembalian,
+                  param: <String, String>{},
+                ),
+                (t: 'Cari', ke: Layar.cari, param: <String, String>{}),
               ])
                 Tautan(
                   ke: ke,
+                  param: param,
                   child: SizedBox(
                     height: 44,
                     child: Align(
@@ -559,7 +664,7 @@ class _Kepala extends StatelessWidget {
           dasar: lebar(bulan, FontWeight.w600, 34),
           tumbuh: 0,
           child: Tautan(
-            ke: 'WebPilihBulan',
+            ke: Layar.pilihBulan,
             radius: 999,
             child: Container(
               constraints: const BoxConstraints(minHeight: 44),
@@ -583,7 +688,7 @@ class _Kepala extends StatelessWidget {
           child: const Tombol(
             'Impor',
             onPressed: null,
-            ke: 'WebImpor',
+            ke: Layar.impor,
             jenis: JenisTombol.kedua,
             ukuran: UkuranTombol.kecil,
           ),
@@ -594,7 +699,7 @@ class _Kepala extends StatelessWidget {
           child: const Tombol(
             '+ Catat transaksi',
             onPressed: null,
-            ke: 'WebCatat',
+            ke: Layar.catat,
             ukuran: UkuranTombol.kecil,
             paddingH: 18,
           ),
@@ -785,8 +890,10 @@ class _Panel extends StatelessWidget {
             for (final a in p.aksi)
               Tombol(
                 a.n,
-                onPressed: a.ke.isEmpty ? onBukukan : null,
-                ke: a.ke.isEmpty ? null : a.ke,
+                onPressed: a.ke == null ? onBukukan : null,
+                ke: a.ke,
+                param: a.param,
+                anak: a.anak,
                 jenis: a.utama ? JenisTombol.utama : JenisTombol.kedua,
                 ukuran: UkuranTombol.kecil,
                 lebarPenuh: false,

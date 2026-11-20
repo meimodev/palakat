@@ -7,6 +7,7 @@ import '../../theme/palakat_tema.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import 'kas_unit_isi.dart';
+import '../../app/layar.dart';
 
 /// Web · Alur · Kas/Bank unit (spec 23-alurunit.md, WebKasUnit).
 class WebKasUnitScreen extends StatelessWidget {
@@ -18,14 +19,7 @@ class WebKasUnitScreen extends StatelessWidget {
     return Material(
       type: MaterialType.transparency,
       child: HalamanWeb(
-        nav: const NavSamping(
-          item: navPlatform,
-          aktif: 1,
-          pengguna: PenggunaNav(
-            tebal: 'Meiske Lumentut',
-            biasa: ' · Bendahara Jemaat',
-          ),
-        ),
+        nav: const NavSamping(item: navPlatform, aktif: 1),
         isi: [
           CssLeading(
             child: Column(
@@ -36,7 +30,7 @@ class WebKasUnitScreen extends StatelessWidget {
                   atas: 11.125,
                   bawah: 11.125,
                   child: Tautan(
-                    ke: 'WebPengaturan',
+                    ke: Layar.pengaturan,
                     cara: Cara.naik,
                     child: Align(
                       alignment: AlignmentDirectional.centerStart,

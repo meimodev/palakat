@@ -9,36 +9,7 @@ import '../../widgets/bertindak_sebagai.dart';
 import '../../widgets/ikon.dart';
 import '../../widgets/kecil.dart';
 import 'beranda_jabatan_isi.dart';
-
-/// Row targets of `berandaJabatan`, per person, "Perlu tindakan" then
-/// "Untuk diketahui" (the board's `hal()` with `web = false`).
-const _tujuan = [
-  [
-    (ke: 'AntreanVerifikasi'),
-    (ke: 'Ibadah'),
-    (ke: 'PermintaanDana'),
-    (ke: 'KonfirmasiKeluarga'),
-  ],
-  [(ke: 'Main'), (ke: 'SelesaikanUnit'), (ke: 'Main')],
-  [
-    (ke: 'Pengumuman'),
-    (ke: 'PermohonanSurat'),
-    (ke: 'WartaEditor'),
-    (ke: 'Pengumuman'),
-  ],
-  [
-    (ke: 'KonfirmasiKeluarga'),
-    (ke: 'PermohonanSurat'),
-    (ke: 'JabatanKosong'),
-    (ke: 'ImporBuku'),
-  ],
-  [
-    (ke: 'PermohonanSurat'),
-    (ke: 'WartaArsip'),
-    (ke: 'Pengumuman'),
-    (ke: 'PersembahanSaya'),
-  ],
-];
+import '../../app/layar.dart';
 
 /// 46 · Beranda: one combined Beranda for every post a person holds.
 class BerandaJabatanScreen extends StatefulWidget {
@@ -63,7 +34,7 @@ class _BerandaJabatanScreenState extends State<BerandaJabatanScreen>
           KepalaPonsel(
             judul: 'Beranda',
             anakJudul: 'Satu Beranda untuk semua jabatan Anda',
-            kembaliKe: 'BerandaJabatan',
+            kembaliKe: Layar.beranda,
             labelKembali: 'Kembali ke Beranda',
             diSini: ulang,
           ),
@@ -88,15 +59,8 @@ class _BerandaJabatanScreenState extends State<BerandaJabatanScreen>
 
   List<Widget> _daftar(int ki) {
     final d = berandaJabatan[ki];
-    final ke = _tujuan[ki];
     final semua = [...d.tindak, ...d.tahu];
-    assert(() {
-      for (final (i, r) in semua.indexed) {
-        if (r.ke != ke[i].ke) return false;
-      }
-      return true;
-    }(), 'BerandaJabatan row targets differ from berandaJabatan');
-    Widget baris(int i) => _KartuBaris(semua[i], ke: ke[i].ke);
+    Widget baris(int i) => _KartuBaris(semua[i]);
     return [
       DaftarJabatan(nama: d.orang, jabatan: d.jabatan),
       if (d.tindak.isNotEmpty) ...[
@@ -109,7 +73,7 @@ class _BerandaJabatanScreenState extends State<BerandaJabatanScreen>
       ],
       const Keterangan(kalimatBeranda),
       const Tautan(
-        ke: 'AkunSaya',
+        ke: Layar.akun,
         child: SizedBox(
           height: 44,
           child: Align(
@@ -124,16 +88,16 @@ class _BerandaJabatanScreenState extends State<BerandaJabatanScreen>
 
 /// The row card (shared look with KotakMasuk): a full-width link.
 class _KartuBaris extends StatelessWidget {
-  const _KartuBaris(this.r, {required this.ke});
+  const _KartuBaris(this.r);
   final ItemKotak r;
-  final String ke;
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
     final lencana = lencanaBaris(r);
     return Tautan(
-      ke: ke,
+      ke: r.ke,
+      param: r.param,
       radius: 14,
       child: Kartu(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

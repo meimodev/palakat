@@ -7,6 +7,7 @@ import '../../theme/palakat_tema.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import 'rekon_isi.dart';
+import '../../app/layar.dart';
 
 /// Web · Rekonsiliasi: isi rekening koran dan cocok sebagian (spec 09).
 class WebRekonIsiScreen extends StatefulWidget {
@@ -24,12 +25,8 @@ class _WebRekonIsiState extends State<WebRekonIsiScreen> with RekonIsiLogika {
     final c = context.warna;
     final b = bagian(context);
     return HalamanWeb(
-      jabatanKosong: true,
-      nav: const NavSamping(
-        item: navKeuangan,
-        aktif: 3,
-        pengguna: PenggunaKeuangan(),
-      ),
+      layarKeuangan: true,
+      nav: const NavSamping(item: navKeuangan, aktif: 3),
       isi: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -39,7 +36,8 @@ class _WebRekonIsiState extends State<WebRekonIsiScreen> with RekonIsiLogika {
               atas: 11,
               bawah: 11,
               child: Tautan(
-                ke: 'WebRekonsiliasi',
+                ke: Layar.tutupBuku,
+                anak: 'rekonsiliasi',
                 cara: Cara.naik,
                 child: const Center(
                   widthFactor: 1,

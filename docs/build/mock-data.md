@@ -1,5 +1,7 @@
 # Mock data
 
+For the demo app, README.md supersedes the route table, launcher and per-board figures; this file still gives links, shells and seed values.
+
 This file is the shared dataset of the prototype: the Dart model, the seed values drawn on the boards, the places where boards disagree, and the formatting helpers. `CONVENTIONS.md` is fixed and wins over this file. The board source wins over this file on what a screen shows.
 
 Everything below comes from the board files in `docs/design/handoff/canvas/boards/`, the A4 pages, and `03-screens-and-flows.md` / `04-decision-log.md`. Nothing here is invented. Where a value is derived (not drawn on any board) it says **derived**, and no screen displays it.

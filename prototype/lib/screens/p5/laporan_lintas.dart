@@ -2,12 +2,13 @@ import 'package:flutter/widgets.dart';
 
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/prototipe_state.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis.dart';
 import '../../widgets/garis_status.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// 92 · Laporan (spec 22): reports across modules, filtered by the reach of
 /// each post. The view is the `keadaan` tweak; the board binds no handlers.
@@ -16,7 +17,7 @@ class LaporanLintasScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final keadaan = context.tweak<String>('LaporanLintas', 'keadaan');
+    final keadaan = belumDipindah<String>('Seluruh Jemaat');
     return LayarPonsel(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -25,7 +26,7 @@ class LaporanLintasScreen extends StatelessWidget {
             judul: 'Laporan',
             anakJudul:
                 'Dari data yang sah, disaring menurut jangkauan tiap jabatan',
-            kembaliKe: 'BerandaJabatan',
+            kembaliKe: Layar.beranda,
             labelKembali: 'Kembali ke Beranda',
           ),
           Expanded(

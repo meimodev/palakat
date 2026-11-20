@@ -4,6 +4,7 @@ import '../../mock/mock.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import 'pengumuman_bagian.dart';
+import '../../app/layar.dart';
 
 /// 65 · Pengumuman (17-keadaanumum.md): list, draft, published, archived,
 /// correction as revision; the view swaps in place.
@@ -37,7 +38,7 @@ class _PengumumanScreenState extends State<PengumumanScreen>
           const KepalaPonsel(
             judul: 'Pengumuman',
             anakJudul: 'Berdiri sendiri; Warta Jemaat mengambil dari sini',
-            kembaliKe: 'BerandaJabatan',
+            kembaliKe: Layar.beranda,
             labelKembali: 'Kembali ke Beranda',
           ),
           Expanded(

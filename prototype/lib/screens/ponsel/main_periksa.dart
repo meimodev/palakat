@@ -74,7 +74,7 @@ class _Periksa extends StatelessWidget {
     final c = context.warna;
     final cek = _cek(m);
     final gagalN = cek.where((x) => x.$1 == _Cek.gagal).length;
-    void keForm() => context.kembaliKe('/Main/catat');
+    void keForm() => context.naikKe(Layar.catat);
     final kartuBaris = Kartu(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: Column(
@@ -224,7 +224,8 @@ class _Periksa extends StatelessWidget {
             child: _kaki(context, [
               Tombol(
                 'Lihat transaksi',
-                onPressed: () => _keAnak(GoRouter.of(context), 'detail'),
+                onPressed: () =>
+                    _keAnak(GoRouter.of(context), 'detail/$belumDipindahId'),
               ),
               Tombol(
                 'Kembali ke Beranda',
@@ -380,7 +381,7 @@ class _Detail extends StatelessWidget {
   Widget build(BuildContext context) {
     final m = _MainLingkup.of(context);
     final c = context.warna;
-    final jk = context.prototipe.jabatanKosong;
+    final jk = belumDipindah(false);
     final cfg = m.cfg;
     final rinci = [
       if (m.pindah) ...[
@@ -401,15 +402,11 @@ class _Detail extends StatelessWidget {
       ('Dicatat pada', '16/11/2026 10.39'),
       ('Dibukukan pada', '16/11/2026 10.42'),
     ];
-    final dokStatus = tukarJkPapan(
-      'Main',
-      jk,
-      m.verif
-          ? 'Terverifikasi (oleh Meiske L.)'
-          : m.dok == 'terlampir'
-          ? 'Diunggah, belum diverifikasi'
-          : 'Wajib, belum ada',
-    );
+    final dokStatus = m.verif
+        ? 'Terverifikasi (oleh Meiske L.)'
+        : m.dok == 'terlampir'
+        ? 'Diunggah, belum diverifikasi'
+        : 'Wajib, belum ada';
     final oleh = plk(jk);
 
     return Column(
@@ -549,7 +546,8 @@ class _Detail extends StatelessWidget {
                   jenis: JenisTombol.kedua,
                   ukuran: UkuranTombol.sedang,
                   onPressed: null,
-                  ke: 'Koreksi',
+                  ke: Layar.koreksi,
+                  param: {'id': belumDipindahId},
                 ),
               ],
             ),

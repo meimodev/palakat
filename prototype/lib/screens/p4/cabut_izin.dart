@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
@@ -14,8 +13,9 @@ import '../../widgets/lencana_status.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol_bersyarat.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
-const _stem = 'CabutIzin';
 const _penjelasan = 'Penjelasan',
     _konfirmasi = 'Konfirmasi',
     _kertas = 'Permintaan lewat kertas',
@@ -39,7 +39,7 @@ class _CabutIzinScreenState extends State<CabutIzinScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final keadaan = context.tweak<String>(_stem, 'keadaan');
+    final keadaan = belumDipindah<String>('Penjelasan');
     // Board parity (CONVENTIONS, settled conflicts): a panel change does not
     // reset k; it changes the view only while k is null.
     if (_keadaan != null && keadaan != _keadaan && _k == null) {
@@ -93,7 +93,7 @@ class _CabutIzinScreenState extends State<CabutIzinScreen> {
           const KepalaPonsel(
             judul: 'Cabut izin dan hapus data saya',
             anakJudul: 'Hak anggota; data dihapus setelah dikonfirmasi',
-            kembaliKe: 'DataAnggota',
+            kembaliKe: Layar.dataAnggota,
             labelKembali: 'Kembali ke Data jemaat',
           ),
           Expanded(
@@ -139,7 +139,7 @@ class _CabutIzinScreenState extends State<CabutIzinScreen> {
                           'Kembali',
                           onPressed: null,
                           jenis: JenisTombol.teks,
-                          ke: 'DataAnggota',
+                          ke: Layar.dataAnggota,
                           cara: Cara.naik,
                         ),
                       ],

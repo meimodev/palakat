@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../motion/kerangka.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
@@ -15,6 +15,7 @@ import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
+import '../../app/layar.dart';
 
 /// One part of the offering: board `bagian[i]` (`v` lives in the controller).
 class _Bagian {
@@ -101,7 +102,7 @@ class _WebPersembahanScreenState extends State<WebPersembahanScreen> {
           atas: 11.125,
           bawah: 11.125,
           child: Tautan(
-            ke: 'WebTransaksi',
+            ke: Layar.transaksi,
             cara: Cara.naik,
             child: const Align(
               alignment: Alignment.centerLeft,
@@ -320,7 +321,7 @@ class _WebPersembahanScreenState extends State<WebPersembahanScreen> {
                   ),
                 ),
               const Tautan(
-                ke: 'WebPersembahanBernama',
+                ke: Layar.persembahanBernama,
                 child: Align(
                   alignment: Alignment.centerLeft,
                   widthFactor: 1,
@@ -406,12 +407,8 @@ class _WebPersembahanScreenState extends State<WebPersembahanScreen> {
     ];
 
     return HalamanWeb(
-      jabatanKosong: true,
-      nav: NavSamping(
-        item: navKeuangan,
-        aktif: 1,
-        pengguna: const PenggunaKeuangan(),
-      ),
+      layarKeuangan: true,
+      nav: NavSamping(item: navKeuangan, aktif: 1),
       isi: [
         judul,
         BarisLentur(

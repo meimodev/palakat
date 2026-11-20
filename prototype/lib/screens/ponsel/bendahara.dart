@@ -2,15 +2,12 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../mock/jabatan_kosong.dart';
 import '../../motion/kerangka.dart';
 import '../../motion/ulang.dart';
-import '../../shell/kendali.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis.dart';
@@ -20,6 +17,8 @@ import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 const _namaAwal = 'Yohanis Tumbelaka';
 const _sesiAwal = ['Ponsel ini', 'Chrome di laptop'];
@@ -88,22 +87,9 @@ class BendaharaKendali extends StatefulWidget {
 
 class _BendaharaKendaliState extends State<BendaharaKendali> {
   final _papan = _Papan();
-  int _generasi = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    ulangPapan['Bendahara'] = _ulang;
-  }
-
-  void _ulang() {
-    _papan.ulang();
-    setState(() => _generasi++);
-  }
 
   @override
   void dispose() {
-    if (ulangPapan['Bendahara'] == _ulang) ulangPapan.remove('Bendahara');
     _papan.dispose();
     super.dispose();
   }
@@ -111,10 +97,7 @@ class _BendaharaKendaliState extends State<BendaharaKendali> {
   @override
   Widget build(BuildContext context) => _Lingkup(
     papan: _papan,
-    child: GenerasiPapan(
-      generasi: _generasi,
-      child: LayarPonsel(child: widget.child),
-    ),
+    child: LayarPonsel(child: widget.child),
   );
 }
 
@@ -126,7 +109,7 @@ class BendaharaScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final kosong =
-        context.tweak<String>('Bendahara', 'keadaan') != 'Bendahara aktif';
+        belumDipindah<String>('Bendahara aktif') != 'Bendahara aktif';
     return ColoredBox(
       color: context.warna.kertas,
       // CSS splits a line's leading evenly above and below the glyphs.
@@ -301,7 +284,7 @@ class _Kosong extends StatelessWidget {
                       child: MarginNegatif(
                         bawah: 44 - 14 * 1.4,
                         child: Tautan(
-                          ke: 'JabatanKosong',
+                          ke: Layar.jabatanKosong,
                           child: TautanTeks(
                             'menjalankan jabatan kosong',
                             berat: FontWeight.w700,
@@ -407,7 +390,7 @@ class _Utama extends StatelessWidget {
       children: [
         const KepalaPonsel(
           judul: 'Bendahara dan sesi',
-          kembaliKe: 'Lainnya',
+          kembaliKe: Layar.pengaturan,
           labelKembali: 'Kembali ke Lainnya',
         ),
         Expanded(
@@ -544,7 +527,7 @@ class _Utama extends StatelessWidget {
                   Tombol(
                     'Serah terima Bendahara',
                     onPressed: () =>
-                        GoRouter.of(context).push('/Bendahara/serah'),
+                        context.dorongKe(Layar.bendahara, anak: 'serah'),
                     jenis: JenisTombol.kedua,
                   ),
                   const SizedBox(height: 8),
@@ -582,7 +565,7 @@ class _SerahState extends State<_Serah> {
     super.dispose();
   }
 
-  void _keUtama() => context.kembaliKe('/Bendahara');
+  void _keUtama() => context.naikKe(Layar.bendahara);
 
   @override
   Widget build(BuildContext context) {

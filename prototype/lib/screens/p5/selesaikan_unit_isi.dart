@@ -1,6 +1,5 @@
 import 'package:flutter/widgets.dart';
 
-import '../../shell/prototipe_state.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
 import '../../widgets/garis_status.dart';
@@ -9,6 +8,7 @@ import '../../widgets/lencana_status.dart';
 import '../../widgets/penolakan.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
+import '../../app/belum_dipindah.dart';
 
 /// The five views of SelesaikanUnit and WebSelesaikanUnit (spec 21): the
 /// board's `O` list, in tweak order.
@@ -46,7 +46,7 @@ mixin KeadaanSelesaikan<T extends StatefulWidget> on State<T> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final t = context.tweak<String>(stem, 'keadaan');
+    final t = belumDipindah<String>('Hambatan');
     if (t == _tweak) return;
     if (_tweak != null) {
       _k = null;

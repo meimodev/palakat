@@ -9,6 +9,7 @@ import '../../theme/palakat_tema.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
+import '../../app/layar.dart';
 
 /// One sheet of the TERBATAS file (the board's `LAPT`). [lebar] are the grid
 /// tracks after the board adds 28 px to each `px` column; null is the
@@ -136,29 +137,27 @@ class _WebExcelTerbatasState extends State<WebExcelTerbatasScreen> {
     final kuat = TextStyle(fontWeight: FontWeight.w700, color: c.tinta);
 
     return HalamanWeb(
-      nav: NavSamping(
-        item: navKeuangan,
-        aktif: 5,
-        pengguna: const PenggunaKeuangan(ikutJabatanKosong: false),
-      ),
+      nav: NavSamping(item: navKeuangan, aktif: 5),
       isi: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            MarginNegatif(
-              atas: 11.125,
-              bawah: 11.125,
-              child: Tautan(
-                ke: 'WebPaketLaporan',
-                cara: Cara.naik,
-                child: const Align(
-                  alignment: Alignment.centerLeft,
-                  widthFactor: 1,
-                  heightFactor: 1,
-                  child: TautanTeks('Laporan', ukuran: 14),
+            // The phone shows this page without WebPaketLaporan behind it.
+            if (adaLayar(context, Layar.paketLaporan))
+              MarginNegatif(
+                atas: 11.125,
+                bawah: 11.125,
+                child: Tautan(
+                  ke: Layar.paketLaporan,
+                  cara: Cara.naik,
+                  child: const Align(
+                    alignment: Alignment.centerLeft,
+                    widthFactor: 1,
+                    heightFactor: 1,
+                    child: TautanTeks('Laporan', ukuran: 14),
+                  ),
                 ),
               ),
-            ),
             const SizedBox(height: 2),
             Semantics(
               header: true,

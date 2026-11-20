@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 
-import '../mock/format.dart' show rp;
+import '../core/format.dart' show rp;
 import 'gerak.dart';
 
 /// A counting figure (motion.md, "Counting figures"): the boards' 30 ms ticks

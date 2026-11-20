@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import '../../mock/kolaborasi.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/prototipe_state.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
 import '../../widgets/garis.dart';
@@ -15,6 +14,8 @@ import '../../widgets/lencana_status.dart';
 import '../../widgets/penolakan.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 const _opsi = [
   'Sedang dihitung',
@@ -57,7 +58,7 @@ class _KehadiranScreenState extends State<KehadiranScreen> {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final t = context.tweak<String>('Kehadiran', 'keadaan');
+    final t = belumDipindah<String>('Sedang dihitung');
     if (t != _tweak) {
       // A panel change resets the in-board view, keeps the count.
       // Not during build: jumping fires scroll notifications.
@@ -78,7 +79,7 @@ class _KehadiranScreenState extends State<KehadiranScreen> {
           const KepalaPonsel(
             judul: 'Jumlah kehadiran',
             anakJudul: 'Menghitung orang, tidak pernah mencatat nama',
-            kembaliKe: 'Ibadah',
+            kembaliKe: Layar.ibadah,
             labelKembali: 'Kembali ke Ibadah dan kegiatan',
           ),
           Expanded(

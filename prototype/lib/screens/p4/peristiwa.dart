@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/prototipe_state.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
 import '../../widgets/garis.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
-const _stem = 'Peristiwa';
 const _jenis = [
   'Kelahiran',
   'Baptisan',
@@ -38,7 +38,7 @@ class _PeristiwaScreenState extends State<PeristiwaScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final t = context.tweak<String>(_stem, 'keadaan');
+    final t = belumDipindah<String>('Mengajukan');
     if (_tweak != null && t != _tweak) _k = null; // panel change resets k
     _tweak = t;
   }
@@ -136,7 +136,7 @@ class _PeristiwaScreenState extends State<PeristiwaScreen> {
                 jenis: JenisTombol.kedua,
                 ukuran: UkuranTombol.sedang,
                 onPressed: null,
-                ke: 'Penugasan',
+                ke: Layar.penugasan,
               ),
             ),
           ],
@@ -207,7 +207,7 @@ class _PeristiwaScreenState extends State<PeristiwaScreen> {
             judul: 'Peristiwa',
             anakJudul:
                 'Diajukan anggota atau keluarga, diverifikasi Penatua Kolom',
-            kembaliKe: 'DataAnggota',
+            kembaliKe: Layar.dataAnggota,
             labelKembali: 'Kembali ke Data jemaat',
           ),
           Expanded(

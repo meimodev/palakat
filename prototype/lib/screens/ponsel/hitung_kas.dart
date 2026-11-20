@@ -1,16 +1,13 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../mock/mock.dart';
 import '../../motion/kerangka.dart';
 import '../../motion/urutan.dart';
-import '../../shell/kendali.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/chip_pilihan.dart';
@@ -18,6 +15,8 @@ import '../../widgets/garis.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 const _mono = TextStyle(fontFamily: PalakatText.mono);
 const _tanggal = '16/11/2026 11.30';
@@ -80,10 +79,7 @@ class _Nilai {
     : k = context.dependOnInheritedWidgetOfExactType<_Lingkup>()!.notifier! {
     n =
         k.n ??
-        (context.tweak<bool>('HitungKas', 'contohTerisi')
-                ? hitungKasTerisi
-                : hitungKasKosong)
-            .lembar;
+        (belumDipindah<bool>(true) ? hitungKasTerisi : hitungKasKosong).lembar;
     total = HitungKas(lembar: n, petugas: const []).jumlah;
     dihitung = total > 0 || k.nol;
     bisa = dihitung && k.petugas.isNotEmpty;
@@ -110,33 +106,17 @@ class HitungKasKendali extends StatefulWidget {
 
 class _HitungKasKendaliState extends State<HitungKasKendali> {
   final _k = _Hitung();
-  int _generasi = 0;
-
-  void _ulang() => setState(() {
-    _k.ulang();
-    _generasi++;
-  });
-
-  @override
-  void initState() {
-    super.initState();
-    ulangPapan['HitungKas'] = _ulang;
-  }
 
   @override
   void dispose() {
-    if (ulangPapan['HitungKas'] == _ulang) ulangPapan.remove('HitungKas');
     _k.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) => LayarPonsel(
-    jabatanKosong: true,
-    child: _Lingkup(
-      notifier: _k,
-      child: GenerasiPapan(generasi: _generasi, child: widget.child),
-    ),
+    layarKeuangan: true,
+    child: _Lingkup(notifier: _k, child: widget.child),
   );
 }
 
@@ -243,7 +223,7 @@ class _Hitungan extends StatelessWidget {
           const KepalaPonsel(
             judul: 'Hitung kas',
             anakJudul: hitungKasJudul,
-            kembaliKe: 'TutupBuku',
+            kembaliKe: Layar.tutupBuku,
             labelKembali: 'Kembali ke Bulan',
           ),
           _Isi(
@@ -402,7 +382,7 @@ class _Hitungan extends StatelessWidget {
                   // TombolBersyarat: re-checks on press.
                   onTap: () {
                     if (_Nilai(context).bisa) {
-                      GoRouter.of(context).push('/HitungKas/banding');
+                      context.dorongKe(Layar.hitungKas, anak: 'banding');
                     }
                   },
                   aktif: v.bisa,
@@ -439,7 +419,7 @@ class _BandingState extends State<_Banding> {
     super.initState();
     // Opened directly while the count cannot be compared: back to the count.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && !_Nilai(context).bisa) context.kembaliKe('/HitungKas');
+      if (mounted && !_Nilai(context).bisa) context.naikKe(Layar.hitungKas);
     });
   }
 
@@ -467,7 +447,7 @@ class _BandingState extends State<_Banding> {
         children: [
           KepalaPonsel(
             judul: 'Kas · hitung kas dan buku',
-            onKembali: () => context.kembaliKe('/HitungKas'),
+            onKembali: () => context.naikKe(Layar.hitungKas),
           ),
           _Isi(
             anak: [
@@ -573,14 +553,14 @@ class _BandingState extends State<_Banding> {
                           onPressed: null,
                           jenis: JenisTombol.kedua,
                           ukuran: UkuranTombol.sedang,
-                          ke: 'Main',
+                          ke: Layar.keuangan,
                           cara: Cara.ganti,
                         ),
                       ),
                       const SizedBox(height: 10),
                       Tombol(
                         'Hitung lagi',
-                        onPressed: () => context.kembaliKe('/HitungKas'),
+                        onPressed: () => context.naikKe(Layar.hitungKas),
                         jenis: JenisTombol.kedua,
                         ukuran: UkuranTombol.sedang,
                       ),
@@ -652,7 +632,7 @@ class _BandingState extends State<_Banding> {
                       'Kembali ke Bulan',
                       onPressed: null,
                       jenis: JenisTombol.kedua,
-                      ke: 'TutupBuku',
+                      ke: Layar.tutupBuku,
                       cara: Cara.naik,
                     ),
                   )

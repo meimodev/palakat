@@ -4,16 +4,14 @@ import 'dart:math' as math;
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../mock/mock.dart';
 import '../../motion/hitung.dart';
 import '../../motion/kerangka.dart';
 import '../../motion/urutan.dart';
-import '../../shell/kendali.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import '../../shell/ponsel_tab_bar.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../shell/toast.dart';
 import '../../theme/palakat_tema.dart';
@@ -30,6 +28,8 @@ import '../../widgets/status_simpan.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 part 'main_catat.dart';
 part 'main_periksa.dart';
@@ -352,23 +352,25 @@ class _MainLingkup extends InheritedNotifier<_MainKeadaan> {
 
 // ---------- Navigation inside the board ----------
 
+final _akar = Layar.keuangan.jalur;
+
 /// The Main page on top of Main's own pages.
 String _atasMain(GoRouter r) {
   for (final l in tumpukanHalaman(r).reversed) {
-    if (l == '/Main' || l.startsWith('/Main/')) return l;
+    if (l == _akar || l.startsWith('$_akar/')) return l;
   }
-  return '/Main';
+  return _akar;
 }
 
 /// "Pop to /Main": pop every `/Main/…` page above `/Main`, or go `/Main`
 /// when it is not in the stack.
 void _keMain(GoRouter r) {
   var t = tumpukanHalaman(r);
-  if (!t.contains('/Main')) {
-    r.go('/Main');
+  if (!t.contains(_akar)) {
+    r.go(_akar);
     return;
   }
-  while (t.length > 1 && t.last.startsWith('/Main/')) {
+  while (t.length > 1 && t.last.startsWith('$_akar/')) {
     r.pop();
     final b = tumpukanHalaman(r);
     if (b.length >= t.length) break;
@@ -379,7 +381,7 @@ void _keMain(GoRouter r) {
 /// Pop to /Main, then push a child view.
 void _keAnak(GoRouter r, String anak) {
   _keMain(r);
-  r.push('/Main/$anak');
+  r.push('$_akar/$anak');
 }
 
 void _keBeranda(BuildContext context) {
@@ -389,7 +391,7 @@ void _keBeranda(BuildContext context) {
 
 void _bukaDaftar(BuildContext context) {
   final r = GoRouter.of(context);
-  if (_atasMain(r) == '/Main/transaksi') return;
+  if (_atasMain(r) == '$_akar/transaksi') return;
   _keAnak(r, 'transaksi');
 }
 
@@ -403,30 +405,10 @@ class MainKendali extends StatefulWidget {
 }
 
 class _MainKendaliState extends State<MainKendali> {
-  late final _MainKeadaan _m = _MainKeadaan(
-    () =>
-        PrototypeState.maybeOf(
-          context,
-          dengar: false,
-        )?.tweak('Main', 'gagalSimpan') ==
-        true,
-  );
-  int _generasi = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    ulangPapan['Main'] = _ulang;
-  }
-
-  void _ulang() {
-    _m.ulang();
-    setState(() => _generasi++);
-  }
+  late final _MainKeadaan _m = _MainKeadaan(() => belumDipindah(false));
 
   @override
   void dispose() {
-    if (ulangPapan['Main'] == _ulang) ulangPapan.remove('Main');
     _m.dispose();
     super.dispose();
   }
@@ -434,41 +416,37 @@ class _MainKendaliState extends State<MainKendali> {
   @override
   Widget build(BuildContext context) {
     final atas = _atasMain(GoRouter.of(context));
-    final tab = atas == '/Main' || atas == '/Main/transaksi';
+    final tab = atas == _akar || atas == '$_akar/transaksi';
     return _MainLingkup(
       keadaan: _m,
-      child: GenerasiPapan(
-        generasi: _generasi,
-        child: ListenableBuilder(
-          listenable: _m,
-          builder: (context, child) => LayarPonsel(
-            jabatanKosong: true,
-            overlay: [
-              if (tab)
-                PonselTabBar(
-                  aktif: atas == '/Main/transaksi'
-                      ? TabPonsel.transaksi
-                      : TabPonsel.beranda,
-                  beranda: (isi) =>
-                      Tekan(onTap: () => _keBeranda(context), child: isi),
-                  transaksi: (isi) =>
-                      Tekan(onTap: () => _bukaDaftar(context), child: isi),
-                  catat: (isi) => Tekan(
-                    onTap: _m.bukaSheet,
-                    label: 'Catat transaksi',
-                    radius: 29,
-                    child: isi,
-                  ),
+      child: ListenableBuilder(
+        listenable: _m,
+        builder: (context, child) => LayarPonsel(
+          layarKeuangan: true,
+          overlay: [
+            if (tab)
+              PonselTabBar(
+                aktif: atas == '$_akar/transaksi'
+                    ? TabPonsel.transaksi
+                    : TabPonsel.beranda,
+                beranda: (isi) =>
+                    Tekan(onTap: () => _keBeranda(context), child: isi),
+                transaksi: (isi) =>
+                    Tekan(onTap: () => _bukaDaftar(context), child: isi),
+                catat: (isi) => Tekan(
+                  onTap: _m.bukaSheet,
+                  label: 'Catat transaksi',
+                  radius: 29,
+                  child: isi,
                 ),
-              if (_m.toast && tab)
-                const Toast('Draf tersimpan · belum masuk saldo'),
-              if (_m.sheet)
-                Positioned.fill(child: _rataCss(_LembarCatat(m: _m))),
-            ],
-            child: child!,
-          ),
-          child: widget.child,
+              ),
+            if (_m.toast && tab)
+              const Toast('Draf tersimpan · belum masuk saldo'),
+            if (_m.sheet) Positioned.fill(child: _rataCss(_LembarCatat(m: _m))),
+          ],
+          child: child!,
         ),
+        child: widget.child,
       ),
     );
   }
@@ -493,7 +471,7 @@ class _MainScreenState extends State<MainScreen> {
     if (widget.anak == 'detail') {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted && !_MainLingkup.baca(context).posted) {
-          context.kembaliKe('/Main');
+          context.naikKe(Layar.keuangan);
         }
       });
     }
@@ -591,7 +569,7 @@ class _Beranda extends StatelessWidget {
   Widget build(BuildContext context) {
     final m = _MainLingkup.of(context);
     final c = context.warna;
-    final sepi = context.tweak<String>('Main', 'bulan') == 'sepi';
+    final sepi = belumDipindah<String>('ramai') == 'sepi';
     final drafN = sepi ? 0 : m.drafN;
     final pend = sepi ? 0 : m.pend, bel = sepi ? 0 : m.bel;
     final total = m.saldo.values.fold(0, (a, b) => a + b);
@@ -632,7 +610,7 @@ class _Beranda extends StatelessWidget {
               ),
             ),
             Tautan(
-              ke: 'PilihBulan',
+              ke: Layar.pilihBulan,
               label: 'Pilih bulan, sekarang November 2026',
               radius: 22,
               child: Container(
@@ -748,7 +726,7 @@ class _Beranda extends StatelessWidget {
               child: Column(
                 children: [
                   Tautan(
-                    ke: 'TutupBuku',
+                    ke: Layar.tutupBuku,
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(minHeight: 60),
                       child: Row(
@@ -823,7 +801,7 @@ class _Beranda extends StatelessWidget {
             children: [
               const JudulBagian('Untuk diketahui'),
               Tautan(
-                ke: 'Kewajiban',
+                ke: Layar.kewajiban,
                 child: Align(
                   alignment: Alignment.centerLeft,
                   widthFactor: 1,
@@ -840,8 +818,11 @@ class _Beranda extends StatelessWidget {
           ),
         DeretTautan(
           anak: [
-            Tautan(ke: 'TutupBuku', child: _teksTautan('Rekonsiliasi')),
-            Tautan(ke: 'Laporan', child: _teksTautan('Buat laporan sementara')),
+            Tautan(ke: Layar.tutupBuku, child: _teksTautan('Rekonsiliasi')),
+            Tautan(
+              ke: Layar.laporan,
+              child: _teksTautan('Buat laporan sementara'),
+            ),
           ],
         ),
         Column(
@@ -939,7 +920,7 @@ class _Daftar extends StatelessWidget {
   Widget build(BuildContext context) {
     final m = _MainLingkup.of(context);
     final c = context.warna;
-    final sepi = context.tweak<String>('Main', 'bulan') == 'sepi';
+    final sepi = belumDipindah<String>('ramai') == 'sepi';
     final data = [?m.baru, if (!sepi) ..._dataRamai];
     final rows = [
       for (final r in data)
@@ -976,12 +957,13 @@ class _Daftar extends StatelessWidget {
             child: Wrap(
               spacing: 22,
               children: [
-                Tautan(ke: 'PilihBulan', child: _teksTautan('Pilih bulan')),
+                Tautan(ke: Layar.pilihBulan, child: _teksTautan('Pilih bulan')),
                 Tautan(
-                  ke: 'Draf',
+                  ke: Layar.draf,
+                  param: {'id': belumDipindahId},
                   child: _teksTautan('1 draf di bulan yang sudah ditutup'),
                 ),
-                Tautan(ke: 'Cari', child: _teksTautan('Cari')),
+                Tautan(ke: Layar.cari, child: _teksTautan('Cari')),
               ],
             ),
           ),
@@ -1185,25 +1167,29 @@ class _LembarCatat extends StatelessWidget {
                 children: [
                   _ChipTautan(
                     m: m,
-                    ke: 'Persembahan',
+                    ke: Layar.persembahan,
                     teks: 'Persembahan beberapa bagian',
                   ),
                   _ChipTautan(
                     m: m,
-                    ke: 'KasusBaru',
+                    ke: Layar.kasusBaru,
                     teks: 'Uang Muka, Titipan, klaim',
                   ),
                   _ChipTautan(
                     m: m,
-                    ke: 'AlihPeruntukan',
+                    ke: Layar.alihPeruntukan,
                     teks: 'Alih peruntukan',
                   ),
-                  _ChipTautan(m: m, ke: 'Pengembalian', teks: 'Pengembalian'),
-                  _ChipTautan(m: m, ke: 'AIFoto', teks: 'Dari foto nota'),
-                  _ChipTautan(m: m, ke: 'BantuanAI', teks: 'Dari kalimat'),
                   _ChipTautan(
                     m: m,
-                    ke: 'AIMataAnggaran',
+                    ke: Layar.pengembalian,
+                    teks: 'Pengembalian',
+                  ),
+                  _ChipTautan(m: m, ke: Layar.aiFoto, teks: 'Dari foto nota'),
+                  _ChipTautan(m: m, ke: Layar.bantuanAi, teks: 'Dari kalimat'),
+                  _ChipTautan(
+                    m: m,
+                    ke: Layar.aiMataAnggaran,
                     teks: 'Usulan Mata Anggaran',
                   ),
                 ],
@@ -1220,7 +1206,8 @@ class _LembarCatat extends StatelessWidget {
 class _ChipTautan extends StatelessWidget {
   const _ChipTautan({required this.m, required this.ke, required this.teks});
   final _MainKeadaan m;
-  final String ke, teks;
+  final Layar ke;
+  final String teks;
 
   @override
   Widget build(BuildContext context) => Padding(
@@ -1229,9 +1216,8 @@ class _ChipTautan extends StatelessWidget {
       peran: PeranTekan.tautan,
       radius: 22,
       onTap: () {
-        final r = GoRouter.of(context);
         m.tutupSheet();
-        Tautan(ke: ke, child: const SizedBox()).buka(r);
+        Tautan(ke: ke, child: const SizedBox()).buka(context);
       },
       // An <a> chip is content-box: 44 inside the 1.5 line, 47 outside.
       child: SizedBox(

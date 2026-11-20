@@ -7,6 +7,7 @@ import '../../theme/palakat_tema.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import 'alur_surat_alur.dart';
+import '../../app/layar.dart';
 
 /// Web · Alur · Permohonan surat (screens/19-alursurat.md).
 class WebAlurSuratScreen extends StatelessWidget {
@@ -16,14 +17,7 @@ class WebAlurSuratScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.warna;
     return HalamanWeb(
-      nav: const NavSamping(
-        item: navPlatform,
-        aktif: 2,
-        pengguna: PenggunaNav(
-          tebal: 'Olvie Pangemanan',
-          biasa: ' · Sekretaris Jemaat',
-        ),
-      ),
+      nav: const NavSamping(item: navPlatform, aktif: 2),
       isi: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -34,7 +28,7 @@ class WebAlurSuratScreen extends StatelessWidget {
               atas: 11.85,
               bawah: 10.4,
               child: Tautan(
-                ke: 'WebPermohonanSurat',
+                ke: Layar.surat,
                 cara: Cara.naik,
                 child: Align(
                   alignment: AlignmentDirectional.centerStart,

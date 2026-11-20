@@ -1,12 +1,12 @@
 import 'package:flutter/widgets.dart';
 
 import '../../motion/kerangka.dart';
-import '../../shell/prototipe_state.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis_status.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tombol.dart';
+import '../../app/belum_dipindah.dart';
 
 /// Board `F`: id, peruntukan, person (Umum Jemaat carries its statement date).
 const _peruntukan = [
@@ -42,7 +42,7 @@ mixin KesiapanLogika<T extends StatefulWidget> on State<T> {
   /// Reads the tweak. A switch keeps all state, the open form included, as
   /// on the board (CONVENTIONS: board parity over the spec's recommendation).
   bool bendahara(BuildContext context) =>
-      context.tweak<String>(stem, 'masukSebagai') == 'Bendahara';
+      belumDipindah<String>('Bendahara') == 'Bendahara';
 
   bool get _ok => _alasan.text.trim().isNotEmpty;
   bool _perlu(String id) => _f[id] == 'lagi' || _f[id] == 'belum';

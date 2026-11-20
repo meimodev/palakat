@@ -9,6 +9,7 @@ import '../../widgets/penolakan.dart';
 import '../../widgets/riwayat_alur.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
+import '../../app/layar.dart';
 
 /// Unit type → its two approver posts, in board order.
 const _p = {
@@ -126,7 +127,7 @@ class _PemberiPersetujuanScreenState extends State<PemberiPersetujuanScreen> {
             onPressed: null,
             jenis: JenisTombol.kedua,
             ukuran: UkuranTombol.sedang,
-            ke: 'AlurModul',
+            ke: Layar.modul,
           ),
         ),
       if (_riw.isNotEmpty) RiwayatAlur(baris: _riw),
@@ -140,7 +141,7 @@ class _PemberiPersetujuanScreenState extends State<PemberiPersetujuanScreen> {
             judul: 'Alur · Pemberi persetujuan',
             anakJudul:
                 'Jabatan mana yang menyetujui permintaan dari tiap jenis unit',
-            kembaliKe: 'Modul',
+            kembaliKe: Layar.modul,
             labelKembali: 'Kembali ke Modul',
           ),
           Expanded(

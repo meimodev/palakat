@@ -2,7 +2,6 @@ import 'package:flutter/widgets.dart';
 
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
@@ -11,8 +10,9 @@ import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/penolakan.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
-const _stem = 'Pelimpahan';
 const _o = ['Daftar pelimpahan', 'Buat pelimpahan', 'Berakhir sendiri'];
 
 /// 50 · Pelimpahan tugas (spec 14). State `{k: null}`; the view is
@@ -37,7 +37,7 @@ class _PelimpahanState extends State<PelimpahanScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final keadaan = context.tweak<String>(_stem, 'keadaan');
+    final keadaan = belumDipindah<String>('Daftar pelimpahan');
     if (keadaan != _keadaan) {
       _keadaan = keadaan;
       _k = null;
@@ -60,7 +60,7 @@ class _PelimpahanState extends State<PelimpahanScreen> {
           const KepalaPonsel(
             judul: 'Pelimpahan tugas',
             anakJudul: 'Bertanggal, terbatas pada satu unit, berakhir sendiri',
-            kembaliKe: 'BerandaJabatan',
+            kembaliKe: Layar.beranda,
             labelKembali: 'Kembali ke Beranda',
           ),
           Expanded(
@@ -212,7 +212,7 @@ class _PelimpahanState extends State<PelimpahanScreen> {
           child: Tombol(
             'Kembali ke Beranda',
             onPressed: null,
-            ke: 'BerandaJabatan',
+            ke: Layar.beranda,
             cara: Cara.naik,
             jenis: JenisTombol.kedua,
             ukuran: UkuranTombol.sedang,

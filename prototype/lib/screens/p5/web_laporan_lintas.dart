@@ -2,12 +2,13 @@ import 'package:flutter/widgets.dart';
 
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import 'laporan_lintas.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// Web · Laporan (spec 22): LaporanLintas on the laptop, seen as the Ketua
 /// Jemaat. Platform side nav with "Beranda" active, as drawn.
@@ -17,16 +18,9 @@ class WebLaporanLintasScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final keadaan = context.tweak<String>('WebLaporanLintas', 'keadaan');
+    final keadaan = belumDipindah<String>('Seluruh Jemaat');
     return HalamanWeb(
-      nav: const NavSamping(
-        item: navPlatform,
-        aktif: 0,
-        pengguna: PenggunaNav(
-          tebal: 'Pdt. Lidya Rondonuwu',
-          biasa: ' · Ketua Jemaat',
-        ),
-      ),
+      nav: const NavSamping(item: navPlatform, aktif: 0),
       isi: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -36,7 +30,7 @@ class WebLaporanLintasScreen extends StatelessWidget {
               atas: 11.125,
               bawah: 11.125,
               child: Tautan(
-                ke: 'WebBerandaJabatan',
+                ke: Layar.beranda,
                 cara: Cara.naik,
                 child: const Align(
                   alignment: Alignment.centerLeft,

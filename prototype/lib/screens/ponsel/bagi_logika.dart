@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/batang_pembagian.dart';
 import '../../widgets/input_format.dart';

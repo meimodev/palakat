@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import 'data_anggota.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// Web · Data anggota dan keluarga: the views of DataAnggota beside the
 /// platform side nav ("Data jemaat" active).
@@ -32,21 +33,13 @@ class _WebDataAnggotaScreenState extends State<WebDataAnggotaScreen> {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final keadaan = context.tweak<String>('WebDataAnggota', 'keadaan');
+    final keadaan = belumDipindah<String>('Dilihat Penatua Kolom 7');
     if (_keadaan != null && _keadaan != keadaan) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _keAtas());
     }
     _keadaan = keadaan;
     return HalamanWeb(
-      nav: NavSamping(
-        item: navPlatform,
-        aktif: 5,
-        diSini: _keAtas,
-        pengguna: const PenggunaNav(
-          tebal: 'Pnt. Hendrik Rumagit',
-          biasa: ' · Penatua Kolom 7',
-        ),
-      ),
+      nav: NavSamping(item: navPlatform, aktif: 5, diSini: _keAtas),
       isi: [
         Column(
           key: _atas,
@@ -58,7 +51,7 @@ class _WebDataAnggotaScreenState extends State<WebDataAnggotaScreen> {
               atas: 10.75,
               bawah: 11.5,
               child: Tautan(
-                ke: 'WebBerandaJabatan',
+                ke: Layar.beranda,
                 cara: Cara.naik,
                 child: Center(
                   widthFactor: 1,
@@ -81,12 +74,9 @@ class _WebDataAnggotaScreenState extends State<WebDataAnggotaScreen> {
           alignment: Alignment.centerLeft,
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 880),
-            child: IsiDataAnggota(
-              keadaan: keadaan,
-              ajukan: (w) => Tautan(ke: 'Peristiwa', child: w),
-              konfirmasi: (w) =>
-                  Tautan(ke: 'KonfirmasiKeluarga', radius: 14, child: w),
-            ),
+            // Peristiwa and KonfirmasiKeluarga are phone-only: their links
+            // are left out on the web (README 7.1 rule 4).
+            child: IsiDataAnggota(keadaan: keadaan),
           ),
         ),
       ],

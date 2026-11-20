@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
@@ -9,6 +8,7 @@ import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
 import 'tanggal_kalender.dart';
+import '../../app/layar.dart';
 
 /// Web · Tanggal transaksi dan tanggal dokumen (spec 11, WebTanggal).
 class WebTanggalScreen extends StatefulWidget {
@@ -25,21 +25,14 @@ class _WebTanggalScreenState extends State<WebTanggalScreen>
     final c = context.warna;
     final pesanBulan = pesan(
       context,
-      () => const Tautan(
-        ke: 'WebKejadian',
-        child: SizedBox(),
-      ).buka(GoRouter.of(context)),
+      () => const Tautan(ke: Layar.kejadian, child: SizedBox()).buka(context),
     );
     final kalender = [bilahBulan(context), kisiHari(context), ?pesanBulan];
     return Material(
       type: MaterialType.transparency,
       child: HalamanWeb(
-        jabatanKosong: true,
-        nav: const NavSamping(
-          item: navKeuangan,
-          aktif: 1,
-          pengguna: PenggunaKeuangan(),
-        ),
+        layarKeuangan: true,
+        nav: const NavSamping(item: navKeuangan, aktif: 1),
         isi: [
           for (final w in <Widget>[
             Column(
@@ -51,7 +44,7 @@ class _WebTanggalScreenState extends State<WebTanggalScreen>
                   atas: 11.125,
                   bawah: 11.125,
                   child: Tautan(
-                    ke: 'WebCatat',
+                    ke: Layar.catat,
                     cara: Cara.naik,
                     child: SizedBox(
                       height: 44,
@@ -108,7 +101,7 @@ class _WebTanggalScreenState extends State<WebTanggalScreen>
                             ? Tombol(
                                 'Pakai $tglTeks',
                                 onPressed: null,
-                                ke: 'WebCatat',
+                                ke: Layar.catat,
                                 cara: Cara.naik,
                                 lebarPenuh: false,
                                 paddingH: 20,

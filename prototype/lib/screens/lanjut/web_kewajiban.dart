@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show OverflowBoxFit;
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
 import '../../shell/tautan.dart';
@@ -9,6 +9,8 @@ import '../../theme/palakat_tema.dart';
 import '../../widgets/chip_pilihan.dart';
 import '../../widgets/garis.dart';
 import '../../widgets/tata_letak.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 typedef _Label = ({
   String tab,
@@ -213,12 +215,8 @@ class _WebKewajibanScreenState extends State<WebKewajibanScreen> {
           leadingDistribution: TextLeadingDistribution.even,
         ),
         child: HalamanWeb(
-          jabatanKosong: true,
-          nav: NavSamping(
-            item: navKeuangan,
-            aktif: 2,
-            pengguna: const PenggunaKeuangan(),
-          ),
+          layarKeuangan: true,
+          nav: NavSamping(item: navKeuangan, aktif: 2),
           isi: [
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -247,8 +245,12 @@ class _WebKewajibanScreenState extends State<WebKewajibanScreen> {
                 child: Wrap(
                   spacing: 22,
                   children: [
-                    Tautan(ke: 'WebKasusBaru', child: tautan('+ Kasus baru')),
-                    Tautan(ke: 'WebKasus', child: tautan('Catat pada kasus')),
+                    Tautan(ke: Layar.kasusBaru, child: tautan('+ Kasus baru')),
+                    Tautan(
+                      ke: Layar.kewajiban,
+                      anak: 'kasus/$belumDipindahId',
+                      child: tautan('Catat pada kasus'),
+                    ),
                   ],
                 ),
               ),

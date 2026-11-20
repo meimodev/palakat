@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/perangkat_prototipe.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
 import '../../widgets/garis_status.dart';
@@ -15,6 +14,7 @@ import '../../widgets/riwayat_alur.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
 import 'alur_dana_bagian.dart';
+import '../../app/layar.dart';
 
 const _hari = '16/11/2026';
 const _komisi = 'Ketua Komisi Diakonia';
@@ -39,7 +39,8 @@ class _AlurDanaScreenState extends State<AlurDanaScreen> {
   final _jml = TextEditingController();
   final _alasan = TextEditingController();
 
-  String _pesan = '', _v = 'utama', _akt = _komisi, _st = '', _tolak = '';
+  String _pesan = '', _v = 'utama', _st = '', _tolak = '';
+  final _akt = _komisi;
   final List<String> _riw = [];
 
   @override
@@ -67,11 +68,6 @@ class _AlurDanaScreenState extends State<AlurDanaScreen> {
   }
 
   void _catat(String t) => _riw.insert(0, '$_hari · $t');
-
-  void _pilihAktor(String a) => _ubah(() {
-    _akt = a;
-    _pesan = '';
-  }, keAtas: true);
 
   void _ajukan() => _ubah(() {
     _st = _menunggu;
@@ -289,45 +285,35 @@ class _AlurDanaScreenState extends State<AlurDanaScreen> {
       if (_riw.isNotEmpty) RiwayatAlur(baris: _riw),
     ];
 
-    return AlatPrototipe(
-      stem: 'AlurDana',
-      alat: [
-        DilihatSebagai(
-          pilihan: const [_komisi, _ketua, _bendahara],
-          terpilih: _akt,
-          onPilih: _pilihAktor,
-        ),
-      ],
-      child: LayarPonsel(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const KepalaPonsel(
-              judul: 'Alur · Permintaan dana',
-              anakJudul:
-                  'Diajukan unit, disetujui Ketua Jemaat, dibukukan '
-                  'Bendahara Jemaat',
-              kembaliKe: 'PermintaanDana',
-              labelKembali: 'Kembali ke Permintaan dana',
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                controller: _gulir,
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-                // ponytail: IsianTeks inherits the theme bodyLarge's 0.5
-                // letterSpacing; drop this once IsianTeks sets 0 itself.
-                child: DefaultTextStyle.merge(
-                  style: const TextStyle(letterSpacing: 0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    spacing: 16,
-                    children: isi,
-                  ),
+    return LayarPonsel(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const KepalaPonsel(
+            judul: 'Alur · Permintaan dana',
+            anakJudul:
+                'Diajukan unit, disetujui Ketua Jemaat, dibukukan '
+                'Bendahara Jemaat',
+            kembaliKe: Layar.permintaanDana,
+            labelKembali: 'Kembali ke Permintaan dana',
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              controller: _gulir,
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+              // ponytail: IsianTeks inherits the theme bodyLarge's 0.5
+              // letterSpacing; drop this once IsianTeks sets 0 itself.
+              child: DefaultTextStyle.merge(
+                style: const TextStyle(letterSpacing: 0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  spacing: 16,
+                  children: isi,
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

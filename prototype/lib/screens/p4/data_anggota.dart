@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis.dart';
@@ -12,6 +11,8 @@ import '../../widgets/lencana_status.dart';
 import '../../widgets/penolakan.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// 76 · Data anggota dan keluarga (phone). No handler changes the view: it is
 /// the panel's `keadaan`, so the board state `k` is always null.
@@ -20,7 +21,7 @@ class DataAnggotaScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final keadaan = context.tweak<String>('DataAnggota', 'keadaan');
+    final keadaan = belumDipindah<String>('Dilihat Penatua Kolom 7');
     return LayarPonsel(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -29,7 +30,7 @@ class DataAnggotaScreen extends StatelessWidget {
             judul: 'Data anggota dan keluarga',
             anakJudul:
                 'Satu data untuk setiap orang; keluarga menyimpan riwayatnya',
-            kembaliKe: 'BerandaJabatan',
+            kembaliKe: Layar.beranda,
             labelKembali: 'Kembali ke Beranda',
           ),
           Expanded(
@@ -39,9 +40,9 @@ class DataAnggotaScreen extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
               child: IsiDataAnggota(
                 keadaan: keadaan,
-                ajukan: (w) => Tautan(ke: 'Peristiwa', child: w),
+                ajukan: (w) => Tautan(ke: Layar.peristiwa, child: w),
                 konfirmasi: (w) =>
-                    Tautan(ke: 'KonfirmasiKeluarga', radius: 14, child: w),
+                    Tautan(ke: Layar.konfirmasiKeluarga, radius: 14, child: w),
               ),
             ),
           ),
@@ -58,17 +59,19 @@ class IsiDataAnggota extends StatelessWidget {
   const IsiDataAnggota({
     super.key,
     required this.keadaan,
-    required this.ajukan,
-    required this.konfirmasi,
+    this.ajukan,
+    this.konfirmasi,
   });
 
   final String keadaan;
 
-  /// `Tautan(ke: 'Peristiwa')` around "Ajukan peristiwa".
-  final Widget Function(Widget) ajukan;
+  /// `Tautan(ke: Layar.peristiwa)` around "Ajukan peristiwa"; null leaves
+  /// the link out (the web has no Peristiwa screen, README 7.1 rule 4).
+  final Widget Function(Widget)? ajukan;
 
-  /// `Tautan(ke: 'KonfirmasiKeluarga')` around the secondary button look.
-  final Widget Function(Widget) konfirmasi;
+  /// `Tautan(ke: Layar.konfirmasiKeluarga)` around the secondary button look;
+  /// null leaves it out, as [ajukan].
+  final Widget Function(Widget)? konfirmasi;
 
   @override
   Widget build(BuildContext context) {
@@ -133,20 +136,21 @@ class IsiDataAnggota extends StatelessWidget {
           const _Info('Baptisan', '19/05/1996 · Diverifikasi'),
           const _Info('Sidi', '13/04/2014 · Diverifikasi'),
           const _Info('Pernikahan', '—'),
-          ajukan(
-            ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 44),
-              child: const Align(
-                alignment: Alignment.centerLeft,
-                widthFactor: 1,
-                child: TautanTeks(
-                  'Ajukan peristiwa',
-                  berat: FontWeight.w700,
-                  ukuran: 14,
+          if (ajukan case final ajukan?)
+            ajukan(
+              ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 44),
+                child: const Align(
+                  alignment: Alignment.centerLeft,
+                  widthFactor: 1,
+                  child: TautanTeks(
+                    'Ajukan peristiwa',
+                    berat: FontWeight.w700,
+                    ukuran: 14,
+                  ),
                 ),
               ),
             ),
-          ),
         ]),
       ],
     );
@@ -193,23 +197,24 @@ class IsiDataAnggota extends StatelessWidget {
         BarisLentur(
           jarak: 8,
           anak: [
-            Lentur(
-              // The board's <a> is content-box: 150 and 340 plus padding 32
-              // and line 3; min-height 48 likewise is 51 tall.
-              dasar: 185,
-              maks: 375,
-              child: konfirmasi(
-                RupaTombol(
-                  label: 'Lihat konfirmasi keluarga',
-                  isi: c.permukaan,
-                  garis: GarisBorder.penuh(c.tinta, radius: 14),
-                  warnaTeks: c.tinta,
-                  radius: 14,
-                  tinggi: 51,
-                  paddingH: 16,
+            if (konfirmasi case final konfirmasi?)
+              Lentur(
+                // The board's <a> is content-box: 150 and 340 plus padding 32
+                // and line 3; min-height 48 likewise is 51 tall.
+                dasar: 185,
+                maks: 375,
+                child: konfirmasi(
+                  RupaTombol(
+                    label: 'Lihat konfirmasi keluarga',
+                    isi: c.permukaan,
+                    garis: GarisBorder.penuh(c.tinta, radius: 14),
+                    warnaTeks: c.tinta,
+                    radius: 14,
+                    tinggi: 51,
+                    paddingH: 16,
+                  ),
                 ),
               ),
-            ),
           ],
         ),
       ],

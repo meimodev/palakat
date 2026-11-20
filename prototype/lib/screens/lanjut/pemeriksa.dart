@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../motion/kerangka.dart';
 import '../../motion/urutan.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/prototipe_state.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis.dart';
 import '../../widgets/lembar_bawah.dart';
@@ -13,6 +12,7 @@ import '../../widgets/tahapan.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import 'pemeriksa_baris.dart';
+import '../../app/belum_dipindah.dart';
 
 enum _St { draf, periksa, buku }
 
@@ -34,9 +34,8 @@ class _PemeriksaScreenState extends State<PemeriksaScreen> {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final bend =
-        context.tweak<String>('Pemeriksa', 'masukSebagai') == 'Bendahara';
-    final ada = context.tweak<bool>('Pemeriksa', 'adaPemeriksaKedua');
+    final bend = belumDipindah<String>('Bendahara') == 'Bendahara';
+    final ada = belumDipindah<bool>(true);
     final draf = _st == _St.draf, periksa = _St.periksa == _st;
     final buku = _st == _St.buku;
 

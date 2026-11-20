@@ -6,6 +6,7 @@ import '../../shell/tautan.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import 'pengembalian_isi.dart';
+import '../../app/layar.dart';
 
 /// Web · Pengembalian (spec 07-kejadian.md): Pengembalian on the laptop,
 /// original card left, form in the aside.
@@ -33,12 +34,8 @@ class _WebPengembalianScreenState extends State<WebPengembalianScreen> {
       final d = _k.jadi[c];
       final form = isianPengembalian(_k);
       return HalamanWeb(
-        jabatanKosong: true,
-        nav: const NavSamping(
-          item: navKeuangan,
-          aktif: 1,
-          pengguna: PenggunaKeuangan(),
-        ),
+        layarKeuangan: true,
+        nav: const NavSamping(item: navKeuangan, aktif: 1),
         isi: [
           const Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -47,7 +44,7 @@ class _WebPengembalianScreenState extends State<WebPengembalianScreen> {
               TautanSebaris(
                 tinggi: 15 * 1.45,
                 child: Tautan(
-                  ke: 'WebTransaksi',
+                  ke: Layar.transaksi,
                   cara: Cara.naik,
                   child: Center(
                     widthFactor: 1,
@@ -64,7 +61,7 @@ class _WebPengembalianScreenState extends State<WebPengembalianScreen> {
           ),
           CatatanAturan(
             c: c,
-            tautan: const Tautan(ke: 'WebAlurPengembalian', child: SizedBox()),
+            tautan: const Tautan(ke: Layar.pengembalian, child: SizedBox()),
           ),
           chipJenis(_k, ponsel: false),
           BarisLentur(

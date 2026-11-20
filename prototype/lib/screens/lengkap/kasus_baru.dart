@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../mock/mock.dart';
 import '../../motion/kerangka.dart';
 import '../../shell/kepala_ponsel.dart';
@@ -15,6 +15,7 @@ import '../../widgets/kecil.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
+import '../../app/layar.dart';
 
 /// 37 · Kasus baru: Uang Muka, Titipan, Penggantian biaya (spec
 /// 10-aifoto.md, KasusBaru).
@@ -412,7 +413,7 @@ class _KasusBaruScreenState extends State<KasusBaruScreen> {
             ),
             const SizedBox(width: 16),
             Tautan(
-              ke: 'Kamera',
+              ke: Layar.fotoDokumen,
               radius: 12,
               child: Container(
                 // Content-box `<a>`: min-height 44 plus the 1.5 line.
@@ -636,7 +637,7 @@ class _KasusBaruScreenState extends State<KasusBaruScreen> {
           const SizedBox(height: 10),
           // An `<a>` is content-box: min-height 48 plus the 1.5 line.
           Tautan(
-            ke: 'Kewajiban',
+            ke: Layar.kewajiban,
             cara: Cara.naik,
             radius: 14,
             child: RupaTombol(
@@ -675,14 +676,14 @@ class _KasusBaruScreenState extends State<KasusBaruScreen> {
     );
 
     return LayarPonsel(
-      jabatanKosong: true,
+      layarKeuangan: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const KepalaPonsel(
             judul: 'Kasus baru',
             anakJudul: 'Uang yang masih berjalan',
-            kembaliKe: 'Kewajiban',
+            kembaliKe: Layar.kewajiban,
             labelKembali: 'Kembali ke Uang yang masih berjalan',
           ),
           Padding(

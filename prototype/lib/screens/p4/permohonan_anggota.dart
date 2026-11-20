@@ -2,7 +2,6 @@ import 'package:flutter/widgets.dart';
 
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/prototipe_state.dart';
 import '../../theme/palakat_tema.dart';
 import '../../shell/tautan.dart';
 import '../../widgets/alur_kit.dart';
@@ -13,6 +12,8 @@ import '../../widgets/lencana_status.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 const _mengisi = 'Mengisi';
 const _izinBelum = 'Izin belum diberikan';
@@ -44,7 +45,7 @@ class _PermohonanAnggotaScreenState extends State<PermohonanAnggotaScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final tweak = context.tweak<String>('PermohonanAnggota', 'keadaan');
+    final tweak = belumDipindah<String>('Mengisi');
     if (tweak != _tweakLama) {
       _tweakLama = tweak;
       _k = null;
@@ -61,7 +62,7 @@ class _PermohonanAnggotaScreenState extends State<PermohonanAnggotaScreen> {
           const KepalaPonsel(
             judul: 'Permohonan menjadi anggota',
             anakJudul: 'Diisi sendiri, lalu diverifikasi Penatua Kolom',
-            kembaliKe: 'DataAnggota',
+            kembaliKe: Layar.dataAnggota,
             labelKembali: 'Kembali ke Data jemaat',
           ),
           Expanded(
@@ -186,7 +187,7 @@ class _PermohonanAnggotaScreenState extends State<PermohonanAnggotaScreen> {
         // The board's `<a>` is content-box: max-width 340 + padding + line
         // is wider than the row, so it fills it; min height 48 + 2 × 1.5.
         Tautan(
-          ke: 'TampilanNama',
+          ke: Layar.tampilanNama,
           radius: 14,
           child: RupaTombol(
             label: 'Atur tampilan nama saya',

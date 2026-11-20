@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
 import '../../shell/tautan.dart';
@@ -10,6 +10,7 @@ import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
 import 'lihat_transaksi_rinci.dart';
+import '../../app/layar.dart';
 
 /// Web · Lihat transaksi di balik angka laporan.
 class WebLihatTransaksiScreen extends StatefulWidget {
@@ -29,12 +30,8 @@ class _WebLihatTransaksiScreenState extends State<WebLihatTransaksiScreen> {
     return Material(
       type: MaterialType.transparency,
       child: HalamanWeb(
-        jabatanKosong: true,
-        nav: const NavSamping(
-          item: navKeuangan,
-          aktif: 5,
-          pengguna: PenggunaKeuangan(),
-        ),
+        layarKeuangan: true,
+        nav: const NavSamping(item: navKeuangan, aktif: 5),
         isi: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,7 +42,7 @@ class _WebLihatTransaksiScreenState extends State<WebLihatTransaksiScreen> {
                 atas: (44 - 15 * 1.45) / 2,
                 bawah: (44 - 15 * 1.45) / 2,
                 child: Tautan(
-                  ke: 'WebPaketLaporan',
+                  ke: Layar.paketLaporan,
                   cara: Cara.naik,
                   child: Align(
                     alignment: Alignment.centerLeft,
@@ -75,7 +72,7 @@ class _WebLihatTransaksiScreenState extends State<WebLihatTransaksiScreen> {
               Lentur(
                 dasar: 440,
                 tumbuh: 999,
-                child: RinciAngkaLaporan(pilih: _pilih, ke: 'WebPilihBulan'),
+                child: RinciAngkaLaporan(pilih: _pilih, ke: Layar.pilihBulan),
               ),
             ],
           ),

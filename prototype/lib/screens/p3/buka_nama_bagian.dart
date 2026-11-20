@@ -1,6 +1,5 @@
 import 'package:flutter/widgets.dart';
 
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis.dart';
@@ -10,6 +9,8 @@ import '../../widgets/lencana_status.dart';
 import '../../widgets/penolakan.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// The `keadaan` options of BukaNama and WebBukaNama, in board order.
 const _opsi = [
@@ -31,6 +32,8 @@ class BukaNamaPapan extends StatefulWidget {
     super.key,
     required this.stem,
     required this.ke,
+    this.param = const {},
+    this.anak,
     required this.web,
   });
 
@@ -38,7 +41,9 @@ class BukaNamaPapan extends StatefulWidget {
   final String stem;
 
   /// Up link of "Batalkan" and "Kembali".
-  final String ke;
+  final Layar ke;
+  final Map<String, String> param;
+  final String? anak;
   final bool web;
 
   @override
@@ -63,7 +68,7 @@ class _BukaNamaPapanState extends State<BukaNamaPapan> {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final t = context.tweak<String>(widget.stem, 'keadaan');
+    final t = belumDipindah<String>('Mengisi alasan');
     if (t != _tweak) {
       _tweak = t;
       _k = null;
@@ -102,6 +107,8 @@ class _BukaNamaPapanState extends State<BukaNamaPapan> {
       onPressed: null,
       jenis: JenisTombol.teks,
       ke: widget.ke,
+      param: widget.param,
+      anak: widget.anak,
       cara: Cara.naik,
     );
 
@@ -198,6 +205,8 @@ class _BukaNamaPapanState extends State<BukaNamaPapan> {
           maks: 372,
           child: Tautan(
             ke: widget.ke,
+            param: widget.param,
+            anak: widget.anak,
             cara: Cara.naik,
             radius: 14,
             child: RupaTombol(

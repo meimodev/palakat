@@ -8,6 +8,7 @@ import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tata_letak.dart';
 import 'terbit_dokumen.dart';
+import '../../app/layar.dart';
 
 class WebTerbitDokumenScreen extends StatefulWidget {
   const WebTerbitDokumenScreen({super.key});
@@ -33,14 +34,7 @@ class _WebTerbitDokumenScreenState extends State<WebTerbitDokumenScreen>
         controller: gulir,
         automaticallyInheritForPlatforms: TargetPlatform.values.toSet(),
         child: HalamanWeb(
-          nav: NavSamping(
-            item: navPlatform,
-            aktif: 2,
-            pengguna: const PenggunaNav(
-              tebal: 'Olvie Pangemanan',
-              biasa: ' · Sekretaris Jemaat',
-            ),
-          ),
+          nav: NavSamping(item: navPlatform, aktif: 2),
           isi: [
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -51,7 +45,7 @@ class _WebTerbitDokumenScreenState extends State<WebTerbitDokumenScreen>
                   atas: 11,
                   bawah: 11,
                   child: Tautan(
-                    ke: 'WebDokumenGereja',
+                    ke: Layar.dokumenGereja,
                     cara: Cara.naik,
                     child: SizedBox(
                       height: 44,
@@ -86,7 +80,7 @@ class _WebTerbitDokumenScreenState extends State<WebTerbitDokumenScreen>
                   child: IsiTerbitDokumen(
                     ki: ki,
                     ke: ke,
-                    induk: 'WebDokumenGereja',
+                    induk: Layar.dokumenGereja,
                   ),
                 ),
                 Lentur(dasar: 300, maks: 480, child: _Penerima(ki == 3)),

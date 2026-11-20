@@ -6,18 +6,16 @@ import 'package:go_router/go_router.dart';
 
 import '../../motion/kerangka.dart';
 import '../../motion/urutan.dart';
-import '../../shell/kendali.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis.dart';
 import '../../widgets/ikon.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
-
-const _stem = 'Kamera';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// Board state shared by `/Kamera`, `/Kamera/tinjau` and `/Kamera/unggah`:
 /// initial `{ st: 'bidik', hal: 1, sudahCoba: false }`.
@@ -98,33 +96,17 @@ class KameraKendali extends StatefulWidget {
 
 class _KameraKendaliState extends State<KameraKendali> {
   final _papan = _PapanKamera();
-  int _generasi = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    ulangPapan[_stem] = _ulang;
-  }
-
-  void _ulang() {
-    _papan.ulang();
-    setState(() => _generasi++);
-  }
 
   @override
   void dispose() {
-    if (ulangPapan[_stem] == _ulang) ulangPapan.remove(_stem);
     _papan.dispose();
     super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) => GenerasiPapan(
-    generasi: _generasi,
-    child: _LingkupKamera(
-      notifier: _papan,
-      child: LayarPonsel(child: widget.child),
-    ),
+  Widget build(BuildContext context) => _LingkupKamera(
+    notifier: _papan,
+    child: LayarPonsel(child: widget.child),
   );
 }
 
@@ -145,16 +127,16 @@ class KameraScreen extends StatelessWidget {
 
 /// Back arrow "Kembali ke Dokumen pendukung": pops the Kamera routes, then
 /// goes up to [ke] (pops when it is below, else `go`).
-void _keluarKe(BuildContext context, {required String ke}) {
+void _keluarKe(BuildContext context, {required Layar ke}) {
   final router = GoRouter.of(context);
   var t = tumpukanHalaman(router);
-  while (t.length > 2 && t.last.startsWith('/$_stem/')) {
+  while (t.length > 2 && t.last.startsWith('${Layar.fotoDokumen.jalur}/')) {
     router.pop();
     final baru = tumpukanHalaman(router);
     if (baru.length >= t.length) break;
     t = baru;
   }
-  kembaliKeDengan(router, '/$ke');
+  kembaliKeDengan(router, ke.lokasi());
 }
 
 /// The photographed receipt (#FBFAF6 paper, the only shadow).
@@ -253,7 +235,7 @@ class _Bidik extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.warna;
     final papan = _LingkupKamera.of(context);
-    void ambil() => context.push('/$_stem/tinjau');
+    void ambil() => context.dorongKe(Layar.fotoDokumen, anak: 'tinjau');
     final sudut = BorderSide(color: c.permukaan, width: 3);
     Widget kurung({double? atas, double? bawah, double? kiri, double? kanan}) =>
         Positioned(
@@ -284,7 +266,7 @@ class _Bidik extends StatelessWidget {
               spacing: 8,
               children: [
                 Tekan(
-                  onTap: () => _keluarKe(context, ke: 'Dokumen'),
+                  onTap: () => _keluarKe(context, ke: Layar.dokumen),
                   label: 'Kembali ke Dokumen pendukung',
                   peran: PeranTekan.tautan,
                   child: SizedBox(
@@ -477,11 +459,10 @@ class _Tinjau extends StatelessWidget {
                     children: [
                       Tekan(
                         onTap: () {
-                          papan.unggah(
-                            context.tweak<bool>(_stem, 'gagalUnggah'),
+                          papan.unggah(belumDipindah<bool>(false));
+                          GoRouter.of(context).pushReplacement(
+                            Layar.fotoDokumen.lokasi(anak: 'unggah'),
                           );
-                          GoRouter.of(context)
-                              .pushReplacement('/$_stem/unggah');
                         },
                         radius: 14,
                         child: RupaTombol(
@@ -543,7 +524,7 @@ class _UnggahState extends State<_Unggah> {
     super.initState();
     // A deep link with no photo sent yet has nothing to upload: the camera.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && _papan!.st == 'bidik') context.kembaliKe('/$_stem');
+      if (mounted && _papan!.st == 'bidik') context.naikKe(Layar.fotoDokumen);
     });
   }
 
@@ -565,7 +546,7 @@ class _UnggahState extends State<_Unggah> {
     final papan = _papan!;
     final st = papan.st;
     final tinta2 = TextStyle(fontSize: 14, color: c.tinta2);
-    void lagi() => papan.unggah(context.tweak<bool>(_stem, 'gagalUnggah'));
+    void lagi() => papan.unggah(belumDipindah<bool>(false));
 
     Widget? status = switch (st) {
       'unggah' => Column(
@@ -647,7 +628,7 @@ class _UnggahState extends State<_Unggah> {
             judul: 'Dokumen pendukung',
             anakJudul: 'BKU-2026-0143 · Sewa sound system',
             labelKembali: 'Kembali ke Dokumen pendukung',
-            onKembali: () => _keluarKe(context, ke: 'Dokumen'),
+            onKembali: () => _keluarKe(context, ke: Layar.dokumen),
           ),
           Expanded(
             child: SingleChildScrollView(
@@ -682,7 +663,8 @@ class _UnggahState extends State<_Unggah> {
                 if (st == 'lampir') ...[
                   const Tombol(
                     'Lihat file dan verifikasi',
-                    ke: 'LihatDokumen',
+                    ke: Layar.lihatDokumen,
+                    param: {'id': belumDipindahId},
                     paddingH: 6,
                     onPressed: null,
                   ),

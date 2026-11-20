@@ -6,18 +6,14 @@ import '../../shell/tautan.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import 'ubah_pengaturan.dart';
+import '../../app/layar.dart';
 
 class WebUbahPengaturanScreen extends StatelessWidget {
   const WebUbahPengaturanScreen({super.key});
 
   @override
   Widget build(BuildContext context) => HalamanWeb(
-    nav: const NavSamping(
-      item: navKeuangan,
-      aktif: 6,
-      // The board has no jabatanKosong tweak: the footer never changes.
-      pengguna: PenggunaKeuangan(ikutJabatanKosong: false),
-    ),
+    nav: const NavSamping(item: navKeuangan, aktif: 6),
     isi: [
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -27,7 +23,7 @@ class WebUbahPengaturanScreen extends StatelessWidget {
             atas: 11,
             bawah: 11,
             child: Tautan(
-              ke: 'WebPengaturan',
+              ke: Layar.pengaturan,
               cara: Cara.naik,
               child: const SizedBox(
                 height: 44,

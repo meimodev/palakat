@@ -10,6 +10,7 @@ import '../../widgets/penolakan.dart';
 import '../../widgets/riwayat_alur.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
+import '../../app/layar.dart';
 
 const _hariT = '16/11/2026';
 
@@ -97,7 +98,7 @@ class _AlurModulState extends State<AlurModulScreen> {
           const KepalaPonsel(
             judul: 'Alur · Modul',
             anakJudul: 'Mengaktifkan dan menonaktifkan, satu per satu',
-            kembaliKe: 'Modul',
+            kembaliKe: Layar.modul,
             labelKembali: 'Kembali ke Modul',
           ),
           Expanded(

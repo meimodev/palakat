@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../mock/jabatan_kosong.dart';
 import '../../motion/kerangka.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/prototipe_state.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis.dart';
 import '../../widgets/garis_status.dart';
@@ -15,6 +14,8 @@ import '../../widgets/penolakan.dart';
 import '../../widgets/tahapan.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// 30 · Rekonsiliasi: isi rekening koran dan cocok sebagian (spec 09).
 class RekonIsiScreen extends StatefulWidget {
@@ -31,14 +32,14 @@ class _RekonIsiState extends State<RekonIsiScreen> with RekonIsiLogika {
   Widget build(BuildContext context) {
     final b = bagian(context);
     return LayarPonsel(
-      jabatanKosong: true,
+      layarKeuangan: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const KepalaPonsel(
             judul: 'Rekonsiliasi',
             anakJudul: 'Bank BNI ··4821 · Oktober 2026',
-            kembaliKe: 'TutupBuku',
+            kembaliKe: Layar.tutupBuku,
             labelKembali: 'Kembali ke Bulan',
           ),
           Expanded(
@@ -190,9 +191,9 @@ mixin RekonIsiLogika<W extends StatefulWidget> on State<W> {
 
   BagianRekon bagian(BuildContext context) {
     final c = context.warna;
-    final wajib = context.tweak<bool>(stem, 'wajibPemeriksaKedua');
-    final berubah = context.tweak<bool>(stem, 'bukuBerubah');
-    final jk = context.prototipe.jabatanKosong;
+    final wajib = belumDipindah<bool>(false);
+    final berubah = belumDipindah<bool>(false);
+    final jk = belumDipindah(false);
     final kerja = _st == 'kerja';
 
     final daftar = _daftar;

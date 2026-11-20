@@ -2,12 +2,13 @@ import 'package:flutter/widgets.dart';
 
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import 'dokumen_gereja_isi.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// Web · Dokumen gereja (spec 17-keadaanumum.md): the document archive at
 /// the Sekretaris Jemaat's desk. Same four views as DokumenGereja.
@@ -23,26 +24,20 @@ class _WebDokumenGerejaScreenState extends State<WebDokumenGerejaScreen>
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final keadaan = context.tweak<String>('WebDokumenGereja', 'keadaan');
+    final keadaan = belumDipindah<String>('Daftar dokumen');
     final ki = indeks(keadaan);
     final isi = isiDokumenGereja(
       web: true,
       ki: ki,
-      ke: 'WebTerbitDokumen',
-      keBaris: 'WebDokumenGereja',
+      ke: Layar.dokumenGereja,
+      anak: 'terbit',
+      keBaris: Layar.dokumenGereja,
       onBuka: () => pilih(1, keadaan),
     );
     return HalamanWeb(
       // A new view starts at the top of the page.
       key: ValueKey(ki),
-      nav: const NavSamping(
-        item: navPlatform,
-        aktif: 2,
-        pengguna: PenggunaNav(
-          tebal: 'Olvie Pangemanan',
-          biasa: ' · Sekretaris Jemaat',
-        ),
-      ),
+      nav: const NavSamping(item: navPlatform, aktif: 2),
       isi: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -53,7 +48,7 @@ class _WebDokumenGerejaScreenState extends State<WebDokumenGerejaScreen>
               atas: 11,
               bawah: 11,
               child: Tautan(
-                ke: 'WebBerandaJabatan',
+                ke: Layar.beranda,
                 cara: Cara.naik,
                 child: SizedBox(
                   height: 44,

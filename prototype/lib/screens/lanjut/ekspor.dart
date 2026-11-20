@@ -9,6 +9,7 @@ import '../../shell/layar_ponsel.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
 
 /// The five contents of the export: name, description, bar duration (ms).
 const _isi = [
@@ -56,14 +57,14 @@ class _EksporScreenState extends State<EksporScreen> {
     return Material(
       type: MaterialType.transparency,
       child: LayarPonsel(
-        jabatanKosong: true,
+        layarKeuangan: true,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const KepalaPonsel(
               judul: 'Ekspor data Jemaat',
               anakJudul: 'Salinan lengkap milik Jemaat',
-              kembaliKe: 'Lainnya',
+              kembaliKe: Layar.pengaturan,
               labelKembali: 'Kembali ke Lainnya',
             ),
             Expanded(

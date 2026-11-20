@@ -5,6 +5,7 @@ import '../../shell/layar_ponsel.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import 'lihat_dokumen_penampil.dart';
+import '../../app/layar.dart';
 
 /// 40 · Lihat file dokumen pendukung (spec 11-lihatdokumen.md).
 class LihatDokumenScreen extends StatefulWidget {
@@ -22,7 +23,7 @@ class _LihatDokumenScreenState extends State<LihatDokumenScreen>
     return Material(
       type: MaterialType.transparency,
       child: LayarPonsel(
-        jabatanKosong: true,
+        layarKeuangan: true,
         child: ColoredBox(
           color: c.tinta,
           child: DefaultTextStyle.merge(
@@ -32,7 +33,7 @@ class _LihatDokumenScreenState extends State<LihatDokumenScreen>
               children: [
                 KepalaPonsel(
                   judul: fileNama,
-                  kembaliKe: 'Dokumen',
+                  kembaliKe: Layar.dokumen,
                   labelKembali: 'Kembali ke Dokumen pendukung',
                   judulMono: true,
                   ukuranJudul: 16,
@@ -55,7 +56,7 @@ class _LihatDokumenScreenState extends State<LihatDokumenScreen>
                       children: panel(
                         context,
                         tautan: const Tautan(
-                          ke: 'Dokumen',
+                          ke: Layar.dokumen,
                           cara: Cara.naik,
                           child: IsiTautanTolak(),
                         ),

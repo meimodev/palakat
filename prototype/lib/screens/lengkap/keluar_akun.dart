@@ -10,6 +10,8 @@ import '../../widgets/ikon.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../providers/session.dart';
 
 // Parts Keluar and WebKeluar draw alike (12-lihattransaksi.md, WebKeluar
 // "exactly as Keluar 2a–2c"). Text sizes not written on the board inherit
@@ -22,7 +24,7 @@ import '../../widgets/tombol.dart';
 /// boxes after layout, kept inside the card's 16 px padding.
 class KartuProfil extends StatefulWidget {
   const KartuProfil({super.key, required this.ke});
-  final String ke;
+  final Layar ke;
 
   @override
   State<KartuProfil> createState() => _KartuProfilState();
@@ -135,8 +137,15 @@ class _KartuProfilState extends State<KartuProfil> {
 
 /// Sessions card; [ke] is the "Sesi di perangkat lain" target.
 class KartuSesi extends StatelessWidget {
-  const KartuSesi({super.key, required this.ke});
-  final String ke;
+  const KartuSesi({
+    super.key,
+    required this.ke,
+    this.param = const {},
+    this.anak,
+  });
+  final Layar ke;
+  final Map<String, String> param;
+  final String? anak;
 
   @override
   Widget build(BuildContext context) {
@@ -175,6 +184,8 @@ class KartuSesi extends StatelessWidget {
           ),
           Tautan(
             ke: ke,
+            param: param,
+            anak: anak,
             child: Container(
               // min-height 52 is content-box on the board: plus the 1 px rule.
               constraints: const BoxConstraints(minHeight: 53),
@@ -232,10 +243,9 @@ List<Widget> tombolTanya(
   ),
 ];
 
-/// "Anda sudah keluar", its sentence and "Masuk" ([ke], go).
+/// "Anda sudah keluar", its sentence and "Masuk", which opens the picker.
 class IsiSudahKeluar extends StatelessWidget {
-  const IsiSudahKeluar({super.key, required this.ke});
-  final String ke;
+  const IsiSudahKeluar({super.key});
 
   @override
   Widget build(BuildContext context) => Column(
@@ -259,7 +269,11 @@ class IsiSudahKeluar extends StatelessWidget {
         style: TextStyle(fontSize: 15, color: context.warna.tinta2),
       ),
       const SizedBox(height: 20),
-      Tombol('Masuk', onPressed: null, ke: ke, cara: Cara.ganti, paddingH: 20),
+      Tombol(
+        'Masuk',
+        onPressed: () => keluarSesi(context),
+        paddingH: 20,
+      ),
     ],
   );
 }

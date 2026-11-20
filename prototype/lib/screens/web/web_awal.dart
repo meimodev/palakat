@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../motion/kerangka.dart';
 import '../../motion/urutan.dart';
 import '../../shell/halaman_web.dart';
@@ -16,6 +16,7 @@ import '../../widgets/lencana_status.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
 
 /// (id, name, verified total, source) of the three Kas/Bank rows.
 const _akun = [
@@ -113,11 +114,7 @@ class _WebAwalScreenState extends State<WebAwalScreen> {
       ),
     ];
     return HalamanWeb(
-      nav: const NavSamping(
-        item: navKeuangan,
-        aktif: 6,
-        pengguna: PenggunaKeuangan(ikutJabatanKosong: false),
-      ),
+      nav: const NavSamping(item: navKeuangan, aktif: 6),
       jarak: 22,
       isi: [
         Column(
@@ -145,7 +142,7 @@ class _WebAwalScreenState extends State<WebAwalScreen> {
           child: Align(
             alignment: Alignment.centerLeft,
             child: Tautan(
-              ke: 'WebAwalIsian',
+              ke: Layar.awalIsian,
               child: Align(
                 alignment: Alignment.centerLeft,
                 widthFactor: 1,
@@ -560,7 +557,7 @@ class _WebAwalScreenState extends State<WebAwalScreen> {
                             child: Tombol(
                               'Mulai mencatat',
                               onPressed: null,
-                              ke: 'WebBeranda',
+                              ke: Layar.keuangan,
                               cara: Cara.ganti,
                               ukuran: UkuranTombol.ringkas,
                               lebarPenuh: false,

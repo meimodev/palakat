@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
@@ -7,6 +6,7 @@ import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/tombol.dart';
 import 'tanggal_kalender.dart';
+import '../../app/layar.dart';
 
 /// 41 · Tanggal transaksi dan tanggal dokumen (spec 11, Tanggal).
 class TanggalScreen extends StatefulWidget {
@@ -23,10 +23,7 @@ class _TanggalScreenState extends State<TanggalScreen>
     final c = context.warna;
     final pesanBulan = pesan(
       context,
-      () => const Tautan(
-        ke: 'Kejadian',
-        child: SizedBox(),
-      ).buka(GoRouter.of(context)),
+      () => const Tautan(ke: Layar.kejadian, child: SizedBox()).buka(context),
     );
     final isi = [
       bilahBulan(context),
@@ -37,7 +34,7 @@ class _TanggalScreenState extends State<TanggalScreen>
     return Material(
       type: MaterialType.transparency,
       child: LayarPonsel(
-        jabatanKosong: true,
+        layarKeuangan: true,
         // CSS half-leading: the board's text sits centred in its line box.
         child: DefaultTextStyle.merge(
           style: const TextStyle(
@@ -49,7 +46,7 @@ class _TanggalScreenState extends State<TanggalScreen>
               const KepalaPonsel(
                 judul: 'Tanggal transaksi',
                 anakJudul: 'Belanja · draf',
-                kembaliKe: 'Main',
+                kembaliKe: Layar.keuangan,
                 labelKembali: 'Kembali ke isian',
               ),
               Expanded(
@@ -76,7 +73,7 @@ class _TanggalScreenState extends State<TanggalScreen>
                     ? Tombol(
                         'Pakai $tglTeks',
                         onPressed: null,
-                        ke: 'Main',
+                        ke: Layar.keuangan,
                         cara: Cara.naik,
                         paddingH: 20,
                       )

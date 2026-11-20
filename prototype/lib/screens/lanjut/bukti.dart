@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../motion/kerangka.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
@@ -8,6 +8,7 @@ import '../../theme/palakat_tema.dart';
 import '../../widgets/chip_pilihan.dart';
 import '../../widgets/garis_status.dart';
 import '../../widgets/kecil.dart';
+import '../../app/layar.dart';
 
 /// 16 · Daftar Bukti Kas dan celah nomor (spec 06-bukti.md, Bukti).
 class BuktiScreen extends StatefulWidget {
@@ -111,7 +112,7 @@ class _BuktiScreenState extends State<BuktiScreen> {
   Widget build(BuildContext context) {
     final c = context.warna;
     return LayarPonsel(
-      jabatanKosong: true,
+      layarKeuangan: true,
       // CSS splits line-height leading evenly above and below each font;
       // without this the mono spans make mixed lines taller than the board.
       child: DefaultTextStyle.merge(
@@ -124,7 +125,7 @@ class _BuktiScreenState extends State<BuktiScreen> {
             const KepalaPonsel(
               judul: 'Daftar Bukti Kas',
               anakJudul: 'November 2026 · Belum ditutup',
-              kembaliKe: 'Lainnya',
+              kembaliKe: Layar.pengaturan,
               labelKembali: 'Kembali ke Lainnya',
             ),
             Padding(

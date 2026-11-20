@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../motion/kerangka.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
@@ -19,6 +19,8 @@ import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// The board's `CFG` per jenis.
 typedef _Jenis = ({
@@ -89,14 +91,30 @@ const Map<String, List<BarisMataAnggaran>> _ma = {
 };
 
 const _tautan = [
-  (teks: 'Bagi ke beberapa Mata Anggaran', ke: 'WebBagi'),
-  (teks: 'Persembahan', ke: 'WebPersembahan'),
-  (teks: 'Alih peruntukan', ke: 'WebAlihPeruntukan'),
-  (teks: 'Dari foto nota', ke: 'WebAIFoto'),
-  (teks: 'Ganti catatan persetujuan', ke: 'WebPersetujuan'),
-  (teks: 'Tanggal transaksi', ke: 'WebTanggal'),
-  (teks: 'Usulan Mata Anggaran', ke: 'WebAIMataAnggaran'),
-  (teks: 'Dari kalimat', ke: 'WebBantuanAI'),
+  (
+    teks: 'Bagi ke beberapa Mata Anggaran',
+    ke: Layar.bagi,
+    param: <String, String>{},
+  ),
+  (teks: 'Persembahan', ke: Layar.persembahan, param: <String, String>{}),
+  (
+    teks: 'Alih peruntukan',
+    ke: Layar.alihPeruntukan,
+    param: <String, String>{},
+  ),
+  (teks: 'Dari foto nota', ke: Layar.aiFoto, param: <String, String>{}),
+  (
+    teks: 'Ganti catatan persetujuan',
+    ke: Layar.persetujuan,
+    param: {'id': belumDipindahId},
+  ),
+  (teks: 'Tanggal transaksi', ke: Layar.tanggal, param: <String, String>{}),
+  (
+    teks: 'Usulan Mata Anggaran',
+    ke: Layar.aiMataAnggaran,
+    param: <String, String>{},
+  ),
+  (teks: 'Dari kalimat', ke: Layar.bantuanAi, param: <String, String>{}),
 ];
 
 const _mono = TextStyle(
@@ -215,7 +233,7 @@ class _WebCatatScreenState extends State<WebCatatScreen> {
           atas: (44 - 15 * 1.45) / 2,
           bawah: (44 - 15 * 1.45) / 2,
           child: Tautan(
-            ke: 'WebTransaksi',
+            ke: Layar.transaksi,
             cara: Cara.naik,
             child: const Align(
               widthFactor: 1,
@@ -244,6 +262,7 @@ class _WebCatatScreenState extends State<WebCatatScreen> {
         for (final t in _tautan)
           Tautan(
             ke: t.ke,
+            param: t.param,
             child: Align(
               widthFactor: 1,
               heightFactor: 1,
@@ -616,7 +635,7 @@ class _WebCatatScreenState extends State<WebCatatScreen> {
                 jenis: JenisTombol.kedua,
                 ukuran: UkuranTombol.ringkas,
                 lebarPenuh: false,
-                ke: 'WebTransaksi',
+                ke: Layar.transaksi,
                 cara: Cara.naik,
               ),
             ],
@@ -641,12 +660,8 @@ class _WebCatatScreenState extends State<WebCatatScreen> {
     );
 
     return HalamanWeb(
-      nav: NavSamping(
-        item: navKeuangan,
-        aktif: 1,
-        pengguna: const PenggunaKeuangan(),
-      ),
-      jabatanKosong: true,
+      nav: NavSamping(item: navKeuangan, aktif: 1),
+      layarKeuangan: true,
       isi: [
         judul,
         deret,

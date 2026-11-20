@@ -8,6 +8,7 @@ import '../../widgets/lencana_status.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
+import '../../app/layar.dart';
 
 const _nama = [
   'Ditampung',
@@ -95,14 +96,14 @@ class _ImporScreenState extends State<ImporScreen> {
     return Material(
       type: MaterialType.transparency,
       child: LayarPonsel(
-        jabatanKosong: true,
+        layarKeuangan: true,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const KepalaPonsel(
               judul: 'Impor',
               anakJudul: 'kas-november.xlsx · 5 baris',
-              kembaliKe: 'Lainnya',
+              kembaliKe: Layar.pengaturan,
               labelKembali: 'Kembali ke Lainnya',
             ),
             Padding(

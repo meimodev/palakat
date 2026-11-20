@@ -2,8 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import '../../mock/format.dart';
-import '../../shell/perangkat_prototipe.dart';
+import '../../core/format.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
 import '../../widgets/chip_pilihan.dart';
@@ -22,7 +21,6 @@ import '../../widgets/tombol_bersyarat.dart';
 mixin AlurUnitLogika<T extends StatefulWidget> on State<T> {
   static const _hari = '16/11/2026';
   static const _unit = 'Bendahara Kolom 7';
-  static const _aktor = [_unit, 'Bendahara Jemaat'];
 
   String pesan = '';
   final riw = <String>[];
@@ -110,22 +108,6 @@ mixin AlurUnitLogika<T extends StatefulWidget> on State<T> {
       'Bendahara Jemaat (alasan: $al)',
     );
   });
-
-  /// "Dilihat sebagai" in the Keadaan panel, never on screen.
-  Widget alat(String stem, Widget child) => AlatPrototipe(
-    stem: stem,
-    alat: [
-      DilihatSebagai(
-        pilihan: _aktor,
-        terpilih: akt,
-        onPilih: (a) => _set(() {
-          akt = a;
-          pesan = '';
-        }),
-      ),
-    ],
-    child: child,
-  );
 
   Widget _pil(
     String label,

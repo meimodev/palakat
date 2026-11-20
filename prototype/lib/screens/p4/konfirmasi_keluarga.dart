@@ -2,7 +2,6 @@ import 'package:flutter/widgets.dart';
 
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
@@ -10,8 +9,9 @@ import '../../widgets/garis.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
-const _stem = 'KonfirmasiKeluarga';
 const _k0 = 'Belum dikonfirmasi',
     _k1 = 'Dikonfirmasi di aplikasi',
     _k2 = 'Formulir kertas diunggah',
@@ -36,7 +36,7 @@ class _State extends State<KonfirmasiKeluargaScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final keadaan = context.tweak<String>(_stem, 'keadaan');
+    final keadaan = belumDipindah<String>('Belum dikonfirmasi');
     if (_keadaan != null && keadaan != _keadaan) _k = null;
     _keadaan = keadaan;
     final view = _k ?? keadaan;
@@ -49,7 +49,7 @@ class _State extends State<KonfirmasiKeluargaScreen> {
             anakJudul:
                 'Keluarga dari buku anggota mengonfirmasi datanya dan '
                 'memberi izin',
-            kembaliKe: 'DataAnggota',
+            kembaliKe: Layar.dataAnggota,
             labelKembali: 'Kembali ke Data jemaat',
           ),
           Expanded(
@@ -103,7 +103,7 @@ class _State extends State<KonfirmasiKeluargaScreen> {
             verifikasi,
             const _TombolTautan(
               'Kembalikan dengan alasan',
-              ke: 'AntreanVerifikasi',
+              ke: Layar.verifikasi,
             ),
           ],
         ),
@@ -150,7 +150,7 @@ class _State extends State<KonfirmasiKeluargaScreen> {
           anak: [
             _TombolTautan(
               'Buka data keluarga',
-              ke: 'DataAnggota',
+              ke: Layar.dataAnggota,
               cara: Cara.naik,
             ),
           ],
@@ -208,7 +208,7 @@ class _TombolTautan extends StatelessWidget {
   const _TombolTautan(this.label, {required this.ke, this.cara = Cara.dorong});
 
   final String label;
-  final String ke;
+  final Layar ke;
   final Cara cara;
 
   @override

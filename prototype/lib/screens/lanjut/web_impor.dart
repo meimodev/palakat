@@ -11,6 +11,7 @@ import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
+import '../../app/layar.dart';
 
 const _nama = [
   'Ditampung',
@@ -119,12 +120,8 @@ class _WebImporScreenState extends State<WebImporScreen> {
     return Material(
       type: MaterialType.transparency,
       child: HalamanWeb(
-        jabatanKosong: true,
-        nav: const NavSamping(
-          item: navKeuangan,
-          aktif: 1,
-          pengguna: PenggunaKeuangan(),
-        ),
+        layarKeuangan: true,
+        nav: const NavSamping(item: navKeuangan, aktif: 1),
         isi: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -134,7 +131,7 @@ class _WebImporScreenState extends State<WebImporScreen> {
                 atas: 11.85,
                 bawah: 11.85,
                 child: Tautan(
-                  ke: 'WebTransaksi',
+                  ke: Layar.transaksi,
                   cara: Cara.naik,
                   child: const Align(
                     alignment: Alignment.centerLeft,

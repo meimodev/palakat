@@ -6,8 +6,6 @@ import '../../motion/kerangka.dart';
 import '../../motion/urutan.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
-import '../../shell/perangkat_prototipe.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis.dart';
@@ -15,6 +13,8 @@ import '../../widgets/ikon.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// Sample files, in the board's order (`N`).
 const _contoh = [
@@ -57,7 +57,7 @@ class _WebUnggahState extends State<WebUnggahScreen> {
   /// Fakes the upload: 1500 ms, then attached or (once, with the tweak on)
   /// failed. The tweak is read when the upload starts, as on the board.
   void _kirim(_Berkas f, bool bolehGagal) {
-    final gagal = bolehGagal && context.tweak<bool>('WebUnggah', 'gagalUnggah');
+    final gagal = bolehGagal && belumDipindah<bool>(false);
     late final Timer t;
     t = Timer(const Duration(milliseconds: 1500), () {
       _timer.remove(t);
@@ -93,204 +93,190 @@ class _WebUnggahState extends State<WebUnggahScreen> {
     final penuh = _files.length >= _contoh.length;
     final kecil = TextStyle(fontSize: 14, color: c.tinta2);
 
-    return AlatPrototipe(
-      stem: 'WebUnggah',
-      alat: [
-        if (penuh)
-          const Text('Di prototipe ini: contoh ini berhenti di tiga file.'),
-      ],
-      child: HalamanWeb(
-        jabatanKosong: true,
-        nav: NavSamping(
-          item: navKeuangan,
-          aktif: 1,
-          pengguna: const PenggunaKeuangan(),
+    return HalamanWeb(
+      layarKeuangan: true,
+      nav: NavSamping(item: navKeuangan, aktif: 1),
+      isi: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            MarginNegatif(
+              atas: 11.125,
+              bawah: 11.125,
+              child: Tautan(
+                ke: Layar.dokumen,
+                cara: Cara.naik,
+                child: const Align(
+                  alignment: Alignment.centerLeft,
+                  widthFactor: 1,
+                  heightFactor: 1,
+                  child: TautanTeks('Dokumen pendukung', ukuran: 14),
+                ),
+              ),
+            ),
+            const SizedBox(height: 2),
+            Semantics(
+              header: true,
+              child: const Text(
+                'Unggah dokumen pendukung',
+                style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700),
+              ),
+            ),
+            Text('BKU-2026-0143 · Sewa sound system · Rp600.000', style: kecil),
+          ],
         ),
-        isi: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              MarginNegatif(
-                atas: 11.125,
-                bawah: 11.125,
-                child: Tautan(
-                  ke: 'WebDokumen',
-                  cara: Cara.naik,
-                  child: const Align(
-                    alignment: Alignment.centerLeft,
-                    widthFactor: 1,
-                    heightFactor: 1,
-                    child: TautanTeks('Dokumen pendukung', ukuran: 14),
+        BarisLentur(
+          jarak: 24,
+          anak: [
+            Lentur(
+              dasar: 460,
+              tumbuh: 999,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 32,
+                    ),
+                    decoration: ShapeDecoration(
+                      shape: GarisBorder.putus(c.putus, radius: 16),
+                    ),
+                    child: Column(
+                      children: [
+                        PalakatIkon(Ikon.unggah, ukuran: 36, warna: c.tinta2),
+                        const SizedBox(height: 10),
+                        const Text(
+                          'Tarik file ke sini',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontWeight: FontWeight.w700),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          'Foto nota, tangkapan layar bukti transfer, atau PDF.',
+                          textAlign: TextAlign.center,
+                          style: kecil,
+                        ),
+                        if (!penuh) ...[
+                          const SizedBox(height: 10),
+                          Tombol(
+                            'Pilih file',
+                            onPressed: _tambah,
+                            jenis: JenisTombol.tinta,
+                            ukuran: UkuranTombol.ringkas,
+                            lebarPenuh: false,
+                          ),
+                        ],
+                      ],
+                    ),
                   ),
+                  if (_files.isEmpty) ...[
+                    const SizedBox(height: 16),
+                    Text(
+                      'Belum ada file. Dokumen pendukung transaksi ini masih '
+                      '“Wajib, belum ada”.',
+                      style: kecil,
+                    ),
+                  ],
+                  const SizedBox(height: 16),
+                  // Drawn even with no files (an empty bordered strip), as
+                  // on the board.
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: c.permukaan,
+                      border: Border.all(color: c.garis),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        for (var i = 0; i < _files.length; i++)
+                          Gerak(
+                            Kerangka.muncul,
+                            key: ValueKey(_files[i].n),
+                            lama: const Duration(milliseconds: 300),
+                            child: _BarisBerkas(
+                              f: _files[i],
+                              garisAtas: i > 0,
+                              onCoba: () => _cobaLagi(_files[i]),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Lentur(
+              dasar: 382, // flex-basis 340 is the content box: + padding 20 and line 1 each side
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: c.permukaan,
+                  border: Border.all(color: c.garis),
+                  borderRadius: BorderRadius.circular(14),
                 ),
-              ),
-              const SizedBox(height: 2),
-              Semantics(
-                header: true,
-                child: const Text(
-                  'Unggah dokumen pendukung',
-                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700),
-                ),
-              ),
-              Text(
-                'BKU-2026-0143 · Sewa sound system · Rp600.000',
-                style: kecil,
-              ),
-            ],
-          ),
-          BarisLentur(
-            jarak: 24,
-            anak: [
-              Lentur(
-                dasar: 460,
-                tumbuh: 999,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 32,
-                      ),
-                      decoration: ShapeDecoration(
-                        shape: GarisBorder.putus(c.putus, radius: 16),
-                      ),
-                      child: Column(
-                        children: [
-                          PalakatIkon(Ikon.unggah, ukuran: 36, warna: c.tinta2),
-                          const SizedBox(height: 10),
-                          const Text(
-                            'Tarik file ke sini',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontWeight: FontWeight.w700),
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            'Foto nota, tangkapan layar bukti transfer, atau PDF.',
-                            textAlign: TextAlign.center,
-                            style: kecil,
-                          ),
-                          if (!penuh) ...[
-                            const SizedBox(height: 10),
-                            Tombol(
-                              'Pilih file',
-                              onPressed: _tambah,
-                              jenis: JenisTombol.tinta,
-                              ukuran: UkuranTombol.ringkas,
-                              lebarPenuh: false,
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                    if (_files.isEmpty) ...[
-                      const SizedBox(height: 16),
-                      Text(
-                        'Belum ada file. Dokumen pendukung transaksi ini masih '
-                        '“Wajib, belum ada”.',
-                        style: kecil,
-                      ),
-                    ],
-                    const SizedBox(height: 16),
-                    // Drawn even with no files (an empty bordered strip), as
-                    // on the board.
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      decoration: BoxDecoration(
-                        color: c.permukaan,
-                        border: Border.all(color: c.garis),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
+                    Semantics(
+                      container: true,
+                      liveRegion: true,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          for (var i = 0; i < _files.length; i++)
-                            Gerak(
-                              Kerangka.muncul,
-                              key: ValueKey(_files[i].n),
-                              lama: const Duration(milliseconds: 300),
-                              child: _BarisBerkas(
-                                f: _files[i],
-                                garisAtas: i > 0,
-                                onCoba: () => _cobaLagi(_files[i]),
-                              ),
+                          Text(
+                            'Dokumen pendukung · '
+                            '${lampir > 0 ? '$lampir file terlampir' : 'belum ada file terlampir'}',
+                            style: kecil,
+                          ),
+                          Text(
+                            lampir > 0
+                                ? 'Diunggah, belum diverifikasi'
+                                : 'Wajib, belum ada',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
+                              color: c.bata,
                             ),
+                          ),
                         ],
                       ),
                     ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Terlampir bukan terverifikasi. Tutup buku menunggu '
+                      'Terverifikasi atau Dikecualikan.',
+                      style: kecil,
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'File yang gagal diunggah tidak pernah terbaca sebagai '
+                      'terlampir. Coba lagi tidak membuat salinan ganda.',
+                      style: kecil,
+                    ),
+                    if (lampir > 0) ...[
+                      const SizedBox(height: 10),
+                      Gerak(
+                        Kerangka.muncul,
+                        lama: const Duration(milliseconds: 300),
+                        child: Tombol(
+                          'Lanjut ke verifikasi',
+                          onPressed: null,
+                          ke: Layar.dokumen,
+                          cara: Cara.naik,
+                          ukuran: UkuranTombol.ringkas,
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
-              Lentur(
-                dasar: 382, // flex-basis 340 is the content box: + padding 20 and line 1 each side
-                child: Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: c.permukaan,
-                    border: Border.all(color: c.garis),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Semantics(
-                        container: true,
-                        liveRegion: true,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Text(
-                              'Dokumen pendukung · '
-                              '${lampir > 0 ? '$lampir file terlampir' : 'belum ada file terlampir'}',
-                              style: kecil,
-                            ),
-                            Text(
-                              lampir > 0
-                                  ? 'Diunggah, belum diverifikasi'
-                                  : 'Wajib, belum ada',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w700,
-                                color: c.bata,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        'Terlampir bukan terverifikasi. Tutup buku menunggu '
-                        'Terverifikasi atau Dikecualikan.',
-                        style: kecil,
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        'File yang gagal diunggah tidak pernah terbaca sebagai '
-                        'terlampir. Coba lagi tidak membuat salinan ganda.',
-                        style: kecil,
-                      ),
-                      if (lampir > 0) ...[
-                        const SizedBox(height: 10),
-                        Gerak(
-                          Kerangka.muncul,
-                          lama: const Duration(milliseconds: 300),
-                          child: Tombol(
-                            'Lanjut ke verifikasi',
-                            onPressed: null,
-                            ke: 'WebDokumen',
-                            cara: Cara.naik,
-                            ukuran: UkuranTombol.ringkas,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
@@ -416,7 +402,8 @@ class _BarisBerkas extends StatelessWidget {
           if (f.st == _St.lampir) ...[
             const SizedBox(width: 14),
             Tautan(
-              ke: 'WebLihatDokumen',
+              ke: Layar.lihatDokumen,
+              param: {'id': belumDipindahId},
               child: const Align(
                 widthFactor: 1,
                 heightFactor: 1,

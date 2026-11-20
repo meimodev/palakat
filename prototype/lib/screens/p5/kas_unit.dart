@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import 'kas_unit_isi.dart';
+import '../../app/layar.dart';
 
 /// 99 · Alur · Kas/Bank unit (spec 23-alurunit.md, KasUnit).
 class KasUnitScreen extends StatelessWidget {
@@ -19,7 +20,7 @@ class KasUnitScreen extends StatelessWidget {
             KepalaPonsel(
               judul: 'Alur · Kas/Bank unit',
               anakJudul: 'Menetapkan Kas/Bank yang dikelola sebuah unit',
-              kembaliKe: 'Lainnya',
+              kembaliKe: Layar.pengaturan,
               labelKembali: 'Kembali ke Pengaturan',
             ),
             Expanded(

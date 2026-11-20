@@ -8,6 +8,7 @@ import '../../widgets/garis_status.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
+import '../../app/layar.dart';
 
 /// Parts shared by FormatLaporan and WebFormatLaporan (the boards draw the
 /// same form, record and cards; only the shell and two link targets differ).
@@ -290,11 +291,16 @@ List<Widget> kartuFormat(BuildContext context, List<Widget> tautan) {
 
 /// "Lihat contoh PDF" / "Lihat contoh Excel": min height 46, padding 0 20,
 /// radius 12, 1.5 `tinta` line, `permukaan`, 700.
-Widget tombolContoh(String label, {required String ke}) => Tombol(
+Widget tombolContoh(
+  String label, {
+  required Layar ke,
+  Map<String, String> param = const {},
+}) => Tombol(
   label,
   onPressed: null,
   jenis: JenisTombol.kedua,
   ukuran: UkuranTombol.ringkas,
   lebarPenuh: false,
   ke: ke,
+  param: param,
 );

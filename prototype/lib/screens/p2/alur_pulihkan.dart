@@ -1,10 +1,9 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/perangkat_prototipe.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
 import '../../widgets/garis_status.dart';
@@ -14,6 +13,7 @@ import '../../widgets/penolakan.dart';
 import '../../widgets/riwayat_alur.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
+import '../../app/layar.dart';
 
 /// 60 · Alur · Memulihkan akun anggota (screens/16-alurmasuk.md): the
 /// Operator asks, the Penatua Kolom 7 confirms. One view; four branches by
@@ -25,14 +25,15 @@ class AlurPulihkanScreen extends StatefulWidget {
   State<AlurPulihkanScreen> createState() => _AlurPulihkanState();
 }
 
-const _operator = 'Operator', _penatua = 'Penatua Kolom 7';
+const _operator = 'Operator';
 const _menunggu = 'Menunggu Penatua Kolom 7',
     _dipulihkan = 'Dipulihkan',
     _tidakDipastikan = 'Tidak dipastikan';
 
 class _AlurPulihkanState extends State<AlurPulihkanScreen> {
   final _nama = TextEditingController(), _hp = TextEditingController();
-  String _pesan = '', _akt = _operator, _cari = '', _st = '';
+  String _pesan = '', _cari = '', _st = '';
+  final _akt = _operator;
   bool _kenal = false;
   List<String> _riw = const [];
 
@@ -58,11 +59,6 @@ class _AlurPulihkanState extends State<AlurPulihkanScreen> {
 
   String _alasan2() =>
       _kenal ? '' : 'centang dulu bahwa Anda sudah memastikan orangnya.';
-
-  void _pick(String a) => _set(() {
-    _akt = a;
-    _pesan = '';
-  });
 
   void _cariOrang() => _set(
     () => _cari = _nama.text.toLowerCase().contains('novita') ? 'ya' : 'tidak',
@@ -110,44 +106,33 @@ class _AlurPulihkanState extends State<AlurPulihkanScreen> {
         const _KotakPutus('Tidak ada pemulihan akun yang menunggu Anda'),
       if (_riw.isNotEmpty) RiwayatAlur(baris: _riw),
     ];
-    return AlatPrototipe(
-      stem: 'AlurPulihkan',
-      alat: [
-        DilihatSebagai(
-          pilihan: const [_operator, _penatua],
-          terpilih: _akt,
-          onPilih: _pick,
-        ),
-        if (oIsi) const Text('Di prototipe ini: Novita Wenas.'),
-      ],
-      child: LayarPonsel(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const KepalaPonsel(
-              judul: 'Alur · Memulihkan akun anggota',
-              anakJudul:
-                  'Untuk orang yang kehilangan nomor ponselnya dan tidak '
-                  'punya email cadangan',
-              kembaliKe: 'CariOrang',
-              labelKembali: 'Kembali ke Cari orang',
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    for (final (i, b) in blok.indexed) ...[
-                      if (i > 0) const SizedBox(height: 16),
-                      b,
-                    ],
+    return LayarPonsel(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const KepalaPonsel(
+            judul: 'Alur · Memulihkan akun anggota',
+            anakJudul:
+                'Untuk orang yang kehilangan nomor ponselnya dan tidak '
+                'punya email cadangan',
+            kembaliKe: Layar.cariOrang,
+            labelKembali: 'Kembali ke Cari orang',
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (final (i, b) in blok.indexed) ...[
+                    if (i > 0) const SizedBox(height: 16),
+                    b,
                   ],
-                ),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

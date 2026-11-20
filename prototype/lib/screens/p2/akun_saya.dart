@@ -1,12 +1,10 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../mock/mock.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/perangkat_prototipe.dart';
-import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
 import '../../widgets/chip_pilihan.dart';
@@ -18,6 +16,8 @@ import '../../widgets/riwayat_alur.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
+import '../../app/layar.dart';
+import '../../providers/session.dart';
 
 const _nama = 'Pnt. Hendrik Rumagit';
 const _jabatan = 'Penatua Kolom 7 · Ketua Komisi Diakonia';
@@ -152,48 +152,35 @@ class _AkunSayaScreenState extends State<AkunSayaScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final kodeView = _v == _V.kodeBaru || _v == _V.kodeEmail;
-    return AlatPrototipe(
-      stem: 'AkunSaya',
-      alat: [
-        if (kodeView)
-          const Text('Di prototipe ini kode yang benar adalah 123456.'),
-        if (_v == _V.akun && _izin == 'minta') ...[
-          _tombolTeks('Contoh: diizinkan', () => _izinkan('ya')),
-          _tombolTeks('Contoh: ditolak', () => _izinkan('tolak')),
-        ],
-      ],
-      child: LayarPonsel(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const KepalaPonsel(
-              judul: 'Alur · Akun saya',
-              anakJudul:
-                  'Nomor ponsel, perangkat, pemberitahuan dorong, keluar',
-              kembaliKe: 'BerandaJabatan',
-              labelKembali: 'Kembali ke Beranda',
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                controller: _gulir,
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  spacing: 16,
-                  children: switch (_v) {
-                    _V.akun => _akun(context),
-                    _V.ganti => _ganti(context),
-                    _V.kodeBaru => _kodeBaru(context),
-                    _V.email => _email(context),
-                    _V.kodeEmail => _kodeEmail(context),
-                    _V.keluar => _keluar(context),
-                  },
-                ),
+    return LayarPonsel(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const KepalaPonsel(
+            judul: 'Alur · Akun saya',
+            anakJudul: 'Nomor ponsel, perangkat, pemberitahuan dorong, keluar',
+            kembaliKe: Layar.beranda,
+            labelKembali: 'Kembali ke Beranda',
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              controller: _gulir,
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: 16,
+                children: switch (_v) {
+                  _V.akun => _akun(context),
+                  _V.ganti => _ganti(context),
+                  _V.kodeBaru => _kodeBaru(context),
+                  _V.email => _email(context),
+                  _V.kodeEmail => _kodeEmail(context),
+                  _V.keluar => _keluar(context),
+                },
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -506,12 +493,10 @@ class _AkunSayaScreenState extends State<AkunSayaScreen> {
     BarisTombol(
       tautan: const {0: 32},
       anak: [
-        const Tombol(
+        Tombol(
           'Keluar',
-          onPressed: null,
+          onPressed: () => keluarSesi(context),
           jenis: JenisTombol.tinta,
-          ke: 'AlurMasuk',
-          cara: Cara.ganti,
         ),
         _tombolTeks('Batal', () => _ke(_V.akun)),
       ],

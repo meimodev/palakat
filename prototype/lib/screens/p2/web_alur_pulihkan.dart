@@ -3,7 +3,6 @@ import 'package:flutter/widgets.dart';
 
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
-import '../../shell/perangkat_prototipe.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
@@ -15,10 +14,10 @@ import '../../widgets/riwayat_alur.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
+import '../../app/layar.dart';
 
 const _hariT = '16/11/2026';
 const _operator = 'Operator';
-const _penatua = 'Penatua Kolom 7';
 const _menunggu = 'Menunggu Penatua Kolom 7';
 const _dipulihkan = 'Dipulihkan';
 const _tidakDipastikan = 'Tidak dipastikan';
@@ -34,7 +33,8 @@ class WebAlurPulihkanScreen extends StatefulWidget {
 class _WebAlurPulihkanState extends State<WebAlurPulihkanScreen> {
   final _nama = TextEditingController();
   final _hp = TextEditingController();
-  String _akt = _operator, _cari = '', _st = '', _pesan = '';
+  String _cari = '', _st = '', _pesan = '';
+  final _akt = _operator;
   bool _kenal = false;
   List<String> _riw = const [];
 
@@ -62,11 +62,6 @@ class _WebAlurPulihkanState extends State<WebAlurPulihkanScreen> {
     }
     return '';
   }
-
-  void _pick(String a) => _set(() {
-    _akt = a;
-    _pesan = '';
-  });
 
   void _cariOrang() => _set(
     () => _cari = RegExp('novita', caseSensitive: false).hasMatch(_nama.text)
@@ -114,7 +109,7 @@ class _WebAlurPulihkanState extends State<WebAlurPulihkanScreen> {
           atas: 11,
           bawah: 11,
           child: Tautan(
-            ke: 'WebCariOrang',
+            ke: Layar.cariOrang,
             cara: Cara.naik,
             child: const Center(
               widthFactor: 1,
@@ -148,41 +143,26 @@ class _WebAlurPulihkanState extends State<WebAlurPulihkanScreen> {
       if (_riw.isNotEmpty) RiwayatAlur(baris: _riw),
     ];
 
-    return AlatPrototipe(
-      stem: 'WebAlurPulihkan',
-      alat: [
-        DilihatSebagai(
-          pilihan: const [_operator, _penatua],
-          terpilih: _akt,
-          onPilih: _pick,
-        ),
-        if (oIsi) const Text('Di prototipe ini: Novita Wenas.'),
-      ],
-      child: HalamanWeb(
-        nav: const NavSamping(
-          item: navPlatform,
-          aktif: 5,
-          pengguna: PenggunaNav(tebal: 'Yanti Sumual', biasa: ' · Operator'),
-        ),
-        isi: [
-          judul,
-          Align(
-            alignment: Alignment.topLeft,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1120),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  for (var i = 0; i < blok.length; i++) ...[
-                    if (i > 0) const SizedBox(height: 16),
-                    blok[i],
-                  ],
+    return HalamanWeb(
+      nav: const NavSamping(item: navPlatform, aktif: 5),
+      isi: [
+        judul,
+        Align(
+          alignment: Alignment.topLeft,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1120),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (var i = 0; i < blok.length; i++) ...[
+                  if (i > 0) const SizedBox(height: 16),
+                  blok[i],
                 ],
-              ),
+              ],
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

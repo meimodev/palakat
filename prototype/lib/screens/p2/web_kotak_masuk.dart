@@ -3,7 +3,6 @@ import 'package:flutter/widgets.dart';
 import '../../mock/mock.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/ikon.dart';
@@ -11,6 +10,8 @@ import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tata_letak.dart';
 import 'kotak_masuk.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// Web · Pemberitahuan (spec 14-berandajabatan.md, WebKotakMasuk): the
 /// notification box of the platform web nav, same sets as KotakMasuk.
@@ -20,40 +21,24 @@ class WebKotakMasukScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final keadaan = context.tweak<String>('WebKotakMasuk', 'keadaan');
+    final keadaan = belumDipindah<String>('Ada pemberitahuan');
     const a = kotakMasukAda, k1 = kotakMasukKeuangan;
     // Row targets are the logic class's hal(n) with web = true.
     final (tindak, tahu) = switch (keadaan) {
       'Semua sudah selesai' => (const <_Baris>[], const <_Baris>[]),
       'Hanya modul Keuangan' => (
-        [
-          _Baris(k1.tindak[0], ke: 'WebBeranda'),
-          _Baris(k1.tindak[1], ke: 'WebBeranda'),
-        ],
-        [_Baris(k1.tahu[0], ke: 'WebBeranda')],
+        [_Baris(k1.tindak[0]), _Baris(k1.tindak[1])],
+        [_Baris(k1.tahu[0])],
       ),
       _ => (
-        [
-          _Baris(a.tindak[0], ke: 'WebPermohonanSurat'),
-          _Baris(a.tindak[1], ke: 'WebWartaEditor'),
-        ],
-        [
-          _Baris(a.tahu[0], ke: 'WebPengumuman'),
-          _Baris(a.tahu[1], ke: 'WebPermohonanSurat'),
-        ],
+        [_Baris(a.tindak[0]), _Baris(a.tindak[1])],
+        [_Baris(a.tahu[0]), _Baris(a.tahu[1])],
       ),
     };
     final ada = keadaan != 'Semua sudah selesai';
 
     return HalamanWeb(
-      nav: const NavSamping(
-        item: navPlatform,
-        aktif: 8,
-        pengguna: PenggunaNav(
-          tebal: 'Olvie Pangemanan',
-          biasa: ' · Sekretaris Jemaat',
-        ),
-      ),
+      nav: const NavSamping(item: navPlatform, aktif: 6),
       isi: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,7 +49,7 @@ class WebKotakMasukScreen extends StatelessWidget {
               atas: 11.125,
               bawah: 11.125,
               child: Tautan(
-                ke: 'WebBerandaJabatan',
+                ke: Layar.beranda,
                 cara: Cara.naik,
                 child: const Align(
                   widthFactor: 1,
@@ -172,16 +157,16 @@ class _Kolom extends StatelessWidget {
 /// (content box), padding 8 18; title 600 and subtitle 13 `tinta3` wrap
 /// (`flex 1 1 260` / `1.4 1 300`, gap 2 20).
 class _Baris extends StatelessWidget {
-  _Baris(this.r, {required this.ke}) : assert(ke == keWeb(r.ke));
+  const _Baris(this.r);
 
   final ItemKotak r;
-  final String ke;
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
     return Tautan(
-      ke: ke,
+      ke: r.ke,
+      param: r.param,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
         child: ConstrainedBox(

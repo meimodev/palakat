@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../motion/kerangka.dart';
-import '../../shell/kendali.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import '../../shell/ponsel_tab_bar.dart';
@@ -16,6 +14,8 @@ import '../../widgets/lembar_bawah.dart';
 import '../../widgets/sakelar.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 // ---------- Board data (Lainnya.dc.html logic class) ----------
 
@@ -78,65 +78,92 @@ const _tautanC = [
   (
     judul: 'Laporan',
     ket: 'Paket Laporan Bulanan GMIM · F01 sampai F14',
-    ke: 'Laporan',
+    ke: Layar.laporan,
+    param: <String, String>{},
   ),
   (
     judul: 'Daftar Bukti Kas',
     ket: 'Semua No. Bukti dan celah nomor',
-    ke: 'Bukti',
+    ke: Layar.bukti,
+    param: <String, String>{},
   ),
   (
     judul: 'Uang Muka dan Titipan',
     ket: 'Uang yang masih berjalan',
-    ke: 'Kewajiban',
+    ke: Layar.kewajiban,
+    param: <String, String>{},
   ),
-  (judul: 'Impor', ket: 'Dari file Excel atau CSV', ke: 'Impor'),
+  (
+    judul: 'Impor',
+    ket: 'Dari file Excel atau CSV',
+    ke: Layar.impor,
+    param: <String, String>{},
+  ),
   (
     judul: 'Ekspor data Jemaat',
     ket: 'Salinan lengkap milik Jemaat',
-    ke: 'Ekspor',
+    ke: Layar.ekspor,
+    param: <String, String>{},
   ),
   (
     judul: 'Dokumen pendukung',
     ket: 'Verifikasi, pengecualian, dokumen susulan',
-    ke: 'Dokumen',
+    ke: Layar.dokumen,
+    param: <String, String>{},
   ),
   (
     judul: 'Pernyataan kesiapan',
     ket: 'Per peruntukan · setelah ada bendahara unit (Putaran 5)',
-    ke: 'Kesiapan',
+    ke: Layar.kesiapan,
+    param: <String, String>{},
   ),
   (
     judul: 'Kejadian setelah tutup buku',
     ket: 'Catatan tentang bulan yang sudah ditutup',
-    ke: 'Kejadian',
+    ke: Layar.kejadian,
+    param: <String, String>{},
   ),
   (
     judul: 'Persetujuan format laporan',
     ket: 'Sudah dicatat · 03/10/2026',
-    ke: 'FormatLaporan',
+    ke: Layar.formatLaporan,
+    param: <String, String>{},
   ),
-  (judul: 'Cari', ket: 'Dengan kata sehari-hari', ke: 'Cari'),
-  (judul: 'Pemberitahuan', ket: 'Sementara', ke: 'Pemberitahuan'),
+  (
+    judul: 'Cari',
+    ket: 'Dengan kata sehari-hari',
+    ke: Layar.cari,
+    param: <String, String>{},
+  ),
+  (
+    judul: 'Pemberitahuan',
+    ket: 'Sementara',
+    ke: Layar.pemberitahuan,
+    param: <String, String>{},
+  ),
   (
     judul: 'Tambah dan ubah pengaturan',
     ket: 'Kas/Bank, seri No. Bukti, aturan · berlaku mulai bulan tertentu',
-    ke: 'UbahPengaturan',
+    ke: Layar.ubahPengaturan,
+    param: <String, String>{},
   ),
   (
     judul: 'Wajib pemeriksa kedua',
     ket: 'Aturan pilihan Jemaat',
-    ke: 'Pemeriksa',
+    ke: Layar.pemeriksa,
+    param: <String, String>{},
   ),
   (
     judul: 'Persetujuan di luar aplikasi',
     ket: 'Ganti catatan, dan yang terjadi bila transaksi diubah',
-    ke: 'Persetujuan',
+    ke: Layar.persetujuan,
+    param: {'id': belumDipindahId},
   ),
   (
     judul: 'Akun dan keluar',
     ket: 'Meiske Lumentut · perangkat ini',
-    ke: 'Keluar',
+    ke: Layar.keluar,
+    param: <String, String>{},
   ),
 ];
 
@@ -203,22 +230,9 @@ class LainnyaKendali extends StatefulWidget {
 
 class _LainnyaKendaliState extends State<LainnyaKendali> {
   final _k = _Keadaan();
-  int _generasi = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    ulangPapan['Lainnya'] = _ulang;
-  }
-
-  void _ulang() => setState(() {
-    _k.ulang();
-    _generasi++;
-  });
 
   @override
   void dispose() {
-    if (ulangPapan['Lainnya'] == _ulang) ulangPapan.remove('Lainnya');
     _k.dispose();
     super.dispose();
   }
@@ -226,16 +240,13 @@ class _LainnyaKendaliState extends State<LainnyaKendali> {
   @override
   Widget build(BuildContext context) => _Lingkup(
     notifier: _k,
-    child: GenerasiPapan(
-      generasi: _generasi,
-      child: Material(
-        type: MaterialType.transparency,
-        child: ListenableBuilder(
-          listenable: _k,
-          builder: (context, _) => LayarPonsel(
-            overlay: [if (_k.sheet != null) _LembarNonaktifkan(k: _k)],
-            child: widget.child,
-          ),
+    child: Material(
+      type: MaterialType.transparency,
+      child: ListenableBuilder(
+        listenable: _k,
+        builder: (context, _) => LayarPonsel(
+          overlay: [if (_k.sheet != null) _LembarNonaktifkan(k: _k)],
+          child: widget.child,
         ),
       ),
     ),
@@ -267,7 +278,7 @@ TextStyle _judulBaris() =>
 /// `keHub`: pop to `/Lainnya` (closes the sheet too).
 void _keHub(BuildContext context) {
   _Lingkup.baca(context).tutupSheet();
-  context.kembaliKe('/Lainnya');
+  context.naikKe(Layar.pengaturan);
 }
 
 /// Inner view: header with back, then [isi] filling the rest.
@@ -331,7 +342,7 @@ class _Hub extends StatelessWidget {
     final k = _Lingkup.of(context);
     const mono = TextStyle(fontFamily: PalakatText.mono);
     Tautan ruteMain(Widget isi) =>
-        Tautan(ke: 'Main', cara: Cara.ganti, child: isi);
+        Tautan(ke: Layar.keuangan, cara: Cara.ganti, child: isi);
 
     final isi = <Widget>[
       Semantics(
@@ -372,7 +383,7 @@ class _Hub extends StatelessWidget {
           keterangan:
               '${_kasDaftar.where((x) => !x.mati).length} aktif · 1 nonaktif',
           pertama: true,
-          onTap: () => context.push('/Lainnya/kas'),
+          onTap: () => context.dorongKe(Layar.pengaturan, anak: 'kas'),
         ),
         const _BarisTetap(
           judul: 'Peruntukan',
@@ -385,7 +396,7 @@ class _Hub extends StatelessWidget {
           ),
         ),
         const Tautan(
-          ke: 'MataAnggaran',
+          ke: Layar.mataAnggaran,
           child: BarisDaftar(
             judul: 'Mata Anggaran',
             keterangan: 'Versi 2026.1 diterbitkan · versi 2026.2 masih draf',
@@ -412,7 +423,7 @@ class _Hub extends StatelessWidget {
               ? 'Wajib pemeriksa kedua: hidup mulai Desember 2026'
               : 'Wajib pemeriksa kedua: mati',
           pertama: true,
-          onTap: () => context.push('/Lainnya/aturan'),
+          onTap: () => context.dorongKe(Layar.pengaturan, anak: 'aturan'),
         ),
         const _BarisTetap(
           judul: 'Format laporan',
@@ -421,7 +432,7 @@ class _Hub extends StatelessWidget {
           ),
         ),
         const Tautan(
-          ke: 'Bendahara',
+          ke: Layar.bendahara,
           child: BarisDaftar(
             judul: 'Bendahara dan sesi',
             keterangan: 'Meiske Lumentut · Wewenang Bendahara aktif',
@@ -430,13 +441,14 @@ class _Hub extends StatelessWidget {
         BarisDaftar(
           judul: 'Riwayat aktivitas',
           keterangan: 'Siapa melakukan apa, dan kapan',
-          onTap: () => context.push('/Lainnya/riwayat'),
+          onTap: () => context.dorongKe(Layar.pengaturan, anak: 'riwayat'),
         ),
       ]),
       _grup([
         for (final (i, t) in _tautanC.indexed)
           Tautan(
             ke: t.ke,
+            param: t.param,
             child: BarisDaftar(
               judul: t.judul,
               keterangan: t.ket,
@@ -469,7 +481,7 @@ class _Hub extends StatelessWidget {
           beranda: ruteMain,
           transaksi: ruteMain,
           catat: (isi) => Tautan(
-            ke: 'Main',
+            ke: Layar.keuangan,
             cara: Cara.ganti,
             label: 'Catat transaksi',
             radius: 33,

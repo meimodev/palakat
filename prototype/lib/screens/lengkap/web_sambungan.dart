@@ -2,13 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../motion/kerangka.dart';
 import '../../motion/urutan.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
-import '../../shell/perangkat_prototipe.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis.dart';
@@ -16,8 +14,10 @@ import '../../widgets/ikon.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
+import '../../providers/session.dart';
 
-const _stem = 'WebSambungan';
 const _tanpaSesi = 'Tidak ada sambungan';
 
 /// keadaan → (h1, caption, "Masuk lagi" shown).
@@ -61,7 +61,7 @@ class _WebSambunganScreenState extends State<WebSambunganScreen> {
 
   void _coba() {
     if (_st != _St.putus) return;
-    final pulih = context.tweak<bool>(_stem, 'sambunganKembali');
+    final pulih = belumDipindah<bool>(true);
     final n = _n;
     setState(() => _st = _St.coba);
     // Fakes the reconnect-and-save attempt.
@@ -78,45 +78,22 @@ class _WebSambunganScreenState extends State<WebSambunganScreen> {
     });
   }
 
-  void _ulang() {
-    _waktu?.cancel();
-    setState(() {
-      _st = _St.putus;
-      _n = 1;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    final keadaan = context.tweak<String>(_stem, 'keadaan');
+    final keadaan = belumDipindah<String>('Tidak ada sambungan');
     final sesi = keadaan == _tanpaSesi ? null : _sesi[keadaan];
-    return AlatPrototipe(
-      stem: _stem,
-      alat: [
-        Tombol(
-          'Ulangi contoh',
-          jenis: JenisTombol.teks,
-          lebarPenuh: false,
-          onPressed: _ulang,
-        ),
-      ],
-      child: HalamanWeb(
-        tengah: sesi != null,
-        nav: const NavSamping(
-          item: navKeuangan,
-          aktif: 1,
-          pengguna: PenggunaKeuangan(ikutJabatanKosong: false),
-        ),
-        isi: sesi == null
-            ? [const _Judul(), _formulir(context)]
-            : [
-                _SesiBerakhir(
-                  judul: sesi.$1,
-                  catatan: sesi.$2,
-                  bisaMasuk: sesi.$3,
-                ),
-              ],
-      ),
+    return HalamanWeb(
+      tengah: sesi != null,
+      nav: const NavSamping(item: navKeuangan, aktif: 1),
+      isi: sesi == null
+          ? [const _Judul(), _formulir(context)]
+          : [
+              _SesiBerakhir(
+                judul: sesi.$1,
+                catatan: sesi.$2,
+                bisaMasuk: sesi.$3,
+              ),
+            ],
     );
   }
 
@@ -163,16 +140,16 @@ class _WebSambunganScreenState extends State<WebSambunganScreen> {
                     paddingH: 20,
                     onPressed: _coba,
                   ),
-                  _St.coba => const Tombol(
+                  _St.coba => Tombol(
                     'Mencoba menyimpan lagi…',
                     nonaktif: true,
                     lebarPenuh: false,
                     paddingH: 20,
                     onPressed: null,
                   ),
-                  _St.simpan => const Tombol(
+                  _St.simpan => Tombol(
                     'Periksa dan bukukan',
-                    ke: 'WebCatat',
+                    ke: Layar.catat,
                     lebarPenuh: false,
                     paddingH: 20,
                     onPressed: null,
@@ -200,7 +177,7 @@ class _Judul extends StatelessWidget {
         atas: (44 - 15 * 1.45) / 2,
         bawah: (44 - 15 * 1.45) / 2,
         child: Tautan(
-          ke: 'WebTransaksi',
+          ke: Layar.transaksi,
           cara: Cara.naik,
           child: const Align(
             widthFactor: 1,
@@ -516,12 +493,10 @@ class _SesiBerakhir extends StatelessWidget {
                   ),
                 ),
                 if (bisaMasuk)
-                  const Tombol(
+                  Tombol(
                     'Masuk lagi',
-                    ke: 'WebMasuk',
-                    cara: Cara.ganti,
                     paddingH: 20,
-                    onPressed: null,
+                    onPressed: () => keluarSesi(context),
                   )
                 else
                   Container(

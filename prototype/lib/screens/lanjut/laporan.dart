@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../motion/kerangka.dart';
-import '../../shell/kendali.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/ikon.dart';
@@ -13,6 +11,8 @@ import '../../widgets/pita_laporan.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
 import 'laporan_tabel.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// Owns LayarPonsel, so the jabatanKosong line stays put while the detail
 /// slides in (navigation.md 2.1). The board state `buka` is the route.
@@ -24,25 +24,14 @@ class LaporanKendali extends StatefulWidget {
 }
 
 class _LaporanKendaliState extends State<LaporanKendali> {
-  int _generasi = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    ulangPapan['Laporan'] = () => setState(() => _generasi++);
-  }
-
   @override
   void dispose() {
-    ulangPapan.remove('Laporan');
     super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) => LayarPonsel(
-    jabatanKosong: true,
-    child: GenerasiPapan(generasi: _generasi, child: widget.child),
-  );
+  Widget build(BuildContext context) =>
+      LayarPonsel(layarKeuangan: true, child: widget.child);
 }
 
 class LaporanScreen extends StatelessWidget {
@@ -52,7 +41,7 @@ class LaporanScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final resmi = context.tweak<String>('Laporan', 'jenis') == 'resmi';
+    final resmi = belumDipindah<String>('resmi') == 'resmi';
     return anak == null
         ? _Daftar(resmi: resmi)
         : _Rinci(id: param['f'], resmi: resmi);
@@ -75,7 +64,7 @@ class _Daftar extends StatelessWidget {
           const KepalaPonsel(
             judul: 'Laporan',
             anakJudul: 'Oktober 2026 · Paket Laporan Bulanan GMIM',
-            kembaliKe: 'Lainnya',
+            kembaliKe: Layar.pengaturan,
             labelKembali: 'Kembali ke Lainnya',
           ),
           Expanded(
@@ -88,7 +77,7 @@ class _Daftar extends StatelessWidget {
                     atas: 6,
                     bawah: 6,
                     child: Tautan(
-                      ke: 'LihatTransaksi',
+                      ke: Layar.lihatTransaksi,
                       child: Container(
                         constraints: const BoxConstraints(minHeight: 44),
                         alignment: Alignment.centerLeft,
@@ -113,7 +102,11 @@ class _Daftar extends StatelessWidget {
                           child: Tombol(
                             'Unduh PDF',
                             onPressed: null,
-                            ke: 'A4F01',
+                            ke: Layar.laporanResmi,
+                            param: {
+                              'periode': belumDipindahId,
+                              'bentuk': 'f01',
+                            },
                             ukuran: UkuranTombol.sedang,
                           ),
                         ),
@@ -122,7 +115,11 @@ class _Daftar extends StatelessWidget {
                           child: Tombol(
                             'Unduh Excel',
                             onPressed: null,
-                            ke: 'WebExcel',
+                            ke: Layar.laporanResmi,
+                            param: {
+                              'periode': belumDipindahId,
+                              'bentuk': 'excel',
+                            },
                             jenis: JenisTombol.kedua,
                             ukuran: UkuranTombol.sedang,
                           ),
@@ -172,7 +169,8 @@ class _BarisForm extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.warna;
     return Tautan(
-      ke: 'Laporan/rinci/$id',
+      ke: Layar.laporan,
+      anak: 'rinci/$id',
       child: Container(
         constraints: const BoxConstraints(minHeight: 56),
         padding: const EdgeInsets.symmetric(vertical: 6),
@@ -270,7 +268,7 @@ class _Rinci extends StatelessWidget {
             child: Row(
               children: [
                 const Tautan(
-                  ke: 'Laporan',
+                  ke: Layar.laporan,
                   cara: Cara.naik,
                   label: 'Kembali',
                   child: SizedBox(

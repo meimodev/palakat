@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import 'ai_mata_anggaran_isi.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// Web · Bantuan AI: usulan Mata Anggaran dan pembagian (spec 12).
 class WebAIMataAnggaranScreen extends StatefulWidget {
@@ -43,20 +44,16 @@ class _WebAIMataAnggaranScreenState extends State<WebAIMataAnggaranScreen> {
     final isi = IsiUsulanMA(
       context: context,
       k: _k,
-      mode: context.tweak<String>('WebAIMataAnggaran', 'usulan'),
+      mode: belumDipindah<String>('Satu baris'),
       ubah: setState,
-      keBagi: 'WebBagi',
+      keBagi: Layar.bagi,
     );
-    final jk = context.prototipe.jabatanKosong;
+    final jk = belumDipindah(false);
     return Material(
       type: MaterialType.transparency,
       child: HalamanWeb(
-        jabatanKosong: true,
-        nav: const NavSamping(
-          item: navKeuangan,
-          aktif: 1,
-          pengguna: PenggunaKeuangan(),
-        ),
+        layarKeuangan: true,
+        nav: const NavSamping(item: navKeuangan, aktif: 1),
         isi: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -67,7 +64,7 @@ class _WebAIMataAnggaranScreenState extends State<WebAIMataAnggaranScreen> {
               const MarginNegatif(
                 bawah: 22.25,
                 child: Tautan(
-                  ke: 'WebCatat',
+                  ke: Layar.catat,
                   cara: Cara.naik,
                   child: Padding(
                     padding: EdgeInsets.only(top: 1.1),

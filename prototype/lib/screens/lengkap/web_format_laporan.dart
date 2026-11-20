@@ -7,6 +7,8 @@ import '../../theme/palakat_tema.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import 'format_laporan_bagian.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// Web · Persetujuan format laporan (screens/07-kejadian.md).
 class WebFormatLaporanScreen extends StatefulWidget {
@@ -39,12 +41,8 @@ class _WebFormatLaporanScreenState extends State<WebFormatLaporanScreen> {
   Widget build(BuildContext context) {
     final c = context.warna;
     return HalamanWeb(
-      jabatanKosong: true,
-      nav: const NavSamping(
-        item: navKeuangan,
-        aktif: 5,
-        pengguna: PenggunaKeuangan(),
-      ),
+      layarKeuangan: true,
+      nav: const NavSamping(item: navKeuangan, aktif: 5),
       isi: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -54,7 +52,7 @@ class _WebFormatLaporanScreenState extends State<WebFormatLaporanScreen> {
               atas: 12,
               bawah: 12,
               child: Tautan(
-                ke: 'WebPaketLaporan',
+                ke: Layar.paketLaporan,
                 cara: Cara.naik,
                 child: Center(
                   widthFactor: 1,
@@ -83,8 +81,12 @@ class _WebFormatLaporanScreenState extends State<WebFormatLaporanScreen> {
               child: _kolom(
                 16,
                 kartuFormat(context, [
-                  tombolContoh('Lihat contoh PDF', ke: 'WebPaketLaporan'),
-                  tombolContoh('Lihat contoh Excel', ke: 'WebExcel'),
+                  tombolContoh('Lihat contoh PDF', ke: Layar.paketLaporan),
+                  tombolContoh(
+                    'Lihat contoh Excel',
+                    ke: Layar.laporanResmi,
+                    param: {'periode': belumDipindahId, 'bentuk': 'excel'},
+                  ),
                 ]),
               ),
             ),

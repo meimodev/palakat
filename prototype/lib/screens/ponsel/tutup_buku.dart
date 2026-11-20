@@ -3,16 +3,14 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../mock/mock.dart' show plk2;
 import '../../motion/hitung.dart';
 import '../../motion/kerangka.dart';
 import '../../motion/ulang.dart';
 import '../../motion/urutan.dart';
-import '../../shell/kendali.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis.dart';
@@ -22,10 +20,11 @@ import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
-const _stem = 'TutupBuku';
-const _akar = '/TutupBuku';
-const _cek = '/TutupBuku/cek';
+final _akar = Layar.tutupBuku.jalur;
+final _cek = '$_akar/cek';
 
 const _syarat = [
   'bulan sebelumnya sudah ditutup',
@@ -206,22 +205,9 @@ class TutupBukuKendali extends StatefulWidget {
 
 class _TutupBukuKendaliState extends State<TutupBukuKendali> {
   final _papan = _Papan();
-  int _generasi = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    ulangPapan[_stem] = _ulang;
-  }
-
-  void _ulang() {
-    _papan.ulang();
-    setState(() => _generasi++);
-  }
 
   @override
   void dispose() {
-    if (ulangPapan[_stem] == _ulang) ulangPapan.remove(_stem);
     _papan.dispose();
     super.dispose();
   }
@@ -230,11 +216,8 @@ class _TutupBukuKendaliState extends State<TutupBukuKendali> {
   Widget build(BuildContext context) {
     _papan.router = GoRouter.of(context);
     return LayarPonsel(
-      jabatanKosong: true,
-      child: _Lingkup(
-        papan: _papan,
-        child: GenerasiPapan(generasi: _generasi, child: widget.child),
-      ),
+      layarKeuangan: true,
+      child: _Lingkup(papan: _papan, child: widget.child),
     );
   }
 }
@@ -298,7 +281,7 @@ Widget _kaki(BuildContext context, List<Widget> anak, {double jarak = 8}) =>
       ),
     );
 
-Widget _tautan({required String ke, required String teks}) => Tautan(
+Widget _tautan({required Layar ke, required String teks}) => Tautan(
   ke: ke,
   child: Center(widthFactor: 1, heightFactor: 1, child: TautanTeks(teks)),
 );
@@ -374,7 +357,7 @@ class _BulanState extends State<_Bulan> {
   Widget build(BuildContext context) {
     final c = context.warna;
     final p = _Lingkup.of(context);
-    final jk = context.prototipe.jabatanKosong;
+    final jk = belumDipindah(false);
     final terlihat = ModalRoute.of(context)?.isCurrent ?? true;
     final nHambatan = p.hambatan.length;
     final kartuTutup = p.tutup && (terlihat || _capDiputar);
@@ -421,7 +404,7 @@ class _BulanState extends State<_Bulan> {
                     padding: const EdgeInsets.only(top: 6),
                     // An `<a>` is content-box: min height 44 + the 1.5 line.
                     child: Tautan(
-                      ke: 'HitungKas',
+                      ke: Layar.hitungKas,
                       radius: 12,
                       child: RupaTombol(
                         label: 'Hitung kas · Kas belum dihitung',
@@ -580,9 +563,9 @@ class _Cek extends StatelessWidget {
                 children: [
                   DeretTautan(
                     anak: [
-                      _tautan(ke: 'Kesiapan', teks: 'Pernyataan kesiapan'),
-                      _tautan(ke: 'AIBulan', teks: 'Bantuan AI'),
-                      _tautan(ke: 'Kejadian', teks: 'Kejadian'),
+                      _tautan(ke: Layar.kesiapan, teks: 'Pernyataan kesiapan'),
+                      _tautan(ke: Layar.aiBulan, teks: 'Bantuan AI'),
+                      _tautan(ke: Layar.kejadian, teks: 'Kejadian'),
                     ],
                   ),
                   if (!kosong)
@@ -814,8 +797,11 @@ class _Rekon extends StatelessWidget {
                 children: [
                   DeretTautan(
                     anak: [
-                      _tautan(ke: 'RekonIsi', teks: 'Isi rekening koran'),
-                      _tautan(ke: 'HitungKas', teks: 'Hitung kas'),
+                      _tautan(
+                        ke: Layar.rekeningKoran,
+                        teks: 'Isi rekening koran',
+                      ),
+                      _tautan(ke: Layar.hitungKas, teks: 'Hitung kas'),
                     ],
                   ),
                   Container(
@@ -1186,7 +1172,7 @@ class _Konfirmasi extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.warna;
     final p = _Lingkup.of(context);
-    final jk = context.prototipe.jabatanKosong;
+    final jk = belumDipindah(false);
     final Widget isi = switch (p.fase) {
       _Fase.proses => const _Proses(key: ValueKey('proses')),
       _Fase.gagal => _Gagal(key: const ValueKey('gagal'), p: p),
@@ -1376,13 +1362,7 @@ class _Konfirmasi extends StatelessWidget {
           TombolTahan(
             'Tutup buku Oktober 2026',
             siap: p.centang,
-            onSelesai: () => p.tutupBuku(
-              PrototypeState.maybeOf(
-                    context,
-                    dengar: false,
-                  )?.tweak(_stem, 'gagalDiCekTerakhir') ==
-                  true,
-            ),
+            onSelesai: () => p.tutupBuku(belumDipindah(false)),
             petunjuk: p.centang
                 ? 'Tekan dan tahan tombol sampai penuh'
                 : 'Centang pernyataan di atas untuk melanjutkan',
@@ -1474,7 +1454,7 @@ class _Cakupan extends StatelessWidget {
               width: kotak.width,
               height: 44,
               child: Tautan(
-                ke: 'Laporan',
+                ke: Layar.laporan,
                 label: _tautan,
                 child: const SizedBox.expand(),
               ),
@@ -1650,14 +1630,19 @@ class _DitutupState extends State<_Ditutup> {
   Widget build(BuildContext context) {
     final c = context.warna;
     final p = _Lingkup.of(context);
-    final jk = context.prototipe.jabatanKosong;
+    final jk = belumDipindah(false);
     final kecil = TextStyle(fontSize: 13, color: c.diTinta2);
-    Widget unduh(String label, {required String ke}) => _muncul(
-      kunci: ke,
+    Widget unduh(
+      String label, {
+      required Layar ke,
+      required Map<String, String> param,
+    }) => _muncul(
+      kunci: param['bentuk'],
       Tombol(
         label,
         onPressed: null,
         ke: ke,
+        param: param,
         ukuran: UkuranTombol.kecil,
         paddingH: 14,
         lebarPenuh: false,
@@ -1733,7 +1718,14 @@ class _DitutupState extends State<_Ditutup> {
                                 ? 'Siap diunduh'
                                 : 'Sedang disiapkan',
                             aksi: p.pdf == _File.siap
-                                ? unduh('Unduh PDF', ke: 'A4F01')
+                                ? unduh(
+                                    'Unduh PDF',
+                                    ke: Layar.laporanResmi,
+                                    param: {
+                                      'periode': belumDipindahId,
+                                      'bentuk': 'f01',
+                                    },
+                                  )
                                 : null,
                           ),
                           _BarisFile(
@@ -1755,7 +1747,14 @@ class _DitutupState extends State<_Ditutup> {
                                     lebarPenuh: false,
                                   )
                                 : p.xls == _File.siap
-                                ? unduh('Unduh Excel', ke: 'WebExcel')
+                                ? unduh(
+                                    'Unduh Excel',
+                                    ke: Layar.laporanResmi,
+                                    param: {
+                                      'periode': belumDipindahId,
+                                      'bentuk': 'excel',
+                                    },
+                                  )
                                 : null,
                           ),
                         ],

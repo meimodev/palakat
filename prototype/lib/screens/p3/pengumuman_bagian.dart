@@ -1,7 +1,6 @@
 import 'package:flutter/widgets.dart';
 
 import '../../mock/mock.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
@@ -12,6 +11,8 @@ import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// Shared by Pengumuman and WebPengumuman (17-keadaanumum.md): the five
 /// views of the `keadaan` tweak and the board state `{ k: null }`.
@@ -36,7 +37,7 @@ mixin KeadaanPengumuman<W extends StatefulWidget> on State<W> {
   String? _k, _tweak;
 
   String keadaan(BuildContext context) {
-    final t = context.tweak<String>(stem, 'keadaan');
+    final t = belumDipindah<String>('Daftar');
     if (_tweak != null && t != _tweak) {
       _k = null;
       WidgetsBinding.instance.addPostFrameCallback((_) => _keAtas());
@@ -89,7 +90,7 @@ class BarisPengumuman extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.warna;
     return Tautan(
-      ke: 'Pengumuman',
+      ke: Layar.pengumuman,
       radius: 14,
       child: Kartu(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -138,7 +139,7 @@ class TabelPengumuman extends StatelessWidget {
           for (final (i, p) in semuaPengumuman.indexed) ...[
             if (i > 0) GarisLurus(warna: c.garis),
             Tautan(
-              ke: 'WebPengumuman',
+              ke: Layar.pengumuman,
               child: Container(
                 // min-height 52 on a content-box <a>, plus padding 8 + 8.
                 constraints: const BoxConstraints(minHeight: 68),

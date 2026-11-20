@@ -7,6 +7,7 @@ import '../../theme/palakat_tema.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import 'alur_keluarga_bersama.dart';
+import '../../app/layar.dart';
 
 /// Web · Alur · Buku anggota: AlurKeluarga on the laptop, in two columns.
 class WebAlurKeluargaScreen extends StatefulWidget {
@@ -37,55 +38,48 @@ class _WebAlurKeluargaScreenState extends State<WebAlurKeluargaScreen>
       if (!op) ...penatua,
       ?riwayat,
     ];
-    return denganAlat(
-      'WebAlurKeluarga',
-      HalamanWeb(
-        nav: const NavSamping(
-          item: navPlatform,
-          aktif: 5,
-          pengguna: PenggunaNav(tebal: 'Yanti Sumual', biasa: ' · Operator'),
-        ),
-        isi: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const MarginNegatif(
-                // The 14 px <a> sits on the div's 15 × 1.45 strut: a 21.75 line
-                // box with the text 1.1 down; the 44 target overhangs it.
-                atas: 10.75,
-                bawah: 11.5,
-                child: Tautan(
-                  ke: 'WebDataAnggota',
-                  cara: Cara.naik,
-                  child: Center(
-                    widthFactor: 1,
-                    child: TautanTeks('Data jemaat', ukuran: 14),
-                  ),
+    return HalamanWeb(
+      nav: const NavSamping(item: navPlatform, aktif: 5),
+      isi: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const MarginNegatif(
+              // The 14 px <a> sits on the div's 15 × 1.45 strut: a 21.75 line
+              // box with the text 1.1 down; the 44 target overhangs it.
+              atas: 10.75,
+              bawah: 11.5,
+              child: Tautan(
+                ke: Layar.dataAnggota,
+                cara: Cara.naik,
+                child: Center(
+                  widthFactor: 1,
+                  child: TautanTeks('Data jemaat', ukuran: 14),
                 ),
               ),
-              const SizedBox(height: 2),
-              Semantics(
-                header: true,
-                child: const Text(
-                  'Alur · Buku anggota',
-                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700),
-                ),
-              ),
-              Text(
-                'Operator mengimpor; keluarga mengonfirmasi; Penatua memverifikasi',
-                style: TextStyle(fontSize: 14, color: c.tinta2),
-              ),
-            ],
-          ),
-          Align(
-            alignment: Alignment.topLeft,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1120),
-              child: kolomAlur(blok, 16),
             ),
+            const SizedBox(height: 2),
+            Semantics(
+              header: true,
+              child: const Text(
+                'Alur · Buku anggota',
+                style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700),
+              ),
+            ),
+            Text(
+              'Operator mengimpor; keluarga mengonfirmasi; Penatua memverifikasi',
+              style: TextStyle(fontSize: 14, color: c.tinta2),
+            ),
+          ],
+        ),
+        Align(
+          alignment: Alignment.topLeft,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1120),
+            child: kolomAlur(blok, 16),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

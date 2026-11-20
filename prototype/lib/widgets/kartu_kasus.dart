@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../mock/format.dart';
+import '../core/format.dart';
 import '../shell/tautan.dart';
 import '../theme/palakat_tema.dart';
 import 'batang_pembagian.dart';
 import 'garis.dart';
 import 'tekan.dart';
+import '../app/layar.dart';
 
 /// One Uang Muka, Titipan or Penggantian case in the Kewajiban list, as the
 /// board draws it: radius 14, padding 14 16, gap 6; open → `permukaan` with
@@ -25,6 +26,8 @@ class KartuKasus extends StatelessWidget {
     required this.status,
     this.lewatTempo = false,
     this.ke,
+    this.param = const {},
+    this.anak,
     this.cara = Cara.dorong,
     this.onTap,
     this.web = false,
@@ -44,7 +47,11 @@ class KartuKasus extends StatelessWidget {
   final bool lewatTempo;
 
   /// Card target (literal: navigation.md 3.1).
-  final String? ke;
+  final Layar? ke;
+
+  /// Path parameters and child route of [ke].
+  final Map<String, String> param;
+  final String? anak;
   final Cara cara;
 
   /// In-board open (Kewajiban `k.buka`).
@@ -128,7 +135,14 @@ class KartuKasus extends StatelessWidget {
       ),
     );
     if (ke != null) {
-      return Tautan(ke: ke!, cara: cara, radius: 14, child: kartu);
+      return Tautan(
+        ke: ke!,
+        param: param,
+        anak: anak,
+        cara: cara,
+        radius: 14,
+        child: kartu,
+      );
     }
     if (onTap != null) return Tekan(onTap: onTap, radius: 14, child: kartu);
     return kartu;

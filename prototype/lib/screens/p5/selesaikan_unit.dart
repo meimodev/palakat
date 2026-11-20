@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import 'selesaikan_unit_isi.dart';
+import '../../app/layar.dart';
 
 /// 87 · Hambatan dari unit (spec 21): the Bendahara Jemaat clears the two
 /// Kolom 7 blockers of the October 2026 close. Five views in place.
@@ -31,7 +32,7 @@ class _SelesaikanUnitState extends State<SelesaikanUnitScreen>
               judul: 'Hambatan dari unit',
               anakJudul:
                   'Supaya satu unit tidak menahan tutup buku seluruh Jemaat',
-              kembaliKe: 'TutupBuku',
+              kembaliKe: Layar.tutupBuku,
               labelKembali: 'Kembali ke Tutup buku',
             ),
             Expanded(

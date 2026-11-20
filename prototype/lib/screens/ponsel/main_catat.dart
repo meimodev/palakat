@@ -174,7 +174,7 @@ class _CatatState extends State<_Catat> {
                         ),
                       ),
                       Tautan(
-                        ke: 'Tanggal',
+                        ke: Layar.tanggal,
                         child: DefaultTextStyle.merge(
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
@@ -215,7 +215,7 @@ class _CatatState extends State<_Catat> {
         _kaki(context, [
           Tombol(
             'Periksa dan bukukan',
-            onPressed: () => GoRouter.of(context).push('/Main/periksa'),
+            onPressed: () => context.dorongKe(Layar.keuangan, anak: 'periksa'),
           ),
           Tombol(
             'Simpan sebagai draf',
@@ -242,7 +242,7 @@ class _TombolMa extends StatelessWidget {
     final ma = m.ma;
     return Tekan(
       radius: 12,
-      onTap: () => GoRouter.of(context).push('/Main/mata-anggaran'),
+      onTap: () => context.dorongKe(Layar.keuangan, anak: 'mata-anggaran'),
       child: Container(
         constraints: const BoxConstraints(minHeight: 56),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -413,7 +413,7 @@ class _PilihMaState extends State<_PilihMa> {
             '${r.kode} ${r.nama}'.toLowerCase().contains(q))
           r,
     ];
-    void keForm() => context.kembaliKe('/Main/catat');
+    void keForm() => context.naikKe(Layar.catat);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -516,7 +516,7 @@ class _PilihMaState extends State<_PilihMa> {
               jenis: JenisTombol.kedua,
               ukuran: UkuranTombol.sedang,
               onPressed: null,
-              ke: 'Bagi',
+              ke: Layar.bagi,
             ),
             Tombol(
               'Simpan tanpa Mata Anggaran',

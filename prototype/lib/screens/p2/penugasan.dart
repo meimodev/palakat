@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import '../../mock/mock.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/prototipe_state.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis.dart';
 import '../../widgets/garis_status.dart';
@@ -14,6 +13,8 @@ import '../../widgets/lencana_status.dart';
 import '../../widgets/penolakan.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 const _o = [
   'Daftar jabatan',
@@ -38,7 +39,7 @@ class _PenugasanScreenState extends State<PenugasanScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tweak<String>('Penugasan', 'keadaan');
+    final t = belumDipindah<String>('Daftar jabatan');
     if (t != _t) {
       // A panel change resets the in-board view.
       _t = t;
@@ -58,7 +59,7 @@ class _PenugasanScreenState extends State<PenugasanScreen> {
           const KepalaPonsel(
             judul: 'Penugasan jabatan',
             anakJudul: 'Siapa memegang jabatan apa, di unit mana, sejak kapan',
-            kembaliKe: 'BerandaJabatan',
+            kembaliKe: Layar.beranda,
             labelKembali: 'Kembali ke Beranda',
           ),
           Expanded(

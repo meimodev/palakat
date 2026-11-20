@@ -20,12 +20,8 @@ class _WebPemberitahuanScreenState extends State<WebPemberitahuanScreen>
   Widget build(BuildContext context) => Material(
     type: MaterialType.transparency,
     child: HalamanWeb(
-      jabatanKosong: true,
-      nav: const NavSamping(
-        item: navKeuangan,
-        aktif: 0,
-        pengguna: PenggunaKeuangan(),
-      ),
+      layarKeuangan: true,
+      nav: const NavSamping(item: navKeuangan, aktif: 0),
       isi: [
         Semantics(
           header: true,

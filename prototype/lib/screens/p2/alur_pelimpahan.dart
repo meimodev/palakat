@@ -12,6 +12,7 @@ import '../../widgets/penolakan.dart';
 import '../../widgets/riwayat_alur.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
+import '../../app/layar.dart';
 
 /// 55 · Alur · Pelimpahan tugas (screens/15-cariorang.md): Pnt. Hendrik
 /// Rumagit delegates one task with an end date. Views `daftar` and `form`
@@ -109,7 +110,7 @@ class _AlurPelimpahanScreenState extends State<AlurPelimpahanScreen> {
         const KepalaPonsel(
           judul: 'Alur · Pelimpahan tugas',
           anakJudul: 'Untuk sementara, dengan tanggal berakhir',
-          kembaliKe: 'Pelimpahan',
+          kembaliKe: Layar.pelimpahan,
           labelKembali: 'Kembali ke Pelimpahan tugas',
         ),
         Expanded(

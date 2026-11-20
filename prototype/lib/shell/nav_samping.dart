@@ -1,11 +1,13 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../theme/palakat_tema.dart';
 import '../widgets/logo.dart';
 import '../widgets/tekan.dart';
 import 'nav_item.dart';
-import 'prototipe_state.dart';
+import '../providers/session.dart';
 import 'tautan.dart';
+import '../providers/layout.dart';
 
 export 'nav_item.dart';
 
@@ -20,12 +22,11 @@ double lebarNav(double lebarHalaman) => 220 + (lebarHalaman - 780) / 1000;
 /// laptop and tablet boards. Wide: a full-height column (placed by
 /// [HalamanWeb]). At 860 px and below: the top bar with the "Menu" toggle,
 /// closed on every new page; while open, Back closes it first.
-class NavSamping extends StatefulWidget {
+class NavSamping extends ConsumerStatefulWidget {
   const NavSamping({
     super.key,
     required this.item,
     required this.aktif,
-    required this.pengguna,
     this.diSini,
   });
 
@@ -35,18 +36,15 @@ class NavSamping extends StatefulWidget {
   /// Index drawn active; null when the board highlights no item.
   final int? aktif;
 
-  /// Footer block, for example [PenggunaKeuangan] or [PenggunaNav].
-  final Widget pengguna;
-
   /// Passed to every item's [Tautan]: runs, instead of navigating, on an item
   /// whose `ke` is the page open now.
   final VoidCallback? diSini;
 
   @override
-  State<NavSamping> createState() => _NavSampingState();
+  ConsumerState<NavSamping> createState() => _NavSampingState();
 }
 
-class _NavSampingState extends State<NavSamping> {
+class _NavSampingState extends ConsumerState<NavSamping> {
   bool _buka = false;
 
   @override
@@ -89,28 +87,32 @@ class _NavSampingState extends State<NavSamping> {
       mainAxisSize: MainAxisSize.min,
       children: [
         for (var i = 0; i < widget.item.length; i++)
-          Tautan(
-            ke: widget.item[i].ke,
-            cara: Cara.ganti,
-            radius: 10,
-            diSini: widget.diSini,
-            child: Container(
-              constraints: const BoxConstraints(minHeight: 44),
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              alignment: Alignment.centerLeft,
-              decoration: BoxDecoration(
-                color: i == widget.aktif ? c.tinta : null,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Text(
-                widget.item[i].teks,
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: i == widget.aktif ? c.permukaan : c.tinta,
+          // An item to a screen this layout lacks is left out (D13): the
+          // web Excel pages on a phone have no "Laporan" (WebPaketLaporan).
+          if (widget.item[i].ke.adaUntuk(ref.watch(layoutProvider)))
+            Tautan(
+              ke: widget.item[i].ke,
+              anak: widget.item[i].anak,
+              cara: Cara.ganti,
+              radius: 10,
+              diSini: widget.diSini,
+              child: Container(
+                constraints: const BoxConstraints(minHeight: 44),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                alignment: Alignment.centerLeft,
+                decoration: BoxDecoration(
+                  color: i == widget.aktif ? c.tinta : null,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  widget.item[i].teks,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: i == widget.aktif ? c.permukaan : c.tinta,
+                  ),
                 ),
               ),
             ),
-          ),
       ],
     );
 
@@ -121,7 +123,7 @@ class _NavSampingState extends State<NavSamping> {
       ),
       child: DefaultTextStyle.merge(
         style: TextStyle(fontSize: 13, color: c.tinta2),
-        child: widget.pengguna,
+        child: const PenggunaSesi(),
       ),
     );
 
@@ -263,27 +265,26 @@ class PenggunaNav extends StatelessWidget {
   );
 }
 
-/// The finance footer of 38 web boards (navigation.md 1.3, "Footer text"):
-/// "**Meiske L.** · Bendahara / Wewenang Bendahara aktif", or with the global
-/// `jabatanKosong` switch on "**Yanti Sumual** · Operator / Menjalankan
-/// jabatan kosong Bendahara Jemaat". Boards without the tweak pass
-/// `ikutJabatanKosong: false`.
-class PenggunaKeuangan extends StatelessWidget {
-  const PenggunaKeuangan({super.key, this.ikutJabatanKosong = true});
-  final bool ikutJabatanKosong;
+/// The footer from the session (navigation.md 1.3, README 5.2): the
+/// persona's line, or the vacancy footer while the actor covers the vacant
+/// Bendahara post (D18).
+class PenggunaSesi extends ConsumerWidget {
+  const PenggunaSesi({super.key});
 
   @override
-  Widget build(BuildContext context) =>
-      ikutJabatanKosong &&
-          (PrototypeState.maybeOf(context)?.jabatanKosong ?? false)
-      ? const PenggunaNav(
-          tebal: 'Yanti Sumual',
-          biasa: ' · Operator',
-          baris2: 'Menjalankan jabatan kosong Bendahara Jemaat',
-        )
-      : const PenggunaNav(
-          tebal: 'Meiske L.',
-          biasa: ' · Bendahara',
-          baris2: 'Wewenang Bendahara aktif',
-        );
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (ref.watch(vacancyCoverProvider)) {
+      return const PenggunaNav(
+        tebal: 'Yanti Sumual',
+        biasa: ' · Operator',
+        baris2: 'Menjalankan jabatan kosong Bendahara Jemaat',
+      );
+    }
+    final p = ref.watch(sessionProvider)?.persona;
+    if (p == null) return const PenggunaNav(biasa: 'Belum masuk');
+    final k = p.kaki;
+    return k == null
+        ? PenggunaNav(tebal: p.nama, biasa: ' · ${p.jabatan}')
+        : PenggunaNav(tebal: k.$1, biasa: k.$2, baris2: k.$3);
+  }
 }

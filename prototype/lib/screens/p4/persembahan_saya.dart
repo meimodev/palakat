@@ -1,9 +1,8 @@
 import 'package:flutter/widgets.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
@@ -12,8 +11,9 @@ import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
-const _stem = 'PersembahanSaya';
 const _ada = 'Ada persembahan bernama',
     _rincian = 'Rincian',
     _belum = 'Belum ada',
@@ -36,7 +36,7 @@ class _PersembahanSayaScreenState extends State<PersembahanSayaScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final keadaan = context.tweak<String>(_stem, 'keadaan');
+    final keadaan = belumDipindah<String>('Ada persembahan bernama');
     if (keadaan != _keadaan) {
       _keadaan = keadaan;
       _k = null; // a change in the Keadaan panel resets the board state
@@ -103,7 +103,7 @@ class _PersembahanSayaScreenState extends State<PersembahanSayaScreen> {
             Tombol(
               'Ubah Tampilan nama',
               onPressed: null,
-              ke: 'TampilanNama',
+              ke: Layar.tampilanNama,
               jenis: JenisTombol.kedua,
               ukuran: UkuranTombol.sedang,
             ),
@@ -194,7 +194,7 @@ class _PersembahanSayaScreenState extends State<PersembahanSayaScreen> {
         // The board's `<a href="PersembahanSaya.dc.html" onClick={{go1}}>`:
         // a self link, so it switches to Rincian in place.
         Tautan(
-          ke: _stem,
+          ke: Layar.persembahanSaya,
           radius: 14,
           diSini: () => _ke(_rincian),
           child: kartu(
@@ -227,7 +227,7 @@ class _PersembahanSayaScreenState extends State<PersembahanSayaScreen> {
           const KepalaPonsel(
             judul: 'Persembahan saya',
             anakJudul: 'Hanya persembahan yang dicatat atas nama Anda',
-            kembaliKe: 'BerandaJabatan',
+            kembaliKe: Layar.beranda,
             labelKembali: 'Kembali ke Beranda',
           ),
           Expanded(

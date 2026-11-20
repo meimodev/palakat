@@ -13,6 +13,7 @@ import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import 'bagi_logika.dart';
+import '../../app/layar.dart';
 
 /// 6 · Bagi ke beberapa Mata Anggaran (spec 03, Bagi).
 class BagiScreen extends StatefulWidget {
@@ -29,7 +30,7 @@ class _BagiScreenState extends State<BagiScreen> with LogikaBagi {
     return DefaultTextHeightBehavior(
       textHeightBehavior: cssLeading,
       child: LayarPonsel(
-        jabatanKosong: true,
+        layarKeuangan: true,
         overlay: [
           if (pilih)
             Positioned.fill(
@@ -90,7 +91,7 @@ class _BagiScreenState extends State<BagiScreen> with LogikaBagi {
             const KepalaPonsel(
               judul: 'Bagi ke beberapa Mata Anggaran',
               anakJudul: 'Belanja · Toko Sinar · satu pembayaran',
-              kembaliKe: 'Main',
+              kembaliKe: Layar.keuangan,
               labelKembali: 'Kembali ke transaksi',
               ujung: LencanaStatus(
                 'Belanja',

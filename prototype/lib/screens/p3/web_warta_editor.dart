@@ -9,6 +9,8 @@ import '../../widgets/lencana_status.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
 import 'warta_editor.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 class WebWartaEditorScreen extends StatefulWidget {
   const WebWartaEditorScreen({super.key});
@@ -24,14 +26,7 @@ class _WebWartaEditorScreenState extends State<WebWartaEditorScreen>
     final c = context.warna;
     final i = ki('WebWartaEditor');
     return HalamanWeb(
-      nav: const NavSamping(
-        item: navPlatform,
-        aktif: 4,
-        pengguna: PenggunaNav(
-          tebal: 'Olvie Pangemanan',
-          biasa: ' · Sekretaris Jemaat',
-        ),
-      ),
+      nav: const NavSamping(item: navPlatform, aktif: 4),
       isi: [
         Column(
           key: kunciIsi,
@@ -43,7 +38,7 @@ class _WebWartaEditorScreenState extends State<WebWartaEditorScreen>
               atas: 11,
               bawah: 11,
               child: Tautan(
-                ke: 'WebWartaArsip',
+                ke: Layar.warta,
                 cara: Cara.naik,
                 child: SizedBox(
                   height: 44,
@@ -81,20 +76,22 @@ class _WebWartaEditorScreenState extends State<WebWartaEditorScreen>
                 lihatPdf: const Tombol(
                   'Lihat PDF',
                   onPressed: null,
-                  ke: 'A4Warta',
+                  ke: Layar.wartaPdf,
+                  param: {'edisi': belumDipindahId},
                   jenis: JenisTombol.kedua,
                   ukuran: UkuranTombol.sedang,
                 ),
                 buatRalat: const Tombol(
                   'Buat ralat',
                   onPressed: null,
-                  ke: 'WebWartaArsip',
+                  ke: Layar.warta,
                   cara: Cara.naik,
                   jenis: JenisTombol.kedua,
                   ukuran: UkuranTombol.sedang,
                 ),
                 tampilkanNama: const Tautan(
-                  ke: 'WebBukaNama',
+                  ke: Layar.bukaNama,
+                  param: {'edisi': belumDipindahId},
                   child: TautanTampilkanNama(),
                 ),
               ),

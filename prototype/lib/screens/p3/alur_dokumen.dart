@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
-import '../../shell/kendali.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import '../../shell/tautan.dart';
 import 'alur_dokumen_alur.dart';
+import '../../app/layar.dart';
 
 /// Owns the flow state shared by `/AlurDokumen`, `/terbit` and `/ralat`
 /// (navigation.md 2.1), and LayarPonsel around the nested navigator.
@@ -18,33 +17,17 @@ class AlurDokumenKendali extends StatefulWidget {
 
 class _AlurDokumenKendaliState extends State<AlurDokumenKendali> {
   final _a = AlurDokumenData();
-  var _generasi = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    ulangPapan['AlurDokumen'] = _ulang;
-  }
-
-  void _ulang() => setState(() {
-    _a.ulang();
-    _generasi++;
-  });
 
   @override
   void dispose() {
-    if (ulangPapan['AlurDokumen'] == _ulang) ulangPapan.remove('AlurDokumen');
     _a.dispose();
     super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) => GenerasiPapan(
-    generasi: _generasi,
-    child: _Lingkup(
-      notifier: _a,
-      child: LayarPonsel(child: widget.child),
-    ),
+  Widget build(BuildContext context) => _Lingkup(
+    notifier: _a,
+    child: LayarPonsel(child: widget.child),
   );
 }
 
@@ -65,8 +48,8 @@ class AlurDokumenScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final a = _Lingkup.of(context);
-    void ke(String sub) => GoRouter.of(context).push('/AlurDokumen/$sub');
-    void kembali() => context.kembaliKe('/AlurDokumen');
+    void ke(String sub) => context.dorongKe(Layar.dokumenGereja, anak: sub);
+    void kembali() => context.naikKe(Layar.dokumenGereja);
     void batal() {
       a.batal();
       kembali();
@@ -118,7 +101,7 @@ class AlurDokumenScreen extends StatelessWidget {
         const KepalaPonsel(
           judul: 'Alur · Menerbitkan dokumen',
           anakJudul: 'Dari mengisi sampai terbit, lalu ralat sebagai revisi',
-          kembaliKe: 'DokumenGereja',
+          kembaliKe: Layar.dokumenGereja,
           labelKembali: 'Kembali ke Dokumen gereja',
         ),
         Expanded(

@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import 'alur_keluarga_bersama.dart';
+import '../../app/layar.dart';
 
 /// 84 · Alur · Buku anggota (phone): the Operator imports three book rows,
 /// enters the family's signed form; the Penatua Kolom 7 verifies it.
@@ -24,26 +25,23 @@ class _AlurKeluargaScreenState extends State<AlurKeluargaScreen>
       if (!op) ...penatua,
       ?riwayat,
     ];
-    return denganAlat(
-      'AlurKeluarga',
-      LayarPonsel(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const KepalaPonsel(
-              judul: 'Alur · Buku anggota',
-              anakJudul: 'Operator mengimpor; keluarga mengonfirmasi; Penatua memverifikasi',
-              kembaliKe: 'DataAnggota',
-              labelKembali: 'Kembali ke Data jemaat',
+    return LayarPonsel(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const KepalaPonsel(
+            judul: 'Alur · Buku anggota',
+            anakJudul: 'Operator mengimpor; keluarga mengonfirmasi; Penatua memverifikasi',
+            kembaliKe: Layar.dataAnggota,
+            labelKembali: 'Kembali ke Data jemaat',
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+              child: kolomAlur(blok, 16),
             ),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-                child: kolomAlur(blok, 16),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

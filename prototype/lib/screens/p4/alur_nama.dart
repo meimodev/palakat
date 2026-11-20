@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/perangkat_prototipe.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
 import '../../widgets/chip_pilihan.dart';
@@ -12,6 +11,7 @@ import '../../widgets/lencana_status.dart';
 import '../../widgets/riwayat_alur.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
+import '../../app/layar.dart';
 
 /// The seven display-name forms and their preview (board `P`), in board order.
 const _pratinjau = {
@@ -63,39 +63,30 @@ class _AlurNamaScreenState extends State<AlurNamaScreen> {
       'sudah' => _sudah(c),
       _ => _nama(c),
     };
-    return AlatPrototipe(
-      stem: 'AlurNama',
-      alat: [
-        if (_v == 'sudah')
-          const Text(
-            'Layar ini hanya contoh: setelah penghapusan, akun tidak dapat lagi masuk.',
+    return LayarPonsel(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const KepalaPonsel(
+            judul: 'Alur · Data saya',
+            anakJudul:
+                'Memilih tampilan nama; mencabut izin dan menghapus data',
+            kembaliKe: Layar.dataAnggota,
+            labelKembali: 'Kembali ke Data jemaat',
           ),
-      ],
-      child: LayarPonsel(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const KepalaPonsel(
-              judul: 'Alur · Data saya',
-              anakJudul:
-                  'Memilih tampilan nama; mencabut izin dan menghapus data',
-              kembaliKe: 'DataAnggota',
-              labelKembali: 'Kembali ke Data jemaat',
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                // A view change starts the body at the top.
-                key: ValueKey(_v),
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  spacing: 16,
-                  children: isi,
-                ),
+          Expanded(
+            child: SingleChildScrollView(
+              // A view change starts the body at the top.
+              key: ValueKey(_v),
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: 16,
+                children: isi,
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

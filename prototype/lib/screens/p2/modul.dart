@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import '../../mock/mock.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis_status.dart';
@@ -13,6 +12,8 @@ import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 const _o = [
   'Daftar modul',
@@ -37,7 +38,7 @@ class _ModulScreenState extends State<ModulScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tweak<String>('Modul', 'keadaan');
+    final t = belumDipindah<String>('Daftar modul');
     if (t != _t) {
       // A panel change resets the in-board view.
       _t = t;
@@ -57,7 +58,7 @@ class _ModulScreenState extends State<ModulScreen> {
           const KepalaPonsel(
             judul: 'Modul',
             anakJudul: 'Pimpinan Jemaat yang berwenang mengaktifkan modul saat orangnya siap',
-            kembaliKe: 'BerandaJabatan',
+            kembaliKe: Layar.beranda,
             labelKembali: 'Kembali ke Beranda',
           ),
           Expanded(
@@ -100,8 +101,11 @@ class _ModulScreenState extends State<ModulScreen> {
     const _Keterangan(
       'Modul yang tidak aktif tidak tampil di navigasi, pencarian, pemberitahuan atau keadaan kosong mana pun.',
     ),
-    const _TautanBaris('Tabel pemberi persetujuan', ke: 'PemberiPersetujuan'),
-    const _TautanBaris('Kas/Bank yang dikelola unit', ke: 'KasUnit'),
+    const _TautanBaris(
+      'Tabel pemberi persetujuan',
+      ke: Layar.pemberiPersetujuan,
+    ),
+    const _TautanBaris('Kas/Bank yang dikelola unit', ke: Layar.kasUnit),
   ];
 
   List<Widget> _aktifkan(BuildContext context) {
@@ -339,7 +343,8 @@ class _BarisTombol extends StatelessWidget {
 /// Underlined text link 14/700, min height 44, full-width target, text left.
 class _TautanBaris extends StatelessWidget {
   const _TautanBaris(this.teks, {required this.ke});
-  final String teks, ke;
+  final String teks;
+  final Layar ke;
 
   @override
   Widget build(BuildContext context) => Tautan(

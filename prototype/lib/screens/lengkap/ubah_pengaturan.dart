@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../motion/kerangka.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
@@ -14,6 +14,7 @@ import '../../widgets/kecil.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
+import '../../app/layar.dart';
 
 /// The board's logic class (shared with WebUbahPengaturan; each screen owns
 /// its own instance). Initial state as on the board.
@@ -560,7 +561,7 @@ class UbahPengaturanScreen extends StatelessWidget {
             const KepalaPonsel(
               judul: 'Ubah pengaturan',
               anakJudul: 'Selalu sebagai versi baru',
-              kembaliKe: 'Lainnya',
+              kembaliKe: Layar.pengaturan,
               labelKembali: 'Kembali ke Lainnya',
             ),
             b.tab,

@@ -7,6 +7,7 @@ import '../../theme/palakat_tema.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import 'pengumuman_bagian.dart';
+import '../../app/layar.dart';
 
 /// Web · Pengumuman (17-keadaanumum.md): as Pengumuman, with a table for the
 /// list and a member preview beside the draft.
@@ -51,14 +52,7 @@ class _WebPengumumanScreenState extends State<WebPengumumanScreen>
       _ => viewPengumuman(context, k, pilih),
     };
     return HalamanWeb(
-      nav: const NavSamping(
-        item: navPlatform,
-        aktif: 3,
-        pengguna: PenggunaNav(
-          tebal: 'Olvie Pangemanan',
-          biasa: ' · Sekretaris Jemaat',
-        ),
-      ),
+      nav: const NavSamping(item: navPlatform, aktif: 3),
       isi: [
         Column(
           key: kunciAtas,
@@ -70,7 +64,7 @@ class _WebPengumumanScreenState extends State<WebPengumumanScreen>
               atas: 11,
               bawah: 11,
               child: Tautan(
-                ke: 'WebBerandaJabatan',
+                ke: Layar.beranda,
                 cara: Cara.naik,
                 child: SizedBox(
                   height: 44,

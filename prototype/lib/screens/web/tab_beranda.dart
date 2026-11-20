@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../mock/mock.dart';
 import '../../shell/nav_samping.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tablet.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
@@ -14,6 +13,8 @@ import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
 import 'tab_beranda_kit.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// Tablet · Beranda (spec 13): WebBeranda at 834 wide, no vacancy tweak.
 /// Content follows the `bulan` tweak only.
@@ -23,15 +24,15 @@ class TabBerandaScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final sepi = context.tweak<String>('TabBeranda', 'bulan') == 'sepi';
+    final sepi = belumDipindah<String>('ramai') == 'sepi';
     final tindakan = sepi
         ? berandaPerluTindakan.take(1).toList()
         : berandaPerluTindakan;
     const tujuan = [
-      (ke: 'WebTutupBuku'),
-      (ke: 'WebTransaksi'),
-      (ke: 'WebTransaksi'),
-      (ke: 'WebTransaksi'),
+      (ke: Layar.tutupBuku),
+      (ke: Layar.transaksi),
+      (ke: Layar.transaksi),
+      (ke: Layar.transaksi),
     ];
     final angka = [
       ('Pendapatan bulan ini', berandaNovember.pendapatan, 'tanpa titipan'),
@@ -43,11 +44,17 @@ class TabBerandaScreen extends StatelessWidget {
       ),
     ];
 
-    Widget aksi(String teks, {required String ke, bool utama = true}) => Tombol(
+    Widget aksi(
+      String teks, {
+      required Layar ke,
+      String? anak,
+      bool utama = true,
+    }) => Tombol(
       teks,
       onPressed: null,
       ke: ke,
-      cara: ke == 'WebLaporan' ? Cara.dorong : Cara.ganti,
+      anak: anak,
+      cara: ke == Layar.laporan ? Cara.dorong : Cara.ganti,
       jenis: utama ? JenisTombol.utama : JenisTombol.kedua,
       ukuran: UkuranTombol.kecil,
       paddingH: 18,
@@ -190,7 +197,7 @@ class TabBerandaScreen extends StatelessWidget {
             tingkat: TingkatPerhatian.untukDiketahui,
             judul: berandaUntukDiketahui,
             web: true,
-            ke: 'WebKewajiban',
+            ke: Layar.kewajiban,
             cara: Cara.ganti,
           ),
       ],
@@ -230,33 +237,34 @@ class TabBerandaScreen extends StatelessWidget {
     );
 
     return HalamanTablet(
-      nav: const NavSamping(
-        item: navKeuangan,
-        aktif: 0,
-        pengguna: PenggunaKeuangan(ikutJabatanKosong: false),
-      ),
+      nav: const NavSamping(item: navKeuangan, aktif: 0),
       jarak: 24,
       isi: leadingCss([
         const KepalaTab(
           'Beranda',
-          ujung: [Tautan(ke: 'WebPilihBulan', radius: 999, child: PilBulan())],
+          ujung: [Tautan(ke: Layar.pilihBulan, radius: 999, child: PilBulan())],
         ),
         const DeretTautan(
           web: true,
           anak: [
-            TautanTab('Pemberitahuan', ke: 'WebPemberitahuan'),
-            TautanTab('Cari dan tanya', ke: 'WebCari'),
+            TautanTab('Pemberitahuan', ke: Layar.pemberitahuan),
+            TautanTab('Cari dan tanya', ke: Layar.cari),
           ],
         ),
         Wrap(
           spacing: 8,
           runSpacing: 8,
           children: [
-            aksi('+ Pendapatan', ke: 'WebTransaksi'),
-            aksi('− Belanja', ke: 'WebTransaksi'),
-            aksi('+ Persembahan', ke: 'WebTransaksi'),
-            aksi('Rekonsiliasi', ke: 'WebRekonsiliasi', utama: false),
-            aksi('Buat laporan sementara', ke: 'WebLaporan', utama: false),
+            aksi('+ Pendapatan', ke: Layar.transaksi),
+            aksi('− Belanja', ke: Layar.transaksi),
+            aksi('+ Persembahan', ke: Layar.transaksi),
+            aksi(
+              'Rekonsiliasi',
+              ke: Layar.tutupBuku,
+              anak: 'rekonsiliasi',
+              utama: false,
+            ),
+            aksi('Buat laporan sementara', ke: Layar.laporan, utama: false),
           ],
         ),
         KisiOtomatis(minLebar: 360, jarak: 24, anak: [saldo, ubin]),
@@ -371,7 +379,7 @@ class _TabelKas extends StatelessWidget {
                                 bawah: 12,
                                 child: TautanTab(
                                   'Hitung kas',
-                                  ke: 'WebHitungKas',
+                                  ke: Layar.hitungKas,
                                   ukuran: 13,
                                   berat: FontWeight.w700,
                                 ),

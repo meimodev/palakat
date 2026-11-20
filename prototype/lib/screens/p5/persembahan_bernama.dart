@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import 'persembahan_bernama_blok.dart';
+import '../../app/layar.dart';
 
 /// 93 · Persembahan bernama (spec 22): attaching a giver to a named envelope.
 class PersembahanBernamaScreen extends StatefulWidget {
@@ -27,7 +28,7 @@ class _PersembahanBernamaScreenState extends State<PersembahanBernamaScreen>
             const KepalaPonsel(
               judul: 'Persembahan bernama',
               anakJudul: 'Nama pemberi dicatat hanya bila sampulnya bernama',
-              kembaliKe: 'Main',
+              kembaliKe: Layar.keuangan,
               labelKembali: 'Kembali ke Keuangan',
             ),
             Expanded(
@@ -43,7 +44,7 @@ class _PersembahanBernamaScreenState extends State<PersembahanBernamaScreen>
                       context,
                       ki: i,
                       pilih: pilih,
-                      ke: 'PersembahanSaya',
+                      ke: Layar.persembahanSaya,
                     ),
                   ],
                 ),

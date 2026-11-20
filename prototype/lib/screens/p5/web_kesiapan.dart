@@ -7,6 +7,7 @@ import '../../theme/palakat_tema.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import 'kesiapan_isi.dart';
+import '../../app/layar.dart';
 
 /// Web · Pernyataan kesiapan per peruntukan.
 class WebKesiapanScreen extends StatefulWidget {
@@ -27,11 +28,7 @@ class _WebKesiapanScreenState extends State<WebKesiapanScreen>
     // The breadcrumb line box (15 × 1.45, the page strut) inside its 44 px target.
     const sisa = (44 - 15 * 1.45) / 2;
     return HalamanWeb(
-      nav: const NavSamping(
-        item: navKeuangan,
-        aktif: 4,
-        pengguna: PenggunaKeuangan(ikutJabatanKosong: false),
-      ),
+      nav: const NavSamping(item: navKeuangan, aktif: 4),
       isi: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -40,7 +37,7 @@ class _WebKesiapanScreenState extends State<WebKesiapanScreen>
               atas: sisa,
               bawah: sisa,
               child: Tautan(
-                ke: 'WebTutupBuku',
+                ke: Layar.tutupBuku,
                 cara: Cara.naik,
                 child: const SizedBox(
                   height: 44,

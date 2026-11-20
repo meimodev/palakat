@@ -8,6 +8,7 @@ import 'kecil.dart';
 import 'lencana_status.dart';
 import 'tekan.dart';
 import 'tombol.dart';
+import '../app/layar.dart';
 
 const _kode = TextStyle(
   fontFamily: PalakatText.mono,
@@ -49,7 +50,7 @@ class PemilihMataAnggaran extends StatefulWidget {
   final VoidCallback onTanpa;
 
   /// Board stem of "Bagi ke beberapa Mata Anggaran" (Main: 'Bagi'); null hides it.
-  final String? keBagi;
+  final Layar? keBagi;
   final String versi;
 
   /// The header back button (board `keForm`); default pops the route.

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis_status.dart';
@@ -12,8 +11,8 @@ import '../../widgets/penolakan.dart';
 import '../../widgets/pita_jabatan_kosong.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
-
-const _stem = 'JabatanKosong';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// The `keadaan` options, in board order (`O`).
 const _o = [
@@ -59,7 +58,7 @@ class _JabatanKosongScreenState extends State<JabatanKosongScreen> {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final tweak = context.tweak<String>(_stem, 'keadaan');
+    final tweak = belumDipindah<String>('Pita di setiap layar');
     if (tweak != _tweak) {
       // A panel change resets `k` (screens/14 intro).
       if (_tweak != null) {
@@ -295,7 +294,7 @@ class _JabatanKosongScreenState extends State<JabatanKosongScreen> {
             onPressed: null,
             jenis: JenisTombol.kedua,
             ukuran: UkuranTombol.sedang,
-            ke: 'BerandaJabatan',
+            ke: Layar.beranda,
             cara: Cara.naik,
           ),
         ),
@@ -313,7 +312,7 @@ class _JabatanKosongScreenState extends State<JabatanKosongScreen> {
               anakJudul:
                   'Contoh keadaan: jabatan Bendahara Jemaat belum ada '
                   'pemegangnya',
-              kembaliKe: 'BerandaJabatan',
+              kembaliKe: Layar.beranda,
               labelKembali: 'Kembali ke Beranda',
             ),
             Expanded(

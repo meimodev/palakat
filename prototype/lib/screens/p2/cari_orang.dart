@@ -2,23 +2,18 @@ import 'package:flutter/widgets.dart';
 
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis.dart';
 import '../../widgets/ikon.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// One search result of the board's `H` table: name, context line, badge
 /// (empty = none) and its shape, phone target.
-typedef HasilCari = ({
-  String j,
-  String s,
-  String l,
-  BentukLencana b,
-  String ke,
-});
+typedef HasilCari = ({String j, String s, String l, BentukLencana b, Layar ke});
 
 /// The Operator's five results, in board order. Two "Novita Wenas" rows are
 /// different records: key by index.
@@ -28,35 +23,35 @@ const List<HasilCari> hasilCariOrang = [
     s: 'Data jemaat · Keluarga Wenas-Lasut · Kolom 7',
     l: 'Aktif',
     b: BentukLencana.laut,
-    ke: 'DataAnggota',
+    ke: Layar.dataAnggota,
   ),
   (
     j: 'Keluarga Wenas-Lasut',
     s: 'Data jemaat · 4 orang · Kolom 7',
     l: '',
     b: BentukLencana.garis,
-    ke: 'DataAnggota',
+    ke: Layar.dataAnggota,
   ),
   (
     j: 'Ferry Wenas',
     s: 'Data jemaat · Kolom 2',
     l: 'Belum dikonfirmasi',
     b: BentukLencana.draf,
-    ke: 'KonfirmasiKeluarga',
+    ke: Layar.konfirmasiKeluarga,
   ),
   (
     j: 'Novita Wenas',
     s: 'Dokumen gereja · Surat keterangan 15/11/2026',
     l: 'Diterbitkan',
     b: BentukLencana.tinta,
-    ke: 'PermohonanSurat',
+    ke: Layar.surat,
   ),
   (
     j: 'Kel. Wenas-Lasut',
     s: 'Keuangan · Sampul syukur 08/11/2026',
     l: 'Dibukukan',
     b: BentukLencana.tinta,
-    ke: 'Main',
+    ke: Layar.keuangan,
   ),
 ];
 
@@ -160,7 +155,7 @@ class CariOrangScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final ki = indeksCariOrang(context.tweak<String>('CariOrang', 'keadaan'));
+    final ki = indeksCariOrang(belumDipindah<String>('Dilihat Operator'));
     final hasil = hasilCariOrang.take(jumlahCariOrang(ki)).toList();
 
     final anak = <Widget>[
@@ -174,7 +169,7 @@ class CariOrangScreen extends StatelessWidget {
       ],
       if (ki == 0)
         TautanPulihkan(
-          tautan: (isi) => Tautan(ke: 'AlurPulihkan', child: isi),
+          tautan: (isi) => Tautan(ke: Layar.cariOrang, child: isi),
         ),
       if (ki == 2) const KosongCariOrang(),
       const CatatanCariOrang(),
@@ -188,7 +183,7 @@ class CariOrangScreen extends StatelessWidget {
             judul: 'Cari orang',
             anakJudul:
                 'Hasil hanya dari modul aktif dan dari yang boleh Anda lihat',
-            kembaliKe: 'BerandaJabatan',
+            kembaliKe: Layar.beranda,
             labelKembali: 'Kembali ke Beranda',
           ),
           Expanded(

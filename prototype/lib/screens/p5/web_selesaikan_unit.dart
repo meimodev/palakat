@@ -7,6 +7,7 @@ import '../../theme/palakat_tema.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import 'selesaikan_unit_isi.dart';
+import '../../app/layar.dart';
 
 /// Web · Hambatan dari unit (spec 21): SelesaikanUnit on the laptop, with
 /// the platform side nav ("Keuangan" active).
@@ -29,14 +30,7 @@ class _WebSelesaikanUnitState extends State<WebSelesaikanUnitScreen>
     return Material(
       type: MaterialType.transparency,
       child: HalamanWeb(
-        nav: const NavSamping(
-          item: navPlatform,
-          aktif: 1,
-          pengguna: PenggunaNav(
-            tebal: 'Meiske Lumentut',
-            biasa: ' · Bendahara Jemaat',
-          ),
-        ),
+        nav: const NavSamping(item: navPlatform, aktif: 1),
         isi: [
           Column(
             key: kunciIsi,
@@ -48,7 +42,7 @@ class _WebSelesaikanUnitState extends State<WebSelesaikanUnitScreen>
                 atas: 10.75,
                 bawah: 11.5,
                 child: Tautan(
-                  ke: 'WebTutupBuku',
+                  ke: Layar.tutupBuku,
                   cara: Cara.naik,
                   child: Center(
                     widthFactor: 1,

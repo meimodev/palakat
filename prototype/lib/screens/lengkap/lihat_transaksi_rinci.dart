@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../motion/kerangka.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
@@ -8,6 +8,7 @@ import '../../widgets/garis_status.dart';
 import '../../widgets/ikon.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
+import '../../app/layar.dart';
 
 /// One booked transaction behind a report figure.
 typedef BarisLaporan = ({String no, String tgl, String ur, String cat, int jm});
@@ -128,7 +129,7 @@ class RinciAngkaLaporan extends StatelessWidget {
   final String pilih;
 
   /// The board stem of "Buka Transaksi Oktober 2026".
-  final String ke;
+  final Layar ke;
 
   @override
   Widget build(BuildContext context) {

@@ -5,13 +5,14 @@ import 'package:flutter/widgets.dart';
 import '../../mock/mock.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// The `keadaan` options of WartaEditor and WebWartaEditor (board `O`).
 const opsiWarta = [
@@ -31,7 +32,7 @@ mixin KeadaanWarta<T extends StatefulWidget> on State<T> {
 
   /// Index of the shown state (unknown values fall back to the first).
   int ki(String stem) {
-    final t = context.tweak<String>(stem, 'keadaan');
+    final t = belumDipindah<String>('Draf');
     if (t != _tweakLalu) {
       _tweakLalu = t;
       _k = null;
@@ -66,7 +67,7 @@ class _WartaEditorScreenState extends State<WartaEditorScreen>
           const KepalaPonsel(
             judul: 'Warta Jemaat · edisi 22/11/2026',
             anakJudul: 'Disusun dari data yang sudah ada; tidak diketik ulang',
-            kembaliKe: 'WartaArsip',
+            kembaliKe: Layar.warta,
             labelKembali: 'Kembali ke Warta Jemaat',
           ),
           Expanded(
@@ -79,20 +80,22 @@ class _WartaEditorScreenState extends State<WartaEditorScreen>
                 lihatPdf: const Tombol(
                   'Lihat PDF',
                   onPressed: null,
-                  ke: 'A4Warta',
+                  ke: Layar.wartaPdf,
+                  param: {'edisi': belumDipindahId},
                   jenis: JenisTombol.kedua,
                   ukuran: UkuranTombol.sedang,
                 ),
                 buatRalat: const Tombol(
                   'Buat ralat',
                   onPressed: null,
-                  ke: 'WartaArsip',
+                  ke: Layar.warta,
                   cara: Cara.naik,
                   jenis: JenisTombol.kedua,
                   ukuran: UkuranTombol.sedang,
                 ),
                 tampilkanNama: const Tautan(
-                  ke: 'BukaNama',
+                  ke: Layar.bukaNama,
+                  param: {'edisi': belumDipindahId},
                   child: TautanTampilkanNama(),
                 ),
               ),

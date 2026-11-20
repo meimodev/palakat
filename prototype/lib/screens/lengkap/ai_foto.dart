@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import 'ai_foto_bagian.dart';
+import '../../app/layar.dart';
 
 /// 35 · Bantuan AI dari foto nota (spec 10-aifoto.md, AIFoto).
 class AIFotoScreen extends StatefulWidget {
@@ -25,14 +26,14 @@ class _AIFotoScreenState extends State<AIFotoScreen> {
   Widget build(BuildContext context) => Material(
     type: MaterialType.transparency,
     child: LayarPonsel(
-      jabatanKosong: true,
+      layarKeuangan: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const KepalaPonsel(
             judul: 'Belanja',
             anakJudul: 'Dari foto nota',
-            kembaliKe: 'Main',
+            kembaliKe: Layar.keuangan,
             labelKembali: 'Kembali ke Beranda',
           ),
           Expanded(

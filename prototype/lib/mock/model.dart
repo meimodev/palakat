@@ -1,3 +1,5 @@
+import '../app/layar.dart';
+
 // The Dart model of docs/build/mock-data.md section 1: plain immutable
 // classes with const constructors, only what the boards show.
 //
@@ -542,13 +544,15 @@ class ItemKotak {
   final String judul, sub;
   final String? label; // 'Diajukan', 'Draf', 'Hambatan', …
   final GayaLabel? gaya;
-  final String ke; // target board stem (phone), for Tautan(ke: …)
+  final Layar ke; // target screen, for Tautan(ke: …)
+  final Map<String, String> param;
   const ItemKotak({
     required this.judul,
     required this.sub,
     this.label,
     this.gaya,
     required this.ke,
+    this.param = const {},
   });
 }
 

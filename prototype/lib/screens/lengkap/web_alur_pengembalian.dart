@@ -7,6 +7,7 @@ import '../../theme/palakat_tema.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import 'alur_pengembalian_alur.dart';
+import '../../app/layar.dart';
 
 /// Web · Alur · Pengembalian (screens/13, WebAlurPengembalian): the refund
 /// flow on the laptop, under the platform side nav with "Keuangan" active.
@@ -17,14 +18,7 @@ class WebAlurPengembalianScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.warna;
     return HalamanWeb(
-      nav: const NavSamping(
-        item: navPlatform,
-        aktif: 1,
-        pengguna: PenggunaNav(
-          tebal: 'Meiske Lumentut',
-          biasa: ' · Bendahara Jemaat',
-        ),
-      ),
+      nav: const NavSamping(item: navPlatform, aktif: 1),
       isi: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -34,7 +28,7 @@ class WebAlurPengembalianScreen extends StatelessWidget {
               atas: 11.125,
               bawah: 11.125,
               child: Tautan(
-                ke: 'WebPengembalian',
+                ke: Layar.pengembalian,
                 cara: Cara.naik,
                 child: Center(
                   widthFactor: 1,

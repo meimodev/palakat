@@ -7,6 +7,7 @@ import '../../theme/palakat_tema.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import 'alur_dokumen_alur.dart';
+import '../../app/layar.dart';
 
 /// Web · Alur · Menerbitkan dokumen. The three views replace each other in
 /// place (`v`), under the same title block.
@@ -43,14 +44,7 @@ class _WebAlurDokumenScreenState extends State<WebAlurDokumenScreen> {
 
   @override
   Widget build(BuildContext context) => HalamanWeb(
-    nav: const NavSamping(
-      item: navPlatform,
-      aktif: 2,
-      pengguna: PenggunaNav(
-        tebal: 'Olvie Pangemanan',
-        biasa: ' · Sekretaris Jemaat',
-      ),
-    ),
+    nav: const NavSamping(item: navPlatform, aktif: 2),
     isi: [
       const _Judul(),
       Align(
@@ -123,7 +117,7 @@ class _Judul extends StatelessWidget {
           atas: 11.85,
           bawah: 10.4,
           child: Tautan(
-            ke: 'WebDokumenGereja',
+            ke: Layar.dokumenGereja,
             cara: Cara.naik,
             child: SizedBox(
               height: 44,

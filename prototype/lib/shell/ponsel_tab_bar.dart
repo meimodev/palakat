@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import '../theme/palakat_tema.dart';
 import '../widgets/ikon.dart';
 import 'tautan.dart';
+import '../app/layar.dart';
 
 enum TabPonsel { beranda, transaksi, bulan, lainnya }
 
@@ -133,7 +134,7 @@ class PonselTabBar extends StatelessWidget {
                   Expanded(child: Center(child: bungkus(catat, lingkaran))),
                   kolom(
                     Tautan(
-                      ke: 'TutupBuku',
+                      ke: Layar.tutupBuku,
                       cara: Cara.ganti,
                       child: item(Ikon.bulan, 'Bulan', TabPonsel.bulan),
                     ),
@@ -142,7 +143,7 @@ class PonselTabBar extends StatelessWidget {
                     aktif == TabPonsel.lainnya
                         ? lainnya
                         : Tautan(
-                            ke: 'Lainnya',
+                            ke: Layar.pengaturan,
                             cara: Cara.ganti,
                             child: lainnya,
                           ),

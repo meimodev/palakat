@@ -4,6 +4,7 @@ import '../theme/palakat_tema.dart';
 import '../widgets/ikon.dart';
 import '../widgets/tekan.dart';
 import 'tautan.dart';
+import '../app/layar.dart';
 
 /// Phone header with back (components.md 4.1, navigation.md 1.2): row, gap 8,
 /// padding 14 12 8. Back 44 × 44 with the 22 chevron; h1 18/700 `flex: 1`.
@@ -13,6 +14,7 @@ class KepalaPonsel extends StatelessWidget {
     required this.judul,
     this.anakJudul,
     this.kembaliKe,
+    this.paramKembali = const {},
     this.onKembali,
     this.diSini,
     this.labelKembali = 'Kembali',
@@ -29,8 +31,11 @@ class KepalaPonsel extends StatelessWidget {
   /// Subtitle under the title, 13 `tinta2`.
   final String? anakJudul;
 
-  /// Board stem of the back arrow: `Tautan(ke: kembaliKe, cara: Cara.naik)`.
-  final String? kembaliKe;
+  /// Screen of the back arrow: `Tautan(ke: kembaliKe, cara: Cara.naik)`.
+  final Layar? kembaliKe;
+
+  /// Path parameters of [kembaliKe].
+  final Map<String, String> paramKembali;
 
   /// …or a view change inside the board (a `<button>` back).
   final VoidCallback? onKembali;
@@ -70,6 +75,7 @@ class KepalaPonsel extends StatelessWidget {
     final Widget? kembali = kembaliKe != null
         ? Tautan(
             ke: kembaliKe!,
+            param: paramKembali,
             cara: Cara.naik,
             label: labelKembali,
             diSini: diSini,

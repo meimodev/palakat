@@ -1,10 +1,9 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
-import '../../shell/perangkat_prototipe.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
@@ -14,6 +13,8 @@ import '../../widgets/riwayat_alur.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
+import '../../app/layar.dart';
+import '../../providers/session.dart';
 
 /// Web · Alur · Akun saya (screens/16-alurmasuk.md): Olvie Pangemanan's own
 /// account. Six views change in place; no timers, no motion.
@@ -160,7 +161,6 @@ class _WebAkunSayaState extends State<WebAkunSayaScreen> {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final kodeTampil = _v == _V.kodeBaru || _v == _V.kodeEmail;
     if (_v != _vLalu) {
       _vLalu = _v;
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -186,62 +186,51 @@ class _WebAkunSayaState extends State<WebAkunSayaScreen> {
       ),
       _V.keluar => _keluar(),
     };
-    return AlatPrototipe(
-      stem: 'WebAkunSaya',
-      alat: [
-        if (kodeTampil)
-          const Text('Di prototipe ini kode yang benar adalah 123456.'),
-      ],
-      child: HalamanWeb(
-        nav: const NavSamping(
-          item: navPlatform,
-          aktif: 0,
-          pengguna: PenggunaNav(tebal: _nama, biasa: ' · $_jabatan'),
-        ),
-        isi: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const MarginNegatif(
-                atas: 11,
-                bawah: 11,
-                child: Tautan(
-                  ke: 'WebBerandaJabatan',
-                  cara: Cara.naik,
-                  child: SizedBox(
-                    height: 44,
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      widthFactor: 1,
-                      child: TautanTeks('Beranda', ukuran: 14),
-                    ),
+    return HalamanWeb(
+      nav: const NavSamping(item: navPlatform, aktif: 0),
+      isi: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const MarginNegatif(
+              atas: 11,
+              bawah: 11,
+              child: Tautan(
+                ke: Layar.beranda,
+                cara: Cara.naik,
+                child: SizedBox(
+                  height: 44,
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    widthFactor: 1,
+                    child: TautanTeks('Beranda', ukuran: 14),
                   ),
                 ),
               ),
-              const SizedBox(height: 2),
-              Semantics(
-                header: true,
-                child: const Text(
-                  'Alur · Akun saya',
-                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700),
-                ),
-              ),
-              Text(
-                'Nomor ponsel, perangkat, pemberitahuan dorong, keluar',
-                style: TextStyle(fontSize: 14, color: c.tinta2),
-              ),
-            ],
-          ),
-          Align(
-            key: _isiKunci,
-            alignment: Alignment.topLeft,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1120),
-              child: _Kolom(blok, jarak: 16),
             ),
+            const SizedBox(height: 2),
+            Semantics(
+              header: true,
+              child: const Text(
+                'Alur · Akun saya',
+                style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700),
+              ),
+            ),
+            Text(
+              'Nomor ponsel, perangkat, pemberitahuan dorong, keluar',
+              style: TextStyle(fontSize: 14, color: c.tinta2),
+            ),
+          ],
+        ),
+        Align(
+          key: _isiKunci,
+          alignment: Alignment.topLeft,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1120),
+            child: _Kolom(blok, jarak: 16),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -514,15 +503,13 @@ class _WebAkunSayaState extends State<WebAkunSayaScreen> {
       jarak: 8,
       rata: CrossAxisAlignment.center,
       anak: [
-        const Lentur(
+        Lentur(
           dasar: 182,
           maks: 372,
           child: Tombol(
             'Keluar',
-            onPressed: null,
+            onPressed: () => keluarSesi(context),
             jenis: JenisTombol.tinta,
-            ke: 'WebAlurMasuk',
-            cara: Cara.ganti,
           ),
         ),
         Lentur(dasar: 150, maks: 340, child: _batalkan('Batal')),

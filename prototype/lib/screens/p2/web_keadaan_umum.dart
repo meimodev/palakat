@@ -8,6 +8,8 @@ import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
 import 'keadaan_umum.dart';
+import '../../app/layar.dart';
+import '../../providers/session.dart';
 
 /// Web · Keadaan umum (spec 17-keadaanumum.md).
 class WebKeadaanUmumScreen extends StatefulWidget {
@@ -30,14 +32,7 @@ class _WebKeadaanUmumScreenState extends State<WebKeadaanUmumScreen>
       controller: gulir,
       automaticallyInheritForPlatforms: TargetPlatform.values.toSet(),
       child: HalamanWeb(
-        nav: const NavSamping(
-          item: navPlatform,
-          aktif: 0,
-          pengguna: PenggunaNav(
-            tebal: 'Pnt. Hendrik Rumagit',
-            biasa: ' · Penatua Kolom 7',
-          ),
-        ),
+        nav: const NavSamping(item: navPlatform, aktif: 0),
         isi: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -47,7 +42,7 @@ class _WebKeadaanUmumScreenState extends State<WebKeadaanUmumScreen>
                 atas: 11,
                 bawah: 11,
                 child: Tautan(
-                  ke: 'WebBerandaJabatan',
+                  ke: Layar.beranda,
                   cara: Cara.naik,
                   child: SizedBox(
                     height: 44,
@@ -80,20 +75,18 @@ class _WebKeadaanUmumScreenState extends State<WebKeadaanUmumScreen>
               child: IsiKeadaanUmum(
                 keadaan: keadaan,
                 onCobaLagi: () => pilih('Memuat'),
-                kembali: const Tombol(
+                kembali: Tombol(
                   'Kembali ke Beranda',
                   onPressed: null,
                   jenis: JenisTombol.kedua,
                   ukuran: UkuranTombol.sedang,
-                  ke: 'WebBerandaJabatan',
+                  ke: Layar.beranda,
                   cara: Cara.naik,
                 ),
-                masuk: const Tombol(
+                masuk: Tombol(
                   'Masuk lagi',
-                  onPressed: null,
+                  onPressed: () => keluarSesi(context),
                   jenis: JenisTombol.tinta,
-                  ke: 'WebAlurMasuk',
-                  cara: Cara.ganti,
                 ),
               ),
             ),

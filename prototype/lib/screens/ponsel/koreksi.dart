@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../mock/jabatan_kosong.dart';
 import '../../motion/kerangka.dart';
-import '../../shell/kendali.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/chip_pilihan.dart';
@@ -20,8 +18,9 @@ import '../../widgets/lencana_status.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
-const _stem = 'Koreksi';
 const _ma = [
   (k: '5.02.01.00', n: 'Alat tulis dan fotokopi', cat: 'asal'),
   (k: '5.04.01.00', n: 'Konsumsi rapat', cat: ''),
@@ -67,7 +66,7 @@ _Papan _papan(BuildContext c) =>
     c.dependOnInheritedWidgetOfExactType<_Lingkup>()!.notifier!;
 
 bool _tutup(BuildContext c) =>
-    c.tweak<String>(_stem, 'bulanTransaksi') == 'Sudah ditutup';
+    belumDipindah<String>('Belum ditutup') == 'Sudah ditutup';
 
 String _bulan(BuildContext c) => _tutup(c) ? 'Oktober 2026' : 'November 2026';
 
@@ -81,24 +80,10 @@ class KoreksiKendali extends StatefulWidget {
 }
 
 class _KoreksiKendaliState extends State<KoreksiKendali> {
-  var _p = _Papan();
-  var _generasi = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    ulangPapan[_stem] = _ulang;
-  }
-
-  void _ulang() => setState(() {
-    _p.dispose();
-    _p = _Papan();
-    _generasi++;
-  });
+  final _p = _Papan();
 
   @override
   void dispose() {
-    if (ulangPapan[_stem] == _ulang) ulangPapan.remove(_stem);
     _p.dispose();
     super.dispose();
   }
@@ -108,20 +93,14 @@ class _KoreksiKendaliState extends State<KoreksiKendali> {
     type: MaterialType.transparency,
     child: _Lingkup(
       papan: _p,
-      child: GenerasiPapan(
-        generasi: _generasi,
-        child: ListenableBuilder(
-          listenable: _p,
-          builder: (context, _) => LayarPonsel(
-            jabatanKosong: true,
-            overlay: [
-              if (_p.lembar)
-                Positioned.fill(
-                  child: _LembarPersetujuan(key: ValueKey(_generasi)),
-                ),
-            ],
-            child: widget.child,
-          ),
+      child: ListenableBuilder(
+        listenable: _p,
+        builder: (context, _) => LayarPonsel(
+          layarKeuangan: true,
+          overlay: [
+            if (_p.lembar) Positioned.fill(child: const _LembarPersetujuan()),
+          ],
+          child: widget.child,
         ),
       ),
     ),
@@ -150,7 +129,12 @@ class _KoreksiScreenState extends State<KoreksiScreen> {
         'pembalikan' => !tutup && !p.dibalik,
         _ => true,
       };
-      if (!sah) context.kembaliKe('/$_stem');
+      if (!sah) {
+        context.naikKe(
+          Layar.koreksi,
+          param: GoRouterState.of(context).pathParameters,
+        );
+      }
     });
   }
 
@@ -165,7 +149,8 @@ class _KoreksiScreenState extends State<KoreksiScreen> {
 
 // ── shared bits ───────────────────────────────────────────────────────────
 
-void _keDetail(BuildContext c) => c.kembaliKe('/$_stem');
+void _keDetail(BuildContext c) =>
+    c.naikKe(Layar.koreksi, param: GoRouterState.of(c).pathParameters);
 
 /// Key–value card: `permukaan`, 1 `garis`, radius 14, padding 4 16; rows 11 0.
 class _Rincian extends StatelessWidget {
@@ -343,14 +328,14 @@ class _DetailState extends State<_Detail> {
     final p = _papan(context);
     final tutup = _tutup(context), bulan = _bulan(context);
     final buka = !tutup && !p.dibalik;
-    final jk = context.prototipe.jabatanKosong;
+    final jk = belumDipindah(false);
     final caption = TextStyle(fontSize: 13, color: c.tinta3);
     final lampirkan = Tombol(
       'Lampirkan dokumen pendukung',
       onPressed: null,
       jenis: JenisTombol.kedua,
       ukuran: UkuranTombol.sedang,
-      ke: 'Kamera',
+      ke: Layar.fotoDokumen,
     );
 
     // `pudar .2s` on the view's root, inside the route's own `masuk`.
@@ -363,7 +348,7 @@ class _DetailState extends State<_Detail> {
           KepalaPonsel(
             judul: 'BKU-2026-0139',
             judulMono: true,
-            kembaliKe: 'Main',
+            kembaliKe: Layar.keuangan,
             labelKembali: 'Kembali ke Beranda',
             ujung: _LencanaKepala(dibalik: p.dibalik),
           ),
@@ -392,7 +377,11 @@ class _DetailState extends State<_Detail> {
               ),
               if (p.dibalik)
                 Tekan(
-                  onTap: () => context.push('/$_stem/hasil'),
+                  onTap: () => context.dorongKe(
+                    Layar.koreksi,
+                    param: GoRouterState.of(context).pathParameters,
+                    anak: 'hasil',
+                  ),
                   radius: 12,
                   child: Container(
                     constraints: const BoxConstraints(minHeight: 48),
@@ -526,7 +515,11 @@ class _DetailState extends State<_Detail> {
                   children: _sela([
                     Tombol(
                       'Koreksi dengan pembalikan',
-                      onPressed: () => context.push('/$_stem/pembalikan'),
+                      onPressed: () => context.dorongKe(
+                        Layar.koreksi,
+                        param: GoRouterState.of(context).pathParameters,
+                        anak: 'pembalikan',
+                      ),
                       jenis: JenisTombol.tinta,
                     ),
                     lampirkan,
@@ -564,7 +557,11 @@ class _DetailState extends State<_Detail> {
                     ),
                     Tombol(
                       'Catat kejadian',
-                      onPressed: () => context.push('/$_stem/kejadian'),
+                      onPressed: () => context.dorongKe(
+                        Layar.koreksi,
+                        param: GoRouterState.of(context).pathParameters,
+                        anak: 'kejadian',
+                      ),
                       jenis: JenisTombol.tinta,
                     ),
                     lampirkan,
@@ -700,7 +697,8 @@ class _KartuPersetujuan extends StatelessWidget {
                     const Align(
                       alignment: Alignment.centerLeft,
                       child: Tautan(
-                        ke: 'Persetujuan',
+                        ke: Layar.persetujuan,
+                        param: {'id': belumDipindahId},
                         child: SizedBox(
                           height: 44,
                           child: Center(
@@ -736,7 +734,7 @@ class _KartuPersetujuan extends StatelessWidget {
 
 /// The approval sheet (screen `ap`), an overlay of the Kendali.
 class _LembarPersetujuan extends StatelessWidget {
-  const _LembarPersetujuan({super.key});
+  const _LembarPersetujuan();
 
   @override
   Widget build(BuildContext context) {
@@ -992,7 +990,12 @@ class _PembalikanState extends State<_Pembalikan> {
                 p.dibalik = true;
               });
               // The form leaves the stack: Back from hasil lands on detail.
-              context.pushReplacement('/$_stem/hasil');
+              context.pushReplacement(
+                Layar.koreksi.lokasi(
+                  param: GoRouterState.of(context).pathParameters,
+                  anak: 'hasil',
+                ),
+              );
             },
           ),
         ]),

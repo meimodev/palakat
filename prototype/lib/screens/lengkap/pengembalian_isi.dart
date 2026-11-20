@@ -1,10 +1,9 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:go_router/go_router.dart';
 import 'package:flutter/rendering.dart' show OverflowBoxFit;
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../shell/tautan.dart';
 import '../../motion/kerangka.dart';
 import '../../theme/palakat_tema.dart';
@@ -121,7 +120,7 @@ class _CatatanAturanState extends State<CatatanAturan> {
   late final _ketuk = TapGestureRecognizer()..onTap = _buka;
   bool _sorot = false, _fokus = false;
 
-  void _buka() => widget.tautan.buka(GoRouter.of(context));
+  void _buka() => widget.tautan.buka(context);
 
   @override
   void dispose() {

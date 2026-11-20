@@ -8,6 +8,7 @@ import '../../widgets/garis.dart';
 import '../../widgets/ikon.dart';
 import '../../widgets/lencana_status.dart';
 import 'permohonan_surat_bagian.dart';
+import '../../app/layar.dart';
 
 /// 64 · Permohonan surat (17-keadaanumum.md): letter requests at the
 /// Sekretaris Jemaat's desk; five views switched by the `keadaan` tweak.
@@ -50,7 +51,7 @@ class _PermohonanSuratScreenState extends State<PermohonanSuratScreen>
           const KepalaPonsel(
             judul: 'Permohonan surat',
             anakJudul: 'Atestasi dan surat keterangan untuk satu anggota',
-            kembaliKe: 'DokumenGereja',
+            kembaliKe: Layar.dokumenGereja,
             labelKembali: 'Kembali ke Dokumen gereja',
           ),
           Expanded(
@@ -74,7 +75,7 @@ class _Baris extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.warna;
     return Tautan(
-      ke: 'PermohonanSurat',
+      ke: Layar.surat,
       radius: 14,
       child: Container(
         constraints: const BoxConstraints(minHeight: 70),

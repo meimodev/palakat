@@ -7,6 +7,7 @@ import '../../theme/palakat_tema.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import 'persembahan_bernama_blok.dart';
+import '../../app/layar.dart';
 
 /// Web · Persembahan bernama (spec 22): PersembahanBernama on the laptop,
 /// platform side nav with Keuangan active.
@@ -28,14 +29,7 @@ class _WebPersembahanBernamaScreenState
     return Material(
       type: MaterialType.transparency,
       child: HalamanWeb(
-        nav: const NavSamping(
-          item: navPlatform,
-          aktif: 1,
-          pengguna: PenggunaNav(
-            tebal: 'Meiske Lumentut',
-            biasa: ' · Bendahara Jemaat',
-          ),
-        ),
+        nav: const NavSamping(item: navPlatform, aktif: 1),
         isi: [
           Column(
             key: kunciIsi,
@@ -46,7 +40,7 @@ class _WebPersembahanBernamaScreenState
                 atas: 11.125,
                 bawah: 11.125,
                 child: Tautan(
-                  ke: 'WebBeranda',
+                  ke: Layar.keuangan,
                   cara: Cara.naik,
                   child: Align(
                     alignment: AlignmentDirectional.centerStart,
@@ -84,12 +78,7 @@ class _WebPersembahanBernamaScreenState
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       spacing: 12,
-                      children: blokPemberi(
-                        context,
-                        ki: i,
-                        pilih: pilih,
-                        ke: 'PersembahanSaya',
-                      ),
+                      children: blokPemberi(context, ki: i, pilih: pilih),
                     ),
                   ),
                 ],

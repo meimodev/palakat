@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import '../theme/palakat_tema.dart';
-import 'chip_pilihan.dart';
 import 'kecil.dart';
 import 'tata_letak.dart';
 
@@ -235,33 +234,4 @@ class BarisInfo extends StatelessWidget {
       ),
     );
   }
-}
-
-/// Prototype device: goes in AlatPrototipe.alat (4.9), never on the screen.
-/// The label "Dilihat sebagai" and one chip per actor.
-class DilihatSebagai extends StatelessWidget {
-  const DilihatSebagai({
-    super.key,
-    required this.pilihan,
-    required this.terpilih,
-    required this.onPilih,
-  });
-
-  /// The board's actors, in board order.
-  final List<String> pilihan;
-
-  /// The board's `akt`.
-  final String terpilih;
-
-  /// The board's `pick`.
-  final ValueChanged<String> onPilih;
-
-  @override
-  Widget build(BuildContext context) => ChipPilihan<String>(
-    label: 'Dilihat sebagai',
-    jarakLabel: 6,
-    pilihan: [for (final p in pilihan) (nilai: p, teks: p)],
-    terpilih: terpilih,
-    onPilih: onPilih,
-  );
 }

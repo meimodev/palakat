@@ -7,6 +7,8 @@ import '../../theme/palakat_tema.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import 'buka_nama_bagian.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// Web · Tampilkan nama (pengecualian) (spec 18-wartaeditor.md, WebBukaNama).
 class WebBukaNamaScreen extends StatelessWidget {
@@ -16,14 +18,7 @@ class WebBukaNamaScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.warna;
     return HalamanWeb(
-      nav: const NavSamping(
-        item: navPlatform,
-        aktif: 4,
-        pengguna: PenggunaNav(
-          tebal: 'Olvie Pangemanan',
-          biasa: ' · Sekretaris Jemaat',
-        ),
-      ),
+      nav: const NavSamping(item: navPlatform, aktif: 4),
       // CSS puts half the leading above and half below each line.
       isi: [
         for (final w in <Widget>[
@@ -36,7 +31,8 @@ class WebBukaNamaScreen extends StatelessWidget {
                 atas: 12,
                 bawah: 10.25,
                 child: Tautan(
-                  ke: 'WebWartaEditor',
+                  ke: Layar.wartaEdisi,
+                  param: {'edisi': belumDipindahId},
                   cara: Cara.naik,
                   child: Align(
                     alignment: Alignment.centerLeft,
@@ -62,7 +58,8 @@ class WebBukaNamaScreen extends StatelessWidget {
           ),
           const BukaNamaPapan(
             stem: 'WebBukaNama',
-            ke: 'WebWartaEditor',
+            ke: Layar.wartaEdisi,
+            param: {'edisi': belumDipindahId},
             web: true,
           ),
         ])

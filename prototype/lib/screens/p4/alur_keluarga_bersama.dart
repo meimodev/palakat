@@ -1,6 +1,5 @@
 import 'package:flutter/widgets.dart';
 
-import '../../shell/perangkat_prototipe.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
 import '../../widgets/chip_pilihan.dart';
@@ -28,7 +27,6 @@ Widget kolomAlur(List<Widget> anak, double jarak) => Column(
 /// boards) and the blocks both draw; each screen only arranges them.
 mixin AlurKeluargaLogika<T extends StatefulWidget> on State<T> {
   static const _hari = 20261116, _hariT = '16/11/2026';
-  static const _aktor = ['Operator', 'Penatua Kolom 7'];
   static const _formulir = 'Formulir konfirmasi bertanda tangan';
 
   final lahir = TextEditingController();
@@ -99,22 +97,6 @@ mixin AlurKeluargaLogika<T extends StatefulWidget> on State<T> {
       'Keluarga Wenas-Lasut Diverifikasi dan Aktif · Pnt. Hendrik Rumagit, Penatua Kolom 7',
     );
   });
-
-  /// "Dilihat sebagai" goes to the Keadaan panel (CONVENTIONS).
-  Widget denganAlat(String stem, Widget child) => AlatPrototipe(
-    stem: stem,
-    alat: [
-      DilihatSebagai(
-        pilihan: _aktor,
-        terpilih: akt,
-        onPilih: (a) => setState(() {
-          akt = a;
-          pesan = '';
-        }),
-      ),
-    ],
-    child: child,
-  );
 
   Widget? get banner => pesan.isEmpty ? null : Pesan(Text(pesan));
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
 import '../../shell/tautan.dart';
@@ -11,6 +11,7 @@ import '../../widgets/garis.dart';
 import '../../widgets/garis_status.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
+import '../../app/layar.dart';
 
 /// Web · Daftar Bukti Kas dan celah nomor (spec 06-bukti.md, WebBukti).
 class WebBuktiScreen extends StatefulWidget {
@@ -124,7 +125,7 @@ const _mono = TextStyle(fontFamily: PalakatText.mono);
 /// An inline link inside a text line of [tinggi]: keeps the 44 px target
 /// without making the line taller (the boards' `<a>` in running text).
 Widget _tautanSebaris({
-  required String ke,
+  required Layar ke,
   required double tinggi,
   required Widget child,
   Cara cara = Cara.dorong,
@@ -171,12 +172,8 @@ class _WebBuktiScreenState extends State<WebBuktiScreen> {
     final c = context.warna;
     final keterangan = TextStyle(fontSize: 13, color: c.tinta3);
     return HalamanWeb(
-      jabatanKosong: true,
-      nav: const NavSamping(
-        item: navKeuangan,
-        aktif: 5,
-        pengguna: PenggunaKeuangan(),
-      ),
+      layarKeuangan: true,
+      nav: const NavSamping(item: navKeuangan, aktif: 5),
       isi: [
         for (final w in <Widget>[
           Column(
@@ -184,7 +181,7 @@ class _WebBuktiScreenState extends State<WebBuktiScreen> {
             children: [
               // Breadcrumb in a 15 / 1.45 line.
               _tautanSebaris(
-                ke: 'WebPaketLaporan',
+                ke: Layar.paketLaporan,
                 cara: Cara.naik,
                 tinggi: 15 * 1.45,
                 child: const TautanTeks('Laporan', ukuran: 14),
@@ -325,7 +322,7 @@ class _WebBuktiScreenState extends State<WebBuktiScreen> {
                             dasar: _lebarLihat(context),
                             tumbuh: 0,
                             child: Tautan(
-                              ke: 'WebTransaksi',
+                              ke: Layar.transaksi,
                               child: const SizedBox(
                                 height: 44,
                                 child: Align(
@@ -415,7 +412,7 @@ class _WebBuktiScreenState extends State<WebBuktiScreen> {
               DefaultTextStyle.merge(
                 style: _mono.copyWith(fontSize: 13),
                 child: _tautanSebaris(
-                  ke: 'WebTransaksi',
+                  ke: Layar.transaksi,
                   tinggi: 13 * 1.45,
                   child: TautanTeks(r.no, berat: FontWeight.w400),
                 ),

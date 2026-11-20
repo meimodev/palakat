@@ -3,9 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../motion/kerangka.dart';
-import '../../shell/kendali.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import '../../shell/tautan.dart';
@@ -19,6 +18,7 @@ import '../../widgets/lembar_bawah.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
+import '../../app/layar.dart';
 
 // Board data (Kewajiban.dc.html): its own figures, not the web board's.
 
@@ -432,45 +432,29 @@ class KewajibanKendali extends StatefulWidget {
 
 class _KewajibanKendaliState extends State<KewajibanKendali> {
   final _papan = _Papan();
-  int _generasi = 0;
-  late final VoidCallback _ulang;
-
-  @override
-  void initState() {
-    super.initState();
-    _ulang = () => setState(() {
-      _papan.ulang();
-      _generasi++;
-    });
-    ulangPapan['Kewajiban'] = _ulang;
-  }
 
   @override
   void dispose() {
-    if (ulangPapan['Kewajiban'] == _ulang) ulangPapan.remove('Kewajiban');
     _papan.dispose();
     super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) => GenerasiPapan(
-    generasi: _generasi,
-    child: _Lingkup(
-      papan: _papan,
-      child: Material(
-        type: MaterialType.transparency,
-        // CSS splits line-height leading evenly above and below the glyphs.
-        child: DefaultTextHeightBehavior(
-          textHeightBehavior: _leadingRata,
-          child: ListenableBuilder(
-            listenable: _papan,
-            builder: (context, navigator) => LayarPonsel(
-              jabatanKosong: true,
-              overlay: [if (_papan.akt != null) _Lembar(papan: _papan)],
-              child: navigator!,
-            ),
-            child: widget.child,
+  Widget build(BuildContext context) => _Lingkup(
+    papan: _papan,
+    child: Material(
+      type: MaterialType.transparency,
+      // CSS splits line-height leading evenly above and below the glyphs.
+      child: DefaultTextHeightBehavior(
+        textHeightBehavior: _leadingRata,
+        child: ListenableBuilder(
+          listenable: _papan,
+          builder: (context, navigator) => LayarPonsel(
+            layarKeuangan: true,
+            overlay: [if (_papan.akt != null) _Lembar(papan: _papan)],
+            child: navigator!,
           ),
+          child: widget.child,
         ),
       ),
     ),
@@ -513,10 +497,10 @@ class _Daftar extends StatelessWidget {
           children: [
             KepalaPonsel(
               judul: 'Uang yang masih berjalan',
-              kembaliKe: 'Main',
+              kembaliKe: Layar.keuangan,
               labelKembali: 'Kembali ke Beranda',
               ujung: Tautan(
-                ke: 'KasusBaru',
+                ke: Layar.kasusBaru,
                 radius: 12,
                 child: Container(
                   constraints: const BoxConstraints(minHeight: 44),
@@ -590,7 +574,10 @@ class _Daftar extends StatelessWidget {
                         lewatTempo: k.lewat,
                         onTap: () {
                           p.bukaKasus(k.id);
-                          context.push('/Kewajiban/kasus/${k.id}');
+                          context.dorongKe(
+                            Layar.kewajiban,
+                            anak: 'kasus/${k.id}',
+                          );
                         },
                       ),
                     ],
@@ -684,7 +671,7 @@ class _RinciState extends State<_Rinci> {
     if (p.kasusDengan(widget.id) == null) {
       // Unknown id: back to the board's root route (navigation.md 5.4).
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) context.go('/Kewajiban');
+        if (mounted) context.gantiKe(Layar.kewajiban);
       });
     } else if (p.buka != widget.id) {
       // Deep link: open the case without a card press.

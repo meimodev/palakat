@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../mock/mock.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/tautan.dart';
@@ -12,6 +12,7 @@ import '../../widgets/lencana_status.dart';
 import '../../widgets/penolakan.dart';
 import '../../widgets/tahapan.dart';
 import 'permintaan_dana_keadaan.dart';
+import '../../app/layar.dart';
 
 const _opsi = [
   'Perencanaan',
@@ -43,7 +44,7 @@ class PanitiaScreen extends StatelessWidget {
     kepala: const KepalaPonsel(
       judul: 'Panitia Natal 2026',
       anakJudul: 'Unit sementara dengan peruntukannya sendiri',
-      kembaliKe: 'BerandaJabatan',
+      kembaliKe: Layar.beranda,
       labelKembali: 'Kembali ke Beranda',
     ),
     isi: (k, _) => [
@@ -61,7 +62,7 @@ const _t = panitiaPenutupan;
 
 /// Text link 14/700 (an inline-flex `<a>`, min-height 44): start-aligned,
 /// the target is as wide as its text.
-Widget _teksTautan(String teks, {required String ke}) => Align(
+Widget _teksTautan(String teks, {required Layar ke}) => Align(
   alignment: AlignmentDirectional.centerStart,
   child: Tautan(
     ke: ke,
@@ -146,7 +147,7 @@ List<Widget> _isi(String k) => switch (k) {
         BarisPolos(
           'Dokumen gereja · Serah terima aset panitia · ${_t.asetKepada}',
         ),
-        _teksTautan('Buka di Dokumen gereja', ke: 'DokumenGereja'),
+        _teksTautan('Buka di Dokumen gereja', ke: Layar.dokumenGereja),
       ],
     ),
   ],
@@ -180,7 +181,7 @@ List<Widget> _isi(String k) => switch (k) {
       'Dibuat oleh Pimpinan Jemaat yang berwenang dari SK-nya. Hanya ia yang '
       'memindahkan tahap.',
     ),
-    _teksTautan('Membentuk Panitia baru', ke: 'AlurPanitiaBaru'),
+    _teksTautan('Membentuk Panitia baru', ke: Layar.panitia),
   ],
 };
 

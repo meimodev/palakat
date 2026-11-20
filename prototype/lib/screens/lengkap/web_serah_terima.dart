@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import '../../motion/kerangka.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis.dart';
@@ -15,6 +14,8 @@ import '../../widgets/penolakan.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// Web · Serah terima Bendahara (spec 10-aifoto.md, WebSerahTerima).
 class WebSerahTerimaScreen extends StatefulWidget {
@@ -60,7 +61,7 @@ class _WebSerahTerimaScreenState extends State<WebSerahTerimaScreen> {
   Widget build(BuildContext context) {
     final c = context.warna;
     final kosong =
-        context.tweak<String>('WebSerahTerima', 'keadaan') != 'Bendahara aktif';
+        belumDipindah<String>('Bendahara aktif') != 'Bendahara aktif';
     final aktif = _tahap == 'aktif', tunggu = _tahap == 'tunggu';
     const tebal = TextStyle(fontWeight: FontWeight.w700);
 
@@ -72,7 +73,7 @@ class _WebSerahTerimaScreenState extends State<WebSerahTerimaScreen> {
           atas: 11.125,
           bawah: 11.125,
           child: Tautan(
-            ke: 'WebPengaturan',
+            ke: Layar.pengaturan,
             cara: Cara.naik,
             child: const Center(
               widthFactor: 1,
@@ -137,7 +138,7 @@ class _WebSerahTerimaScreenState extends State<WebSerahTerimaScreen> {
                       atas: 11.85,
                       bawah: 11.85,
                       child: Tautan(
-                        ke: 'WebJabatanKosong',
+                        ke: Layar.jabatanKosong,
                         child: Center(
                           widthFactor: 1,
                           heightFactor: 1,
@@ -461,11 +462,7 @@ class _WebSerahTerimaScreenState extends State<WebSerahTerimaScreen> {
     );
 
     return HalamanWeb(
-      nav: NavSamping(
-        item: navKeuangan,
-        aktif: 6,
-        pengguna: const PenggunaKeuangan(ikutJabatanKosong: false),
-      ),
+      nav: NavSamping(item: navKeuangan, aktif: 6),
       isi: [
         judul,
         if (kosong) pita,

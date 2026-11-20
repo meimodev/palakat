@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/prototipe_state.dart';
 import 'ai_mata_anggaran_isi.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// 43 · Bantuan AI: usulan Mata Anggaran dan pembagian (spec 12).
 class AIMataAnggaranScreen extends StatefulWidget {
@@ -27,11 +28,11 @@ class _AIMataAnggaranScreenState extends State<AIMataAnggaranScreen> {
     final isi = IsiUsulanMA(
       context: context,
       k: _k,
-      mode: context.tweak<String>('AIMataAnggaran', 'usulan'),
+      mode: belumDipindah<String>('Satu baris'),
       ubah: setState,
-      keBagi: 'Bagi',
+      keBagi: Layar.bagi,
     );
-    final jk = context.prototipe.jabatanKosong;
+    final jk = belumDipindah(false);
     final bagian = [
       isi.draf,
       isi.uraian,
@@ -43,14 +44,14 @@ class _AIMataAnggaranScreenState extends State<AIMataAnggaranScreen> {
     return Material(
       type: MaterialType.transparency,
       child: LayarPonsel(
-        jabatanKosong: true,
+        layarKeuangan: true,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const KepalaPonsel(
               judul: 'Belanja',
               anakJudul: 'Pilih Mata Anggaran',
-              kembaliKe: 'Main',
+              kembaliKe: Layar.keuangan,
               labelKembali: 'Kembali ke isian',
             ),
             Expanded(

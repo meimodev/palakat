@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../mock/mock.dart';
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../motion/kerangka.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/chip_pilihan.dart';
@@ -17,6 +16,8 @@ import '../../widgets/rangkaian_koreksi.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 const _ma = ['5.02.01.00 Alat tulis dan fotokopi', '5.04.01.00 Konsumsi rapat'];
 const _mono = TextStyle(fontFamily: PalakatText.mono);
@@ -53,10 +54,8 @@ class _WebKoreksiScreenState extends State<WebKoreksiScreen> {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final tutup =
-        context.tweak<String>('WebKoreksi', 'bulanTransaksi') ==
-        'Sudah ditutup';
-    final jk = context.prototipe.jabatanKosong;
+    final tutup = belumDipindah<String>('Belum ditutup') == 'Sudah ditutup';
+    final jk = belumDipindah(false);
     final bulan = tutup ? 'Oktober 2026' : 'November 2026';
 
     final judul = Column(
@@ -64,7 +63,7 @@ class _WebKoreksiScreenState extends State<WebKoreksiScreen> {
       mainAxisSize: MainAxisSize.min,
       children: [
         _TautanSebaris(
-          ke: 'WebTransaksi',
+          ke: Layar.transaksi,
           // The 14 px <a> sits in a 15 px line: the body's strut sets its height.
           tinggiBaris: 15 * 1.45,
           child: TautanTeks('Transaksi', ukuran: 14),
@@ -141,12 +140,8 @@ class _WebKoreksiScreenState extends State<WebKoreksiScreen> {
     return Material(
       type: MaterialType.transparency,
       child: HalamanWeb(
-        jabatanKosong: true,
-        nav: const NavSamping(
-          item: navKeuangan,
-          aktif: 1,
-          pengguna: PenggunaKeuangan(),
-        ),
+        layarKeuangan: true,
+        nav: const NavSamping(item: navKeuangan, aktif: 1),
         isi: [
           judul,
           BarisLentur(
@@ -330,7 +325,7 @@ class _WebKoreksiScreenState extends State<WebKoreksiScreen> {
           Tombol(
             'Catat kejadian',
             onPressed: null,
-            ke: 'WebKejadian',
+            ke: Layar.kejadian,
             jenis: JenisTombol.tinta,
             ukuran: UkuranTombol.ringkas,
             lebarPenuh: false,
@@ -338,7 +333,7 @@ class _WebKoreksiScreenState extends State<WebKoreksiScreen> {
           Tombol(
             'Lampirkan dokumen pendukung',
             onPressed: null,
-            ke: 'WebDokumen',
+            ke: Layar.dokumen,
             jenis: JenisTombol.kedua,
             ukuran: UkuranTombol.ringkas,
             lebarPenuh: false,
@@ -608,7 +603,7 @@ class _TautanSebaris extends StatelessWidget {
     required this.child,
   });
 
-  final String ke;
+  final Layar ke;
   final double tinggiBaris;
   final Widget child;
 

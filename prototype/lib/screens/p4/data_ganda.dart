@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/prototipe_state.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
 import '../../widgets/garis_status.dart';
@@ -10,8 +9,9 @@ import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
-const _stem = 'DataGanda';
 const _bandingkan = 'Bandingkan',
     _gabungkan = 'Gabungkan',
     _bukan = 'Bukan orang yang sama';
@@ -32,7 +32,7 @@ class _DataGandaScreenState extends State<DataGandaScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final keadaan = context.tweak<String>(_stem, 'keadaan');
+    final keadaan = belumDipindah<String>('Bandingkan');
     // Board parity (CONVENTIONS, settled conflicts): a panel change does not
     // reset k; it changes the view only while k is null.
     if (_keadaan != null && keadaan != _keadaan && _k == null) {
@@ -84,7 +84,7 @@ class _DataGandaScreenState extends State<DataGandaScreen> {
           const KepalaPonsel(
             judul: 'Kemungkinan data ganda',
             anakJudul: 'Bandingkan dulu; tidak pernah digabung sendiri',
-            kembaliKe: 'DataAnggota',
+            kembaliKe: Layar.dataAnggota,
             labelKembali: 'Kembali ke Data jemaat',
           ),
           Expanded(

@@ -13,6 +13,7 @@ import '../../widgets/riwayat_alur.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
+import '../../app/layar.dart';
 
 /// One entry of the board's `U`: [judul, waktu-or-isi, penerima, status, masuk].
 class _Umum {
@@ -177,14 +178,7 @@ class _WebAlurWartaScreenState extends State<WebAlurWartaScreen> {
       _ => _viewWarta(c),
     };
     return HalamanWeb(
-      nav: const NavSamping(
-        item: navPlatform,
-        aktif: 4,
-        pengguna: PenggunaNav(
-          tebal: 'Olvie Pangemanan',
-          biasa: ' · Sekretaris Jemaat',
-        ),
-      ),
+      nav: const NavSamping(item: navPlatform, aktif: 4),
       isi: [
         Column(
           key: _atas,
@@ -196,7 +190,7 @@ class _WebAlurWartaScreenState extends State<WebAlurWartaScreen> {
             MarginNegatif(
               bawah: 44 - 21.75,
               child: Tautan(
-                ke: 'WebWartaArsip',
+                ke: Layar.warta,
                 cara: Cara.naik,
                 child: const Padding(
                   padding: EdgeInsets.only(top: 1.1),

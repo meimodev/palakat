@@ -15,6 +15,7 @@ import '../../widgets/riwayat_alur.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
+import '../../app/layar.dart';
 
 const _hariT = '16/11/2026';
 const _jabatan = ['Penatua Kolom 7', 'Ketua Komisi Diakonia'];
@@ -80,7 +81,7 @@ class _AlurBerandaState extends State<AlurBerandaScreen> {
           const KepalaPonsel(
             judul: 'Alur · Beranda gabungan',
             anakJudul: 'Satu Beranda; jabatan dipilih per tindakan',
-            kembaliKe: 'BerandaJabatan',
+            kembaliKe: Layar.beranda,
             labelKembali: 'Kembali ke Beranda',
           ),
           Expanded(

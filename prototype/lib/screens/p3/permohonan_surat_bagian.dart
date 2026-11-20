@@ -1,11 +1,11 @@
 import 'package:flutter/widgets.dart';
 
-import '../../shell/prototipe_state.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis_status.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tombol.dart';
+import '../../app/belum_dipindah.dart';
 
 /// Shared by PermohonanSurat and WebPermohonanSurat: the five views of the
 /// `keadaan` tweak and the cards they draw (17-keadaanumum.md).
@@ -45,7 +45,7 @@ mixin KeadaanPermohonan<T extends StatefulWidget> on State<T> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final t = context.tweak<String>(stem, 'keadaan');
+    final t = belumDipindah<String>('Diajukan');
     if (t != _t) {
       if (_t != null) _keAtas();
       _t = t;

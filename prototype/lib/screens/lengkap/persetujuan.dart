@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../motion/kerangka.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
@@ -11,6 +11,7 @@ import '../../widgets/kartu_persetujuan.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
 
 /// One approval record of the board's `rec` list; [id] keeps each history
 /// card's entrance to its own appearance.
@@ -427,14 +428,14 @@ class _PersetujuanScreenState extends State<PersetujuanScreen> {
     ];
 
     return LayarPonsel(
-      jabatanKosong: true,
+      layarKeuangan: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const KepalaPonsel(
             judul: 'Persetujuan',
             anakJudul: 'Catatan yang keliru digantikan, tidak diubah',
-            kembaliKe: 'Main',
+            kembaliKe: Layar.keuangan,
             labelKembali: 'Kembali ke Beranda',
           ),
           Expanded(

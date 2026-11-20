@@ -9,6 +9,8 @@ import '../../widgets/lencana_status.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
 import 'warta_arsip_bagian.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// Web · Warta Jemaat (spec 18-wartaeditor.md, WebWartaArsip).
 class WebWartaArsipScreen extends StatefulWidget {
@@ -32,7 +34,7 @@ class _WebWartaArsipScreenState extends State<WebWartaArsipScreen>
           atas: 11.85,
           bawah: 10.4,
           child: Tautan(
-            ke: 'WebBerandaJabatan',
+            ke: Layar.beranda,
             cara: Cara.naik,
             child: const SizedBox(
               height: 44,
@@ -68,7 +70,7 @@ class _WebWartaArsipScreenState extends State<WebWartaArsipScreen>
             for (final (i, r) in edisiWarta.indexed)
               // Each row links to this same board: a self link, nothing happens.
               Tautan(
-                ke: 'WebWartaArsip',
+                ke: Layar.warta,
                 child: Container(
                   // The first row's top rule hides under the card edge.
                   decoration: BoxDecoration(
@@ -103,14 +105,7 @@ class _WebWartaArsipScreenState extends State<WebWartaArsipScreen>
       ),
     );
     return HalamanWeb(
-      nav: const NavSamping(
-        item: navPlatform,
-        aktif: 4,
-        pengguna: PenggunaNav(
-          tebal: 'Olvie Pangemanan',
-          biasa: ' · Sekretaris Jemaat',
-        ),
-      ),
+      nav: const NavSamping(item: navPlatform, aktif: 4),
       isi: [
         judul,
         Align(
@@ -126,7 +121,8 @@ class _WebWartaArsipScreenState extends State<WebWartaArsipScreen>
                   const Tombol(
                     'Susun edisi 22/11/2026',
                     jenis: JenisTombol.tinta,
-                    ke: 'WebWartaEditor',
+                    ke: Layar.wartaEdisi,
+                    param: {'edisi': belumDipindahId},
                     onPressed: null,
                   ),
                 ),
@@ -134,7 +130,8 @@ class _WebWartaArsipScreenState extends State<WebWartaArsipScreen>
                   const Tombol(
                     'Susun edisi pertama',
                     jenis: JenisTombol.tinta,
-                    ke: 'WebWartaEditor',
+                    ke: Layar.wartaEdisi,
+                    param: {'edisi': belumDipindahId},
                     onPressed: null,
                   ),
                 ),

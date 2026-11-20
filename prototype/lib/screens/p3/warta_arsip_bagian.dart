@@ -1,12 +1,12 @@
 import 'package:flutter/widgets.dart';
 
-import '../../shell/prototipe_state.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis_status.dart';
 import '../../widgets/ikon.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tombol.dart';
+import '../../app/belum_dipindah.dart';
 
 /// Shared by WartaArsip and WebWartaArsip (spec 18: "shared constants").
 const opsiWartaArsip = [
@@ -52,7 +52,7 @@ mixin KeadaanWartaArsip<T extends StatefulWidget> on State<T> {
   String? _tweakLama;
 
   int keadaan(String stem) {
-    final t = context.tweak<String>(stem, 'keadaan');
+    final t = belumDipindah<String>('Arsip edisi');
     if (t != _tweakLama) {
       _tweakLama = t;
       _k = null;

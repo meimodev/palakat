@@ -7,6 +7,7 @@ import '../../widgets/garis_status.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/sakelar.dart';
 import '../../widgets/tekan.dart';
+import '../../app/layar.dart';
 
 /// 26 · Pemberitahuan: the in-app notification list with per-type switches
 /// (D28, C06). The list and switches are shared with WebPemberitahuan.
@@ -23,13 +24,13 @@ class _PemberitahuanScreenState extends State<PemberitahuanScreen>
   Widget build(BuildContext context) => Material(
     type: MaterialType.transparency,
     child: LayarPonsel(
-      jabatanKosong: true,
+      layarKeuangan: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const KepalaPonsel(
             judul: 'Pemberitahuan',
-            kembaliKe: 'Main',
+            kembaliKe: Layar.keuangan,
             labelKembali: 'Kembali ke Beranda',
           ),
           Expanded(

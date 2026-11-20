@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 import '../theme/palakat_tema.dart';
 import '../widgets/tombol.dart';
+import '../app/layar.dart';
+import 'tautan.dart';
 
 /// Unknown route (navigation.md 5.5): prototype chrome, fluid, tokens.
 /// Case matters: `/main`, `/Main.dc.html` and `/Main/xyz` all land here.
@@ -37,8 +38,8 @@ class TidakDitemukanScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               Tombol(
-                'Semua layar',
-                onPressed: () => context.go('/'),
+                'Ke beranda',
+                onPressed: () => context.gantiKe(Layar.beranda),
                 lebarPenuh: false,
               ),
             ],

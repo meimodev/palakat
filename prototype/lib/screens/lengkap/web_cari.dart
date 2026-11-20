@@ -4,6 +4,7 @@ import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
 import '../../widgets/tata_letak.dart';
 import 'cari_bagian.dart';
+import '../../app/layar.dart';
 
 /// Web · Cari dan tanya (spec 08, WebCari).
 class WebCariScreen extends StatefulWidget {
@@ -16,12 +17,8 @@ class WebCariScreen extends StatefulWidget {
 class _WebCariScreenState extends State<WebCariScreen> with LogikaCari {
   @override
   Widget build(BuildContext context) => HalamanWeb(
-    jabatanKosong: true,
-    nav: const NavSamping(
-      item: navKeuangan,
-      aktif: 1,
-      pengguna: PenggunaKeuangan(),
-    ),
+    layarKeuangan: true,
+    nav: const NavSamping(item: navKeuangan, aktif: 1),
     isi: [
       Semantics(
         header: true,
@@ -39,7 +36,7 @@ class _WebCariScreenState extends State<WebCariScreen> with LogikaCari {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                for (final (i, w) in hasil(ke: 'WebTransaksi').indexed) ...[
+                for (final (i, w) in hasil(ke: Layar.transaksi).indexed) ...[
                   if (i > 0) const SizedBox(height: 16),
                   w,
                 ],

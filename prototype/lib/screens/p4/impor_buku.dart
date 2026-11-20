@@ -2,7 +2,6 @@ import 'package:flutter/widgets.dart';
 
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/prototipe_state.dart';
 import '../../theme/palakat_tema.dart';
 import '../../shell/tautan.dart';
 import '../../widgets/alur_kit.dart';
@@ -12,6 +11,8 @@ import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 const _o = ['Ditampung', 'Lolos pengecekan', 'Sudah diimpor'];
 
@@ -63,7 +64,7 @@ class _ImporBukuScreenState extends State<ImporBukuScreen> {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final tweak = context.tweak<String>('ImporBuku', 'keadaan');
+    final tweak = belumDipindah<String>('Ditampung');
     if (tweak != _tweakLama) {
       _tweakLama = tweak;
       _k = null;
@@ -130,7 +131,7 @@ class _ImporBukuScreenState extends State<ImporBukuScreen> {
             ),
             tautan: const _TautanKedua(
               'Tinjau kemungkinan data ganda',
-              ke: 'DataGanda',
+              ke: Layar.dataGanda,
             ),
           ),
         ],
@@ -162,7 +163,7 @@ class _ImporBukuScreenState extends State<ImporBukuScreen> {
           // than the row, so it fills it.
           const _TautanKedua(
             'Lihat konfirmasi keluarga',
-            ke: 'KonfirmasiKeluarga',
+            ke: Layar.konfirmasiKeluarga,
           ),
         ],
       },
@@ -176,7 +177,7 @@ class _ImporBukuScreenState extends State<ImporBukuScreen> {
             anakJudul:
                 'Operator memasukkan buku anggota kertas; belum ada yang '
                 'menjadi anggota aktif',
-            kembaliKe: 'DataAnggota',
+            kembaliKe: Layar.dataAnggota,
             labelKembali: 'Kembali ke Data jemaat',
           ),
           Expanded(
@@ -276,7 +277,8 @@ class _KartuBaris extends StatelessWidget {
 class _TautanKedua extends StatelessWidget {
   const _TautanKedua(this.label, {required this.ke});
 
-  final String label, ke;
+  final String label;
+  final Layar ke;
 
   @override
   Widget build(BuildContext context) {

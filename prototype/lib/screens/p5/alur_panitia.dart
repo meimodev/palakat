@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/perangkat_prototipe.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
 import '../../widgets/garis_status.dart';
@@ -12,6 +11,7 @@ import '../../widgets/penolakan.dart';
 import '../../widgets/riwayat_alur.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
+import '../../app/layar.dart';
 
 const _hari = 20261116, _hariT = '16/11/2026';
 const _aktif = 'Aktif',
@@ -39,7 +39,8 @@ class AlurPanitiaScreen extends StatefulWidget {
 class _AlurPanitiaScreenState extends State<AlurPanitiaScreen> {
   final _tglST = TextEditingController();
   var _st = _aktif;
-  var _um = false, _sisa = false, _file = false;
+  var _file = false;
+  final _um = false, _sisa = false;
   final _riw = <String>[];
 
   @override
@@ -66,20 +67,6 @@ class _AlurPanitiaScreenState extends State<AlurPanitiaScreen> {
     _st = _tutupKeu;
     _catat(
       'Penutupan keuangan Panitia Natal 2026 dimulai · Stevi Lengkong, Ketua Panitia',
-    );
-  });
-
-  void _umBeres() => setState(() {
-    _um = true;
-    _catat(
-      'Pertanggungjawaban Uang Muka Dekorasi Natal dibukukan · Rivo Mandagi, Bendahara Panitia',
-    );
-  });
-
-  void _sisaBeres() => setState(() {
-    _sisa = true;
-    _catat(
-      'Sisa Rp350.000 dialihkan ke peruntukan Umum Jemaat · Meiske Lumentut, Bendahara Jemaat',
     );
   });
 
@@ -290,46 +277,27 @@ class _AlurPanitiaScreenState extends State<AlurPanitiaScreen> {
       if (_riw.isNotEmpty) RiwayatAlur(baris: _riw),
     ];
 
-    Widget contoh(String label, VoidCallback onTap) => intrinsik(
-      Tombol(
-        label,
-        onPressed: onTap,
-        jenis: JenisTombol.teks,
-        ukuran: UkuranTombol.kecil,
-        lebarPenuh: false,
-      ),
-    );
-
-    return AlatPrototipe(
-      stem: 'AlurPanitia',
-      alat: [
-        if (_st == _tutupKeu && !_um)
-          contoh('Contoh: pertanggungjawaban dibukukan', _umBeres),
-        if (_st == _tutupKeu && !_sisa)
-          contoh('Contoh: alih peruntukan dibukukan', _sisaBeres),
-      ],
-      child: LayarPonsel(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const KepalaPonsel(
-              judul: 'Alur · Panitia',
-              anakJudul: 'Panitia Natal 2026 dari Aktif sampai Diarsipkan',
-              kembaliKe: 'Panitia',
-              labelKembali: 'Kembali ke Panitia',
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  spacing: 16,
-                  children: isi,
-                ),
+    return LayarPonsel(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const KepalaPonsel(
+            judul: 'Alur · Panitia',
+            anakJudul: 'Panitia Natal 2026 dari Aktif sampai Diarsipkan',
+            kembaliKe: Layar.panitia,
+            labelKembali: 'Kembali ke Panitia',
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: 16,
+                children: isi,
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

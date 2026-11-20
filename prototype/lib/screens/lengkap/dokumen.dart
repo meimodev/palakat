@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
-import '../../mock/jabatan_kosong.dart';
 import '../../motion/kerangka.dart';
-import '../../shell/kendali.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis.dart';
@@ -14,6 +10,8 @@ import '../../widgets/garis_status.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// One transaction of the board's `D` list.
 typedef _Baris = ({
@@ -194,22 +192,9 @@ class DokumenKendali extends StatefulWidget {
 
 class _DokumenKendaliState extends State<DokumenKendali> {
   final _k = _Dokumen();
-  int _generasi = 0;
-
-  void _ulang() {
-    _k.ulang();
-    setState(() => _generasi++);
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    ulangPapan['Dokumen'] = _ulang;
-  }
 
   @override
   void dispose() {
-    if (ulangPapan['Dokumen'] == _ulang) ulangPapan.remove('Dokumen');
     _k.dispose();
     super.dispose();
   }
@@ -217,10 +202,7 @@ class _DokumenKendaliState extends State<DokumenKendali> {
   @override
   Widget build(BuildContext context) => _Lingkup(
     k: _k,
-    child: GenerasiPapan(
-      generasi: _generasi,
-      child: LayarPonsel(jabatanKosong: true, child: widget.child),
-    ),
+    child: LayarPonsel(layarKeuangan: true, child: widget.child),
   );
 }
 
@@ -238,11 +220,9 @@ class DokumenScreen extends StatelessWidget {
   );
 }
 
-/// Board strings through `tukarJk` (the board enables it).
-String Function(String) _jk(BuildContext context) {
-  final jk = context.prototipe.jabatanKosong;
-  return (s) => tukarJkPapan('Dokumen', jk, s);
-}
+/// Board strings as drawn; the vacancy name comes from the audit actor (M1).
+String Function(String) _jk(BuildContext context) =>
+    (s) => s;
 
 class _Daftar extends StatelessWidget {
   const _Daftar();
@@ -258,7 +238,7 @@ class _Daftar extends StatelessWidget {
         const KepalaPonsel(
           judul: 'Dokumen pendukung',
           anakJudul: 'Yang perlu diputuskan',
-          kembaliKe: 'Lainnya',
+          kembaliKe: Layar.pengaturan,
           labelKembali: 'Kembali ke Lainnya',
         ),
         Expanded(
@@ -296,7 +276,7 @@ class _Daftar extends StatelessWidget {
       radius: 14,
       onTap: () {
         k.pick(d.id);
-        GoRouter.of(context).push('/Dokumen/rinci');
+        context.dorongKe(Layar.dokumen, anak: 'rinci');
       },
       child: Kartu(
         child: Column(
@@ -523,8 +503,12 @@ class _Rinci extends StatelessWidget {
         child: Wrap(
           spacing: 22,
           children: [
-            Tautan(ke: 'LihatDokumen', child: link('Lihat file')),
-            Tautan(ke: 'Kamera', child: link('Foto dengan kamera')),
+            Tautan(
+              ke: Layar.lihatDokumen,
+              param: {'id': belumDipindahId},
+              child: link('Lihat file'),
+            ),
+            Tautan(ke: Layar.fotoDokumen, child: link('Foto dengan kamera')),
           ],
         ),
       ),
@@ -571,7 +555,7 @@ class _Rinci extends StatelessWidget {
             labelKembali: 'Kembali',
             onKembali: () {
               k.tutupRinci();
-              context.kembaliKe('/Dokumen');
+              context.naikKe(Layar.dokumen);
             },
           ),
           Expanded(

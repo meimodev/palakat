@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../motion/kerangka.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis_status.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// One suggestion of the board's `U` list.
 typedef _Usul = ({
@@ -66,9 +67,7 @@ class _AIBulanScreenState extends State<AIBulanScreen> {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final pct = int.parse(
-      context.tweak<String>('AIBulan', 'biayaAI').replaceAll('%', ''),
-    );
+    final pct = int.parse(belumDipindah<String>('75%').replaceAll('%', ''));
     final mati = pct >= 100;
     final biayaCat = mati
         ? 'Batas tercapai.'
@@ -189,14 +188,14 @@ class _AIBulanScreenState extends State<AIBulanScreen> {
     );
 
     return LayarPonsel(
-      jabatanKosong: true,
+      layarKeuangan: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const KepalaPonsel(
             judul: 'Bantuan AI',
             anakJudul: 'Persiapan tutup buku Oktober 2026',
-            kembaliKe: 'TutupBuku',
+            kembaliKe: Layar.tutupBuku,
             labelKembali: 'Kembali ke Bulan',
           ),
           Expanded(
@@ -210,7 +209,7 @@ class _AIBulanScreenState extends State<AIBulanScreen> {
                   const Tombol(
                     'Kembali ke kesiapan tutup buku',
                     onPressed: null,
-                    ke: 'TutupBuku',
+                    ke: Layar.tutupBuku,
                     cara: Cara.naik,
                     jenis: JenisTombol.kedua,
                     ukuran: UkuranTombol.sedang,

@@ -2,14 +2,13 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../mock/mock.dart';
 import '../../motion/kerangka.dart';
 import '../../motion/ulang.dart';
 import '../../motion/urutan.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis.dart';
@@ -18,6 +17,8 @@ import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 enum _Tahap { konfirmasi, proses, sudah }
 
@@ -72,20 +73,16 @@ class _WebTutupBukuScreenState extends State<WebTutupBukuScreen> {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final jk = context.prototipe.jabatanKosong;
-    final hamb = context.tweak<bool>('WebTutupBuku', 'adaHambatan');
+    final jk = belumDipindah(false);
+    final hamb = belumDipindah<bool>(false);
     final tutup = _tahap == _Tahap.sudah;
 
     return Material(
       type: MaterialType.transparency,
       child: HalamanWeb(
-        jabatanKosong: true,
+        layarKeuangan: true,
         jarak: 22,
-        nav: NavSamping(
-          item: navKeuangan,
-          aktif: 4,
-          pengguna: const PenggunaKeuangan(),
-        ),
+        nav: NavSamping(item: navKeuangan, aktif: 4),
         isi: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,15 +105,15 @@ class _WebTutupBukuScreenState extends State<WebTutupBukuScreen> {
             web: true,
             anak: [
               Tautan(
-                ke: 'WebKesiapan',
+                ke: Layar.kesiapan,
                 child: _tengah(const TautanTeks('Pernyataan kesiapan')),
               ),
               Tautan(
-                ke: 'WebAI',
+                ke: Layar.aiBulan,
                 child: _tengah(const TautanTeks('Bantuan AI')),
               ),
               Tautan(
-                ke: 'WebKejadian',
+                ke: Layar.kejadian,
                 child: _tengah(const TautanTeks('Kejadian setelah tutup buku')),
               ),
             ],
@@ -233,7 +230,7 @@ class _WebTutupBukuScreenState extends State<WebTutupBukuScreen> {
           ),
           const SizedBox(height: 8),
           Tautan(
-            ke: 'WebLaporan',
+            ke: Layar.laporan,
             child: Align(
               alignment: Alignment.centerLeft,
               heightFactor: 1,
@@ -397,7 +394,8 @@ class _WebTutupBukuScreenState extends State<WebTutupBukuScreen> {
             tombol: const Tombol(
               'Buka rekonsiliasi',
               onPressed: null,
-              ke: 'WebRekonsiliasi',
+              ke: Layar.tutupBuku,
+              anak: 'rekonsiliasi',
               jenis: JenisTombol.tinta,
               ukuran: UkuranTombol.kecil,
               lebarPenuh: false,
@@ -422,7 +420,7 @@ class _WebTutupBukuScreenState extends State<WebTutupBukuScreen> {
             tombol: const Tombol(
               'Buka dokumen pendukung',
               onPressed: null,
-              ke: 'WebDokumen',
+              ke: Layar.dokumen,
               jenis: JenisTombol.tinta,
               ukuran: UkuranTombol.kecil,
               lebarPenuh: false,
@@ -555,7 +553,7 @@ class _WebTutupBukuScreenState extends State<WebTutupBukuScreen> {
                       atas: (44 - 14 * 1.45) / 2,
                       bawah: (44 - 14 * 1.45) / 2,
                       child: Tautan(
-                        ke: 'WebLaporan',
+                        ke: Layar.laporan,
                         // The words together are the target; a 44 px minimum
                         // per word would widen the gaps between them.
                         minLebar: 0,
@@ -750,7 +748,7 @@ class _WebTutupBukuScreenState extends State<WebTutupBukuScreen> {
             dasar: lebarKembali,
             tumbuh: 0,
             child: Tautan(
-              ke: 'WebBeranda',
+              ke: Layar.keuangan,
               cara: Cara.ganti,
               child: Container(
                 constraints: const BoxConstraints(minHeight: 54),
@@ -910,7 +908,8 @@ class _WebTutupBukuScreenState extends State<WebTutupBukuScreen> {
                     ? const Tombol(
                         'Unduh PDF',
                         onPressed: null,
-                        ke: 'A4F01',
+                        ke: Layar.laporanResmi,
+                        param: {'periode': belumDipindahId, 'bentuk': 'f01'},
                         ukuran: UkuranTombol.kecil,
                         paddingH: 14,
                         lebarPenuh: false,
@@ -935,7 +934,8 @@ class _WebTutupBukuScreenState extends State<WebTutupBukuScreen> {
                   _Berkas.siap => const Tombol(
                     'Unduh Excel',
                     onPressed: null,
-                    ke: 'WebExcel',
+                    ke: Layar.laporanResmi,
+                    param: {'periode': belumDipindahId, 'bentuk': 'excel'},
                     ukuran: UkuranTombol.kecil,
                     paddingH: 14,
                     lebarPenuh: false,

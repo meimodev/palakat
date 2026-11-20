@@ -2,7 +2,6 @@ import 'package:flutter/widgets.dart';
 
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
@@ -11,8 +10,9 @@ import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
-const _stem = 'WebDataGanda';
 const _gabungkan = 'Gabungkan', _bukan = 'Bukan orang yang sama';
 
 /// Web · Kemungkinan data ganda: the Operator compares two records that may
@@ -40,7 +40,7 @@ class _WebDataGandaScreenState extends State<WebDataGandaScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final keadaan = context.tweak<String>(_stem, 'keadaan');
+    final keadaan = belumDipindah<String>('Bandingkan');
     if (keadaan != _keadaan) {
       _keadaan = keadaan;
       _k = null; // a change in the Keadaan panel resets the board state
@@ -161,11 +161,7 @@ class _WebDataGandaScreenState extends State<WebDataGandaScreen> {
       controller: _gulir,
       automaticallyInheritForPlatforms: TargetPlatform.values.toSet(),
       child: HalamanWeb(
-        nav: const NavSamping(
-          item: navPlatform,
-          aktif: 5,
-          pengguna: PenggunaNav(tebal: 'Yanti Sumual', biasa: ' · Operator'),
-        ),
+        nav: const NavSamping(item: navPlatform, aktif: 5),
         isi: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -176,7 +172,7 @@ class _WebDataGandaScreenState extends State<WebDataGandaScreen> {
                 atas: 10.75,
                 bawah: 11.5,
                 child: Tautan(
-                  ke: 'WebDataAnggota',
+                  ke: Layar.dataAnggota,
                   cara: Cara.naik,
                   child: const Center(
                     widthFactor: 1,

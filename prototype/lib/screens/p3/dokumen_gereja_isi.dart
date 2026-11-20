@@ -13,6 +13,7 @@ import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
 
 /// The `keadaan` options of DokumenGereja and WebDokumenGereja, in order.
 const opsiDokumenGereja = [
@@ -46,8 +47,9 @@ mixin KeadaanDokumenGereja<T extends StatefulWidget> on State<T> {
 List<Widget> isiDokumenGereja({
   required bool web,
   required int ki,
-  required String ke,
-  required String keBaris,
+  required Layar ke,
+  String? anak,
+  required Layar keBaris,
   required VoidCallback onBuka,
 }) {
   final daftar = ki == 0 || ki == 3;
@@ -70,7 +72,8 @@ List<Widget> isiDokumenGereja({
       else
         for (final d in dok) _BarisPonsel(d: d, keBaris: keBaris),
     ],
-    if (ki == 0) _baris(_TombolLink('Terbitkan dokumen', ke: ke, tinta: true)),
+    if (ki == 0)
+      _baris(_TombolLink('Terbitkan dokumen', ke: ke, anak: anak, tinta: true)),
     if (ki == 1) ...[
       Kartu(
         child: Builder(
@@ -127,7 +130,9 @@ List<Widget> isiDokumenGereja({
           },
         ),
       ),
-      _baris(_TombolLink('Terbitkan revisi baru', ke: ke, tinta: false)),
+      _baris(
+        _TombolLink('Terbitkan revisi baru', ke: ke, anak: anak, tinta: false),
+      ),
     ],
     if (ki == 2) ...[
       Kartu(
@@ -145,7 +150,7 @@ List<Widget> isiDokumenGereja({
           ]),
         ),
       ),
-      _baris(_TombolLink('Terbitkan dokumen', ke: ke, tinta: true)),
+      _baris(_TombolLink('Terbitkan dokumen', ke: ke, anak: anak, tinta: true)),
     ],
     if (ki == 3)
       Builder(
@@ -168,10 +173,16 @@ Widget _baris(Widget tombol, {double tepi = 32}) => BarisLentur(
 /// A link drawn as a button (`<a>`, content-box: min-height excludes the
 /// 1.5 line, so the outline one is 51 high).
 class _TombolLink extends StatelessWidget {
-  const _TombolLink(this.label, {required this.ke, required this.tinta});
+  const _TombolLink(
+    this.label, {
+    required this.ke,
+    this.anak,
+    required this.tinta,
+  });
 
   final String label;
-  final String ke;
+  final Layar ke;
+  final String? anak;
   final bool tinta;
 
   @override
@@ -179,6 +190,7 @@ class _TombolLink extends StatelessWidget {
     final c = context.warna;
     return Tautan(
       ke: ke,
+      anak: anak,
       radius: 14,
       child: RupaTombol(
         label: label,
@@ -258,7 +270,7 @@ class _BarisPonsel extends StatelessWidget {
   const _BarisPonsel({required this.d, required this.keBaris});
 
   final DokumenGereja d;
-  final String keBaris;
+  final Layar keBaris;
 
   @override
   Widget build(BuildContext context) {
@@ -305,7 +317,7 @@ class _TabelWeb extends StatelessWidget {
   const _TabelWeb({required this.dok, required this.keBaris});
 
   final List<DokumenGereja> dok;
-  final String keBaris;
+  final Layar keBaris;
 
   @override
   Widget build(BuildContext context) {

@@ -2,12 +2,11 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../mock/mock.dart';
 import '../../motion/kerangka.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
-import '../../shell/prototipe_state.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis.dart';
@@ -15,6 +14,8 @@ import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
+import '../../app/belum_dipindah.dart';
 
 /// Web · Dokumen pendukung (docs/build/screens/06-bukti.md).
 class WebDokumenScreen extends StatefulWidget {
@@ -90,8 +91,7 @@ class _WebDokumenScreenState extends State<WebDokumenScreen> {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final jk = PrototypeState.of(context).jabatanKosong;
-    String t(String s) => tukarJkPapan('WebDokumen', jk, s);
+    String t(String s) => s;
     final cur = dokumenPendukung.firstWhere((d) => d.id == _pilih);
     final (st, hist) = _it[_pilih]!;
     final tutup = cur.id == 'c';
@@ -352,8 +352,16 @@ class _WebDokumenScreenState extends State<WebDokumenScreen> {
       Wrap(
         spacing: 22,
         children: [
-          Tautan(ke: 'WebLihatDokumen', child: _tautanFile('Lihat file')),
-          Tautan(ke: 'WebUnggah', child: _tautanFile('Unggah file')),
+          Tautan(
+            ke: Layar.lihatDokumen,
+            param: {'id': belumDipindahId},
+            child: _tautanFile('Lihat file'),
+          ),
+          Tautan(
+            ke: Layar.fotoDokumen,
+            anak: 'unggah',
+            child: _tautanFile('Unggah file'),
+          ),
         ],
       ),
       Column(
@@ -410,12 +418,8 @@ class _WebDokumenScreenState extends State<WebDokumenScreen> {
     );
 
     return HalamanWeb(
-      jabatanKosong: true,
-      nav: const NavSamping(
-        item: navKeuangan,
-        aktif: 1,
-        pengguna: PenggunaKeuangan(),
-      ),
+      layarKeuangan: true,
+      nav: const NavSamping(item: navKeuangan, aktif: 1),
       isi: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -425,7 +429,7 @@ class _WebDokumenScreenState extends State<WebDokumenScreen> {
               atas: (44 - 21.75) / 2,
               bawah: (44 - 21.75) / 2,
               child: Tautan(
-                ke: 'WebTransaksi',
+                ke: Layar.transaksi,
                 cara: Cara.naik,
                 child: const SizedBox(
                   height: 44,

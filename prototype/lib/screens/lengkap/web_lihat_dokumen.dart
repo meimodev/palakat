@@ -7,6 +7,7 @@ import '../../theme/palakat_tema.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import 'lihat_dokumen_penampil.dart';
+import '../../app/layar.dart';
 
 /// Web · Lihat file dokumen pendukung (spec 11-lihatdokumen.md).
 class WebLihatDokumenScreen extends StatefulWidget {
@@ -29,7 +30,7 @@ class _WebLihatDokumenScreenState extends State<WebLihatDokumenScreen>
           atas: (44 - 15 * 1.45) / 2,
           bawah: (44 - 15 * 1.45) / 2,
           child: Tautan(
-            ke: 'WebDokumen',
+            ke: Layar.dokumen,
             cara: Cara.naik,
             child: const Align(
               widthFactor: 1,
@@ -92,7 +93,7 @@ class _WebLihatDokumenScreenState extends State<WebLihatDokumenScreen>
         children: panel(
           context,
           tautan: const Tautan(
-            ke: 'WebDokumen',
+            ke: Layar.dokumen,
             cara: Cara.naik,
             child: IsiTautanTolak(),
           ),
@@ -102,12 +103,8 @@ class _WebLihatDokumenScreenState extends State<WebLihatDokumenScreen>
     return Material(
       type: MaterialType.transparency,
       child: HalamanWeb(
-        jabatanKosong: true,
-        nav: const NavSamping(
-          item: navKeuangan,
-          aktif: 1,
-          pengguna: PenggunaKeuangan(),
-        ),
+        layarKeuangan: true,
+        nav: const NavSamping(item: navKeuangan, aktif: 1),
         isi: [
           judul,
           BarisLentur(

@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
 
-import '../mock/format.dart';
+import '../core/format.dart';
 
 /// The boards' amount filter: digits only, leading zeros out (a lone '0'
 /// stays with [sisakanNol]), at most [maks] digits, shown with thousand dots.

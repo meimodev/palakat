@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../mock/mock.dart';
 import '../../motion/kerangka.dart';
 import '../../shell/halaman_web.dart';
@@ -16,6 +16,7 @@ import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
+import '../../app/layar.dart';
 
 /// Per-kind copy of the board's `CFG`.
 typedef _Cfg = ({
@@ -255,12 +256,8 @@ class _WebKasusBaruScreenState extends State<WebKasusBaruScreen> {
     );
 
     return HalamanWeb(
-      nav: NavSamping(
-        item: navKeuangan,
-        aktif: 2,
-        pengguna: const PenggunaKeuangan(),
-      ),
-      jabatanKosong: true,
+      nav: NavSamping(item: navKeuangan, aktif: 2),
+      layarKeuangan: true,
       isi: [
         _judul(context),
         // The last chip's 8 px right margin counts toward the line (CSS
@@ -297,7 +294,7 @@ class _WebKasusBaruScreenState extends State<WebKasusBaruScreen> {
           atas: (44 - 15 * 1.45) / 2,
           bawah: (44 - 15 * 1.45) / 2,
           child: Tautan(
-            ke: 'WebKewajiban',
+            ke: Layar.kewajiban,
             cara: Cara.naik,
             child: const Align(
               widthFactor: 1,
@@ -400,7 +397,7 @@ class _WebKasusBaruScreenState extends State<WebKasusBaruScreen> {
           ),
           const SizedBox(width: 16),
           Tautan(
-            ke: 'WebDokumen',
+            ke: Layar.dokumen,
             radius: 12,
             child: Container(
               constraints: const BoxConstraints(minHeight: 44),
@@ -629,7 +626,7 @@ class _WebKasusBaruScreenState extends State<WebKasusBaruScreen> {
           onPressed: null,
           jenis: JenisTombol.kedua,
           ukuran: UkuranTombol.sedang,
-          ke: 'WebKewajiban',
+          ke: Layar.kewajiban,
           cara: Cara.naik,
         ),
         Tombol(

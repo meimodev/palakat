@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
-import '../../shell/perangkat_prototipe.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
@@ -15,6 +14,7 @@ import '../../widgets/riwayat_alur.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
+import '../../app/layar.dart';
 
 /// Web · Alur · Menjalankan jabatan kosong (screens/15-cariorang.md): the
 /// Operator Yanti Sumual runs the vacant post Penatua Kolom 2 on her laptop.
@@ -49,7 +49,8 @@ class _WebAlurJabatanKosongScreenState
     extends State<WebAlurJabatanKosongScreen> {
   String _pesan = '', _v = 'daftar';
   List<String> _riw = [];
-  bool _paham = false, _jalan = false, _terisi = false;
+  bool _paham = false, _jalan = false;
+  final _terisi = false;
   final List<int> _beres = [];
   final _alasanIsi = TextEditingController();
   final _kunci = GlobalKey();
@@ -86,16 +87,6 @@ class _WebAlurJabatanKosongScreenState
     );
   });
 
-  void _isiJabatan() => setState(() {
-    _jalan = false;
-    _terisi = true;
-    _pesan = '';
-    _catat(
-      'Penatua Kolom 2 ditugaskan kepada Pnt. Altje Rompas · '
-      'menjalankan jabatan kosong berakhir',
-    );
-  });
-
   void _verifikasi(int i) => setState(() {
     _beres.add(i);
     _catat(
@@ -106,72 +97,55 @@ class _WebAlurJabatanKosongScreenState
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    return AlatPrototipe(
-      stem: 'WebAlurJabatanKosong',
-      alat: [
-        Tombol(
-          'Contoh: pemegang jabatan ditugaskan',
-          jenis: JenisTombol.teks,
-          ukuran: UkuranTombol.kecil,
-          lebarPenuh: false,
-          nonaktif: !_jalan,
-          onPressed: _isiJabatan,
-        ),
-      ],
-      child: HalamanWeb(
-        nav: const NavSamping(
-          item: navPlatform,
-          aktif: 9,
-          pengguna: PenggunaNav(tebal: 'Yanti Sumual', biasa: ' · Operator'),
-        ),
-        isi: [
-          Column(
-            key: _kunci,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // The 44 px target overlaps the line above and below, so the
-              // block keeps the board's line (the 14 px link sits on the
-              // div's 15 × 1.45 strut).
-              MarginNegatif(
-                atas: (44 - 15 * 1.45) / 2,
-                bawah: (44 - 15 * 1.45) / 2,
-                child: Tautan(
-                  ke: 'WebJabatanKosong',
-                  cara: Cara.naik,
-                  child: const Align(
-                    alignment: Alignment.centerLeft,
-                    widthFactor: 1,
-                    child: TautanTeks('Menjalankan jabatan kosong', ukuran: 14),
-                  ),
+    return HalamanWeb(
+      nav: const NavSamping(item: navPlatform, aktif: 7),
+      isi: [
+        Column(
+          key: _kunci,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // The 44 px target overlaps the line above and below, so the
+            // block keeps the board's line (the 14 px link sits on the
+            // div's 15 × 1.45 strut).
+            MarginNegatif(
+              atas: (44 - 15 * 1.45) / 2,
+              bawah: (44 - 15 * 1.45) / 2,
+              child: Tautan(
+                ke: Layar.jabatanKosong,
+                cara: Cara.naik,
+                child: const Align(
+                  alignment: Alignment.centerLeft,
+                  widthFactor: 1,
+                  child: TautanTeks('Menjalankan jabatan kosong', ukuran: 14),
                 ),
-              ),
-              const SizedBox(height: 2),
-              Semantics(
-                header: true,
-                child: Text(
-                  'Alur · Menjalankan jabatan kosong',
-                  style: PalakatText.judulHalaman.copyWith(color: c.tinta),
-                ),
-              ),
-              Text(
-                'Operator menjalankan Penatua Kolom 2 sampai ada pemegangnya',
-                style: TextStyle(fontSize: 14, color: c.tinta2),
-              ),
-            ],
-          ),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1120),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: 16,
-                children: _v == 'mulai' ? _mulai(context) : _daftar(context),
               ),
             ),
+            const SizedBox(height: 2),
+            Semantics(
+              header: true,
+              child: Text(
+                'Alur · Menjalankan jabatan kosong',
+                style: PalakatText.judulHalaman.copyWith(color: c.tinta),
+              ),
+            ),
+            Text(
+              'Operator menjalankan Penatua Kolom 2 sampai ada pemegangnya',
+              style: TextStyle(fontSize: 14, color: c.tinta2),
+            ),
+          ],
+        ),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1120),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: 16,
+              children: _v == 'mulai' ? _mulai(context) : _daftar(context),
+            ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

@@ -12,6 +12,7 @@ import '../../widgets/riwayat_alur.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
+import '../../app/layar.dart';
 
 /// 71 · Alur · Warta mingguan (spec 19). One flow object for the life of the
 /// route; four views under one fixed header, no child routes.
@@ -185,7 +186,7 @@ class _AlurWartaScreenState extends State<AlurWartaScreen> {
               const KepalaPonsel(
                 judul: 'Alur · Warta mingguan',
                 anakJudul: 'Dari pengumuman sampai edisi 22/11/2026 terbit',
-                kembaliKe: 'WartaArsip',
+                kembaliKe: Layar.warta,
                 labelKembali: 'Kembali ke Warta Jemaat',
               ),
               Expanded(

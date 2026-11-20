@@ -14,6 +14,7 @@ import '../../widgets/lencana_status.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
 
 /// The five contents of the export: name, description, bar duration (ms).
 const _isi = [
@@ -169,12 +170,8 @@ class _WebEksporScreenState extends State<WebEksporScreen> {
     return Material(
       type: MaterialType.transparency,
       child: HalamanWeb(
-        jabatanKosong: true,
-        nav: const NavSamping(
-          item: navKeuangan,
-          aktif: 6,
-          pengguna: PenggunaKeuangan(),
-        ),
+        layarKeuangan: true,
+        nav: const NavSamping(item: navKeuangan, aktif: 6),
         isi: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -184,7 +181,7 @@ class _WebEksporScreenState extends State<WebEksporScreen> {
                 atas: 11.125,
                 bawah: 11.125,
                 child: Tautan(
-                  ke: 'WebPengaturan',
+                  ke: Layar.pengaturan,
                   cara: Cara.naik,
                   child: const Align(
                     alignment: Alignment.centerLeft,

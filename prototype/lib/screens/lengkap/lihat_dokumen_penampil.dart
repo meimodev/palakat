@@ -5,12 +5,12 @@ import 'package:flutter/widgets.dart';
 
 import '../../mock/jabatan_kosong.dart';
 import '../../motion/kerangka.dart';
-import '../../shell/prototipe_state.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
+import '../../app/belum_dipindah.dart';
 
 /// The two files of the supporting document of BKU-2026-0147 (the boards' `H`).
 typedef _Nota = ({
@@ -81,7 +81,7 @@ mixin KeadaanLihatDokumen<T extends StatefulWidget> on State<T> {
   /// Panel rows a–f; [tautan] is the screen's own "Tolak, …" link.
   List<Widget> panel(BuildContext context, {required Widget tautan}) {
     final c = context.warna;
-    final jk = context.prototipe.jabatanKosong;
+    final jk = belumDipindah(false);
     return [
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

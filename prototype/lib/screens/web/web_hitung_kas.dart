@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../mock/format.dart';
+import '../../core/format.dart';
 import '../../mock/mock.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
@@ -13,6 +13,7 @@ import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
+import '../../app/layar.dart';
 
 const _mono = TextStyle(fontFamily: PalakatText.mono);
 
@@ -140,7 +141,8 @@ class _WebHitungKasScreenState extends State<WebHitungKasScreen> {
       ],
     );
     Widget chipBank(String teks) => Tautan(
-      ke: 'WebRekonsiliasi',
+      ke: Layar.tutupBuku,
+      anak: 'rekonsiliasi',
       cara: Cara.ganti,
       radius: 22,
       child: _isiKotak(
@@ -469,12 +471,8 @@ class _WebHitungKasScreenState extends State<WebHitungKasScreen> {
     return Material(
       type: MaterialType.transparency,
       child: HalamanWeb(
-        jabatanKosong: true,
-        nav: const NavSamping(
-          item: navKeuangan,
-          aktif: 3,
-          pengguna: PenggunaKeuangan(),
-        ),
+        layarKeuangan: true,
+        nav: const NavSamping(item: navKeuangan, aktif: 3),
         isi: [
           Semantics(
             header: true,
