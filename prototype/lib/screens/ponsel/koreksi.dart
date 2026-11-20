@@ -321,7 +321,13 @@ class _DetailState extends State<_Detail> {
     super.didChangeDependencies();
     // The board remounts detail on every return: back on top, at the top.
     final diAtas = ModalRoute.isCurrentOf(context) ?? true;
-    if (diAtas && !_diAtas && _guliran.hasClients) _guliran.jumpTo(0);
+    // A deep link mounts detail under the child unlaid-out: nothing to reset yet.
+    if (diAtas &&
+        !_diAtas &&
+        _guliran.hasClients &&
+        _guliran.position.hasContentDimensions) {
+      _guliran.jumpTo(0);
+    }
     _diAtas = diAtas;
   }
 
