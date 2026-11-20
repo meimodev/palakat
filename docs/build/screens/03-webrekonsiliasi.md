@@ -574,6 +574,7 @@ These seven boards carry the Bendahara Jemaat's month-end and reporting work plu
   8. At 860 px the side nav collapses behind "Menu" and the aside still sits beside the table (420 + 24 + 340 = 784 fits in about 808 px of main column). Below about 834 px, and at 390, the aside wraps under the table.
 - **Notes**
   - Off-token values: radius 10 on inputs; mono 28 px difference; button height 50.
+  - X03: the denomination label also focuses its count field on tap, but it is excluded from semantics; the 44 px count field beside it is the target.
   - The title reads "· November 2026" while WebRekonsiliasi reads "· Oktober 2026". Each keeps its own.
   - The dashed "Lampirkan dokumen pendukung" box looks like a control but has no handler. Render it inert, as drawn.
   - The status sentence sits below the button, not above as the TombolBersyarat guideline says. The board wins.

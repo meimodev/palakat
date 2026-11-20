@@ -281,6 +281,8 @@ class _IsiState extends State<_Isi> {
                   Expanded(
                     child: GestureDetector(
                       onTap: _fokus[i].requestFocus,
+                      // X03: the 44 px amount field is the target.
+                      excludeFromSemantics: true,
                       child: ExcludeSemantics(
                         child: Text(
                           k.bagian[i].n,
@@ -935,33 +937,30 @@ class _IsianBagian extends StatelessWidget {
               listenable: fokus,
               builder: (context, _) => CincinFokus(
                 tampil: fokus.hasFocus,
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: fokus.requestFocus,
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(minHeight: 44),
-                    child: Center(
-                      heightFactor: 1,
-                      child: Semantics(
-                        label: label,
-                        child: TextField(
-                          controller: controller,
-                          focusNode: fokus,
-                          onChanged: onChanged,
-                          keyboardType: TextInputType.number,
-                          inputFormatters: const [
-                            RupiahInputFormatter(sisakanNol: true),
-                          ],
-                          textAlign: TextAlign.right,
-                          style: gaya,
-                          cursorColor: c.laut,
-                          decoration: InputDecoration(
-                            isCollapsed: true,
-                            border: InputBorder.none,
-                            hintText: '—',
-                            hintStyle: gaya.copyWith(color: c.tinta3),
-                          ),
-                        ),
+                // The field fills the 44 px box itself (X03), text centred.
+                child: SizedBox(
+                  height: 44,
+                  child: Semantics(
+                    label: label,
+                    child: TextField(
+                      controller: controller,
+                      focusNode: fokus,
+                      onChanged: onChanged,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: const [
+                        RupiahInputFormatter(sisakanNol: true),
+                      ],
+                      textAlign: TextAlign.right,
+                      textAlignVertical: TextAlignVertical.center,
+                      expands: true,
+                      maxLines: null,
+                      style: gaya,
+                      cursorColor: c.laut,
+                      decoration: InputDecoration(
+                        isCollapsed: true,
+                        border: InputBorder.none,
+                        hintText: '—',
+                        hintStyle: gaya.copyWith(color: c.tinta3),
                       ),
                     ),
                   ),

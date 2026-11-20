@@ -78,7 +78,7 @@ These eight boards belong to two canvas pages. The first five are on "Putaran 3 
      - Top row: `{jenis} · {nama}` (700) and "Diajukan" (`garis`).
      - 13 `tinta3`: "Pemohon diberi tahu, dengan alasannya."
   2. *Alasan* field: label "Alasan · wajib" (plain text, no bold part), textarea.
-  3. *Refusal line* "Tidak dapat dilakukan: Catat tidak diterbitkan." This line never shows (see Notes).
+  3. *Refusal line* "Tidak dapat dilakukan: Catat tidak diterbitkan." The board never shows it; the prototype shows it with "alasan belum diisi." once the field has text that is blank after trimming (A02, see Notes).
   4. *Button row*: "Catat tidak diterbitkan" (TombolBersyarat) and "Kembali" (text button), side by side at about 171 each.
 - **Components** LencanaStatus (request badges, file-slot badge); TombolBersyarat ("Terbitkan surat", "Catat tidak diterbitkan"); Penolakan (the refusal line); IsianAlasan ("Alasan · wajib", 3 rows here); RiwayatAlur (Riwayat); Tombol (secondary "Buka permohonan", "Pilih file", "Tidak diterbitkan"; text "Kembali"). Repeated patterns that are not components: the request card with an action button, the key–value detail card, the dashed file slot (PanelDokumen-like, but built as drawn), and the status note.
 - **Internal views and states**
@@ -142,7 +142,7 @@ These eight boards belong to two canvas pages. The first five are on "Putaran 3 
      - the first card with a `tinta` badge "Diterbitkan", the line "No. 027/SKet/XI/2026 · 16/11/2026 · hanya anggota, keluarganya dan pelayan yang menaunginya yang melihat", and no button;
      - Riwayat with the row "16/11/2026 · Surat keterangan Novita Wenas diterbitkan dengan No. 027/SKet/XI/2026. Oleh Olvie Pangemanan, Sekretaris Jemaat."
   6. On "Atestasi keluar · Keluarga Lasut", tap "Buka permohonan" then "Tidak diterbitkan":
-     - The card shows "Pemohon diberi tahu, dengan alasannya.". "Catat tidak diterbitkan" is grey and pressing it does nothing. No refusal line appears, even after typing spaces.
+     - The card shows "Pemohon diberi tahu, dengan alasannya.". "Catat tidak diterbitkan" is grey and pressing it does nothing. No refusal line on the empty field; typing spaces shows "Tidak dapat dilakukan: Catat tidak diterbitkan. alasan belum diisi."
      - Type "Belum ada surat dari jemaat tujuan" → the button turns `tinta`.
      - Press it → the card badge is "Tidak diterbitkan" (`bata`) with the line "Alasan: Belum ada surat dari jemaat tujuan". The status note reads "Atestasi keluar Keluarga Lasut tidak diterbitkan · alasan: Belum ada surat dari jemaat tujuan.". Riwayat has two rows, with this one on top.
   7. In `buka`, type a number and attach the file, tap "Tidak diterbitkan", then "Kembali" → back in `buka` with the number and "Terlampir" kept.
@@ -152,7 +152,7 @@ These eight boards belong to two canvas pages. The first five are on "Putaran 3 
   - Two parts of the board are dead code:
     - `fileSt(false)`: the "Gagal diunggah." branch ("Isian Anda masih ada di layar ini; file belum terlampir." with "Coba lagi") cannot be reached. Do not build a trigger for it.
     - `sebab2` is `al && !al`, so the refusal for "Catat tidak diterbitkan" ("alasan terlalu pendek.") never shows.
-  - The second point conflicts with "a disabled action always shows its reason". The board wins: show no line. If a reason is wanted later, the text would be "Tidak dapat dilakukan: Catat tidak diterbitkan. alasan belum diisi."
+  - Added sentence (A02, a disabled action always shows its reason): once the Alasan field has text but is blank after trimming (only spaces), the refusal slot shows "Tidak dapat dilakukan: Catat tidak diterbitkan. alasan belum diisi." (Penolakan 14, above the button row, as the board's live "Terbitkan surat" refusal). The empty field shows no line, as the board.
   - The letter number is rendered in sans, as drawn, although CONVENTIONS sets codes in mono. Keep sans; it is the letter's own number, not a Palakat code.
   - Primaries are `tinta` fields, not the `laut` primary of Tombol. Keep the board.
   - Typed text is 14 `tinta2` because it inherits the label. `13-tabberanda.md` describes the same field as 16 `tinta`. KitAlur's field (components.md 2.9) settles it: the CSS gives 14 `tinta2`.
@@ -195,7 +195,7 @@ These eight boards belong to two canvas pages. The first five are on "Putaran 3 
   4. "Tidak diterbitkan" on another request → a single-column form. "Catat tidak diterbitkan" stays grey until a non-blank reason is typed.
   5. At 860 → the "Menu" top bar shows, and the `buka` columns still sit side by side. At 700 they stack, with the file slot under the Nomor surat field, and there is no horizontal scroll.
   6. "Dokumen gereja" → `/WebDokumenGereja`; "Panitia" → `/Panitia` (a phone board in its frame); breadcrumb → `/WebPermohonanSurat`.
-- **Notes** All AlurSurat notes apply. "Ibadah dan kegiatan" and "Panitia" link to phone boards (Q26); follow the board.
+- **Notes** All AlurSurat notes apply, including the added "Catat tidak diterbitkan" sentence (A02). "Ibadah dan kegiatan" and "Panitia" link to phone boards (Q26); follow the board.
 
 ### AlurWarta — 71 · Alur · Warta mingguan
 
@@ -267,14 +267,14 @@ These eight boards belong to two canvas pages. The first five are on "Putaran 3 
      - "Akan diterbitkan sebagai" → "Kel. Mamahit — Kolom 4";
      - then 13 `tinta3` "Tampilan nama pilihan anggota wajib diikuti. Pengecualian hanya untuk keperluan resmi, tata kelola, hukum atau pertanggungjawaban."
   2. Field "Alasan · wajib": textarea.
-  3. *Refusal line* "Tidak dapat dilakukan: Catat pengecualian." This line never shows (see Notes).
+  3. *Refusal line* "Tidak dapat dilakukan: Catat pengecualian." The board never shows it; the prototype shows it with "alasan belum diisi." once the field has text that is blank after trimming (A02, see Notes).
   4. *Button row*: "Catat pengecualian" (TombolBersyarat) and "Batalkan" (text button).
   **View `ralat`**:
   1. *Card*:
      - Top row: "Warta Jemaat · edisi 22/11/2026" (700) and "Diterbitkan" (`tinta`).
      - 13 `tinta3`: "Edisi asli tidak diubah. Ralat diterbitkan sebagai revisi yang tertaut."
   2. Field "Yang diralat · wajib": textarea.
-  3. *Refusal line* "Tidak dapat dilakukan: Terbitkan ralat." This line never shows (see Notes).
+  3. *Refusal line* "Tidak dapat dilakukan: Terbitkan ralat." The board never shows it; the prototype shows it with "yang diralat belum diisi." once the field has text that is blank after trimming (A02, see Notes).
   4. *Button row*: "Terbitkan ralat" (TombolBersyarat) and "Batalkan" (text button).
 - **Components**
   - LencanaStatus: edition badge (Draf / Sudah diperiksa / Disetujui / Diterbitkan) and the ralat badges.
@@ -392,7 +392,8 @@ These eight boards belong to two canvas pages. The first five are on "Putaran 3 
      - the exception button is gone.
   10. Back arrow → `/WartaArsip`.
 - **Notes**
-  - `sebabN` and `sebabR` are `x && !x`, so "Tidak dapat dilakukan: Catat pengecualian." and "Tidak dapat dilakukan: Terbitkan ralat." never show. The board wins: the grey button has no reason line.
+  - `sebabN` and `sebabR` are `x && !x`, so "Tidak dapat dilakukan: Catat pengecualian." and "Tidak dapat dilakukan: Terbitkan ralat." never show on the board.
+  - Added sentences (A02, a disabled action always shows its reason): once the field has text but is blank after trimming, the refusal slot above the button row shows "Tidak dapat dilakukan: Catat pengecualian. alasan belum diisi." and "Tidak dapat dilakukan: Terbitkan ralat. yang diralat belum diisi." (Penolakan 14, as the live "Terbitkan" refusal). The empty field shows no line, as the board.
   - "Simpan sebagai draf" saves without any check. Keep it; it is the board's behaviour.
   - The status steps have no condition and no second person. Keep the board: one actor does every step on this flow.
   - "Berakhir pada" is free text, not the hh/bb/tttt mask some boards use. It is checked while typing, as TombolBersyarat requires.
@@ -449,7 +450,7 @@ These eight boards belong to two canvas pages. The first five are on "Putaran 3 
   5. "Batalkan", then "Tampilkan nama (pengecualian)" → the exception card is on the left and Alasan with "Catat pengecualian" on the right.
   6. At 860 → the "Menu" top bar shows and the columns still sit side by side. At 700 they stack with no horizontal scroll.
   7. "Warta Jemaat" in the nav → `/WebWartaArsip` (go); breadcrumb → `/WebWartaArsip`.
-- **Notes** All AlurWarta notes apply. The preview height is 1250 because the `warta` view is the longest; the page scrolls as a whole.
+- **Notes** All AlurWarta notes apply. The added A02 sentences read "Tidak dapat dilakukan: Catat pengecualian. Alasan belum diisi." and "Tidak dapat dilakukan: Terbitkan ralat. Yang diralat belum diisi." (this board's reasons start with a capital). The preview height is 1250 because the `warta` view is the longest; the page scrolls as a whole.
 
 ### A4Warta — A4 · Warta Jemaat edisi 22/11/2026
 

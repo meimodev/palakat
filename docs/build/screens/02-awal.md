@@ -156,6 +156,7 @@ Shared notes for this file:
   7. At 860 px wide the side nav collapses behind "Menu"; the table scrolls horizontally inside its card (min-width 860).
 - **Notes**
   - Off-token: h2 19 px, OPN figure 36 px, input radius 10, stamp radius 8, step card radius 12 used as card.
+  - X03: each saldo-awal input is a 44 px field (its own semantics node), not a 23 px line centred in a 44 px box; the drawn figure does not move.
   - The empty cell uses dashed `bata` on `bataLembut`; the line language has `hambatan` as solid `bata`. Copy the board.
   - Phone limits amounts to 11 digits, web to 12. Keep each.
   - The manifest says `hasSideNav: false` for this board, but it has the side nav. Build the side nav.

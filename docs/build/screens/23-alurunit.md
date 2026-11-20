@@ -69,7 +69,7 @@ Shared notes for this file:
   5. **Bendahara Jemaat, reason** (view `alasan`, not resolved):
      a. Card: head "Pindah tanggal · Konsumsi ibadah Kolom" + `draf` badge "Draf"; info row "Tanggal transaksi baru" → "02/11/2026"; 13 `tinta3` "Hanya bulan yang Belum ditutup. Draf tetap Draf; tidak ada yang dibukukan."
      b. Reason textarea "Alasan · wajib".
-     c. (A refusal line "Tidak dapat dilakukan: Pindah tanggal." exists in the source but its condition can never be true; it never shows. Do not build it.)
+     c. (A refusal line "Tidak dapat dilakukan: Pindah tanggal." exists in the source but its condition can never be true; it never shows. The prototype shows it with "Alasan · wajib belum diisi" once the field has text that is blank after trimming; A02, see Notes.)
      d. Button row: TombolBersyarat "Pindah tanggal" + text button "Kembali" (171 each).
   6. **Bendahara Jemaat, resolved** (`beres` set):
      a. Card: head "Konsumsi ibadah Kolom" + `draf` badge "Draf"; 14 `tinta2` "Dipindah ke 02/11/2026"; 13 `tinta3` "Diselesaikan oleh Bendahara Jemaat (alasan: {alasan}) · Meiske Lumentut, 16/11/2026".
@@ -87,7 +87,7 @@ Shared notes for this file:
   - Press when met (`bukukan`) → a new row is put first in the session list (so it shows directly under the BKU-2026-0151 row): title = Uraian trimmed, amount = "Rp{jumlah}" for Pendapatan or "−Rp{jumlah}" (U+2212) for Belanja, sub-line "No. Bukti baru · 16/11/2026 · Dibukukan · {Jenis}"; Jenis, Jumlah, Kas/Bank, Uraian cleared; `pesan` = "Dibukukan di peruntukan Kolom 7."; Riwayat gains "16/11/2026 · Dibukukan: {Jenis} Rp{jumlah} · {Uraian} · Deasy Tumbelaka, Bendahara Kolom 7" (the Riwayat amount has no minus sign).
   - "Pindah tanggal ke November" (`keAlasan`) → `v = 'alasan'`, `pesan = ''`, `alasan = ''`.
   - Reason typing (`onAlasan`) → free text.
-  - "Pindah tanggal" condition: reason not blank after trim. No refusal line ever shows (see Notes). Press when met (`pindah`) → `v = 'utama'`, `beres` = trimmed reason, `alasan = ''`, `pesan` = "Deasy Tumbelaka diberi tahu lewat Pemberitahuan.", Riwayat gains "16/11/2026 · Draf Konsumsi ibadah Kolom dipindah ke 02/11/2026 · Diselesaikan oleh Bendahara Jemaat (alasan: {alasan})".
+  - "Pindah tanggal" condition: reason not blank after trim. The board never shows a refusal line; the prototype adds one once the field has text (A02, see Notes). Press when met (`pindah`) → `v = 'utama'`, `beres` = trimmed reason, `alasan = ''`, `pesan` = "Deasy Tumbelaka diberi tahu lewat Pemberitahuan.", Riwayat gains "16/11/2026 · Draf Konsumsi ibadah Kolom dipindah ke 02/11/2026 · Diselesaikan oleh Bendahara Jemaat (alasan: {alasan})".
   - "Kembali" (`pulang`) → `v = 'utama'`, `pesan = ''`; the typed reason is kept in state but cleared on the next "Pindah tanggal ke November".
   - No timers. No way to undo the move.
 - **Motion** none (shared note).
@@ -102,12 +102,12 @@ Shared notes for this file:
   3. Uraian "Konsumsi rapat Kolom" → refusal gone, "Bukukan" `tinta`; first press → form empty again (hint "Rp0", no refusal), banner "Dibukukan di peruntukan Kolom 7.", second row "Konsumsi rapat Kolom · −Rp50.000 · No. Bukti baru · 16/11/2026 · Dibukukan · Belanja"; Riwayat "16/11/2026 · Dibukukan: Belanja Rp50.000 · Konsumsi rapat Kolom · Deasy Tumbelaka, Bendahara Kolom 7".
   4. Pick "Pendapatan" → banner disappears; the refusal "Tidak dapat dilakukan: Bukukan. jumlah belum diisi." shows again.
   5. Panel "Bendahara Jemaat" → dashed "Tutup buku Oktober 2026 terhalang 1 hal dari Kolom 7. …", card with "28/10/2026", "Rp185.000", "Deasy Tumbelaka, Bendahara Kolom 7", primary "Pindah tanggal ke November"; Riwayat from step 3 still shown.
-  6. "Pindah tanggal ke November" → card "Pindah tanggal · Konsumsi ibadah Kolom", "Tanggal transaksi baru 02/11/2026", empty "Alasan · wajib", grey "Pindah tanggal" with no refusal line, "Kembali"; typing three spaces keeps it grey; "Kembali" returns to step 5's view.
+  6. "Pindah tanggal ke November" → card "Pindah tanggal · Konsumsi ibadah Kolom", "Tanggal transaksi baru 02/11/2026", empty "Alasan · wajib", grey "Pindah tanggal" with no refusal line, "Kembali"; typing three spaces keeps it grey and shows "Tidak dapat dilakukan: Pindah tanggal. Alasan · wajib belum diisi"; "Kembali" returns to step 5's view.
   7. Again, reason "Konsumsi untuk ibadah 2 November", "Pindah tanggal" → "Dipindah ke 02/11/2026", "Diselesaikan oleh Bendahara Jemaat (alasan: Konsumsi untuk ibadah 2 November) · Meiske Lumentut, 16/11/2026", notice "Tidak ada hambatan dari unit. Oktober 2026 dapat diperiksa untuk tutup buku.", banner "Deasy Tumbelaka diberi tahu lewat Pemberitahuan.", Riwayat top row "16/11/2026 · Draf Konsumsi ibadah Kolom dipindah ke 02/11/2026 · Diselesaikan oleh Bendahara Jemaat (alasan: Konsumsi untuk ibadah 2 November)".
   8. Panel "Bendahara Kolom 7" → banner gone; draft box line "Dipindah ke 02/11/2026 oleh Bendahara Jemaat · alasan: Konsumsi untuk ibadah 2 November".
   9. Header back → `/Main`.
 - **Notes**
-  - The source computes the "Pindah tanggal" refusal as `al && !al`, which is never true, so a blank reason leaves the button grey with no sentence. Keep the board (the empty-form rule allows it); give the button the Semantics hint "Alasan · wajib belum diisi" while unmet so the reason is still announced.
+  - The source computes the "Pindah tanggal" refusal as `al && !al`, which is never true, so a blank reason leaves the button grey with no sentence. Keep the board on the empty field (the empty-form rule allows it); give the button the Semantics hint "Alasan · wajib belum diisi" while unmet so the reason is still announced. Added sentence (A02, a disabled action always shows its reason): once the field has text but is blank after trimming, the slot above the button row shows "Tidak dapat dilakukan: Pindah tanggal. Alasan · wajib belum diisi" (Penolakan 14, as the "Bukukan" refusal).
   - On the Bendahara Jemaat side the Draf is drawn in solid-edged cards (`dibukukan` line) with a dashed "Draf" badge, while GarisStatus says a draft is dashed. Keep the board; flag for design.
   - "No. Bukti baru" is the board's stand-in for the number a new booking gets. Keep the words; do not invent a number.
   - Booked-row amounts are mono at weight 400 (inherited), unlike the 500 used on the blocker card. Copy the board.
@@ -148,7 +148,7 @@ Shared notes for this file:
   5. At 860 → "Menu" top bar, the Kolom 7 form still two columns; at 390 → columns stacked, no horizontal scroll.
   6. Breadcrumb "Keuangan" → `/WebBeranda`; nav "Panitia" → `/Panitia` (in the phone frame). Both do `go` here (WebBeranda is never directly beneath), so only browser Back on web returns here (state fresh); on iOS/Android there is no page beneath.
 - **Notes**
-  - Same refusal, line-language and "No. Bukti baru" notes as AlurUnit.
+  - Same refusal (including the added A02 "Pindah tanggal" sentence), line-language and "No. Bukti baru" notes as AlurUnit.
   - Bendahara Jemaat cards stretch to 1120 at 1440. Keep the board; flag for design.
   - The footer identity does not follow the panel's "Dilihat sebagai". Keep it static.
 

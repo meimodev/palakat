@@ -388,7 +388,15 @@ mixin AlurUnitLogika<T extends StatefulWidget> on State<T> {
           baris: 3,
           onChanged: (_) => setState(() {}),
         ),
-        // The board's "Pindah tanggal" refusal (`al && !al`) never shows.
+        // The board's "Pindah tanggal" refusal (`al && !al`) never shows, so
+        // (A02) the reason shows in that slot once the person has typed.
+        if (alasan.text.isNotEmpty && _sebab2.isNotEmpty)
+          Penolakan(
+            tindakan: 'Pindah tanggal',
+            sebab: _sebab2,
+            jalan: const [],
+            ukuranTeks: 14,
+          ),
         BarisTombol(
           anak: [
             TombolBersyarat(

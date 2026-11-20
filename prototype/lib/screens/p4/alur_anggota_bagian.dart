@@ -7,6 +7,7 @@ import '../../widgets/alur_kit.dart';
 import '../../widgets/garis_status.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
+import '../../widgets/penolakan.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
 
@@ -183,6 +184,15 @@ List<Widget> formKembali({
       baris: 3,
       onChanged: (_) => onUbah(),
     ),
+    // A02: the board's refusal slot is `al && !al` (dead); once typed, the
+    // reason shows there.
+    if (alasan.text.isNotEmpty && periksa().isNotEmpty)
+      Penolakan(
+        tindakan: 'Kembalikan',
+        sebab: periksa(),
+        jalan: const [],
+        ukuranTeks: 14,
+      ),
     BarisTombol(
       anak: [
         TombolBersyarat(

@@ -444,6 +444,7 @@ Shared web pieces:
   10. Press "Catat setoran ke bank" → `/Main`; browser Back does not return to the editable form.
 - **Notes**
   - Off-token sizes: total 36 px (Isi) and 30 px (Hasil), part inputs 18 px with a 1.5 underline (IsianJumlah says `jumlahIsian` 30 and a 2 px underline). Copy the board.
+  - X03: the part name focuses its amount field on tap but is excluded from semantics; the amount field itself fills the 44 px box (figure still centred), so its own node is the 44 px target.
   - The Mata Anggaran numbers in the part lines are not mono on the board; CONVENTIONS says every No. MA is mono. Recommended: render the number part ("1.3.53.07.00", "2.1.01.02.00") in mono 13.
   - The refusal sentence lacks the "{tindakan}." part of the TombolBersyarat form. Copy the board's sentence.
   - The envelope overflow sentence says "Tidak dapat dilakukan: Periksa dan bukukan." but the board does not block the button. Follow the board (button stays enabled) and list it for the product owner.

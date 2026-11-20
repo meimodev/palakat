@@ -566,6 +566,8 @@ class _BarisPecahanState extends State<_BarisPecahan> {
     return widget.grid(
       GestureDetector(
         onTap: _fokus.requestFocus,
+        // X03: the 44 px field beside it is the target; this is a mouse aid.
+        excludeFromSemantics: true,
         child: ExcludeSemantics(
           child: Text(
             label,
