@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
@@ -8,18 +9,18 @@ import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import 'ai_mata_anggaran_isi.dart';
 import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
 
 /// Web · Bantuan AI: usulan Mata Anggaran dan pembagian (spec 12).
-class WebAIMataAnggaranScreen extends StatefulWidget {
+class WebAIMataAnggaranScreen extends ConsumerStatefulWidget {
   const WebAIMataAnggaranScreen({super.key});
 
   @override
-  State<WebAIMataAnggaranScreen> createState() =>
+  ConsumerState<WebAIMataAnggaranScreen> createState() =>
       _WebAIMataAnggaranScreenState();
 }
 
-class _WebAIMataAnggaranScreenState extends State<WebAIMataAnggaranScreen> {
+class _WebAIMataAnggaranScreenState
+    extends ConsumerState<WebAIMataAnggaranScreen> {
   final _k = KeadaanUsulanMA();
 
   @override
@@ -43,12 +44,13 @@ class _WebAIMataAnggaranScreenState extends State<WebAIMataAnggaranScreen> {
     final c = context.warna;
     final isi = IsiUsulanMA(
       context: context,
+      ref: ref,
       k: _k,
-      mode: belumDipindah<String>('Satu baris'),
-      ubah: setState,
+      ubah: (f) {
+        if (mounted) setState(f);
+      },
       keBagi: Layar.bagi,
     );
-    final jk = belumDipindah(false);
     return Material(
       type: MaterialType.transparency,
       child: HalamanWeb(
@@ -91,7 +93,14 @@ class _WebAIMataAnggaranScreenState extends State<WebAIMataAnggaranScreen> {
               Lentur(
                 dasar: 440,
                 tumbuh: 999,
-                child: _kolom([isi.draf, isi.uraian, isi.mataAnggaran(jk)], 16),
+                child: _kolom([
+                  ?isi.kosong,
+                  if (isi.kosong == null) ...[
+                    isi.draf,
+                    isi.uraian,
+                    isi.mataAnggaran,
+                  ],
+                ], 16),
               ),
               Lentur(dasar: 380, child: _kolom([?isi.panel, ?isi.abai], 14)),
             ],

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/format.dart';
 import '../../motion/kerangka.dart';
+import '../../providers/keuangan/beranda.dart';
+import '../../providers/keuangan/transaksi.dart';
 import '../../shell/layar_ponsel.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis.dart';
@@ -11,126 +14,75 @@ import '../../widgets/lembar_bawah.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tekan.dart';
 
-// ── Board data and state, shared with WebPilihBulan (same logic class) ──
+// ── State, shared with WebPilihBulan (same logic class) ──
 
-/// The board's `B`: month, status, caption, closed.
-typedef BulanPilihan = ({String n, String st, String cat, bool tutup});
+/// One month of the sheet: period id, name, status, caption, closed.
+typedef BulanPilihan = ({
+  String id,
+  String n,
+  String st,
+  String cat,
+  bool tutup,
+});
 
-/// The board's `D` rows: status, No. Bukti ('' for a draft), date, uraian, amount.
-typedef BarisBulan = ({StatusUang st, String no, String tgl, String ur, int n});
-
-const List<BulanPilihan> semuaBulanPilihan = [
-  (
-    n: 'Desember 2026',
-    st: 'Belum ditutup',
-    cat: 'Belum ada transaksi',
-    tutup: false,
-  ),
-  (
-    n: 'November 2026',
-    st: 'Belum ditutup',
-    cat: 'Bulan berjalan · 12 transaksi',
-    tutup: false,
-  ),
-  (
-    n: 'Oktober 2026',
-    st: 'Belum ditutup',
-    cat: 'Berikutnya untuk tutup buku · 33 transaksi',
-    tutup: false,
-  ),
-  (
-    n: 'September 2026',
-    st: 'Sudah ditutup',
-    cat: 'Periode laporan 15–30 September 2026 · 21 transaksi',
-    tutup: true,
-  ),
-];
-
-const Map<String, List<BarisBulan>> barisPerBulan = {
-  'November 2026': [
-    (
-      st: StatusUang.dibukukan,
-      no: 'BKU-2026-0146',
-      tgl: '15/11/2026',
-      ur: 'Persembahan Ibadah Minggu',
-      n: 3450000,
-    ),
-    (
-      st: StatusUang.draf,
-      no: '',
-      tgl: '14/11/2026',
-      ur: 'Fotokopi warta jemaat',
-      n: -150000,
-    ),
-    (
-      st: StatusUang.dibukukan,
-      no: 'BKU-2026-0143',
-      tgl: '11/11/2026',
-      ur: 'Sewa sound system',
-      n: -600000,
-    ),
-  ],
-  'Oktober 2026': [
-    (
-      st: StatusUang.dibukukan,
-      no: 'BKU-2026-0133',
-      tgl: '31/10/2026',
-      ur: 'Biaya administrasi bank',
-      n: -15000,
-    ),
-    // +Rp2.000.000 here, −Rp2.000.000 on RekonIsi: each board keeps its own.
-    (
-      st: StatusUang.dibukukan,
-      no: 'BKU-2026-0127',
-      tgl: '30/10/2026',
-      ur: 'Pindah antar Kas/Bank: Bank BNI ke Kas',
-      n: 2000000,
-    ),
-    (
-      st: StatusUang.dibalik,
-      no: 'BKU-2026-0105',
-      tgl: '09/10/2026',
-      ur: 'Konsumsi rapat majelis',
-      n: -750000,
-    ),
-  ],
-  'September 2026': [
-    (
-      st: StatusUang.dibukukan,
-      no: 'BKU-2026-0031',
-      tgl: '22/09/2026',
-      ur: 'Alat tulis Toko Sinar',
-      n: -85000,
-    ),
-    (
-      st: StatusUang.dibukukan,
-      no: 'BKU-2026-0019',
-      tgl: '18/09/2026',
-      ur: 'Persembahan Ibadah Minggu',
-      n: 2900000,
-    ),
-    (
-      st: StatusUang.dibukukan,
-      no: 'OPN-2026-0001',
-      tgl: '15/09/2026',
-      ur: 'Saldo awal pencatatan',
-      n: 32300000,
-    ),
-  ],
-  'Desember 2026': [],
-};
-
-/// The board's state `{ bulan, buka }` and derived values. Each screen owns one.
+/// The board's state `{ bulan, buka }` over the periods of the books; each
+/// screen owns one and calls [baca] at the top of its build.
 class KeadaanPilihBulan {
-  String bulan = 'November 2026';
+  /// The month shown ('yyyy-mm'); the running month until one is picked.
+  String? bulanId;
   bool buka = false;
+  List<BulanPilihan> semua = const [];
+  List<BarisTransaksi> baris = const [];
 
-  BulanPilihan get kini => semuaBulanPilihan.firstWhere((b) => b.n == bulan);
-  List<BarisBulan> get baris => barisPerBulan[bulan]!;
+  /// Every period newest first, with its rows ([DP29]: counts computed).
+  void baca(WidgetRef ref) {
+    final buku = ref.watch(bulanBukuProvider);
+    semua = [
+      for (final r in ref.watch(daftarBulanProvider))
+        _bulan(r, r.dibukukan + r.draf, buku),
+    ];
+    bulanId ??= buku.berjalan?.id ?? semua.firstOrNull?.id;
+    baris = bulanId == null
+        ? const []
+        : ref.watch(
+            daftarTransaksiProvider((
+              periodId: bulanId,
+              saring: SaringTransaksi.semua,
+              accountId: null,
+              fundId: null,
+            )),
+          );
+  }
+
+  static BulanPilihan _bulan(RingkasanBulan r, int n, BulanBuku buku) {
+    final p = r.periode;
+    final nama = namaBulan(p);
+    return (
+      id: p.id,
+      n: nama,
+      st: p.isClosed ? 'Sudah ditutup' : 'Belum ditutup',
+      cat: p.isClosed
+          ? 'Periode laporan ${p.start.hari}–${p.end.hari} $nama · $n transaksi'
+          : n == 0
+          ? 'Belum ada transaksi'
+          : p.id == buku.berjalan?.id
+          ? 'Bulan berjalan · $n transaksi'
+          : p.id == buku.berikutDitutup?.id
+          ? 'Berikutnya untuk tutup buku · $n transaksi'
+          : '$n transaksi',
+      tutup: p.isClosed,
+    );
+  }
+
+  BulanPilihan get kini => semua.firstWhere(
+    (b) => b.id == bulanId,
+    orElse: () => (id: '', n: '', st: '', cat: '', tutup: false),
+  );
+  String get bulan => kini.n;
 
   void toggle() => buka = !buka;
-  void pilih(String n) {
-    bulan = n;
+  void pilih(String id) {
+    bulanId = id;
     buka = false;
   }
 }
@@ -264,15 +216,11 @@ class DaftarBulan extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            for (final r in baris)
+            for (final (i, r) in baris.indexed)
               Padding(
-                padding: const EdgeInsets.only(bottom: 10),
+                padding: EdgeInsets.only(top: i > 0 ? 10 : 0),
                 child: _KartuBaris(r),
               ),
-            Text(
-              'Contoh 3 baris.',
-              style: TextStyle(fontSize: 13, color: c.tinta3),
-            ),
           ],
         )
       else
@@ -312,12 +260,16 @@ class DaftarBulan extends StatelessWidget {
 
 class _KartuBaris extends StatelessWidget {
   const _KartuBaris(this.r);
-  final BarisBulan r;
+  final BarisTransaksi r;
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final draf = r.st == StatusUang.draf;
+    final st = StatusUang.values.firstWhere(
+      (s) => s.label == r.status,
+      orElse: () => StatusUang.dibukukan,
+    );
+    final draf = !r.transaksi.isPosted;
     return Kartu(
       status: draf ? GarisStatus.draf : GarisStatus.dibukukan,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -326,11 +278,11 @@ class _KartuBaris extends StatelessWidget {
         children: [
           Row(
             children: [
-              LencanaStatus.uang(r.st),
+              LencanaStatus.uang(st),
               const SizedBox(width: 16),
               Expanded(
                 child: Text(
-                  rp(r.n),
+                  rp(r.jumlah),
                   textAlign: TextAlign.right,
                   style: TextStyle(
                     fontFamily: PalakatText.mono,
@@ -342,16 +294,19 @@ class _KartuBaris extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 4),
-          Text(r.ur, style: const TextStyle(fontWeight: FontWeight.w600)),
+          Text(
+            r.transaksi.description,
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
           const SizedBox(height: 4),
           Text.rich(
             TextSpan(
               children: [
                 TextSpan(
-                  text: r.no.isEmpty ? 'Belum ada No. Bukti' : r.no,
+                  text: r.nomor,
                   style: const TextStyle(fontFamily: PalakatText.mono),
                 ),
-                TextSpan(text: ' · ${r.tgl}'),
+                TextSpan(text: ' · ${r.tanggal}'),
               ],
             ),
             style: TextStyle(fontSize: 13, color: c.tinta3),
@@ -374,13 +329,13 @@ class PilihanBulan extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        for (final b in semuaBulanPilihan)
+        for (final b in k.semua)
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
             child: _Pilihan(
               b: b,
-              on: b.n == k.bulan,
-              onTap: () => onPilih(b.n),
+              on: b.id == k.bulanId,
+              onTap: () => onPilih(b.id),
               c: c,
             ),
           ),
@@ -479,19 +434,20 @@ class _Pilihan extends StatelessWidget {
 
 // ── Screen ──
 
-class PilihBulanScreen extends StatefulWidget {
+class PilihBulanScreen extends ConsumerStatefulWidget {
   const PilihBulanScreen({super.key});
 
   @override
-  State<PilihBulanScreen> createState() => _PilihBulanScreenState();
+  ConsumerState<PilihBulanScreen> createState() => _PilihBulanScreenState();
 }
 
-class _PilihBulanScreenState extends State<PilihBulanScreen> {
+class _PilihBulanScreenState extends ConsumerState<PilihBulanScreen> {
   final k = KeadaanPilihBulan();
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
+    k.baca(ref);
     return Material(
       type: MaterialType.transparency,
       child: DefaultTextHeightBehavior(

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show RenderTable;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/format.dart';
-import '../../mock/mock.dart';
+import '../../domain/finance/finance.dart';
+import '../../providers/keuangan/beranda.dart';
+import '../../providers/repositories_keuangan.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
 import '../../shell/tautan.dart';
@@ -13,22 +16,24 @@ import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
 import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
 
 /// Web · Beranda (docs/build/screens/02-awal.md): the Bendahara's laptop
-/// home. No state of its own; the `bulan` tweak (ramai / sepi) and the
-/// global `jabatanKosong` switch decide what shows.
-class WebBerandaScreen extends StatelessWidget {
+/// home, read from [berandaKeuanganProvider] (the same read model as Main;
+/// tablet shows it as TabBeranda). An empty running month shows the board's
+/// `sepi` box.
+class WebBerandaScreen extends ConsumerWidget {
   const WebBerandaScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
-    final sepi = belumDipindah<String>('ramai') == 'sepi';
+    final b = ref.watch(berandaKeuanganProvider);
+    final berjalan = b.bulan.berjalan;
+    final ini = b.bulanIni;
+    final sepi = ini == null || ini.dibukukan + ini.draf == 0;
+    final namaIni = berjalan == null ? '' : namaBulan(berjalan);
     const mono = TextStyle(fontFamily: PalakatText.mono);
-    final tindakan = sepi
-        ? berandaPerluTindakan.sublist(0, 1)
-        : berandaPerluTindakan;
+    final tindakan = b.perluTindakan;
 
     final bulan = Tautan(
       ke: Layar.pilihBulan,
@@ -40,11 +45,13 @@ class WebBerandaScreen extends StatelessWidget {
           color: c.permukaan,
           shape: GarisBorder.penuh(c.garisTegas, tebal: 1, radius: 22),
         ),
-        child: const Center(
+        child: Center(
           widthFactor: 1,
           child: Text(
-            'November 2026 · Belum ditutup',
-            style: TextStyle(fontWeight: FontWeight.w600),
+            berjalan == null
+                ? 'Pilih bulan'
+                : '$namaIni · ${berjalan.isClosed ? 'Sudah ditutup' : 'Belum ditutup'}',
+            style: const TextStyle(fontWeight: FontWeight.w600),
           ),
         ),
       ),
@@ -105,7 +112,7 @@ class WebBerandaScreen extends StatelessWidget {
         ),
         const SizedBox(height: 6),
         Text(
-          rp(totalSaldoNovember),
+          rp(b.saldoBuku),
           style: mono.copyWith(
             fontSize: context.jepit(34, 4.4, 56),
             fontWeight: FontWeight.w500,
@@ -118,7 +125,7 @@ class WebBerandaScreen extends StatelessWidget {
           'Hanya transaksi yang sudah dibukukan',
           style: TextStyle(fontSize: 13, color: c.tinta3),
         ),
-        if (!sepi) ...[
+        if (b.drafJumlah > 0) ...[
           const SizedBox(height: 14), // gap 6 + margin-top 8
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
@@ -128,8 +135,8 @@ class WebBerandaScreen extends StatelessWidget {
             child: Text.rich(
               TextSpan(
                 children: [
-                  TextSpan(text: rp(berandaNovember.drafJumlah), style: mono),
-                  const TextSpan(text: ' · 2 draf · belum masuk saldo'),
+                  TextSpan(text: rp(b.drafRp), style: mono),
+                  TextSpan(text: ' · ${b.drafJumlah} draf · belum masuk saldo'),
                 ],
               ),
               style: TextStyle(fontSize: 13, color: c.tinta2),
@@ -152,7 +159,7 @@ class WebBerandaScreen extends StatelessWidget {
           Text(k, style: TextStyle(fontSize: 13, color: c.tinta2)),
           const SizedBox(height: 2),
           Text(
-            rp(sepi ? 0 : v),
+            rp(v),
             // CSS has no break point inside the figure: it overflows the
             // narrow tile instead of splitting.
             softWrap: false,
@@ -176,33 +183,36 @@ class WebBerandaScreen extends StatelessWidget {
             hitungan: tindakan.length,
           ),
         ),
-        const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          decoration: ShapeDecoration(
-            color: c.permukaan,
-            shape: GarisBorder.penuh(c.garis, tebal: 1, radius: 14),
+        if (tindakan.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: ShapeDecoration(
+              color: c.permukaan,
+              shape: GarisBorder.penuh(c.garis, tebal: 1, radius: 14),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (final (i, t) in tindakan.indexed)
+                  ButirPerhatian(
+                    tingkat: TingkatPerhatian.perluTindakan,
+                    judul: t.judul,
+                    keterangan: t.sub,
+                    ke: t.ke,
+                    param: t.param,
+                    cara: Cara.ganti,
+                    warnaKeterangan: t.penting ? c.bata : null,
+                    pertama: i == 0,
+                    web: true,
+                  ),
+              ],
+            ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (final (i, t) in tindakan.indexed)
-                ButirPerhatian(
-                  tingkat: TingkatPerhatian.perluTindakan,
-                  judul: t.$1,
-                  keterangan: t.$2,
-                  ke: i == 0 ? Layar.tutupBuku : Layar.transaksi,
-                  cara: Cara.ganti,
-                  warnaKeterangan: i == 0 ? c.bata : null,
-                  pertama: i == 0,
-                  web: true,
-                ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 12),
-        if (sepi)
+        ],
+        if (sepi) ...[
+          const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: ShapeDecoration(
@@ -212,7 +222,10 @@ class WebBerandaScreen extends StatelessWidget {
               TextSpan(
                 children: [
                   TextSpan(
-                    text: 'Belum ada transaksi di November.',
+                    // The month word alone, as drawn ("di November.").
+                    text:
+                        'Belum ada transaksi di '
+                        '${berjalan == null ? 'bulan ini' : namaIni.split(' ').first}.',
                     style: TextStyle(
                       color: c.tinta,
                       fontWeight: FontWeight.w700,
@@ -228,23 +241,27 @@ class WebBerandaScreen extends StatelessWidget {
               ),
               style: TextStyle(fontSize: 14, color: c.tinta2),
             ),
-          )
-        else
+          ),
+        ],
+        for (final (i, t) in b.untukDiketahui.indexed)
           // Not ButirPerhatian: its 44 px link box would push the line
           // 12 px lower than the board's inline link.
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              const SizedBox(height: 8),
-              const JudulBagian('Untuk diketahui', web: true),
+              if (i == 0) ...[
+                const SizedBox(height: 20), // gap 12 + margin-top 8
+                const JudulBagian('Untuk diketahui', web: true),
+              ],
               const SizedBox(height: 6),
               _TautanSebaris(
-                ke: Layar.kewajiban,
+                ke: t.ke,
+                param: t.param,
                 cara: Cara.ganti,
                 tinggiBaris: 14 * 1.45,
                 child: TautanTeks(
-                  berandaUntukDiketahui,
+                  '${t.judul} · ${t.sub}',
                   berat: FontWeight.w400,
                   ukuran: 14,
                   warna: c.tinta2,
@@ -266,7 +283,7 @@ class WebBerandaScreen extends StatelessWidget {
               children: [
                 const TextSpan(text: 'Posisi Kas & Bank '),
                 TextSpan(
-                  text: '· November 2026',
+                  text: '· $namaIni',
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
@@ -279,7 +296,7 @@ class WebBerandaScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        const _TabelKasBank(),
+        _TabelKasBank(kasBank: b.kasBank, periodeId: berjalan?.id),
         const SizedBox(height: 12),
         Text(
           'Hasil hitung kas dan saldo rekening koran tidak pernah '
@@ -329,17 +346,17 @@ class WebBerandaScreen extends StatelessWidget {
                 anak: [
                   petak(
                     'Pendapatan bulan ini',
-                    berandaNovember.pendapatan,
+                    ini?.pendapatan ?? 0,
                     'tanpa titipan',
                   ),
                   petak(
                     'Belanja bulan ini',
-                    berandaNovember.belanja,
+                    ini?.belanja ?? 0,
                     'tanpa titipan',
                   ),
                   petak(
                     'Surplus/Defisit bulan ini',
-                    berandaNovember.surplus,
+                    ini?.surplus ?? 0,
                     'hanya yang sudah dibukukan',
                   ),
                 ],
@@ -354,12 +371,18 @@ class WebBerandaScreen extends StatelessWidget {
 }
 
 /// The Kas & Bank position table: min width 520, scrolls inside its card.
-class _TabelKasBank extends StatelessWidget {
-  const _TabelKasBank();
+/// Each active Kas/Bank: its book balance, the running month's cash count
+/// (Kas) and statement closing (Bank), "—" while not known.
+class _TabelKasBank extends ConsumerWidget {
+  const _TabelKasBank({required this.kasBank, required this.periodeId});
+
+  final List<SaldoAkun> kasBank;
+  final String? periodeId;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
+    final rekon = ref.watch(reconciliationRepositoryProvider);
     const mono = TextStyle(fontFamily: PalakatText.mono);
     const pad = EdgeInsets.symmetric(horizontal: 16, vertical: 12);
     final garisAtas = BoxDecoration(
@@ -382,7 +405,7 @@ class _TabelKasBank extends StatelessWidget {
         Padding(padding: pad.copyWith(top: 13), child: isi);
     Widget nama(String t) =>
         sel(Text(t, style: const TextStyle(fontWeight: FontWeight.w600)));
-    Widget saldo(int n) =>
+    Widget angka(int n) =>
         sel(Text(rp(n), textAlign: TextAlign.right, style: mono));
     Widget belumIsi() => sel(
       Text.rich(
@@ -397,11 +420,27 @@ class _TabelKasBank extends StatelessWidget {
       ),
     );
     final kosong = sel(const SizedBox.shrink());
-
-    const hitung = _TautanSebaris(
-      ke: Layar.hitungKas,
-      tinggiBaris: 14 * 1.45, // the cell's 14 px line box
-      child: TautanTeks('Hitung kas', berat: FontWeight.w700, ukuran: 13),
+    final belumHitung = sel(
+      DefaultTextStyle.merge(
+        style: abu,
+        child: const Wrap(
+          alignment: WrapAlignment.end,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(text: '— '),
+                  TextSpan(text: 'Belum dihitung', style: kecil),
+                  TextSpan(text: ' · '),
+                ],
+              ),
+              textAlign: TextAlign.right,
+            ),
+            _hitung,
+          ],
+        ),
+      ),
     );
 
     Table tabel(double lebar) => Table(
@@ -416,54 +455,32 @@ class _TabelKasBank extends StatelessWidget {
             kepala('Saldo rekening koran'),
           ],
         ),
-        TableRow(
-          decoration: garisAtas,
-          children: [
-            nama('Kas'),
-            saldo(saldoNovember['kas']!),
-            sel(
-              DefaultTextStyle.merge(
-                style: abu,
-                child: Wrap(
-                  alignment: WrapAlignment.end,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    const Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(text: '— '),
-                          TextSpan(text: 'Belum dihitung', style: kecil),
-                          TextSpan(text: ' · '),
-                        ],
-                      ),
-                      textAlign: TextAlign.right,
-                    ),
-                    hitung,
-                  ],
-                ),
-              ),
-            ),
-            kosong,
-          ],
-        ),
-        TableRow(
-          decoration: garisAtas,
-          children: [
-            nama('Bank BNI ··4821'),
-            saldo(saldoNovember['bni']!),
-            kosong,
-            belumIsi(),
-          ],
-        ),
-        TableRow(
-          decoration: garisAtas,
-          children: [
-            nama('Bank SulutGo ··1107'),
-            saldo(saldoNovember['bsg']!),
-            kosong,
-            belumIsi(),
-          ],
-        ),
+        for (final (:akun, :saldo) in kasBank)
+          TableRow(
+            decoration: garisAtas,
+            children: [
+              nama(akun.name),
+              angka(saldo),
+              if (akun.type == AccountType.cash) ...[
+                switch (rekon
+                    .cashCounts(akun.id)
+                    .where((h) => h.periodId == periodeId)
+                    .lastOrNull) {
+                  final h? => angka(h.total),
+                  null => belumHitung,
+                },
+                kosong,
+              ] else ...[
+                kosong,
+                switch (periodeId == null
+                    ? null
+                    : rekon.session(akun.id, periodeId!)?.statementClosing) {
+                  final n? => angka(n),
+                  null => belumIsi(),
+                },
+              ],
+            ],
+          ),
       ],
     );
 
@@ -491,6 +508,12 @@ class _TabelKasBank extends StatelessWidget {
     );
   }
 }
+
+const _hitung = _TautanSebaris(
+  ke: Layar.hitungKas,
+  tinggiBaris: 14 * 1.45, // the cell's 14 px line box
+  child: TautanTeks('Hitung kas', berat: FontWeight.w700, ukuran: 13),
+);
 
 /// The figure tiles: `repeat(auto-fit, minmax(min(150px, 100%), 1fr))`, gap
 /// 12, rows stretched to the tallest tile (grid default `align-items`).
@@ -576,10 +599,12 @@ class _TautanSebaris extends StatelessWidget {
     required this.ke,
     required this.tinggiBaris,
     required this.child,
+    this.param = const {},
     this.cara = Cara.dorong,
   });
 
   final Layar ke;
+  final Map<String, String> param;
   final Cara cara;
   final double tinggiBaris;
   final Widget child;
@@ -592,6 +617,7 @@ class _TautanSebaris extends StatelessWidget {
       bawah: sisa,
       child: Tautan(
         ke: ke,
+        param: param,
         cara: cara,
         child: Padding(
           padding: EdgeInsets.symmetric(vertical: sisa),

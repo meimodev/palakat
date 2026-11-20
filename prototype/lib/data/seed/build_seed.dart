@@ -1,4 +1,5 @@
 import '../../core/tanggal.dart';
+import '../../domain/finance/finance.dart';
 import 'jangkar.dart';
 import 'seed_inti.dart';
 import 'seed_jemaat.dart';
@@ -24,6 +25,8 @@ SeedStore buildSeed({required Tanggal anchor, required DateTime now}) {
   seedJemaat(store, a);
   seedKolaborasi(store, a);
   assert(_periksa(store, now));
+  assert(store.ledgerBalanced, 'jumlah Kas/Bank tidak sama dengan peruntukan');
+  assert(_bukuBulanLalu(store, a), 'buku M−1 tidak berakhir di saldo barisnya');
   return store;
 }
 
@@ -69,8 +72,32 @@ bool _periksa(SeedStore s, DateTime now) {
     assert(d.start <= hariIni, 'pelimpahan ${d.id} mulai ${d.start}');
     tidakSetelah(d.createdAt, 'pelimpahan ${d.id}');
   }
+  final k = s.keuangan;
+  for (final x in k.transactions) {
+    tidakSetelah(x.createdAt, 'transaksi ${x.description}');
+    tidakSetelah(x.finalizedAt, 'transaksi ${x.description}');
+    tidakSetelah(x.reviewedAt, 'transaksi ${x.description}');
+    tidakSetelah(x.cancelledAt, 'transaksi ${x.description}');
+    assert(x.effectiveDate <= hariIni || x.isDraft, 'transaksi ${x.id}');
+  }
+  for (final u in k.unfinishedVouchers) {
+    tidakSetelah(u.allocatedAt, 'nomor ${u.seedKey}');
+  }
   // The Sekretaris → Yanti delegation is drawn as ended.
   final lalu = t.delegations.where((d) => d.id == 'pelimpahan-olvie-yanti');
   assert(lalu.every((d) => d.end! < hariIni), 'pelimpahan lalu belum berakhir');
   return true;
+}
+
+/// README 5.4: the M−1 ledger ends at the balance its own rows give: the
+/// balance before M−1 plus every posted M−1 movement.
+bool _bukuBulanLalu(SeedStore s, Jangkar a) {
+  final k = s.keuangan;
+  final sebelum = a.bln(-1, 1).tambahHari(-1), akhir = a.akhirBln(-1);
+  int saldo(Tanggal t) =>
+      k.accounts.fold(0, (n, x) => n + k.accountBalance(x.id, at: t));
+  final gerak = k.posted
+      .where((t) => t.effectiveDate > sebelum && t.effectiveDate <= akhir)
+      .fold(0, (n, t) => n + signedAmount(t));
+  return saldo(sebelum) + gerak == saldo(akhir);
 }

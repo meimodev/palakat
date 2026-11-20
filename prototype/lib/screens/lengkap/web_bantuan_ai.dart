@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
@@ -9,18 +10,17 @@ import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
 import '../lanjut/bantuan_ai_bagian.dart';
 import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
 
 /// Web · Bantuan AI dari kalimat (spec 05-kewajiban.md, WebBantuanAI).
-class WebBantuanAIScreen extends StatefulWidget {
+class WebBantuanAIScreen extends ConsumerStatefulWidget {
   const WebBantuanAIScreen({super.key});
 
   @override
-  State<WebBantuanAIScreen> createState() => _WebBantuanAIScreenState();
+  ConsumerState<WebBantuanAIScreen> createState() => _WebBantuanAIScreenState();
 }
 
-class _WebBantuanAIScreenState extends State<WebBantuanAIScreen> {
-  final _s = KeadaanBantuanAI();
+class _WebBantuanAIScreenState extends ConsumerState<WebBantuanAIScreen> {
+  late final _s = KeadaanBantuanAI(kalimatContoh(ref));
 
   @override
   void dispose() {
@@ -31,7 +31,6 @@ class _WebBantuanAIScreenState extends State<WebBantuanAIScreen> {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final keadaanAI = belumDipindah<String>('tersedia');
     final keterangan = TextStyle(fontSize: 13, color: c.tinta3);
     // No Material here: it would reset the inherited 15 px text style.
     return ListenableBuilder(
@@ -80,7 +79,7 @@ class _WebBantuanAIScreenState extends State<WebBantuanAIScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    PanelBantuanAI(s: _s, keadaanAI: keadaanAI, web: true),
+                    PanelBantuanAI(s: _s, web: true),
                     const SizedBox(height: 14),
                     Text(
                       'AI hanya mengusulkan. Membukukan, memverifikasi dokumen dan menutup buku selalu dilakukan orang.',
@@ -122,7 +121,7 @@ class _WebBantuanAIScreenState extends State<WebBantuanAIScreen> {
                     const SizedBox(height: 16),
                     // Board `<a>` buttons are content-box: 46 + 1.5 px lines = 49,
                     // and the run stretches both to it.
-                    const Wrap(
+                    Wrap(
                       spacing: 8,
                       runSpacing: 8,
                       children: [
@@ -130,8 +129,15 @@ class _WebBantuanAIScreenState extends State<WebBantuanAIScreen> {
                           height: 49,
                           child: Tombol(
                             'Periksa dan bukukan',
-                            onPressed: null,
-                            ke: Layar.catat,
+                            // With a saved draft, WebCatat opens on it.
+                            onPressed: _s.dipakai
+                                ? () => bukaDrafAiDiCatat(
+                                    context,
+                                    ref,
+                                    _s.drafId!,
+                                  )
+                                : null,
+                            ke: _s.dipakai ? null : Layar.catat,
                             cara: Cara.ganti,
                             ukuran: UkuranTombol.ringkas,
                             lebarPenuh: false,
@@ -141,9 +147,9 @@ class _WebBantuanAIScreenState extends State<WebBantuanAIScreen> {
                           height: 49,
                           child: Tombol(
                             'Simpan sebagai draf',
-                            onPressed: null,
+                            onPressed: () =>
+                                simpanDrafAi(context, ref, _s, Layar.transaksi),
                             jenis: JenisTombol.kedua,
-                            ke: Layar.transaksi,
                             cara: Cara.ganti,
                             ukuran: UkuranTombol.ringkas,
                             lebarPenuh: false,

@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../core/format.dart';
+import '../../providers/keuangan/isian.dart';
+import '../../widgets/penolakan.dart';
 
 import '../../motion/kerangka.dart';
 import '../../shell/kepala_ponsel.dart';
@@ -16,13 +21,13 @@ import 'bagi_logika.dart';
 import '../../app/layar.dart';
 
 /// 6 · Bagi ke beberapa Mata Anggaran (spec 03, Bagi).
-class BagiScreen extends StatefulWidget {
+class BagiScreen extends ConsumerStatefulWidget {
   const BagiScreen({super.key});
   @override
-  State<BagiScreen> createState() => _BagiScreenState();
+  ConsumerState<BagiScreen> createState() => _BagiScreenState();
 }
 
-class _BagiScreenState extends State<BagiScreen> with LogikaBagi {
+class _BagiScreenState extends ConsumerState<BagiScreen> with LogikaBagi {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
@@ -55,7 +60,7 @@ class _BagiScreenState extends State<BagiScreen> with LogikaBagi {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Belanja $k',
+                              '$pohon ${k.code}',
                               style: TextStyle(
                                 fontFamily: PalakatText.mono,
                                 fontSize: 13,
@@ -63,7 +68,7 @@ class _BagiScreenState extends State<BagiScreen> with LogikaBagi {
                               ),
                             ),
                             Text(
-                              maBagi[k]!,
+                              k.name,
                               style: const TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w600,
@@ -77,7 +82,7 @@ class _BagiScreenState extends State<BagiScreen> with LogikaBagi {
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       child: Text(
-                        'Semua baris contoh sudah dipakai.',
+                        'Semua Mata Anggaran sudah dipakai.',
                         style: TextStyle(fontSize: 14, color: c.tinta2),
                       ),
                     ),
@@ -88,13 +93,16 @@ class _BagiScreenState extends State<BagiScreen> with LogikaBagi {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const KepalaPonsel(
+            KepalaPonsel(
               judul: 'Bagi ke beberapa Mata Anggaran',
-              anakJudul: 'Belanja · Toko Sinar · satu pembayaran',
+              anakJudul:
+                  '${namaJenis(form.jenis)}'
+                  '${form.uraian.isEmpty ? '' : ' · ${form.uraian}'}'
+                  ' · satu pembayaran',
               kembaliKe: Layar.keuangan,
               labelKembali: 'Kembali ke transaksi',
               ujung: LencanaStatus(
-                'Belanja',
+                pohon,
                 bentuk: BentukLencana.tinta,
                 kepala: true,
               ),
@@ -112,9 +120,9 @@ class _BagiScreenState extends State<BagiScreen> with LogikaBagi {
                           'Jumlah (Rp)',
                           style: TextStyle(fontSize: 14, color: c.tinta2),
                         ),
-                        const Text(
-                          'Rp1.250.000',
-                          style: TextStyle(
+                        Text(
+                          rp(jumlahBagi),
+                          style: const TextStyle(
                             fontFamily: PalakatText.mono,
                             fontSize: 34,
                             fontWeight: FontWeight.w500,
@@ -193,6 +201,15 @@ class _BagiScreenState extends State<BagiScreen> with LogikaBagi {
                     ),
                     const SizedBox(height: 8),
                   ],
+                  if (tolak != null) ...[
+                    Penolakan(
+                      tindakan: tolak!.action,
+                      sebab: tolak!.because,
+                      jalan: const [],
+                      ukuranTeks: 14,
+                    ),
+                    const SizedBox(height: 8),
+                  ],
                   if (dipakai) ...[
                     Gerak(
                       Kerangka.muncul,
@@ -265,7 +282,7 @@ class _BagiScreenState extends State<BagiScreen> with LogikaBagi {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Belanja ${b.k}',
+                      '$pohon ${b.k}',
                       style: TextStyle(
                         fontFamily: PalakatText.mono,
                         fontSize: 13,

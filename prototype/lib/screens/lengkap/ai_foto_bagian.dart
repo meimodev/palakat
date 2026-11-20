@@ -1,62 +1,101 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/format.dart';
+import '../../domain/core/core.dart';
+import '../../providers/actor.dart';
+import '../../domain/finance/finance.dart';
 import '../../motion/kerangka.dart';
+import '../../providers/keuangan/ai.dart';
+import '../../providers/keuangan/transaksi.dart';
+import '../../providers/repositories_keuangan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis.dart';
 import '../../widgets/kecil.dart';
+import '../../widgets/penolakan.dart';
 import '../../widgets/tombol.dart';
+import '../lanjut/bantuan_ai_bagian.dart' show KotakBatasAI;
+import 'ai_bersama.dart';
 
 /// Board state shared by AIFoto and WebAIFoto (one instance per screen):
-/// `{ tahap: 'belum' | 'proses' | 'ada', pakai }`.
+/// `{ tahap: 'belum' | 'proses' | 'ada', pakai }`, plus the proposal the
+/// repository returned and the draft "Pakai" saved.
 class KeadaanAIFoto extends ChangeNotifier {
-  String tahap = 'belum';
-  bool pakai = false;
-  Timer? _t;
+  static const berkas = 'nota-toko-sinar.jpg';
 
-  /// "Buat usulan dari foto ini": 1400 ms stands for the AI reading the photo.
-  void buat() {
-    tahap = 'proses';
-    _t?.cancel();
-    _t = Timer(const Duration(milliseconds: 1400), () {
-      tahap = 'ada';
-      notifyListeners();
-    });
+  String tahap = 'belum';
+  AiProposal? usulan;
+
+  /// The draft "Pakai" saved; the field card reads it.
+  String? drafId;
+  Refusal? tolak;
+  bool _selesai = false;
+
+  bool get pakai => drafId != null;
+
+  void _ubah(void Function() f) {
+    if (_selesai) return;
+    f();
     notifyListeners();
+  }
+
+  /// "Buat usulan dari foto ini": the repository's 1400 ms timer stands for
+  /// the AI reading the photo.
+  Future<void> buat(WidgetRef ref) async {
+    if (tahap == 'proses') return;
+    _ubah(() {
+      tahap = 'proses';
+      tolak = null;
+    });
+    final r = await mintaUsulan(
+      ref,
+      AiKind.receiptPhoto,
+      const AiInput(fileName: berkas),
+    );
+    _ubah(() {
+      switch (r) {
+        case Ok(:final value):
+          usulan = value;
+          tahap = 'ada';
+        case Refused(:final refusal):
+          tolak = refusal;
+          tahap = 'belum';
+      }
+    });
   }
 
   /// Pakai and Ubah (the board binds both to `pakai`).
-  void pakaiUsulan() {
-    pakai = true;
-    tahap = 'belum';
-    notifyListeners();
+  Future<void> pakaiUsulan(WidgetRef ref, AiDisposition d) async {
+    final p = usulan;
+    if (p == null) return;
+    final r = await isiDrafDariUsulan(ref, p, d, drafId: drafId);
+    _ubah(() {
+      switch (r) {
+        case Ok(:final value):
+          drafId = value.id;
+          usulan = null;
+          tahap = 'belum';
+        case Refused(:final refusal):
+          tolak = refusal;
+      }
+    });
   }
 
-  void abaikan() {
-    tahap = 'belum';
-    notifyListeners();
+  Future<void> abaikan(WidgetRef ref) async {
+    final p = usulan;
+    _ubah(() {
+      tahap = 'belum';
+      usulan = null;
+    });
+    if (p != null) await abaikanUsulan(ref, p);
   }
 
   @override
   void dispose() {
-    _t?.cancel();
+    _selesai = true;
     super.dispose();
   }
 }
-
-const _usul = [
-  ('Jumlah (Rp)', 'Rp1.250.000', false),
-  ('Dibayar kepada', 'Toko Sinar', false),
-  ('Tanggal nota', '6 Oktober 2026', false),
-  (
-    'Bagian 1',
-    'Belanja 5.01.02.00 Listrik, air dan telepon · Rp1.000.000',
-    true,
-  ),
-  ('Bagian 2', 'Belanja 5.02.01.00 Alat tulis dan fotokopi · Rp250.000', true),
-];
 
 Widget _kolom(List<Widget> anak, double jarak) => Column(
   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -70,14 +109,33 @@ Widget _kolom(List<Widget> anak, double jarak) => Column(
 );
 
 /// The "BANTUAN AI · PILIHAN" panel: `lautLembut`, radius 16, padding 14 16.
-class PanelAIFoto extends StatelessWidget {
+class PanelAIFoto extends ConsumerWidget {
   const PanelAIFoto(this.k, {super.key});
   final KeadaanAIFoto k;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
     final titik = _GarisTitik(c.garisTegas);
+    final h = k.usulan?.result;
+    final master = ref.watch(masterRepositoryProvider);
+    final hari = ref.watch(hariIniProvider);
+    // Every split line is a guess: "AI kurang yakin, mohon dicek".
+    final usul = h == null
+        ? const <(String, String, bool)>[]
+        : [
+            ('Jumlah (Rp)', rp(h.amount ?? 0), false),
+            ('Dibayar kepada', h.payee ?? '', false),
+            ('Tanggal nota', tglPanjang((h.date ?? hari).awal), false),
+            for (final (i, l) in h.lines.indexed)
+              (
+                'Bagian ${i + 1}',
+                '${labelMataAnggaran(master, l.masterCode, h.date ?? hari)}'
+                    ' · ${rp(l.amount ?? h.amount ?? 0)}',
+                true,
+              ),
+          ];
+    final habis = ref.watch(anggaranAiProvider).usedUp;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
@@ -119,11 +177,12 @@ class PanelAIFoto extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'nota-toko-sinar.jpg',
+                      KeadaanAIFoto.berkas,
                       style: TextStyle(fontWeight: FontWeight.w700),
                     ),
                     Text(
-                      'Terlampir sebagai dokumen pendukung · Diunggah, belum diverifikasi',
+                      // No evidence row yet (upload is M3): no "Diunggah".
+                      'Foto untuk usulan · belum dilampirkan sebagai dokumen pendukung',
                       style: TextStyle(color: c.tinta2),
                     ),
                   ],
@@ -132,10 +191,12 @@ class PanelAIFoto extends StatelessWidget {
             ),
           ],
         ),
-        if (k.tahap == 'belum' && !k.pakai)
+        if (k.tahap == 'belum' && !k.pakai && habis)
+          KotakBatasAI(sampai: ref.watch(bulanAiLanjutProvider))
+        else if (k.tahap == 'belum' && !k.pakai)
           Tombol(
             'Buat usulan dari foto ini',
-            onPressed: k.buat,
+            onPressed: () => k.buat(ref),
             jenis: JenisTombol.garisLaut,
             ukuran: UkuranTombol.kecil,
             warnaTeks: c.lautTua,
@@ -195,7 +256,7 @@ class PanelAIFoto extends StatelessWidget {
                       ),
                     ),
                   ),
-                  for (final (kunci, nilai, ragu) in _usul) ...[
+                  for (final (kunci, nilai, ragu) in usul) ...[
                     titik,
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 9),
@@ -242,9 +303,17 @@ class PanelAIFoto extends StatelessWidget {
           Row(
             children: [
               for (final (i, (t, f, j)) in [
-                ('Pakai', k.pakaiUsulan, JenisTombol.utama),
-                ('Ubah', k.pakaiUsulan, JenisTombol.kedua),
-                ('Abaikan', k.abaikan, JenisTombol.kedua),
+                (
+                  'Pakai',
+                  () => k.pakaiUsulan(ref, AiDisposition.accepted),
+                  JenisTombol.utama,
+                ),
+                (
+                  'Ubah',
+                  () => k.pakaiUsulan(ref, AiDisposition.edited),
+                  JenisTombol.kedua,
+                ),
+                ('Abaikan', () => k.abaikan(ref), JenisTombol.kedua),
               ].indexed) ...[
                 if (i > 0) const SizedBox(width: 8),
                 Expanded(
@@ -260,6 +329,13 @@ class PanelAIFoto extends StatelessWidget {
             ],
           ),
         ],
+        if (k.tolak case final t?)
+          Penolakan(
+            tindakan: t.action,
+            sebab: t.because,
+            jalan: const [],
+            ukuranTeks: 14,
+          ),
         Text(
           'Hasil baca AI bukan verifikasi. Dokumen pendukung tetap perlu diverifikasi orang.',
           style: TextStyle(fontSize: 13, color: c.tinta2),
@@ -271,24 +347,30 @@ class PanelAIFoto extends StatelessWidget {
 
 /// Jumlah display, the six-field card and the saved line, gap 16
 /// (AIFoto 2b–2d; WebAIFoto's left column).
-class IsianAIFoto extends StatelessWidget {
+class IsianAIFoto extends ConsumerWidget {
   const IsianAIFoto(this.k, {super.key});
   final KeadaanAIFoto k;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
-    final p = k.pakai;
+    final d = k.drafId == null
+        ? null
+        : ref.watch(isianDrafAiProvider(k.drafId!));
+    final p = d != null;
+    final ma = d?.mataAnggaran ?? const [];
     final isian = [
-      ('Dibayar kepada', p ? 'Toko Sinar' : ''),
-      ('Tanggal nota', p ? '6 Oktober 2026' : ''),
+      ('Dibayar kepada', d?.pihak ?? ''),
+      ('Tanggal nota', d == null ? '' : tglPanjang(d.tanggal.awal)),
       (
         'Mata Anggaran',
-        p ? 'Dibagi ke 2 baris · total sama dengan Jumlah' : '',
+        ma.length > 1
+            ? 'Dibagi ke ${ma.length} baris · total sama dengan Jumlah'
+            : ma.firstOrNull ?? '',
       ),
-      ('Kas/Bank', ''),
-      ('Diambil dari peruntukan', ''),
-      ('Lingkup', ''),
+      ('Kas/Bank', d?.kasBank ?? ''),
+      ('Diambil dari peruntukan', d?.peruntukan ?? ''),
+      ('Lingkup', d?.lingkup ?? ''),
     ];
     return _kolom([
       Column(
@@ -301,7 +383,7 @@ class IsianAIFoto extends StatelessWidget {
               border: Border(bottom: BorderSide(color: c.tinta, width: 2)),
             ),
             child: Text(
-              p ? rp(1250000) : rp(0),
+              rp(d?.jumlah ?? 0),
               style: TextStyle(
                 fontFamily: PalakatText.mono,
                 fontSize: 34,

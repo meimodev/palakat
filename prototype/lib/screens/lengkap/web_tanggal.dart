@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
@@ -11,14 +12,14 @@ import 'tanggal_kalender.dart';
 import '../../app/layar.dart';
 
 /// Web · Tanggal transaksi dan tanggal dokumen (spec 11, WebTanggal).
-class WebTanggalScreen extends StatefulWidget {
+class WebTanggalScreen extends ConsumerStatefulWidget {
   const WebTanggalScreen({super.key});
 
   @override
-  State<WebTanggalScreen> createState() => _WebTanggalScreenState();
+  ConsumerState<WebTanggalScreen> createState() => _WebTanggalScreenState();
 }
 
-class _WebTanggalScreenState extends State<WebTanggalScreen>
+class _WebTanggalScreenState extends ConsumerState<WebTanggalScreen>
     with TanggalLogika<WebTanggalScreen> {
   @override
   Widget build(BuildContext context) {
@@ -100,9 +101,7 @@ class _WebTanggalScreenState extends State<WebTanggalScreen>
                         child: sel != null
                             ? Tombol(
                                 'Pakai $tglTeks',
-                                onPressed: null,
-                                ke: Layar.catat,
-                                cara: Cara.naik,
+                                onPressed: () => pakai(Layar.catat),
                                 lebarPenuh: false,
                                 paddingH: 20,
                               )

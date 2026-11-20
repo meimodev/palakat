@@ -1,122 +1,215 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/format.dart';
+import '../../core/tanggal.dart';
+import '../../domain/core/core.dart';
+import '../../domain/finance/finance.dart';
 import '../../motion/kerangka.dart';
 import '../../motion/ulang.dart';
+import '../../providers/actor.dart';
+import '../../providers/keuangan/ai.dart';
+import '../../providers/keuangan/isian.dart';
+import '../../providers/keuangan/transaksi.dart';
+import '../../providers/repositories_keuangan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis.dart';
 import '../../widgets/garis_status.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
+import '../../widgets/penolakan.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
+import '../lengkap/ai_bersama.dart';
+import '../../app/layar.dart';
+import '../../shell/tautan.dart';
 
 /// The logic class shared by BantuanAI and WebBantuanAI (same state, same
-/// handlers): `{ kalimat, tahap, dasar, dipakai }`.
+/// handlers): `{ kalimat, tahap, dasar, dipakai }`, plus the proposal the
+/// repository returned and the draft "Pakai" saved.
 class KeadaanBantuanAI extends ChangeNotifier {
-  static const _awal = 'Bayar PLN Rp1.250.000 dari BNI tanggal 6 Oktober';
-
-  final kalimat = TextEditingController(text: _awal);
-  String tahap = 'belum', dasar = '';
-  bool dipakai = false;
-  Timer? _t;
-
-  KeadaanBantuanAI() {
-    kalimat.addListener(notifyListeners);
+  /// [awal]: the sample sentence ("Bayar PLN … tanggal {hari nota}").
+  KeadaanBantuanAI(String awal) : kalimat = TextEditingController(text: awal) {
+    kalimat.addListener(_ubahKalimat);
   }
 
+  final TextEditingController kalimat;
+  String tahap = 'belum', dasar = '';
+  AiProposal? usulan;
+
+  /// The draft "Pakai" saved; the field card reads it.
+  String? drafId;
+  Refusal? tolak;
+  bool _selesai = false;
+
+  bool get dipakai => drafId != null;
   bool get basi => tahap == 'ada' && kalimat.text != dasar;
 
-  void buat() {
+  void _ubahKalimat() {
+    if (!_selesai) notifyListeners();
+  }
+
+  void _ubah(void Function() f) {
+    if (_selesai) return;
+    f();
+    notifyListeners();
+  }
+
+  /// "Buat usulan dari kalimat ini": the repository's 1300 ms timer fakes
+  /// the AI call.
+  Future<void> buat(WidgetRef ref) async {
+    if (tahap == 'proses') return;
     final d = kalimat.text;
-    tahap = 'proses';
-    _t?.cancel();
-    _t = Timer(const Duration(milliseconds: 1300), () {
-      tahap = 'ada';
-      dasar = d;
-      notifyListeners();
+    _ubah(() {
+      tahap = 'proses';
+      tolak = null;
     });
-    notifyListeners();
+    final r = await mintaUsulan(ref, AiKind.sentence, AiInput(text: d));
+    _ubah(() {
+      switch (r) {
+        case Ok(:final value):
+          usulan = value;
+          dasar = d;
+          tahap = 'ada';
+        case Refused(:final refusal):
+          tolak = refusal;
+          tahap = 'belum';
+      }
+    });
   }
 
-  void pakai() {
-    if (basi) return;
-    dipakai = true;
-    tahap = 'belum';
-    notifyListeners();
+  /// "Pakai" and "Ubah" (the board's one handler): nothing when stale.
+  Future<void> pakai(WidgetRef ref, AiDisposition d) async {
+    final p = usulan;
+    if (basi || p == null) return;
+    final r = await isiDrafDariUsulan(ref, p, d, drafId: drafId);
+    _ubah(() {
+      switch (r) {
+        case Ok(:final value):
+          drafId = value.id;
+          usulan = null;
+          tahap = 'belum';
+        case Refused(:final refusal):
+          tolak = refusal;
+      }
+    });
   }
 
-  void abaikan() {
-    tahap = 'belum';
-    notifyListeners();
+  Future<void> abaikan(WidgetRef ref) async {
+    final p = usulan;
+    _ubah(() {
+      tahap = 'belum';
+      usulan = null;
+    });
+    if (p != null) await abaikanUsulan(ref, p);
   }
 
   @override
   void dispose() {
-    _t?.cancel();
+    _selesai = true;
     kalimat.dispose();
     super.dispose();
   }
 }
 
-const _usul = [
-  ('Jumlah (Rp)', 'Rp1.250.000', false),
-  ('Kas/Bank', 'Bank BNI ··4821', false),
-  ('Dibayar kepada', 'PLN', false),
-  ('Tanggal transaksi', '6 Oktober 2026', false),
-  ('Mata Anggaran', 'Belanja 5.01.02.00 Listrik, air dan telepon', true),
-];
+/// "Periksa dan bukukan" after "Pakai" (both twins): Catat (phone Main,
+/// WebCatat) opens on the saved draft through isian.dart.
+void bukaDrafAiDiCatat(BuildContext context, WidgetRef ref, String drafId) {
+  final d = ref.read(isianDrafAiProvider(drafId));
+  if (d == null) return;
+  ref
+      .read(isianCatatProvider.notifier)
+      .buka(
+        IsianCatat(
+          jenis: d.transaksi.type,
+          jumlah: d.jumlah,
+          uraian: d.transaksi.description,
+          tanggal: d.tanggal,
+          drafId: d.transaksi.id,
+        ),
+      );
+  context.gantiKe(Layar.catat);
+}
+
+/// "Simpan sebagai draf" (both twins): a ready proposal not used yet is
+/// saved as it stands ("Pakai"), then [ke]. A refusal stays on screen.
+Future<void> simpanDrafAi(
+  BuildContext context,
+  WidgetRef ref,
+  KeadaanBantuanAI s,
+  Layar ke,
+) async {
+  if (s.usulan != null && !s.basi) {
+    await s.pakai(ref, AiDisposition.accepted);
+    if (s.usulan != null) return;
+  }
+  if (context.mounted) context.gantiKe(ke);
+}
+
+/// The board's sample sentence, dated with the proposal's day.
+String kalimatContoh(WidgetRef ref) {
+  final d = ref.read(hariNotaProvider);
+  final bulan = bulanTahun(d.tahun, d.bulan).split(' ').first;
+  return 'Bayar PLN Rp1.250.000 dari BNI tanggal ${d.hari} $bulan';
+}
 
 String simpanTeks(KeadaanBantuanAI s) =>
     s.dipakai ? 'Tersimpan · Draf' : 'Belum tersimpan';
 
-/// The AI panel (`aiHidup`) or the AI-off box (`aiMati`) for [keadaanAI].
-class PanelBantuanAI extends StatelessWidget {
-  const PanelBantuanAI({
-    super.key,
-    required this.s,
-    required this.keadaanAI,
-    this.web = false,
-  });
+/// The AI-off box once the month's AI budget is used up (BantuanAI region
+/// 3.2; AIFoto and AIMataAnggaran show it in place of their request).
+class KotakBatasAI extends StatelessWidget {
+  const KotakBatasAI({super.key, required this.sampai});
+
+  /// The month AI help resumes ('{Bulan Tahun}').
+  final String sampai;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.warna;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: ShapeDecoration(
+        shape: GarisBorder.penuh(c.garisTegas, tebal: 1, radius: 14),
+      ),
+      child: Text.rich(
+        TextSpan(
+          children: [
+            TextSpan(
+              text: 'Batas biaya AI per bulan tercapai.',
+              style: TextStyle(fontWeight: FontWeight.w700, color: c.tinta),
+            ),
+            TextSpan(
+              text:
+                  ' Bantuan AI berhenti sampai $sampai. Mencatat, membukukan '
+                  'dan tutup buku berjalan seperti biasa.',
+            ),
+          ],
+        ),
+        style: TextStyle(fontSize: 14, color: c.tinta2),
+      ),
+    );
+  }
+}
+
+/// The AI panel, or the AI-off box once the month's budget is used up (and
+/// no proposal is open).
+class PanelBantuanAI extends ConsumerWidget {
+  const PanelBantuanAI({super.key, required this.s, this.web = false});
 
   final KeadaanBantuanAI s;
-  final String keadaanAI;
 
   /// WebBantuanAI styles `input` but not `textarea`, so its sentence shows in
   /// the browser default: monospace 13.33 px, line height normal.
   final bool web;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
-    final batas = keadaanAI == 'batas biaya tercapai';
-    if (batas || keadaanAI == 'sedang tidak tersedia') {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: ShapeDecoration(
-          shape: GarisBorder.penuh(c.garisTegas, tebal: 1, radius: 14),
-        ),
-        child: Text.rich(
-          TextSpan(
-            children: [
-              TextSpan(
-                text: batas
-                    ? 'Batas biaya AI per bulan tercapai.'
-                    : 'AI sedang tidak tersedia.',
-                style: TextStyle(fontWeight: FontWeight.w700, color: c.tinta),
-              ),
-              TextSpan(
-                text: batas
-                    ? ' Bantuan AI berhenti sampai Desember 2026. Mencatat, membukukan dan tutup buku berjalan seperti biasa.'
-                    : ' Mencatat, membukukan dan tutup buku berjalan seperti biasa.',
-              ),
-            ],
-          ),
-          style: TextStyle(fontSize: 14, color: c.tinta2),
-        ),
-      );
+    final anggaran = ref.watch(anggaranAiProvider);
+    if (anggaran.usedUp && s.tahap == 'belum') {
+      return KotakBatasAI(sampai: ref.watch(bulanAiLanjutProvider));
     }
 
     final judul = Text(
@@ -128,13 +221,13 @@ class PanelBantuanAI extends StatelessWidget {
         letterSpacing: .3,
       ),
     );
-    final label = keadaanAI == 'biaya 70%'
+    final label = anggaran.percent >= 70
         ? _BarisSusut(
             jarak: 8,
             tengah: true,
             kiri: judul,
             kanan: Text(
-              'Biaya AI bulan ini 70% dari batas',
+              'Biaya AI bulan ini ${anggaran.percent}% dari batas',
               style: TextStyle(fontSize: 13, color: c.tinta),
             ),
           )
@@ -146,7 +239,7 @@ class PanelBantuanAI extends StatelessWidget {
       if (s.tahap == 'belum')
         Tombol(
           'Buat usulan dari kalimat ini',
-          onPressed: s.buat,
+          onPressed: () => s.buat(ref),
           jenis: JenisTombol.garisLaut,
           ukuran: UkuranTombol.kecil,
           warnaTeks: c.lautTua,
@@ -177,7 +270,7 @@ class PanelBantuanAI extends StatelessWidget {
           Kerangka.muncul,
           key: const ValueKey('ada'),
           lama: const Duration(milliseconds: 300),
-          child: _KartuUsulan(),
+          child: _KartuUsulan(s.usulan?.result),
         ),
         if (s.basi)
           const Text(
@@ -187,9 +280,17 @@ class PanelBantuanAI extends StatelessWidget {
         Row(
           children: [
             for (final (i, (t, f, j)) in [
-              ('Pakai', s.pakai, JenisTombol.utama),
-              ('Ubah', s.pakai, JenisTombol.kedua),
-              ('Abaikan', s.abaikan, JenisTombol.kedua),
+              (
+                'Pakai',
+                () => s.pakai(ref, AiDisposition.accepted),
+                JenisTombol.utama,
+              ),
+              (
+                'Ubah',
+                () => s.pakai(ref, AiDisposition.edited),
+                JenisTombol.kedua,
+              ),
+              ('Abaikan', () => s.abaikan(ref), JenisTombol.kedua),
             ].indexed) ...[
               if (i > 0) const SizedBox(width: 8),
               Expanded(
@@ -226,6 +327,13 @@ class PanelBantuanAI extends StatelessWidget {
           style: TextStyle(fontSize: 13, color: c.tinta2),
         ),
       ],
+      if (s.tolak case final t?)
+        Penolakan(
+          tindakan: t.action,
+          sebab: t.because,
+          jalan: const [],
+          ukuranTeks: 14,
+        ),
     ];
 
     return Container(
@@ -315,10 +423,31 @@ class _KalimatState extends State<_Kalimat> {
 }
 
 /// The suggestion card: `permukaan`, 1.5 dotted `laut`, radius 12, padding 4 14.
-class _KartuUsulan extends StatelessWidget {
+class _KartuUsulan extends ConsumerWidget {
+  const _KartuUsulan(this.h);
+  final AiResult? h;
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
+    final h = this.h;
+    final hari = ref.watch(hariIniProvider);
+    final master = ref.watch(masterRepositoryProvider);
+    // D01: the AI never proposes Kas/Bank, peruntukan or Lingkup, so the
+    // board's Kas/Bank row is not drawn.
+    final usul = h == null
+        ? const <(String, String, bool)>[]
+        : [
+            ('Jumlah (Rp)', rp(h.amount ?? 0), false),
+            ('Dibayar kepada', h.payee ?? '', false),
+            ('Tanggal transaksi', tglPanjang((h.date ?? hari).awal), false),
+            for (final l in h.lines)
+              (
+                'Mata Anggaran',
+                labelMataAnggaran(master, l.masterCode, h.date ?? hari),
+                true,
+              ),
+          ];
     final titik = SizedBox(
       width: double.infinity,
       height: 1,
@@ -344,14 +473,17 @@ class _KartuUsulan extends StatelessWidget {
                     bentuk: BentukLencana.usulanAI,
                   ),
                   const SizedBox(width: 8),
-                  Text(
-                    'dari kalimat Anda',
-                    style: TextStyle(fontSize: 13, color: c.tinta2),
+                  Flexible(
+                    child: Text(
+                      'dari kalimat Anda',
+                      textAlign: TextAlign.right,
+                      style: TextStyle(fontSize: 13, color: c.tinta2),
+                    ),
                   ),
                 ],
               ),
             ),
-            for (final (k, v, ragu) in _usul) ...[
+            for (final (k, v, ragu) in usul) ...[
               titik,
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 9),
@@ -394,7 +526,7 @@ class _KartuUsulan extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: Text(
-                'Peruntukan dan Lingkup tidak diusulkan. Pilih sendiri.',
+                'Kas/Bank, peruntukan dan Lingkup tidak diusulkan. Pilih sendiri.',
                 style: TextStyle(fontSize: 13, color: c.tinta3),
               ),
             ),
@@ -408,23 +540,27 @@ class _KartuUsulan extends StatelessWidget {
 /// Amount (IsianJumlah display form) and the six-row field card. [turun]:
 /// filled values drop in once, staggered 70 ms (BantuanAI only; WebBantuanAI
 /// does not declare the keyframe).
-class DrafBantuanAI extends StatelessWidget {
+class DrafBantuanAI extends ConsumerWidget {
   const DrafBantuanAI({super.key, required this.s, required this.turun});
 
   final KeadaanBantuanAI s;
   final bool turun;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
-    final p = s.dipakai;
+    final d = s.drafId == null
+        ? null
+        : ref.watch(isianDrafAiProvider(s.drafId!));
+    final p = d != null;
+    final Tanggal tanggal = d?.tanggal ?? ref.watch(hariIniProvider);
     final isi = [
-      ('Kas/Bank', p ? 'Bank BNI ··4821' : ''),
-      ('Dibayar kepada', p ? 'PLN' : ''),
-      ('Tanggal transaksi', p ? '6 Oktober 2026' : '16 November 2026'),
-      ('Mata Anggaran', p ? 'Belanja 5.01.02.00 Listrik, air dan telepon' : ''),
-      ('Diambil dari peruntukan', ''),
-      ('Lingkup', ''),
+      ('Kas/Bank', d?.kasBank ?? ''),
+      ('Dibayar kepada', d?.pihak ?? ''),
+      ('Tanggal transaksi', tglPanjang(tanggal.awal)),
+      ('Mata Anggaran', d?.mataAnggaran.join('; ') ?? ''),
+      ('Diambil dari peruntukan', d?.peruntukan ?? ''),
+      ('Lingkup', d?.lingkup ?? ''),
     ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -437,7 +573,7 @@ class DrafBantuanAI extends StatelessWidget {
             border: Border(bottom: BorderSide(color: c.tinta, width: 2)),
           ),
           child: Text(
-            p ? 'Rp1.250.000' : 'Rp0',
+            rp(d?.jumlah ?? 0),
             style: TextStyle(
               fontFamily: PalakatText.mono,
               fontSize: 36,

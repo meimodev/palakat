@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../core/format.dart';
+import '../../providers/keuangan/isian.dart';
+import '../../widgets/penolakan.dart';
 
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
@@ -16,13 +21,13 @@ import '../../app/layar.dart';
 
 /// Web · Bagi ke beberapa Mata Anggaran (spec 03, WebBagi). Same logic as
 /// Bagi; the picker is inline option chips instead of a sheet.
-class WebBagiScreen extends StatefulWidget {
+class WebBagiScreen extends ConsumerStatefulWidget {
   const WebBagiScreen({super.key});
   @override
-  State<WebBagiScreen> createState() => _WebBagiScreenState();
+  ConsumerState<WebBagiScreen> createState() => _WebBagiScreenState();
 }
 
-class _WebBagiScreenState extends State<WebBagiScreen> with LogikaBagi {
+class _WebBagiScreenState extends ConsumerState<WebBagiScreen> with LogikaBagi {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
@@ -72,7 +77,7 @@ class _WebBagiScreenState extends State<WebBagiScreen> with LogikaBagi {
                         textBaseline: TextBaseline.alphabetic,
                         children: [
                           Text(
-                            k,
+                            k.code,
                             style: TextStyle(
                               fontFamily: PalakatText.mono,
                               fontSize: 13,
@@ -83,7 +88,7 @@ class _WebBagiScreenState extends State<WebBagiScreen> with LogikaBagi {
                           // A flex item shrinks to its min-content: wraps.
                           Flexible(
                             child: Text(
-                              maBagi[k]!,
+                              k.name,
                               style: const TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
@@ -104,9 +109,9 @@ class _WebBagiScreenState extends State<WebBagiScreen> with LogikaBagi {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text('Jumlah (Rp)', style: kecil),
-        const Text(
-          'Rp1.250.000',
-          style: TextStyle(
+        Text(
+          rp(jumlahBagi),
+          style: const TextStyle(
             fontFamily: PalakatText.mono,
             fontSize: 34,
             fontWeight: FontWeight.w500,
@@ -118,6 +123,15 @@ class _WebBagiScreenState extends State<WebBagiScreen> with LogikaBagi {
         const SizedBox(height: 12),
         SisaPembagian(label: labelSisa, jumlah: sisa.abs(), pas: sisa == 0),
         if (!pas) ...[const SizedBox(height: 12), Text(alasan, style: kecil)],
+        if (tolak != null) ...[
+          const SizedBox(height: 12),
+          Penolakan(
+            tindakan: tolak!.action,
+            sebab: tolak!.because,
+            jalan: const [],
+            ukuranTeks: 14,
+          ),
+        ],
         if (dipakai) ...[
           const SizedBox(height: 12),
           Semantics(
@@ -196,7 +210,9 @@ class _WebBagiScreenState extends State<WebBagiScreen> with LogikaBagi {
                 ),
               ),
               Text(
-                'Belanja · Toko Sinar · satu pembayaran, satu No. Bukti',
+                '${namaJenis(form.jenis)}'
+                '${form.uraian.isEmpty ? '' : ' · ${form.uraian}'}'
+                ' · satu pembayaran, satu No. Bukti',
                 style: kecil,
               ),
             ],
@@ -245,7 +261,7 @@ class _WebBagiScreenState extends State<WebBagiScreen> with LogikaBagi {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Belanja ${b.k}',
+                  '$pohon ${b.k}',
                   style: TextStyle(
                     fontFamily: PalakatText.mono,
                     fontSize: 13,

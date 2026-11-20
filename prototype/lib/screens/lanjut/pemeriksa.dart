@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/format.dart';
 import '../../motion/kerangka.dart';
@@ -11,57 +12,82 @@ import '../../widgets/lencana_status.dart';
 import '../../widgets/tahapan.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
+import '../../providers/keuangan/isian.dart';
+import '../../providers/keuangan/pemeriksa.dart';
 import 'pemeriksa_baris.dart';
-import '../../app/belum_dipindah.dart';
-
-enum _St { draf, periksa, buku }
 
 enum _Gaya { utama, kedua, mati }
 
-/// 13 · Wajib pemeriksa kedua (phone). One Belanja draft goes Draf → Sudah
-/// diperiksa → Dibukukan; the viewer plays both people with `masukSebagai`.
-class PemeriksaScreen extends StatefulWidget {
+/// 13 · Wajib pemeriksa kedua (phone). The drafts awaiting the second check
+/// (DP33: the real queue); the selected one goes Draf → Sudah diperiksa
+/// (the Pemeriksa kedua) → Dibukukan (the Bendahara). Its maker and a
+/// covering Operator cannot mark it.
+class PemeriksaScreen extends ConsumerStatefulWidget {
   const PemeriksaScreen({super.key});
   @override
-  State<PemeriksaScreen> createState() => _PemeriksaScreenState();
+  ConsumerState<PemeriksaScreen> createState() => _PemeriksaScreenState();
 }
 
-class _PemeriksaScreenState extends State<PemeriksaScreen> {
-  // Board parity: a tweak change keeps `st`.
-  _St _st = _St.draf;
+class _PemeriksaScreenState extends ConsumerState<PemeriksaScreen>
+    with LogikaPemeriksa {
   bool _sheet = false;
+
+  /// No draft awaits a check.
+  Widget _kosong(PalakatWarna c, ({String siapa, String aturan}) masuk) =>
+      Material(
+        type: MaterialType.transparency,
+        child: LayarPonsel(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Masuk sebagai ${masuk.siapa} · Wajib pemeriksa kedua: '
+                  '${masuk.aturan}',
+                  style: TextStyle(fontSize: 13, color: c.tinta2),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Tidak ada draf yang menunggu diperiksa.',
+                  style: TextStyle(fontSize: 14, color: c.tinta2),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final bend = belumDipindah<String>('Bendahara') == 'Bendahara';
-    final ada = belumDipindah<bool>(true);
-    final draf = _st == _St.draf, periksa = _St.periksa == _st;
-    final buku = _st == _St.buku;
+    final masuk = masukSebagaiPemeriksa(ref);
+    final ids = daftarId(ref.watch(antreanPemeriksaProvider));
+    final id = terpilih(ids);
+    final v = id == null ? null : tampilPemeriksa(ref, id);
+    if (v == null) return _kosong(c, masuk);
+    final t = v.t;
+    final draf = v.draf, periksa = v.diperiksa, buku = v.dibukukan;
+    final bend = v.bendahara;
 
     var aksi = <(String, _Gaya, VoidCallback?)>[];
     var tolak = '', penjelasan = '';
-    if (draf && bend) {
-      tolak = ada
-          ? 'Anda yang mencatat transaksi ini, jadi orang lain yang harus menandainya sudah diperiksa. Pemeriksa kedua: Pnt. Jefry Wowor.'
-          : 'belum ada pemeriksa kedua yang ditunjuk. Yang perlu bertindak: BPMJ menunjuk pemeriksa kedua.';
+    if (draf && v.tolakTandai != null) {
+      tolak = v.tolakTandai!;
       aksi = [
         ('Tandai sudah diperiksa', _Gaya.mati, null),
-        ('Ubah', _Gaya.kedua, null), // no handler on the board
+        if (bend) ('Ubah', _Gaya.kedua, null), // no handler on the board
       ];
-      penjelasan = 'Draf belum masuk saldo. Sampai diperiksa dan dibukukan, transaksi ini menjadi hambatan tutup buku November 2026.';
+      penjelasan =
+          'Draf belum masuk saldo. Sampai diperiksa dan dibukukan, transaksi '
+          'ini menjadi hambatan tutup buku '
+          '${bulanTahun(t.effectiveDate.tahun, t.effectiveDate.bulan)}.';
     } else if (draf) {
-      aksi = [
-        (
-          'Tandai sudah diperiksa',
-          _Gaya.utama,
-          () => setState(() => _st = _St.periksa),
-        ),
-      ];
+      aksi = [('Tandai sudah diperiksa', _Gaya.utama, () => tandai(t))];
       penjelasan = 'Menandai sudah diperiksa bukan persetujuan dan belum memasukkan transaksi ke saldo. Bendahara yang membukukan.';
     } else if (periksa && bend) {
       aksi = [
-        ('Bukukan', _Gaya.utama, () => setState(() => _st = _St.buku)),
+        ('Bukukan', _Gaya.utama, () => bukukan(t)),
         ('Ubah', _Gaya.kedua, () => setState(() => _sheet = true)),
       ];
       penjelasan = 'Sudah diperiksa, belum masuk saldo. Pindah tanggal dan Batalkan tetap tersedia dengan alasan.';
@@ -69,6 +95,13 @@ class _PemeriksaScreenState extends State<PemeriksaScreen> {
       penjelasan = 'Anda sudah menandai transaksi ini. Menunggu Bendahara membukukan; tidak ada yang perlu Anda lakukan.';
     } else {
       penjelasan = 'Sudah masuk saldo. Jumlah, tanggal, Kas/Bank, peruntukan, Lingkup dan Mata Anggaran tidak dapat diubah lagi.';
+    }
+    // A command's own refusal (e.g. an incomplete draft) replaces the line.
+    if (tolakUntuk == t.id && this.tolak != null) {
+      final r = this.tolak!;
+      tolak =
+          '${r.action}. ${r.because}'
+          '${r.whoCanAct == null ? '' : ' Yang perlu bertindak: ${r.whoCanAct}.'}';
     }
 
     final t14 = TextStyle(fontSize: 14, color: c.tinta2);
@@ -131,7 +164,7 @@ class _PemeriksaScreenState extends State<PemeriksaScreen> {
                           lama: const Duration(milliseconds: 550),
                           tunda: const Duration(milliseconds: 350),
                           kurva: PalakatMotion.keluar,
-                          child: _Cap(),
+                          child: _Cap(t.voucher ?? ''),
                         ),
                       ),
                     ],
@@ -139,7 +172,7 @@ class _PemeriksaScreenState extends State<PemeriksaScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  rp(-900000),
+                  rp(v.jumlah),
                   style: TextStyle(
                     fontFamily: PalakatText.mono,
                     fontSize: 30,
@@ -149,12 +182,17 @@ class _PemeriksaScreenState extends State<PemeriksaScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Kas · diambil dari peruntukan Umum Jemaat · Lingkup Jemaat',
+                  [
+                    if (v.kasBank.isNotEmpty) v.kasBank,
+                    if (v.peruntukan.isNotEmpty)
+                      'diambil dari peruntukan ${v.peruntukan}',
+                    if (v.lingkup.isNotEmpty) 'Lingkup ${v.lingkup}',
+                  ].join(' · '),
                   style: t14,
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Belanja 5.05.02.00 Sewa peralatan · 16 November 2026',
+                  '${v.mataAnggaran} · ${tglPanjang(t.effectiveDate.awal)}',
                   style: t14,
                 ),
               ],
@@ -209,15 +247,13 @@ class _PemeriksaScreenState extends State<PemeriksaScreen> {
                   children: [
                     const TextSpan(text: 'Masuk sebagai '),
                     TextSpan(
-                      text: bend
-                          ? 'Meiske L., Bendahara'
-                          : 'Pnt. Jefry Wowor, Pemeriksa kedua',
+                      text: masuk.siapa,
                       style: TextStyle(
                         fontWeight: FontWeight.w700,
                         color: c.tinta,
                       ),
                     ),
-                    const TextSpan(text: ' · Wajib pemeriksa kedua: hidup'),
+                    TextSpan(text: ' · Wajib pemeriksa kedua: ${masuk.aturan}'),
                   ],
                 ),
                 style: TextStyle(fontSize: 13, color: c.tinta2),
@@ -225,9 +261,12 @@ class _PemeriksaScreenState extends State<PemeriksaScreen> {
               const SizedBox(height: 4),
               Semantics(
                 header: true,
-                child: const Text(
-                  'Belanja · Sewa kursi ibadah padang',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+                child: Text(
+                  '${namaJenis(t.type)} · ${t.description}',
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ],
@@ -239,6 +278,10 @@ class _PemeriksaScreenState extends State<PemeriksaScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                ...[
+                  _Antrean(ids: ids, pilih: id, onPilih: pilihBaris),
+                  const SizedBox(height: 16),
+                ],
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Tahapan(
@@ -261,23 +304,21 @@ class _PemeriksaScreenState extends State<PemeriksaScreen> {
                   ),
                   child: Column(
                     children: [
-                      const BarisRincian(
+                      BarisRincian(
                         'Dicatat oleh',
-                        'Meiske L. · 16/11/2026 09.40',
+                        '${v.pencatat} · ${tglJam(t.createdAt)}',
                         atas: false,
                       ),
                       BarisRincian(
                         'Diperiksa oleh',
-                        draf
+                        v.pemeriksa == null
                             ? 'Belum diperiksa'
-                            : 'Pnt. Jefry Wowor · 16/11/2026 10.05',
-                        warna: draf ? c.bata : c.tinta,
+                            : '${v.pemeriksa} · '
+                                  '${t.reviewedAt == null ? '' : tglJam(t.reviewedAt!)}',
+                        warna: v.pemeriksa == null ? c.bata : c.tinta,
                         kanan: true,
                       ),
-                      const BarisRincian(
-                        'Dokumen pendukung',
-                        'Diunggah, belum diverifikasi',
-                      ),
+                      BarisRincian('Dokumen pendukung', v.dokumen),
                     ],
                   ),
                 ),
@@ -331,15 +372,16 @@ class _PemeriksaScreenState extends State<PemeriksaScreen> {
                 onTutup: () => setState(() => _sheet = false),
                 isi: [
                   Text.rich(
-                    const TextSpan(
+                    TextSpan(
                       children: [
-                        TextSpan(text: 'Transaksi kembali menjadi '),
-                        TextSpan(
+                        const TextSpan(text: 'Transaksi kembali menjadi '),
+                        const TextSpan(
                           text: 'Draf',
                           style: TextStyle(fontWeight: FontWeight.w700),
                         ),
                         TextSpan(
-                          text: '. Tanda sudah diperiksa dari Pnt. Jefry Wowor dan persetujuan yang sudah dicatat akan hilang, lalu perlu diberikan lagi.',
+                          text:
+                              '. Tanda sudah diperiksa dari ${v.pemeriksa ?? 'pemeriksa kedua'} dan persetujuan yang sudah dicatat akan hilang, lalu perlu diberikan lagi.',
                         ),
                       ],
                     ),
@@ -348,10 +390,10 @@ class _PemeriksaScreenState extends State<PemeriksaScreen> {
                   Tombol(
                     'Ubah dan kembalikan ke Draf',
                     jenis: JenisTombol.tinta,
-                    onPressed: () => setState(() {
-                      _st = _St.draf;
-                      _sheet = false;
-                    }),
+                    onPressed: () {
+                      setState(() => _sheet = false);
+                      kembalikan(t);
+                    },
                   ),
                   Tombol(
                     'Kembali',
@@ -371,6 +413,9 @@ class _PemeriksaScreenState extends State<PemeriksaScreen> {
 
 /// The No. Bukti stamp: mono 14/600 `laut`, 2 px `laut` line, radius 8.
 class _Cap extends StatelessWidget {
+  const _Cap(this.nomor);
+  final String nomor;
+
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
@@ -382,14 +427,105 @@ class _Cap extends StatelessWidget {
       ),
       child: Text(
         // U+200B: Chrome breaks after the hyphen when the stamp shrinks; ICU does not.
-        'No. Bukti BKU-2026-​0151',
-        semanticsLabel: 'No. Bukti BKU-2026-0151',
+        'No. Bukti ${nomor.replaceFirst(RegExp(r'-(?=\d+$)'), '-\u200B')}',
+        semanticsLabel: 'No. Bukti $nomor',
         style: TextStyle(
           fontFamily: PalakatText.mono,
           fontSize: 14,
           fontWeight: FontWeight.w600,
           color: c.laut,
         ),
+      ),
+    );
+  }
+}
+
+/// The queue (real data has more than the board's one draft): each draft by
+/// its description, the selected one marked as WebPemeriksa marks its row
+/// (`lautLembut`, 3 px `laut` left line).
+class _Antrean extends ConsumerWidget {
+  const _Antrean({
+    required this.ids,
+    required this.pilih,
+    required this.onPilih,
+  });
+
+  final List<String> ids;
+  final String? pilih;
+  final void Function(String) onPilih;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.warna;
+    return Container(
+      decoration: BoxDecoration(
+        color: c.permukaan,
+        border: Border.all(color: c.garis),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (final (i, id) in ids.indexed)
+            if (tampilPemeriksa(ref, id) case final v?)
+              Tekan(
+                onTap: () => onPilih(id),
+                dipilih: id == pilih,
+                child: Container(
+                  constraints: const BoxConstraints(minHeight: 56),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: id == pilih ? c.lautLembut : null,
+                    border: i == 0
+                        ? null
+                        : Border(top: BorderSide(color: c.garis)),
+                  ),
+                  foregroundDecoration: id == pilih
+                      ? BoxDecoration(
+                          border: Border(
+                            left: BorderSide(color: c.laut, width: 3),
+                          ),
+                        )
+                      : null,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              v.t.description,
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Text(
+                              '${v.t.effectiveDate} · ${v.pencatat}',
+                              style: TextStyle(fontSize: 13, color: c.tinta2),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        rp(v.jumlah),
+                        style: TextStyle(
+                          fontFamily: PalakatText.mono,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: v.dibukukan ? c.tinta : c.tinta3,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+        ],
       ),
     );
   }

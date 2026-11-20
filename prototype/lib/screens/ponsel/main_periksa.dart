@@ -6,14 +6,15 @@ enum _Cek { ok, gagal, info }
 
 /// The board's `cek` rows, in order.
 List<(_Cek, String, String?)> _cek(_MainKeadaan m) {
-  final cfg = m.cfg, j = m.j;
+  final cfg = m.cfg, j = m.j, p = m.pilihan;
+  String nama(String? id) => p.namaKasBank(id);
   return [
     j > 0
         ? (_Cek.ok, 'Jumlah ${rp(j)}', null)
         : (_Cek.gagal, 'Jumlah belum diisi', null),
     if (m.pindah) ...[
       m.akun != null && m.ke != null && m.akun != m.ke
-          ? (_Cek.ok, 'Dari ${_nama(m.akun)} ke ${_nama(m.ke)}', null)
+          ? (_Cek.ok, 'Dari ${nama(m.akun)} ke ${nama(m.ke)}', null)
           : (
               _Cek.gagal,
               'Kas/Bank asal dan tujuan belum dipilih',
@@ -26,19 +27,25 @@ List<(_Cek, String, String?)> _cek(_MainKeadaan m) {
       ),
     ] else ...[
       m.akun != null
-          ? (_Cek.ok, 'Kas/Bank: ${_nama(m.akun)}', null)
+          ? (_Cek.ok, 'Kas/Bank: ${nama(m.akun)}', null)
           : (_Cek.gagal, 'Kas/Bank belum dipilih', null),
       m.per != null
-          ? (_Cek.ok, '${cfg.per}: ${m.per}', null)
+          ? (_Cek.ok, '${cfg.per}: ${p.namaPeruntukan(m.per)}', null)
           : (_Cek.gagal, 'Peruntukan belum dipilih', null),
       m.ling != null
-          ? (_Cek.ok, 'Lingkup: ${m.ling}', null)
+          ? (_Cek.ok, 'Lingkup: ${p.namaLingkup(m.ling)}', null)
           : (_Cek.gagal, 'Lingkup belum dipilih', null),
-      m.ma != null
+      m.bagian != null
           ? (
               _Cek.ok,
               'Mata Anggaran sudah dipilih',
-              '${cfg.pohon} ${m.ma!.kode} · ${m.ma!.nama}',
+              m.bagian!.map((a) => a.masterCode).join(', '),
+            )
+          : m.ma != null
+          ? (
+              _Cek.ok,
+              'Mata Anggaran sudah dipilih',
+              '${cfg.pohon} ${m.ma!.code} · ${m.ma!.name}',
             )
           : (
               _Cek.gagal,
@@ -74,7 +81,12 @@ class _Periksa extends StatelessWidget {
     final c = context.warna;
     final cek = _cek(m);
     final gagalN = cek.where((x) => x.$1 == _Cek.gagal).length;
-    void keForm() => context.naikKe(Layar.catat);
+    final tanggal = tglPanjang(m.tanggal.awal);
+    void keForm() {
+      m.lupakanTolak();
+      context.naikKe(Layar.catat);
+    }
+
     final kartuBaris = Kartu(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: Column(
@@ -183,8 +195,8 @@ class _Periksa extends StatelessWidget {
                             ),
                             Text(
                               m.pindah
-                                  ? 'Pindah antar Kas/Bank · 16 November 2026'
-                                  : '${_nama(m.akun).isEmpty ? 'Kas/Bank belum dipilih' : _nama(m.akun)} · 16 November 2026',
+                                  ? 'Pindah antar Kas/Bank · $tanggal'
+                                  : '${m.akun == null ? 'Kas/Bank belum dipilih' : m.pilihan.namaKasBank(m.akun)} · $tanggal',
                               style: TextStyle(fontSize: 13, color: c.tinta3),
                             ),
                           ],
@@ -197,8 +209,11 @@ class _Periksa extends StatelessWidget {
         ),
         if (!m.posted)
           _kaki(context, [
-            if (gagalN == 0)
-              Tombol('Bukukan', onPressed: m.bukukan)
+            if (m.tolak != null) ...[
+              _penolakan(m.tolak!),
+              Tombol('Ubah', jenis: JenisTombol.kedua, onPressed: keForm),
+            ] else if (gagalN == 0)
+              Tombol('Bukukan', onPressed: m.sibuk ? null : m.bukukan)
             else ...[
               Semantics(
                 container: true,
@@ -225,7 +240,7 @@ class _Periksa extends StatelessWidget {
               Tombol(
                 'Lihat transaksi',
                 onPressed: () =>
-                    _keAnak(GoRouter.of(context), 'detail/$belumDipindahId'),
+                    _keAnak(GoRouter.of(context), 'detail/${m.drafId}'),
               ),
               Tombol(
                 'Kembali ke Beranda',
@@ -282,7 +297,7 @@ class _KartuDibukukan extends StatelessWidget {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            'No. Bukti $_noBukti',
+                            'No. Bukti ${m.voucher}',
                             style: TextStyle(
                               fontFamily: _mono,
                               fontSize: 14,
@@ -311,7 +326,8 @@ class _KartuDibukukan extends StatelessWidget {
                   style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
                 Text(
-                  'Dibukukan pada 16/11/2026 10.42 · tidak dapat diubah lagi',
+                  'Dibukukan pada ${tglJam(m.dibukukanPada!)} · tidak dapat '
+                  'diubah lagi',
                   style: TextStyle(fontSize: 13, color: c.tinta3),
                 ),
               ],
@@ -343,12 +359,12 @@ class _KartuSaldo extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Saldo buku ${_nama(m.akun)}',
+                'Saldo buku ${m.pilihan.namaKasBank(m.akun)}',
                 style: TextStyle(fontSize: 14, color: c.tinta2),
               ),
               Hitung(
                 dari: m.saldoLama,
-                nilai: m.saldo[m.akun] ?? 0,
+                nilai: m.saldoBaru,
                 lama: const Duration(milliseconds: 780),
                 tunda: const Duration(milliseconds: 750),
                 builder: (_, n) => Text(
@@ -374,50 +390,124 @@ class _KartuSaldo extends StatelessWidget {
 
 // ---------- I. Detail ----------
 
-class _Detail extends StatelessWidget {
-  const _Detail();
+class _Detail extends ConsumerWidget {
+  const _Detail(this.id);
+  final String id;
 
   @override
-  Widget build(BuildContext context) {
-    final m = _MainLingkup.of(context);
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
-    final jk = belumDipindah(false);
-    final cfg = m.cfg;
+    final tx = ref.watch(transactionRepositoryProvider);
+    ref.watch(revisionProvider);
+    final t = tx.get(id);
+    if (t == null) return const SizedBox.shrink();
+    final akun = ref.watch(accountRepositoryProvider);
+    final dana = ref.watch(fundRepositoryProvider);
+    final master = ref.watch(masterRepositoryProvider);
+    final org = ref.watch(orgRepositoryProvider);
+    final hari = ref.watch(hariIniProvider);
+    String namaAkun(String? i) =>
+        akun
+            .accounts(includeInactive: true)
+            .where((a) => a.id == i)
+            .firstOrNull
+            ?.name ??
+        '';
+    String gabung(Iterable<String?> l) =>
+        {for (final x in l) ?x}.where((x) => x.isNotEmpty).join(', ');
+    String orang(String? p) =>
+        p == null ? '' : ref.watch(namaPendekProvider(p));
+    final kode = {for (final a in t.allocations) ?a.masterCode};
+    final per = t.type == TransactionType.income
+        ? 'Masuk ke peruntukan'
+        : 'Diambil dari peruntukan';
     final rinci = [
-      if (m.pindah) ...[
-        ('Dari Kas/Bank', _nama(m.akun)),
-        ('Ke Kas/Bank', _nama(m.ke)),
+      if (t.toAccountId != null) ...[
+        ('Dari Kas/Bank', namaAkun(t.accountId)),
+        ('Ke Kas/Bank', namaAkun(t.toAccountId)),
       ] else ...[
-        ('Kas/Bank', _nama(m.akun)),
-        (cfg.per, m.per ?? ''),
-        ('Lingkup', m.ling ?? ''),
+        (
+          'Kas/Bank',
+          gabung(t.allocations.map((a) => namaAkun(t.accountOf(a)))),
+        ),
+        (
+          per,
+          gabung(t.allocations.map((a) => dana.fund(a.fundId ?? '')?.name)),
+        ),
+        (
+          'Lingkup',
+          gabung(
+            t.allocations.map(
+              (a) => a.scopeId == ScopeRef.jemaatId
+                  ? 'Jemaat'
+                  : org.scope(a.scopeId ?? '')?.name,
+            ),
+          ),
+        ),
         (
           'Mata Anggaran',
-          m.ma == null ? '' : '${cfg.pohon} ${m.ma!.kode} ${m.ma!.nama}',
+          kode
+              .map((k) => labelMataAnggaran(master, k, t.effectiveDate))
+              .join('; '),
         ),
-        ('Versi Mata Anggaran', '2026.1'),
-        ('Persetujuan', 'Tidak diperlukan (aturan: transaksi rutin)'),
+        (
+          'Versi Mata Anggaran',
+          gabung(
+            kode.map((k) => versiMataAnggaran(master, k, t.effectiveDate)),
+          ),
+        ),
+        (
+          'Persetujuan',
+          t.approvalMode == ApprovalMode.notRequired
+              ? 'Tidak diperlukan (aturan: ${t.approvalRule ?? 'transaksi rutin'})'
+              : ref
+                    .watch(approvalRepositoryProvider)
+                    .forTransaction(t.id)
+                    .any((a) => a.status == ApprovalStatus.recorded)
+              ? 'Sudah dicatat'
+              : 'Belum dicatat',
+        ),
       ],
-      ('Tanggal transaksi', '16/11/2026'),
-      ('Dicatat pada', '16/11/2026 10.39'),
-      ('Dibukukan pada', '16/11/2026 10.42'),
+      ('Tanggal transaksi', tanggalDaftar(t.effectiveDate)),
+      ('Dicatat pada', tglJam(t.createdAt)),
+      if (t.finalizedAt != null) ('Dibukukan pada', tglJam(t.finalizedAt!)),
     ];
-    final dokStatus = m.verif
-        ? 'Terverifikasi (oleh Meiske L.)'
-        : m.dok == 'terlampir'
-        ? 'Diunggah, belum diverifikasi'
-        : 'Wajib, belum ada';
-    final oleh = plk(jk);
+    final bukti = ref.watch(evidenceRepositoryProvider);
+    final p = ref.watch(periodRepositoryProvider).periods();
+    final periode = p.where((x) => x.contains(t.effectiveDate)).firstOrNull;
+    final status = periode == null
+        ? null
+        : bukti
+              .list(periode.id, null)
+              .where((x) => x.transaction.id == t.id)
+              .firstOrNull
+              ?.status;
+    final butir = bukti.forTransaction(t.id);
+    final unggahan = butir
+        .where((e) => e.state == EvidenceItemState.uploaded)
+        .lastOrNull;
+    final dokStatus = switch (status) {
+      EvidenceStatus.verified =>
+        'Terverifikasi (oleh ${orang(butir.lastOrNull?.decidedBy ?? butir.lastOrNull?.by)})',
+      EvidenceStatus.uploaded => 'Diunggah, belum diverifikasi',
+      EvidenceStatus.exceptionAccepted => 'Dikecualikan',
+      EvidenceStatus.requiredMissing => 'Wajib, belum ada',
+      EvidenceStatus.notRequired || null => 'Tidak wajib',
+    };
+    final riwayat = _riwayat(ref, t, hari);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         KepalaPonsel(
-          judul: _noBukti,
+          judul: t.voucher ?? 'Belum ada No. Bukti',
           judulMono: true,
           onKembali: () => _keBeranda(context),
           labelKembali: 'Kembali ke Beranda',
-          ujung: LencanaStatus.uang(StatusUang.dibukukan, kepala: true),
+          ujung: LencanaStatus.uang(
+            t.isReversed ? StatusUang.dibalik : StatusUang.dibukukan,
+            kepala: true,
+          ),
         ),
         Expanded(
           child: SingleChildScrollView(
@@ -430,7 +520,7 @@ class _Detail extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      m.jumlahRp,
+                      rp(signedAmount(t)),
                       style: const TextStyle(
                         fontFamily: _mono,
                         fontSize: 34,
@@ -439,7 +529,7 @@ class _Detail extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      m.ringkas,
+                      t.description,
                       style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                   ],
@@ -496,13 +586,9 @@ class _Detail extends StatelessWidget {
                           ],
                         ),
                       ),
-                      if (m.dok == 'terlampir' && !m.verif)
-                        Tombol(
-                          'Verifikasi',
-                          jenis: JenisTombol.garisLaut,
-                          ukuran: UkuranTombol.kecil,
-                          lebarPenuh: false,
-                          onPressed: m.verifikasi,
+                      if (status == EvidenceStatus.uploaded && unggahan != null)
+                        Flexible(
+                          child: _TombolVerifikasi(t: t, butir: unggahan),
                         ),
                     ],
                   ),
@@ -526,11 +612,7 @@ class _Detail extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         spacing: 4,
-                        children: [
-                          Text('10.42 · Dibukukan oleh $oleh'),
-                          const Text('10.41 · Dokumen pendukung diunggah'),
-                          Text('10.39 · Draf dicatat oleh $oleh'),
-                        ],
+                        children: [for (final r in riwayat) Text(r)],
                       ),
                     ),
                   ],
@@ -541,13 +623,13 @@ class _Detail extends StatelessWidget {
                   'kesalahan dikoreksi dengan pembalikan.',
                   style: TextStyle(fontSize: 13, color: c.tinta3),
                 ),
-                const Tombol(
+                Tombol(
                   'Koreksi dengan pembalikan',
                   jenis: JenisTombol.kedua,
                   ukuran: UkuranTombol.sedang,
                   onPressed: null,
                   ke: Layar.koreksi,
-                  param: {'id': belumDipindahId},
+                  param: {'id': t.id},
                 ),
               ],
             ),
@@ -556,6 +638,78 @@ class _Detail extends StatelessWidget {
       ],
     );
   }
+}
+
+/// The Riwayat lines of [t], newest first: its audit trail ("{jam} ·
+/// Dibukukan oleh Meiske L."); for a seeded row without one, its own
+/// recorded, checked and booked times.
+List<String> _riwayat(WidgetRef ref, Transaction t, Tanggal hari) {
+  String kapan(DateTime d) => Tanggal.dari(d) == hari ? jam(d) : tglJam(d);
+  String siapa(String id) => ref.watch(namaPendekProvider(id));
+  final jejak = ref
+      .watch(auditRepositoryProvider)
+      .list(AuditFilter(ref: RecordRef('transaction', t.id)));
+  if (jejak.isNotEmpty) {
+    return [
+      for (final r in jejak)
+        '${kapan(r.at)} · ${_aksi[r.action] ?? r.summary} oleh '
+            '${r.via == Via.direct ? siapa(r.personId) : '${r.personName}, ${r.actingRole}'}',
+    ];
+  }
+  return [
+    if (t.finalizedAt != null)
+      '${kapan(t.finalizedAt!)} · Dibukukan oleh ${siapa(t.finalizedBy!)}',
+    if (t.reviewedAt != null && t.reviewedBy != t.finalizedBy)
+      '${kapan(t.reviewedAt!)} · Ditandai sudah diperiksa oleh '
+          '${siapa(t.reviewedBy!)}',
+    '${kapan(t.createdAt)} · Draf dicatat oleh ${siapa(t.createdBy)}',
+  ];
+}
+
+const _aksi = {
+  'finance.txn.draft': 'Draf dicatat',
+  'finance.txn.edit': 'Draf diubah',
+  'finance.txn.review': 'Ditandai sudah diperiksa',
+  'finance.txn.finalize': 'Dibukukan',
+};
+
+/// "Verifikasi" on an uploaded document (EvidenceRepository.verify).
+class _TombolVerifikasi extends ConsumerStatefulWidget {
+  const _TombolVerifikasi({required this.t, required this.butir});
+  final Transaction t;
+  final EvidenceItem butir;
+
+  @override
+  ConsumerState<_TombolVerifikasi> createState() => _TombolVerifikasiState();
+}
+
+class _TombolVerifikasiState extends ConsumerState<_TombolVerifikasi> {
+  Refusal? _tolak;
+
+  Future<void> _verifikasi() async {
+    final a = ref.read(actorProvider);
+    if (a == null) return;
+    final r = await ref
+        .read(evidenceRepositoryProvider)
+        .verify(
+          a,
+          widget.butir.id,
+          expectedRevision: widget.t.revision,
+          idempotencyKey: kunciBaru(a.personId, ref.read(clockProvider)),
+        );
+    if (mounted) setState(() => _tolak = r.refusal);
+  }
+
+  @override
+  Widget build(BuildContext context) => _tolak != null
+      ? _penolakan(_tolak!)
+      : Tombol(
+          'Verifikasi',
+          jenis: JenisTombol.garisLaut,
+          ukuran: UkuranTombol.kecil,
+          lebarPenuh: false,
+          onPressed: _verifikasi,
+        );
 }
 
 /// A key–value row as CSS `display: flex; justify-content: space-between;

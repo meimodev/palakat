@@ -40,17 +40,35 @@ Widget _kaki(
   ),
 );
 
-class _Catat extends StatefulWidget {
+class _Catat extends ConsumerStatefulWidget {
   const _Catat();
   @override
-  State<_Catat> createState() => _CatatState();
+  ConsumerState<_Catat> createState() => _CatatState();
 }
 
-class _CatatState extends State<_Catat> {
+class _CatatState extends ConsumerState<_Catat> {
   late final _MainKeadaan _m = _MainLingkup.baca(context);
   late final _jumlah = TextEditingController(text: titik(_m.jumlah));
   late final _pihak = TextEditingController(text: _m.pihak);
   late final _uraian = TextEditingController(text: _m.uraian);
+
+  @override
+  void initState() {
+    super.initState();
+    // A draft handed over by another screen (BantuanAI "Periksa dan
+    // bukukan", isian.dart) opens in the form, as WebCatat does.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final id = ref.read(isianCatatProvider)?.drafId;
+      if (id == null || id == _m.drafId) return;
+      final t = ref.read(transactionRepositoryProvider).get(id);
+      if (t == null || !t.isDraft || !_MainKeadaan.bisaDimuat(t)) return;
+      _m.muat(t);
+      _jumlah.text = titik(_m.jumlah);
+      _pihak.text = _m.pihak;
+      _uraian.text = _m.uraian;
+    });
+  }
 
   @override
   void dispose() {
@@ -65,10 +83,13 @@ class _CatatState extends State<_Catat> {
     final m = _MainLingkup.of(context);
     final c = context.warna;
     final cfg = m.cfg;
-    List<({String nilai, String teks})> daftar(List<String> l) => [
-      for (final x in l) (nilai: x, teks: x),
+    final hari = ref.watch(hariIniProvider);
+    final tanggal = ref.watch(isianCatatProvider)?.tanggal ?? hari;
+    final p = ref.watch(pilihanCatatProvider(tanggal));
+    List<({String nilai, String teks})> daftar(List<PilihanChip> l) => [
+      for (final x in l) (nilai: x.id, teks: x.nama),
     ];
-    final akunPilihan = [for (final a in _akun) (nilai: a.id, teks: a.n)];
+    final akunPilihan = daftar(p.kasBank);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -78,8 +99,6 @@ class _CatatState extends State<_Catat> {
           onKembali: () => _keBeranda(context),
           ujung: StatusSimpan(m.simpan),
         ),
-        if (m.simpan == KeadaanSimpan.gagal)
-          PitaGagalSimpan(onCobaLagi: m.cobaLagi),
         Expanded(
           child: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
@@ -126,15 +145,13 @@ class _CatatState extends State<_Catat> {
                       ChipPilihan<String>(
                         label: cfg.per,
                         keterangan: '· uang siapa ini',
-                        pilihan: daftar([
-                          for (final p in semuaPeruntukan) p.nama,
-                        ]),
+                        pilihan: daftar(p.peruntukan),
                         terpilih: m.per,
                         onPilih: (v) => m.ubah(() => m.per = v),
                       ),
                       ChipPilihan<String>(
                         label: 'Lingkup',
-                        pilihan: daftar([for (final l in semuaLingkup) l.nama]),
+                        pilihan: daftar(p.lingkup),
                         terpilih: m.ling,
                         onPilih: (v) => m.ubah(() => m.ling = v),
                       ),
@@ -173,8 +190,21 @@ class _CatatState extends State<_Catat> {
                           style: TextStyle(fontSize: 14, color: c.tinta2),
                         ),
                       ),
-                      Tautan(
-                        ke: Layar.tanggal,
+                      Tekan(
+                        peran: PeranTekan.tautan,
+                        onTap: () {
+                          // Opened without the "Catat apa?" sheet: Tanggal
+                          // still needs a form to write its date into.
+                          if (ref.read(isianCatatProvider) == null) {
+                            ref
+                                .read(isianCatatProvider.notifier)
+                                .buka(IsianCatat(jenis: _jenisTipe[m.jenis]!));
+                          }
+                          const Tautan(
+                            ke: Layar.tanggal,
+                            child: SizedBox(),
+                          ).buka(context);
+                        },
                         child: DefaultTextStyle.merge(
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
@@ -186,7 +216,7 @@ class _CatatState extends State<_Catat> {
                             mainAxisSize: MainAxisSize.min,
                             spacing: 6,
                             children: [
-                              const Text('16 November 2026'),
+                              Text(tglPanjang(tanggal.awal)),
                               Text(
                                 'Ubah',
                                 style: TextStyle(
@@ -213,17 +243,23 @@ class _CatatState extends State<_Catat> {
           ),
         ),
         _kaki(context, [
+          if (m.tolak != null) _penolakan(m.tolak!),
           Tombol(
             'Periksa dan bukukan',
-            onPressed: () => context.dorongKe(Layar.keuangan, anak: 'periksa'),
+            onPressed: () {
+              m.lupakanTolak();
+              context.dorongKe(Layar.keuangan, anak: 'periksa');
+            },
           ),
           Tombol(
             'Simpan sebagai draf',
             jenis: JenisTombol.teks,
-            onPressed: () {
-              m.simpanDraf();
-              _keMain(GoRouter.of(context));
-            },
+            onPressed: m.sibuk
+                ? null
+                : () async {
+                    final router = GoRouter.of(context);
+                    if (await m.simpanDraf()) _keMain(router);
+                  },
           ),
         ]),
       ],
@@ -239,7 +275,11 @@ class _TombolMa extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
+    final bagian = m.bagian;
     final ma = m.ma;
+    if (bagian != null) {
+      return _MaBagian(m: m, bagian: bagian);
+    }
     return Tekan(
       radius: 12,
       onTap: () => context.dorongKe(Layar.keuangan, anak: 'mata-anggaran'),
@@ -262,7 +302,7 @@ class _TombolMa extends StatelessWidget {
                   Text(
                     ma == null
                         ? 'Draf boleh disimpan tanpa Mata Anggaran'
-                        : '${m.cfg.pohon} ${ma.kode}',
+                        : '${m.cfg.pohon} ${ma.code}',
                     style: TextStyle(
                       fontFamily: _mono,
                       fontSize: 13,
@@ -270,7 +310,7 @@ class _TombolMa extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    ma == null ? 'Mata Anggaran belum dipilih' : ma.nama,
+                    ma == null ? 'Mata Anggaran belum dipilih' : ma.name,
                     style: const TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 15,
@@ -336,9 +376,9 @@ class _Dokumen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'nota-16-11.jpg · Terlampir',
-                      style: TextStyle(
+                    Text(
+                      '${m.berkas} · Terlampir',
+                      style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
@@ -356,7 +396,7 @@ class _Dokumen extends StatelessWidget {
       ),
       _ => Tekan(
         radius: 12,
-        onTap: m.lampirkan,
+        onTap: m.sibuk ? null : m.lampirkan,
         child: Container(
           constraints: const BoxConstraints(minHeight: 56),
           decoration: ShapeDecoration(
@@ -405,12 +445,17 @@ class _PilihMaState extends State<_PilihMa> {
     final m = _MainLingkup.of(context);
     final c = context.warna;
     final pohon = m.cfg.pohon;
+    final p = m.pilihan;
     final q = _q.toLowerCase();
     final rows = [
-      for (final r in _pohonMA(pohon))
+      for (final r in switch (pohon) {
+        'Belanja' => p.belanja,
+        'Pendapatan' => p.pendapatan,
+        _ => const <MasterRow>[],
+      })
         if (q.isEmpty ||
-            r.judulKelompok ||
-            '${r.kode} ${r.nama}'.toLowerCase().contains(q))
+            !r.postable ||
+            '${r.code} ${r.name}'.toLowerCase().contains(q))
           r,
     ];
     void keForm() => context.naikKe(Layar.catat);
@@ -440,14 +485,14 @@ class _PilihMaState extends State<_PilihMa> {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             children: [
               for (final r in rows)
-                if (r.judulKelompok)
+                if (!r.postable)
                   Padding(
                     padding: const EdgeInsets.fromLTRB(0, 14, 0, 6),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          r.kode,
+                          r.code,
                           style: TextStyle(
                             fontFamily: _mono,
                             fontSize: 13,
@@ -455,7 +500,7 @@ class _PilihMaState extends State<_PilihMa> {
                           ),
                         ),
                         Text(
-                          r.nama,
+                          r.name,
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
@@ -487,7 +532,7 @@ class _PilihMaState extends State<_PilihMa> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            '$pohon ${r.kode}',
+                            '$pohon ${r.code}',
                             style: TextStyle(
                               fontFamily: _mono,
                               fontSize: 13,
@@ -495,7 +540,7 @@ class _PilihMaState extends State<_PilihMa> {
                             ),
                           ),
                           Text(
-                            r.nama,
+                            r.name,
                             style: const TextStyle(
                               fontWeight: FontWeight.w600,
                               fontSize: 15,
@@ -511,12 +556,11 @@ class _PilihMaState extends State<_PilihMa> {
         _kaki(
           context,
           [
-            const Tombol(
+            Tombol(
               'Bagi ke beberapa Mata Anggaran',
               jenis: JenisTombol.kedua,
               ukuran: UkuranTombol.sedang,
-              onPressed: null,
-              ke: Layar.bagi,
+              onPressed: () => m.bukaBagi(context),
             ),
             Tombol(
               'Simpan tanpa Mata Anggaran',
@@ -532,6 +576,60 @@ class _PilihMaState extends State<_PilihMa> {
           latar: false,
         ),
       ],
+    );
+  }
+}
+
+/// The Mata Anggaran field once Bagi split the draft: the parts, and a tap
+/// opens Bagi again on the same draft.
+class _MaBagian extends StatelessWidget {
+  const _MaBagian({required this.m, required this.bagian});
+  final _MainKeadaan m;
+  final List<Allocation> bagian;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.warna;
+    return Tekan(
+      radius: 12,
+      onTap: () => m.bukaBagi(context),
+      child: Container(
+        constraints: const BoxConstraints(minHeight: 56),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: ShapeDecoration(
+          color: c.permukaan,
+          shape: GarisBorder.penuh(c.garisTegas, tebal: 1, radius: 12),
+        ),
+        child: Row(
+          spacing: 12,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${m.cfg.pohon} · dibagi ke ${bagian.length} Mata Anggaran',
+                    style: TextStyle(
+                      fontFamily: _mono,
+                      fontSize: 13,
+                      color: c.tinta2,
+                    ),
+                  ),
+                  for (final a in bagian)
+                    Text(
+                      '${a.masterCode} · ${rp(a.amount)}',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            PalakatIkon(Ikon.lanjut, ukuran: 18, warna: c.tinta3),
+          ],
+        ),
+      ),
     );
   }
 }

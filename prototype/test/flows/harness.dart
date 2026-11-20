@@ -9,8 +9,12 @@ import 'package:palakat_prototype/app/layar.dart';
 import 'package:palakat_prototype/app/router.dart';
 import 'package:palakat_prototype/app/tata.dart';
 import 'package:palakat_prototype/core/clock.dart';
+import 'package:palakat_prototype/domain/core/core.dart';
+import 'package:palakat_prototype/domain/finance/finance.dart';
 import 'package:palakat_prototype/providers/clock.dart';
+import 'package:palakat_prototype/providers/core_repositories.dart';
 import 'package:palakat_prototype/providers/layout.dart';
+import 'package:palakat_prototype/providers/repositories_keuangan.dart';
 import 'package:palakat_prototype/providers/revision.dart';
 import 'package:palakat_prototype/providers/session.dart';
 import 'package:palakat_prototype/widgets/kecil.dart';
@@ -139,4 +143,50 @@ Future<void> majukanJam(WidgetTester tester, Duration d) async {
   (wadah.read(clockProvider) as FixedClock).majukan(d);
   wadah.read(revisionProvider.notifier).bump();
   await tester.pumpAndSettle();
+}
+
+/// The second check every booking needs while "Wajib pemeriksa kedua" is on
+/// (D24, README 8.1): signs out, signs in as Jefry, opens Pemeriksa, taps
+/// the draft whose description is [uraian] and "Tandai sudah diperiksa",
+/// then signs out and back in as the persona signed in before.
+///
+/// Screen contract (Pemeriksa, WebPemeriksa): the queue lists each draft by
+/// its description; tapping it selects or opens it, and then one enabled
+/// "Tandai sudah diperiksa" acts on that draft.
+Future<void> periksaOlehJefry(WidgetTester tester, String uraian) async {
+  final wadah = _wadah(tester);
+  final sebelum = wadah.read(sessionProvider)?.persona;
+  await keluar(tester);
+  await masukSebagai(tester, Persona.jefry);
+  wadah.read(routerProvider).go(Layar.pemeriksa.lokasi());
+  await tester.pumpAndSettle();
+  await tekan(tester, uraian);
+  await tekan(tester, 'Tandai sudah diperiksa');
+  expect(
+    wadah
+        .read(transactionRepositoryProvider)
+        .drafts()
+        .any(
+          (t) =>
+              t.description == uraian && t.status == TransactionStatus.reviewed,
+        ),
+    isTrue,
+    reason: 'draf "$uraian" belum ditandai sudah diperiksa',
+  );
+  await keluar(tester);
+  if (sebelum != null && sebelum != Persona.jefry) {
+    await masukSebagai(tester, sebelum);
+  }
+}
+
+/// The newest audit line of [action] on transaction [id], read from
+/// AuditRepository (README 8.1: the audit actor); fails when there is none.
+AuditRecord jejakTransaksi(ProviderContainer c, String id, String action) {
+  final r = c
+      .read(auditRepositoryProvider)
+      .list(AuditFilter(ref: RecordRef('transaction', id)))
+      .where((x) => x.action == action)
+      .firstOrNull;
+  expect(r, isNotNull, reason: 'tidak ada $action pada $id');
+  return r!;
 }

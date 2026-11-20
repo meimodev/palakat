@@ -1,109 +1,290 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../mock/orang.dart' show plk;
+import '../../core/format.dart';
+import '../../domain/core/core.dart';
+import '../../domain/finance/finance.dart';
 import '../../motion/kerangka.dart';
+import '../../providers/actor.dart';
+import '../../providers/clock.dart';
+import '../../providers/keuangan/ai.dart';
+import '../../providers/keuangan/isian.dart';
+import '../../providers/keuangan/pemeriksa.dart';
+import '../../providers/keuangan/transaksi.dart';
+import '../../providers/repositories_keuangan.dart';
+import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis.dart';
 import '../../widgets/garis_status.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
+import '../../widgets/penolakan.dart';
 import '../../widgets/tombol.dart';
 import '../../app/layar.dart';
+import '../lanjut/bantuan_ai_bagian.dart' show KotakBatasAI;
+import 'ai_bersama.dart';
 
-/// Shared by AIMataAnggaran and WebAIMataAnggaran: the boards' identical
-/// logic class (`DEF`, `U`, state `{ur, dasar, st, pilihan}`) and regions
-/// 2a–2e of the spec.
+/// Shared by AIMataAnggaran and WebAIMataAnggaran: the boards' logic
+/// (`{ur, dasar, st, pilihan}`) over a real draft without a Mata Anggaran,
+/// and regions 2a–2e of the spec. The AI proposal comes from
+/// [AiKind.masterRow] (no delay); "Pakai" and "Pilih ini" write the chosen
+/// rows into the draft.
 
-const _def = {
-  'Satu baris': 'Kertas HVS dan tinta printer',
-  'Bagi ke dua baris': 'Kertas HVS Rp300.000 dan token listrik Rp180.000',
-  'AI kurang yakin': 'Keperluan ibadah padang',
-};
+/// One suggested or chosen line: code, label, amount ('' when unsure).
+typedef _Baris = (String no, String label, String rp);
 
-typedef _Baris = (String no, String n, String rp);
-
-const Map<String, List<_Baris>> _u = {
-  'Satu baris': [('5.02.01.00', 'Alat tulis dan fotokopi', 'Rp480.000')],
-  'Bagi ke dua baris': [
-    ('5.02.01.00', 'Alat tulis dan fotokopi', 'Rp300.000'),
-    ('5.01.02.00', 'Listrik, air dan telepon', 'Rp180.000'),
-  ],
-  'AI kurang yakin': [
-    ('5.04.01.00', 'Konsumsi rapat', ''),
-    ('5.05.02.00', 'Sewa peralatan', ''),
-  ],
-};
-
-/// The board state. Survives a tweak change, as on the canvas.
+/// The board state, plus the draft it works on and the open proposal.
 class KeadaanUsulanMA {
   String? ur, dasar;
   String st = 'ada';
   int? pilihan;
   final uraian = TextEditingController();
+
+  /// The draft: the open Catat form's, else the newest open-month Belanja
+  /// draft with no Mata Anggaran. Null when there is none.
+  String? drafId;
+  AiProposal? usulan;
+  Refusal? tolak;
+  bool _mulai = false;
 }
 
-/// The regions of one render, built from [k] for [mode].
+/// The regions of one render, built from [k].
 class IsiUsulanMA {
   IsiUsulanMA({
     required this.context,
+    required this.ref,
     required this.k,
-    required this.mode,
     required this.ubah,
     required this.keBagi,
   }) {
-    // `ur === null` shows the mode's default; keep the field in step.
+    if (!k._mulai) {
+      k._mulai = true;
+      k.drafId = _cariDraf();
+      // A command, so after this frame (never during build).
+      if (k.drafId != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted) _minta();
+        });
+      }
+    }
+    // `ur === null` shows the draft's description; keep the field in step.
     if (k.uraian.text != ur) k.uraian.text = ur;
   }
 
   final BuildContext context;
+  final WidgetRef ref;
   final KeadaanUsulanMA k;
-  final String mode;
+
+  /// setState of a mounted screen (a no-op once it is left).
   final void Function(VoidCallback) ubah;
 
   /// "Pilih sendiri": Bagi / WebBagi.
   final Layar keBagi;
 
-  List<_Baris> get _usul => _u[mode]!;
-  String get ur => k.ur ?? _def[mode]!;
-  bool get basi => k.st == 'ada' && ur != (k.dasar ?? _def[mode]!);
-  bool get ragu => mode == 'AI kurang yakin';
+  String? _cariDraf() {
+    final tx = ref.read(transactionRepositoryProvider);
+    final isian = ref.read(isianCatatProvider)?.drafId;
+    if (isian != null && (tx.get(isian)?.isDraft ?? false)) return isian;
+    return ref
+        .read(antreanPemeriksaProvider)
+        .where(
+          (b) =>
+              b.mataAnggaran == null &&
+              b.transaksi.type == TransactionType.expense,
+        )
+        .firstOrNull
+        ?.transaksi
+        .id;
+  }
 
-  /// Board `jadi`. A sure-mode "Pakai" seen in the unsure mode has no
-  /// `pilihan` (the canvas crashes on `U[null]`): show no row.
-  List<_Baris> get _jadi => k.st != 'pakai'
-      ? const []
-      : !ragu
-      ? _usul
-      : k.pilihan == null || k.pilihan! >= _usul.length
-      ? const []
-      : [_usul[k.pilihan!]];
+  IsianDrafAi? get _draf =>
+      k.drafId == null ? null : ref.watch(isianDrafAiProvider(k.drafId!));
+
+  /// [_draf], [ur] and [basi] for callbacks (read, never watch).
+  IsianDrafAi? get _drafBaca =>
+      k.drafId == null ? null : ref.read(isianDrafAiProvider(k.drafId!));
+  String get _urBaca => k.ur ?? _drafBaca?.transaksi.description ?? '';
+  bool get _basiBaca => k.st == 'ada' && k.usulan != null && _urBaca != k.dasar;
+
+  /// Shown text: what was typed, else the draft's description.
+  String get ur => k.ur ?? _draf?.transaksi.description ?? '';
+  bool get basi => k.st == 'ada' && k.usulan != null && ur != k.dasar;
+  bool get ragu => k.usulan?.result?.unsure ?? false;
+
+  List<_Baris> get _usul {
+    final h = k.usulan?.result;
+    final d = _draf;
+    if (h == null || d == null) return const [];
+    final master = ref.watch(masterRepositoryProvider);
+    return [
+      for (final l in h.lines)
+        (
+          l.masterCode,
+          labelMataAnggaran(master, l.masterCode, d.tanggal),
+          l.amount == null ? '' : rp(l.amount!),
+        ),
+    ];
+  }
+
+  /// Asks for a proposal for the current Uraian (masterRow: no delay).
+  Future<void> _minta() async {
+    final d = k.drafId == null
+        ? null
+        : ref.read(transactionRepositoryProvider).get(k.drafId!);
+    if (d == null) return;
+    final teks = _urBaca;
+    final r = await mintaUsulan(
+      ref,
+      AiKind.masterRow,
+      AiInput(text: teks, amount: d.total),
+    );
+    ubah(() {
+      switch (r) {
+        case Ok(:final value):
+          k
+            ..usulan = value
+            ..dasar = teks
+            ..tolak = null
+            ..st = 'ada';
+        case Refused(:final refusal):
+          k
+            ..usulan = null
+            ..tolak = refusal;
+      }
+    });
+  }
+
+  /// Writes [baris] (code, amount) into the draft's parts, keeping its
+  /// Kas/Bank, peruntukan and Lingkup.
+  Future<void> _tulis(List<(String?, int)> baris, AiDisposition cara) async {
+    final a = ref.read(actorProvider);
+    final p = k.usulan;
+    final tx = ref.read(transactionRepositoryProvider);
+    final ai = ref.read(aiRepositoryProvider);
+    final jam = ref.read(clockProvider);
+    final ur = _urBaca;
+    final t = k.drafId == null ? null : tx.get(k.drafId!);
+    if (a == null || t == null) return;
+    String kunci() => kunciBaru(a.personId, jam);
+    if (p != null) {
+      await ai.dispose(
+        a,
+        p.id,
+        cara,
+        expectedRevision: p.revision,
+        idempotencyKey: kunci(),
+      );
+    }
+    final pola = t.allocations.firstOrNull ?? const Allocation(amount: 0);
+    final r = await tx.editDraft(
+      a,
+      t.id,
+      TransactionPatch(
+        description: ur == t.description ? null : ur,
+        allocations: [
+          for (final (kode, jumlah) in baris)
+            Allocation(
+              amount: jumlah,
+              type: pola.type,
+              accountId: pola.accountId,
+              fundId: pola.fundId,
+              scopeId: pola.scopeId,
+              partyId: pola.partyId,
+              masterCode: kode,
+              caseId: pola.caseId,
+            ),
+        ],
+      ),
+      expectedRevision: t.revision,
+      idempotencyKey: kunci(),
+    );
+    ubah(() {
+      switch (r) {
+        case Ok():
+          k
+            ..usulan = null
+            ..tolak = null
+            ..st = _adaKode(baris) ? 'pakai' : 'ada';
+        case Refused(:final refusal):
+          k.tolak = refusal;
+      }
+    });
+  }
+
+  static bool _adaKode(List<(String?, int)> baris) =>
+      baris.any((b) => b.$1 != null);
 
   void _terima() {
-    if (!basi && !ragu) ubah(() => k.st = 'pakai');
+    final h = k.usulan?.result;
+    final d = _drafBaca;
+    if (_basiBaca || ragu || h == null || d == null) return;
+    // One line takes the whole payment; a split keeps the AI's amounts.
+    _tulis([
+      for (final l in h.lines)
+        (l.masterCode, h.lines.length == 1 ? d.jumlah : l.amount ?? 0),
+    ], AiDisposition.accepted);
   }
 
-  void _abaikan() => ubah(() => k.st = 'abai');
-
-  void _baru() {
-    final u = ur;
-    ubah(() {
-      k.dasar = u;
-      k.st = 'ada';
-    });
+  void _pilih(int i) {
+    final h = k.usulan?.result;
+    final d = _drafBaca;
+    if (_basiBaca || h == null || d == null) return;
+    k.pilihan = i;
+    _tulis([(h.lines[i].masterCode, d.jumlah)], AiDisposition.edited);
   }
 
-  void _ulang() {
-    final u = ur;
-    ubah(() {
-      k.st = 'ada';
-      k.pilihan = null;
-      k.dasar = u;
-    });
+  Future<void> _abaikan() async {
+    final p = k.usulan;
+    ubah(() => k.st = 'abai');
+    if (p != null) await abaikanUsulan(ref, p);
   }
+
+  /// "Buat usulan baru": a fresh proposal for the edited Uraian.
+  void _baru() => _minta();
+
+  /// "Ganti pilihan": the draft's parts lose their Mata Anggaran, and the AI
+  /// proposes again.
+  Future<void> _ulang() async {
+    final d = _drafBaca;
+    if (d == null) return;
+    k.pilihan = null;
+    await _tulis([
+      for (final a in d.transaksi.allocations) (null, a.amount),
+    ], AiDisposition.edited);
+    if (context.mounted) await _minta();
+  }
+
+  /// "Pilih sendiri": Bagi works for this draft (the isian hand-off).
+  void _pilihSendiri() {
+    final d = _drafBaca;
+    if (d != null) {
+      ref
+          .read(isianCatatProvider.notifier)
+          .buka(
+            IsianCatat(
+              jenis: d.transaksi.type,
+              jumlah: d.jumlah,
+              uraian: d.transaksi.description,
+              tanggal: d.tanggal,
+              drafId: d.transaksi.id,
+            ),
+          );
+    }
+    context.dorongKe(keBagi);
+  }
+
+  /// Shown when there is no draft to work on.
+  Widget? get kosong => k.drafId != null && _draf != null
+      ? null
+      : Text(
+          'Tidak ada draf Belanja yang belum memiliki Mata Anggaran.',
+          style: TextStyle(fontSize: 14, color: context.warna.tinta2),
+        );
 
   /// 2a: the draft card.
   Widget get draf {
     final c = context.warna;
+    final d = _draf;
     return Kartu(
       status: GarisStatus.draf,
       radius: 16,
@@ -117,7 +298,7 @@ class IsiUsulanMA {
           ),
           const SizedBox(height: 6),
           Text(
-            '−Rp480.000',
+            rp(-(d?.jumlah ?? 0)),
             style: TextStyle(
               fontFamily: PalakatText.mono,
               fontSize: 30,
@@ -127,7 +308,14 @@ class IsiUsulanMA {
           ),
           const SizedBox(height: 6),
           Text(
-            'Belanja · Toko Sinar · Kas · diambil dari peruntukan Umum Jemaat · Lingkup Jemaat',
+            [
+              if (d != null) namaJenis(d.transaksi.type),
+              if (d != null && d.pihak.isNotEmpty) d.pihak,
+              if (d != null && d.kasBank.isNotEmpty) d.kasBank,
+              if (d != null && d.peruntukan.isNotEmpty)
+                'diambil dari peruntukan ${d.peruntukan}',
+              if (d != null && d.lingkup.isNotEmpty) 'Lingkup ${d.lingkup}',
+            ].join(' · '),
             style: TextStyle(fontSize: 13, color: c.tinta3),
           ),
         ],
@@ -146,9 +334,24 @@ class IsiUsulanMA {
   );
 
   /// 2c: the Mata Anggaran group.
-  Widget mataAnggaran(bool jk) {
+  Widget get mataAnggaran {
     final c = context.warna;
-    final jadi = _jadi;
+    final d = _draf;
+    final master = ref.watch(masterRepositoryProvider);
+    final jadi = [
+      if (d != null)
+        for (final a in d.transaksi.allocations)
+          if (a.masterCode != null)
+            (labelMataAnggaran(master, a.masterCode!, d.tanggal), rp(a.amount)),
+    ];
+    final a = ref.watch(actorProvider);
+    final cover = ref.watch(jabatanDijalankanProvider);
+    final nama = a == null ? '' : ref.watch(namaPendekProvider(a.personId));
+    final pelaku = cover != null
+        ? '${cover.operator}, Operator.'
+        : nama.endsWith('.')
+        ? nama
+        : '$nama.';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -188,7 +391,7 @@ class IsiUsulanMA {
                         children: [
                           Flexible(
                             child: Text(
-                              'Belanja ${j.$1} ${j.$2}',
+                              j.$1,
                               style: const TextStyle(
                                 fontWeight: FontWeight.w600,
                               ),
@@ -196,7 +399,7 @@ class IsiUsulanMA {
                           ),
                           const SizedBox(width: 16),
                           Text(
-                            j.$3.isEmpty ? 'Rp480.000' : j.$3,
+                            j.$2,
                             style: const TextStyle(
                               fontFamily: PalakatText.mono,
                               fontWeight: FontWeight.w500,
@@ -210,9 +413,8 @@ class IsiUsulanMA {
             ),
           ),
           const SizedBox(height: 6),
-          // Board template: "{plk} Usulan…", no stop added after "Operator".
           Text(
-            'Mata Anggaran sudah dipilih oleh ${plk(jk)} Usulan AI tidak tersimpan sebagai keputusan.',
+            'Mata Anggaran sudah dipilih oleh $pelaku Usulan AI tidak tersimpan sebagai keputusan.',
             style: TextStyle(fontSize: 13, color: c.tinta3),
           ),
           const SizedBox(height: 6),
@@ -233,15 +435,32 @@ class IsiUsulanMA {
 
   /// 2d: the AI panel, only in state `ada`.
   Widget? get panel {
-    if (k.st != 'ada') return null;
+    if (k.st != 'ada' || k.drafId == null) return null;
     final c = context.warna;
+    if (k.usulan == null) {
+      if (ref.watch(anggaranAiProvider).usedUp) {
+        return KotakBatasAI(sampai: ref.watch(bulanAiLanjutProvider));
+      }
+      final t = k.tolak;
+      return t == null
+          ? null
+          : Penolakan(
+              tindakan: t.action,
+              sebab: t.because,
+              jalan: const [],
+              ukuranTeks: 14,
+            );
+    }
     final usul = _usul;
+    final h = k.usulan!.result!;
+    final jumlahBagi = h.lines.fold(0, (j, l) => j + (l.amount ?? 0));
     final sah = !basi;
-    final adaCek = usul.length > 1 && !ragu;
+    final adaCek =
+        usul.length > 1 && !ragu && jumlahBagi == (_draf?.jumlah ?? -1);
     final label = ragu
         ? 'Usulan AI · kurang yakin, mohon dicek'
         : usul.length > 1
-        ? 'Usulan AI · bagi ke 2 Mata Anggaran'
+        ? 'Usulan AI · bagi ke ${usul.length} Mata Anggaran'
         : 'Usulan AI · Mata Anggaran';
 
     Widget barisUsul(int i, _Baris u) => Column(
@@ -257,7 +476,7 @@ class IsiUsulanMA {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Belanja ${u.$1} ${u.$2}',
+                      u.$2,
                       style: TextStyle(
                         fontStyle: FontStyle.italic,
                         fontWeight: FontWeight.w600,
@@ -280,14 +499,7 @@ class IsiUsulanMA {
                 const SizedBox(width: 10),
                 Tombol(
                   'Pilih ini',
-                  onPressed: () {
-                    if (!basi) {
-                      ubah(() {
-                        k.st = 'pakai';
-                        k.pilihan = i;
-                      });
-                    }
-                  },
+                  onPressed: () => _pilih(i),
                   jenis: JenisTombol.kedua,
                   ukuran: UkuranTombol.mini,
                   lebarPenuh: false,
@@ -344,7 +556,7 @@ class IsiUsulanMA {
                   if (adaCek) ...[
                     const SizedBox(height: 6),
                     Text(
-                      'Rp300.000 + Rp180.000 = Rp480.000, sama persis dengan jumlah pembayaran.',
+                      '${usul.map((u) => u.$3).join(' + ')} = ${rp(jumlahBagi)}, sama persis dengan jumlah pembayaran.',
                       style: TextStyle(fontSize: 13, color: c.tinta3),
                     ),
                   ],
@@ -392,8 +604,7 @@ class IsiUsulanMA {
                       1.3,
                       Tombol(
                         'Pilih sendiri',
-                        onPressed: null,
-                        ke: keBagi,
+                        onPressed: _pilihSendiri,
                         jenis: JenisTombol.kedua,
                         ukuran: UkuranTombol.ringkas,
                         paddingH: 0,

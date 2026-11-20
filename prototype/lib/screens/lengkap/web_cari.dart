@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
@@ -7,14 +8,14 @@ import 'cari_bagian.dart';
 import '../../app/layar.dart';
 
 /// Web · Cari dan tanya (spec 08, WebCari).
-class WebCariScreen extends StatefulWidget {
+class WebCariScreen extends ConsumerStatefulWidget {
   const WebCariScreen({super.key});
 
   @override
-  State<WebCariScreen> createState() => _WebCariScreenState();
+  ConsumerState<WebCariScreen> createState() => _WebCariScreenState();
 }
 
-class _WebCariScreenState extends State<WebCariScreen> with LogikaCari {
+class _WebCariScreenState extends ConsumerState<WebCariScreen> with LogikaCari {
   @override
   Widget build(BuildContext context) => HalamanWeb(
     layarKeuangan: true,

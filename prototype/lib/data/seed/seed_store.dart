@@ -39,4 +39,12 @@ class SeedStore {
   /// series per year; numbers are never reused).
   int nextVoucher(String series, int year) =>
       voucherCounters.update('$series-$year', (n) => n + 1, ifAbsent: () => 1);
+
+  /// The last number given in [series] in [year]; 0 when none.
+  int lastVoucher(String series, int year) =>
+      voucherCounters['$series-$year'] ?? 0;
+
+  /// README 4.6 point 1: the account totals equal the Fund totals. The seed
+  /// asserts it once built (debug only).
+  bool get ledgerBalanced => keuangan.ledgerBalanced;
 }

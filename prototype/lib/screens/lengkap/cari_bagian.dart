@@ -1,9 +1,15 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/format.dart';
-import '../../mock/mock.dart';
+import '../../core/tanggal.dart';
+import '../../domain/finance/finance.dart';
+import '../../providers/core_repositories.dart';
+import '../../providers/keuangan/beranda.dart';
+import '../../providers/keuangan/cari.dart';
+import '../../providers/repositories_keuangan.dart';
 import '../../motion/kerangka.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
@@ -14,39 +20,59 @@ import '../../widgets/tombol.dart';
 import '../../app/layar.dart';
 
 /// Parts shared by Cari and WebCari (spec 08): the same state, handlers,
-/// search, answer, rows and AI panel.
-
-/// Board rows `R`: the dates are the board's, the figures `cariJawaban`.
-const _tanggal = ['04/10/2026', '11/10/2026', '18/10/2026', '25/10/2026'];
+/// search, answer, rows and AI panel. The search runs over posted records
+/// ([cariKeuanganProvider]); the answer is the sum of the rows listed (D33).
 
 enum _Ai { belum, proses, ada }
 
 enum _Narasi { belum, ada, pakai, abai }
 
 /// The board's state `{ q, ai, narasi }` and its handlers.
-mixin LogikaCari<T extends StatefulWidget> on State<T> {
-  final q = TextEditingController(text: cariPertanyaan);
+mixin LogikaCari<T extends ConsumerStatefulWidget> on ConsumerState<T> {
+  late final TextEditingController q;
   _Ai _ai = _Ai.belum;
   _Narasi _narasi = _Narasi.belum;
   Timer? _t;
 
-  bool get cocok => RegExp(
-    'persembahan|minggu|oktober',
-    caseSensitive: false,
-  ).hasMatch(q.text);
+  /// The month before the running one (M−1): the board's "Oktober".
+  Period? get _bulanLalu {
+    final b = ref.watch(bulanBukuProvider);
+    final i = b.semua.indexWhere((p) => p.id == b.berjalan?.id);
+    return i > 0 ? b.semua[i - 1] : b.berjalan;
+  }
 
-  // Board parity: the 1300 ms timer of `tanya` is not cancelled here (spec
-  // note "timer race"; the recommendation is in the review log).
-  void onQ(String _) => setState(() => _ai = _Ai.belum);
+  @override
+  void initState() {
+    super.initState();
+    final b = ref.read(bulanBukuProvider);
+    final i = b.semua.indexWhere((p) => p.id == b.berjalan?.id);
+    final p = i > 0 ? b.semua[i - 1] : b.berjalan;
+    q = TextEditingController(
+      text: [
+        'persembahan Minggu pagi',
+        if (p != null) 'bulan ${_namaBulanSaja(p)}',
+      ].join(' '),
+    );
+  }
+
+  HasilCari get _hasil => ref.watch(cariKeuanganProvider(q.text));
+  bool get cocok => _hasil.cocok;
+
+  // The board leaves the 1300 ms timer running here; cancelling it keeps an
+  // explanation from appearing for rows no longer shown (spec 08 note).
+  void onQ(String _) => setState(() {
+    _t?.cancel();
+    _ai = _Ai.belum;
+  });
 
   void tanya() {
     setState(() => _ai = _Ai.proses);
     _t?.cancel();
-    _t = Timer(
-      const Duration(milliseconds: 1300),
-      () => setState(() => _ai = _Ai.ada),
-    );
+    _t = Timer(_jeda, _ada); // tiruan: AI menyusun penjelasan
   }
+
+  static const _jeda = Duration(milliseconds: 1300);
+  void _ada() => setState(() => _ai = _Ai.ada);
 
   @override
   void dispose() {
@@ -56,29 +82,79 @@ mixin LogikaCari<T extends StatefulWidget> on State<T> {
   }
 
   /// Search field, answer and rows (or the empty box): Cari 2a–2d.
-  List<Widget> hasil({required Layar ke}) => [
-    IsianTeks(
-      controller: q,
-      labelSemantik: 'Cari transaksi',
-      petunjuk: 'Cari dengan kata sehari-hari',
-      minTinggi: 52,
-      // letterSpacing 0: the theme's M3 bodyLarge (0.5) leaks into TextField.
-      gaya: const TextStyle(fontSize: 16, letterSpacing: 0),
-      onChanged: onQ,
-    ),
-    if (cocok) ...[
-      const _Jawaban(),
-      _Baris(ke: ke),
-    ] else
-      Kartu(
-        status: GarisStatus.draf,
-        padding: const EdgeInsets.all(16),
-        child: Text(
-          'Tidak ada transaksi yang cocok di Jemaat Karunia.',
-          style: TextStyle(fontSize: 14, color: context.warna.tinta2),
-        ),
+  List<Widget> hasil({required Layar ke}) {
+    final h = _hasil;
+    return [
+      IsianTeks(
+        controller: q,
+        labelSemantik: 'Cari transaksi',
+        petunjuk: 'Cari dengan kata sehari-hari',
+        minTinggi: 52,
+        // letterSpacing 0: the theme's M3 bodyLarge (0.5) leaks into TextField.
+        gaya: const TextStyle(fontSize: 16, letterSpacing: 0),
+        onChanged: onQ,
       ),
-  ];
+      if (h.cocok) ...[
+        _Jawaban(h),
+        _Baris(h, ke: ke),
+      ] else
+        Kartu(
+          status: GarisStatus.draf,
+          padding: const EdgeInsets.all(16),
+          child: Text(
+            'Tidak ada transaksi yang cocok di '
+            '${ref.watch(workspaceRepositoryProvider).workspace().name}.',
+            style: TextStyle(fontSize: 14, color: context.warna.tinta2),
+          ),
+        ),
+    ];
+  }
+
+  /// The explanation of the rows shown: count, largest and smallest.
+  String _penjelasan(HasilCari h) {
+    final b = [...h.baris]..sort((x, y) => x.jumlah.compareTo(y.jumlah));
+    String hari(BarisCari r) {
+      final d = r.baris.transaksi.effectiveDate;
+      return '${d.hari} ${_namaBulanSaja(d)}';
+    }
+
+    final n = b.length;
+    if (n == 1) return 'Satu transaksi tercatat, pada ${hari(b.first)}.';
+    return '${_kata(n)} transaksi tercatat, dengan jumlah terbesar pada '
+        '${hari(b.last)}. Jumlah ${hari(b.first)} paling kecil.';
+  }
+
+  /// The monthly narrative of M−1 from its posted figures (DM 4.2).
+  String _narasiBulan(Period p) {
+    final r = ref.watch(ringkasanBulanProvider(p.id));
+    final belanja = <String, int>{};
+    for (final t in ref.watch(transactionRepositoryProvider).list(p.id)) {
+      if (!t.isPosted) continue;
+      for (final e in effectsOf(t)) {
+        final k = e.allocation.masterCode;
+        if (e.expense > 0 && k != null) {
+          belanja[k] = (belanja[k] ?? 0) + e.expense;
+        }
+      }
+    }
+    final terbesar = belanja.entries.isEmpty
+        ? null
+        : belanja.entries.reduce((a, b) => b.value > a.value ? b : a).key;
+    final nama = terbesar == null
+        ? null
+        : ref
+              .watch(masterRepositoryProvider)
+              .pickerRows(MasterKind.belanja, p.end)
+              .where((m) => m.code == terbesar)
+              .firstOrNull
+              ?.name;
+    return [
+      'Pada ${namaBulan(p)} Pendapatan Jemaat ${rp(r?.pendapatan ?? 0)} dan '
+          'Belanja ${rp(r?.belanja ?? 0)}.',
+      if (nama != null) 'Belanja terbesar adalah ${nama.toLowerCase()}.',
+      if (p.isClosed) 'Semua Kas/Bank sudah direkonsiliasi tanpa selisih.',
+    ].join(' ');
+  }
 
   /// "BANTUAN AI · PILIHAN": Cari 2e.
   Widget panelAi() {
@@ -114,6 +190,7 @@ mixin LogikaCari<T extends StatefulWidget> on State<T> {
         ),
     ];
     final gelap = Theme.of(context).brightness == Brightness.dark;
+    final bulanLalu = _bulanLalu;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
@@ -141,18 +218,15 @@ mixin LogikaCari<T extends StatefulWidget> on State<T> {
                 child: status('Menyusun penjelasan…', c.lautTua),
               ),
             ),
-          if (_ai == _Ai.ada)
+          if (_ai == _Ai.ada && cocok)
             _KartuAi(
               key: const ValueKey('penjelasan'),
               label: 'Usulan AI · penjelasan',
               jarak: 6,
-              teks:
-                  'Empat ibadah Minggu pagi di Oktober tercatat, dengan '
-                  'persembahan terbesar pada 4 Oktober. Persembahan 18 Oktober '
-                  'paling kecil; itu bertepatan dengan ibadah padang.',
+              teks: _penjelasan(_hasil),
               ekor: Text(
-                'Berdasarkan 4 transaksi di atas saja. AI tidak melihat '
-                'peruntukan atau Jemaat lain.',
+                'Berdasarkan ${_hasil.baris.length} transaksi di atas saja. '
+                'AI tidak melihat peruntukan atau Jemaat lain.',
                 style: TextStyle(fontSize: 13, color: c.tinta3),
               ),
             ),
@@ -166,18 +240,16 @@ mixin LogikaCari<T extends StatefulWidget> on State<T> {
               ),
             ),
             child: switch (_narasi) {
+              _ when bulanLalu == null => const SizedBox.shrink(),
               _Narasi.belum => tombolAi(
-                'Buat usulan narasi bulanan Oktober',
+                'Buat usulan narasi bulanan ${_namaBulanSaja(bulanLalu)}',
                 () => setState(() => _narasi = _Narasi.ada),
               ),
               _Narasi.ada => _KartuAi(
                 key: const ValueKey('narasi'),
                 label: 'Usulan AI · narasi bulanan',
                 jarak: 8,
-                teks:
-                    'Pada Oktober 2026 Pendapatan Jemaat Rp14.820.000 dan '
-                    'Belanja Rp11.455.000. Belanja terbesar adalah pemeliharaan '
-                    'gedung. Semua Kas/Bank sudah direkonsiliasi tanpa selisih.',
+                teks: _narasiBulan(bulanLalu),
                 ekor: Wrap(spacing: 8, runSpacing: 8, children: aksi),
               ),
               _Narasi.pakai => status(
@@ -205,8 +277,31 @@ List<Widget> _jarak(double g, List<Widget> w) => [
   for (var i = 0; i < w.length; i++) ...[if (i > 0) SizedBox(height: g), w[i]],
 ];
 
+/// '{Bulan}' of a period or date (no year).
+String _namaBulanSaja(Object d) => switch (d) {
+  Period p => bulanTahun(p.year, p.month),
+  Tanggal t => bulanTahun(t.tahun, t.bulan),
+  _ => '',
+}.split(' ').first;
+
+/// 'Empat', 'Lima': counts up to ten in words.
+String _kata(int n) => n >= 2 && n <= 10
+    ? const [
+        'Dua',
+        'Tiga',
+        'Empat',
+        'Lima',
+        'Enam',
+        'Tujuh',
+        'Delapan',
+        'Sembilan',
+        'Sepuluh',
+      ][n - 2]
+    : '$n';
+
 class _Jawaban extends StatelessWidget {
-  const _Jawaban();
+  const _Jawaban(this.h);
+  final HasilCari h;
 
   @override
   Widget build(BuildContext context) {
@@ -214,14 +309,14 @@ class _Jawaban extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        if (h.dibacaSebagai != null)
+          Text(
+            'Dibaca sebagai: ${h.dibacaSebagai}',
+            style: TextStyle(fontSize: 14, color: c.tinta2),
+          ),
+        // D33: the sum of the rows listed, computed by the app.
         Text(
-          'Dibaca sebagai: Pendapatan 1.3.53.07.00 Persembahan Ibadah Minggu · '
-          'Oktober 2026 · ibadah pagi',
-          style: TextStyle(fontSize: 14, color: c.tinta2),
-        ),
-        // D33: computed from the rows shown, not hard-coded.
-        Text(
-          rp(cariJawaban.fold(0, (s, r) => s + r.$2)),
+          rp(h.jumlah),
           style: const TextStyle(
             fontFamily: PalakatText.mono,
             fontSize: 30,
@@ -230,7 +325,7 @@ class _Jawaban extends StatelessWidget {
           ),
         ),
         Text(
-          'Jumlah dari ${cariJawaban.length} transaksi yang sudah dibukukan. '
+          'Jumlah dari ${h.baris.length} transaksi yang sudah dibukukan. '
           'Angka ini dihitung aplikasi dari catatan, bukan oleh AI.',
           style: TextStyle(fontSize: 13, color: c.tinta3),
         ),
@@ -240,7 +335,8 @@ class _Jawaban extends StatelessWidget {
 }
 
 class _Baris extends StatelessWidget {
-  const _Baris({required this.ke});
+  const _Baris(this.h, {required this.ke});
+  final HasilCari h;
   final Layar ke;
 
   @override
@@ -251,7 +347,7 @@ class _Baris extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         children: [
-          for (final (i, (no, n)) in cariJawaban.indexed)
+          for (final (i, r) in h.baris.indexed)
             Tautan(
               ke: ke,
               child: Container(
@@ -267,9 +363,9 @@ class _Baris extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Persembahan Ibadah Minggu',
-                            style: TextStyle(
+                          Text(
+                            r.baris.transaksi.description,
+                            style: const TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
                             ),
@@ -277,8 +373,12 @@ class _Baris extends StatelessWidget {
                           Text.rich(
                             TextSpan(
                               children: [
-                                TextSpan(text: no, style: mono),
-                                TextSpan(text: ' · ${_tanggal[i]} · Kas'),
+                                TextSpan(text: r.baris.nomor, style: mono),
+                                TextSpan(
+                                  text:
+                                      ' · ${r.baris.tanggal} · '
+                                      '${r.baris.kasBank}',
+                                ),
                               ],
                             ),
                             style: TextStyle(fontSize: 13, color: c.tinta3),
@@ -288,7 +388,7 @@ class _Baris extends StatelessWidget {
                     ),
                     const SizedBox(width: 12),
                     Text(
-                      rp(n),
+                      rp(r.jumlah),
                       style: mono.copyWith(fontWeight: FontWeight.w500),
                     ),
                   ],

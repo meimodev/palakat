@@ -1,7 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
-import '../../mock/orang.dart' show plk;
+import '../../app/layar.dart';
+import '../../core/format.dart';
+import '../../core/tanggal.dart';
+import '../../domain/core/core.dart';
+import '../../domain/finance/finance.dart';
 import '../../motion/kerangka.dart';
+import '../../providers/actor.dart';
+import '../../providers/clock.dart';
+import '../../providers/core_repositories.dart';
+import '../../providers/keuangan/beranda.dart';
+import '../../providers/keuangan/transaksi.dart';
+import '../../providers/repositories_keuangan.dart';
+import '../../providers/revision.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import '../../shell/tautan.dart';
@@ -14,89 +27,281 @@ import '../../widgets/lencana_status.dart';
 import '../../widgets/penolakan.dart';
 import '../../widgets/status_simpan.dart';
 import '../../widgets/tombol.dart';
-import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
 
-/// 20 · Draf: pindah tanggal, batalkan, hapus (docs/build/screens/06-bukti.md).
-class DrafScreen extends StatefulWidget {
-  const DrafScreen({super.key});
+/// The draft `/draf/:id` that Draf and WebDraf open (DP17 b, RD09): read
+/// live from TransactionRepository; "Pindah tanggal" and "Batalkan" take a
+/// reason. The conflict card shows when the draft changed since it opened.
+mixin LogikaDraf<T extends ConsumerStatefulWidget> on ConsumerState<T> {
+  /// The sheet or panel: 'pindah', 'batal' or null.
+  String? lembar;
 
-  @override
-  State<DrafScreen> createState() => _DrafScreenState();
-}
-
-enum _St { draf, batal, hapus }
-
-enum _Lembar { pindah, batal }
-
-const _bulanTutup = 'September 2026';
-const _bulanBuka = ['Oktober 2026', 'November 2026'];
-
-class _DrafScreenState extends State<DrafScreen> {
-  var _st = _St.draf;
-  var _bulan = _bulanTutup;
-  var _tgl = '28 September 2026';
-  _Lembar? _lembar;
-  var _ke = 'November 2026';
-  var _muat = false;
-  var _alasanAkhir = '';
-  final _hist = ['28/09/2026 16.10 · Draf dicatat oleh Meiske L.'];
-  final _alasan = TextEditingController();
+  /// The month to move to ('yyyy-mm').
+  String? ke;
+  final alasan = TextEditingController();
+  Refusal? tolak;
+  int? _revDibuka;
 
   @override
   void dispose() {
-    _alasan.dispose();
+    alasan.dispose();
     super.dispose();
   }
 
-  void _buka(_Lembar l, bool konflik) {
-    if (konflik) return;
-    _alasan.clear();
-    setState(() => _lembar = l);
+  String get _id => GoRouterState.of(context).pathParameters['id'] ?? '';
+
+  /// The draft, live; null when the id is unknown.
+  Transaction? get t {
+    ref.watch(revisionProvider);
+    final t = ref.watch(transactionRepositoryProvider).get(_id);
+    if (t != null) _revDibuka ??= t.revision;
+    return t;
   }
 
-  void _simpan() {
-    final a = _alasan.text.trim();
-    if (a.isEmpty) return;
+  bool get konflik {
+    final x = t;
+    return x != null && x.isDraft && x.revision != _revDibuka;
+  }
+
+  void muat() => setState(() {
+    _revDibuka = _baca()?.revision;
+    tolak = null;
+  });
+
+  Period? get bulan {
+    final x = _baca();
+    if (x == null) return null;
+    return ref
+        .read(bulanBukuProvider)
+        .semua
+        .where((p) => p.contains(x.effectiveDate))
+        .firstOrNull;
+  }
+
+  /// The draft now, for callbacks (no watch).
+  Transaction? _baca() => ref.read(transactionRepositoryProvider).get(_id);
+
+  bool get tutup => bulan?.isClosed ?? false;
+
+  /// The months a draft may move to: open, after its own, not in the future.
+  List<Period> get pilihanBulan =>
+      _pilihan(ref.watch(bulanBukuProvider), ref.watch(hariIniProvider));
+
+  List<Period> _pilihan(BulanBuku buku, Tanggal hari) {
+    final dari = bulan?.id ?? '';
+    return [
+      for (final p in buku.semua)
+        if (!p.isClosed && p.id.compareTo(dari) > 0 && p.start <= hari) p,
+    ];
+  }
+
+  String get keTerpilih => ke ?? pilihanBulan.lastOrNull?.id ?? '';
+
+  /// The new date: today in the running month, else the month's last day.
+  Tanggal _tanggalBaru(Period p) {
+    final hari = ref.read(hariIniProvider);
+    return p.contains(hari) ? hari : p.end;
+  }
+
+  String namaPeriode(String id) => namaBulan(
+    ref.read(bulanBukuProvider).semua.firstWhere((p) => p.id == id),
+  );
+
+  /// '−Rp650.000' as the lists sign it.
+  int get jumlah {
+    final x = t!;
+    final s = signedAmount(x);
+    return s != 0 ? s : -x.total;
+  }
+
+  String get kasBank {
+    final akun = ref.watch(accountRepositoryProvider);
+    return namaKasBank(
+      t!,
+      (id) => akun
+          .accounts(includeInactive: true)
+          .where((a) => a.id == id)
+          .firstOrNull,
+    );
+  }
+
+  String _nama(String personId) => ref.watch(namaPendekProvider(personId));
+
+  String _olehAudit(AuditRecord r) => r.via == Via.direct
+      ? _nama(r.personId)
+      : '${r.personName}, ${r.actingRole}';
+
+  List<AuditRecord> get _audit => ref
+      .watch(auditRepositoryProvider)
+      .list(AuditFilter(ref: RecordRef('transaction', _id)));
+
+  /// Who changed it last and when, for the conflict card.
+  (String, String) get pengubah {
+    final r = _audit.firstOrNull;
+    return r == null
+        ? (_nama(t!.createdBy), tglJam(t!.createdAt))
+        : (_olehAudit(r), tglJam(r.at));
+  }
+
+  String get dibatalkanOleh => _nama(t!.cancelledBy ?? t!.createdBy);
+
+  /// Riwayat, newest first.
+  List<String> get riwayat {
+    final x = t!;
+    final audit = _audit;
+    String baris(AuditRecord r) {
+      final oleh = _olehAudit(r);
+      final alasan = r.reason == null ? '' : ' · alasan: ${r.reason}';
+      final teks = switch (r.action) {
+        'finance.txn.draft' => 'Draf dicatat oleh $oleh',
+        'finance.txn.redate' =>
+          'Pindah tanggal ke ${_bulanDari(r.after)}$alasan · oleh $oleh',
+        'finance.txn.cancel' => 'Dibatalkan$alasan · oleh $oleh',
+        _ => '${r.summary}$alasan · oleh $oleh',
+      };
+      return '${tglJam(r.at)} · $teks';
+    }
+
+    return [
+      for (final r in audit) baris(r),
+      if (!audit.any((r) => r.action == 'finance.txn.draft'))
+        '${tglJam(x.createdAt)} · Draf dicatat oleh ${_nama(x.createdBy)}',
+    ];
+  }
+
+  /// 'dd/mm/yyyy' → '{Bulan} {tahun}'.
+  static String _bulanDari(String? tgl) {
+    final b = tgl?.split('/');
+    if (b == null || b.length != 3) return tgl ?? '';
+    return bulanTahun(int.parse(b[2]), int.parse(b[1]));
+  }
+
+  void buka(String l) {
+    if (_baca()?.revision != _revDibuka) return;
+    alasan.clear();
     setState(() {
-      if (_lembar == _Lembar.pindah) {
-        _bulan = _ke;
-        _tgl = _ke == 'November 2026' ? '16 November 2026' : '31 Oktober 2026';
-        _hist.insert(
-          0,
-          '16/11/2026 11.20 · Pindah tanggal ke $_ke · alasan: $a · oleh Meiske L.',
-        );
-      } else {
-        _st = _St.batal;
-        _alasanAkhir = a;
-        _hist.insert(
-          0,
-          '16/11/2026 11.20 · Dibatalkan · alasan: $a · oleh Meiske L.',
-        );
-      }
-      _lembar = null;
+      lembar = l;
+      tolak = null;
     });
   }
 
+  void tutupLembar() => setState(() => lembar = null);
+
+  String _kunci(Actor a) => kunciBaru(a.personId, ref.read(clockProvider));
+
+  /// "Pindah tanggal ke …" or "Batalkan draf".
+  Future<void> simpan() async {
+    final a = ref.read(actorProvider);
+    final x = _baca();
+    final why = alasan.text.trim();
+    final buku = ref.read(bulanBukuProvider);
+    final keId = ke ?? _pilihan(buku, ref.read(hariIniProvider)).lastOrNull?.id;
+    if (a == null || x == null || !IsianAlasan.terisi(why)) return;
+    if (lembar == 'pindah' && keId == null) return;
+    final repo = ref.read(transactionRepositoryProvider);
+    final rev = _revDibuka ?? x.revision;
+    final r = lembar == 'pindah'
+        ? await repo.redate(
+            a,
+            x.id,
+            _tanggalBaru(buku.semua.firstWhere((p) => p.id == keId)),
+            reason: why,
+            expectedRevision: rev,
+            idempotencyKey: _kunci(a),
+          )
+        : await repo.cancel(
+            a,
+            x.id,
+            reason: why,
+            expectedRevision: rev,
+            idempotencyKey: _kunci(a),
+          );
+    if (!mounted) return;
+    setState(() {
+      switch (r) {
+        case Ok(:final value):
+          _revDibuka = value.revision;
+          lembar = null;
+          tolak = null;
+        case Refused(:final refusal):
+          tolak = refusal;
+      }
+    });
+  }
+
+  /// "Periksa dan bukukan" (an open month only).
+  Future<void> bukukan() async {
+    final a = ref.read(actorProvider);
+    final x = _baca();
+    if (a == null || x == null || x.revision != _revDibuka) return;
+    final r = await ref
+        .read(transactionRepositoryProvider)
+        .finalize(
+          a,
+          x.id,
+          expectedRevision: _revDibuka ?? x.revision,
+          idempotencyKey: _kunci(a),
+        );
+    if (!mounted) return;
+    switch (r) {
+      case Ok():
+        context.gantiKe(Layar.transaksiRinci, param: {'id': x.id});
+      case Refused(:final refusal):
+        setState(() => tolak = refusal);
+    }
+  }
+
+  /// The refusal of the last command, as the board words it.
+  Widget? penolakan() {
+    final r = tolak;
+    if (r == null) return null;
+    return Penolakan(
+      tindakan: r.action,
+      sebab: [
+        r.because,
+        if (r.whoCanAct != null) 'Yang perlu bertindak: ${r.whoCanAct}.',
+      ].join(' '),
+      jalan: const [],
+    );
+  }
+
+  /// The closed month's refusal, worded as the Draf board.
+  Widget penolakanTutup() => Penolakan(
+    tindakan: 'Bukukan',
+    sebab:
+        '${namaBulan(bulan!)} sudah ditutup, dan draf ini tidak pernah '
+        'masuk laporannya. Yang masih dapat Anda lakukan: pindah '
+        'tanggal ke bulan yang belum ditutup, atau batalkan.',
+    jalan: const [],
+  );
+}
+
+/// 20 · Draf: pindah tanggal, batalkan (docs/build/screens/06-bukti.md).
+class DrafScreen extends ConsumerStatefulWidget {
+  const DrafScreen({super.key});
+
+  @override
+  ConsumerState<DrafScreen> createState() => _DrafScreenState();
+}
+
+class _DrafScreenState extends ConsumerState<DrafScreen> with LogikaDraf {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final jk = belumDipindah(false);
-    final konflik = belumDipindah(false) && !_muat;
-    final kosong = belumDipindah(false);
-    String t(String s) => s;
-    final tutup = _bulan == _bulanTutup;
-    final draf = _st == _St.draf;
-    final pindah = _lembar == _Lembar.pindah;
+    final x = t;
+    final draf = x != null && x.isDraft;
+    final batal = x?.status == TransactionStatus.cancelled;
+    final pindah = lembar == 'pindah';
     final redup = TextStyle(fontSize: 13, color: c.tinta3);
+    final b = bulan;
 
     final isi = <Widget>[
-      if (konflik && draf)
-        PitaDiubahOrangLain(
-          oleh: plk(jk),
-          jam: '16/11/2026 10.58',
-          onMuat: () => setState(() => _muat = true),
+      if (x == null)
+        Text(
+          'Draf tidak ditemukan.',
+          style: TextStyle(fontSize: 15, color: c.tinta2),
         ),
+      if (konflik)
+        PitaDiubahOrangLain(oleh: pengubah.$1, jam: pengubah.$2, onMuat: muat),
       if (draf) ...[
         Container(
           padding: const EdgeInsets.all(18),
@@ -112,7 +317,7 @@ class _DrafScreenState extends State<DrafScreen> {
               ),
               const SizedBox(height: 6),
               Text(
-                kosong ? '—' : '−Rp650.000',
+                rp(jumlah),
                 style: TextStyle(
                   fontFamily: PalakatText.mono,
                   fontSize: 30,
@@ -122,37 +327,29 @@ class _DrafScreenState extends State<DrafScreen> {
               ),
               const SizedBox(height: 6),
               Text(
-                kosong ? 'Draf kosong' : 'Honor pemusik',
+                x.description,
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 6),
               Text(
-                t(
-                  kosong
-                      ? 'Belum ada isian · dibuat 16/11/2026 11.02'
-                      : 'Bank BNI ··4821 · tanggal transaksi $_tgl',
+                '$kasBank · tanggal transaksi '
+                '${tglPanjang(x.effectiveDate.awal)}',
+                style: redup,
+              ),
+              if (b != null) ...[
+                const SizedBox(height: 6),
+                Text(
+                  '${namaBulan(b)}${tutup ? ' · Sudah ditutup' : ' · Belum ditutup'}',
+                  style: redup,
                 ),
-                style: redup,
-              ),
-              const SizedBox(height: 6),
-              Text(
-                '$_bulan${tutup ? ' · Sudah ditutup' : ' · Belum ditutup'}',
-                style: redup,
-              ),
+              ],
             ],
           ),
         ),
-        if (tutup && !kosong)
-          const Penolakan(
-            tindakan: 'Bukukan',
-            sebab:
-                'September 2026 sudah ditutup, dan draf ini tidak pernah '
-                'masuk laporannya. Yang masih dapat Anda lakukan: pindah '
-                'tanggal ke bulan yang belum ditutup, atau batalkan.',
-            jalan: [],
-          ),
+        if (tutup) penolakanTutup(),
+        ?penolakan(),
       ],
-      if (_st == _St.batal)
+      if (batal && x != null)
         Gerak(
           Kerangka.muncul,
           key: const ValueKey('batal'),
@@ -187,7 +384,7 @@ class _DrafScreenState extends State<DrafScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  '−Rp650.000',
+                  rp(jumlah),
                   style: TextStyle(
                     fontFamily: PalakatText.mono,
                     fontSize: 30,
@@ -198,77 +395,51 @@ class _DrafScreenState extends State<DrafScreen> {
                   ),
                 ),
                 const SizedBox(height: 6),
-                const Text(
-                  'Honor pemusik',
-                  style: TextStyle(fontWeight: FontWeight.w600),
+                Text(
+                  x.description,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  t('Alasan: $_alasanAkhir'),
+                  'Alasan: ${x.cancelReason ?? ''}',
                   style: TextStyle(fontSize: 14, color: c.tinta2),
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Dibatalkan oleh ${plk(jk)}, 16/11/2026 11.20 · tidak '
-                  'pernah punya No. Bukti · hanya dapat dilihat',
+                  'Dibatalkan oleh $dibatalkanOleh, '
+                  '${x.cancelledAt == null ? '' : tglJam(x.cancelledAt!)} · '
+                  'tidak pernah punya No. Bukti · hanya dapat dilihat',
                   style: redup,
                 ),
               ],
             ),
           ),
         ),
-      if (_st == _St.hapus)
-        Gerak(
-          Kerangka.muncul,
-          key: const ValueKey('hapus'),
-          lama: const Duration(milliseconds: 300),
-          child: Semantics(
-            container: true,
-            liveRegion: true,
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(18),
-              decoration: ShapeDecoration(
-                shape: GarisBorder.putus(c.putus, radius: 14),
-              ),
-              child: const Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(
-                      text: 'Draf kosong dihapus.',
-                      style: TextStyle(fontWeight: FontWeight.w700),
-                    ),
-                    TextSpan(
-                      text:
-                          ' Hanya draf tanpa isian yang dapat dihapus; yang '
-                          'lain dibatalkan dengan alasan.',
-                    ),
-                  ],
-                ),
-                style: TextStyle(fontSize: 15),
-              ),
-            ),
-          ),
+      if (x != null && x.isPosted)
+        Text(
+          'Sudah dibukukan sebagai ${x.voucher}.',
+          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
         ),
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Semantics(
-            header: true,
-            child: const Text(
-              'Riwayat',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+      if (x != null)
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Semantics(
+              header: true,
+              child: const Text(
+                'Riwayat',
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+              ),
             ),
-          ),
-          for (final h in _hist) ...[
-            const SizedBox(height: 6),
-            Text(t(h), style: TextStyle(fontSize: 14, color: c.tinta2)),
+            for (final h in riwayat) ...[
+              const SizedBox(height: 6),
+              Text(h, style: TextStyle(fontSize: 14, color: c.tinta2)),
+            ],
           ],
-        ],
-      ),
+        ),
     ];
 
-    Widget kedua(String label, VoidCallback onTap, {bool kunci = false}) {
+    Widget kedua(String label, VoidCallback onTap) {
       final tombol = Tombol(
         label,
         onPressed: onTap,
@@ -278,7 +449,7 @@ class _DrafScreenState extends State<DrafScreen> {
       );
       // Board `disabled` with its full look kept: announced as disabled, the
       // conflict card above is the reason.
-      return kunci
+      return konflik
           ? Semantics(
               button: true,
               enabled: false,
@@ -298,34 +469,18 @@ class _DrafScreenState extends State<DrafScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           for (final (i, w) in [
-            if (!tutup && !kosong)
-              const Tombol(
-                'Periksa dan bukukan',
-                onPressed: null,
-                ke: Layar.keuangan,
-                cara: Cara.ganti,
-                paddingH: 20,
-              ),
-            if (!kosong) ...[
-              kedua(
-                'Pindah tanggal',
-                () => _buka(_Lembar.pindah, konflik),
-                kunci: konflik,
-              ),
-              kedua(
-                'Batalkan',
-                () => _buka(_Lembar.batal, konflik),
-                kunci: konflik,
-              ),
-            ],
-            if (kosong)
-              kedua('Hapus draf', () => setState(() => _st = _St.hapus)),
+            if (!tutup)
+              Tombol('Periksa dan bukukan', onPressed: bukukan, paddingH: 20),
+            kedua('Pindah tanggal', () => buka('pindah')),
+            kedua('Batalkan', () => buka('batal')),
           ].indexed) ...[if (i > 0) const SizedBox(height: 8), w],
         ],
       ),
     );
 
-    final lembar = _lembar == null
+    final pilihan = pilihanBulan;
+    final keBulan = keTerpilih;
+    final lembarIni = lembar == null
         ? null
         : LembarBawah(
             judul: pindah ? 'Pindah tanggal' : 'Batalkan draf',
@@ -335,7 +490,7 @@ class _DrafScreenState extends State<DrafScreen> {
                       'ada akan hilang.'
                 : 'Draf yang dibatalkan tidak pernah punya No. Bukti dan '
                       'tetap dapat dilihat bersama alasannya.',
-            onTutup: () => setState(() => _lembar = null),
+            onTutup: tutupLembar,
             pegangan: false,
             masuk: Kerangka.muncul,
             labelTirai: 'Kembali ke draf',
@@ -344,31 +499,38 @@ class _DrafScreenState extends State<DrafScreen> {
                 ChipPilihan<String>(
                   label: 'Pindah ke bulan',
                   pilihan: [
-                    for (final b in _bulanBuka)
-                      (nilai: b, teks: '$b · Belum ditutup'),
+                    for (final p in pilihan)
+                      (nilai: p.id, teks: '${namaBulan(p)} · Belum ditutup'),
                   ],
-                  terpilih: _ke,
-                  onPilih: (b) => setState(() => _ke = b),
+                  terpilih: keBulan,
+                  onPilih: (id) => setState(() => ke = id),
                 ),
               // The board's textarea is inline in a div: the line box adds
               // about 5 px below it.
               Padding(
                 padding: const EdgeInsets.only(bottom: 5),
                 child: IsianAlasan(
-                  controller: _alasan,
+                  controller: alasan,
                   onChanged: (_) => setState(() {}),
                 ),
               ),
+              ?penolakan(),
               Tombol(
-                pindah ? 'Pindah tanggal ke $_ke' : 'Batalkan draf',
-                onPressed: _simpan,
+                pindah && keBulan.isNotEmpty
+                    ? 'Pindah tanggal ke ${namaPeriode(keBulan)}'
+                    : pindah
+                    ? 'Pindah tanggal'
+                    : 'Batalkan draf',
+                onPressed: simpan,
                 jenis: JenisTombol.tinta,
                 paddingH: 20,
-                nonaktif: !IsianAlasan.terisi(_alasan.text),
+                nonaktif:
+                    !IsianAlasan.terisi(alasan.text) ||
+                    (pindah && keBulan.isEmpty),
               ),
               Tombol(
                 'Kembali',
-                onPressed: () => setState(() => _lembar = null),
+                onPressed: tutupLembar,
                 jenis: JenisTombol.teks,
                 warnaTeks: c.tinta,
                 paddingH: 6,
@@ -378,7 +540,7 @@ class _DrafScreenState extends State<DrafScreen> {
 
     return LayarPonsel(
       layarKeuangan: true,
-      overlay: [if (lembar != null) Positioned.fill(child: lembar)],
+      overlay: [if (lembarIni != null) Positioned.fill(child: lembarIni)],
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

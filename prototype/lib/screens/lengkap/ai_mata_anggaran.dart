@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import 'ai_mata_anggaran_isi.dart';
 import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
 
 /// 43 · Bantuan AI: usulan Mata Anggaran dan pembagian (spec 12).
-class AIMataAnggaranScreen extends StatefulWidget {
+class AIMataAnggaranScreen extends ConsumerStatefulWidget {
   const AIMataAnggaranScreen({super.key});
 
   @override
-  State<AIMataAnggaranScreen> createState() => _AIMataAnggaranScreenState();
+  ConsumerState<AIMataAnggaranScreen> createState() =>
+      _AIMataAnggaranScreenState();
 }
 
-class _AIMataAnggaranScreenState extends State<AIMataAnggaranScreen> {
+class _AIMataAnggaranScreenState extends ConsumerState<AIMataAnggaranScreen> {
   final _k = KeadaanUsulanMA();
 
   @override
@@ -27,19 +28,17 @@ class _AIMataAnggaranScreenState extends State<AIMataAnggaranScreen> {
   Widget build(BuildContext context) {
     final isi = IsiUsulanMA(
       context: context,
+      ref: ref,
       k: _k,
-      mode: belumDipindah<String>('Satu baris'),
-      ubah: setState,
+      ubah: (f) {
+        if (mounted) setState(f);
+      },
       keBagi: Layar.bagi,
     );
-    final jk = belumDipindah(false);
-    final bagian = [
-      isi.draf,
-      isi.uraian,
-      isi.mataAnggaran(jk),
-      ?isi.panel,
-      ?isi.abai,
-    ];
+    final kosong = isi.kosong;
+    final bagian = kosong != null
+        ? [kosong]
+        : [isi.draf, isi.uraian, isi.mataAnggaran, ?isi.panel, ?isi.abai];
     // Material outside LayarPonsel: its DefaultTextStyle must win.
     return Material(
       type: MaterialType.transparency,

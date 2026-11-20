@@ -4,7 +4,19 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../app/layar.dart';
+import '../../core/format.dart';
+import '../../core/tanggal.dart';
+import '../../domain/finance/finance.dart';
 import '../../motion/kerangka.dart';
+import '../../providers/actor.dart';
+import '../../providers/clock.dart';
+import '../../providers/keuangan/beranda.dart';
+import '../../providers/keuangan/isian.dart';
+import '../../providers/repositories_keuangan.dart';
+import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/chip_pilihan.dart';
 import '../../widgets/garis.dart';
@@ -12,30 +24,57 @@ import '../../widgets/garis_status.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tekan.dart';
 
-/// The date picker shared by Tanggal and WebTanggal (spec 11): the board's
-/// state `{ bln: 10, hari: 14, dok: 'sama', dokTeks: '' }` and the parts both
-/// layouts arrange. `bln` is the JS month index (8 September … 11 Desember),
-/// year 2026.
-mixin TanggalLogika<T extends StatefulWidget> on State<T> {
-  static const _nb = {
-    8: 'September',
-    9: 'Oktober',
-    10: 'November',
-    11: 'Desember',
-  };
-
-  int bln = 10;
-  int? hari = 14;
+/// The date picker shared by Tanggal and WebTanggal (spec 11): the months of
+/// the books (cutover to M+1) from the periods, today from the clock. A day
+/// can be picked in an open month, from the period's start up to today.
+mixin TanggalLogika<T extends ConsumerStatefulWidget> on ConsumerState<T> {
+  /// The month shown ('yyyy-mm') and the day picked.
+  late String _bulanId;
+  Tanggal? _pilih;
   String dok = 'sama';
   final dokTeks = TextEditingController();
   bool _layangKejadian = false;
   late final _ketukKejadian = TapGestureRecognizer();
 
-  bool get tutup => bln == 8;
-  bool get nanti => bln == 11;
-  bool boleh(int d) => !tutup && !nanti && !(bln == 10 && d > 16);
-  int? get sel => hari != null && boleh(hari!) ? hari : null;
-  String get tglTeks => sel != null ? '$sel ${_nb[bln]} 2026' : 'Belum dipilih';
+  @override
+  void initState() {
+    super.initState();
+    final Tanggal awal =
+        ref.read(isianCatatProvider)?.tanggal ?? ref.read(hariIniProvider);
+    final b = ref.read(bulanBukuProvider);
+    _pilih = awal;
+    _bulanId =
+        (b.semua.where((p) => p.contains(awal)).firstOrNull ?? b.berjalan)
+            ?.id ??
+        '';
+  }
+
+  List<Period> get _semua => ref.watch(bulanBukuProvider).semua;
+  Tanggal get _hariIni => ref.watch(hariIniProvider);
+
+  /// The month shown: the picked one, else the period holding today.
+  Period? get _p =>
+      _semua.where((p) => p.id == _bulanId).firstOrNull ??
+      ref.watch(bulanBukuProvider).berjalan;
+  int get _i => _semua.indexWhere((p) => p.id == _p?.id);
+
+  bool get tutup => _p?.isClosed ?? false;
+  bool get nanti => _p != null && _p!.start > _hariIni;
+  bool boleh(Tanggal d) {
+    final p = _p;
+    return p != null && !p.isClosed && p.contains(d) && d <= _hariIni;
+  }
+
+  Tanggal? get sel => _pilih != null && boleh(_pilih!) ? _pilih : null;
+  String get tglTeks => sel != null ? tglPanjang(sel!.awal) : 'Belum dipilih';
+
+  /// "Pakai {tanggal}": hands the date to the form, then back to it.
+  void pakai(Layar ke) {
+    final t = sel;
+    if (t == null) return;
+    ref.read(isianCatatProvider.notifier).pakaiTanggal(t);
+    context.naikKe(ke);
+  }
 
   @override
   void dispose() {
@@ -44,13 +83,10 @@ mixin TanggalLogika<T extends StatefulWidget> on State<T> {
     super.dispose();
   }
 
-  void _prev() => setState(() {
-    bln--;
-    hari = null;
-  });
-  void _next() => setState(() {
-    bln++;
-    hari = null;
+  void _geser(int arah) => setState(() {
+    final semua = ref.read(bulanBukuProvider).semua;
+    _bulanId = semua[semua.indexWhere((p) => p.id == _bulanId) + arah].id;
+    _pilih = null;
     _layangKejadian = false; // the link goes away under the pointer
   });
 
@@ -74,13 +110,13 @@ mixin TanggalLogika<T extends StatefulWidget> on State<T> {
     );
     return Row(
       children: [
-        panah('‹', 'Bulan sebelumnya', bln > 8 ? _prev : null),
+        panah('‹', 'Bulan sebelumnya', _i > 0 ? () => _geser(-1) : null),
         const SizedBox(width: 8),
         Expanded(
           child: Column(
             children: [
               Text(
-                '${_nb[bln]} 2026',
+                _p == null ? '' : namaBulan(_p!),
                 style: const TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w700,
@@ -134,7 +170,11 @@ mixin TanggalLogika<T extends StatefulWidget> on State<T> {
           ),
         ),
         const SizedBox(width: 8),
-        panah('›', 'Bulan berikutnya', bln < 11 ? _next : null),
+        panah(
+          '›',
+          'Bulan berikutnya',
+          _i >= 0 && _i < _semua.length - 1 ? () => _geser(1) : null,
+        ),
       ],
     );
   }
@@ -142,8 +182,10 @@ mixin TanggalLogika<T extends StatefulWidget> on State<T> {
   /// Weekday row and the day grid (7 equal columns, gap 4).
   Widget kisiHari(BuildContext context) {
     final c = context.warna;
-    final n = DateTime(2026, bln + 2, 0).day;
-    final off = DateTime(2026, bln + 1, 1).weekday - 1;
+    final p = _p;
+    if (p == null) return const SizedBox.shrink();
+    final n = DateTime.utc(p.year, p.month + 1, 0).day;
+    final off = DateTime.utc(p.year, p.month, 1).weekday - 1;
     final kotak = <int?>[
       for (var i = 0; i < off; i++) null,
       for (var d = 1; d <= n; d++) d,
@@ -160,9 +202,10 @@ mixin TanggalLogika<T extends StatefulWidget> on State<T> {
       ],
     );
     Widget hariSel(int d) {
-      final ok = boleh(d), on = d == sel, kini = bln == 10 && d == 16;
+      final t = Tanggal(p.year, p.month, d);
+      final ok = boleh(t), on = t == sel, kini = t == _hariIni;
       return Tekan(
-        onTap: ok ? () => setState(() => hari = d) : null,
+        onTap: ok ? () => setState(() => _pilih = t) : null,
         dipilih: on,
         radius: 12,
         minLebar: 0,
@@ -227,13 +270,16 @@ mixin TanggalLogika<T extends StatefulWidget> on State<T> {
   /// [keKejadian] opens "Kejadian setelah tutup buku".
   Widget? pesan(BuildContext context, VoidCallback keKejadian) {
     final c = context.warna;
+    final p = _p;
+    if (p == null) return null;
+    final hariIni = tglPanjang(_hariIni.awal);
     if (tutup) {
       final warna = _layangKejadian ? c.lautTua : c.laut;
       return Text.rich(
         TextSpan(
           children: [
             TextSpan(
-              text: 'Tidak dapat dipilih: September 2026 sudah ditutup.',
+              text: 'Tidak dapat dipilih: ${namaBulan(p)} sudah ditutup.',
               style: TextStyle(fontWeight: FontWeight.w700, color: c.bata),
             ),
             const TextSpan(
@@ -264,39 +310,50 @@ mixin TanggalLogika<T extends StatefulWidget> on State<T> {
     }
     if (nanti) {
       return Text(
-        'Tidak dapat dipilih: tanggal setelah hari ini, 16 November 2026.',
+        'Tidak dapat dipilih: tanggal setelah hari ini, $hariIni.',
         style: TextStyle(fontSize: 14, color: c.tinta2),
       );
     }
-    if (bln == 10) {
+    if (p.contains(_hariIni)) {
       return Text(
-        'Hari ini 16 November 2026. Tanggal sesudahnya belum dapat dipilih.',
+        'Hari ini $hariIni. Tanggal sesudahnya belum dapat dipilih.',
         style: TextStyle(fontSize: 13, color: c.tinta3),
       );
     }
     if (sel == null) return null;
+    // A confirmed reconciliation of the month turns stale (DM 5.4).
+    final rekon = ref.watch(reconciliationRepositoryProvider);
+    final dipastikan = ref
+        .watch(accountRepositoryProvider)
+        .accounts()
+        .any((a) => rekon.session(a.id, p.id)?.status == ReconStatus.confirmed);
     return Gerak(
       Kerangka.muncul,
       lama: const Duration(milliseconds: 300),
-      child: const Kartu(
+      child: Kartu(
         status: GarisStatus.terpilih,
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Text.rich(
           TextSpan(
             children: [
               TextSpan(
-                text: 'Masuk laporan Oktober 2026',
-                style: TextStyle(fontWeight: FontWeight.w700),
+                text: 'Masuk laporan ${namaBulan(p)}',
+                style: const TextStyle(fontWeight: FontWeight.w700),
               ),
               TextSpan(
-                text:
-                    ', bulan berikutnya untuk tutup buku. Rekonsiliasi '
-                    'Oktober yang sudah dipastikan menjadi “Perlu dipastikan '
-                    'lagi”.',
+                text: [
+                  if (p.id == ref.watch(bulanBukuProvider).berikutDitutup?.id)
+                    ', bulan berikutnya untuk tutup buku.'
+                  else
+                    '.',
+                  if (dipastikan)
+                    ' Rekonsiliasi ${namaBulan(p).split(' ').first} yang '
+                        'sudah dipastikan menjadi “Perlu dipastikan lagi”.',
+                ].join(),
               ),
             ],
           ),
-          style: TextStyle(fontSize: 14),
+          style: const TextStyle(fontSize: 14),
         ),
       ),
     );
@@ -373,8 +430,8 @@ mixin TanggalLogika<T extends StatefulWidget> on State<T> {
         children: [
           baris(
             'Tanggal transaksi',
-            sel != null
-                ? 'masuk laporan ${_nb[bln]} 2026'
+            sel != null && _p != null
+                ? 'masuk laporan ${namaBulan(_p!)}'
                 : 'menentukan bulan laporan',
             tglTeks,
             const TextStyle(fontWeight: FontWeight.w700),
@@ -418,7 +475,12 @@ mixin TanggalLogika<T extends StatefulWidget> on State<T> {
               ],
             ),
           ),
-          baris('Dicatat pada', 'otomatis', '16/11/2026 11.40', mono),
+          baris(
+            'Dicatat pada',
+            'otomatis',
+            tglJam(ref.watch(clockProvider).now()),
+            mono,
+          ),
           baris('Dibukukan pada', 'otomatis, saat Bukukan', '—', mono),
         ],
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
@@ -7,18 +8,17 @@ import '../../theme/palakat_tema.dart';
 import '../../widgets/tombol.dart';
 import 'bantuan_ai_bagian.dart';
 import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
 
 /// 14 · Bantuan AI saat mencatat (spec 05-kewajiban.md, BantuanAI).
-class BantuanAIScreen extends StatefulWidget {
+class BantuanAIScreen extends ConsumerStatefulWidget {
   const BantuanAIScreen({super.key});
 
   @override
-  State<BantuanAIScreen> createState() => _BantuanAIScreenState();
+  ConsumerState<BantuanAIScreen> createState() => _BantuanAIScreenState();
 }
 
-class _BantuanAIScreenState extends State<BantuanAIScreen> {
-  final _s = KeadaanBantuanAI();
+class _BantuanAIScreenState extends ConsumerState<BantuanAIScreen> {
+  late final _s = KeadaanBantuanAI(kalimatContoh(ref));
 
   @override
   void dispose() {
@@ -29,7 +29,6 @@ class _BantuanAIScreenState extends State<BantuanAIScreen> {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final keadaanAI = belumDipindah<String>('tersedia');
     return LayarPonsel(
       layarKeuangan: true,
       // No Material here: it would reset the inherited 16 px text style.
@@ -57,7 +56,7 @@ class _BantuanAIScreenState extends State<BantuanAIScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    PanelBantuanAI(s: _s, keadaanAI: keadaanAI),
+                    PanelBantuanAI(s: _s),
                     const SizedBox(height: 16),
                     DrafBantuanAI(s: _s, turun: true),
                     const SizedBox(height: 16),
@@ -75,22 +74,25 @@ class _BantuanAIScreenState extends State<BantuanAIScreen> {
                 color: c.permukaan,
                 border: Border(top: BorderSide(color: c.garis)),
               ),
-              child: const Column(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  // With a saved draft, Main's Catat opens on it (WebBantuanAI
+                  // does the same with WebCatat).
                   Tombol(
                     'Periksa dan bukukan',
-                    onPressed: null,
-                    ke: Layar.keuangan,
+                    onPressed: _s.dipakai
+                        ? () => bukaDrafAiDiCatat(context, ref, _s.drafId!)
+                        : null,
+                    ke: _s.dipakai ? null : Layar.keuangan,
                     cara: Cara.ganti,
                   ),
-                  SizedBox(height: 6),
+                  const SizedBox(height: 6),
                   Tombol(
                     'Simpan sebagai draf',
-                    onPressed: null,
+                    onPressed: () =>
+                        simpanDrafAi(context, ref, _s, Layar.keuangan),
                     jenis: JenisTombol.teks,
-                    ke: Layar.keuangan,
-                    cara: Cara.ganti,
                   ),
                 ],
               ),

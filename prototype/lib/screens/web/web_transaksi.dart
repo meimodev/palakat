@@ -1,8 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/format.dart';
+import '../../domain/core/core.dart';
+import '../../domain/finance/finance.dart';
 import '../../motion/kerangka.dart';
 import '../../motion/urutan.dart';
+import '../../providers/actor.dart';
+import '../../providers/clock.dart';
+import '../../providers/keuangan/beranda.dart';
+import '../../providers/keuangan/isian.dart';
+import '../../providers/keuangan/rinci_transaksi.dart';
+import '../../providers/keuangan/transaksi.dart';
+import '../../providers/repositories_keuangan.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
 import '../../shell/tautan.dart';
@@ -10,47 +21,13 @@ import '../../theme/palakat_tema.dart';
 import '../../widgets/chip_pilihan.dart';
 import '../../widgets/garis.dart';
 import '../../widgets/kecil.dart';
+import '../../widgets/penolakan.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
-
-/// One action of the detail panel: a link (push) to [ke], or, with no [ke],
-/// the in-board "Periksa dan bukukan" button.
-class _Aksi {
-  const _Aksi(
-    this.n,
-    this.ke, {
-    this.param = const {},
-    this.anak,
-    required this.utama,
-  });
-  final String n;
-  final Layar? ke;
-  final Map<String, String> param;
-  final String? anak;
-  final bool utama;
-}
-
-/// One fact row: key, value, value in `bata`.
-typedef _Fakta = (String, String, bool);
-
-typedef _Trx = ({
-  String st,
-  String no,
-  String tgl,
-  String ur,
-  String ak,
-  int jm,
-  String cat,
-  List<_Fakta> rinci,
-  List<_Aksi> aksi,
-  String catatan,
-});
 
 const _filter = ['Semua', 'Draf', 'Dibukukan', 'Dibalik', 'Dibatalkan'];
-const _bukukan = 'Periksa dan bukukan';
 
 /// CSS half-leading for the two large texts (h1 26, amount 32), where
 /// Flutter's proportional default sits 2–4 px lower than Chrome. ponytail:
@@ -58,294 +35,133 @@ const _bukukan = 'Periksa dan bukukan';
 /// better; HalamanWeb could set this for all text (sharedNeeds).
 const _rata = TextLeadingDistribution.even;
 
-/// The board's `data` (rows in board order, not by date). Row 0 changes once
-/// booked ([buku]).
-List<_Trx> _data(bool buku) => [
-  (
-    st: buku ? 'Dibukukan' : 'Draf',
-    no: buku ? 'BKU-2026-0147' : '',
-    tgl: '16/11/2026',
-    ur: 'Fotokopi warta jemaat',
-    ak: 'Kas',
-    jm: -150000,
-    cat: buku ? '' : 'Belum masuk saldo',
-    rinci: [
-      ('Diambil dari peruntukan', 'Umum Jemaat', false),
-      ('Lingkup', 'Jemaat', false),
-      ('Mata Anggaran', 'Belanja 5.02.01.00 Alat tulis dan fotokopi', false),
-      ('Persetujuan', 'Tidak diperlukan (aturan: transaksi rutin)', false),
-      ('Dokumen pendukung', 'Diunggah, belum diverifikasi', false),
-      if (buku) ('Dibukukan pada', '16/11/2026 10.42', false),
-    ],
-    aksi: buku
-        ? [
-            _Aksi(
-              'Verifikasi',
-              Layar.lihatDokumen,
-              param: {'id': belumDipindahId},
-              utama: true,
-            ),
-            _Aksi(
-              'Lampirkan dokumen pendukung',
-              Layar.fotoDokumen,
-              anak: 'unggah',
-              utama: false,
-            ),
-            _Aksi(
-              'Koreksi dengan pembalikan',
-              Layar.koreksi,
-              param: {'id': belumDipindahId},
-              utama: false,
-            ),
-          ]
-        : [
-            _Aksi(_bukukan, null, utama: true),
-            _Aksi('Ubah', Layar.catat, utama: false),
-            _Aksi(
-              'Pindah tanggal',
-              Layar.draf,
-              param: {'id': belumDipindahId},
-              utama: false,
-            ),
-            _Aksi(
-              'Batalkan',
-              Layar.draf,
-              param: {'id': belumDipindahId},
-              utama: false,
-            ),
-          ],
-    catatan: buku
-        ? 'Jumlah, tanggal, Kas/Bank, peruntukan, Lingkup dan Mata Anggaran tidak dapat diubah lagi.'
-        : 'Semua syarat terpenuhi. Pindah tanggal dan Batalkan memerlukan alasan.',
-  ),
-  (
-    st: 'Draf',
-    no: '',
-    tgl: '08/11/2026',
-    ur: 'Honor pemusik',
-    ak: 'Bank BNI ··4821',
-    jm: -650000,
-    cat: 'Belum masuk saldo · Mata Anggaran belum dipilih',
-    rinci: const [
-      ('Diambil dari peruntukan', 'Umum Jemaat', false),
-      ('Lingkup', 'Jemaat', false),
-      ('Mata Anggaran', 'Mata Anggaran belum dipilih', true),
-      ('Persetujuan', 'Persetujuan belum dicatat', true),
-      ('Dokumen pendukung', 'Wajib, belum ada', true),
-    ],
-    aksi: const [
-      _Aksi('Pilih Mata Anggaran', Layar.catat, utama: true),
-      _Aksi(
-        'Catat persetujuan',
-        Layar.persetujuan,
-        param: {'id': belumDipindahId},
-        utama: false,
-      ),
-      _Aksi(
-        'Lampirkan dokumen pendukung',
-        Layar.fotoDokumen,
-        anak: 'unggah',
-        utama: false,
-      ),
-      _Aksi('Ubah', Layar.catat, utama: false),
-      _Aksi(
-        'Batalkan',
-        Layar.draf,
-        param: {'id': belumDipindahId},
-        utama: false,
-      ),
-    ],
-    catatan: 'Tidak dapat dilakukan: Bukukan. Mata Anggaran belum dipilih dan persetujuan belum dicatat.',
-  ),
-  (
-    st: 'Dibukukan',
-    no: 'BKU-2026-0146',
-    tgl: '15/11/2026',
-    ur: 'Persembahan Ibadah Minggu',
-    ak: 'Kas',
-    jm: 3450000,
-    cat: '',
-    rinci: const [
-      ('Masuk ke peruntukan', 'Umum Jemaat', false),
-      ('Lingkup', 'Jemaat', false),
-      (
-        'Mata Anggaran',
-        'Pendapatan 1.3.53.07.00 Persembahan Ibadah Minggu',
-        false,
-      ),
-      ('Versi Mata Anggaran', '2026.1', false),
-      ('Dokumen pendukung', 'Terverifikasi (oleh Meiske L.)', false),
-      ('Dibukukan pada', '15/11/2026 12.20', false),
-    ],
-    aksi: const [
-      _Aksi(
-        'Lampirkan dokumen pendukung',
-        Layar.fotoDokumen,
-        anak: 'unggah',
-        utama: false,
-      ),
-      _Aksi(
-        'Koreksi dengan pembalikan',
-        Layar.koreksi,
-        param: {'id': belumDipindahId},
-        utama: false,
-      ),
-    ],
-    catatan:
-        'Koreksi hanya lewat pembalikan, selama November 2026 belum ditutup.',
-  ),
-  (
-    st: 'Dibukukan',
-    no: 'BKU-2026-0143',
-    tgl: '11/11/2026',
-    ur: 'Sewa sound system',
-    ak: 'Kas',
-    jm: -600000,
-    cat: 'Dokumen pendukung wajib, belum ada',
-    rinci: const [
-      ('Diambil dari peruntukan', 'Umum Jemaat', false),
-      ('Lingkup', 'Panitia Natal', false),
-      ('Mata Anggaran', 'Belanja 5.05.02.00 Sewa peralatan', false),
-      ('Dokumen pendukung', 'Wajib, belum ada', true),
-      ('Dibukukan pada', '11/11/2026 16.05', false),
-    ],
-    aksi: const [
-      _Aksi(
-        'Lampirkan dokumen pendukung',
-        Layar.fotoDokumen,
-        anak: 'unggah',
-        utama: true,
-      ),
-      _Aksi('Catat pengecualian', Layar.dokumen, utama: false),
-      _Aksi(
-        'Koreksi dengan pembalikan',
-        Layar.koreksi,
-        param: {'id': belumDipindahId},
-        utama: false,
-      ),
-    ],
-    catatan: 'Menjadi hambatan tutup buku sampai dokumen terverifikasi atau dikecualikan dengan alasan.',
-  ),
-  (
-    st: 'Dibukukan',
-    no: 'BKU-2026-0144',
-    tgl: '12/11/2026',
-    ur: 'Pembalikan BKU-2026-0139',
-    ak: 'Kas',
-    jm: 750000,
-    cat: 'Pembalikan',
-    rinci: const [
-      ('Pembalikan dari', 'No. Bukti BKU-2026-0139', false),
-      ('Alasan', 'Mata Anggaran keliru', false),
-      ('Dibukukan pada', '12/11/2026 09.31', false),
-    ],
-    aksi: const [
-      _Aksi(
-        'Lihat transaksi asal',
-        Layar.koreksi,
-        param: {'id': belumDipindahId},
-        utama: false,
-      ),
-    ],
-    catatan: 'Pembalikan tidak dapat diubah atau dibalik.',
-  ),
-  (
-    st: 'Dibalik',
-    no: 'BKU-2026-0139',
-    tgl: '09/11/2026',
-    ur: 'Konsumsi rapat majelis',
-    ak: 'Kas',
-    jm: -750000,
-    cat: 'Dibalik oleh No. Bukti BKU-2026-0144',
-    rinci: const [
-      ('Dibalik oleh', 'No. Bukti BKU-2026-0144', false),
-      ('Transaksi koreksi', 'No. Bukti BKU-2026-0145', false),
-      ('Mata Anggaran', 'Belanja 5.02.01.00 Alat tulis dan fotokopi', false),
-      ('Dibukukan pada', '09/11/2026 14.12', false),
-    ],
-    aksi: const [
-      _Aksi(
-        'Lihat pembalikan',
-        Layar.koreksi,
-        param: {'id': belumDipindahId},
-        utama: false,
-      ),
-      _Aksi(
-        'Lihat transaksi koreksi',
-        Layar.koreksi,
-        param: {'id': belumDipindahId},
-        utama: false,
-      ),
-    ],
-    catatan: 'Transaksi asal tetap tampil di daftar dan laporan.',
-  ),
-  (
-    st: 'Dibatalkan',
-    no: '',
-    tgl: '05/11/2026',
-    ur: 'Pembelian bunga altar',
-    ak: 'Kas',
-    jm: -200000,
-    cat: 'Tidak pernah dibukukan',
-    rinci: const [
-      ('Alasan', 'Tercatat dua kali', false),
-      ('Dibatalkan oleh', 'Meiske L.', false),
-      ('Dibatalkan pada', '06/11/2026 08.02', false),
-    ],
-    aksi: const [],
-    catatan: 'Hanya dapat dilihat. Transaksi ini tidak pernah punya No. Bukti.',
-  ),
-];
-
-/// Web · Transaksi dan koreksi (spec 02-awal.md, WebTransaksi).
-class WebTransaksiScreen extends StatefulWidget {
+/// Web · Transaksi dan koreksi (spec 02-awal.md, WebTransaksi): the running
+/// month's transactions from [daftarTransaksiProvider] (drafts first, then
+/// newest first) and the selected row's [rincianTransaksiProvider] panel.
+/// Layar.transaksiRinci opens it with that row selected; tablet shows it as
+/// TabTransaksi.
+class WebTransaksiScreen extends ConsumerStatefulWidget {
   const WebTransaksiScreen({super.key});
 
   @override
-  State<WebTransaksiScreen> createState() => _WebTransaksiScreenState();
+  ConsumerState<WebTransaksiScreen> createState() => _WebTransaksiScreenState();
 }
 
-class _WebTransaksiScreenState extends State<WebTransaksiScreen> {
+class _WebTransaksiScreenState extends ConsumerState<WebTransaksiScreen> {
   String _f = 'Semua';
-  int _pilih = 0;
-  bool _buku = false;
+  String? _pilih;
+
+  /// Booked here and selected: the sweep and the stamp.
+  String? _baru;
+
+  /// The last refused command, for the row it was about.
+  ({String id, Refusal r})? _tolak;
+
+  void _pilihBaris(String id) => setState(() => _pilih = id);
+
+  Future<void> _bukukan(Transaction t) async {
+    final a = ref.read(actorProvider);
+    if (a == null) return;
+    final r = await ref
+        .read(transactionRepositoryProvider)
+        .finalize(
+          a,
+          t.id,
+          expectedRevision: t.revision,
+          idempotencyKey: kunciBaru(a.personId, ref.read(clockProvider)),
+        );
+    if (!mounted) return;
+    setState(() {
+      _baru = r.isOk ? t.id : null;
+      _tolak = switch (r) {
+        Refused(:final refusal) => (id: t.id, r: refusal),
+        Ok() => null,
+      };
+    });
+  }
+
+  /// "Ubah", "Pilih Mata Anggaran": Catat opens with this draft.
+  void _ubah(Transaction t) {
+    ref
+        .read(isianCatatProvider.notifier)
+        .buka(
+          IsianCatat(
+            jenis: t.type,
+            jumlah: t.total,
+            uraian: t.description,
+            tanggal: t.effectiveDate,
+            drafId: t.id,
+          ),
+        );
+    context.dorongKe(Layar.catat);
+  }
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final data = _data(_buku);
+    final bulan = ref.watch(bulanBukuProvider);
+    final berjalan = bulan.berjalan;
+    final semua = [
+      ...ref.watch(
+        daftarTransaksiProvider((
+          periodId: berjalan?.id,
+          saring: SaringTransaksi.semua,
+          accountId: null,
+          fundId: null,
+        )),
+      ),
+      ...ref.watch(drafBulanLaluProvider),
+    ];
+    // Drafts first, as drawn; each group newest first.
+    final data = [
+      ...semua.where((b) => b.transaksi.isDraft),
+      ...semua.where((b) => !b.transaksi.isDraft),
+    ];
+    final drafTutup = ref.watch(berandaKeuanganProvider).drafBulanTutup;
+    final idRute = GoRouterState.of(context).pathParameters['id'];
+    final pilih = _pilih ?? idRute ?? data.firstOrNull?.transaksi.id;
+    final rinci = pilih == null
+        ? null
+        : ref.watch(rincianTransaksiProvider(pilih));
+    final bulanTeks = berjalan == null
+        ? 'Pilih bulan'
+        : '${namaBulan(berjalan)} · '
+              '${berjalan.isClosed ? 'Sudah ditutup' : 'Belum ditutup'}';
+
     return Material(
       type: MaterialType.transparency,
       child: HalamanWeb(
         layarKeuangan: true,
         nav: const NavSamping(item: navKeuangan, aktif: 1),
         isi: [
-          const _Kepala(),
+          _Kepala(bulan: bulanTeks),
           DeretTautan(
             web: true,
             anak: [
-              for (final (:t, :ke, :param) in const [
+              for (final (:t, :ke, :param) in [
                 (
                   t: 'Daftar Bukti Kas',
                   ke: Layar.bukti,
-                  param: <String, String>{},
+                  param: const <String, String>{},
                 ),
-                (
-                  t: 'Koreksi dengan pembalikan',
-                  ke: Layar.koreksi,
-                  param: {'id': belumDipindahId},
-                ),
-                (
-                  t: 'Draf di bulan yang sudah ditutup',
-                  ke: Layar.draf,
-                  param: {'id': belumDipindahId},
-                ),
+                if (pilih != null)
+                  (
+                    t: 'Koreksi dengan pembalikan',
+                    ke: Layar.koreksi,
+                    param: {'id': pilih},
+                  ),
+                if (drafTutup.isNotEmpty)
+                  (
+                    t: 'Draf di bulan yang sudah ditutup',
+                    ke: Layar.draf,
+                    param: {'id': drafTutup.first.id},
+                  ),
                 (
                   t: 'Pengembalian',
                   ke: Layar.pengembalian,
-                  param: <String, String>{},
+                  param: const <String, String>{},
                 ),
-                (t: 'Cari', ke: Layar.cari, param: <String, String>{}),
+                (t: 'Cari', ke: Layar.cari, param: const <String, String>{}),
               ])
                 Tautan(
                   ke: ke,
@@ -377,15 +193,20 @@ class _WebTransaksiScreenState extends State<WebTransaksiScreen> {
           BarisLentur(
             jarak: 24,
             anak: [
-              Lentur(dasar: 520, tumbuh: 999, child: _tabel(c, data)),
-              Lentur(
-                dasar: 360,
-                child: _Panel(
-                  p: data[_pilih],
-                  baru: _pilih == 0 && _buku,
-                  onBukukan: () => setState(() => _buku = true),
+              Lentur(dasar: 520, tumbuh: 999, child: _tabel(c, data, pilih)),
+              if (rinci != null)
+                Lentur(
+                  dasar: 360,
+                  child: _Panel(
+                    r: rinci,
+                    baru: _baru == rinci.transaksi.id,
+                    penolakan: _tolak?.id == rinci.transaksi.id
+                        ? _tolak!.r
+                        : null,
+                    onBukukan: () => _bukukan(rinci.transaksi),
+                    onUbah: () => _ubah(rinci.transaksi),
+                  ),
                 ),
-              ),
             ],
           ),
         ],
@@ -393,7 +214,14 @@ class _WebTransaksiScreenState extends State<WebTransaksiScreen> {
     );
   }
 
-  Widget _tabel(PalakatWarna c, List<_Trx> data) {
+  /// A row passes the chip: "Draf" covers checked drafts too.
+  bool _lolos(BarisTransaksi b) => switch (_f) {
+    'Semua' => true,
+    'Draf' => b.transaksi.isDraft,
+    final f => b.status == f,
+  };
+
+  Widget _tabel(PalakatWarna c, List<BarisTransaksi> data, String? pilih) {
     Widget baris({
       required Widget status,
       required Widget tgl,
@@ -430,14 +258,17 @@ class _WebTransaksiScreenState extends State<WebTransaksiScreen> {
             ),
           ),
         ),
-        for (var i = 0; i < data.length; i++)
-          if (_f == 'Semua' || data[i].st == _f)
+        for (final r in data)
+          if (_lolos(r))
             () {
-              final r = data[i];
-              final on = _pilih == i;
-              final draf = r.st == 'Draf', batal = r.st == 'Dibatalkan';
+              final t = r.transaksi;
+              final on = pilih == t.id;
+              final batal = t.status == TransactionStatus.cancelled;
+              final cat = ref
+                  .watch(rincianTransaksiProvider(t.id))
+                  ?.catatanBaris;
               return Tekan(
-                onTap: () => setState(() => _pilih = i),
+                onTap: () => _pilihBaris(t.id),
                 dipilih: on,
                 child: Container(
                   constraints: const BoxConstraints(minHeight: 56),
@@ -445,7 +276,7 @@ class _WebTransaksiScreenState extends State<WebTransaksiScreen> {
                   decoration: BoxDecoration(
                     color: on
                         ? c.lautLembut
-                        : draf
+                        : t.isDraft
                         ? c.kertas
                         : c.permukaan,
                     border: Border(top: BorderSide(color: c.garis)),
@@ -463,44 +294,46 @@ class _WebTransaksiScreenState extends State<WebTransaksiScreen> {
                     child: baris(
                       status: Align(
                         alignment: Alignment.centerLeft,
-                        child: _Lencana(r.st, r.st),
+                        child: _Lencana(r.status, r.status),
                       ),
-                      tgl: Text(r.tgl, style: TextStyle(color: c.tinta2)),
+                      tgl: Text(r.tanggal, style: TextStyle(color: c.tinta2)),
                       ur: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            r.ur,
+                            t.description,
                             style: const TextStyle(fontWeight: FontWeight.w600),
                           ),
                           Text.rich(
                             TextSpan(
                               children: [
                                 TextSpan(
-                                  text: r.no.isEmpty ? '—' : _putusKode(r.no),
+                                  text: t.voucher == null
+                                      ? '—'
+                                      : _putusKode(t.voucher!),
                                   style: const TextStyle(
                                     fontFamily: PalakatText.mono,
                                   ),
                                 ),
-                                TextSpan(text: ' · ${r.ak}'),
+                                TextSpan(text: ' · ${r.kasBank}'),
                               ],
                             ),
                             style: TextStyle(fontSize: 13, color: c.tinta2),
                           ),
-                          if (r.cat.isNotEmpty)
+                          if (cat != null)
                             Text(
-                              _putusKode(r.cat),
+                              _putusKode(cat),
                               style: TextStyle(fontSize: 13, color: c.tinta3),
                             ),
                         ],
                       ),
                       jm: Text(
-                        rp(r.jm),
+                        rp(r.jumlah),
                         textAlign: TextAlign.right,
                         style: TextStyle(
                           fontFamily: PalakatText.mono,
                           fontWeight: FontWeight.w500,
-                          color: draf || batal ? c.tinta3 : c.tinta,
+                          color: t.isDraft || batal ? c.tinta3 : c.tinta,
                           decoration: batal ? TextDecoration.lineThrough : null,
                           decorationColor: c.tinta3,
                         ),
@@ -544,7 +377,11 @@ class _Lencana extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.warna;
     final (GarisBorder garis, Color? isi, Color teks) = switch (st) {
-      'Draf' => (GarisBorder.putus(c.putus, radius: 6), null, c.tinta2),
+      'Draf' || 'Sudah diperiksa' => (
+        GarisBorder.putus(c.putus, radius: 6),
+        null,
+        c.tinta2,
+      ),
       'Dibukukan' => (
         GarisBorder.penuh(c.tinta, radius: 6),
         c.tinta,
@@ -586,7 +423,9 @@ class _Lencana extends StatelessWidget {
     return h;
   }
 
-  return (w(t), t.split(' ').map(w).reduce((a, b) => a > b ? a : b));
+  // Words end at spaces and at the break points [_putusKode] marks.
+  final kata = t.split(RegExp('[ \u200B]'));
+  return (w(t), kata.map(w).reduce((a, b) => a > b ? a : b));
 }
 
 /// CSS `flex: 0 1 auto` items ((max, min) content widths) in a row [w] wide
@@ -623,7 +462,10 @@ List<double> _susut(List<(double, double)> u, double jarak, double w) {
 /// h1, month pill, Impor, + Catat transaksi: `flex-wrap`, the h1
 /// `flex: 1 1 200px`, the links at their own width.
 class _Kepala extends StatelessWidget {
-  const _Kepala();
+  const _Kepala({required this.bulan});
+
+  /// '{Bulan} {tahun} · Belum ditutup'.
+  final String bulan;
 
   @override
   Widget build(BuildContext context) {
@@ -644,7 +486,6 @@ class _Kepala extends StatelessWidget {
       return (w + tepi).ceilToDouble();
     }
 
-    const bulan = 'November 2026 · Belum ditutup';
     return BarisLentur(
       jarak: 12,
       rata: CrossAxisAlignment.center,
@@ -675,9 +516,9 @@ class _Kepala extends StatelessWidget {
                 border: Border.all(color: c.garisTegas),
                 borderRadius: BorderRadius.circular(999),
               ),
-              child: const Text(
+              child: Text(
                 bulan,
-                style: TextStyle(fontWeight: FontWeight.w600),
+                style: const TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
           ),
@@ -711,28 +552,30 @@ class _Kepala extends StatelessWidget {
 
 /// The `aside`: booking card, facts, actions, Riwayat for row [p].
 class _Panel extends StatelessWidget {
-  const _Panel({required this.p, required this.baru, required this.onBukukan});
+  const _Panel({
+    required this.r,
+    required this.baru,
+    required this.penolakan,
+    required this.onBukukan,
+    required this.onUbah,
+  });
 
-  final _Trx p;
+  final RincianTransaksi r;
 
-  /// Row 0 just booked and selected: the sweep and the stamp.
+  /// Booked here and selected: the sweep and the stamp.
   final bool baru;
-  final VoidCallback onBukukan;
+
+  /// A refused "Periksa dan bukukan" of this row.
+  final Refusal? penolakan;
+  final VoidCallback onBukukan, onUbah;
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final draf = p.st == 'Draf';
-    final bk = [
-      for (final f in p.rinci)
-        if (f.$1 == 'Dibukukan pada') f.$2,
-    ].firstOrNull;
-    final rw = draf
-        ? ['${p.tgl} · Draf dicatat oleh Meiske L.']
-        : [
-            '${bk != null ? '$bk · ' : ''}Dibukukan oleh Meiske L.',
-            '${p.tgl} · Draf dicatat oleh Meiske L.',
-          ];
+    final t = r.transaksi;
+    final b = r.baris;
+    final draf = t.isDraft;
+    final rw = r.riwayat;
     const h2 = TextStyle(fontSize: 15, fontWeight: FontWeight.w700);
     const mono = PalakatText.mono;
 
@@ -753,12 +596,12 @@ class _Panel extends StatelessWidget {
               children: [
                 LayoutBuilder(
                   builder: (context, k) {
-                    final label = draf ? 'Draf · belum masuk saldo' : p.st;
-                    final kanan = baru
-                        ? 'No. Bukti ${p.no}'
-                        : p.no.isEmpty
-                        ? 'Belum ada No. Bukti'
-                        : p.no;
+                    final label = draf
+                        ? '${b.status} · belum masuk saldo'
+                        : b.status;
+                    final kanan = _putusKode(
+                      baru ? 'No. Bukti ${b.nomor}' : b.nomor,
+                    );
                     final gKanan = TextStyle(
                       fontFamily: mono,
                       fontSize: 14,
@@ -791,7 +634,7 @@ class _Panel extends StatelessWidget {
                           width: w[0],
                           child: Align(
                             alignment: Alignment.centerLeft,
-                            child: _Lencana(p.st, label),
+                            child: _Lencana(b.status, label),
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -826,21 +669,26 @@ class _Panel extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  rp(p.jm),
+                  rp(b.jumlah),
                   style: TextStyle(
                     fontFamily: mono,
                     fontSize: 32,
                     fontWeight: FontWeight.w500,
                     letterSpacing: -1,
                     leadingDistribution: _rata,
-                    color: draf || p.st == 'Dibatalkan' ? c.tinta2 : c.tinta,
+                    color: draf || t.status == TransactionStatus.cancelled
+                        ? c.tinta2
+                        : c.tinta,
                   ),
                 ),
                 const SizedBox(height: 6),
-                Text(p.ur, style: const TextStyle(fontWeight: FontWeight.w600)),
+                Text(
+                  t.description,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
                 const SizedBox(height: 6),
                 Text(
-                  '${p.ak} · tanggal transaksi ${p.tgl}',
+                  '${b.kasBank} · tanggal transaksi ${b.tanggal}',
                   style: TextStyle(fontSize: 13, color: c.tinta3),
                 ),
               ],
@@ -861,7 +709,7 @@ class _Panel extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          for (var i = 0; i < p.rinci.length; i++)
+          for (var i = 0; i < r.fakta.length; i++)
             Container(
               padding: const EdgeInsets.symmetric(vertical: 10),
               decoration: i == 0
@@ -869,7 +717,7 @@ class _Panel extends StatelessWidget {
                   : BoxDecoration(
                       border: Border(top: BorderSide(color: c.garis)),
                     ),
-              child: _BarisFakta(p.rinci[i]),
+              child: _BarisFakta(r.fakta[i]),
             ),
         ],
       ),
@@ -887,10 +735,14 @@ class _Panel extends StatelessWidget {
           spacing: 8,
           runSpacing: 8,
           children: [
-            for (final a in p.aksi)
+            for (final a in r.aksi)
               Tombol(
-                a.n,
-                onPressed: a.ke == null ? onBukukan : null,
+                a.label,
+                onPressed: switch (a.jenis) {
+                  JenisAksi.bukukan => onBukukan,
+                  JenisAksi.ubah => onUbah,
+                  JenisAksi.tautan => null,
+                },
                 ke: a.ke,
                 param: a.param,
                 anak: a.anak,
@@ -901,8 +753,19 @@ class _Panel extends StatelessWidget {
               ),
           ],
         ),
+        if (penolakan case final p?) ...[
+          const SizedBox(height: 8),
+          Penolakan(
+            tindakan: p.action,
+            sebab: p.whoCanAct == null
+                ? p.because
+                : '${p.because} Yang perlu bertindak: ${p.whoCanAct}.',
+            jalan: const [],
+            ukuranTeks: 14,
+          ),
+        ],
         const SizedBox(height: 8),
-        Text(p.catatan, style: TextStyle(fontSize: 13, color: c.tinta3)),
+        Text(r.catatan, style: TextStyle(fontSize: 13, color: c.tinta3)),
         const SizedBox(height: 8),
         const Padding(
           padding: EdgeInsets.only(top: 4),
@@ -932,7 +795,7 @@ class _Panel extends StatelessWidget {
 /// as CSS flex items do ([_susut]).
 class _BarisFakta extends StatelessWidget {
   const _BarisFakta(this.f);
-  final _Fakta f;
+  final FaktaTransaksi f;
 
   @override
   Widget build(BuildContext context) {
@@ -970,7 +833,7 @@ class _BarisFakta extends StatelessWidget {
   }
 }
 
-/// Chrome breaks a code like BKU-2026-0146 only after a hyphen that follows a
+/// Chrome breaks a voucher code (BKU-yyyy-nnnn) only after a hyphen that follows a
 /// digit; Flutter breaks it elsewhere. Mark those places, and keep the rest.
 String _putusKode(String s) => s
     .replaceAllMapped(RegExp(r'([A-Z])-'), (m) => '${m[1]}\u2060-')

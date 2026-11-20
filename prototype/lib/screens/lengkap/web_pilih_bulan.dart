@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../motion/kerangka.dart';
 import '../../shell/halaman_web.dart';
@@ -7,19 +8,21 @@ import '../../theme/palakat_tema.dart';
 import '../../widgets/tata_letak.dart';
 import 'pilih_bulan.dart';
 
-class WebPilihBulanScreen extends StatefulWidget {
+class WebPilihBulanScreen extends ConsumerStatefulWidget {
   const WebPilihBulanScreen({super.key});
 
   @override
-  State<WebPilihBulanScreen> createState() => _WebPilihBulanScreenState();
+  ConsumerState<WebPilihBulanScreen> createState() =>
+      _WebPilihBulanScreenState();
 }
 
-class _WebPilihBulanScreenState extends State<WebPilihBulanScreen> {
+class _WebPilihBulanScreenState extends ConsumerState<WebPilihBulanScreen> {
   final k = KeadaanPilihBulan();
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
+    k.baca(ref);
     return Material(
       type: MaterialType.transparency,
       child: DefaultTextHeightBehavior(

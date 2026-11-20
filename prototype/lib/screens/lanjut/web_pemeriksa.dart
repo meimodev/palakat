@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/format.dart';
 import '../../motion/kerangka.dart';
@@ -12,69 +13,38 @@ import '../../widgets/lencana_status.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
+import '../../providers/keuangan/pemeriksa.dart';
 import 'pemeriksa_baris.dart';
-import '../../app/belum_dipindah.dart';
 
 enum _St { draf, periksa, buku }
 
-typedef _Trx = ({
-  String id,
-  String tgl,
-  String ur,
-  int jm,
-  String sub,
-  String no,
-});
+_St _status(TampilPemeriksa v) => v.dibukukan
+    ? _St.buku
+    : v.diperiksa
+    ? _St.periksa
+    : _St.draf;
 
-const List<_Trx> _daftar = [
-  (
-    id: 'a',
-    tgl: '16/11/2026',
-    ur: 'Sewa kursi ibadah padang',
-    jm: -900000,
-    sub: 'Kas · Belanja 5.05.02.00 Sewa peralatan',
-    no: 'BKU-2026-0151',
-  ),
-  (
-    id: 'b',
-    tgl: '15/11/2026',
-    ur: 'Honor pemusik',
-    jm: -650000,
-    sub: 'Bank BNI ··4821 · Belanja 5.07.01.00 Honorarium pelayan',
-    no: 'BKU-2026-0152',
-  ),
-  (
-    id: 'c',
-    tgl: '14/11/2026',
-    ur: 'Fotokopi warta jemaat',
-    jm: -150000,
-    sub: 'Kas · Belanja 5.02.01.00 Alat tulis dan fotokopi',
-    no: 'BKU-2026-0153',
-  ),
-];
-
-/// Web · Wajib pemeriksa kedua: the queue of three transactions; pick one and
-/// act on it per role (`masukSebagai`). "Ubah" returns to Draf at once.
-class WebPemeriksaScreen extends StatefulWidget {
+/// Web · Wajib pemeriksa kedua: the drafts awaiting the second check (DP33:
+/// the real queue, plus those booked here); pick one and act on it per role.
+/// "Ubah" returns it to Draf at once.
+class WebPemeriksaScreen extends ConsumerStatefulWidget {
   const WebPemeriksaScreen({super.key});
   @override
-  State<WebPemeriksaScreen> createState() => _WebPemeriksaScreenState();
+  ConsumerState<WebPemeriksaScreen> createState() => _WebPemeriksaScreenState();
 }
 
-class _WebPemeriksaScreenState extends State<WebPemeriksaScreen> {
-  final Map<String, _St> _st = {'a': _St.draf, 'b': _St.draf, 'c': _St.periksa};
-  String _pilih = 'a';
-
+class _WebPemeriksaScreenState extends ConsumerState<WebPemeriksaScreen>
+    with LogikaPemeriksa {
   static const _kolom = [140.0, 96.0, -1.0, 110.0, 120.0];
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final bend = belumDipindah<String>('Pemeriksa kedua') == 'Bendahara';
-    final cur = _daftar.firstWhere((x) => x.id == _pilih);
-    final k = _st[cur.id]!;
-    VoidCallback set(_St v) =>
-        () => setState(() => _st[_pilih] = v);
+    final masuk = masukSebagaiPemeriksa(ref);
+    final ids = daftarId(ref.watch(antreanPemeriksaProvider));
+    final pilihId = terpilih(ids);
+    final daftar = [for (final id in ids) ?tampilPemeriksa(ref, id, web: true)];
+    final cur = daftar.where((v) => v.t.id == pilihId).firstOrNull;
 
     var aksi = <Widget>[];
     var tolak = '', penjelasan = '';
@@ -93,12 +63,17 @@ class _WebPemeriksaScreenState extends State<WebPemeriksaScreen> {
       lebarPenuh: false,
       nonaktif: mati,
     );
-    if (k == _St.draf && bend) {
+    final k = cur == null ? _St.draf : _status(cur);
+    final t = cur?.t;
+    if (cur == null || t == null) {
+      penjelasan = 'Tidak ada draf yang menunggu diperiksa.';
+    } else if (k == _St.draf && cur.tolakTandai != null) {
       aksi = [
         tombol('Tandai sudah diperiksa', JenisTombol.utama, mati: true),
-        tombol('Ubah', JenisTombol.kedua), // no handler on the board
+        if (cur.bendahara)
+          tombol('Ubah', JenisTombol.kedua), // no handler on the board
       ];
-      tolak = 'Anda yang mencatat transaksi ini. Pemeriksa kedua: Pnt. Jefry Wowor.';
+      tolak = cur.tolakTandai!;
       penjelasan =
           'Draf belum masuk saldo dan menjadi hambatan tutup buku bulannya.';
     } else if (k == _St.draf) {
@@ -106,20 +81,31 @@ class _WebPemeriksaScreenState extends State<WebPemeriksaScreen> {
         tombol(
           'Tandai sudah diperiksa',
           JenisTombol.utama,
-          on: set(_St.periksa),
+          on: () => tandai(t),
         ),
       ];
       penjelasan = 'Menandai sudah diperiksa bukan persetujuan dan belum memasukkan transaksi ke saldo. Bendahara yang membukukan.';
-    } else if (k == _St.periksa && bend) {
+    } else if (k == _St.periksa && cur.bendahara) {
       aksi = [
-        tombol('Bukukan', JenisTombol.utama, on: set(_St.buku)),
-        tombol('Ubah · kembali ke Draf', JenisTombol.kedua, on: set(_St.draf)),
+        tombol('Bukukan', JenisTombol.utama, on: () => bukukan(t)),
+        tombol(
+          'Ubah · kembali ke Draf',
+          JenisTombol.kedua,
+          on: () => kembalikan(t),
+        ),
       ];
       penjelasan = 'Mengubah mengembalikan transaksi ke Draf. Tanda sudah diperiksa dan persetujuan yang dicatat hilang dan perlu diberikan lagi.';
     } else if (k == _St.periksa) {
       penjelasan = 'Sudah Anda tandai. Menunggu Bendahara membukukan; tidak ada yang perlu Anda lakukan.';
     } else {
       penjelasan = 'Sudah masuk saldo dan tidak dapat diubah lagi.';
+    }
+    // A command's own refusal (e.g. an incomplete draft) replaces the line.
+    if (t != null && tolakUntuk == t.id && this.tolak != null) {
+      final r = this.tolak!;
+      tolak =
+          '${r.action}. ${r.because}'
+          '${r.whoCanAct == null ? '' : ' Yang perlu bertindak: ${r.whoCanAct}.'}';
     }
 
     LencanaStatus lencana(_St s, {bool panjang = false}) {
@@ -183,7 +169,8 @@ class _WebPemeriksaScreenState extends State<WebPemeriksaScreen> {
                       ]),
                     ),
                   ),
-                  for (final x in _daftar) _baris(context, x, lencana, kisi),
+                  for (final x in daftar)
+                    _baris(context, x, x.t.id == pilihId, lencana, kisi),
                 ],
               ),
             ),
@@ -217,7 +204,7 @@ class _WebPemeriksaScreenState extends State<WebPemeriksaScreen> {
                 Flexible(
                   child: Gerak(
                     Kerangka.muncul,
-                    key: ValueKey('cap-${cur.id}'),
+                    key: ValueKey('cap-${t?.id}'),
                     lama: const Duration(milliseconds: 400),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -229,7 +216,7 @@ class _WebPemeriksaScreenState extends State<WebPemeriksaScreen> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        'No. Bukti ${cur.no}',
+                        'No. Bukti ${t?.voucher ?? ''}',
                         style: TextStyle(
                           fontFamily: PalakatText.mono,
                           fontSize: 14,
@@ -245,7 +232,7 @@ class _WebPemeriksaScreenState extends State<WebPemeriksaScreen> {
           ),
           const SizedBox(height: 6),
           Text(
-            rp(cur.jm),
+            rp(cur?.jumlah ?? 0),
             style: TextStyle(
               fontFamily: PalakatText.mono,
               fontSize: 32,
@@ -255,9 +242,15 @@ class _WebPemeriksaScreenState extends State<WebPemeriksaScreen> {
             ),
           ),
           const SizedBox(height: 6),
-          Text(cur.ur, style: const TextStyle(fontWeight: FontWeight.w600)),
+          Text(
+            t?.description ?? '',
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
           const SizedBox(height: 6),
-          Text(cur.sub, style: TextStyle(fontSize: 13, color: c.tinta3)),
+          Text(
+            cur == null ? '' : '${cur.kasBank} · ${cur.mataAnggaran}',
+            style: TextStyle(fontSize: 13, color: c.tinta3),
+          ),
         ],
       ),
     );
@@ -271,23 +264,19 @@ class _WebPemeriksaScreenState extends State<WebPemeriksaScreen> {
       ),
       child: Column(
         children: [
-          const BarisRincian(
+          BarisRincian(
             'Dicatat oleh',
-            'Meiske L.',
+            cur?.pencatat ?? '',
             atas: false,
             vertikal: 10,
           ),
           BarisRincian(
             'Diperiksa oleh',
-            k == _St.draf ? 'Belum diperiksa' : 'Pnt. Jefry Wowor',
-            warna: k == _St.draf ? c.bata : c.tinta,
+            cur?.pemeriksa ?? 'Belum diperiksa',
+            warna: cur?.pemeriksa == null ? c.bata : c.tinta,
             vertikal: 10,
           ),
-          const BarisRincian(
-            'Dokumen pendukung',
-            'Diunggah, belum diverifikasi',
-            vertikal: 10,
-          ),
+          BarisRincian('Dokumen pendukung', cur?.dokumen ?? '', vertikal: 10),
         ],
       ),
     );
@@ -347,15 +336,13 @@ class _WebPemeriksaScreenState extends State<WebPemeriksaScreen> {
                   children: [
                     const TextSpan(text: 'Masuk sebagai '),
                     TextSpan(
-                      text: bend
-                          ? 'Meiske L., Bendahara'
-                          : 'Pnt. Jefry Wowor, Pemeriksa kedua',
+                      text: masuk.siapa,
                       style: TextStyle(
                         fontWeight: FontWeight.w700,
                         color: c.tinta,
                       ),
                     ),
-                    const TextSpan(text: ' · Wajib pemeriksa kedua: hidup'),
+                    TextSpan(text: ' · Wajib pemeriksa kedua: ${masuk.aturan}'),
                   ],
                 ),
                 style: TextStyle(fontSize: 14, color: c.tinta2),
@@ -387,15 +374,15 @@ class _WebPemeriksaScreenState extends State<WebPemeriksaScreen> {
 
   Widget _baris(
     BuildContext context,
-    _Trx x,
+    TampilPemeriksa x,
+    bool on,
     LencanaStatus Function(_St, {bool panjang}) lencana,
     Widget Function(List<Widget>) kisi,
   ) {
     final c = context.warna;
-    final on = x.id == _pilih;
-    final kk = _st[x.id]!;
+    final kk = _status(x);
     return Tekan(
-      onTap: () => setState(() => _pilih = x.id),
+      onTap: () => pilihBaris(x.t.id),
       dipilih: on,
       child: Container(
         constraints: const BoxConstraints(minHeight: 56),
@@ -414,11 +401,14 @@ class _WebPemeriksaScreenState extends State<WebPemeriksaScreen> {
           style: const TextStyle(fontSize: 14),
           child: kisi([
             Align(alignment: Alignment.centerLeft, child: lencana(kk)),
-            Text(x.tgl, style: TextStyle(color: c.tinta2)),
-            Text(x.ur, style: const TextStyle(fontWeight: FontWeight.w600)),
-            Text('Meiske L.', style: TextStyle(color: c.tinta2)),
+            Text('${x.t.effectiveDate}', style: TextStyle(color: c.tinta2)),
             Text(
-              rp(x.jm),
+              x.t.description,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+            Text(x.pencatat, style: TextStyle(color: c.tinta2)),
+            Text(
+              rp(x.jumlah),
               textAlign: TextAlign.right,
               style: TextStyle(
                 fontFamily: PalakatText.mono,

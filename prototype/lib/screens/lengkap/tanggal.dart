@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
@@ -7,16 +8,18 @@ import '../../theme/palakat_tema.dart';
 import '../../widgets/tombol.dart';
 import 'tanggal_kalender.dart';
 import '../../app/layar.dart';
+import '../../domain/finance/finance.dart';
+import '../../providers/keuangan/isian.dart';
 
 /// 41 · Tanggal transaksi dan tanggal dokumen (spec 11, Tanggal).
-class TanggalScreen extends StatefulWidget {
+class TanggalScreen extends ConsumerStatefulWidget {
   const TanggalScreen({super.key});
 
   @override
-  State<TanggalScreen> createState() => _TanggalScreenState();
+  ConsumerState<TanggalScreen> createState() => _TanggalScreenState();
 }
 
-class _TanggalScreenState extends State<TanggalScreen>
+class _TanggalScreenState extends ConsumerState<TanggalScreen>
     with TanggalLogika<TanggalScreen> {
   @override
   Widget build(BuildContext context) {
@@ -43,9 +46,10 @@ class _TanggalScreenState extends State<TanggalScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const KepalaPonsel(
+              KepalaPonsel(
                 judul: 'Tanggal transaksi',
-                anakJudul: 'Belanja · draf',
+                anakJudul:
+                    '${namaJenis(ref.watch(isianCatatProvider)?.jenis ?? TransactionType.expense)} · draf',
                 kembaliKe: Layar.keuangan,
                 labelKembali: 'Kembali ke isian',
               ),
@@ -72,9 +76,7 @@ class _TanggalScreenState extends State<TanggalScreen>
                 child: sel != null
                     ? Tombol(
                         'Pakai $tglTeks',
-                        onPressed: null,
-                        ke: Layar.keuangan,
-                        cara: Cara.naik,
+                        onPressed: () => pakai(Layar.keuangan),
                         paddingH: 20,
                       )
                     : const Tombol(

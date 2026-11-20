@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../mock/orang.dart' show plk;
+import '../../core/format.dart';
+import '../../domain/finance/finance.dart';
+import '../../providers/keuangan/beranda.dart';
+import 'draf.dart';
+
 import '../../motion/kerangka.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
@@ -12,83 +17,27 @@ import '../../widgets/garis_status.dart';
 import '../../widgets/isian_alasan.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
-import '../../widgets/penolakan.dart';
 import '../../widgets/status_simpan.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
 import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
 
-const _september = 'September 2026';
-
-/// WebDraf: a draft dated in closed September 2026; Pindah tanggal and
+/// WebDraf: the draft `/draf/:id` (see [LogikaDraf]); Pindah tanggal and
 /// Batalkan open a side panel (docs/build/screens/06-bukti.md).
-class WebDrafScreen extends StatefulWidget {
+class WebDrafScreen extends ConsumerStatefulWidget {
   const WebDrafScreen({super.key});
 
   @override
-  State<WebDrafScreen> createState() => _WebDrafScreenState();
+  ConsumerState<WebDrafScreen> createState() => _WebDrafScreenState();
 }
 
-class _WebDrafScreenState extends State<WebDrafScreen> {
-  String _st = 'draf'; // draf | batal | hapus
-  String _bulan = _september;
-  String _tgl = '28 September 2026';
-  String? _sheet; // null | pindah | batal
-  String _ke = 'November 2026';
-  bool _muat = false;
-  String _alasanAkhir = '';
-  List<String> _hist = ['28/09/2026 16.10 · Draf dicatat oleh Meiske L.'];
-  final _alasan = TextEditingController();
-
-  @override
-  void dispose() {
-    _alasan.dispose();
-    super.dispose();
-  }
-
-  bool get _konflik => belumDipindah<bool>(false) && !_muat;
-  bool get _ok => IsianAlasan.terisi(_alasan.text);
-
-  void _buka(String sheet) {
-    if (_konflik) return;
-    _alasan.clear();
-    setState(() => _sheet = sheet);
-  }
-
-  void _simpan() {
-    if (!_ok) return;
-    final a = _alasan.text.trim();
-    setState(() {
-      if (_sheet == 'pindah') {
-        _bulan = _ke;
-        _tgl = _ke == 'November 2026' ? '16 November 2026' : '31 Oktober 2026';
-        _hist = [
-          '16/11/2026 11.20 · Pindah tanggal ke $_ke · alasan: $a · oleh Meiske L.',
-          ..._hist,
-        ];
-      } else {
-        _st = 'batal';
-        _alasanAkhir = a;
-        _hist = [
-          '16/11/2026 11.20 · Dibatalkan · alasan: $a · oleh Meiske L.',
-          ..._hist,
-        ];
-      }
-      _sheet = null;
-    });
-  }
-
+class _WebDrafScreenState extends ConsumerState<WebDrafScreen> with LogikaDraf {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final jk = belumDipindah(false);
-    final kosong = belumDipindah<bool>(false);
-    final konflik = _konflik;
-    final draf = _st == 'draf';
-    final tutup = _bulan == _september;
-    final oleh = plk(jk);
-    String t(String s) => s;
+    final x = t;
+    final draf = x != null && x.isDraft;
+    final b = bulan;
     final teks13 = TextStyle(fontSize: 13, color: c.tinta3);
     final teks14 = TextStyle(fontSize: 14, color: c.tinta2);
 
@@ -106,7 +55,7 @@ class _WebDrafScreenState extends State<WebDrafScreen> {
     // The board's button row is a wrapping flex row with `align-items:
     // stretch`: a 48 button that shares the first line with the 52 high
     // "Periksa dan bukukan" grows to 52.
-    final bisaBuku = draf && !tutup && !kosong;
+    final bisaBuku = draf && !tutup;
     final gayaTombol = DefaultTextStyle.of(context).style
         .copyWith(fontWeight: FontWeight.w700);
     double lebarTombol(String label) =>
@@ -126,12 +75,9 @@ class _WebDrafScreenState extends State<WebDrafScreen> {
     );
 
     final kiri = kolom([
-      if (konflik && draf)
-        PitaDiubahOrangLain(
-          oleh: oleh,
-          jam: '16/11/2026 10.58',
-          onMuat: () => setState(() => _muat = true),
-        ),
+      if (x == null) Text('Draf tidak ditemukan.', style: teks14),
+      if (konflik)
+        PitaDiubahOrangLain(oleh: pengubah.$1, jam: pengubah.$2, onMuat: muat),
       if (draf) ...[
         Kartu(
           status: GarisStatus.draf,
@@ -146,36 +92,29 @@ class _WebDrafScreenState extends State<WebDrafScreen> {
               ),
             ),
             Text(
-              kosong ? '—' : '−Rp650.000',
+              rp(jumlah),
               style: PalakatText.jumlahIsian.copyWith(color: c.tinta2),
             ),
             Text(
-              kosong ? 'Draf kosong' : 'Honor pemusik',
+              x.description,
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
             Text(
-              kosong
-                  ? 'Belum ada isian · dibuat 16/11/2026 11.02'
-                  : 'Bank BNI ··4821 · tanggal transaksi $_tgl',
+              '$kasBank · tanggal transaksi '
+              '${tglPanjang(x.effectiveDate.awal)}',
               style: teks13,
             ),
-            Text(
-              '$_bulan${tutup ? ' · Sudah ditutup' : ' · Belum ditutup'}',
-              style: teks13,
-            ),
+            if (b != null)
+              Text(
+                '${namaBulan(b)}${tutup ? ' · Sudah ditutup' : ' · Belum ditutup'}',
+                style: teks13,
+              ),
           ], 6),
         ),
-        if (tutup && !kosong)
-          const Penolakan(
-            tindakan: 'Bukukan',
-            sebab:
-                'September 2026 sudah ditutup, dan draf ini tidak pernah '
-                'masuk laporannya. Yang masih dapat Anda lakukan: pindah '
-                'tanggal ke bulan yang belum ditutup, atau batalkan.',
-            jalan: [],
-          ),
+        if (tutup) penolakanTutup(),
+        if (lembar == null) ?penolakan(),
       ],
-      if (_st == 'batal')
+      if (x != null && x.status == TransactionStatus.cancelled)
         Gerak(
           Kerangka.muncul,
           lama: const Duration(milliseconds: 300),
@@ -204,64 +143,36 @@ class _WebDrafScreenState extends State<WebDrafScreen> {
                 ),
               ),
               Text(
-                '−Rp650.000',
+                rp(jumlah),
                 style: PalakatText.jumlahIsian.copyWith(
                   color: c.tinta3,
                   decoration: TextDecoration.lineThrough,
                   decorationColor: c.tinta3,
                 ),
               ),
-              const Text(
-                'Honor pemusik',
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ),
-              Text('Alasan: $_alasanAkhir', style: teks14),
               Text(
-                'Dibatalkan oleh $oleh, 16/11/2026 11.20 · tidak pernah punya '
-                'No. Bukti · hanya dapat dilihat',
+                x.description,
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+              Text('Alasan: ${x.cancelReason ?? ''}', style: teks14),
+              Text(
+                'Dibatalkan oleh $dibatalkanOleh, '
+                '${x.cancelledAt == null ? '' : tglJam(x.cancelledAt!)} · '
+                'tidak pernah punya No. Bukti · hanya dapat dilihat',
                 style: teks13,
               ),
             ], 6),
-          ),
-        ),
-      if (_st == 'hapus')
-        Gerak(
-          Kerangka.muncul,
-          lama: const Duration(milliseconds: 300),
-          child: Semantics(
-            container: true,
-            liveRegion: true,
-            child: Kartu(
-              status: GarisStatus.draf,
-              padding: const EdgeInsets.all(18),
-              child: const Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(
-                      text: 'Draf kosong dihapus.',
-                      style: TextStyle(fontWeight: FontWeight.w700),
-                    ),
-                    TextSpan(
-                      text:
-                          ' Hanya draf tanpa isian yang dapat dihapus; yang '
-                          'lain dibatalkan dengan alasan.',
-                    ),
-                  ],
-                ),
-                style: TextStyle(fontSize: 15),
-              ),
-            ),
           ),
         ),
       if (draf)
         LayoutBuilder(
           builder: (context, batas) {
             // Which of Pindah tanggal / Batalkan still fit on the first line.
-            var x = bisaBuku ? lebarTombol('Periksa dan bukukan') : 0.0;
+            var lebar = bisaBuku ? lebarTombol('Periksa dan bukukan') : 0.0;
             bool sebaris(String label) {
               if (!bisaBuku) return false;
-              x += 8 + lebarTombol(label);
-              return x <= batas.maxWidth;
+              lebar += 8 + lebarTombol(label);
+              return lebar <= batas.maxWidth;
             }
 
             final pindahTinggi = sebaris('Pindah tanggal');
@@ -273,45 +184,39 @@ class _WebDrafScreenState extends State<WebDrafScreen> {
                 runSpacing: 8,
                 children: [
                   if (bisaBuku)
-                    const Tombol(
+                    Tombol(
                       'Periksa dan bukukan',
-                      onPressed: null,
-                      ke: Layar.catat,
+                      onPressed: bukukan,
                       paddingH: 20,
                       lebarPenuh: false,
                     ),
-                  if (!kosong) ...[
-                    // Kept in full look while the conflict locks them; the
-                    // conflict card above is the reason.
-                    tombol(
-                      'Pindah tanggal',
-                      () => _buka('pindah'),
-                      pindahTinggi,
-                    ),
-                    tombol('Batalkan', () => _buka('batal'), batalTinggi),
-                  ],
-                  if (kosong)
-                    tombol(
-                      'Hapus draf',
-                      () => setState(() => _st = 'hapus'),
-                      false,
-                    ),
+                  // Kept in full look while the conflict locks them; the
+                  // conflict card above is the reason.
+                  tombol('Pindah tanggal', () => buka('pindah'), pindahTinggi),
+                  tombol('Batalkan', () => buka('batal'), batalTinggi),
                 ],
               ),
             );
           },
         ),
-      kolom([
-        const Text(
-          'Riwayat',
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+      if (x != null && x.isPosted)
+        Text(
+          'Sudah dibukukan sebagai ${x.voucher}.',
+          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
         ),
-        for (final h in _hist) Text(t(h), style: teks14),
-      ], 6),
+      if (x != null)
+        kolom([
+          const Text(
+            'Riwayat',
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+          ),
+          for (final h in riwayat) Text(h, style: teks14),
+        ], 6),
     ], 16);
 
-    final pindah = _sheet == 'pindah';
-    final panel = _sheet == null
+    final pindah = lembar == 'pindah';
+    final keBulan = keTerpilih;
+    final panel = lembar == null
         ? null
         : PanelSamping(
             kotak: true,
@@ -346,18 +251,12 @@ class _WebDrafScreenState extends State<WebDrafScreen> {
               if (pindah)
                 ChipPilihan<String>(
                   label: 'Pindah ke bulan',
-                  pilihan: const [
-                    (
-                      nilai: 'Oktober 2026',
-                      teks: 'Oktober 2026 · Belum ditutup',
-                    ),
-                    (
-                      nilai: 'November 2026',
-                      teks: 'November 2026 · Belum ditutup',
-                    ),
+                  pilihan: [
+                    for (final p in pilihanBulan)
+                      (nilai: p.id, teks: '${namaBulan(p)} · Belum ditutup'),
                   ],
-                  terpilih: _ke,
-                  onPilih: (b) => setState(() => _ke = b),
+                  terpilih: keBulan,
+                  onPilih: (id) => setState(() => ke = id),
                   // The inline chips' line box sits 2 px lower on the board.
                   jarakLabel: 10,
                 ),
@@ -365,20 +264,27 @@ class _WebDrafScreenState extends State<WebDrafScreen> {
               Padding(
                 padding: const EdgeInsets.only(bottom: 4),
                 child: IsianAlasan(
-                  controller: _alasan,
+                  controller: alasan,
                   onChanged: (_) => setState(() {}),
                 ),
               ),
+              ?penolakan(),
               Tombol(
-                pindah ? 'Pindah tanggal ke $_ke' : 'Batalkan draf',
-                onPressed: _simpan,
+                pindah && keBulan.isNotEmpty
+                    ? 'Pindah tanggal ke ${namaPeriode(keBulan)}'
+                    : pindah
+                    ? 'Pindah tanggal'
+                    : 'Batalkan draf',
+                onPressed: simpan,
                 jenis: JenisTombol.tinta,
-                nonaktif: !_ok,
+                nonaktif:
+                    !IsianAlasan.terisi(alasan.text) ||
+                    (pindah && keBulan.isEmpty),
                 paddingH: 20,
               ),
               Tombol(
                 'Kembali',
-                onPressed: () => setState(() => _sheet = null),
+                onPressed: tutupLembar,
                 jenis: JenisTombol.teks,
                 warnaTeks: c.tinta,
               ),

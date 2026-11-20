@@ -1,23 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/format.dart';
+import '../../domain/core/core.dart';
+import '../../domain/finance/finance.dart';
+import '../../providers/actor.dart';
+import '../../providers/clock.dart';
+import '../../providers/keuangan/isian.dart';
+import '../../providers/repositories_keuangan.dart';
+import '../../providers/revision.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/batang_pembagian.dart';
 import '../../widgets/input_format.dart';
 import '../../widgets/tekan.dart';
 
-/// Bagi and WebBagi: one Toko Sinar payment split across Mata Anggaran rows.
-/// The two boards' logic classes are identical, so both screens mix this in.
-const int jumlahBagi = 1250000;
-
-/// Belanja Mata Anggaran in board order (`MA`).
-const Map<String, String> maBagi = {
-  '5.01.02.00': 'Listrik, air dan telepon',
-  '5.02.01.00': 'Alat tulis dan fotokopi',
-  '5.03.03.00': 'Biaya administrasi bank',
-  '5.04.01.00': 'Konsumsi rapat',
-  '5.05.02.00': 'Sewa peralatan',
-};
+/// Bagi and WebBagi: one payment of the open Catat form ([isianCatatProvider])
+/// split across Mata Anggaran rows of the version in force. "Pakai pembagian
+/// ini" writes the split into the form's draft (a new one when the form has
+/// none yet). The two boards' logic classes are identical, so both screens
+/// mix this in.
 
 /// CSS spreads a line's extra height evenly above and below the glyphs;
 /// Flutter's default puts it in proportion to ascent and descent.
@@ -26,24 +27,24 @@ const cssLeading = TextHeightBehavior(
 );
 
 class BarisBagi {
-  BarisBagi(this.k, this.v);
+  BarisBagi(this.ma, this.v);
+
+  final MasterRow ma;
 
   /// No. MA.
-  final String k;
+  String get k => ma.code;
 
   /// Raw digits ('' = not filled).
   String v;
-  String get nama => maBagi[k]!;
+  String get nama => ma.name;
   int get angka => v.isEmpty ? 0 : int.parse(v);
 }
 
-mixin LogikaBagi<T extends StatefulWidget> on State<T> {
-  final List<BarisBagi> baris = [
-    BarisBagi('5.01.02.00', '1000000'),
-    BarisBagi('5.02.01.00', '200000'),
-  ];
+mixin LogikaBagi<T extends ConsumerStatefulWidget> on ConsumerState<T> {
+  final List<BarisBagi> baris = [];
   bool pilih = false;
   bool _dipakai = false;
+  Refusal? tolak;
 
   // One field per No. MA; kept until dispose so a removed row's field never
   // sees a disposed controller.
@@ -52,10 +53,49 @@ mixin LogikaBagi<T extends StatefulWidget> on State<T> {
   TextEditingController isian(BarisBagi b) =>
       _isian.putIfAbsent(b.k, () => TextEditingController(text: titik(b.v)));
 
+  IsianCatat _isianDari(IsianCatat? i) =>
+      i ?? const IsianCatat(jenis: TransactionType.expense);
+
+  /// The form being split (Belanja with no amount when none is open).
+  IsianCatat get form => _isianDari(ref.watch(isianCatatProvider));
+  int get jumlahBagi => form.jumlah;
+
+  /// 'Belanja' or 'Pendapatan': the Mata Anggaran tree.
+  String get pohon =>
+      form.jenis == TransactionType.income ? 'Pendapatan' : 'Belanja';
+
+  List<MasterRow> _barisMa(IsianCatat i) => [
+    for (final r
+        in ref
+            .read(masterRepositoryProvider)
+            .pickerRows(
+              i.jenis == TransactionType.income
+                  ? MasterKind.pendapatan
+                  : MasterKind.belanja,
+              i.tanggal ?? ref.read(hariIniProvider),
+            ))
+      if (r.postable) r,
+  ];
+
+  /// The draft's split, when the form already has one.
+  @override
+  void initState() {
+    super.initState();
+    final i = _isianDari(ref.read(isianCatatProvider));
+    final t = i.drafId == null
+        ? null
+        : ref.read(transactionRepositoryProvider).get(i.drafId!);
+    final ma = _barisMa(i);
+    for (final a in t?.allocations ?? const <Allocation>[]) {
+      final r = ma.where((r) => r.code == a.masterCode).firstOrNull;
+      if (r != null) baris.add(BarisBagi(r, '${a.amount}'));
+    }
+  }
+
   int get total => baris.fold(0, (a, b) => a + b.angka);
   int get sisa => jumlahBagi - total;
   bool get kosong => baris.any((b) => b.v.isEmpty);
-  bool get pas => sisa == 0 && !kosong && baris.length >= 2;
+  bool get pas => jumlahBagi > 0 && sisa == 0 && !kosong && baris.length >= 2;
   bool get dipakai => _dipakai && pas;
 
   String get labelSisa => sisa == 0
@@ -74,10 +114,13 @@ mixin LogikaBagi<T extends StatefulWidget> on State<T> {
       'Mata Anggaran sudah dipilih · dibagi ke ${baris.length} baris';
 
   /// Mata Anggaran not yet in the rows, in source order.
-  List<String> get pilihan => [
-    for (final k in maBagi.keys)
-      if (!baris.any((b) => b.k == k)) k,
-  ];
+  List<MasterRow> get pilihan {
+    ref.watch(revisionProvider);
+    return [
+      for (final r in _barisMa(form))
+        if (!baris.any((b) => b.k == r.code)) r,
+    ];
+  }
 
   bool bisaSisa(BarisBagi b) => b.v.isEmpty && sisa > 0;
 
@@ -108,8 +151,8 @@ mixin LogikaBagi<T extends StatefulWidget> on State<T> {
     _dipakai = false;
   });
 
-  void tambah(String k) => setState(() {
-    final b = BarisBagi(k, '');
+  void tambah(MasterRow ma) => setState(() {
+    final b = BarisBagi(ma, '');
     isian(b).text = '';
     baris.add(b);
     pilih = false;
@@ -119,9 +162,58 @@ mixin LogikaBagi<T extends StatefulWidget> on State<T> {
   void bukaPilih() => setState(() => pilih = true);
   void tutupPilih() => setState(() => pilih = false);
 
-  /// TombolBersyarat: re-checks on press.
-  void pakai() {
-    if (pas) setState(() => _dipakai = true);
+  /// TombolBersyarat: re-checks on press. Writes the split into the form's
+  /// draft: editDraft when it has one, else createDraft.
+  Future<void> pakai() async {
+    final a = ref.read(actorProvider);
+    if (!pas || a == null) return;
+    final i = _isianDari(ref.read(isianCatatProvider));
+    final repo = ref.read(transactionRepositoryProvider);
+    final ada = i.drafId == null ? null : repo.get(i.drafId!);
+    final dasar = ada?.allocations.firstOrNull;
+    final bagian = [
+      for (final b in baris)
+        Allocation(
+          amount: b.angka,
+          accountId: dasar?.accountId,
+          fundId: dasar?.fundId,
+          scopeId: dasar?.scopeId,
+          partyId: dasar?.partyId,
+          masterCode: b.k,
+          masterVersionId: b.ma.versionId,
+        ),
+    ];
+    final kunci = kunciBaru(a.personId, ref.read(clockProvider));
+    final Result<Transaction> r = ada != null && ada.isDraft
+        ? await repo.editDraft(
+            a,
+            ada.id,
+            TransactionPatch(allocations: bagian),
+            expectedRevision: ada.revision,
+            idempotencyKey: kunci,
+          )
+        : await repo.createDraft(
+            a,
+            TransactionDraft(
+              type: i.jenis,
+              effectiveDate: i.tanggal ?? ref.read(hariIniProvider),
+              description: i.uraian.isEmpty ? namaJenis(i.jenis) : i.uraian,
+              payee: i.uraian.isEmpty ? null : i.uraian,
+              allocations: bagian,
+            ),
+            idempotencyKey: kunci,
+          );
+    if (!mounted) return;
+    switch (r) {
+      case Ok(:final value):
+        ref.read(isianCatatProvider.notifier).pakaiDraf(value.id, i);
+        setState(() {
+          _dipakai = true;
+          tolak = null;
+        });
+      case Refused(:final refusal):
+        setState(() => tolak = refusal);
+    }
   }
 
   @override

@@ -1,9 +1,19 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/format.dart';
+import '../../core/tanggal.dart';
+import '../../domain/core/core.dart';
+import '../../domain/finance/finance.dart';
 import '../../motion/kerangka.dart';
+import '../../providers/actor.dart';
+import '../../providers/clock.dart';
+import '../../providers/keuangan/catat.dart';
+import '../../providers/keuangan/isian.dart';
+import '../../providers/repositories_keuangan.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
 import '../../shell/tautan.dart';
@@ -15,12 +25,12 @@ import '../../widgets/ikon.dart';
 import '../../widgets/isian_jumlah.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/pemilih_mata_anggaran.dart';
+import '../../widgets/penolakan.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
 import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
 
 /// The board's `CFG` per jenis.
 typedef _Jenis = ({
@@ -32,8 +42,8 @@ typedef _Jenis = ({
   int tanda,
 });
 
-const Map<String, _Jenis> _cfg = {
-  'pendapatan': (
+const Map<TransactionType, _Jenis> _cfg = {
+  TransactionType.income: (
     n: 'Pendapatan',
     pohon: 'Pendapatan',
     akun: 'Kas/Bank',
@@ -41,7 +51,7 @@ const Map<String, _Jenis> _cfg = {
     pihak: 'Diterima dari (boleh tanpa nama)',
     tanda: 1,
   ),
-  'belanja': (
+  TransactionType.expense: (
     n: 'Belanja',
     pohon: 'Belanja',
     akun: 'Kas/Bank',
@@ -49,7 +59,7 @@ const Map<String, _Jenis> _cfg = {
     pihak: 'Dibayar kepada',
     tanda: -1,
   ),
-  'pindah': (
+  TransactionType.accountTransfer: (
     n: 'Pindah antar Kas/Bank',
     pohon: '',
     akun: 'Dari Kas/Bank',
@@ -59,62 +69,19 @@ const Map<String, _Jenis> _cfg = {
   ),
 };
 
-const _akun = [
-  (nilai: 'kas', teks: 'Kas'),
-  (nilai: 'bni', teks: 'Bank BNI ··4821'),
-  (nilai: 'bsg', teks: 'Bank SulutGo ··1107'),
+List<({String nilai, String teks})> _chip(List<PilihanChip> l) => [
+  for (final x in l) (nilai: x.id, teks: x.nama),
 ];
-
-List<({String nilai, String teks})> _sama(List<String> l) => [
-  for (final v in l) (nilai: v, teks: v),
-];
-
-final _peruntukan = _sama(['Umum Jemaat', 'Diakonia', 'Pembangunan']);
-final _lingkup = _sama(['Jemaat', 'Kolom 3', 'BIPRA Pemuda', 'Panitia Natal']);
-
-const Map<String, List<BarisMataAnggaran>> _ma = {
-  'Belanja': [
-    BarisMataAnggaran('5.00.00.00', 'BELANJA OPERASIONAL', grup: true),
-    BarisMataAnggaran('5.01.02.00', 'Listrik, air dan telepon'),
-    BarisMataAnggaran('5.02.01.00', 'Alat tulis dan fotokopi'),
-    BarisMataAnggaran('5.03.03.00', 'Biaya administrasi bank'),
-    BarisMataAnggaran('4.00.00.00', 'BELANJA PELAYANAN', grup: true),
-    BarisMataAnggaran('4.03.03.00', 'Diakonia duka'),
-  ],
-  'Pendapatan': [
-    BarisMataAnggaran('1.3.53.00.00', 'PERSEMBAHAN', grup: true),
-    BarisMataAnggaran('1.3.53.07.00', 'Persembahan Ibadah Minggu'),
-    BarisMataAnggaran('1.3.53.09.00', 'Persembahan syukur'),
-    BarisMataAnggaran('1.4.10.00.00', 'SUMBANGAN', grup: true),
-    BarisMataAnggaran('1.4.10.02.00', 'Sumbangan donatur'),
-  ],
-};
 
 const _tautan = [
-  (
-    teks: 'Bagi ke beberapa Mata Anggaran',
-    ke: Layar.bagi,
-    param: <String, String>{},
-  ),
-  (teks: 'Persembahan', ke: Layar.persembahan, param: <String, String>{}),
-  (
-    teks: 'Alih peruntukan',
-    ke: Layar.alihPeruntukan,
-    param: <String, String>{},
-  ),
-  (teks: 'Dari foto nota', ke: Layar.aiFoto, param: <String, String>{}),
-  (
-    teks: 'Ganti catatan persetujuan',
-    ke: Layar.persetujuan,
-    param: {'id': belumDipindahId},
-  ),
-  (teks: 'Tanggal transaksi', ke: Layar.tanggal, param: <String, String>{}),
-  (
-    teks: 'Usulan Mata Anggaran',
-    ke: Layar.aiMataAnggaran,
-    param: <String, String>{},
-  ),
-  (teks: 'Dari kalimat', ke: Layar.bantuanAi, param: <String, String>{}),
+  (teks: 'Bagi ke beberapa Mata Anggaran', ke: Layar.bagi),
+  (teks: 'Persembahan', ke: Layar.persembahan),
+  (teks: 'Alih peruntukan', ke: Layar.alihPeruntukan),
+  (teks: 'Dari foto nota', ke: Layar.aiFoto),
+  (teks: 'Ganti catatan persetujuan', ke: Layar.persetujuan),
+  (teks: 'Tanggal transaksi', ke: Layar.tanggal),
+  (teks: 'Usulan Mata Anggaran', ke: Layar.aiMataAnggaran),
+  (teks: 'Dari kalimat', ke: Layar.bantuanAi),
 ];
 
 const _mono = TextStyle(
@@ -125,41 +92,281 @@ const _mono = TextStyle(
 /// One checklist line: met, unmet or "info" (never counted).
 enum _Cek { ok, gagal, info }
 
-/// Web · Catat transaksi (spec 08-cari.md, WebCatat).
-class WebCatatScreen extends StatefulWidget {
+/// Web · Catat transaksi (spec 08-cari.md, WebCatat; tablet: TabCatat).
+/// The form is local; "Simpan sebagai draf" saves a DRAFT and "Periksa dan
+/// bukukan" saves then finalizes it through TransactionRepository (a
+/// refusal, e.g. the second checker, keeps the draft). [isianCatatProvider]
+/// carries the form to Tanggal and Bagi and brings a draft in from
+/// Transaksi's "Ubah".
+class WebCatatScreen extends ConsumerStatefulWidget {
   const WebCatatScreen({super.key});
 
   @override
-  State<WebCatatScreen> createState() => _WebCatatScreenState();
+  ConsumerState<WebCatatScreen> createState() => _WebCatatScreenState();
 }
 
-class _WebCatatScreenState extends State<WebCatatScreen> {
+class _WebCatatScreenState extends ConsumerState<WebCatatScreen> {
   final _jmC = TextEditingController();
   final _pihakC = TextEditingController();
   final _urC = TextEditingController();
   final _cariC = TextEditingController();
+  late final IsianCatatNotifier _isian;
 
-  String _jenis = 'belanja';
+  TransactionType _jenis = TransactionType.expense;
   String _jm = '';
   String? _akunId, _ke, _per, _ling, _maKode;
-  bool _dok = false, _posted = false;
+
+  /// The chosen document's file name.
+  String? _dok;
+  bool _terunggah = false;
+
+  /// The saved draft, the form's material fields at its last save, and the
+  /// parts of a split made in Bagi (kept as they are).
+  String? _drafId;
+  Object? _tersimpan;
+  List<Allocation>? _bagian;
+  Tanggal? _tanggal;
+
+  String? _voucher;
+  DateTime? _dibukukanPada;
+  Refusal? _tolak;
+  bool _sibuk = false;
+
+  bool get _posted => _voucher != null;
+
+  @override
+  void initState() {
+    super.initState();
+    _isian = ref.read(isianCatatProvider.notifier);
+    final i = ref.read(isianCatatProvider);
+    if (i?.drafId != null) {
+      _muat(i!.drafId!);
+    } else if (i != null && _cfg.containsKey(i.jenis)) {
+      _jenis = i.jenis;
+      _tanggal = i.tanggal;
+    }
+    // The hand-off must hold this form before Tanggal or Bagi opens.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _sinkron();
+    });
+  }
 
   @override
   void dispose() {
     for (final c in [_jmC, _pihakC, _urC, _cariC]) {
       c.dispose();
     }
+    // After the frame: no provider change while the tree finalizes. The app
+    // may be gone by then (its container disposed): nothing to clear.
+    unawaited(
+      Future.microtask(() {
+        try {
+          _isian.selesai();
+        } catch (_) {}
+      }),
+    );
     super.dispose();
   }
 
-  /// Every board handler but `onCari`, `onPihak` and `onUr` does nothing once posted.
-  void _ubah(VoidCallback f) {
-    if (!_posted) setState(f);
+  /// Loads draft [id] into the form.
+  void _muat(String id) {
+    final t = ref.read(transactionRepositoryProvider).get(id);
+    if (t == null) return;
+    final a = t.allocations.firstOrNull;
+    _jenis = _cfg.containsKey(t.type) ? t.type : TransactionType.expense;
+    _jm = t.total > 0 ? '${t.total}' : '';
+    _jmC.text = _jm.isEmpty ? '' : titik(_jm);
+    _akunId = t.accountId ?? a?.accountId;
+    _ke = t.toAccountId;
+    _per = a?.fundId;
+    _ling = a?.scopeId;
+    _maKode = t.allocations.length > 1 ? null : a?.masterCode;
+    _bagian = t.allocations.length > 1 ? t.allocations : null;
+    _pihakC.text = t.payee ?? '';
+    _urC.text = t.description;
+    _tanggal = t.effectiveDate;
+    _drafId = t.id;
+    _tersimpan = _materi;
   }
 
-  String _nama(String? id) => _akun
-      .firstWhere((a) => a.nilai == id, orElse: () => (nilai: '', teks: ''))
-      .teks;
+  /// Keeps the hand-off ([isianCatatProvider]) on this form.
+  void _sinkron() => _isian.buka(
+    IsianCatat(
+      jenis: _jenis,
+      jumlah: int.tryParse(_jm) ?? 0,
+      uraian: _ringkas,
+      tanggal: ref.read(isianCatatProvider)?.tanggal ?? _tanggal,
+      drafId: _drafId,
+    ),
+  );
+
+  /// Every board handler but `onCari` does nothing once posted.
+  void _ubah(VoidCallback f) {
+    if (_posted) return;
+    setState(() {
+      f();
+      _tolak = null;
+    });
+    _sinkron();
+  }
+
+  String _nama(String? id) =>
+      ref.read(pilihanCatatProvider(_hari)).namaKasBank(id);
+
+  Tanggal get _hari =>
+      ref.read(isianCatatProvider)?.tanggal ??
+      _tanggal ??
+      ref.read(hariIniProvider);
+
+  String get _ringkas {
+    final pindah = _jenis == TransactionType.accountTransfer;
+    final pihak = _pihakC.text.trim(), ur = _urC.text.trim();
+    return pindah
+        ? 'Dari ${_akunId == null ? '…' : _nama(_akunId)} '
+              'ke ${_ke == null ? '…' : _nama(_ke)}'
+        : (ur.isNotEmpty ? ur : (pihak.isNotEmpty ? pihak : _cfg[_jenis]!.n));
+  }
+
+  Object get _materi =>
+      (_jenis, _jm, _akunId, _ke, _per, _ling, _maKode, _hari);
+
+  String _kunci(Actor a) => kunciBaru(a.personId, ref.read(clockProvider));
+
+  /// Creates the DRAFT, or edits it when the form changed since the last
+  /// save (an unchanged form keeps its check). Null when refused.
+  Future<Transaction?> _simpan() async {
+    final actor = ref.read(actorProvider);
+    if (actor == null) return null;
+    final repo = ref.read(transactionRepositoryProvider);
+    final pindah = _jenis == TransactionType.accountTransfer;
+    final p = ref.read(pilihanCatatProvider(_hari));
+    final dana = pindah ? p.umum : _per;
+    final bagian = [
+      for (final a
+          in _bagian ??
+              [
+                Allocation(
+                  amount: int.tryParse(_jm) ?? 0,
+                  masterCode: pindah ? null : _maKode,
+                ),
+              ])
+        a.copyWith(fundId: dana, scopeId: pindah ? null : _ling),
+    ];
+    final pihak = _pihakC.text.trim();
+    final lama = _drafId == null ? null : repo.get(_drafId!);
+    final Result<Transaction> r;
+    if (lama == null) {
+      r = await repo.createDraft(
+        actor,
+        TransactionDraft(
+          type: _jenis,
+          effectiveDate: _hari,
+          description: _ringkas,
+          allocations: bagian,
+          accountId: _akunId,
+          toAccountId: pindah ? _ke : null,
+          payee: pindah || pihak.isEmpty ? null : pihak,
+          approvalRule: 'transaksi rutin',
+        ),
+        idempotencyKey: _kunci(actor),
+      );
+    } else if (_materi == _tersimpan &&
+        lama.description == _ringkas &&
+        (lama.payee ?? '') == (pindah ? '' : pihak)) {
+      r = Ok(lama);
+    } else {
+      final m = _materi != _tersimpan;
+      r = await repo.editDraft(
+        actor,
+        lama.id,
+        TransactionPatch(
+          type: m ? _jenis : null,
+          effectiveDate: m ? _hari : null,
+          allocations: m ? bagian : null,
+          accountId: m ? _akunId : null,
+          toAccountId: m && pindah ? _ke : null,
+          description: _ringkas,
+          payee: pindah ? null : pihak,
+        ),
+        expectedRevision: lama.revision,
+        idempotencyKey: _kunci(actor),
+      );
+    }
+    if (!mounted) return null;
+    switch (r) {
+      case Refused(:final refusal):
+        setState(() => _tolak = refusal);
+        return null;
+      case Ok(value: final t):
+        _drafId = t.id;
+        _tersimpan = _materi;
+        _sinkron();
+        return _unggah(actor, t);
+    }
+  }
+
+  /// The chosen document goes up once the draft exists (D02: it never
+  /// blocks Bukukan; a refused upload clears the choice and says why).
+  Future<Transaction?> _unggah(Actor actor, Transaction t) async {
+    if (_dok == null || _terunggah) return t;
+    final r = await ref
+        .read(evidenceRepositoryProvider)
+        .upload(
+          actor,
+          t.id,
+          SampleFile(_dok!),
+          expectedRevision: t.revision,
+          idempotencyKey: _kunci(actor),
+        );
+    if (!mounted) return null;
+    if (r.isOk) {
+      _terunggah = true;
+      return t;
+    }
+    setState(() {
+      _dok = null;
+      _tolak = r.refusal;
+    });
+    return null;
+  }
+
+  Future<void> _bukukan() async {
+    if (_sibuk) return;
+    setState(() => _sibuk = true);
+    try {
+      final t = await _simpan();
+      final actor = ref.read(actorProvider);
+      if (t == null || actor == null || !mounted) return;
+      final repo = ref.read(transactionRepositoryProvider);
+      final r = await repo.finalize(
+        actor,
+        t.id,
+        expectedRevision: repo.get(t.id)?.revision ?? t.revision,
+        idempotencyKey: _kunci(actor),
+      );
+      if (!mounted) return;
+      setState(() {
+        switch (r) {
+          case Ok(:final value):
+            _voucher = value;
+            _dibukukanPada = repo.get(t.id)?.finalizedAt;
+            _tolak = null;
+          case Refused(:final refusal):
+            _tolak = refusal;
+        }
+      });
+    } finally {
+      if (mounted) setState(() => _sibuk = false);
+    }
+  }
+
+  Future<void> _simpanDraf() async {
+    if (_sibuk) return;
+    _sibuk = true;
+    final t = await _simpan();
+    _sibuk = false;
+    if (t != null && mounted) context.naikKe(Layar.transaksi);
+  }
 
   void _lagi() {
     for (final c in [_jmC, _pihakC, _urC, _cariC]) {
@@ -167,24 +374,36 @@ class _WebCatatScreenState extends State<WebCatatScreen> {
     }
     setState(() {
       _jm = '';
-      _akunId = _ke = _per = _ling = _maKode = null;
-      _dok = false;
-      _posted = false;
+      _akunId = _ke = _per = _ling = _maKode = _dok = null;
+      _drafId = _tersimpan = _bagian = _tanggal = null;
+      _voucher = _dibukukanPada = _tolak = null;
+      _terunggah = false;
     });
+    _isian.buka(IsianCatat(jenis: _jenis));
   }
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
+    // Bagi saved the split into a draft while this form waited below it.
+    ref.listen(isianCatatProvider, (_, n) {
+      final id = n?.drafId;
+      if (id != null && id != _drafId) setState(() => _muat(id));
+    });
+    final isian = ref.watch(isianCatatProvider);
+    final Tanggal hari =
+        isian?.tanggal ?? _tanggal ?? ref.watch(hariIniProvider);
+    final p = ref.watch(pilihanCatatProvider(hari));
     final l = _cfg[_jenis]!;
-    final pindah = _jenis == 'pindah';
+    final pindah = _jenis == TransactionType.accountTransfer;
     final j = int.tryParse(_jm) ?? 0;
+    String nama(String? id) => p.namaKasBank(id);
 
     final cek = <(_Cek, String)>[
       j > 0 ? (_Cek.ok, 'Jumlah ${rp(j)}') : (_Cek.gagal, 'Jumlah belum diisi'),
       if (pindah) ...[
         _akunId != null && _ke != null && _akunId != _ke
-            ? (_Cek.ok, 'Dari ${_nama(_akunId)} ke ${_nama(_ke)}')
+            ? (_Cek.ok, 'Dari ${nama(_akunId)} ke ${nama(_ke)}')
             : (
                 _Cek.gagal,
                 'Kas/Bank asal dan tujuan belum dipilih, dan harus berbeda',
@@ -192,15 +411,20 @@ class _WebCatatScreenState extends State<WebCatatScreen> {
         (_Cek.ok, 'Bukan Pendapatan dan bukan Belanja'),
       ] else ...[
         _akunId != null
-            ? (_Cek.ok, 'Kas/Bank: ${_nama(_akunId)}')
+            ? (_Cek.ok, 'Kas/Bank: ${nama(_akunId)}')
             : (_Cek.gagal, 'Kas/Bank belum dipilih'),
         _per != null
-            ? (_Cek.ok, '${l.per}: $_per')
+            ? (_Cek.ok, '${l.per}: ${p.namaPeruntukan(_per)}')
             : (_Cek.gagal, 'Peruntukan belum dipilih'),
         _ling != null
-            ? (_Cek.ok, 'Lingkup: $_ling')
+            ? (_Cek.ok, 'Lingkup: ${p.namaLingkup(_ling)}')
             : (_Cek.gagal, 'Lingkup belum dipilih'),
-        _maKode != null
+        _bagian != null
+            ? (
+                _Cek.ok,
+                'Mata Anggaran sudah dipilih · dibagi ke ${_bagian!.length} baris',
+              )
+            : _maKode != null
             ? (_Cek.ok, 'Mata Anggaran sudah dipilih')
             : (
                 _Cek.gagal,
@@ -208,7 +432,7 @@ class _WebCatatScreenState extends State<WebCatatScreen> {
               ),
         (_Cek.ok, 'Persetujuan: tidak diperlukan (aturan: transaksi rutin)'),
       ],
-      _dok
+      _dok != null
           ? (_Cek.ok, 'Dokumen pendukung: diunggah, belum diverifikasi')
           : (
               _Cek.info,
@@ -217,12 +441,7 @@ class _WebCatatScreenState extends State<WebCatatScreen> {
     ];
     final gagalN = cek.where((x) => x.$1 == _Cek.gagal).length;
     final alasan = gagalN > 0 ? '$gagalN syarat belum terpenuhi.' : '';
-
-    final pihak = _pihakC.text, ur = _urC.text;
-    final ringkas = pindah
-        ? 'Dari ${_akunId == null ? '…' : _nama(_akunId)} '
-              'ke ${_ke == null ? '…' : _nama(_ke)}'
-        : (ur.isNotEmpty ? ur : (pihak.isNotEmpty ? pihak : l.n));
+    final ringkas = _ringkas;
 
     // ---- main column ----------------------------------------------------
     final judul = Column(
@@ -260,15 +479,17 @@ class _WebCatatScreenState extends State<WebCatatScreen> {
       web: true,
       anak: [
         for (final t in _tautan)
-          Tautan(
-            ke: t.ke,
-            param: t.param,
-            child: Align(
-              widthFactor: 1,
-              heightFactor: 1,
-              child: TautanTeks(t.teks),
+          // Persetujuan is about a saved draft.
+          if (t.ke != Layar.persetujuan || _drafId != null)
+            Tautan(
+              ke: t.ke,
+              param: t.ke == Layar.persetujuan ? {'id': _drafId!} : const {},
+              child: Align(
+                widthFactor: 1,
+                heightFactor: 1,
+                child: TautanTeks(t.teks),
+              ),
             ),
-          ),
       ],
     );
 
@@ -276,13 +497,14 @@ class _WebCatatScreenState extends State<WebCatatScreen> {
       spacing: 8,
       runSpacing: 8,
       children: [
-        for (final k in const ['pendapatan', 'belanja', 'pindah'])
+        for (final k in _cfg.keys)
           ChipSatu(
             teks: _cfg[k]!.n,
             dipilih: _jenis == k,
             onTap: () => _ubah(() {
               _jenis = k;
               _maKode = null;
+              _bagian = null;
               _ke = null;
               _cariC.clear();
             }),
@@ -294,7 +516,7 @@ class _WebCatatScreenState extends State<WebCatatScreen> {
     final jumlah = IsianJumlah(
       label: 'Jumlah (Rp)',
       controller: _jmC,
-      hanyaBaca: _posted,
+      hanyaBaca: _posted || _bagian != null,
       ukuran: UkuranJumlah.lebar,
       maks: 12,
       lebarMaks: 420,
@@ -307,7 +529,7 @@ class _WebCatatScreenState extends State<WebCatatScreen> {
       anak: [
         ChipPilihan<String>(
           label: l.akun,
-          pilihan: _akun,
+          pilihan: _chip(p.kasBank),
           terpilih: _akunId,
           onPilih: (v) => _ubah(() => _akunId = v),
         ),
@@ -317,7 +539,7 @@ class _WebCatatScreenState extends State<WebCatatScreen> {
             children: [
               ChipPilihan<String>(
                 label: 'Ke Kas/Bank',
-                pilihan: _akun,
+                pilihan: _chip(p.kasBank),
                 terpilih: _ke,
                 onPilih: (v) => _ubah(() => _ke = v),
               ),
@@ -332,13 +554,13 @@ class _WebCatatScreenState extends State<WebCatatScreen> {
           ChipPilihan<String>(
             label: l.per,
             keterangan: '· uang siapa ini',
-            pilihan: _peruntukan,
+            pilihan: _chip(p.peruntukan),
             terpilih: _per,
             onPilih: (v) => _ubah(() => _per = v),
           ),
           ChipPilihan<String>(
             label: 'Lingkup',
-            pilihan: _lingkup,
+            pilihan: _chip(p.lingkup),
             terpilih: _ling,
             onPilih: (v) => _ubah(() => _ling = v),
           ),
@@ -402,24 +624,33 @@ class _WebCatatScreenState extends State<WebCatatScreen> {
                 labelSemantik: 'Cari Mata Anggaran',
                 onChanged: (_) => setState(() {}),
               ),
-              for (final r in PemilihMataAnggaran.saring(
-                _ma[l.pohon] ?? const [],
-                _cariC.text,
-              ))
+              for (final r in PemilihMataAnggaran.saring([
+                for (final m
+                    in _jenis == TransactionType.income
+                        ? p.pendapatan
+                        : p.belanja)
+                  BarisMataAnggaran(m.code, m.name, grup: !m.postable),
+              ], _cariC.text))
                 r.grup
                     ? _Grup(r)
                     : _Baris(
                         r,
                         pohon: l.pohon,
                         dipilih: _maKode == r.kode,
-                        onTap: () => _ubah(() => _maKode = r.kode),
+                        onTap: () => _ubah(() {
+                          _maKode = r.kode;
+                          _bagian = null;
+                        }),
                       ),
               const SizedBox(height: 10),
               Align(
                 alignment: Alignment.centerLeft,
                 child: Tombol(
                   'Simpan tanpa Mata Anggaran',
-                  onPressed: () => _ubah(() => _maKode = null),
+                  onPressed: () => _ubah(() {
+                    _maKode = null;
+                    _bagian = null;
+                  }),
                   jenis: JenisTombol.putus,
                   ukuran: UkuranTombol.mini,
                   paddingH: 16,
@@ -441,14 +672,16 @@ class _WebCatatScreenState extends State<WebCatatScreen> {
           label: l.pihak,
           jarakLabel: 6,
           controller: _pihakC,
-          onChanged: (_) => setState(() {}),
+          hanyaBaca: _posted,
+          onChanged: (_) => _ubah(() {}),
         ),
         IsianTeks(
           gaya: _tanpaJarakHuruf,
           label: 'Uraian',
           jarakLabel: 6,
           controller: _urC,
-          onChanged: (_) => setState(() {}),
+          hanyaBaca: _posted,
+          onChanged: (_) => _ubah(() {}),
         ),
       ],
     );
@@ -471,22 +704,25 @@ class _WebCatatScreenState extends State<WebCatatScreen> {
                   style: TextStyle(fontSize: 14, color: c.tinta2),
                 ),
                 const TextSpan(text: ' '),
-                const TextSpan(
-                  text: '16 November 2026',
-                  style: TextStyle(fontWeight: FontWeight.w700),
+                TextSpan(
+                  text: tglPanjang(hari.awal),
+                  style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
               ],
             ),
           ),
           Tekan(
-            onTap: () => _ubah(() => _dok = true),
+            onTap: () => _ubah(
+              () => _dok ??=
+                  'nota-${hari.toString().substring(0, 5).replaceAll('/', '-')}.jpg',
+            ),
             radius: 12,
             child: Container(
               constraints: const BoxConstraints(minHeight: 44),
               padding: const EdgeInsets.symmetric(horizontal: 16),
               decoration: ShapeDecoration(
-                color: _dok ? c.permukaan : null,
-                shape: _dok
+                color: _dok != null ? c.permukaan : null,
+                shape: _dok != null
                     ? GarisBorder.penuh(c.garisTegas, tebal: 1, radius: 12)
                     : GarisBorder.putus(c.putus, radius: 12),
               ),
@@ -494,12 +730,12 @@ class _WebCatatScreenState extends State<WebCatatScreen> {
                 widthFactor: 1,
                 heightFactor: 1,
                 child: Text(
-                  _dok
-                      ? 'nota-16-11.jpg · Terlampir'
+                  _dok != null
+                      ? '$_dok · Terlampir'
                       : 'Lampirkan dokumen pendukung',
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    color: _dok ? c.tinta : c.laut,
+                    color: _dok != null ? c.tinta : c.laut,
                   ),
                 ),
               ),
@@ -527,7 +763,7 @@ class _WebCatatScreenState extends State<WebCatatScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _BarisLencana(posted: _posted),
+          _BarisLencana(voucher: _voucher),
           const SizedBox(height: 6),
           Text(
             rp(j * l.tanda),
@@ -598,7 +834,16 @@ class _WebCatatScreenState extends State<WebCatatScreen> {
         kartu,
         if (!_posted) ...[
           daftar,
-          if (gagalN > 0)
+          if (_tolak case final t?)
+            Penolakan(
+              tindakan: t.action,
+              sebab: t.whoCanAct == null
+                  ? t.because
+                  : '${t.because} Yang perlu bertindak: ${t.whoCanAct}.',
+              jalan: const [],
+              ukuranTeks: 14,
+            )
+          else if (gagalN > 0)
             Semantics(
               container: true,
               liveRegion: true,
@@ -626,23 +871,23 @@ class _WebCatatScreenState extends State<WebCatatScreen> {
                   tinggi: 46,
                   radius: 12,
                   paddingH: 20,
-                  onPressed: () => setState(() => _posted = true),
+                  onPressed: _bukukan,
                 ),
               ),
-              const Tombol(
+              Tombol(
                 'Simpan sebagai draf',
-                onPressed: null,
+                onPressed: _simpanDraf,
                 jenis: JenisTombol.kedua,
                 ukuran: UkuranTombol.ringkas,
                 lebarPenuh: false,
-                ke: Layar.transaksi,
-                cara: Cara.naik,
               ),
             ],
           ),
         ] else ...[
           Text(
-            'Dibukukan pada 16/11/2026 10.42 · tidak dapat diubah lagi.',
+            'Dibukukan pada '
+            '${_dibukukanPada == null ? '' : tglJam(_dibukukanPada!)} · '
+            'tidak dapat diubah lagi.',
             style: TextStyle(fontSize: 14, color: c.tinta2),
           ),
           Align(
@@ -691,13 +936,15 @@ List<Widget> _jarak(double g, List<Widget> anak) => [
 /// proportion to their widths, never below their longest word), so they sit
 /// on one line whenever they fit, as on the board.
 class _BarisLencana extends StatelessWidget {
-  const _BarisLencana({required this.posted});
+  const _BarisLencana({required this.voucher});
 
-  final bool posted;
+  /// The booked number; null while a draft.
+  final String? voucher;
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
+    final posted = voucher != null;
     final dasar = DefaultTextStyle.of(context).style;
     final lencana = posted ? 'Dibukukan' : 'Draf · belum masuk saldo';
     final gayaLencana = dasar.copyWith(
@@ -706,8 +953,8 @@ class _BarisLencana extends StatelessWidget {
       color: posted ? c.permukaan : c.tinta2,
     );
     // Zero-width spaces: Chrome may break after a hyphen before digits, the
-    // Flutter breaker may not (narrow windows wrap "…BKU-2026-" / "0147").
-    const cap = 'No. Bukti BKU-​2026-​0147';
+    // Flutter breaker may not (narrow windows wrap "…BKU-yyyy-" / "nnnn").
+    final cap = 'No. Bukti ${voucher ?? ''}'.replaceAll('-', '-\u200B');
     final gayaCap = dasar.merge(
       _mono.copyWith(fontSize: 14, fontWeight: FontWeight.w600, color: c.laut),
     );
