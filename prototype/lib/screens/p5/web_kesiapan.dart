@@ -69,6 +69,14 @@ class _WebKesiapanScreenState extends State<WebKesiapanScreen>
                       ),
                     ],
                   ),
+                  // The h1's 26 / 1.45 strut: a wrapped line holding only the
+                  // 15 px span stays a full 26 px line, as in CSS.
+                  strutStyle: const StrutStyle(
+                    fontFamily: PalakatText.sans,
+                    fontSize: 26,
+                    height: 1.45,
+                    leadingDistribution: TextLeadingDistribution.even,
+                  ),
                   style: const TextStyle(
                     fontSize: 26,
                     fontWeight: FontWeight.w700,

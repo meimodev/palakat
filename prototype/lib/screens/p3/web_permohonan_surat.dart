@@ -145,30 +145,35 @@ class _Baris extends StatelessWidget {
         child: Row(
           children: [
             Expanded(
-              child: BarisLentur(
-                jarak: 20,
-                jarakBaris: 2,
-                anak: [
-                  Lentur(
-                    dasar: 260,
-                    child: Text(
-                      judul,
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                  Lentur(
-                    dasar: 300,
-                    tumbuh: 1.4,
-                    // baseline-aligned with the 15 px title in the board
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 2),
+              child: LayoutBuilder(
+                // Baseline-aligned with the 15 px title only while both share
+                // a line (260 + 20 + 300); wrapped, the meta starts 2 below.
+                builder: (context, k) => BarisLentur(
+                  jarak: 20,
+                  jarakBaris: 2,
+                  anak: [
+                    Lentur(
+                      dasar: 260,
                       child: Text(
-                        keterangan,
-                        style: TextStyle(fontSize: 13, color: c.tinta3),
+                        judul,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
                       ),
                     ),
-                  ),
-                ],
+                    Lentur(
+                      dasar: 300,
+                      tumbuh: 1.4,
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                          top: k.maxWidth >= 580 ? 2 : 0,
+                        ),
+                        child: Text(
+                          keterangan,
+                          style: TextStyle(fontSize: 13, color: c.tinta3),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             const SizedBox(width: 16),
