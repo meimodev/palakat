@@ -11,6 +11,25 @@ abstract final class PalakatUkuran {
   static const double isian = 48; // size-isian
 }
 
+const _nol = TextStyle(letterSpacing: 0);
+const _tanpaSpasi = TextTheme(
+  displayLarge: _nol,
+  displayMedium: _nol,
+  displaySmall: _nol,
+  headlineLarge: _nol,
+  headlineMedium: _nol,
+  headlineSmall: _nol,
+  titleLarge: _nol,
+  titleMedium: _nol,
+  titleSmall: _nol,
+  bodyLarge: _nol,
+  bodyMedium: _nol,
+  bodySmall: _nol,
+  labelLarge: _nol,
+  labelMedium: _nol,
+  labelSmall: _nol,
+);
+
 ThemeData palakatTema(Brightness b) {
   final w = b == Brightness.light ? PalakatWarna.terang : PalakatWarna.gelap;
   final scheme = ColorScheme(
@@ -55,6 +74,12 @@ ThemeData palakatTema(Brightness b) {
     extensions: [w],
     scaffoldBackgroundColor: w.kertas,
     fontFamily: PalakatText.sans,
+    // Material 3 typography adds letterSpacing (bodyLarge 0.5) that TextFields
+    // inherit; the boards' CSS has none.
+    typography: Typography.material2021(
+      colorScheme: scheme,
+      englishLike: Typography.englishLike2021.merge(_tanpaSpasi),
+    ),
     textTheme: teks.apply(bodyColor: w.tinta, displayColor: w.tinta),
     splashFactory: NoSplash.splashFactory,
     highlightColor: Colors.transparent,

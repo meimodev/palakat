@@ -90,7 +90,7 @@ enum StatusPenugasan {
   aktif('Aktif', GayaLabel.laut),
   jabatanKosong('Jabatan kosong', GayaLabel.bata),
   berakhir('Berakhir', GayaLabel.abu),
-  menungguVerifikasi('Menunggu verifikasi wewenang', GayaLabel.garis);
+  menungguVerifikasi('Menunggu verifikasi wewenang', GayaLabel.draf);
 
   final String label;
   final GayaLabel gaya;
