@@ -80,7 +80,7 @@ Each sweep pumps every board route at its frame size, in the light theme, at the
 | W1 | Text sweep over every `RenderParagraph`: font size ≥ 13; colour is not `putus`, `garis` or `garisTegas`; no text reads `null`, `undefined`, `NaN` or `Instance of`; a text whose whole content is an amount (`^[−+]?Rp[0-9.]+$`), a No. Bukti (`^[A-Z]{3}-\d{4}-\d{4}$`), a No. MA (`^\d+(\.\d{2})+$`) or a report ID (`^SNP-`) uses IBM Plex Mono. |
 | W2 | `await expectLater(tester, meetsGuideline(iOSTapTargetGuideline))`: every pressable target at least 44 × 44. |
 | W3 | At most one primary-variant `Tombol` or `TombolBersyarat` is visible on the topmost surface (a bottom sheet or a web side panel is its own surface). |
-| W4 | For each of the 69 boards whose `data-props` has `jabatanKosong`: switch on → exactly one `PitaJabatanKosong`; switch off → none. A board without the tweak never shows it. |
+| W4 | For each of the 69 boards whose `data-props` has `jabatanKosong`: switch on → exactly one `PitaJabatanKosong`; switch off → none. A board without the tweak never shows it, except `JabatanKosong` and `WebJabatanKosong` (at most one; section 4.3). |
 | W5 | `/Main/catat`, `/WebCatat`, `/TabCatat`, `/KasusBaru`, `/WebKasusBaru`, `/AlihPeruntukan`, `/WebAlihPeruntukan` open with nothing selected in Kas/Bank, peruntukan, Lingkup and Mata Anggaran; selecting one leaves the others unselected. |
 | W6 | With `MediaQuery.disableAnimations` (and again with the panel's reduce-motion switch): fill /Main/catat, open /Main/periksa, press Bukukan: it shows the final balance and the No. Bukti after one `pump()`; on `/Memuat` (Sedang memuat) `tester.hasRunningAnimations` is false. |
 | W7 | For every board and tweak: no `Text` under the `<Stem>Screen` subtree (`PanelKeadaan` excluded) starts with "Dilihat sebagai", "Di prototipe ini" or "Ulangi contoh", and no `Tekan` or `Tombol` there has a label (its `label` or a `Text` inside it) starting with "Contoh:". The accepted code 123456 is covered: the boards show it only in "Di prototipe ini kode yang benar adalah 123456." |
@@ -373,13 +373,15 @@ Found by grepping all 199 boards on 19/11/2026. Policy: a breach of an accessibi
 
 ### 4.1 Fix in the prototype
 
-| Board(s) | Breach | Rule | Do |
-| --- | --- | --- | --- |
-| `A4Warta` (1 place: the line "Diterbitkan 21/11/2026 oleh Sekretaris Jemaat · …"), `WebWartaEditor` (11 places: in the A4 page preview, the masthead "GMIM Jemaat Karunia · Minggu, 22 November 2026", the five uppercase section headings and their five body lines) | 12 px text | X01 | Set 13 px; check the WebWartaEditor page preview still fits its frame |
-| `Tanggal`, `WebTanggal` | Unavailable day numbers drawn in #808D87 (`putus`) as text | C03 | Use `tinta3`; keep the transparent field and no border |
-| `PetaLayar` | Board links 30 px high | X03 | Keep the drawn size; `Tautan` gives each a 44 px hit area |
-| `FormatLaporan`, `WebFormatLaporan` ("Catat persetujuan format"); `WebSerahTerima` ("Kirim untuk diverifikasi"); `Masuk`, `WebMasuk` ("Kirim kode masuk", "Masuk"); `Kejadian`, `WebKejadian` ("Catat penyelesaian keuangan"); `Koreksi` ("Catat kejadian"); `Pemulihan`, `WebPemulihan` ("Kirim kode pemulihan", "Pulihkan akun"); `UbahPengaturan`, `WebUbahPengaturan` ("Simpan sebagai versi baru"); `RekonIsi`, `WebRekonIsi` ("Tambah") | Button disabled with no reason anywhere on screen | A02, A03 | Once the person has typed into that form and the condition is unmet, show one TombolBersyarat line above the button: "Tidak dapat dilakukan: {button label}. {first unmet field, named as on the board} belum diisi." Record the added sentence in the spec notes |
-| `Sambungan`, `WebSambungan` | "Ulangi contoh" replay button inside the screen | Z01 | Move it to the Keadaan panel |
+| Board(s) | Breach | Rule | Do | Status |
+| --- | --- | --- | --- | --- |
+| `A4Warta` (1 place: the line "Diterbitkan 21/11/2026 oleh Sekretaris Jemaat · …"), `WebWartaEditor` (11 places: in the A4 page preview, the masthead "GMIM Jemaat Karunia · Minggu, 22 November 2026", the five uppercase section headings and their five body lines) | 12 px text | X01 | Set 13 px; check the WebWartaEditor page preview still fits its frame | Fixed in the prototype |
+| `Tanggal`, `WebTanggal` | Unavailable day numbers drawn in #808D87 (`putus`) as text | C03 | Use `tinta3`; keep the transparent field and no border | Fixed in the prototype |
+| `PetaLayar` | Board links 30 px high | X03 | Keep the drawn size; `Tautan` gives each a 44 px hit area | Fixed in the prototype |
+| `FormatLaporan`, `WebFormatLaporan` ("Catat persetujuan format"); `WebSerahTerima` ("Kirim untuk diverifikasi"); `Masuk`, `WebMasuk` ("Kirim kode masuk", "Masuk"); `Kejadian`, `WebKejadian` ("Catat penyelesaian keuangan"); `Koreksi` ("Catat kejadian"); `Pemulihan`, `WebPemulihan` ("Kirim kode pemulihan", "Pulihkan akun"); `UbahPengaturan`, `WebUbahPengaturan` ("Simpan sebagai versi baru"); `RekonIsi`, `WebRekonIsi` ("Tambah") | Button disabled with no reason anywhere on screen | A02, A03 | Once the person has typed into that form and the condition is unmet, show one TombolBersyarat line above the button: "Tidak dapat dilakukan: {button label}. {first unmet field, named as on the board} belum diisi." Record the added sentence in the spec notes | Fixed in the prototype |
+| `Sambungan`, `WebSambungan` | "Ulangi contoh" replay button inside the screen | Z01 | Move it to the Keadaan panel | Fixed in the prototype |
+| `UbahPengaturan`, `WebUbahPengaturan` | The label "Empat angka akhir No. rekening" was its own tap node (350 × 40 on the phone, 420 × 20 on web), apart from its field | X03 (W2) | The label's tap (focus the field) stays, excluded from semantics; the field carries the label | Fixed in the prototype |
+| `LihatDokumen` | Pager and zoom buttons scaled below 44 px (39 × 39) where the toolbar row did not fit | X03 (W2) | Keep 44 px buttons; when the row does not fit, the zoom group wraps under the pager group instead of scaling | Fixed in the prototype |
 
 ### 4.2 Build as drawn, log
 
@@ -391,10 +393,15 @@ Found by grepping all 199 boards on 19/11/2026. Policy: a breach of an accessibi
 | `Masuk`, `WebMasuk` (setelahMasuk "Administrator sistem") | "administrator sistem" where the glossary label is "Pengelola teknis" | L02 |
 | `PermintaanDana` (keadaan "Di bawah batas") | "Tidak diperlukan (aturan: di bawah batas Rp250.000 yang ditetapkan Jemaat)." contradicts P09 "No amount limits". Keep the state: the registry test needs every tweak option | P16 |
 | `Persembahan`, `WebPersembahan` | The sample opens with Kas/Bank already chosen for Tunai (Kas) and Transfer bank (Bank BNI). Excluded from W5 | I01 |
+| `WebBeranda`, `TabBeranda` | Three primary quick actions on one page: "+ Pendapatan", "− Belanja", "+ Persembahan", all drawn `laut` (#0E5A63). Allowlisted in W3 for exactly these labels | A01 (W3) |
+| `WebTransaksi` | "+ Catat transaksi" (page header) and "Periksa dan bukukan" (the selected transaction's detail in the right-hand `<aside>`) are both primary. The aside is a column of the same page, not a side panel over it, so W3 sees one surface. Allowlisted in W3 for exactly these labels | A01 (W3) |
+| `Kejadian`, `WebKejadian` | The "Transaksi" value "BKU-2026-0031" in the facts card is sans (the board's row value sets no font family). Allowlisted in W1 for exactly this text | F06 (W1) |
+| `AlurUnit`, `WebAlurUnit`, `AlurDana` | The Rupiah hint under "Jumlah (Rp)" ("Rp0" while empty) is sans (the board's hint span sets no font family). Allowlisted in W1 for exactly "Rp0", the text of the swept view | F06 (W1) |
 | Finance boards without the `jabatanKosong` tweak where a covering Operator would still be in the module: `Lainnya`, `WebPengaturan`, `UbahPengaturan`, `WebUbahPengaturan`, `TabBeranda`, `TabTransaksi`, `TabCatat`, `WebKoreksi` (its phone pair `Koreksi` has the tweak), `Kamera`, `Sambungan`, `WebSambungan`, `Memuat`, `WebMemuat`, `AlurPengembalian`, `WebAlurPengembalian` | No PitaJabatanKosong although the rule says "every screen of that module". CONVENTIONS scopes the global switch to boards that have the tweak: do not add it | P04 |
 
 ### 4.3 Checked and allowed (do not "fix")
 
+- `JabatanKosong`, `WebJabatanKosong` show PitaJabatanKosong without the `jabatanKosong` tweak: running the vacant post is the subject of these boards, so the strip follows their `keadaan` (absent on "Jabatan sudah terisi"), not the global switch. W4 checks only that there is never more than one.
 - "Setujui …" on `AlurBeranda`, `BerandaJabatan`, `WebBerandaJabatan`, `AlurDana`, `PermintaanDana`, `AlurWarta`, `WebAlurWarta`, `WartaEditor`, `WebWartaEditor`, `Ibadah`, and "Disetujui oleh" on `Panitia`, `PermintaanDana`, `AlurDana`, `AlurIbadah`, `Ibadah`, `WartaEditor`, `WebWartaEditor`: in-app approvals of rounds 2 to 5. No finance board uses Setujui or Disetujui; no board uses "Approve".
 - "Lainnya" is the fifth phone tab and its screen, never a Mata Anggaran option.
 - "versi" for the consent text ("naskah versi 1"), settings ("Simpan sebagai versi baru") and a conflict ("Muat versi terbaru"): none is a correction to a publication. No Secretariat board uses "versi"; no finance board uses "Revisi".

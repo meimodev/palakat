@@ -152,6 +152,8 @@ class _IsiUbahPengaturanState extends State<IsiUbahPengaturan> {
       children: [
         GestureDetector(
           onTap: fokus.requestFocus,
+          // The field carries the label; no separate small tap node.
+          excludeFromSemantics: true,
           child: Text(judul, style: label),
         ),
         const SizedBox(height: 6),

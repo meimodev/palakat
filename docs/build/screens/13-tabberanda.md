@@ -16,6 +16,8 @@ These six boards are three small groups. **TabBeranda**, **TabTransaksi** and **
 
 ### TabBeranda — Tablet · Beranda
 
+> Rules note: the three quick actions "+ Pendapatan", "− Belanja", "+ Persembahan" are all primary (`laut`) as drawn, against A01; logged in rules-checklist 4.2 and allowlisted in W3 (also WebBeranda).
+
 - **Source** `docs/design/handoff/canvas/boards/TabBeranda.dc.html` · page Web (`web`) · form Tablet (preview 834×1112, `expand: fill`) · interactive yes
 - **Route** `/TabBeranda`, no child routes · **Widget** `TabBerandaScreen` in `lib/screens/web/tab_beranda.dart`
 - **Purpose** Bendahara Jemaat on a tablet: the home page, the entry point of journey step 2 (daily work). It is the same content as WebBeranda. Shows D03: one combined Saldo buku for all Kas/Bank, counting only booked transactions; drafts are kept out of the balance on a `draf` line. Shows the ButirPerhatian levels: "Perlu tindakan" with a counter, and a plain "Untuk diketahui". Shows the principle that what is not yet known prints "—", not Rp0, and that cash count and bank statement are never added together. Shows D29 (web side bar, here collapsed) and Q26 (the desk posts get the laptop layout, which also serves the tablet).

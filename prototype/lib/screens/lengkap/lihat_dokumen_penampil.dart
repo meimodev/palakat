@@ -353,34 +353,36 @@ class _Kendali extends StatelessWidget {
         ),
       ),
     );
+    Widget groep(List<Widget> c) =>
+        Row(mainAxisSize: MainAxisSize.min, spacing: 8, children: c);
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
       // The 16 px spacer is a CSS flex item that shrinks (to 12 at 390 wide);
-      // the rest never shrinks, so scale down rather than overflow.
+      // the rest never shrinks. Narrower than that, the zoom pair wraps under
+      // the pager: the buttons keep their 44 px targets.
       child: LayoutBuilder(
-        builder: (context, k) => FittedBox(
-          fit: BoxFit.scaleDown,
-          child: DefaultTextStyle.merge(
-            style: const TextStyle(
-              leadingDistribution: TextLeadingDistribution.even,
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
+        builder: (context, k) => DefaultTextStyle.merge(
+          style: const TextStyle(
+            leadingDistribution: TextLeadingDistribution.even,
+          ),
+          child: Wrap(
+            alignment: WrapAlignment.center,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            // gap 8 + spacer + gap 8; 346 = everything else.
+            spacing: 16 + (k.maxWidth - 346).clamp(0, 16),
+            runSpacing: 8,
+            children: [
+              groep([
                 tombol('‹', 'Halaman sebelumnya', prev),
-                const SizedBox(width: 8),
                 label('${hal + 1} dari 2', 70),
-                const SizedBox(width: 8),
                 tombol('›', 'Halaman berikutnya', next),
-                // gap 8 + spacer + gap 8; 346 = everything else.
-                SizedBox(width: 16 + (k.maxWidth - 346).clamp(0, 16)),
+              ]),
+              groep([
                 tombol('−', 'Perkecil', kecil),
-                const SizedBox(width: 8),
                 label('${(zoom * 100).round()}%', 52, mono: true),
-                const SizedBox(width: 8),
                 tombol('+', 'Perbesar', besar),
-              ],
-            ),
+              ]),
+            ],
           ),
         ),
       ),

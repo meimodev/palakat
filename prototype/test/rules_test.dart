@@ -225,6 +225,30 @@ final _kode = [
   RegExp(r'^\d+(\.\d{2})+$'),
   RegExp(r'^SNP-'),
 ];
+
+// Section 4 of rules-checklist.md: board breaches built as drawn (4.2) or
+// checked and allowed (4.3), allowlisted per rule and per board, exactly.
+
+/// W1 (F06): a code or amount drawn in sans on the board.
+const _w1Sans = {
+  'Kejadian': {'BKU-2026-0031'},
+  'WebKejadian': {'BKU-2026-0031'},
+  'AlurUnit': {'Rp0'},
+  'WebAlurUnit': {'Rp0'},
+  'AlurDana': {'Rp0'},
+};
+
+/// W3 (A01): the boards draw these primary buttons together on one surface.
+const _w3Utama = {
+  'WebBeranda': {'+ Pendapatan', '− Belanja', '+ Persembahan'},
+  'TabBeranda': {'+ Pendapatan', '− Belanja', '+ Persembahan'},
+  'WebTransaksi': {'+ Catat transaksi', 'Periksa dan bukukan'},
+};
+
+/// W4 (P04): the vacant post is the subject of these boards; the strip follows
+/// their keadaan, not the switch. Never more than one.
+const _w4Pokok = {'JabatanKosong', 'WebJabatanKosong'};
+
 const _awalanLarangan = [
   'Dilihat sebagai',
   'Di prototipe ini',
@@ -269,7 +293,9 @@ void _sapu(String nama, Papan p, (String, Object)? tweak) {
         if (warna != null) {
           gagal.add('W1 colour $warna: ${_pendek(t)}${_asal(s.e)}');
         }
-        if (kode && g.fontFamily != PalakatText.mono) {
+        if (kode &&
+            g.fontFamily != PalakatText.mono &&
+            !(_w1Sans[p.stem]?.contains(isi) ?? false)) {
           gagal.add(
             'W1 not mono (${g.fontFamily}): ${_pendek(isi)}${_asal(s.e)}',
           );
@@ -298,7 +324,9 @@ void _sapu(String nama, Papan p, (String, Object)? tweak) {
     final lembar = utama.keys.where((k) => k?.widget is LembarBawah).toList();
     for (final k in lembar.isNotEmpty ? lembar : utama.keys) {
       final l = utama[k]!;
-      if (l.length > 1) {
+      final boleh = _w3Utama[p.stem];
+      if (l.length > 1 &&
+          !(boleh != null && l.toSet().difference(boleh).isEmpty)) {
         final di = k == null ? 'page' : k.widget.runtimeType.toString();
         gagal.add('W3 ${l.length} primary buttons on the $di: $l');
       }
@@ -307,7 +335,7 @@ void _sapu(String nama, Papan p, (String, Object)? tweak) {
     // W4: PitaJabatanKosong follows the switch on boards with the tweak.
     final pita = semua.where((s) => s.e.widget is PitaJabatanKosong).length;
     final harus = adaJk && keadaan.jabatanKosong ? 1 : 0;
-    if (pita != harus) {
+    if (_w4Pokok.contains(p.stem) ? pita > 1 : pita != harus) {
       gagal.add(
         'W4 $pita PitaJabatanKosong, expected $harus '
         '(tweak ${adaJk ? 'present' : 'absent'}, '

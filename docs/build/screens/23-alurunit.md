@@ -112,6 +112,7 @@ Shared notes for this file:
   - "No. Bukti baru" is the board's stand-in for the number a new booking gets. Keep the words; do not invent a number.
   - Booked-row amounts are mono at weight 400 (inherited), unlike the 500 used on the blocker card. Copy the board.
   - Inputs show their value at 14 `tinta2` (shared note).
+  - The Rupiah hint under "Jumlah (Rp)" ("Rp0" while empty) is sans on the board, against F06 (money in mono). Built as drawn; logged in rules-checklist 4.2 and allowlisted in W1 (also for WebAlurUnit and AlurDana).
 
 ### WebAlurUnit — Web · Alur · Keuangan unit
 

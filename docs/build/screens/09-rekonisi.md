@@ -598,6 +598,7 @@ All copy is quoted from the boards. "Today" is 16/11/2026 and the actor is Meisk
      - Clear the field: the button turns grey.
   7. **The back arrow** returns to Lainnya.
 - **Notes**
+  - The label "Empat angka akhir No. rekening" focuses its field on tap (`<label for>`) but is excluded from semantics: the field carries the label, so there is no separate small tap target (X03, rules-checklist 4.1; also WebUbahPengaturan).
   - **No reason when the button is disabled** on the board. Added for rules A02/A03 (rules-checklist 4.1), not on the board: "Simpan sebagai versi baru" is TombolBersyarat; once a field of the open tab differs from its start value and the tab's condition is unmet, it shows "Tidak dapat dilakukan: Simpan sebagai versi baru. {field} belum diisi." above the button, {field} the first unmet one as labelled on the board: "Nama bank" / "Tempat atau pemegang", then "Empat angka akhir No. rekening" (Kas/Bank); "Awalan seri Biasa" (Seri); "Wajib untuk Belanja mulai dari" (Aturan). The untouched form shows none.
   - **The tab chips are 13 px with padding 0 12 and margin 0 6 6 0**, smaller than the other chips (14 px, 0 14). Copy it.
   - **Off-token values**: preview mono 24, threshold mono 26, "Rp" prefix 18.
