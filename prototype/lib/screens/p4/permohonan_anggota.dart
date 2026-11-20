@@ -1,279 +1,272 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
-import '../../shell/kepala_ponsel.dart';
-import '../../shell/layar_ponsel.dart';
+import '../../core/format.dart';
+import '../../core/tanggal.dart';
+import '../../domain/core/core.dart';
+import '../../domain/membership/membership.dart';
+import '../../providers/actor.dart';
+import '../../providers/jemaat/jemaat.dart';
+import '../../providers/repositories_jemaat.dart';
 import '../../theme/palakat_tema.dart';
-import '../../shell/tautan.dart';
 import '../../widgets/alur_kit.dart';
-import '../../widgets/garis.dart';
-import '../../widgets/ikon.dart';
+import '../../widgets/chip_pilihan.dart';
 import '../../widgets/kecil.dart';
-import '../../widgets/lencana_status.dart';
+import '../../widgets/penolakan.dart';
 import '../../widgets/tata_letak.dart';
-import '../../widgets/tekan.dart';
-import '../../widgets/tombol.dart';
-import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
+import '../../widgets/tombol_bersyarat.dart';
+import 'jemaat_bagian.dart';
 
-const _mengisi = 'Mengisi';
-const _izinBelum = 'Izin belum diberikan';
-const _untukAnak = 'Untuk anak';
-const _diajukan = 'Diajukan';
-const _dikembalikan = 'Dikembalikan';
-const _diverifikasi = 'Diverifikasi';
-const _tidakDiterima = 'Tidak diterima';
-
-/// 72 · Permohonan menjadi anggota (spec 19-alursurat.md): seven views under
-/// one header, chosen by `k ?? keadaan`.
-class PermohonanAnggotaScreen extends StatefulWidget {
+/// 72 · Permohonan menjadi anggota + 82 · AlurAnggota (DP36): a submitted
+/// application at `/permohonan-anggota/:id`, opened from AntreanVerifikasi.
+/// The verifier (here Yanti, covering Penatua Kolom 2, for Kevin Rompas)
+/// reads the form and verifies it or returns it with a reason. The
+/// applicant's empty form ("Ajukan permohonan", id `baru`) is kept behind
+/// `membership.apply`, which no persona holds.
+class PermohonanAnggotaScreen extends ConsumerStatefulWidget {
   const PermohonanAnggotaScreen({super.key});
 
   @override
-  State<PermohonanAnggotaScreen> createState() =>
+  ConsumerState<PermohonanAnggotaScreen> createState() =>
       _PermohonanAnggotaScreenState();
 }
 
-class _PermohonanAnggotaScreenState extends State<PermohonanAnggotaScreen> {
-  String? _k;
-  String? _tweakLama;
-  String? _tampil;
+class _PermohonanAnggotaScreenState
+    extends ConsumerState<PermohonanAnggotaScreen> {
+  static const _judul = 'Permohonan menjadi anggota';
+  final _alasan = TextEditingController();
+  bool _kembali = false;
+  Refusal? _tolakan;
 
-  /// The native checkbox's own tick; drives only the box (spec Notes).
-  bool _izin = true;
+  @override
+  void dispose() {
+    _alasan.dispose();
+    super.dispose();
+  }
 
-  void _ke(String v) => setState(() => _k = v);
+  Future<void> _putuskan(VerificationItem i, {required bool verif}) async {
+    final repo = ref.read(verificationRepositoryProvider);
+    final r = await jalankanJemaat(
+      ref,
+      (a, k) => verif
+          ? repo.verify(
+              a,
+              i.id,
+              expectedRevision: i.revision,
+              idempotencyKey: k,
+            )
+          : repo.returnForChanges(
+              a,
+              i.id,
+              reason: _alasan.text,
+              expectedRevision: i.revision,
+              idempotencyKey: k,
+            ),
+    );
+    if (!mounted || r == null) return;
+    setState(() {
+      _tolakan = r.refusal;
+      if (r.isOk) _kembali = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final tweak = belumDipindah<String>('Mengisi');
-    if (tweak != _tweakLama) {
-      _tweakLama = tweak;
-      _k = null;
+    final id = GoRouterState.of(context).pathParameters['id'] ?? '';
+    final a = ref.watch(actorProvider);
+    final nama = ref.watch(namaJemaatProvider);
+    final i = ref.watch(applicationRepositoryProvider).application(id);
+    final List<Widget> isi;
+    if (i == null || i.kind != ItemKind.application || a == null) {
+      isi = [
+        if (id == 'baru' &&
+            ref
+                .watch(canProvider)
+                .can(
+                  a ?? const Actor(personId: '', scopeId: ''),
+                  Capability.membershipApply,
+                  ScopeRef.jemaat,
+                  at: ref.watch(hariIniProvider),
+                ))
+          const _FormulirPemohon()
+        else
+          kotakKosong(context, 'Pengajuan akan muncul di sini.'),
+      ];
+    } else {
+      isi = _isi(i, a, nama);
     }
-    final v = _k ?? tweak;
-    if (v != _tampil) {
-      _tampil = v;
-      _izin = v != _izinBelum;
-    }
-    return LayarPonsel(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const KepalaPonsel(
-            judul: 'Permohonan menjadi anggota',
-            anakJudul: 'Diisi sendiri, lalu diverifikasi Penatua Kolom',
-            kembaliKe: Layar.dataAnggota,
-            labelKembali: 'Kembali ke Data jemaat',
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              key: ValueKey(v),
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: _sela(_isi(context, v), 16),
-              ),
-            ),
-          ),
-        ],
-      ),
+    return KerangkaJemaat(
+      judul: _judul,
+      anakJudul: 'Diisi sendiri, lalu diverifikasi Penatua Kolom',
+      tampilan: (i?.status, _kembali),
+      blok: isi,
     );
   }
 
-  List<Widget> _isi(BuildContext context, String v) {
-    final c = context.warna;
-    final ajukan = BarisTombol(
-      anak: [
-        Tombol(
-          'Ajukan permohonan',
-          jenis: JenisTombol.tinta,
-          onPressed: () => _ke(_diajukan),
+  List<Widget> _isi(VerificationItem i, Actor a, NamaJemaat nama) {
+    final f = i.application!;
+    final kolom = nama.kolom(f.kolomId);
+    final oleh = i.decidedBy == null
+        ? ''
+        : nama.olehSiapa(
+            i.decidedBy!,
+            i.id,
+            i.status == ItemStatus.verified
+                ? 'membership.verify'
+                : i.status == ItemStatus.returned
+                ? 'membership.return'
+                : 'membership.decline',
+          );
+    switch (i.status) {
+      case ItemStatus.verified:
+        final keluarga = f.householdId == null
+            ? ''
+            : ' · Keluarga ${nama.keluarga(f.householdId!)}';
+        return [
+          _KartuHasil(
+            judul: f.name,
+            st: 'Diverifikasi',
+            isi: 'Anggota jemaat$keluarga · $kolom',
+            ket:
+                'Diverifikasi oleh $oleh, ${saatJemaat(i.decidedAt)}. '
+                'Verifikasi bukan persetujuan keuangan dan tidak dilakukan '
+                'oleh pemohon sendiri.',
+          ),
+        ];
+      case ItemStatus.returned:
+        return [
+          _KartuHasil(
+            judul: _judul,
+            st: 'Dikembalikan',
+            isi: 'Alasan: ${i.reason}',
+            ket: 'Oleh $oleh, ${saatJemaat(i.decidedAt)}',
+          ),
+        ];
+      case ItemStatus.declined:
+        return [
+          _KartuHasil(
+            judul: _judul,
+            st: 'Tidak diterima',
+            isi: 'Alasan: ${i.reason}',
+            ket:
+                'Oleh $oleh, ${saatJemaat(i.decidedAt)}. Data yang diisi '
+                'tidak menjadi data anggota.',
+          ),
+        ];
+      case ItemStatus.submitted:
+        break;
+    }
+    if (i.submittedBy == a.personId) {
+      return [
+        _KartuHasil(
+          judul: _judul,
+          st: 'Diajukan',
+          isi: 'Diajukan ${saatJemaat(i.submittedAt)}',
+          ket:
+              'Berikutnya: Penatua $kolom memverifikasi data ini. Anda belum '
+              'menjadi anggota sampai permohonan Diverifikasi.',
         ),
-      ],
+      ];
+    }
+    if (_kembali) {
+      return [
+        ...formAlasan(
+          judul: _judul,
+          tindakan: 'Kembalikan',
+          alasan: _alasan,
+          onUbah: () => setState(() {}),
+          kirim: () => _putuskan(i, verif: false),
+          batal: () => setState(() => _kembali = false),
+        ),
+        ?(_tolakan == null ? null : penolakanDari(_tolakan!)),
+      ];
+    }
+    final hari = ref.read(hariIniProvider);
+    final bipra = computeBipra(
+      birthDate: f.birthDate,
+      sex: f.sex,
+      marital: f.marital,
+      at: hari,
     );
-    Widget izin(String kalimat) => _KartuIzin(
-      kalimat: kalimat,
-      nilai: _izin,
-      onUbah: (b) => setState(() => _izin = b),
-    );
-    const sendiri = 'Saya memberi izin penggunaan data pribadi saya.';
-    return switch (v) {
-      _izinBelum => [
-        const _FormulirSaya(),
-        izin(sendiri),
-        // `<button disabled>`: not focusable, nothing happens.
-        BarisTombol(
-          anak: [
-            Tekan(
-              onTap: null,
-              radius: 14,
-              child: RupaTombol(
-                label: 'Ajukan permohonan',
-                isi: c.garis,
-                warnaTeks: c.tinta2,
-                radius: 14,
-                tinggi: 52,
-                paddingH: 16,
-              ),
-            ),
-          ],
+    final sebab = ref
+        .read(verificationRepositoryProvider)
+        .whyNotVerify(a, i.id);
+    return [
+      _Formulir(f, nama, bipra),
+      _KartuIzin(
+        versi: i.consentVersion ?? consentVersion,
+        tanggal: ref.read(tanggalNaskahProvider),
+      ),
+      keteranganAlur(context, hanyaKolom(kolom)),
+      ?(_tolakan == null ? null : penolakanDari(_tolakan!)),
+      if (sebab != null)
+        Penolakan(
+          tindakan: 'Verifikasi data',
+          sebab: sebab,
+          jalan: const [],
+          ukuranTeks: 14,
+        )
+      else
+        tombolPenatua(
+          verif: () => _putuskan(i, verif: true),
+          keKembali: () => setState(() {
+            _kembali = true;
+            _alasan.clear();
+            _tolakan = null;
+          }),
         ),
-        Text(
-          'Tidak dapat dilakukan: izin penggunaan data pribadi belum diberikan.',
-          style: TextStyle(fontSize: 13, color: c.tinta3),
-        ),
-      ],
-      _untukAnak => [
-        const _Kartu(
-          jarak: 12,
-          anak: [
-            _Isian('Nama anak', 'Gabriel Wenas'),
-            _Isian('Tanggal lahir', '02/09/2019'),
-            _Isian('Orang tua atau wali', 'Novita Wenas'),
-          ],
-        ),
-        izin(
-          'Sebagai orang tua atau wali, saya memberi izin penggunaan data '
-          'pribadi anak ini.',
-        ),
-        ajukan,
-      ],
-      _diajukan => [
-        _KartuHasil(
-          judul: 'Permohonan menjadi anggota',
-          lencana: const LencanaStatus('Diajukan', bentuk: BentukLencana.garis),
-          isi: 'Diajukan 16/11/2026 10.12',
-          ket:
-              'Berikutnya: Pnt. Hendrik Rumagit, Penatua Kolom 7, memverifikasi '
-              'data ini. Anda belum menjadi anggota sampai permohonan '
-              'Diverifikasi.',
-        ),
-      ],
-      _dikembalikan => [
-        _KartuHasil(
-          judul: 'Permohonan menjadi anggota',
-          lencana: const LencanaStatus(
-            'Dikembalikan',
-            bentuk: BentukLencana.bata,
-          ),
-          isi:
-              'Alasan: tanggal lahir berbeda dengan surat baptis. Mohon '
-              'diperiksa lagi.',
-          ket: 'Oleh Pnt. Hendrik Rumagit, 17/11/2026 08.40',
-        ),
-        BarisTombol(
-          anak: [
-            Tombol(
-              'Ubah dan ajukan lagi',
-              jenis: JenisTombol.tinta,
-              onPressed: () => _ke(_mengisi),
-            ),
-          ],
-        ),
-      ],
-      _diverifikasi => [
-        _KartuHasil(
-          judul: 'Novita Wenas',
-          lencana: const LencanaStatus(
-            'Diverifikasi',
-            bentuk: BentukLencana.laut,
-          ),
-          isi: 'Anggota jemaat · Keluarga Wenas-Lasut · Kolom 7',
-          ket:
-              'Diverifikasi oleh Pnt. Hendrik Rumagit, 17/11/2026 19.05. '
-              'Verifikasi bukan persetujuan keuangan dan tidak dilakukan oleh '
-              'pemohon sendiri.',
-        ),
-        // The board's `<a>` is content-box: max-width 340 + padding + line
-        // is wider than the row, so it fills it; min height 48 + 2 × 1.5.
-        Tautan(
-          ke: Layar.tampilanNama,
-          radius: 14,
-          child: RupaTombol(
-            label: 'Atur tampilan nama saya',
-            isi: c.permukaan,
-            garis: GarisBorder.penuh(c.tinta, radius: 14),
-            warnaTeks: c.tinta,
-            radius: 14,
-            tinggi: 51,
-            paddingH: 16,
-          ),
-        ),
-      ],
-      _tidakDiterima => [
-        _KartuHasil(
-          judul: 'Permohonan menjadi anggota',
-          lencana: const LencanaStatus(
-            'Tidak diterima',
-            bentuk: BentukLencana.bata,
-          ),
-          isi:
-              'Alasan: pemohon tercatat sebagai anggota aktif jemaat lain; '
-              'perlu atestasi masuk.',
-          ket:
-              'Oleh Pnt. Hendrik Rumagit, 17/11/2026. Data yang diisi tidak '
-              'menjadi data anggota.',
-        ),
-      ],
-      _ => [const _FormulirSaya(), izin(sendiri), ajukan],
-    };
+    ];
   }
 }
 
-List<Widget> _sela(List<Widget> anak, double jarak) => [
-  for (final (i, a) in anak.indexed) ...[if (i > 0) SizedBox(height: jarak), a],
-];
+/// The date of the consent text version (Modul: "Naskah bawaan · versi 1").
+final tanggalNaskahProvider = Provider<String>((ref) {
+  final t = ref.watch(consentRepositoryProvider).text().date;
+  return t == null ? '' : tgl(t.awal);
+});
 
-/// Detail card: padding 14 16, a column with [jarak].
-class _Kartu extends StatelessWidget {
-  const _Kartu({required this.anak, required this.jarak});
-
-  final List<Widget> anak;
-  final double jarak;
+/// The submitted form, read-only (the board's "Mengisi" fields).
+class _Formulir extends StatelessWidget {
+  const _Formulir(this.f, this.nama, this.bipra);
+  final ApplicationForm f;
+  final NamaJemaat nama;
+  final Bipra? bipra;
 
   @override
   Widget build(BuildContext context) => Kartu(
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: _sela(anak, jarak),
-    ),
-  );
-}
-
-/// The applicant's own form (Mengisi, Izin belum diberikan).
-class _FormulirSaya extends StatelessWidget {
-  const _FormulirSaya();
-
-  @override
-  Widget build(BuildContext context) => const _Kartu(
-    jarak: 12,
-    anak: [
-      _Isian('Nama lengkap', 'Novita Wenas'),
+    child: kolomJemaat(jarak: 12, [
+      _Isian('Nama lengkap', f.name),
       KisiOtomatis(
         minLebar: 300,
         jarak: 16,
         anak: [
-          _Isian('Tanggal lahir', '14/03/1996'),
-          _Isian('Jenis kelamin', 'Perempuan'),
+          _Isian('Tanggal lahir', tgl(f.birthDate.awal)),
+          _Isian(
+            'Jenis kelamin',
+            f.sex == Sex.male ? 'Laki-laki' : 'Perempuan',
+          ),
         ],
       ),
       _Isian(
         'Status pernikahan',
-        'Belum pernah menikah',
-        ket: 'Bersama tanggal lahir menentukan Kategori BIPRA: Pemuda',
+        f.marital.label,
+        ket:
+            'Bersama tanggal lahir menentukan Kategori BIPRA: '
+            '${bipra?.label ?? '—'}',
       ),
-      _Isian(
-        'Keluarga',
-        'Wenas-Lasut',
-        ket: 'Setiap orang tetap punya datanya sendiri, termasuk anak',
-      ),
-      _Isian('Kolom', 'Kolom 7'),
-    ],
+      if (f.householdId != null)
+        _Isian(
+          'Keluarga',
+          nama.keluarga(f.householdId!) ?? '',
+          ket: 'Setiap orang tetap punya datanya sendiri, termasuk anak',
+        ),
+      _Isian('Kolom', nama.kolom(f.kolomId)),
+    ]),
   );
 }
 
-/// A read-only field: label 14 `tinta2`, gap 6, input, optional 13 `tinta3`
-/// helper.
+/// A read-only field: label 14 `tinta2`, gap 6, input, optional helper.
 class _Isian extends StatelessWidget {
   const _Isian(this.label, this.nilai, {this.ket});
 
@@ -284,6 +277,7 @@ class _Isian extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.warna;
     final isian = IsianTeks(
+      key: ValueKey('$label $nilai'),
       nilaiAwal: nilai,
       label: label,
       jarakLabel: 6,
@@ -291,117 +285,196 @@ class _Isian extends StatelessWidget {
       gaya: TextStyle(fontSize: 14, color: c.tinta2),
     );
     if (ket == null) return isian;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        isian,
-        const SizedBox(height: 6),
-        Text(ket!, style: TextStyle(fontSize: 13, color: c.tinta3)),
-      ],
-    );
+    return kolomJemaat(jarak: 6, [isian, keteranganAlur(context, ket!)]);
   }
 }
 
-/// Consent card (Q28): title, text version, text, checkbox row.
+/// The consent the applicant gave (Q28), read-only.
 class _KartuIzin extends StatelessWidget {
-  const _KartuIzin({
-    required this.kalimat,
-    required this.nilai,
-    required this.onUbah,
-  });
-
-  final String kalimat;
-  final bool nilai;
-  final ValueChanged<bool> onUbah;
+  const _KartuIzin({required this.versi, required this.tanggal});
+  final String versi, tanggal;
 
   @override
-  Widget build(BuildContext context) {
-    final c = context.warna;
-    return _Kartu(
-      jarak: 6,
-      anak: [
-        const Text(
-          'Izin penggunaan data pribadi',
-          style: TextStyle(fontWeight: FontWeight.w700),
-        ),
-        Text(
-          'Naskah versi 1 · 12/11/2026',
-          style: TextStyle(fontSize: 13, color: c.tinta3),
-        ),
-        Text(
-          'Data ini dipakai Jemaat Karunia untuk pelayanan, surat dan Warta '
-          'Jemaat. Nama saya di publikasi mengikuti Tampilan nama yang saya '
-          'pilih. Saya dapat mencabut izin dan meminta data saya dihapus.',
-          style: TextStyle(fontSize: 14, color: c.tinta2),
-        ),
-        // KotakCentang has no `margin: 2px 0 0` for its box; the same look,
-        // drawn here with it. The whole row is the target.
-        Tekan(
-          onTap: () => onUbah(!nilai),
-          tercentang: nilai,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 2),
-                child: SizedBox.square(
-                  dimension: 24,
-                  child: DecoratedBox(
-                    decoration: ShapeDecoration(
-                      color: nilai ? c.laut : c.permukaan,
-                      shape: nilai
-                          ? RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(4),
-                            )
-                          : GarisBorder.penuh(c.garisTegas, radius: 4),
-                    ),
-                    child: nilai
-                        ? Center(
-                            child: PalakatIkon(
-                              Ikon.centang,
-                              ukuran: 16,
-                              warna: c.diLaut,
-                              tebal: 3,
-                            ),
-                          )
-                        : null,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(kalimat, style: const TextStyle(fontSize: 14)),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
+  Widget build(BuildContext context) => kartuAlur([
+    const Text(
+      'Izin penggunaan data pribadi',
+      style: TextStyle(fontWeight: FontWeight.w700),
+    ),
+    keteranganAlur(context, 'Naskah $versi · $tanggal'),
+    barisAlur(
+      context,
+      'Data ini dipakai Jemaat Karunia untuk pelayanan, surat dan Warta '
+      'Jemaat. Nama saya di publikasi mengikuti Tampilan nama yang saya '
+      'pilih. Saya dapat mencabut izin dan meminta data saya dihapus.',
+    ),
+    const BarisInfo('Izin data pribadi', 'Diberikan'),
+  ]);
 }
 
 /// Outcome card: title row with badge, 14 `tinta2` line, 13 `tinta3` note.
 class _KartuHasil extends StatelessWidget {
   const _KartuHasil({
     required this.judul,
-    required this.lencana,
+    required this.st,
     required this.isi,
     required this.ket,
   });
 
-  final String judul, isi, ket;
-  final Widget lencana;
+  final String judul, st, isi, ket;
+
+  @override
+  Widget build(BuildContext context) => kartuAlur([
+    KepalaKartu(judul: judul, ujung: lencanaSt(st)),
+    barisAlur(context, isi),
+    keteranganAlur(context, ket),
+  ]);
+}
+
+/// The applicant's own form (AlurAnggota), behind `membership.apply` (DP36).
+class _FormulirPemohon extends ConsumerStatefulWidget {
+  const _FormulirPemohon();
+
+  @override
+  ConsumerState<_FormulirPemohon> createState() => _FormulirPemohonState();
+}
+
+class _FormulirPemohonState extends ConsumerState<_FormulirPemohon> {
+  final _nama = TextEditingController();
+  final _lahir = TextEditingController();
+  Sex? _jk;
+  MaritalStatus? _nikah;
+  String? _kolom;
+  bool _izin = false, _sentuh = false;
+  Refusal? _tolakan;
+  String _pesan = '';
+
+  @override
+  void dispose() {
+    _nama.dispose();
+    _lahir.dispose();
+    super.dispose();
+  }
+
+  Tanggal? get _tgl {
+    final n = bacaTgl(_lahir.text);
+    return n == null ? null : Tanggal(n ~/ 10000, n ~/ 100 % 100, n % 100);
+  }
+
+  String _alasanAjukan() {
+    final t = _tgl;
+    if (_nama.text.trim().isEmpty) return 'nama belum diisi.';
+    if (t == null) return 'tanggal lahir tidak dikenali.';
+    if (!(t < ref.read(hariIniProvider))) {
+      return 'tanggal lahir harus sebelum hari ini.';
+    }
+    if (_jk == null) return 'jenis kelamin belum dipilih.';
+    if (_nikah == null) return 'status pernikahan belum dipilih.';
+    if (_kolom == null) return 'Kolom belum dipilih.';
+    if (!_izin) return 'izin penggunaan data pribadi belum diberikan.';
+    return '';
+  }
+
+  Future<void> _ajukan() async {
+    final r = await jalankanJemaat(
+      ref,
+      (a, k) => ref
+          .read(applicationRepositoryProvider)
+          .apply(
+            a,
+            ApplicationForm(
+              name: _nama.text.trim(),
+              birthDate: _tgl!,
+              sex: _jk!,
+              marital: _nikah!,
+              kolomId: _kolom!,
+            ),
+            _izin,
+            idempotencyKey: k,
+          ),
+    );
+    if (!mounted || r == null) return;
+    setState(() {
+      _tolakan = r.refusal;
+      if (r.isOk) _pesan = 'Diajukan. Penatua diberi tahu lewat Pemberitahuan.';
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final c = context.warna;
-    return _Kartu(
-      jarak: 6,
-      anak: [
-        KepalaKartu(judul: judul, ujung: lencana),
-        Text(isi, style: TextStyle(fontSize: 14, color: c.tinta2)),
-        Text(ket, style: TextStyle(fontSize: 13, color: c.tinta3)),
-      ],
-    );
+    final alasan = _alasanAjukan();
+    final nama = ref.watch(namaJemaatProvider);
+    return kolomJemaat([
+      if (_pesan.isNotEmpty) Pesan(Text(_pesan)),
+      IsianAlur(
+        label: 'Nama lengkap',
+        controller: _nama,
+        petunjuk: 'Nama sesuai surat baptis',
+        onChanged: (_) => setState(() => _sentuh = true),
+      ),
+      IsianAlur(
+        label: 'Tanggal lahir',
+        controller: _lahir,
+        petunjuk: 'hh/bb/tttt',
+        onChanged: (_) => setState(() => _sentuh = true),
+      ),
+      ChipPilihan<Sex>(
+        label: 'Jenis kelamin',
+        jarakLabel: 6,
+        jarakBawah: 0,
+        pilihan: const [
+          (nilai: Sex.female, teks: 'Perempuan'),
+          (nilai: Sex.male, teks: 'Laki-laki'),
+        ],
+        terpilih: _jk,
+        onPilih: (v) => setState(() => _jk = v),
+      ),
+      ChipPilihan<MaritalStatus>(
+        label: 'Status pernikahan',
+        jarakLabel: 6,
+        jarakBawah: 0,
+        pilihan: [
+          for (final m in MaritalStatus.values) (nilai: m, teks: m.label),
+        ],
+        terpilih: _nikah,
+        onPilih: (v) => setState(() => _nikah = v),
+      ),
+      ChipPilihan<String>(
+        label: 'Kolom',
+        jarakLabel: 6,
+        jarakBawah: 0,
+        pilihan: [
+          for (var k = 1; k <= 12; k++)
+            (nilai: 'kolom-$k', teks: nama.kolom('kolom-$k')),
+        ],
+        terpilih: _kolom,
+        onPilih: (v) => setState(() => _kolom = v),
+      ),
+      KotakCentang(
+        nilai: _izin,
+        onUbah: (v) => setState(() => _izin = v),
+        jarakAtas: 2,
+        label: const Text('Saya memberi izin penggunaan data pribadi saya.'),
+      ),
+      if (_sentuh && alasan.isNotEmpty)
+        Penolakan(
+          tindakan: 'Ajukan',
+          sebab: alasan,
+          jalan: const [],
+          ukuranTeks: 14,
+        ),
+      ?(_tolakan == null ? null : penolakanDari(_tolakan!)),
+      BarisTombol(
+        anak: [
+          TombolBersyarat(
+            label: 'Ajukan permohonan',
+            tindakan: 'Ajukan',
+            alasan: alasan,
+            periksa: _alasanAjukan,
+            sudahMulai: false,
+            onPressed: _ajukan,
+          ),
+        ],
+      ),
+    ]);
   }
 }

@@ -1,5 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/layar.dart';
+import '../../core/format.dart';
+import '../../domain/core/core.dart';
+import '../../domain/membership/membership.dart';
+import '../../providers/actor.dart';
+import '../../providers/jemaat/jemaat.dart';
+import '../../providers/repositories_jemaat.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import '../../shell/tautan.dart';
@@ -10,109 +18,228 @@ import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/penolakan.dart';
 import '../../widgets/tata_letak.dart';
+import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
-import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
 
-/// 76 · Data anggota dan keluarga (phone). No handler changes the view: it is
-/// the panel's `keadaan`, so the board state `k` is always null.
-class DataAnggotaScreen extends StatelessWidget {
+/// 76 · Data anggota dan keluarga (phone).
+class DataAnggotaScreen extends ConsumerWidget {
   const DataAnggotaScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final keadaan = belumDipindah<String>('Dilihat Penatua Kolom 7');
-    return LayarPonsel(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const KepalaPonsel(
-            judul: 'Data anggota dan keluarga',
-            anakJudul:
-                'Satu data untuk setiap orang; keluarga menyimpan riwayatnya',
-            kembaliKe: Layar.beranda,
-            labelKembali: 'Kembali ke Beranda',
+  Widget build(BuildContext context, WidgetRef ref) => LayarPonsel(
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const KepalaPonsel(
+          judul: 'Data anggota dan keluarga',
+          anakJudul:
+              'Satu data untuk setiap orang; keluarga menyimpan riwayatnya',
+          kembaliKe: Layar.beranda,
+          labelKembali: 'Kembali ke Beranda',
+        ),
+        Expanded(
+          child: SingleChildScrollView(
+            // A new person starts at the top.
+            key: ValueKey(ref.watch(anggotaDipilihProvider)),
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+            child: const IsiDataAnggota(),
           ),
-          Expanded(
-            child: SingleChildScrollView(
-              // A view change jumps to the top.
-              key: ValueKey(keadaan),
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-              child: IsiDataAnggota(
-                keadaan: keadaan,
-                ajukan: (w) => Tautan(ke: Layar.peristiwa, child: w),
-                konfirmasi: (w) =>
-                    Tautan(ke: Layar.konfirmasiKeluarga, radius: 14, child: w),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
 }
 
-/// The views of DataAnggota and WebDataAnggota (identical markup; the body
-/// size, 16 or 15, is inherited). Each screen wraps the two in-content links
-/// itself so its own file names their targets.
-class IsiDataAnggota extends StatelessWidget {
-  const IsiDataAnggota({
-    super.key,
-    required this.keadaan,
-    this.ajukan,
-    this.konfirmasi,
-  });
-
-  final String keadaan;
-
-  /// `Tautan(ke: Layar.peristiwa)` around "Ajukan peristiwa"; null leaves
-  /// the link out (the web has no Peristiwa screen, README 7.1 rule 4).
-  final Widget Function(Widget)? ajukan;
-
-  /// `Tautan(ke: Layar.konfirmasiKeluarga)` around the secondary button look;
-  /// null leaves it out, as [ajukan].
-  final Widget Function(Widget)? konfirmasi;
+/// DataAnggota and WebDataAnggota: one member's record (the selected person,
+/// else the actor's own), as far as the actor may see it (DL23: a Penatua
+/// Kolom sees their own Kolom; the Sekretaris reads all, read-only). Links
+/// to phone-only screens are left out on the web.
+class IsiDataAnggota extends ConsumerWidget {
+  const IsiDataAnggota({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
+    final a = ref.watch(actorProvider);
+    final nama = ref.watch(namaJemaatProvider);
+    final hari = ref.watch(hariIniProvider);
+    final can = ref.watch(canProvider);
+    final id = ref.watch(anggotaDipilihProvider) ?? a?.personId;
+    final m = id == null
+        ? null
+        : ref.watch(memberRepositoryProvider).member(id);
     Widget baris13(String t) =>
         Text(t, style: TextStyle(fontSize: 13, color: c.tinta3));
     Widget baris14(String t) =>
         Text(t, style: TextStyle(fontSize: 14, color: c.tinta2));
+    if (a == null || m == null) {
+      return _Kartu(status: GarisStatus.draf, [
+        const Text(
+          'Belum ada data anggota',
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
+        baris14('Orang ini belum tercatat di Data jemaat.'),
+      ]);
+    }
+    final sendiri =
+        m.person.id == a.personId ||
+        (m.household?.memberIds.contains(a.personId) ?? false);
+    if (!sendiri &&
+        !can.can(a, Capability.membershipView, ScopeRef(m.kolomId), at: hari)) {
+      return _kolom([
+        Penolakan(
+          tindakan: 'Buka data anggota',
+          sebab: '${m.person.name} bukan anggota Kolom Anda.',
+          jalan: const [],
+        ),
+        baris13(
+          'Penatua Kolom melihat data lengkap hanya untuk Kolomnya sendiri. '
+          'Yang sudah diterbitkan tetap dapat dibaca di Warta Jemaat.',
+        ),
+      ]);
+    }
+    final kolom = nama.kolom(m.kolomId);
+    // DL8: an unconfirmed record is seen only by its Penatua Kolom and the
+    // Operator (both confirm households).
+    if (!sendiri &&
+        m.person.status == PersonStatus.unconfirmed &&
+        !can.can(
+          a,
+          Capability.membershipConfirmHousehold,
+          ScopeRef(m.kolomId),
+          at: hari,
+        )) {
+      return _kolom([
+        Penolakan(
+          tindakan: 'Buka data anggota',
+          sebab: 'hanya Penatua $kolom dan Operator yang melihat data ini.',
+          jalan: const [],
+        ),
+      ]);
+    }
+    final hanyaBaca =
+        !sendiri &&
+        !can.can(a, Capability.membershipVerify, ScopeRef.anywhere, at: hari) &&
+        !can.can(a, Capability.membershipImport, ScopeRef.anywhere, at: hari);
+    final lahir = m.person.birthDate;
+    switch (m.person.status) {
+      case PersonStatus.deceased:
+        final mati = ref
+            .watch(memberRepositoryProvider)
+            .events(m.person.id)
+            .where((e) => e.event!.kind == LifeEventKind.death)
+            .firstOrNull;
+        return _Kartu([
+          _Kepala(m.person.name, 'Meninggal dunia', BentukLencana.tinta),
+          baris14(
+            '$kolom · ${lahir == null ? '—' : tgl(lahir.awal)} – '
+            '${mati == null ? '—' : tgl(mati.event!.date.awal)}',
+          ),
+          baris13(
+            'Tidak pernah dihapus. Riwayat keluarga, jabatan, persembahan dan '
+            'pelayanan tetap tersimpan. Akun dinonaktifkan dan pemberitahuan '
+            'dihentikan.',
+          ),
+        ]);
+      case PersonStatus.unconfirmed:
+        final h = m.household;
+        return _kolom([
+          _Kartu(status: GarisStatus.draf, [
+            _Kepala(m.person.name, 'Belum dikonfirmasi', BentukLencana.draf),
+            baris14(
+              'Dari buku anggota $kolom'
+              '${m.profile.importedAt == null ? '' : ' · diimpor ${tgl(m.profile.importedAt!)}'}',
+            ),
+            baris13(
+              'Hanya Penatua $kolom dan Operator yang melihat data ini. Tidak '
+              'tampil di publikasi, surat, pencarian jabatan lain atau '
+              'laporan.',
+            ),
+          ]),
+          if (h != null && adaLayar(context, Layar.konfirmasiKeluarga))
+            BarisLentur(
+              jarak: 8,
+              anak: [
+                Lentur(
+                  dasar: 185,
+                  maks: 375,
+                  child: Tekan(
+                    onTap: () {
+                      ref.read(keluargaDipilihProvider.notifier).pilih(h.id);
+                      context.dorongKe(Layar.konfirmasiKeluarga);
+                    },
+                    radius: 14,
+                    peran: PeranTekan.tautan,
+                    child: RupaTombol(
+                      label: 'Lihat konfirmasi keluarga',
+                      isi: c.permukaan,
+                      garis: GarisBorder.penuh(c.tinta, radius: 14),
+                      warnaTeks: c.tinta,
+                      radius: 14,
+                      tinggi: 51,
+                      paddingH: 16,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+        ]);
+      case PersonStatus.active:
+        break;
+    }
+    final h = m.household;
+    final peristiwa = ref.watch(memberRepositoryProvider).events(m.person.id);
+    String tanggalPeristiwa(LifeEventKind k) {
+      final e = peristiwa.where((x) => x.event!.kind == k).lastOrNull;
+      return e == null ? '—' : '${tgl(e.event!.date.awal)} · Diverifikasi';
+    }
 
+    final umur = lahir == null ? null : ageAt(lahir, hari);
+    final masking = ref.watch(maskingRepositoryProvider);
     final kisi = KisiOtomatis(
       minLebar: 300,
       jarak: 16,
       anak: [
         _Kartu([
-          const _Kepala('Novita Wenas', 'Aktif', BentukLencana.laut),
-          const _Info(
-            'Keluarga',
-            'Wenas-Lasut · Wakil keluarga: Agustina Lasut',
-          ),
-          const _Info('Tanggal lahir', '14/03/1996'),
-          const _Info('Status pernikahan', 'Belum pernah menikah'),
-          const _Info('Tampilan nama', 'Keluarga + Kolom'),
+          _Kepala(m.person.name, 'Aktif', BentukLencana.laut),
+          if (h != null)
+            _Info(
+              'Keluarga',
+              h.representativeId == null
+                  ? h.name
+                  : '${h.name} · Wakil keluarga: '
+                        '${nama.orang(h.representativeId!)}',
+            ),
+          _Info('Tanggal lahir', lahir == null ? '—' : tgl(lahir.awal)),
+          _Info('Status pernikahan', m.profile.marital?.label ?? '—'),
+          _Info('Tampilan nama', masking.preference(m.person.id).label),
         ]),
         _Kartu([
           const Text(
             'Kategori BIPRA',
             style: TextStyle(fontWeight: FontWeight.w700),
           ),
-          const _Kepala(
-            'Pemuda',
-            'Dihitung dari data',
+          _Kepala(
+            m.bipra?.label ?? 'Belum dihitung',
+            m.profile.bipraOverride == null
+                ? 'Dihitung dari data'
+                : 'Dikoreksi Penatua',
             BentukLencana.garis,
             berat: FontWeight.w600,
           ),
-          baris13('Dasar: 30 tahun dan belum pernah menikah.'),
+          if (umur != null && m.profile.marital != null)
+            baris13(
+              'Dasar: $umur tahun dan '
+              '${m.profile.marital!.label.toLowerCase()}.',
+            ),
+          if (m.profile.bipraOverrideReason != null)
+            baris13('Alasan koreksi: ${m.profile.bipraOverrideReason}'),
           baris13(
             'Anak: sampai sebelum 12 tahun. Remaja: 12 tahun sampai 17 tahun '
-            '364 hari. Pemuda: 18 tahun ke atas dan belum pernah menikah. Bapa '
-            'atau Ibu: sudah menikah. Yang pernah menikah tetap Bapa atau Ibu; '
-            'yang belum pernah menikah tetap Pemuda, berapa pun umurnya. Aturan '
-            'ini dari ketentuan GMIM; gereja tidak mengubahnya.',
+            '364 hari. Pemuda: 18 tahun ke atas dan belum pernah menikah. '
+            'Bapa atau Ibu: sudah menikah. Yang pernah menikah tetap Bapa atau '
+            'Ibu; yang belum pernah menikah tetap Pemuda, berapa pun umurnya. '
+            'Aturan ini dari ketentuan GMIM; gereja tidak mengubahnya.',
           ),
           baris13(
             'Penatua Kolom dapat mengoreksi kategori satu orang dengan alasan '
@@ -121,8 +248,18 @@ class IsiDataAnggota extends StatelessWidget {
         ]),
         _Kartu([
           const Text('Kolom', style: TextStyle(fontWeight: FontWeight.w700)),
-          const _Info('Kolom 7', 'sejak 01/06/2021'),
-          const _Info('Kolom 4', '12/02/2009 – 31/05/2021'),
+          for (final s in m.profile.kolom.reversed)
+            _Info(
+              nama.kolom(s.kolomId),
+              s.start != null && s.start! > hari
+                  ? 'mulai ${tgl(s.start!.awal)}'
+                  : s.end != null
+                  ? '${s.start == null ? '—' : tgl(s.start!.awal)} – '
+                        '${tgl(s.end!.awal)}'
+                  : s.start == null
+                  ? 'sekarang'
+                  : 'sejak ${tgl(s.start!.awal)}',
+            ),
           baris13(
             'Penugasan lama disimpan dengan tanggal berakhirnya. Transaksi '
             'lama tetap pada Lingkup aslinya.',
@@ -133,12 +270,13 @@ class IsiDataAnggota extends StatelessWidget {
             'Peristiwa',
             style: TextStyle(fontWeight: FontWeight.w700),
           ),
-          const _Info('Baptisan', '19/05/1996 · Diverifikasi'),
-          const _Info('Sidi', '13/04/2014 · Diverifikasi'),
-          const _Info('Pernikahan', '—'),
-          if (ajukan case final ajukan?)
-            ajukan(
-              ConstrainedBox(
+          _Info('Baptisan', tanggalPeristiwa(LifeEventKind.baptism)),
+          _Info('Sidi', tanggalPeristiwa(LifeEventKind.sidi)),
+          _Info('Pernikahan', tanggalPeristiwa(LifeEventKind.marriage)),
+          if (sendiri && adaLayar(context, Layar.peristiwa))
+            Tautan(
+              ke: Layar.peristiwa,
+              child: ConstrainedBox(
                 constraints: const BoxConstraints(minHeight: 44),
                 child: const Align(
                   alignment: Alignment.centerLeft,
@@ -154,9 +292,8 @@ class IsiDataAnggota extends StatelessWidget {
         ]),
       ],
     );
-
-    final List<Widget> isi = switch (keadaan) {
-      'Dilihat Sekretaris Jemaat' => [
+    return _kolom([
+      if (hanyaBaca)
         Kartu(
           status: GarisStatus.terpilih,
           radius: 12,
@@ -179,85 +316,20 @@ class IsiDataAnggota extends StatelessWidget {
             style: TextStyle(fontSize: 14, color: c.tinta),
           ),
         ),
-        kisi,
-      ],
-      'Belum dikonfirmasi' => [
-        _Kartu(status: GarisStatus.draf, [
-          const _Kepala(
-            'Ferry Wenas',
-            'Belum dikonfirmasi',
-            BentukLencana.draf,
-          ),
-          baris14('Dari buku anggota Kolom 7 · diimpor 12/11/2026'),
-          baris13(
-            'Hanya Penatua Kolom 7 dan Operator yang melihat data ini. Tidak '
-            'tampil di publikasi, surat, pencarian jabatan lain atau laporan.',
-          ),
-        ]),
-        BarisLentur(
-          jarak: 8,
-          anak: [
-            if (konfirmasi case final konfirmasi?)
-              Lentur(
-                // The board's <a> is content-box: 150 and 340 plus padding 32
-                // and line 3; min-height 48 likewise is 51 tall.
-                dasar: 185,
-                maks: 375,
-                child: konfirmasi(
-                  RupaTombol(
-                    label: 'Lihat konfirmasi keluarga',
-                    isi: c.permukaan,
-                    garis: GarisBorder.penuh(c.tinta, radius: 14),
-                    warnaTeks: c.tinta,
-                    radius: 14,
-                    tinggi: 51,
-                    paddingH: 16,
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ],
-      'Meninggal dunia' => [
-        _Kartu([
-          const _Kepala(
-            'Yohanis Rompas',
-            'Meninggal dunia',
-            BentukLencana.tinta,
-          ),
-          baris14('Kolom 2 · 03/02/1948 – 14/11/2026'),
-          baris13(
-            'Tidak pernah dihapus. Riwayat keluarga, jabatan, persembahan dan '
-            'pelayanan tetap tersimpan. Akun dinonaktifkan, pemberitahuan '
-            'dihentikan, dan jabatan Penatua Kolom 2 menjadi Jabatan kosong.',
-          ),
-        ]),
-      ],
-      'Penatua Kolom lain' => [
-        const Penolakan(
-          tindakan: 'Buka data anggota',
-          sebab: 'Novita Wenas bukan anggota Kolom Anda.',
-          jalan: [],
-        ),
-        baris13(
-          'Penatua Kolom melihat data lengkap hanya untuk Kolomnya sendiri. '
-          'Yang sudah diterbitkan tetap dapat dibaca di Warta Jemaat.',
-        ),
-      ],
-      _ => [kisi],
-    };
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        for (var i = 0; i < isi.length; i++) ...[
-          if (i > 0) const SizedBox(height: 16),
-          isi[i],
-        ],
-      ],
-    );
+      kisi,
+    ]);
   }
 }
+
+Widget _kolom(List<Widget> isi) => Column(
+  crossAxisAlignment: CrossAxisAlignment.stretch,
+  children: [
+    for (var i = 0; i < isi.length; i++) ...[
+      if (i > 0) const SizedBox(height: 16),
+      isi[i],
+    ],
+  ],
+);
 
 /// Card (`dibukukan`, or `draf` dashed): padding 14 × 16, column gap 6.
 class _Kartu extends StatelessWidget {

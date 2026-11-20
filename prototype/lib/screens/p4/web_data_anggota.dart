@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
@@ -8,18 +9,19 @@ import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import 'data_anggota.dart';
 import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
+import '../../providers/jemaat/jemaat.dart';
 
 /// Web · Data anggota dan keluarga: the views of DataAnggota beside the
 /// platform side nav ("Data jemaat" active).
-class WebDataAnggotaScreen extends StatefulWidget {
+class WebDataAnggotaScreen extends ConsumerStatefulWidget {
   const WebDataAnggotaScreen({super.key});
 
   @override
-  State<WebDataAnggotaScreen> createState() => _WebDataAnggotaScreenState();
+  ConsumerState<WebDataAnggotaScreen> createState() =>
+      _WebDataAnggotaScreenState();
 }
 
-class _WebDataAnggotaScreenState extends State<WebDataAnggotaScreen> {
+class _WebDataAnggotaScreenState extends ConsumerState<WebDataAnggotaScreen> {
   final _atas = GlobalKey();
   String? _keadaan;
 
@@ -33,7 +35,7 @@ class _WebDataAnggotaScreenState extends State<WebDataAnggotaScreen> {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final keadaan = belumDipindah<String>('Dilihat Penatua Kolom 7');
+    final keadaan = ref.watch(anggotaDipilihProvider) ?? '';
     if (_keadaan != null && _keadaan != keadaan) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _keAtas());
     }
@@ -76,7 +78,7 @@ class _WebDataAnggotaScreenState extends State<WebDataAnggotaScreen> {
             constraints: const BoxConstraints(maxWidth: 880),
             // Peristiwa and KonfirmasiKeluarga are phone-only: their links
             // are left out on the web (README 7.1 rule 4).
-            child: IsiDataAnggota(keadaan: keadaan),
+            child: const IsiDataAnggota(),
           ),
         ),
       ],

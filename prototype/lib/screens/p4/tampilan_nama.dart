@@ -1,76 +1,91 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../shell/kepala_ponsel.dart';
-import '../../shell/layar_ponsel.dart';
+import '../../app/layar.dart';
+import '../../core/format.dart';
+import '../../domain/core/core.dart';
+import '../../domain/membership/membership.dart';
+import '../../providers/actor.dart';
+import '../../providers/core_repositories.dart';
+import '../../providers/jemaat/jemaat.dart';
+import '../../providers/repositories_jemaat.dart';
+import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
 import '../../widgets/garis_status.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
+import '../../widgets/riwayat_alur.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
-import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
+import '../../widgets/tombol_bersyarat.dart';
+import 'jemaat_bagian.dart';
 
-const _awal = 'Keluarga + Kolom';
-const _bentuk = [
-  ('Nama lengkap', 'Novita Wenas'),
-  ('Nama keluarga', 'Kel. Wenas-Lasut'),
-  ('Keluarga + Kolom', 'Kel. Wenas-Lasut — Kolom 7'),
-  ('Kolom', 'Kolom 7'),
-  ('BIPRA', 'Pemuda'),
-  ('BIPRA + Kolom', 'Pemuda — Kolom 7'),
-  ('Tanpa nama', 'Tanpa nama'),
-];
-
-/// 78 · Tampilan nama saya di publikasi (spec 20). State `{ k: null }` plus
-/// the native radio selection `mode`, re-created whenever k0 shows anew.
-class TampilanNamaScreen extends StatefulWidget {
+/// 78 · Tampilan nama saya di publikasi + AlurNama's name-form steps (spec
+/// 20, 21): the member's own choice, which every publication follows
+/// (`MaskingRepository`). Without one the family default applies. Withdrawing
+/// consent is CabutIzin.
+class TampilanNamaScreen extends ConsumerStatefulWidget {
   const TampilanNamaScreen({super.key});
 
   @override
-  State<TampilanNamaScreen> createState() => _TampilanNamaScreenState();
+  ConsumerState<TampilanNamaScreen> createState() => _TampilanNamaScreenState();
 }
 
-class _TampilanNamaScreenState extends State<TampilanNamaScreen> {
-  String? _k;
-  String? _tweak;
-  String _mode = _awal;
+class _TampilanNamaScreenState extends ConsumerState<TampilanNamaScreen> {
+  NameForm? _bentuk;
+  bool _pribadi = false;
+  String _pesan = '';
+  Refusal? _tolakan;
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final t = belumDipindah<String>('Pilihan pribadi');
-    if (_tweak != null && t != _tweak) {
-      _k = null;
-      _mode = _awal;
-    }
-    _tweak = t;
+  Future<void> _simpan(String id, NameForm f) async {
+    final m = ref.read(maskingRepositoryProvider);
+    final r = await jalankanJemaat(
+      ref,
+      (a, k) => m.set(
+        a,
+        id,
+        f,
+        expectedRevision: m.ownChoice(id)?.revision ?? 0,
+        idempotencyKey: k,
+      ),
+    );
+    if (!mounted || r == null) return;
+    setState(() {
+      _tolakan = r.refusal;
+      if (r.isOk) _pesan = 'Tampilan nama disimpan: ${f.label}.';
+    });
   }
-
-  void _keRadio() => setState(() {
-    _k = 'Pilihan pribadi';
-    _mode = _awal;
-  });
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final v = _k ?? _tweak!;
-    final k13 = TextStyle(fontSize: 13, color: c.tinta3);
-    Widget kartu(String judul, String lencana, Widget baris) => Kartu(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: 6,
-        children: [
-          KepalaKartu(
-            judul: judul,
-            ujung: LencanaStatus(lencana, bentuk: BentukLencana.garis),
-          ),
-          baris,
+    final a = ref.watch(actorProvider);
+    ref.watch(namaJemaatProvider);
+    final id = a?.personId ?? '';
+    final anggota = ref.watch(memberRepositoryProvider).member(id);
+    final masking = ref.watch(maskingRepositoryProvider);
+    if (anggota == null) {
+      return KerangkaJemaat(
+        judul: 'Tampilan nama saya di publikasi',
+        anakJudul:
+            'Pilihan Anda wajib diikuti di Warta Jemaat dan publikasi lain',
+        tampilan: 'kosong',
+        blok: [
+          kartuAlur(status: GarisStatus.draf, [
+            const Text(
+              'Belum ada data anggota',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
+            barisAlur(context, 'Anda belum tercatat di Data jemaat.'),
+          ]),
         ],
-      ),
-    );
+      );
+    }
+    final sendiri = masking.ownChoice(id) != null;
+    final tersimpan = masking.preference(id);
+    final pilih = _bentuk ?? tersimpan;
+    final k13 = TextStyle(fontSize: 13, color: c.tinta3);
     Widget tebal(String awal, String nama) => Text.rich(
       TextSpan(
         text: awal,
@@ -98,101 +113,148 @@ class _TampilanNamaScreenState extends State<TampilanNamaScreen> {
         ],
       ),
     );
-    Widget ubah(String label) => BarisTombol(
-      anak: [
-        Tombol(
-          label,
-          jenis: JenisTombol.kedua,
-          ukuran: UkuranTombol.sedang,
-          onPressed: _keRadio,
-        ),
-      ],
-    );
-    final List<Widget> isi = switch (v) {
-      'Mengikuti bawaan keluarga' => [
-        kartu(
-          'Bawaan keluarga',
-          'Nama keluarga',
-          Text(
-            'Diatur Wakil keluarga Agustina Lasut. Anda belum memilih sendiri.',
-            style: TextStyle(fontSize: 14, color: c.tinta2),
+    final riwayat = [
+      for (final r
+          in ref
+              .watch(auditRepositoryProvider)
+              .list(AuditFilter(ref: RecordRef('person', id))))
+        if (r.action == 'membership.masking.set')
+          '${tgl(r.at)} · ${r.summary} · ${r.personName}',
+    ];
+    final List<Widget> isi;
+    if (!sendiri && !_pribadi) {
+      final h = anggota.household;
+      isi = [
+        kartuAlur([
+          KepalaKartu(
+            judul: 'Bawaan keluarga',
+            ujung: LencanaStatus(tersimpan.label, bentuk: BentukLencana.garis),
           ),
+          barisAlur(
+            context,
+            h?.representativeId == null
+                ? 'Anda belum memilih sendiri.'
+                : 'Diatur Wakil keluarga '
+                      '${ref.read(namaJemaatProvider).orang(h!.representativeId!)}. '
+                      'Anda belum memilih sendiri.',
+          ),
+        ]),
+        pratinjau(
+          'Sampul syukur: ',
+          masking.printedName(id, PrintContext.warta),
         ),
-        pratinjau('Sampul syukur: ', 'Kel. Wenas-Lasut'),
-        ubah('Buat pilihan pribadi'),
-      ],
-      'Masih mudah dikenali' => [
-        kartu(
-          'Pilihan pribadi',
-          'BIPRA + Kolom',
-          tebal('Tampil sebagai: ', 'Remaja — Kolom 11'),
-        ),
-        Kartu(
-          status: GarisStatus.draf,
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          child: Text.rich(
-            TextSpan(
-              children: [
-                const TextSpan(
-                  text: 'Masih mudah dikenali.',
-                  style: TextStyle(fontWeight: FontWeight.w700),
-                ),
-                const TextSpan(text: ' '),
-                TextSpan(
-                  text: 'Kolom 11 hanya punya satu anggota Remaja. Pilih “Kolom” atau “Tanpa nama” bila tidak ingin dikenali.',
-                  style: TextStyle(color: c.tinta2),
-                ),
-              ],
+        BarisTombol(
+          anak: [
+            Tombol(
+              'Buat pilihan pribadi',
+              jenis: JenisTombol.kedua,
+              ukuran: UkuranTombol.sedang,
+              onPressed: () => setState(() => _pribadi = true),
             ),
-            style: const TextStyle(fontSize: 14),
-          ),
+          ],
         ),
-        ubah('Ubah pilihan'),
-      ],
-      _ => [
+      ];
+    } else {
+      final mudahDikenali =
+          (pilih == NameForm.bipraKolom || pilih == NameForm.bipra) &&
+          anggota.bipra != null;
+      final sama = mudahDikenali
+          ? ref
+                .watch(memberRepositoryProvider)
+                .members(kolom: anggota.kolomId)
+                .where(
+                  (m) =>
+                      m.bipra == anggota.bipra &&
+                      m.person.status == PersonStatus.active,
+                )
+                .length
+          : 0;
+      isi = [
+        if (_pesan.isNotEmpty) Pesan(Text(_pesan)),
         Text(
           'Pilihan pribadi',
           style: TextStyle(fontSize: 14, color: c.tinta2),
         ),
-        for (final (nama, contoh) in _bentuk)
+        for (final f in NameForm.values)
           _BarisRadio(
-            nama: nama,
-            contoh: contoh,
-            dipilih: _mode == nama,
-            onPilih: () => setState(() => _mode = nama),
+            nama: f.label,
+            contoh: masking.nameWith(id, f),
+            dipilih: pilih == f,
+            onPilih: () => setState(() {
+              _bentuk = f;
+              _pesan = '';
+              _tolakan = null;
+            }),
           ),
-        // The board's preview is static (review log: follow the selection).
-        pratinjau('Syukur HUT pernikahan: ', 'Kel. Wenas-Lasut — Kolom 7'),
-        Text(
-          'Pilihan pribadi yang lebih tertutup mengalahkan bawaan keluarga untuk kegiatan Anda sendiri. Perubahan berlaku untuk publikasi berikutnya; edisi lama tidak berubah.',
-          style: k13,
-        ),
-      ],
-    };
-    return LayarPonsel(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const KepalaPonsel(
-            judul: 'Tampilan nama saya di publikasi',
-            anakJudul:
-                'Pilihan Anda wajib diikuti di Warta Jemaat dan publikasi lain',
-            kembaliKe: Layar.dataAnggota,
-            labelKembali: 'Kembali ke Data jemaat',
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              key: ValueKey(v), // a view change starts at the top
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: 16,
-                children: isi,
+        pratinjau('Syukur HUT pernikahan: ', masking.nameWith(id, pilih)),
+        if (mudahDikenali && sama <= 2)
+          Kartu(
+            status: GarisStatus.draf,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            child: Text.rich(
+              TextSpan(
+                children: [
+                  const TextSpan(
+                    text: 'Masih mudah dikenali.',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  const TextSpan(text: ' '),
+                  TextSpan(
+                    text:
+                        '${ref.read(namaJemaatProvider).kolom(anggota.kolomId)} '
+                        'hanya punya $sama anggota ${anggota.bipra!.label}. '
+                        'Pilih “Kolom” atau “Tanpa nama” bila tidak ingin '
+                        'dikenali.',
+                    style: TextStyle(color: c.tinta2),
+                  ),
+                ],
               ),
+              style: const TextStyle(fontSize: 14),
             ),
           ),
-        ],
-      ),
+        ?(_tolakan == null ? null : penolakanDari(_tolakan!)),
+        BarisTombol(
+          anak: [
+            TombolBersyarat(
+              label: 'Simpan pilihan',
+              tindakan: 'Simpan pilihan',
+              alasan: sendiri && pilih == tersimpan
+                  ? 'pilihan ini sudah tersimpan.'
+                  : '',
+              sudahMulai: false,
+              onPressed: () => _simpan(id, pilih),
+            ),
+          ],
+        ),
+        Text(
+          'Pilihan pribadi yang lebih tertutup mengalahkan bawaan keluarga '
+          'untuk kegiatan Anda sendiri. Perubahan berlaku untuk publikasi '
+          'berikutnya; edisi lama tidak berubah. Hanya Sekretaris Jemaat yang '
+          'dapat menampilkan nama sebagai pengecualian, dengan alasan, dan '
+          'Anda diberi tahu.',
+          style: k13,
+        ),
+      ];
+    }
+    return KerangkaJemaat(
+      judul: 'Tampilan nama saya di publikasi',
+      anakJudul:
+          'Pilihan Anda wajib diikuti di Warta Jemaat dan publikasi lain',
+      tampilan: (sendiri, _pribadi),
+      blok: [
+        ...isi,
+        BarisTombol(
+          anak: [
+            Tombol(
+              'Cabut izin dan hapus data saya',
+              jenis: JenisTombol.teks,
+              ukuran: UkuranTombol.kecil,
+              onPressed: () => context.dorongKe(Layar.cabutIzin),
+            ),
+          ],
+        ),
+        if (riwayat.isNotEmpty) RiwayatAlur(baris: riwayat),
+      ],
     );
   }
 }
@@ -223,7 +285,6 @@ class _BarisRadio extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         child: LayoutBuilder(
           builder: (context, ruang) => ConstrainedBox(
-            // The label's min-height 44 is content-box: 66 with padding and line.
             constraints: const BoxConstraints(minHeight: 44),
             child: Row(
               spacing: 12,
@@ -243,7 +304,8 @@ class _BarisRadio extends StatelessWidget {
                 Expanded(
                   child: Text(nama, style: const TextStyle(fontSize: 15)),
                 ),
-                // CSS flex: the sample keeps its width, shrinking only past the row.
+                // CSS flex: the sample keeps its width, shrinking only past
+                // the row.
                 ConstrainedBox(
                   constraints: BoxConstraints(maxWidth: ruang.maxWidth - 46),
                   child: Text(

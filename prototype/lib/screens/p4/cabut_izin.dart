@@ -1,238 +1,202 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../shell/kepala_ponsel.dart';
-import '../../shell/layar_ponsel.dart';
+import '../../app/layar.dart';
+import '../../domain/core/core.dart';
+import '../../domain/membership/membership.dart';
+import '../../providers/actor.dart';
+import '../../providers/jemaat/jemaat.dart';
+import '../../providers/repositories_jemaat.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
 import '../../widgets/garis.dart';
 import '../../widgets/garis_status.dart';
 import '../../widgets/ikon.dart';
-import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
-import '../../widgets/tombol.dart';
 import '../../widgets/tekan.dart';
+import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
-import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
+import 'jemaat_bagian.dart';
 
-const _penjelasan = 'Penjelasan',
-    _konfirmasi = 'Konfirmasi',
-    _kertas = 'Permintaan lewat kertas',
-    _dihapus = 'Sudah dihapus';
-const _keterangan = 'Tombol aktif setelah pernyataan di atas dicentang.';
-
-/// 79 · Cabut izin dan hapus data saya (spec 20, CabutIzin).
-class CabutIzinScreen extends StatefulWidget {
+/// 79 · Cabut izin dan hapus data saya + AlurNama's "Cabut izin dan hapus
+/// data saya" steps (spec 20, 21; DL13): a request through the member's own
+/// login is acted on at once. Their profile, family and Kolom history, life
+/// events, name choice and consent go; finance keeps the name as booked and
+/// published editions stay as published.
+class CabutIzinScreen extends ConsumerStatefulWidget {
   const CabutIzinScreen({super.key});
 
   @override
-  State<CabutIzinScreen> createState() => _CabutIzinScreenState();
+  ConsumerState<CabutIzinScreen> createState() => _CabutIzinScreenState();
 }
 
-class _CabutIzinScreenState extends State<CabutIzinScreen> {
-  final _gulir = ScrollController();
-  String? _k;
-  bool _centang = false;
-  String? _keadaan;
+class _CabutIzinScreenState extends ConsumerState<CabutIzinScreen> {
+  static const _alasan = 'Atas permintaan anggota sendiri';
+  bool _konfirmasi = false, _centang = false;
+  DeletionRequest? _selesai;
+  Refusal? _tolakan;
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final keadaan = belumDipindah<String>('Penjelasan');
-    // Board parity (CONVENTIONS, settled conflicts): a panel change does not
-    // reset k; it changes the view only while k is null.
-    if (_keadaan != null && keadaan != _keadaan && _k == null) {
-      _centang = false;
-      WidgetsBinding.instance.addPostFrameCallback((_) => _keAtas());
+  Future<void> _hapus(String id) async {
+    final izin = ref.read(consentRepositoryProvider);
+    final berlaku = izin.consents(id).where((c) => c.inForce).lastOrNull;
+    if (berlaku != null) {
+      final r = await jalankanJemaat(
+        ref,
+        (a, k) => izin.withdraw(
+          a,
+          id,
+          reason: _alasan,
+          expectedRevision: berlaku.revision,
+          idempotencyKey: k,
+        ),
+      );
+      if (r?.refusal != null) return _gagal(r!.refusal!);
     }
-    _keadaan = keadaan;
+    final minta = await jalankanJemaat(
+      ref,
+      (a, k) => izin.requestDeletion(a, id, reason: _alasan, idempotencyKey: k),
+    );
+    if (minta == null) return;
+    if (minta.refusal != null) return _gagal(minta.refusal!);
+    final jalan = await jalankanJemaat(
+      ref,
+      (a, k) => izin.executeDeletion(
+        a,
+        minta.value.id,
+        expectedRevision: minta.value.revision,
+        idempotencyKey: k,
+      ),
+    );
+    if (!mounted || jalan == null) return;
+    if (jalan.refusal != null) return _gagal(jalan.refusal!);
+    setState(() => _selesai = jalan.value);
   }
 
-  void _keAtas() {
-    if (mounted && _gulir.hasClients) _gulir.jumpTo(0);
-  }
-
-  // A new view re-creates the board's checkbox, so it comes back unticked.
-  void _ke(String k) {
-    setState(() {
-      _k = k;
-      _centang = false;
-    });
-    _keAtas();
-  }
-
-  @override
-  void dispose() {
-    _gulir.dispose();
-    super.dispose();
+  void _gagal(Refusal r) {
+    if (mounted) setState(() => _tolakan = r);
   }
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final k = _k ?? _keadaan!;
-    final jelas = k == _penjelasan || k == _konfirmasi;
+    final a = ref.watch(actorProvider);
+    final nama = ref.watch(namaJemaatProvider);
+    final id = a?.personId ?? '';
+    final ada = ref.watch(memberRepositoryProvider).member(id) != null;
     final lini14 = TextStyle(fontSize: 14, color: c.tinta2);
-    final lini13 = TextStyle(fontSize: 13, color: c.tinta3);
     const judul = TextStyle(fontWeight: FontWeight.w700);
-    Widget kartu(List<Widget> isi, {GarisStatus s = GarisStatus.dibukukan}) =>
-        Kartu(
-          status: s,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: 6,
-            children: isi,
+    final selesai = _selesai;
+    final List<Widget> isi;
+    if (selesai != null) {
+      isi = [
+        kartuAlur([
+          const KepalaKartu(
+            judul: 'Catatan penghapusan',
+            ujung: LencanaStatus('Selesai', bentuk: BentukLencana.abu),
           ),
-        );
-
-    return LayarPonsel(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const KepalaPonsel(
-            judul: 'Cabut izin dan hapus data saya',
-            anakJudul: 'Hak anggota; data dihapus setelah dikonfirmasi',
-            kembaliKe: Layar.dataAnggota,
-            labelKembali: 'Kembali ke Data jemaat',
+          BarisInfo('Dihapus pada', saatJemaat(selesai.executedAt)),
+          const BarisInfo('Atas permintaan', 'anggota sendiri'),
+          BarisInfo('Dijalankan oleh', nama.orang(selesai.executedBy!)),
+          keteranganAlur(
+            context,
+            'Catatan ini tidak memuat data pribadi. Orangnya tidak lagi punya '
+            'status di Data jemaat; anggota yang meninggal dunia tidak pernah '
+            'dihapus dengan cara ini.',
           ),
-          Expanded(
-            child: SingleChildScrollView(
-              controller: _gulir,
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: 16,
-                children: [
-                  if (jelas) ...[
-                    kartu([
-                      const Text('Yang dihapus', style: judul),
-                      Text(
-                        'Data pribadi Anda, riwayat keluarga dan Kolom, '
-                        'peristiwa, jabatan yang sedang dipegang (menjadi '
-                        'Jabatan kosong), dan akun Anda.',
-                        style: lini14,
-                      ),
-                    ]),
-                    kartu(s: GarisStatus.draf, [
-                      const Text('Yang tetap ada', style: judul),
-                      Text(
-                        'Catatan keuangan Jemaat tetap menyimpan nama seperti '
-                        'yang tercatat, sebagai bagian dari pembukuan gereja. '
-                        'Warta Jemaat dan dokumen yang sudah diterbitkan tetap '
-                        'persis seperti saat diterbitkan.',
-                        style: lini14,
-                      ),
-                    ]),
-                  ],
-                  if (k == _penjelasan)
-                    BarisTombol(
-                      tautan: const {1: 32},
-                      anak: [
-                        Tombol(
-                          'Lanjutkan',
-                          onPressed: () => _ke(_konfirmasi),
-                          jenis: JenisTombol.kedua,
-                          ukuran: UkuranTombol.sedang,
-                        ),
-                        const Tombol(
-                          'Kembali',
-                          onPressed: null,
-                          jenis: JenisTombol.teks,
-                          ke: Layar.dataAnggota,
-                          cara: Cara.naik,
-                        ),
-                      ],
-                    ),
-                  if (k == _konfirmasi) ...[
-                    _Pernyataan(
-                      nilai: _centang,
-                      onUbah: () => setState(() => _centang = !_centang),
-                    ),
-                    BarisTombol(
-                      anak: [
-                        // The board's checkbox is not wired and its button is
-                        // `disabled`: the condition is never met. Pressable
-                        // per CONVENTIONS (TombolBersyarat); a press does
-                        // nothing.
-                        TombolBersyarat(
-                          label: 'Cabut izin dan hapus data saya',
-                          tindakan: 'Cabut izin dan hapus data saya',
-                          alasan: _keterangan,
-                          onPressed: () {},
-                          sudahMulai: false,
-                        ),
-                        Tombol(
-                          'Kembali',
-                          onPressed: () => _ke(_penjelasan),
-                          jenis: JenisTombol.teks,
-                        ),
-                      ],
-                    ),
-                    Text(_keterangan, style: lini13),
-                  ],
-                  if (k == _kertas) ...[
-                    kartu([
-                      const _KepalaSempit(
-                        'Permintaan hapus · Ferry Wenas',
-                        'Menunggu konfirmasi Penatua',
-                      ),
-                      Text(
-                        'Dicatat Operator Yanti Sumual dari surat bertanda '
-                        'tangan, 16/11/2026.',
-                        style: lini14,
-                      ),
-                      Text(
-                        'Permintaan lewat kertas dikonfirmasi Penatua Kolom 7 '
-                        'sebelum dijalankan.',
-                        style: lini13,
-                      ),
-                    ]),
-                    BarisTombol(
-                      anak: [
-                        Tombol(
-                          'Konfirmasi permintaan',
-                          onPressed: () => _ke(_dihapus),
-                          jenis: JenisTombol.tinta,
-                        ),
-                      ],
-                    ),
-                  ],
-                  if (k == _dihapus)
-                    kartu([
-                      const KepalaKartu(
-                        judul: 'Catatan penghapusan',
-                        ujung: LencanaStatus(
-                          'Selesai',
-                          bentuk: BentukLencana.abu,
-                        ),
-                      ),
-                      const BarisInfo('Dihapus pada', '17/11/2026 20.15'),
-                      const BarisInfo('Atas permintaan', 'anggota sendiri'),
-                      const BarisInfo(
-                        'Dijalankan oleh',
-                        'Pnt. Hendrik Rumagit',
-                      ),
-                      Text(
-                        'Catatan ini tidak memuat data pribadi. Orangnya tidak '
-                        'lagi punya status; anggota yang meninggal dunia tidak '
-                        'pernah dihapus dengan cara ini.',
-                        style: lini13,
-                      ),
-                    ]),
-                ],
+        ]),
+      ];
+    } else if (!ada) {
+      isi = [
+        kartuAlur(status: GarisStatus.draf, [
+          const Text('Belum ada data anggota', style: judul),
+          barisAlur(context, 'Anda belum tercatat di Data jemaat.'),
+        ]),
+      ];
+    } else {
+      isi = [
+        kartuAlur([
+          const Text('Yang dihapus', style: judul),
+          Text(
+            'Data pribadi Anda, riwayat keluarga dan Kolom, peristiwa, jabatan '
+            'yang sedang dipegang (menjadi Jabatan kosong), dan akun Anda.',
+            style: lini14,
+          ),
+        ]),
+        kartuAlur(status: GarisStatus.draf, [
+          const Text('Yang tetap ada', style: judul),
+          Text(
+            'Catatan keuangan Jemaat tetap menyimpan nama seperti yang '
+            'tercatat, sebagai bagian dari pembukuan gereja. Warta Jemaat dan '
+            'dokumen yang sudah diterbitkan tetap persis seperti saat '
+            'diterbitkan.',
+            style: lini14,
+          ),
+        ]),
+        if (!_konfirmasi)
+          BarisTombol(
+            tautan: const {1: 32},
+            anak: [
+              Tombol(
+                'Lanjutkan',
+                onPressed: () => setState(() => _konfirmasi = true),
+                jenis: JenisTombol.kedua,
+                ukuran: UkuranTombol.sedang,
               ),
-            ),
+              Tombol(
+                'Kembali',
+                onPressed: null,
+                jenis: JenisTombol.teks,
+                ke: ref.watch(kembaliJemaatProvider) == Layar.beranda
+                    ? Layar.tampilanNama
+                    : Layar.dataAnggota,
+                cara: Cara.naik,
+              ),
+            ],
+          )
+        else ...[
+          _Pernyataan(
+            nilai: _centang,
+            onUbah: () => setState(() => _centang = !_centang),
+          ),
+          ?(_tolakan == null ? null : penolakanDari(_tolakan!)),
+          BarisTombol(
+            anak: [
+              TombolBersyarat(
+                label: 'Cabut izin dan hapus data saya',
+                tindakan: 'Cabut izin dan hapus data saya',
+                alasan: _centang ? '' : 'centang dulu pernyataan di atas.',
+                sudahMulai: false,
+                onPressed: () => _hapus(id),
+              ),
+              Tombol(
+                'Kembali',
+                onPressed: () => setState(() {
+                  _konfirmasi = false;
+                  _centang = false;
+                }),
+                jenis: JenisTombol.teks,
+              ),
+            ],
+          ),
+          Text(
+            'Tombol aktif setelah pernyataan di atas dicentang.',
+            style: TextStyle(fontSize: 13, color: c.tinta3),
           ),
         ],
-      ),
+      ];
+    }
+    return KerangkaJemaat(
+      judul: 'Cabut izin dan hapus data saya',
+      anakJudul: 'Hak anggota; data dihapus setelah dikonfirmasi',
+      tampilan: (_konfirmasi, selesai == null),
+      blok: isi,
     );
   }
 }
 
 /// Statement checkbox (board `<label>`): the whole row toggles; row gap 12,
-/// top-aligned, min-height 44, 14 px. The 24 px box has margin-top 2, which
-/// the shared KotakCentang row lacks; its look is KotakCentang's.
+/// top-aligned, min-height 44, 14 px; the 24 px box sits 2 down.
 class _Pernyataan extends StatelessWidget {
   const _Pernyataan({required this.nilai, required this.onUbah});
 
@@ -287,48 +251,4 @@ class _Pernyataan extends StatelessWidget {
       ),
     );
   }
-}
-
-/// k2 head row. The long badge leaves the title column barely wider than its
-/// longest word; when it would be narrower (large text), the badge drops
-/// under the title instead of overflowing the card (spec note on k2).
-class _KepalaSempit extends StatelessWidget {
-  const _KepalaSempit(this.judul, this.label);
-
-  final String judul, label;
-
-  @override
-  Widget build(BuildContext context) => LayoutBuilder(
-    builder: (context, ruang) {
-      final dasar = DefaultTextStyle.of(context).style;
-      double lebar(String s, TextStyle g) => (TextPainter(
-        text: TextSpan(text: s, style: dasar.merge(g)),
-        textDirection: TextDirection.ltr,
-        textScaler: MediaQuery.textScalerOf(context),
-      )..layout()).width;
-      const tebal = TextStyle(fontWeight: FontWeight.w700);
-      final kata = judul.split(' ').map((w) => lebar(w, tebal));
-      // Badge: text, padding 9 + line 1.5 each side; then the gap 16.
-      final sisa =
-          ruang.maxWidth -
-          lebar(
-            label,
-            const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-          ) -
-          21 -
-          16;
-      final lencana = LencanaStatus(label, bentuk: BentukLencana.garis);
-      if (kata.every((w) => w <= sisa)) {
-        return KepalaKartu(judul: judul, ujung: lencana);
-      }
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 6,
-        children: [
-          Text(judul, style: tebal),
-          lencana,
-        ],
-      );
-    },
-  );
 }
