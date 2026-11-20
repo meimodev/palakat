@@ -12,7 +12,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:palakat_prototype/app/layar.dart';
 import 'package:palakat_prototype/app/router.dart';
 import 'package:palakat_prototype/data/repositories/role_repository.dart';
-import 'package:palakat_prototype/data/seed/keputusan_penugasan.dart';
 import 'package:palakat_prototype/domain/core/core.dart';
 import 'package:palakat_prototype/domain/finance/finance.dart';
 import 'package:palakat_prototype/providers/actor.dart';
@@ -202,7 +201,7 @@ void main() {
         await tekan(tester, 'Tugaskan');
         await isi(tester, 'Orang', 'Yohanis T');
         await tekan(tester, 'Yohanis Tumbelaka');
-        await tekan(tester, keputusanPenugasan(hari));
+        await tekan(tester, skPenugasan(c));
         await tekan(tester, 'Catat penugasan');
         expect(find.text('Menunggu verifikasi wewenang'), findsOneWidget);
         expect(_bendahara(c).pending?.personId, 'yohanisT');

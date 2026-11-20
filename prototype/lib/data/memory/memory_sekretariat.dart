@@ -6,6 +6,23 @@ import 'memory_context.dart';
 extension SekretariatKonteks on MemoryContext {
   TabelSekretariat get sek => store.sekretariat;
 
+  /// A member's Kolom today, from Data jemaat (J2); null for a non-member.
+  String? kolomAnggota(String personId) =>
+      store.jemaat.profiles[personId]?.kolomAt(today);
+
+  /// A member's household id, from Data jemaat.
+  String? rumahAnggota(String personId) =>
+      store.jemaat.profiles[personId]?.householdId;
+
+  /// 'Wenas-Lasut · Kolom 7': the household line a letter request records,
+  /// read from the member records (J2).
+  String? barisKeluarga(String personId) {
+    final h = store.jemaat.householdOf(personId);
+    if (h == null) return null;
+    final k = kolomAnggota(personId) ?? h.kolomId;
+    return '${h.name} · ${inti.scope(k)?.name ?? k}';
+  }
+
   /// Whether [personId] is among the addressees of [a] today (Q25, Q30):
   /// every member; the servants (anyone holding a post, a cover or a
   /// delegation); a Kolom's members and servants; one member and their
@@ -19,17 +36,17 @@ extension SekretariatKonteks on MemoryContext {
             .grantsOf(personId, at: today)
             .any((g) => g.kind != GrantKind.member);
       case AudienceKind.scope:
-        return sek.memberScopes[personId] == a.scopeId ||
+        return kolomAnggota(personId) == a.scopeId ||
             can
                 .grantsOf(personId, at: today)
                 .any(
                   (g) => g.kind != GrantKind.member && g.scopeId == a.scopeId,
                 );
       case AudienceKind.person:
-        final rumah = sek.households[personId];
-        final kolom = sek.memberScopes[a.personId];
+        final rumah = rumahAnggota(personId);
+        final kolom = kolomAnggota(a.personId!);
         return a.personId == personId ||
-            (rumah != null && sek.households[a.personId] == rumah) ||
+            (rumah != null && rumahAnggota(a.personId!) == rumah) ||
             // The servants whose post covers that member (PMP 6.1).
             (kolom != null &&
                 can

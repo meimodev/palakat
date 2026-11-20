@@ -206,7 +206,7 @@ class MemoryPanitiaRepository implements PanitiaRepository {
       PanitiaStage.active => 'Aktifkan Panitia',
       PanitiaStage.financialClosing => 'Mulai penutupan keuangan',
       PanitiaStage.closed => 'Tutup Panitia',
-      PanitiaStage.archived => 'Arsipkan',
+      PanitiaStage.retired => 'Arsipkan',
       _ => 'Ubah tahap',
     };
     final g = ctx.grant(actor, Capability.panitiaStage, ScopeRef.jemaat);

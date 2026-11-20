@@ -98,7 +98,7 @@ class _Pratinjau extends ConsumerWidget {
     final e = p.edition;
     final gereja = ref.watch(workspaceRepositoryProvider).workspace().name;
     final terbit =
-        e.status == WartaStatus.published || e.status == WartaStatus.archived;
+        e.status == WartaStatus.published || e.status == WartaStatus.retired;
     Widget bagian(BagianWarta b) => Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [

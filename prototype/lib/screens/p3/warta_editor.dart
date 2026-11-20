@@ -282,12 +282,7 @@ class _IsiWartaEditorState extends ConsumerState<IsiWartaEditor> {
       ukuran: UkuranTombol.sedang,
     );
     final riwayat = riwayatSek(ref, AuditFilter(ref: RecordRef('warta', e.id)));
-    final anonim = p.events.any(
-      (x) =>
-          x.event.anonymousAs != null &&
-          x.event.personId != null &&
-          e.exceptionFor(x.event.personId!) == null,
-    );
+    final anonim = p.events.any((x) => x.reveal != null && !x.exception);
     return [
       KepalaKartu(judul: 'Edisi $edisi', ujung: lencanaWarta(st)),
       if (_pesan.isNotEmpty) Pesan(Text(_pesan)),
@@ -307,11 +302,12 @@ class _IsiWartaEditorState extends ConsumerState<IsiWartaEditor> {
           _kepala('Ibadah minggu ini', 'dari Ibadah dan kegiatan'),
           Text('Minggu $edisi: ${e.services}', style: _polos),
         ]),
-      if (e.attendance case final h?)
+      if (p.attendance case final h?)
         _kartu([
           _kepala('Jumlah kehadiran', 'hanya yang Ditetapkan'),
           Text(
-            'Minggu ${tgl(h.sunday.awal)}: ${h.total} orang (${h.parts})',
+            'Minggu ${tgl(h.sunday.awal)}: ${h.total} orang '
+            '(${[for (final x in h.parts) '${x.label} ${x.n}'].join(' · ')})',
             style: _polos,
           ),
           kecilSek(context, 'Jumlah saja. Tidak ada nama.'),
@@ -325,15 +321,33 @@ class _IsiWartaEditorState extends ConsumerState<IsiWartaEditor> {
           for (final x in p.events)
             _kuat(
               '${x.event.label}: ',
-              x.printed == x.event.name && x.event.anonymousAs != null
-                  ? '${x.printed} (pengecualian tercatat)'
-                  : x.printed,
+              x.exception ? '${x.printed} (pengecualian tercatat)' : x.printed,
             ),
           if (draf && anonim)
             _teksAwal(
               'Tampilkan nama (pengecualian)',
               () => context.dorongKe(Layar.bukaNama, param: {'edisi': e.id}),
             ),
+        ]),
+      if (p.finance case final k?)
+        _kartu([
+          _kepala('Ringkasan keuangan', 'dari bulan yang Sudah ditutup'),
+          BarisInfo(
+            'Pendapatan ${bulanTahun(k.year, k.month)}',
+            rp(k.income),
+            mono: true,
+          ),
+          BarisInfo(
+            'Belanja ${bulanTahun(k.year, k.month)}',
+            rp(k.expense),
+            mono: true,
+          ),
+          kecilSek(
+            context,
+            'Dari laporan resmi ${bulanTahun(k.year, k.month)}'
+            '${k.closedAt == null ? '' : ', ditutup ${tgl(k.closedAt!)}'}. '
+            'Bulan yang belum ditutup tidak dapat dimasukkan.',
+          ),
         ]),
       if (draf)
         BarisTombol(
@@ -385,7 +399,7 @@ class _IsiWartaEditorState extends ConsumerState<IsiWartaEditor> {
           ],
         ),
       ],
-      if (st == WartaStatus.published || st == WartaStatus.archived) ...[
+      if (st == WartaStatus.published || st == WartaStatus.retired) ...[
         Text(
           'Diterbitkan ${tglJam(e.publishedAt!)} untuk semua anggota. Edisi '
           'ini tidak berubah lagi; ralat menjadi revisi yang tertaut.',

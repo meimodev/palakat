@@ -5,7 +5,7 @@ import '../../shell/kepala_ponsel.dart';
 import 'dokumen_gereja_isi.dart';
 
 /// 62 · Dokumen gereja (spec 17) + AlurDokumen's list (README 7.1): the
-/// church document archive on the phone. It is the root page of the
+/// church document records on the phone. It is the root page of the
 /// `dokumenGereja` shell ([AlurDokumenKendali] gives it its LayarPonsel).
 class DokumenGerejaScreen extends StatelessWidget {
   const DokumenGerejaScreen({super.key});

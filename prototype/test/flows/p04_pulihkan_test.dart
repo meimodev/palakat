@@ -6,9 +6,12 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:palakat_prototype/app/layar.dart';
 import 'package:palakat_prototype/app/router.dart';
+import 'package:palakat_prototype/core/format.dart';
 import 'package:palakat_prototype/domain/core/core.dart';
 import 'package:palakat_prototype/providers/actor.dart';
 import 'package:palakat_prototype/providers/core_repositories.dart';
+import 'package:palakat_prototype/providers/repositories_keuangan.dart';
+import 'package:palakat_prototype/providers/repositories_sekretariat.dart';
 
 import 'harness.dart';
 
@@ -41,6 +44,28 @@ void main() {
           c.read(routerProvider).state.uri.path,
           (ponsel ? Layar.konfirmasiKeluarga : Layar.dataAnggota).lokasi(),
         );
+        await cariOrang();
+
+        // Dokumen gereja and Keuangan rows (M6-R5): Novita's letter request
+        // opens PermohonanSurat, her booked envelope opens Keuangan.
+        await isi(tester, 'Cari nama, keluarga atau Kolom', 'Wenas');
+        final surat = c
+            .read(letterRepositoryProvider)
+            .requests()
+            .firstWhere((r) => r.id == 'surat-novita');
+        final dokumen =
+            'Dokumen gereja · Surat keterangan ${tgl(surat.requestedAt)}';
+        expect(find.text(dokumen), findsOneWidget);
+        final sampul = c.read(transactionRepositoryProvider).get('bku-0132')!;
+        final buku =
+            'Keuangan · Sampul syukur ${tgl(sampul.effectiveDate.awal)}';
+        expect(find.text(buku), findsOneWidget);
+        await tekan(tester, dokumen);
+        expect(c.read(routerProvider).state.uri.path, Layar.surat.lokasi());
+        await cariOrang();
+        await isi(tester, 'Cari nama, keluarga atau Kolom', 'Wenas');
+        await tekan(tester, buku);
+        expect(c.read(routerProvider).state.uri.path, Layar.keuangan.lokasi());
         await cariOrang();
 
         // Yanti asks.
@@ -118,6 +143,8 @@ void main() {
         expect(find.text('Tidak ada hasil untuk “Rompas”'), findsOneWidget);
         await isi(tester, 'Cari nama, keluarga atau Kolom', 'Wenas');
         expect(find.text('Novita Wenas'), findsOneWidget);
+        expect(find.textContaining('Dokumen gereja · '), findsNothing);
+        expect(find.textContaining('Keuangan · '), findsNothing);
         await keluar(tester);
 
         // Yanti sees the completed status.

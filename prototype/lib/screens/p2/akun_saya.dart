@@ -26,9 +26,6 @@ import '../../providers/session.dart';
 
 const _modul = ['Data jemaat', 'Ibadah dan kegiatan', 'Keuangan unit'];
 
-/// tiruan: the code "sent" to the new number or email (AlurMasuk's 123456).
-const kodeAkunTiruan = '123456';
-
 /// The signed-in person's account, shared with WebAkunSaya: the person
 /// (PeopleRepository), the posts line and the other signed-in devices
 /// (SessionRepository). Null once signed out.
@@ -131,7 +128,6 @@ class _AkunSayaScreenState extends ConsumerState<AkunSayaScreen> {
   var _riw = <String>[];
   var _izin = ''; // '' | 'minta' | 'tolak' | 'ya'
   var _mati = <String>[];
-  var _salah = 0;
   Refusal? _tolak;
 
   // The account, read in build.
@@ -148,8 +144,9 @@ class _AkunSayaScreenState extends ConsumerState<AkunSayaScreen> {
     return '';
   }
 
+  // tiruan: no SMS or email is sent, so any complete code is taken as the
+  // one received; a wrong-code count needs a real sender to check against.
   String _alasanKode() {
-    if (_salah >= 3) return 'terlalu banyak percobaan. Minta kode baru.';
     if (_kode.text.length < 6) return 'kode belum lengkap.';
     return '';
   }
@@ -161,13 +158,6 @@ class _AkunSayaScreenState extends ConsumerState<AkunSayaScreen> {
     if (e == _emKini) return 'email itu sudah menjadi email cadangan Anda.';
     return '';
   }
-
-  /// The code refusal line: locked, or "kode tidak cocok" while empty.
-  String get _sebabKode => _salah >= 3
-      ? _alasanKode()
-      : (_salah > 0 && _kode.text.isEmpty
-            ? 'kode tidak cocok. Sisa percobaan: ${3 - _salah}.'
-            : '');
 
   void _ke(_V v) {
     setState(() {
@@ -181,27 +171,19 @@ class _AkunSayaScreenState extends ConsumerState<AkunSayaScreen> {
   void _keGanti() {
     _hpBaru.clear();
     _kode.clear();
-    _salah = 0;
     _ke(_V.ganti);
   }
 
   void _keEmail() {
     _emBaru.clear();
     _kode.clear();
-    _salah = 0;
     _ke(_V.email);
   }
 
   void _kirimKode(_V v) {
     _kode.clear();
-    _salah = 0;
     _ke(v);
   }
-
-  void _salahKode() => setState(() {
-    _salah++;
-    _kode.clear();
-  });
 
   /// After a command: back to the account with [pesan] and a Riwayat line,
   /// or the refusal in place of the message.
@@ -216,7 +198,6 @@ class _AkunSayaScreenState extends ConsumerState<AkunSayaScreen> {
   }
 
   Future<void> _gantiNomor() async {
-    if (_kode.text != kodeAkunTiruan) return _salahKode();
     final hp = _hpBaru.text;
     _selesai(
       await simpanKontak(ref, phone: hp),
@@ -226,7 +207,6 @@ class _AkunSayaScreenState extends ConsumerState<AkunSayaScreen> {
   }
 
   Future<void> _simpanEm() async {
-    if (_kode.text != kodeAkunTiruan) return _salahKode();
     final ada = _emKini.isNotEmpty;
     _selesai(
       await simpanKontak(ref, backupEmail: _emBaru.text.trim()),
@@ -543,7 +523,6 @@ class _AkunSayaScreenState extends ConsumerState<AkunSayaScreen> {
       'Kode 6 angka dikirim ke ${_hpBaru.text}. Kode hanya berlaku sebentar dan sekali pakai.',
     ),
     _isianKode(),
-    if (_sebabKode.isNotEmpty) _penolakan('Ganti nomor ponsel', _sebabKode),
     _kecil(
       context,
       'Setelah diganti, nomor lama tidak dapat dipakai untuk masuk dan perangkat lain dikeluarkan.',
@@ -581,7 +560,6 @@ class _AkunSayaScreenState extends ConsumerState<AkunSayaScreen> {
       'Kode 6 angka dikirim ke ${_emBaru.text}. Kode hanya berlaku sebentar dan sekali pakai.',
     ),
     _isianKode(),
-    if (_sebabKode.isNotEmpty) _penolakan('Simpan email cadangan', _sebabKode),
     _baris('Simpan email cadangan', _alasanKode, _simpanEm),
   ];
 

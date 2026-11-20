@@ -1,6 +1,10 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/format.dart';
+import '../../domain/core/core.dart';
+import '../../providers/keuangan/persembahan_bernama.dart';
+import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis_status.dart';
 import '../../widgets/kecil.dart';
@@ -9,10 +13,9 @@ import '../../widgets/penolakan.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
 import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
 
-/// Shared by PersembahanBernama and WebPersembahanBernama: the `keadaan`
-/// options, the transaction card and the five view blocks (spec 22).
+/// Shared by PersembahanBernama and WebPersembahanBernama: the views, the
+/// transaction card and the five view blocks (spec 22).
 const keadaanPemberi = [
   'Tanpa nama',
   'Pilih pemberi',
@@ -21,37 +24,52 @@ const keadaanPemberi = [
   'Dilihat jabatan lain',
 ];
 
-/// Board state `{ k: null }`: the view is `k ?? keadaan`; a panel change of
-/// `keadaan` resets `k`; every view change jumps the page to the top.
-mixin KeadaanPemberi<T extends StatefulWidget> on State<T> {
-  String? _k;
-  String? _tweak;
+/// The view follows the envelope (J1): Tanpa nama or Tercatat atas nama
+/// anggota, and Dilihat jabatan lain for anyone but the Bendahara (P06).
+/// "Catat nama pemberi" opens Pilih pemberi, and a refused Simpan shows
+/// Belum dikonfirmasi. Every view change jumps the page to the top.
+mixin KeadaanPemberi<T extends ConsumerStatefulWidget> on ConsumerState<T> {
+  int? _k;
+  Refusal? tolakan;
+  final nama = TextEditingController();
 
   /// Any widget inside the page's scroll view.
   final kunciIsi = GlobalKey();
 
-  int ki(BuildContext context, String stem) {
-    final t = belumDipindah<String>('Tanpa nama');
-    if (t != _tweak) {
-      _tweak = t;
-      _k = null;
-    }
-    final i = keadaanPemberi.indexOf(_k ?? t);
-    return i < 0 ? 0 : i;
+  @override
+  void dispose() {
+    nama.dispose();
+    super.dispose();
   }
 
-  void pilih(int i) {
-    setState(() => _k = keadaanPemberi[i]);
+  int ki(Sampul? s) {
+    if (!ref.watch(bolehLihatPemberiProvider)) return 4;
+    return _k ?? (s?.pemberi == null ? 0 : 2);
+  }
+
+  /// [i] null returns to the view the envelope gives.
+  void pilih(int? i) {
+    setState(() => _k = i);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final ctx = kunciIsi.currentContext;
       if (ctx != null) Scrollable.maybeOf(ctx)?.position.jumpTo(0);
     });
   }
+
+  /// Simpan ([n] the typed name) or Lepas nama ([n] null).
+  Future<void> simpan(Sampul s, String? n) async {
+    final r = await catatPemberi(ref, s, n);
+    if (!mounted) return;
+    tolakan = r;
+    pilih(r == null ? null : 3);
+  }
 }
 
 /// "Sampul syukur" fact card, every view.
 class KartuSampul extends StatelessWidget {
-  const KartuSampul({super.key});
+  const KartuSampul(this.s, {super.key});
+
+  final Sampul s;
 
   @override
   Widget build(BuildContext context) {
@@ -77,15 +95,15 @@ class KartuSampul extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'Sampul syukur',
-                  style: TextStyle(fontWeight: FontWeight.w700),
+                  s.judul,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
               ),
               const SizedBox(width: 16),
               Text(
-                rp(100000),
+                rp(s.a.amount),
                 style: const TextStyle(
                   fontFamily: PalakatText.mono,
                   fontWeight: FontWeight.w500,
@@ -93,9 +111,9 @@ class KartuSampul extends StatelessWidget {
               ),
             ],
           ),
-          baris('Tanggal transaksi', '01/11/2026'),
-          baris('Diterima di', 'Ibadah Minggu Pagi'),
-          baris('Masuk ke peruntukan', 'Umum Jemaat'),
+          baris('Tanggal transaksi', s.tanggal),
+          if (s.diterima != null) baris('Diterima di', s.diterima!),
+          baris('Masuk ke peruntukan', s.peruntukan),
         ],
       ),
     );
@@ -105,13 +123,18 @@ class KartuSampul extends StatelessWidget {
 /// The view blocks under the transaction card, as flat children of the
 /// board's column. [ke] is the "Lihat yang dilihat anggota" target; null
 /// leaves the button out (the web has no PersembahanSaya, README 7.1 rule 4).
+/// A booked envelope keeps its giver: its change buttons are left out.
 List<Widget> blokPemberi(
-  BuildContext context, {
+  BuildContext context,
+  WidgetRef ref, {
+  required Sampul s,
   required int ki,
-  required ValueChanged<int> pilih,
+  required KeadaanPemberi k,
   Layar? ke,
 }) {
   final c = context.warna;
+  final draf = s.t.isDraft;
+  final pemberi = s.pemberi;
   final kecil = TextStyle(fontSize: 13, color: c.tinta3);
 
   Widget fakta(String label, BentukLencana bentuk, List<String> ket) => Kartu(
@@ -145,9 +168,9 @@ List<Widget> blokPemberi(
         w is Lentur ? w : Lentur(dasar: 150, maks: 340, child: w as Widget),
     ],
   );
-  Widget teks(String l, double tinggi, int ke) => SizedBox(
+  Widget teks(String l, double tinggi, VoidCallback aksi) => SizedBox(
     height: tinggi,
-    child: Tombol(l, jenis: JenisTombol.teks, onPressed: () => pilih(ke)),
+    child: Tombol(l, jenis: JenisTombol.teks, onPressed: aksi),
   );
 
   return switch (ki) {
@@ -155,14 +178,18 @@ List<Widget> blokPemberi(
       fakta('Tanpa nama', BentukLencana.draf, const [
         'Bawaan. Persembahan kantong dan sampul tanpa nama tidak dicatat per orang.',
       ]),
-      tombol([
-        Tombol(
-          'Catat nama pemberi',
-          jenis: JenisTombol.kedua,
-          ukuran: UkuranTombol.sedang,
-          onPressed: () => pilih(1),
-        ),
-      ]),
+      if (draf)
+        tombol([
+          Tombol(
+            'Catat nama pemberi',
+            jenis: JenisTombol.kedua,
+            ukuran: UkuranTombol.sedang,
+            onPressed: () {
+              k.nama.clear();
+              k.pilih(1);
+            },
+          ),
+        ]),
     ],
     1 => [
       Column(
@@ -170,8 +197,7 @@ List<Widget> blokPemberi(
         children: [
           IsianTeks(
             label: 'Pemberi (anggota)',
-            nilaiAwal: 'Novita Wenas',
-            hanyaBaca: true,
+            controller: k.nama,
             jarakLabel: 6,
             // The board's `input { font: inherit; color: inherit }` from the label.
             gaya: TextStyle(fontSize: 14, color: c.tinta2),
@@ -206,14 +232,19 @@ List<Widget> blokPemberi(
         style: kecil,
       ),
       tombol([
-        Tombol('Simpan', jenis: JenisTombol.tinta, onPressed: () => pilih(2)),
-        teks('Batalkan', 52, 0),
+        Tombol(
+          'Simpan',
+          jenis: JenisTombol.tinta,
+          onPressed: () => k.simpan(s, k.nama.text),
+        ),
+        teks('Batalkan', 52, () => k.pilih(null)),
       ]),
     ],
     2 => [
-      fakta('Novita Wenas', BentukLencana.garis, const [
-        'Tampil di “Persembahan saya” milik Novita Wenas setelah transaksi ini Dibukukan.',
-        'Di Warta Jemaat namanya mengikuti Tampilan nama yang ia pilih: Tanpa nama.',
+      fakta(pemberi?.name ?? '', BentukLencana.garis, [
+        'Tampil di “Persembahan saya” milik ${pemberi?.name} setelah transaksi ini Dibukukan.',
+        if (pemberi != null)
+          'Di Warta Jemaat namanya mengikuti Tampilan nama yang ia pilih: ${ref.watch(tampilanNamaProvider(pemberi.id))}.',
       ]),
       Text(
         'Nama pemberi bukan bagian dari jumlah: dapat dicatat atau dilepas tanpa pembalikan, dan setiap perubahan tercatat di Riwayat.',
@@ -222,7 +253,7 @@ List<Widget> blokPemberi(
       tombol([
         // An `<a>` is content-box: basis, max-width and min-height exclude
         // its padding 16 + 16 and line 1.5 + 1.5.
-        if (ke != null)
+        if (ke != null && pemberi != null)
           Lentur(
             dasar: 185,
             maks: 375,
@@ -232,25 +263,27 @@ List<Widget> blokPemberi(
                 'Lihat yang dilihat anggota',
                 jenis: JenisTombol.kedua,
                 ukuran: UkuranTombol.sedang,
-                ke: ke,
-                onPressed: null,
+                onPressed: () {
+                  ref.read(pemberiDilihatProvider.notifier).pilih(pemberi.id);
+                  context.dorongKe(ke);
+                },
               ),
             ),
           ),
-        teks('Lepas nama', 51, 0),
+        if (draf) teks('Lepas nama', 51, () => k.simpan(s, null)),
       ]),
     ],
     3 => [
-      const Penolakan(
-        tindakan: 'Catat nama pemberi',
-        sebab: 'data Ferry Wenas masih Belum dikonfirmasi.',
-        jalan: [],
+      Penolakan(
+        tindakan: k.tolakan?.action ?? '',
+        sebab: k.tolakan?.because ?? '',
+        jalan: const [],
       ),
       Text(
         'Namanya tetap boleh ditulis di Uraian sebagai catatan pembukuan, tetapi tidak ditautkan ke orangnya sampai datanya Diverifikasi.',
         style: kecil,
       ),
-      tombol([teks('Kembali', 44, 0)]),
+      tombol([teks('Kembali', 44, () => k.pilih(null))]),
     ],
     _ => [
       Kartu(

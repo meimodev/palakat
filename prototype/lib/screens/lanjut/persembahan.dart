@@ -32,8 +32,6 @@ class _Bagian {
   String v, milik, akun;
 }
 
-const _contohSampul = [('Novita Wenas', 100000), ('Agustina Lasut', 250000)];
-
 /// The board's state object, held above both routes (navigation.md 2.1);
 /// [p] gives the Kas/Bank, the Titipan case and the defaults.
 class _Keadaan extends ChangeNotifier {
@@ -48,7 +46,6 @@ class _Keadaan extends ChangeNotifier {
   Refusal? pesan;
   late List<String> petugas;
   late List<_Bagian> bagian;
-  late List<(String, int)> sampul;
 
   bool get posted => no != null;
 
@@ -68,7 +65,6 @@ class _Keadaan extends ChangeNotifier {
         p.titipan?.akun ?? '',
       ),
     ];
-    sampul = [];
   }
 
   void ulang() {
@@ -105,7 +101,6 @@ class _Keadaan extends ChangeNotifier {
   int get bagianN => bagian.where((b) => _num(b.v) > 0).length;
   int get tunaiKas =>
       bagian.where((b) => b.akun == p.kas).fold(0, (a, b) => a + _num(b.v));
-  bool get sampulLebih => sampul.fold(0, (a, x) => a + x.$2) > total;
 
   /// First unmet reason, '' when "Periksa dan bukukan" may run.
   String get alasan {
@@ -355,7 +350,7 @@ class _IsiState extends ConsumerState<_Isi> {
             ],
           ),
         ),
-      _Sampul(k),
+      const _Sampul(),
       Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -522,8 +517,7 @@ class _Chip extends StatelessWidget {
 
 /// "Sampul bernama": named envelopes inside the total.
 class _Sampul extends StatelessWidget {
-  const _Sampul(this.k);
-  final _Keadaan k;
+  const _Sampul();
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
@@ -541,81 +535,28 @@ class _Sampul extends StatelessWidget {
           ),
         ],
       ),
-      for (var i = 0; i < k.sampul.length; i++)
-        Container(
-          padding: const EdgeInsets.only(top: 6),
-          decoration: BoxDecoration(
-            border: Border(top: BorderSide(color: c.garis)),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  k.sampul[i].$1,
-                  style: const TextStyle(fontSize: 15),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                rp(k.sampul[i].$2),
-                style: const TextStyle(
-                  fontFamily: PalakatText.mono,
-                  fontSize: 15,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Tekan(
-                onTap: () => k.ubah(() => k.sampul.removeAt(i)),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Center(
-                    widthFactor: 1,
-                    heightFactor: 1,
-                    child: Text(
-                      'Lepas nama',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: c.laut,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      if (k.sampulLebih)
-        const Penolakan(
-          tindakan: 'Periksa dan bukukan',
-          sebab: 'Jumlah sampul bernama melebihi jumlah persembahan.',
-          jalan: [],
-          ukuranTeks: 14,
-        ),
       Wrap(
         spacing: 16,
         runSpacing: 4,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
-          if (k.sampul.length < 2)
-            Tekan(
+          // The giver is recorded on PersembahanBernama, against Data
+          // jemaat (J1); this screen books the parts only.
+          Tautan(
+            ke: Layar.persembahanBernama,
+            radius: 14,
+            child: RupaTombol(
+              label: 'Catat nama pemberi',
+              isi: c.permukaan,
+              garis: GarisBorder.penuh(c.tinta, radius: 14),
+              warnaTeks: c.tinta,
               radius: 14,
-              // By count, as the board does: after "Lepas nama" on the first,
-              // the next press adds the second sample again.
-              onTap: () =>
-                  k.ubah(() => k.sampul.add(_contohSampul[k.sampul.length])),
-              child: RupaTombol(
-                label: 'Catat nama pemberi',
-                isi: c.permukaan,
-                garis: GarisBorder.penuh(c.tinta, radius: 14),
-                warnaTeks: c.tinta,
-                radius: 14,
-                tinggi: 44,
-                paddingH: 16,
-                lebarPenuh: false,
-                ukuranTeks: 14,
-              ),
+              tinggi: 44,
+              paddingH: 16,
+              lebarPenuh: false,
+              ukuranTeks: 14,
             ),
+          ),
           const Tautan(
             ke: Layar.persembahanBernama,
             child: Center(

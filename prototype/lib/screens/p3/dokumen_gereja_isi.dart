@@ -50,7 +50,7 @@ String ketDokumen(ChurchDocument d) => [
 ].join(' · ');
 
 /// DokumenGereja and WebDokumenGereja (spec 17), merged with AlurDokumen
-/// (README 7.1): the archive the Sekretaris Jemaat keeps. A publisher sees
+/// (README 7.1): the records the Sekretaris Jemaat keeps. A publisher sees
 /// every document; anyone else only those addressed to them. A row opens the
 /// document in place with its revisions; each revision stays openable.
 class IsiDokumenGereja extends ConsumerStatefulWidget {

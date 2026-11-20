@@ -176,6 +176,7 @@ class Transaction {
     this.correctedBy,
     this.refundOf,
     this.countedBy = const [],
+    this.serviceId,
     this.importRowId,
     this.aiProposalId,
     this.seedKey,
@@ -245,6 +246,9 @@ class Transaction {
 
   /// 'Petugas penghitung' of a counted offering (person ids).
   final List<String> countedBy;
+
+  /// The service an offering was collected at (J3; PMP 6.1).
+  final String? serviceId;
   String? importRowId;
   String? aiProposalId;
 
@@ -273,9 +277,9 @@ class Transaction {
   /// The part's Kas/Bank.
   String? accountOf(Allocation a) => a.accountId ?? accountId;
 
-  /// A copy holding only the parts in [fundIds], for a Fund-only viewer
-  /// (README 3.5): the voucher stays, the other parts are gone.
-  Transaction sliceFor(Set<String> fundIds) => Transaction(
+  /// A copy holding only the parts [keep] accepts, for a Fund-only viewer
+  /// or a giver (README 3.5, J1): the voucher stays, the other parts are gone.
+  Transaction slice(bool Function(Allocation a) keep) => Transaction(
     id: id,
     type: type,
     status: status,
@@ -283,7 +287,7 @@ class Transaction {
     description: description,
     allocations: [
       for (final a in allocations)
-        if (fundIds.contains(a.fundId) || fundIds.contains(a.toFundId)) a,
+        if (keep(a)) a,
     ],
     createdBy: createdBy,
     createdAt: createdAt,
@@ -308,6 +312,7 @@ class Transaction {
     correctedBy: correctedBy,
     refundOf: refundOf,
     countedBy: countedBy,
+    serviceId: serviceId,
     seedKey: seedKey,
     revision: revision,
   );
@@ -344,6 +349,7 @@ class TransactionDraft {
     this.correctionOf,
     this.refundOf,
     this.countedBy = const [],
+    this.serviceId,
   });
 
   final TransactionType type;
@@ -366,9 +372,11 @@ class TransactionDraft {
   final String? reversalOf;
   final String? correctionOf;
 
-  /// See [Transaction.refundOf] and [Transaction.countedBy].
+  /// See [Transaction.refundOf], [Transaction.countedBy] and
+  /// [Transaction.serviceId].
   final String? refundOf;
   final List<String> countedBy;
+  final String? serviceId;
 }
 
 /// `TransactionRepository.editDraft`: only the fields given change. A

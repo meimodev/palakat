@@ -9,6 +9,9 @@ import '../data/repositories/document_repository.dart';
 import '../data/repositories/letter_repository.dart';
 import '../data/repositories/warta_repository.dart';
 import 'core_repositories.dart';
+import 'repositories_jemaat.dart';
+import 'repositories_keuangan.dart';
+import 'repositories_kolaborasi.dart';
 
 // The Secretariat repositories (README 4.3). Overriding one with a Supabase
 // implementation later is the seam (D1).
@@ -22,7 +25,14 @@ final announcementRepositoryProvider = Provider<AnnouncementRepository>(
 );
 
 final wartaRepositoryProvider = Provider<WartaRepository>(
-  (ref) => MemoryWartaRepository(ref.watch(memoryContextProvider)),
+  (ref) => MemoryWartaRepository(
+    ref.watch(memoryContextProvider),
+    masking: ref.watch(maskingRepositoryProvider),
+    periods: ref.watch(periodRepositoryProvider),
+    reports: ref.watch(reportRepositoryProvider),
+    services: ref.watch(serviceRepositoryProvider),
+    attendance: ref.watch(attendanceRepositoryProvider),
+  ),
 );
 
 final letterRepositoryProvider = Provider<LetterRepository>(

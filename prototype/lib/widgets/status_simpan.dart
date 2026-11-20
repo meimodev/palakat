@@ -1,10 +1,9 @@
 import 'package:flutter/widgets.dart';
 
-import '../motion/kerangka.dart';
 import '../theme/palakat_tema.dart';
 import 'tekan.dart';
 
-enum KeadaanSimpan { belum, tersimpan, mencoba, gagal }
+enum KeadaanSimpan { belum, tersimpan }
 
 /// The honest save state, trailing in the phone header (Main): 13/600.
 /// Pass it as `KepalaPonsel.ujung`, which gives the board's 8 px right.
@@ -19,85 +18,10 @@ class StatusSimpan extends StatelessWidget {
     final (teks, warna) = switch (keadaan) {
       KeadaanSimpan.belum => ('Belum tersimpan', c.tinta3),
       KeadaanSimpan.tersimpan => ('Tersimpan', c.laut),
-      KeadaanSimpan.mencoba => ('Mencoba menyimpan lagi…', c.tinta3),
-      KeadaanSimpan.gagal => ('Gagal disimpan', c.bata),
     };
     return Text(
       teks,
       style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: warna),
-    );
-  }
-}
-
-/// Main's failure banner under the header (`role="alert"`): margin 0 20 8,
-/// `bataLembut`, 1 px `bata`, radius 12, padding 10 14, row gap 10, appears
-/// with `muncul` 200 ms. The screen runs Coba lagi → mencoba → 1100 ms → tersimpan.
-class PitaGagalSimpan extends StatelessWidget {
-  const PitaGagalSimpan({super.key, required this.onCobaLagi});
-
-  final VoidCallback onCobaLagi;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.warna;
-    return Gerak(
-      Kerangka.muncul,
-      lama: const Duration(milliseconds: 200),
-      child: Semantics(
-        container: true,
-        liveRegion: true,
-        child: Container(
-          margin: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-          decoration: BoxDecoration(
-            color: c.bataLembut,
-            border: Border.all(color: c.bata),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text.rich(
-                  const TextSpan(
-                    children: [
-                      TextSpan(
-                        text: 'Gagal disimpan.',
-                        style: TextStyle(fontWeight: FontWeight.w700),
-                      ),
-                      TextSpan(text: ' Isian Anda masih ada di layar ini.'),
-                    ],
-                  ),
-                  style: TextStyle(fontSize: 14, color: c.tinta),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Tekan(
-                onTap: onCobaLagi,
-                radius: 10,
-                child: Container(
-                  constraints: const BoxConstraints(minHeight: 44),
-                  padding: const EdgeInsets.symmetric(horizontal: 14),
-                  decoration: BoxDecoration(
-                    color: c.bata,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Center(
-                    widthFactor: 1,
-                    child: Text(
-                      'Coba lagi',
-                      style: TextStyle(
-                        color: c.diBata,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

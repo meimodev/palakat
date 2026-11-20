@@ -1,11 +1,11 @@
 import '../../domain/core/core.dart';
 import '../../domain/secretariat/secretariat.dart';
 
-/// Announcements (README 4.3): DRAFT → PUBLISHED → ARCHIVED, archived by
+/// Announcements (README 4.3): DRAFT → PUBLISHED → RETIRED, retired by
 /// itself after its end date (DL14). The Operator drafts; only the
 /// Sekretaris Jemaat publishes.
 abstract interface class AnnouncementRepository {
-  /// Newest first. With [audienceOf], only published or archived ones
+  /// Newest first. With [audienceOf], only published or retired ones
   /// addressed to that person (members never see drafts).
   List<Announcement> list({String? audienceOf});
 
@@ -38,7 +38,7 @@ abstract interface class AnnouncementRepository {
     required String idempotencyKey,
   });
 
-  Future<Result<void>> archive(
+  Future<Result<void>> retire(
     Actor actor,
     String id, {
     required int expectedRevision,

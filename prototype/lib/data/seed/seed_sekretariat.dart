@@ -15,26 +15,6 @@ void seedSekretariat(SeedStore store, Jangkar a) {
   final t = store.sekretariat;
   final hari = a.hariIni;
 
-  // ---------- Households and Kolom read by the Secretariat (mock-data 2.18) ----------
-  for (final id in ['novita', 'agustina', 'ferry', 'gabriel']) {
-    t.households[id] = 'Wenas-Lasut · Kolom 7';
-    t.memberScopes[id] = 'kolom-7';
-  }
-  for (final (id, rumah, kolom) in [
-    ('hendrik', 'Rumagit · Kolom 7', 'kolom-7'),
-    ('greis', 'Mamahit · Kolom 7', 'kolom-7'),
-    ('deasy', 'Tumbelaka · Kolom 7', 'kolom-7'),
-    ('yanti', 'Sumual · Kolom 2', 'kolom-2'),
-    ('kevin', 'Rompas · Kolom 2', 'kolom-2'),
-  ]) {
-    t.households[id] = rumah;
-    t.memberScopes[id] = kolom;
-  }
-  // Keluarga Lasut (Kolom 4 → Kolom 7 from M+1): the Atestasi is filed
-  // under its head, Johny Lasut (seed_jemaat).
-  t.households[_lasut] = 'Lasut · Kolom 4';
-  t.memberScopes[_lasut] = 'kolom-4';
-
   // ---------- Church documents (DokumenGereja, TerbitDokumen) ----------
   DocumentRevision rev(int n, String file, DateTime at, {String? ralat}) =>
       DocumentRevision(
@@ -48,7 +28,20 @@ void seedSekretariat(SeedStore store, Jangkar a) {
   final notulen = a.hariLalu(8);
   // A record's year follows its date (README 5.5).
   final edaran = a.hariLalu(12);
+  // The written decision Penugasan offers for a new assignment (M6-R7):
+  // between the Panitia Natal SK (No. 11) and the drawn No. 14 P7 publishes.
+  final skTugas = a.hariLalu(10);
   t.documents.addAll([
+    ChurchDocument(
+      id: 'dokumen-sk-penugasan',
+      kind: DocumentKind.decision,
+      title: 'SK BPMJ No. 12/${skTugas.tahun} · Penugasan pelayan khusus',
+      documentDate: skTugas,
+      audience: Audience.servants,
+      revisions: [
+        rev(1, 'sk-penugasan-pelayan-khusus.pdf', a.jam(skTugas, 10, 0)),
+      ],
+    ),
     ChurchDocument(
       id: 'dokumen-serah-terima-paskah',
       kind: DocumentKind.assetHandover,
@@ -198,31 +191,19 @@ void seedSekretariat(SeedStore store, Jangkar a) {
   );
   final depan = hari.tambahHari(7 - hari.awal.weekday % 7);
   t.editions.addAll([
-    terbit(4, WartaStatus.archived),
-    terbit(3, WartaStatus.archived),
+    terbit(4, WartaStatus.retired),
+    terbit(3, WartaStatus.retired),
     ralat,
     terbit(1, WartaStatus.published),
     WartaEdition(
       id: _id(depan),
       sunday: depan,
       services: ibadah,
-      attendance: (
-        sunday: minggu(1),
-        total: 412,
-        parts: 'Subuh 96 · Pagi 231 · Malam 85',
-      ),
+      // Names follow each member's Tampilan nama (J2); attendance and the
+      // finance summary are read when it prints (J3).
       events: const [
-        WartaEvent(
-          label: 'Syukur HUT pernikahan',
-          name: 'Keluarga Wenas-Lasut — Kolom 7',
-          personId: 'novita',
-        ),
-        WartaEvent(
-          label: 'Sampul syukur',
-          name: 'Kel. Mamahit — Kolom 4',
-          personId: 'mamahit-1',
-          anonymousAs: 'Tanpa nama, Kolom 4',
-        ),
+        WartaEvent(label: 'Syukur HUT pernikahan', personId: 'novita'),
+        WartaEvent(label: 'Sampul syukur', personId: 'mamahit-1'),
       ],
       announcementIds: {kerjaBakti.id},
     ),

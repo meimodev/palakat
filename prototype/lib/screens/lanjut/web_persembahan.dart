@@ -30,8 +30,6 @@ class _Bagian {
   int get nilai => angkaDari(ctrl.text) ?? 0;
 }
 
-const _contohSampul = [('Novita Wenas', 100000), ('Agustina Lasut', 250000)];
-
 /// Web · Persembahan (spec 04-lainnya.md): parts as cards, a summary aside
 /// that turns from draft to posted in place.
 class WebPersembahanScreen extends ConsumerStatefulWidget {
@@ -59,7 +57,6 @@ class _WebPersembahanScreenState extends ConsumerState<WebPersembahanScreen> {
       _p.titipan?.akun ?? '',
     ),
   ];
-  final List<(String, int)> _sampul = [];
 
   @override
   void dispose() {
@@ -264,7 +261,6 @@ class _WebPersembahanScreenState extends ConsumerState<WebPersembahanScreen> {
       ),
     );
 
-    final jumlahSampul = _sampul.fold(0, (a, x) => a + x.$2);
     final sampul = Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
@@ -284,71 +280,29 @@ class _WebPersembahanScreenState extends ConsumerState<WebPersembahanScreen> {
             'dilihat pemberinya dan Bendahara Jemaat.',
             style: TextStyle(fontSize: 13, color: c.tinta3),
           ),
-          for (var i = 0; i < _sampul.length; i++) ...[
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.only(top: 6),
-              decoration: BoxDecoration(
-                border: Border(top: BorderSide(color: c.garis)),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      _sampul[i].$1,
-                      style: const TextStyle(fontSize: 15),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(rp(_sampul[i].$2), style: mono.copyWith(fontSize: 15)),
-                  const SizedBox(width: 12),
-                  Tombol(
-                    'Lepas nama',
-                    onPressed: () => setState(() => _sampul.removeAt(i)),
-                    jenis: JenisTombol.teks,
-                    ukuran: UkuranTombol.mini,
-                    paddingH: 10,
-                    ukuranTeks: 14,
-                    lebarPenuh: false,
-                  ),
-                ],
-              ),
-            ),
-          ],
-          if (jumlahSampul > total) ...[
-            const SizedBox(height: 8),
-            const Penolakan(
-              tindakan: 'Periksa dan bukukan',
-              sebab: 'Jumlah sampul bernama melebihi jumlah persembahan.',
-              jalan: [],
-              ukuranTeks: 14,
-            ),
-          ],
           const SizedBox(height: 8),
           Wrap(
             spacing: 16,
             runSpacing: 4,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              if (_sampul.length < 2)
-                Tekan(
-                  // Board `tambahSampul`: the next sample by count.
-                  onTap: () => setState(
-                    () => _sampul.add(_contohSampul[_sampul.length]),
-                  ),
+              // The giver is recorded on PersembahanBernama, against Data
+              // jemaat (J1); this screen books the parts only.
+              Tautan(
+                ke: Layar.persembahanBernama,
+                radius: 14,
+                child: RupaTombol(
+                  label: 'Catat nama pemberi',
+                  isi: c.permukaan,
+                  garis: GarisBorder.penuh(c.tinta, radius: 14),
+                  warnaTeks: c.tinta,
                   radius: 14,
-                  child: RupaTombol(
-                    label: 'Catat nama pemberi',
-                    isi: c.permukaan,
-                    garis: GarisBorder.penuh(c.tinta, radius: 14),
-                    warnaTeks: c.tinta,
-                    radius: 14,
-                    tinggi: 44,
-                    paddingH: 16,
-                    lebarPenuh: false,
-                    ukuranTeks: 14,
-                  ),
+                  tinggi: 44,
+                  paddingH: 16,
+                  lebarPenuh: false,
+                  ukuranTeks: 14,
                 ),
+              ),
               const Tautan(
                 ke: Layar.persembahanBernama,
                 child: Align(

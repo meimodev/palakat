@@ -133,7 +133,7 @@ void main() {
         );
         await keluar(tester);
 
-        // The Operator sees the whole archive (DL25).
+        // The Operator sees all the records (DL25).
         await masukSebagai(tester, Persona.yanti);
         await keDokumen();
         expect(find.text(judul), findsOneWidget);

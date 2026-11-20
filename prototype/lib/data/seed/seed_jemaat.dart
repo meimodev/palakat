@@ -476,6 +476,12 @@ void seedJemaat(SeedStore store, Jangkar a) {
     personId: 'novita',
     form: NameForm.familyKolom,
   );
+  // The Sampul syukur of the coming Warta prints "Tanpa nama, Kolom 4"
+  // (AlurWarta, BukaNama).
+  t.masking['mamahit-1'] = MaskingPreference(
+    personId: 'mamahit-1',
+    form: NameForm.none,
+  );
 
   assert(() {
     final aktif = t.profiles.values

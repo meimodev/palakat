@@ -16,6 +16,7 @@ import 'package:palakat_prototype/providers/clock.dart';
 import 'package:palakat_prototype/providers/core_repositories.dart';
 import 'package:palakat_prototype/providers/layout.dart';
 import 'package:palakat_prototype/providers/repositories_keuangan.dart';
+import 'package:palakat_prototype/providers/repositories_sekretariat.dart';
 import 'package:palakat_prototype/providers/revision.dart';
 import 'package:palakat_prototype/providers/session.dart';
 import 'package:palakat_prototype/widgets/kecil.dart';
@@ -244,3 +245,65 @@ AuditRecord jejakTerakhir(ProviderContainer c, String action) {
   expect(r, isNotNull, reason: 'tidak ada $action');
   return r!;
 }
+
+/// J1 (F4, P14): the signed-in Bendahara records a "Persembahan syukur"
+/// income draft of [jumlah] with Uraian [uraian] through Catat, and
+/// returns it. The giver is then named on PersembahanBernama.
+Future<Transaction> catatSampul(
+  WidgetTester tester,
+  String uraian,
+  int jumlah,
+) async {
+  final c = _wadah(tester);
+  final ponsel = c.read(layoutProvider) == Tata.ponsel;
+  c.read(routerProvider).go(Layar.keuangan.lokasi());
+  await tester.pumpAndSettle();
+  if (ponsel) {
+    await tester.tap(find.bySemanticsLabel('Catat transaksi'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Pendapatan').last);
+    await tester.pumpAndSettle();
+  } else {
+    c.read(routerProvider).go(Layar.catat.lokasi());
+    await tester.pumpAndSettle();
+    await tekan(tester, 'Pendapatan');
+  }
+  await tester.enterText(find.byType(EditableText).first, '$jumlah');
+  await tester.pumpAndSettle();
+  await tekan(tester, 'Kas');
+  await tekan(tester, 'Umum Jemaat');
+  await tekan(tester, 'Jemaat');
+  if (ponsel) await tekan(tester, 'Mata Anggaran belum dipilih');
+  await tekan(tester, 'Persembahan syukur');
+  await isi(tester, 'Uraian', uraian);
+  await tekan(tester, 'Simpan sebagai draf');
+  if (ponsel) await tungguTiruan(tester, const Duration(milliseconds: 2600));
+  return c
+      .read(transactionRepositoryProvider)
+      .drafts()
+      .singleWhere((t) => t.description == uraian);
+}
+
+/// On PersembahanBernama: "Catat nama pemberi", types [nama], "Simpan".
+Future<void> namaiPemberi(WidgetTester tester, String nama) async {
+  _wadah(tester).read(routerProvider).go(Layar.persembahanBernama.lokasi());
+  await tester.pumpAndSettle();
+  await tekan(tester, 'Catat nama pemberi');
+  await isi(tester, 'Pemberi (anggota)', nama);
+  await tekan(tester, 'Simpan');
+}
+
+/// Books the checked draft [id] from Draf ("Periksa dan bukukan").
+Future<Transaction> bukukanDraf(WidgetTester tester, String id) async {
+  final c = _wadah(tester);
+  c.read(routerProvider).go(Layar.draf.lokasi(param: {'id': id}));
+  await tester.pumpAndSettle();
+  await tekan(tester, 'Periksa dan bukukan');
+  final t = c.read(transactionRepositoryProvider).get(id)!;
+  expect(t.isPosted, isTrue, reason: 'draf $id belum dibukukan');
+  return t;
+}
+
+/// The seeded assignment decision Penugasan offers (Dokumen gereja, M6-R7).
+String skPenugasan(ProviderContainer c) =>
+    c.read(documentRepositoryProvider).get('dokumen-sk-penugasan')!.title;

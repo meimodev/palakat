@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../providers/keuangan/persembahan_bernama.dart';
 
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
@@ -11,21 +14,22 @@ import '../../app/layar.dart';
 
 /// Web · Persembahan bernama (spec 22): PersembahanBernama on the laptop,
 /// platform side nav with Keuangan active.
-class WebPersembahanBernamaScreen extends StatefulWidget {
+class WebPersembahanBernamaScreen extends ConsumerStatefulWidget {
   const WebPersembahanBernamaScreen({super.key});
 
   @override
-  State<WebPersembahanBernamaScreen> createState() =>
+  ConsumerState<WebPersembahanBernamaScreen> createState() =>
       _WebPersembahanBernamaScreenState();
 }
 
 class _WebPersembahanBernamaScreenState
-    extends State<WebPersembahanBernamaScreen>
+    extends ConsumerState<WebPersembahanBernamaScreen>
     with KeadaanPemberi {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final i = ki(context, 'WebPersembahanBernama');
+    final s = ref.watch(sampulProvider);
+    final i = ki(s);
     return Material(
       type: MaterialType.transparency,
       child: HalamanWeb(
@@ -64,27 +68,34 @@ class _WebPersembahanBernamaScreenState
               ),
             ],
           ),
-          Align(
-            alignment: Alignment.topLeft,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1120),
-              child: BarisLentur(
-                jarak: 28,
-                jarakBaris: 20,
-                anak: [
-                  const Lentur(dasar: 420, tumbuh: 1.3, child: KartuSampul()),
-                  Lentur(
-                    dasar: 340,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      spacing: 12,
-                      children: blokPemberi(context, ki: i, pilih: pilih),
+          if (s != null)
+            Align(
+              alignment: Alignment.topLeft,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1120),
+                child: BarisLentur(
+                  jarak: 28,
+                  jarakBaris: 20,
+                  anak: [
+                    Lentur(dasar: 420, tumbuh: 1.3, child: KartuSampul(s)),
+                    Lentur(
+                      dasar: 340,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        spacing: 12,
+                        children: blokPemberi(
+                          context,
+                          ref,
+                          s: s,
+                          ki: i,
+                          k: this,
+                        ),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
         ],
       ),
     );

@@ -1,8 +1,10 @@
 import '../../core/tanggal.dart';
 import '../../domain/core/core.dart';
 import '../../domain/membership/membership.dart';
+import '../../domain/secretariat/secretariat.dart';
 import '../repositories/consent_repository.dart';
 import 'memory_jemaat.dart';
+import 'memory_sekretariat.dart';
 
 class MemoryConsentRepository implements ConsentRepository {
   MemoryConsentRepository(this.j);
@@ -194,8 +196,15 @@ class MemoryConsentRepository implements ConsentRepository {
     return Ok(r);
   });
 
-  /// DL13's delete list; the keep list (finance names, published Warta and
-  /// documents, audit lines, this record) is left as it is.
+  /// DL13's delete list (PMP 6.1): the member profile with its household
+  /// membership and Kolom and BIPRA history, life events, the name choice,
+  /// consents, letters issued to them, and the link from their Party. The
+  /// keep list (finance names, published Warta editions and church
+  /// documents, audit lines, this record) is left as it is; a Warta not yet
+  /// published no longer names them (Tampilan nama prints "Tanpa nama").
+  // ponytail: the login account stays (the core Person row and the running
+  // session), as CabutIzin draws her own deletion record; an owner decision
+  // (M10 notes) before PersonStatus gains a deleted state.
   void _hapus(String id, Grant g) {
     final t = j.t;
     final inti = j.ctx.inti;
@@ -210,6 +219,20 @@ class MemoryConsentRepository implements ConsentRepository {
     t.items.removeWhere(
       (i) =>
           i.subjectPersonId == id || (i.event?.personIds.contains(id) ?? false),
+    );
+    // Letters issued to them (Proposed in DL13's list): the requests and
+    // the copies addressed to them alone.
+    final sek = j.ctx.sek;
+    final surat = {
+      for (final r in sek.letters)
+        if (r.forPersonId == id) ?r.documentId,
+    };
+    sek.letters.removeWhere((r) => r.forPersonId == id);
+    sek.documents.removeWhere(
+      (d) =>
+          surat.contains(d.id) &&
+          d.kind == DocumentKind.memberLetter &&
+          d.audience == Audience.person(id),
     );
     // Finance keeps the name as recorded; the link to the person goes.
     for (final p in inti.parties) {

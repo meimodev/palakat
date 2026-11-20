@@ -15,7 +15,7 @@ enum PanitiaStage {
   eventCompleted('Acara selesai'),
   financialClosing('Penutupan keuangan'),
   closed('Ditutup'),
-  archived('Diarsipkan');
+  retired('Diarsipkan');
 
   const PanitiaStage(this.label);
   final String label;

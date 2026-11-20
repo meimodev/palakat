@@ -65,7 +65,7 @@ List<HomeRow> barisSekretariat(Ref ref, Actor actor) {
     final minggu = mingguDepan(hari);
     final e = warta.where((x) => x.sunday == minggu).firstOrNull;
     if (e == null ||
-        e.status != WartaStatus.published && e.status != WartaStatus.archived) {
+        e.status != WartaStatus.published && e.status != WartaStatus.retired) {
       baris.add(
         HomeRow(
           kelompok: KelompokBaris.tindak,

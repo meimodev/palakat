@@ -5,7 +5,7 @@ import 'jangkar.dart';
 import 'seed_store.dart';
 
 /// The Collaboration seed (README 5.6, 5.7; mock-data 2.20; DP25, DP27,
-/// DP28): Panitia Natal (Aktif) with its SK, Panitia Paskah (archived) and
+/// DP28): Panitia Natal (Aktif) with its SK, Panitia Paskah (retired) and
 /// HUT (closed); the last Sunday's count Ditetapkan at 231, Adven I
 /// scheduled, Ibadah Kolom 7 of the next Thursday waiting for its approver;
 /// two fund requests waiting for the Ketua Jemaat. The approver table keeps
@@ -79,7 +79,7 @@ void seedKolaborasi(SeedStore store, Jangkar a) {
       id: 'panitia-paskah',
       scopeId: 'panitia-paskah',
       name: nama('panitia-paskah'),
-      stage: PanitiaStage.archived,
+      stage: PanitiaStage.retired,
       createdBy: 'lidya',
       createdAt: paskahMulai,
       history: [
@@ -89,7 +89,7 @@ void seedKolaborasi(SeedStore store, Jangkar a) {
           at: paskahMulai,
         ),
         PanitiaStageChange(
-          stage: PanitiaStage.archived,
+          stage: PanitiaStage.retired,
           by: 'lidya',
           at: serahTerima,
         ),

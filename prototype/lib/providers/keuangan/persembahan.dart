@@ -2,12 +2,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/format.dart';
 import '../../core/tanggal.dart';
+import '../../domain/collaboration/collaboration.dart';
 import '../../domain/core/core.dart';
 import '../../domain/finance/finance.dart';
 import '../actor.dart';
 import '../clock.dart';
 import '../core_repositories.dart';
 import '../repositories_keuangan.dart';
+import '../repositories_kolaborasi.dart';
 import '../revision.dart';
 import 'catat.dart';
 import 'transaksi.dart';
@@ -52,7 +54,12 @@ class PilihanPersembahan {
     required this.maTitipan,
     required this.petugas,
     required this.petugasId,
+    this.ibadah,
   });
+
+  /// The Jemaat's Sunday service of [minggu] in Ibadah dan kegiatan, which
+  /// the offering refers to (J3); null when none is recorded.
+  final String? ibadah;
 
   /// Petugas penghitung to pick from (mock-data 2.13); the first is the
   /// default on both twins.
@@ -141,6 +148,12 @@ final pilihanPersembahanProvider = Provider<PilihanPersembahan>((ref) {
     maTitipan: labelMataAnggaran(master, maTitipanSinode, minggu),
     petugas: [for (final o in penghitung) o.short],
     petugasId: [for (final o in penghitung) o.id],
+    ibadah: ref
+        .watch(serviceRepositoryProvider)
+        .list(scopeId: ScopeRef.jemaatId)
+        .where((s) => s.kind == ServiceKind.minggu && s.date == minggu)
+        .firstOrNull
+        ?.id,
   );
 });
 
@@ -176,6 +189,7 @@ Future<({String? id, String? no, Refusal? pesan})> bukukanPersembahan(
         type: TransactionType.income,
         effectiveDate: p.minggu,
         description: p.uraian,
+        serviceId: p.ibadah,
         countedBy: [
           for (final n in penghitung)
             if (p.petugas.indexOf(n) case final i when i >= 0) p.petugasId[i],

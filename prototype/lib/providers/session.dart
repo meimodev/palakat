@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/repositories/session_repository.dart';
+import '../data/seed/seed_inti.dart' show bendaharaPanitiaNatal;
 import '../domain/core/core.dart';
 import 'actor.dart';
 import 'clock.dart';
@@ -55,7 +56,7 @@ enum Persona {
     'Bendahara Komisi Diakonia · Akses terbatas Diakonia',
     kaki: ('Dkn. Olga Tamba', '', 'Akses terbatas: Peruntukan Diakonia'),
   ),
-  rivo('Sdr. Rivo Mandagi', 'Bendahara Panitia Natal 2026 · Ketua Pemuda'),
+  rivo('Sdr. Rivo Mandagi', '$bendaharaPanitiaNatal · Ketua Pemuda'),
   novita('Novita Wenas', 'Anggota jemaat · Kolom 7');
 
   const Persona(this.nama, this.jabatan, {this.kaki});

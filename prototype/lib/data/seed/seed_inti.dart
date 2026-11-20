@@ -3,6 +3,10 @@ import '../../domain/core/core.dart';
 import 'jangkar.dart';
 import 'seed_store.dart';
 
+/// Rivo's Panitia post as the seed story names it (O9); the picker's post line
+/// reads it, so the year stays in the seed.
+const bendaharaPanitiaNatal = 'Bendahara Panitia Natal 2026';
+
 /// The core seed (README 5.2, 5.6, 5.7; mock-data 2.1–2.3, 2.16, 2.17,
 /// 2.21): the church, people and parties, scopes, posts, assignments,
 /// authority grants, delegations, the Kolom 2 cover, all 10 modules ACTIVE
@@ -170,7 +174,8 @@ void seedInti(SeedStore store, Jangkar a) {
     ('rivo', 'Sdr. Rivo Mandagi', 'rivo'),
     ('natalia', 'Sdri. Natalia Rumengan', 'natalia'),
     ('jefry', 'Pnt. Jefry Wowor', 'jefry'),
-    ('ferry', 'Ferry Wenas', 'ferry'),
+    // Not linked while Ferry is Belum dikonfirmasi (PersembahanBernama).
+    ('ferry', 'Ferry Wenas', null),
   ]) {
     t.parties.add(Party(id: 'party-$id', displayName: nama, personId: orangId));
   }
@@ -258,7 +263,7 @@ void seedInti(SeedStore store, Jangkar a) {
     'bendahara-panitia-natal',
     Role.bendaharaUnit,
     'panitia-natal',
-    'Bendahara Panitia Natal 2026',
+    bendaharaPanitiaNatal,
   );
   jabatan(
     'ketua-panitia-natal',

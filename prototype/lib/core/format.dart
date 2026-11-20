@@ -3,9 +3,6 @@ import 'dart:math' as math;
 /// "Not known", never Rp0.
 const kosong = '—';
 
-/// The flow boards' `HARI` and `HARI_T`: today in the prototype.
-const hari = 20261116, hariTeks = '16/11/2026';
-
 const _bulan = [
   'Januari',
   'Februari',
@@ -69,12 +66,6 @@ int? bacaTgl(String t) {
   if (b < 1 || b > 12 || d < 1 || d > 31) return null;
   return int.parse(m[3]!) * 10000 + b * 100 + d;
 }
-
-/// Riwayat line of the flow boards: `'dd/mm/yyyy · <teks>'`, newest first.
-List<String> catat(List<String> riwayat, String teks) => [
-  '$hariTeks · $teks',
-  ...riwayat,
-];
 
 /// Masked phone: '081298765432' → '0812 ···· 5432'.
 String samarHp(String n) =>

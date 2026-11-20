@@ -25,7 +25,16 @@ class MemoryFundRepository implements FundRepository {
   @override
   Fund? fund(String id) {
     final boleh = f.visibleFundIds();
-    if (boleh != null && !boleh.contains(id)) return null;
+    // A giver also sees the Fund of a gift in their name (J1).
+    if (boleh != null &&
+        !boleh.contains(id) &&
+        !f.k.transactions.any(
+          (t) =>
+              f.visible(t, boleh)?.allocations.any((a) => a.fundId == id) ??
+              false,
+        )) {
+      return null;
+    }
     return f.k.fund(id);
   }
 

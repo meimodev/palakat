@@ -135,7 +135,7 @@ void main() {
         await keluar(tester);
 
         // The announcements ending first: once that day has passed they are
-        // archived, and their row leaves the Sekretaris's home.
+        // retired, and their row leaves the Sekretaris's home.
         await masukSebagai(tester, Persona.olvie);
         final hari = c.read(hariIniProvider);
         final akhir = [

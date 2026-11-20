@@ -459,6 +459,7 @@ class MemoryTransactionRepository implements TransactionRepository {
       aiProposalId: draft.aiProposalId,
       refundOf: draft.refundOf,
       countedBy: List.of(draft.countedBy),
+      serviceId: draft.serviceId,
     );
     f.k.transactions.add(t);
     f.audit(

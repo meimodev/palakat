@@ -35,7 +35,7 @@ LencanaStatus lencanaWarta(WartaStatus s) => LencanaStatus(
     WartaStatus.review => BentukLencana.lautGaris,
     WartaStatus.approved => BentukLencana.laut,
     WartaStatus.published => BentukLencana.tinta,
-    WartaStatus.archived => BentukLencana.abu,
+    WartaStatus.retired => BentukLencana.abu,
   },
 );
 
@@ -87,7 +87,7 @@ class _IsiWartaArsipState extends ConsumerState<IsiWartaArsip> {
     final terbit = [
       for (final e in repo.editions())
         if (e.status == WartaStatus.published ||
-            e.status == WartaStatus.archived)
+            e.status == WartaStatus.retired)
           e,
     ];
     final editor = bolehSek(ref, Capability.wartaEdit);
@@ -97,7 +97,7 @@ class _IsiWartaArsipState extends ConsumerState<IsiWartaArsip> {
         editor &&
         (depan == null ||
             depan.status != WartaStatus.published &&
-                depan.status != WartaStatus.archived);
+                depan.status != WartaStatus.retired);
     final e = terbit.where((x) => x.id == _pilih).firstOrNull;
     final t14 = TextStyle(fontSize: 14, color: c.tinta2);
 

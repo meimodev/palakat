@@ -40,7 +40,8 @@ class MemoryPeopleRepository implements PeopleRepository {
     required int expectedRevision,
     required String idempotencyKey,
   }) => ctx.command(idempotencyKey, () {
-    const aksi = 'Hubungkan dengan anggota';
+    // The one board that draws the link: PersembahanBernama.
+    const aksi = 'Catat nama pemberi';
     final g = _grant(actor);
     if (g == null) {
       return ctx.refuse(actor, Capability.financeRecord, ScopeRef.jemaat);
@@ -48,6 +49,10 @@ class MemoryPeopleRepository implements PeopleRepository {
     final p = _party(partyId);
     final o = ctx.inti.person(personId);
     if (p == null || o == null) return ctx.no(aksi, 'Data tidak ditemukan.');
+    // Linked only once the person is verified (PersembahanBernama).
+    if (o.status == PersonStatus.unconfirmed) {
+      return ctx.no(aksi, 'data ${o.name} masih Belum dikonfirmasi.');
+    }
     final basi = ctx.stale<void>(p.revision, expectedRevision, aksi);
     if (basi != null) return basi;
     p

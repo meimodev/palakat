@@ -8,10 +8,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:palakat_prototype/app/layar.dart';
 import 'package:palakat_prototype/app/router.dart';
 import 'package:palakat_prototype/domain/membership/membership.dart';
+import 'package:palakat_prototype/domain/secretariat/secretariat.dart';
 import 'package:palakat_prototype/providers/actor.dart';
 import 'package:palakat_prototype/providers/core_repositories.dart';
 import 'package:palakat_prototype/providers/repositories_jemaat.dart';
 import 'package:palakat_prototype/providers/repositories_keuangan.dart';
+import 'package:palakat_prototype/providers/repositories_sekretariat.dart';
 import 'package:palakat_prototype/shell/tautan.dart';
 
 import 'harness.dart';
@@ -60,6 +62,25 @@ void main() {
       findsOneWidget,
     );
 
+    // M10 · the next Warta's preview prints the chosen form (J2).
+    final warta = c.read(wartaRepositoryProvider);
+    final edisi = warta.editions().firstWhere(
+      (e) => e.sunday == mingguDepan(c.read(hariIniProvider)),
+    );
+    String cetak() => warta
+        .preview(edisi.id)!
+        .events
+        .firstWhere((x) => x.event.personId == 'novita')
+        .printed;
+    expect(cetak(), 'Novita Wenas');
+    c
+        .read(routerProvider)
+        .push(Layar.wartaPdf.lokasi(param: {'edisi': edisi.id}));
+    await tester.pumpAndSettle();
+    expect(find.text('Syukur HUT pernikahan: Novita Wenas'), findsOneWidget);
+    c.read(routerProvider).pop();
+    await tester.pumpAndSettle();
+
     // Withdrawing consent: the request is recorded and carried out.
     await tekan(tester, 'Cabut izin dan hapus data saya');
     expect(_atas(c), Layar.cabutIzin.lokasi());
@@ -85,6 +106,12 @@ void main() {
       isNot(contains('novita')),
     );
     expect(izin.consents('novita'), isEmpty);
+    // DL13: her letter requests go; the coming Warta no longer names her.
+    expect(
+      c.read(letterRepositoryProvider).requests(personId: 'novita'),
+      isEmpty,
+    );
+    expect(cetak(), 'Tanpa nama');
 
     // Finance keeps the booked name; the link to the person is gone.
     final pihak = c

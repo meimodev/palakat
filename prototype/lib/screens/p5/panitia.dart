@@ -36,7 +36,7 @@ const _tanpaDokumen = '';
 /// the authorized church officer forms a Panitia from a written decision
 /// with three distinct officers and moves its stages; the church Bendahara
 /// takes back the unused advance and approves where the leftover goes; it
-/// then closes and is archived, read-only (DL27, DP27).
+/// then closes and is retired, read-only (DL27, DP27).
 class PanitiaScreen extends ConsumerStatefulWidget {
   const PanitiaScreen({super.key});
 
@@ -301,7 +301,7 @@ class _PanitiaState extends ConsumerState<PanitiaScreen> {
       PanitiaStage.eventCompleted => 'Tandai acara selesai',
       PanitiaStage.financialClosing => 'Mulai penutupan keuangan',
       PanitiaStage.closed => 'Tutup Panitia',
-      PanitiaStage.archived => 'Arsipkan',
+      PanitiaStage.retired => 'Arsipkan',
       _ => null,
     };
 
@@ -501,7 +501,7 @@ class _PanitiaState extends ConsumerState<PanitiaScreen> {
             'laporannya tetap dapat dibaca.',
           ),
         ],
-        PanitiaStage.archived => [
+        PanitiaStage.retired => [
           const Catatan(
             status: GarisStatus.terpilih,
             tebal: 'Hanya baca.',

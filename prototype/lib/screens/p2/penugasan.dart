@@ -4,10 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/layar.dart';
 import '../../core/format.dart';
 import '../../core/tanggal.dart';
-import '../../data/seed/keputusan_penugasan.dart';
 import '../../domain/core/core.dart';
+import '../../domain/secretariat/secretariat.dart';
 import '../../providers/actor.dart';
 import '../../providers/core_repositories.dart';
+import '../../providers/repositories_sekretariat.dart';
 import '../../providers/revision.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
@@ -370,8 +371,17 @@ class _IsiPenugasanState extends ConsumerState<IsiPenugasan> {
               ?ref.read(peopleRepositoryProvider).person(h.toPersonId),
           ]
         : ref.read(peopleRepositoryProvider).search(kata).take(4).toList();
+    // The handover's document, else the published assignment decisions
+    // of Dokumen gereja (M6-R7).
+    // ponytail: a document has no subject field, so "Penugasan" in the
+    // title marks an assignment decision; add one when documents get it.
     final dokumen = [
-      p.handover?.documentRef ?? keputusanPenugasan(_hari),
+      if (p.handover case final h?)
+        h.documentRef
+      else
+        for (final d in ref.watch(documentRepositoryProvider).list())
+          if (d.kind == DocumentKind.decision && d.title.contains('Penugasan'))
+            d.title,
       _belumAdaDokumen,
     ];
     final alasan = _alasanTugas();

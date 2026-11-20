@@ -11,10 +11,4 @@ class TabelSekretariat {
 
   /// The last outgoing-letter number given per year (README 5.5).
   final Map<int, int> letterCounters = {};
-
-  // ponytail: the household line and Kolom of the members the Secretariat
-  // reads, kept here until M10 joins MemberRepository (letters from member
-  // records, J2).
-  final Map<String, String> households = {};
-  final Map<String, String> memberScopes = {};
 }

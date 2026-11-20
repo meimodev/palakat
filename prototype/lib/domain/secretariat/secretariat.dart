@@ -122,7 +122,7 @@ class ChurchDocument {
 enum AnnouncementStatus {
   draft('Draf'),
   published('Diterbitkan'),
-  archived('Diarsipkan');
+  retired('Diarsipkan');
 
   const AnnouncementStatus(this.label);
   final String label;
@@ -139,7 +139,7 @@ class AnnouncementDraft {
   final String title, body;
   final Audience audience;
 
-  /// After this date a published announcement archives itself (DL14).
+  /// After this date a published announcement retires itself (DL14).
   final Tanggal? endsOn;
 }
 
@@ -180,12 +180,12 @@ class Announcement {
   int get revisionNumber => superseded.length + 1;
 
   /// The status on [today]: a published announcement whose end date has
-  /// passed is archived by itself (DL14).
+  /// passed is retired by itself (DL14).
   AnnouncementStatus statusAt(Tanggal today) =>
       status == AnnouncementStatus.published &&
           endsOn != null &&
           endsOn! < today
-      ? AnnouncementStatus.archived
+      ? AnnouncementStatus.retired
       : status;
 }
 
@@ -209,31 +209,20 @@ enum WartaStatus {
   review('Sudah diperiksa'),
   approved('Disetujui'),
   published('Diterbitkan'),
-  archived('Diarsipkan');
+  retired('Diarsipkan');
 
   const WartaStatus(this.label);
   final String label;
 }
 
-/// A life event printed in an edition (Peristiwa jemaat). A member who chose
-/// "Tanpa nama" prints [anonymousAs] unless an exception prints [name].
+/// A life event printed in an edition (Peristiwa jemaat). The name it
+/// prints is computed from the member's Tampilan nama (J2, DP23).
 class WartaEvent {
-  const WartaEvent({
-    required this.label,
-    required this.name,
-    this.personId,
-    this.anonymousAs,
-  });
+  const WartaEvent({required this.label, required this.personId});
 
   /// 'Syukur HUT pernikahan'.
   final String label;
-
-  /// The name: 'Keluarga Wenas-Lasut — Kolom 7', 'Kel. Mamahit — Kolom 4'.
-  final String name;
-  final String? personId;
-
-  /// 'Tanpa nama, Kolom 4' when the member chose no name.
-  final String? anonymousAs;
+  final String personId;
 }
 
 class WartaRalat {
@@ -263,7 +252,6 @@ class WartaEdition {
     required this.sunday,
     this.status = WartaStatus.draft,
     this.services,
-    this.attendance,
     this.events = const [],
     Set<String>? announcementIds,
     this.publishedAt,
@@ -279,8 +267,6 @@ class WartaEdition {
   /// 'Subuh 05.00 · Pagi 09.00 · Malam 18.00' (Ibadah dan kegiatan).
   final String? services;
 
-  /// The last Ditetapkan count: its Sunday, total and parts.
-  final ({Tanggal sunday, int total, String parts})? attendance;
   final List<WartaEvent> events;
 
   /// The published announcements the Sekretaris picked for this edition
@@ -292,9 +278,39 @@ class WartaEdition {
   final List<NameException> exceptions = [];
   int revision;
 
+  /// What it printed when published: a published edition never changes
+  /// (rules 612, 643); a later Tampilan nama or close shows in the next.
+  WartaPreview? printed;
+
   NameException? exceptionFor(String personId) =>
       exceptions.where((e) => e.personId == personId).firstOrNull;
 }
+
+/// One event as printed. [reveal] is what an exception would print, set
+/// only when the member chose "Tanpa nama"; [exception] when one is
+/// recorded in this edition.
+typedef PrintedEvent = ({
+  WartaEvent event,
+  String printed,
+  String? reveal,
+  bool exception,
+});
+
+/// The last Sunday's Ditetapkan counts: per service and in total (J3).
+typedef WartaAttendance = ({
+  Tanggal sunday,
+  List<({String label, int n})> parts,
+  int total,
+});
+
+/// Income and spending of the latest closed month, from its snapshot (J3).
+typedef WartaFinance = ({
+  int year,
+  int month,
+  int income,
+  int expense,
+  DateTime? closedAt,
+});
 
 /// What the edition prints (WartaEditor sections, A4Warta).
 class WartaPreview {
@@ -302,6 +318,8 @@ class WartaPreview {
     required this.edition,
     required this.announcements,
     required this.events,
+    this.attendance,
+    this.finance,
   });
 
   final WartaEdition edition;
@@ -309,8 +327,10 @@ class WartaPreview {
   /// The picked announcements that are published (P17).
   final List<Announcement> announcements;
 
-  /// Each event and its name as printed.
-  final List<({WartaEvent event, String printed})> events;
+  /// Each event and its name as printed (Tampilan nama).
+  final List<PrintedEvent> events;
+  final WartaAttendance? attendance;
+  final WartaFinance? finance;
 }
 
 enum LetterType {

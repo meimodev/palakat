@@ -1,6 +1,8 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/format.dart';
+import '../../providers/keuangan/persembahan_bernama.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import '../../shell/tautan.dart';
@@ -12,36 +14,37 @@ import '../../widgets/lencana_status.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
 import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
 
 const _ada = 'Ada persembahan bernama',
     _rincian = 'Rincian',
     _belum = 'Belum ada',
     _bukan = 'Bukan persembahan saya';
 
-/// 81 · Persembahan saya: only the gifts recorded in the member's name.
-/// Board state `{ k: null }`; the view is `k ?? keadaan`.
-class PersembahanSayaScreen extends StatefulWidget {
+/// 81 · Persembahan saya: only the booked gifts recorded in the member's
+/// name (J1, P06), from [persembahanSayaProvider]. The list, or Belum ada
+/// when it is empty; a row opens Rincian.
+class PersembahanSayaScreen extends ConsumerStatefulWidget {
   const PersembahanSayaScreen({super.key});
 
   @override
-  State<PersembahanSayaScreen> createState() => _PersembahanSayaScreenState();
+  ConsumerState<PersembahanSayaScreen> createState() =>
+      _PersembahanSayaScreenState();
 }
 
-class _PersembahanSayaScreenState extends State<PersembahanSayaScreen> {
+class _PersembahanSayaScreenState extends ConsumerState<PersembahanSayaScreen> {
   String? _k;
-  String? _keadaan;
+  Sampul? _dipilih;
 
-  void _ke(String o) => setState(() => _k = o);
+  void _ke(String o, [Sampul? s]) => setState(() {
+    _k = o;
+    if (s != null) _dipilih = s;
+  });
 
   @override
   Widget build(BuildContext context) {
-    final keadaan = belumDipindah<String>('Ada persembahan bernama');
-    if (keadaan != _keadaan) {
-      _keadaan = keadaan;
-      _k = null; // a change in the Keadaan panel resets the board state
-    }
-    final v = _k ?? keadaan;
+    final daftar = ref.watch(persembahanSayaProvider);
+    final p = _dipilih;
+    final v = daftar.isEmpty ? _belum : _k ?? _ada;
     final c = context.warna;
     final s13 = TextStyle(fontSize: 13, color: c.tinta3);
     const mono = TextStyle(
@@ -64,29 +67,29 @@ class _PersembahanSayaScreenState extends State<PersembahanSayaScreen> {
     );
 
     final isi = switch (v) {
-      _rincian => [
+      _rincian when p != null => [
         Kartu(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               KepalaKartu(
-                judul: 'Sampul syukur',
+                judul: p.judul,
                 ujung: LencanaStatus.uang(StatusUang.dibukukan),
               ),
               for (final b in [
                 BarisInfo(
                   'Jumlah (Rp)',
-                  rp(100000),
+                  rp(p.a.amount),
                   mono: true,
                   berat: FontWeight.w500,
                 ),
-                const BarisInfo('Tanggal transaksi', '01/11/2026'),
-                const BarisInfo('Diterima di', 'Ibadah Minggu Pagi'),
-                const BarisInfo('Masuk ke peruntukan', 'Umum Jemaat'),
+                BarisInfo('Tanggal transaksi', p.tanggal),
+                if (p.diterima != null) BarisInfo('Diterima di', p.diterima!),
+                BarisInfo('Masuk ke peruntukan', p.peruntukan),
                 // Codes are mono (CONVENTIONS, Theme); the board draws sans 600.
-                const BarisInfo(
+                BarisInfo(
                   'No. Bukti',
-                  'BKU-2026-0132',
+                  p.t.voucher ?? '—',
                   mono: true,
                   berat: FontWeight.w500,
                 ),
@@ -94,10 +97,11 @@ class _PersembahanSayaScreenState extends State<PersembahanSayaScreen> {
             ],
           ),
         ),
-        Text(
-          'Di Warta Jemaat nama Anda mengikuti Tampilan nama yang Anda pilih: Tanpa nama.',
-          style: s13,
-        ),
+        if (p.pemberi != null)
+          Text(
+            'Di Warta Jemaat nama Anda mengikuti Tampilan nama yang Anda pilih: ${ref.watch(tampilanNamaProvider(p.pemberi!.id))}.',
+            style: s13,
+          ),
         _BarisTombolTautan(
           anak: [
             Tombol(
@@ -140,8 +144,8 @@ class _PersembahanSayaScreenState extends State<PersembahanSayaScreen> {
           ),
         ),
       ],
-      _bukan => [
-        kartu('Sampul syukur', 100000, '01/11/2026 · BKU-2026-0132'),
+      _bukan when p != null => [
+        kartu(p.judul, p.a.amount, '${p.tanggal} · ${p.t.voucher ?? '—'}'),
         IsianTeks(
           label: 'Keterangan · wajib',
           nilaiAwal: 'Saya tidak memberi sampul pada tanggal ini.',
@@ -193,26 +197,17 @@ class _PersembahanSayaScreenState extends State<PersembahanSayaScreen> {
         ),
         // The board's `<a href="PersembahanSaya.dc.html" onClick={{go1}}>`:
         // a self link, so it switches to Rincian in place.
-        Tautan(
-          ke: Layar.persembahanSaya,
-          radius: 14,
-          diSini: () => _ke(_rincian),
-          child: kartu(
-            'Sampul syukur',
-            100000,
-            '01/11/2026 · Ibadah Minggu Pagi · Umum Jemaat',
+        for (final x in daftar)
+          Tautan(
+            ke: Layar.persembahanSaya,
+            radius: 14,
+            diSini: () => _ke(_rincian, x),
+            child: kartu(
+              x.judul,
+              x.a.amount,
+              [x.tanggal, ?x.diterima, x.peruntukan].join(' · '),
+            ),
           ),
-        ),
-        kartu(
-          'Persembahan persepuluhan',
-          300000,
-          '04/10/2026 · Ibadah Minggu Pagi · Umum Jemaat',
-        ),
-        kartu(
-          'Sampul syukur',
-          150000,
-          '20/09/2026 · Ibadah Minggu Pagi · Diakonia',
-        ),
         Text(
           'Persembahan di kantong persembahan tidak dicatat per orang dan tidak tampil di sini. Yang tampil hanya yang sudah Dibukukan.',
           style: s13,

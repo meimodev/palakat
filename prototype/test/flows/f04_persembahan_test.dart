@@ -1,8 +1,12 @@
-// F4 Offering with parts (README 8.3, the parts only): Persembahan makes one
-// income draft whose parts land on different Kas/Bank (Tunai on Kas, QRIS on
-// a picked Kas/Bank) and whose Titipan part is a transit collection on this
-// month's Titipan case (tt1, 2.1.01.02.00, Sinode, BNI); after
-// periksaOlehJefry it is booked with one voucher and tt1 rises by the part.
+// F4 Offering with parts and a named envelope (README 8.3): Persembahan
+// makes one income draft whose parts land on different Kas/Bank (Tunai on
+// Kas, QRIS on a picked Kas/Bank) and whose Titipan part is a transit
+// collection on this month's Titipan case (tt1, 2.1.01.02.00, Sinode, BNI);
+// after periksaOlehJefry it is booked with one voucher and tt1 rises by the
+// part.
+// M10, the named envelope (J1): a sampul syukur recorded for Novita shows
+// on her PersembahanSaya (phone) and on Meiske's PersembahanBernama, not for
+// Olvie; naming Ferry (Belum dikonfirmasi) is refused.
 
 import 'dart:math';
 
@@ -12,10 +16,14 @@ import 'package:palakat_prototype/app/layar.dart';
 import 'package:palakat_prototype/app/router.dart';
 import 'package:palakat_prototype/core/format.dart';
 import 'package:palakat_prototype/domain/finance/finance.dart';
+import 'package:palakat_prototype/providers/core_repositories.dart';
 import 'package:palakat_prototype/providers/keuangan/persembahan.dart';
 import 'package:palakat_prototype/providers/repositories_keuangan.dart';
 
 import 'harness.dart';
+
+const _sampul = 'Sampul syukur, Ibadah Minggu Sore';
+const _jumlahSampul = 250000;
 
 void main() {
   group('F4 persembahan (bagian)', () {
@@ -65,6 +73,8 @@ void main() {
         expect(d.accountOf(d.allocations[1]), qris.id);
         // The default Petugas penghitung is stored with the offering.
         expect(d.countedBy, [p.petugasId.first]);
+        // The offering refers to the Sunday service it was collected at (J3).
+        expect(d.serviceId, 'ibadah-minggu-pagi');
         // The counting sheet is uploaded with the draft (mock-data 2.13).
         expect(
           w
@@ -129,6 +139,68 @@ void main() {
         );
         // README 8.1: the audit actor of the commands run here.
         expect(jejakTerakhir(w, 'finance.txn.finalize').personId, 'meiske');
+
+        // M10, the named envelope (J1): a sampul syukur whose Party links to
+        // Novita's Person.
+        final ponsel = tata == Tata.ponsel;
+        final orang = w.read(peopleRepositoryProvider);
+        final s = await catatSampul(tester, _sampul, _jumlahSampul);
+        // Ferry is Belum dikonfirmasi: refused, nothing is linked.
+        await namaiPemberi(tester, 'Ferry Wenas');
+        expect(
+          find.textContaining(
+            'data Ferry Wenas masih Belum dikonfirmasi.',
+            findRichText: true,
+          ),
+          findsOneWidget,
+        );
+        expect(tx.get(s.id)!.allocations.single.partyId, isNull);
+        expect(
+          orang.parties().singleWhere((x) => x.id == 'party-ferry').personId,
+          isNull,
+        );
+        await tekan(tester, 'Kembali');
+        expect(find.text('Tanpa nama'), findsWidgets);
+        await namaiPemberi(tester, 'Novita Wenas');
+        expect(tx.get(s.id)!.allocations.single.partyId, 'party-novita');
+        await periksaOlehJefry(tester, _sampul);
+        final booked = await bukukanDraf(tester, s.id);
+
+        // Meiske's view: the giver's name, no change once booked.
+        w.read(routerProvider).go(Layar.persembahanBernama.lokasi());
+        await tester.pumpAndSettle();
+        expect(find.text(rp(_jumlahSampul)), findsOneWidget);
+        expect(find.text('Novita Wenas'), findsOneWidget);
+        expect(find.text('Lepas nama'), findsNothing);
+        if (ponsel) {
+          await tekan(tester, 'Lihat yang dilihat anggota');
+          expect(find.text(rp(_jumlahSampul)), findsOneWidget);
+        }
+        await keluar(tester);
+
+        // Novita's own PersembahanSaya (phone only).
+        if (ponsel) {
+          await masukSebagai(tester, Persona.novita);
+          w.read(routerProvider).go(Layar.persembahanSaya.lokasi());
+          await tester.pumpAndSettle();
+          expect(find.text(rp(_jumlahSampul)), findsOneWidget);
+          await tekan(tester, rp(_jumlahSampul));
+          expect(find.text(booked.voucher!), findsOneWidget);
+          await keluar(tester);
+        }
+
+        // Not for Olvie: neither her PersembahanSaya nor PersembahanBernama
+        // shows the gift's giver.
+        await masukSebagai(tester, Persona.olvie);
+        if (ponsel) {
+          w.read(routerProvider).go(Layar.persembahanSaya.lokasi());
+          await tester.pumpAndSettle();
+          expect(find.text('Belum ada persembahan atas nama Anda'), findsOne);
+          expect(find.text(rp(_jumlahSampul)), findsNothing);
+        }
+        w.read(routerProvider).go(Layar.persembahanBernama.lokasi());
+        await tester.pumpAndSettle();
+        expect(find.text('Novita Wenas'), findsNothing);
       });
     }
   });

@@ -37,7 +37,6 @@ class _WebAkunSayaState extends ConsumerState<WebAkunSayaScreen> {
       _emBaru = TextEditingController();
   _V _v = _V.akun;
   String _pesan = '';
-  int _salah = 0;
   List<String> _riw = const [];
   Refusal? _tolakan;
 
@@ -67,10 +66,7 @@ class _WebAkunSayaState extends ConsumerState<WebAkunSayaScreen> {
     _tolakan = null;
   });
 
-  void _mulaiKode() {
-    _kode.clear();
-    _salah = 0;
-  }
+  void _mulaiKode() => _kode.clear();
 
   // First unmet reasons, read from the latest input.
   String _alasanHp() {
@@ -81,8 +77,9 @@ class _WebAkunSayaState extends ConsumerState<WebAkunSayaScreen> {
     return '';
   }
 
+  // tiruan: no SMS or email is sent, so any complete code is taken as the
+  // one received (as AkunSaya).
   String _alasanKode() {
-    if (_salah >= 3) return 'terlalu banyak percobaan. Minta kode baru.';
     if (_kode.text.length < 6) return 'kode belum lengkap.';
     return '';
   }
@@ -92,15 +89,6 @@ class _WebAkunSayaState extends ConsumerState<WebAkunSayaScreen> {
     if (t.isEmpty) return 'email belum diisi.';
     if (!emailSah(t)) return 'email tidak dikenali. Contoh: nama@contoh.id.';
     if (t == _emKini) return 'email itu sudah menjadi email cadangan Anda.';
-    return '';
-  }
-
-  /// The refusal line of the code views: never "kode belum lengkap.".
-  String _sebabKode() {
-    if (_salah >= 3) return _alasanKode();
-    if (_salah > 0 && _kode.text.isEmpty) {
-      return 'kode tidak cocok. Sisa percobaan: ${3 - _salah}.';
-    }
     return '';
   }
 
@@ -128,11 +116,6 @@ class _WebAkunSayaState extends ConsumerState<WebAkunSayaScreen> {
     _mulaiKode();
   });
 
-  void _salahKode() {
-    _salah++;
-    _kode.clear();
-  }
-
   /// After a command: back to the account with [pesan] and a Riwayat line,
   /// or the refusal in place of the message.
   void _selesai(Refusal? t, String pesan, String riwayat) {
@@ -146,7 +129,6 @@ class _WebAkunSayaState extends ConsumerState<WebAkunSayaScreen> {
   }
 
   Future<void> _gantiNomor() async {
-    if (_kode.text != kodeAkunTiruan) return setState(_salahKode);
     final hp = _hpBaru.text;
     _selesai(
       await simpanKontak(ref, phone: hp),
@@ -157,7 +139,6 @@ class _WebAkunSayaState extends ConsumerState<WebAkunSayaScreen> {
   }
 
   Future<void> _simpanEm() async {
-    if (_kode.text != kodeAkunTiruan) return setState(_salahKode);
     final ada = _emKini.isNotEmpty;
     _selesai(
       await simpanKontak(ref, backupEmail: _emBaru.text.trim()),
@@ -449,7 +430,6 @@ class _WebAkunSayaState extends ConsumerState<WebAkunSayaScreen> {
     required bool catatan,
     required VoidCallback onPressed,
   }) {
-    final sebab = _sebabKode();
     return [
       _baris(
         'Kode 6 angka dikirim ke $ket. Kode hanya berlaku sebentar dan sekali '
@@ -464,7 +444,6 @@ class _WebAkunSayaState extends ConsumerState<WebAkunSayaScreen> {
         formatter: _angka(6),
         onChanged: (_) => setState(() {}),
       ),
-      if (sebab.isNotEmpty) _tolak(tindakan, sebab),
       if (catatan)
         _keterangan(
           'Setelah diganti, nomor lama tidak dapat dipakai untuk masuk dan '

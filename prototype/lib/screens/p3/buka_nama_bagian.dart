@@ -49,13 +49,15 @@ class _BukaNamaPapanState extends ConsumerState<BukaNamaPapan> {
     final id = edisiDariRute(context);
     final repo = ref.watch(wartaRepositoryProvider);
     final e = repo.edition(id);
-    final v = e?.events
-        .where((x) => x.anonymousAs != null && x.personId != null)
+    final v = repo
+        .preview(id)
+        ?.events
+        .where((x) => x.reveal != null)
         .firstOrNull;
     if (e == null || v == null) {
       return kecilSek(context, 'Tidak ada nama yang perlu pengecualian.');
     }
-    final x = e.exceptionFor(v.personId!);
+    final x = e.exceptionFor(v.event.personId);
     final edisi = 'Warta Jemaat ${tgl(e.sunday.awal)}';
     final kecil = TextStyle(fontSize: 13, color: c.tinta3);
     final param = {'edisi': e.id};
@@ -103,7 +105,7 @@ class _BukaNamaPapanState extends ConsumerState<BukaNamaPapan> {
       child: _kolom(6, [
         _BarisInfo('Edisi', edisi),
         const _BarisInfo('Pilihan anggota', 'Tanpa nama'),
-        _BarisInfo('Akan diterbitkan sebagai', v.name),
+        _BarisInfo('Akan diterbitkan sebagai', v.reveal!),
         Text(
           'Tampilan nama pilihan anggota wajib diikuti. Pengecualian hanya '
           'untuk keperluan resmi, tata kelola, hukum atau '
@@ -135,7 +137,7 @@ class _BukaNamaPapanState extends ConsumerState<BukaNamaPapan> {
               final r = await repo.revealIdentity(
                 aktorSek(ref),
                 e.id,
-                v.personId!,
+                v.event.personId,
                 reason: _alasan.text,
                 expectedRevision: e.revision,
                 idempotencyKey: kunciSek(ref),

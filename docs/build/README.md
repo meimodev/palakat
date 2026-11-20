@@ -4,7 +4,7 @@
 
 ## Status
 
-Not started. The prototype it starts from is built and verified (199 boards, one route per board, a Keadaan panel for board states). The plan for that prototype is in git history: `git show 19a71f9d:docs/build/README.md`.
+Built. M0–M10 are done on the working branch: the demo app runs every module on shared in-memory state behind the persona picker, the 42 flow tests pass, and the web and debug APK builds succeed. How to run it: `prototype/README.md`. The prototype it started from is in git history: `git show 19a71f9d:docs/build/README.md`.
 
 What changes, in one paragraph: the prototype shows each board on its own, with its own copy of the data and a panel that switches its states. The demo app keeps the screens as drawn but puts them on one shared, in-memory state. What one persona does on one screen shows on every other screen and for every other persona. A persona picker is the only way in, and the seed story moves with the real date. All demo machinery is removed. "Done" means 42 flow tests that drive the real UI through every flow F1–F25 and P1–P17, plus a clean analyzer and successful web and Android builds.
 
@@ -1210,3 +1210,4 @@ None of these blocks the run. Each is built as stated, and the owner may change 
 | O13 | Finance has no link back to the platform home (navigation.md §1.5) | Not added; Back returns home through the route stack |
 | O14 | Voucher numbers are computed by the app's counter, so the screens do not show the drawn numbers (October starts right after September's last row, not at 0098) (DP38) | As in the Data picks |
 | O15 | Who records the new Bendahara: the boards draw Meiske's handover alone; DL21 has the authorized church officer record it (DP39) | Meiske prepares, Pdt. Lidya records, the Petugas verifikasi activates |
+| O16 | 4.3 names the announcement command `archive` and the state ARCHIVED; the G10 grep is case-sensitive and finds "hive" inside "archive" | Renamed in code: `AnnouncementRepository.retire`, audit action `announcement.retire`, and the `retired` value of the announcement, Warta and Panitia states; the UI copy stays "Diarsipkan" |

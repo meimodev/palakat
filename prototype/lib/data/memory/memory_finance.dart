@@ -51,8 +51,19 @@ class MemoryFinance {
   /// [t] as [funds] may see it: whole, sliced to their parts, or null.
   /// A viewer always sees what they made.
   Transaction? visible(Transaction t, Set<String>? funds) {
-    if (funds == null || t.createdBy == viewer()?.personId) return t;
-    final s = t.sliceFor(funds);
+    final saya = viewer()?.personId;
+    if (funds == null || t.createdBy == saya) return t;
+    // A giver also sees the gifts recorded in their name (P06, J1).
+    final pihak = {
+      for (final p in ctx.inti.parties)
+        if (p.personId == saya) p.id,
+    };
+    final s = t.slice(
+      (a) =>
+          funds.contains(a.fundId) ||
+          funds.contains(a.toFundId) ||
+          (t.typeOf(a) == TransactionType.income && pihak.contains(a.partyId)),
+    );
     return s.allocations.isEmpty ? null : s;
   }
 

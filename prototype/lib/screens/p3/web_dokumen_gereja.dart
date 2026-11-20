@@ -10,7 +10,7 @@ import '../../widgets/tata_letak.dart';
 import 'dokumen_gereja_isi.dart';
 
 /// Web · Dokumen gereja (spec 17) + WebAlurDokumen's list (README 7.1): the
-/// document archive at the Sekretaris Jemaat's desk.
+/// document records at the Sekretaris Jemaat's desk.
 class WebDokumenGerejaScreen extends StatelessWidget {
   const WebDokumenGerejaScreen({super.key});
 

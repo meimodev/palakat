@@ -34,7 +34,7 @@ LencanaStatus lencanaPengumuman(AnnouncementStatus s) => LencanaStatus(
   bentuk: switch (s) {
     AnnouncementStatus.draft => BentukLencana.draf,
     AnnouncementStatus.published => BentukLencana.tinta,
-    AnnouncementStatus.archived => BentukLencana.abu,
+    AnnouncementStatus.retired => BentukLencana.abu,
   },
 );
 
@@ -231,7 +231,7 @@ class _FormPengumumanState extends ConsumerState<FormPengumuman> {
 /// announcement, anyone else those published to them), the form, and one
 /// announcement in place: a draft as the board's read-only form with
 /// "Terbitkan" for the Sekretaris Jemaat, a published one with its Warta
-/// edition, an archived one past its end date (DL14).
+/// edition, an retired one past its end date (DL14).
 class IsiPengumuman extends ConsumerStatefulWidget {
   const IsiPengumuman({super.key, required this.web});
 
@@ -582,7 +582,7 @@ class _IsiPengumumanState extends ConsumerState<IsiPengumuman> {
             ],
           ),
         ];
-      case AnnouncementStatus.archived:
+      case AnnouncementStatus.retired:
         return [
           Kartu(
             status: GarisStatus.draf,

@@ -42,7 +42,7 @@ void main() {
         await tekan(tester, 'Ganti email cadangan');
         await isi(tester, 'Email cadangan', 'meiske.l@contoh.id');
         await tekan(tester, 'Kirim kode ke email');
-        await isi(tester, 'Kode 6 angka', '123456');
+        await isi(tester, 'Kode 6 angka', '482913');
         await tekan(tester, 'Simpan email cadangan');
         expect(find.text('Email cadangan disimpan.'), findsOneWidget);
         expect(find.text('m···@contoh.id'), findsOneWidget);

@@ -10,7 +10,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:palakat_prototype/app/layar.dart';
 import 'package:palakat_prototype/app/router.dart';
-import 'package:palakat_prototype/data/seed/keputusan_penugasan.dart';
 import 'package:palakat_prototype/domain/core/core.dart';
 import 'package:palakat_prototype/providers/actor.dart';
 import 'package:palakat_prototype/providers/core_repositories.dart';
@@ -51,7 +50,7 @@ Future<void> tugaskanAltje(WidgetTester tester, ProviderContainer c) async {
     ),
     findsOneWidget,
   );
-  final sk = keputusanPenugasan(hari);
+  final sk = skPenugasan(c);
   await tekan(tester, sk);
   await tekan(tester, 'Catat penugasan');
   expect(

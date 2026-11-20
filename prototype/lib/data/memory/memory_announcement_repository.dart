@@ -19,7 +19,7 @@ class MemoryAnnouncementRepository implements AnnouncementRepository {
 
   @override
   String? kolomOf(String personId) {
-    final id = ctx.sek.memberScopes[personId];
+    final id = ctx.kolomAnggota(personId);
     return id == null ? null : ctx.inti.scope(id)?.name;
   }
 
@@ -184,7 +184,7 @@ class MemoryAnnouncementRepository implements AnnouncementRepository {
   });
 
   @override
-  Future<Result<void>> archive(
+  Future<Result<void>> retire(
     Actor actor,
     String id, {
     required int expectedRevision,
@@ -207,11 +207,11 @@ class MemoryAnnouncementRepository implements AnnouncementRepository {
       return ctx.no(aksi, 'hanya pengumuman yang diterbitkan.');
     }
     a
-      ..status = AnnouncementStatus.archived
+      ..status = AnnouncementStatus.retired
       ..revision += 1;
     ctx.audit(
       g,
-      action: 'announcement.archive',
+      action: 'announcement.retire',
       summary: 'Pengumuman “${a.title}” diarsipkan.',
       module: Module.announcements,
       ref: RecordRef('announcement', a.id),

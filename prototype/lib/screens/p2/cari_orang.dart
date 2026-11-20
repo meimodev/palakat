@@ -6,11 +6,14 @@ import '../../app/layar.dart';
 import '../../core/format.dart';
 import '../../core/tanggal.dart';
 import '../../domain/core/core.dart';
+import '../../domain/secretariat/secretariat.dart';
 import '../../providers/actor.dart';
 import '../../providers/core_repositories.dart';
 import '../../providers/jemaat/jemaat.dart';
 import '../../providers/layout.dart';
 import '../../providers/repositories_jemaat.dart';
+import '../../providers/repositories_keuangan.dart';
+import '../../providers/repositories_sekretariat.dart';
 import '../../providers/revision.dart';
 import '../../domain/membership/membership.dart';
 import '../../shell/kepala_ponsel.dart';
@@ -154,6 +157,19 @@ class _IsiCariOrangState extends ConsumerState<IsiCariOrang> {
           if (h.name.toLowerCase().contains(q.toLowerCase()) &&
               lihat(h.kolomId))
             _keluarga(h),
+      // Dokumen gereja: the letter requests whoever handles them sees.
+      if (q.isNotEmpty &&
+          can.moduleActive(Module.churchDocuments) &&
+          (_boleh(Capability.documentsIssueLetter) ||
+              _boleh(Capability.documentsRecordRequest)))
+        for (final r in ref.watch(letterRepositoryProvider).requests())
+          if (r.forName.toLowerCase().contains(q.toLowerCase())) _surat(r),
+      // Keuangan: a Party's latest booked row, only from the ledger rows the
+      // viewer may read.
+      if (q.isNotEmpty &&
+          can.moduleActive(Module.finance) &&
+          _boleh(Capability.financeView))
+        ..._keuangan(q),
     ];
     return [
       IsianAlur(
@@ -238,6 +254,43 @@ class _IsiCariOrangState extends ConsumerState<IsiCariOrang> {
       context.dorongKe(Layar.dataAnggota);
     },
   );
+
+  Widget _surat(LetterRequest r) => _baris(
+    r.forName,
+    'Dokumen gereja · ${r.type.label} ${tgl(r.decidedAt ?? r.requestedAt)}',
+    LencanaStatus(
+      r.status.label,
+      bentuk: switch (r.status) {
+        LetterStatus.issued => BentukLencana.tinta,
+        LetterStatus.refused => BentukLencana.bata,
+        LetterStatus.requested => BentukLencana.garis,
+      },
+    ),
+    () => context.dorongKe(Layar.surat),
+  );
+
+  List<Widget> _keuangan(String q) {
+    final buku = ref.watch(transactionRepositoryProvider).list(null);
+    return [
+      for (final p in ref.watch(peopleRepositoryProvider).parties())
+        if (p.displayName.toLowerCase().contains(q.toLowerCase()))
+          if (buku
+                  .where(
+                    (t) =>
+                        t.isPosted &&
+                        t.allocations.any((a) => a.partyId == p.id),
+                  )
+                  .lastOrNull
+              case final t?)
+            _baris(
+              p.displayName,
+              'Keuangan · ${t.description.split(',').first} '
+              '${tgl(t.effectiveDate.awal)}',
+              const LencanaStatus('Dibukukan', bentuk: BentukLencana.tinta),
+              () => context.dorongKe(Layar.keuangan),
+            ),
+    ];
+  }
 
   Widget _baris(String nama, String konteks, Widget? lencana, VoidCallback k) =>
       Tekan(

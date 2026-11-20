@@ -225,7 +225,7 @@ void main() {
       expect(find.text('Sisa uang $natal'), findsNothing);
       await keluar(tester);
 
-      // Lidya closes and archives it.
+      // Lidya closes and retires it.
       await masukSebagai(tester, Persona.lidya);
       await ke(Layar.panitia);
       await _pilih(tester, 'Panitia', natal);
@@ -240,7 +240,7 @@ void main() {
         findsOneWidget,
       );
       await tekan(tester, 'Arsipkan');
-      expect(repo.get(_natal)!.stage, PanitiaStage.archived);
+      expect(repo.get(_natal)!.stage, PanitiaStage.retired);
       expect(find.textContaining('Hanya baca.'), findsOneWidget);
       expect(c.read(sessionProvider)?.persona, Persona.lidya);
     });

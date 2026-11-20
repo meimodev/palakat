@@ -43,14 +43,24 @@ List<BagianWarta> bagianWarta(WartaPreview p) {
           for (final x in p.events) Text('${x.event.label}: ${x.printed}'),
         ],
       ),
-    if (e.attendance case final h?)
+    if (p.attendance case final h?)
       (
         judul: 'Jumlah kehadiran · Minggu, ${tglPanjang(h.sunday.awal)}',
         baris: [
-          for (final x in h.parts.split(' · '))
-            if (x.split(' ') case [final nama, final n])
-              _Baris('Ibadah $nama', n),
+          for (final x in h.parts) _Baris(x.label, '${x.n}'),
           _Baris('Jumlah', '${h.total}', jumlah: true),
+        ],
+      ),
+    if (p.finance case final k?)
+      (
+        judul: 'Ringkasan keuangan · ${bulanTahun(k.year, k.month)}',
+        baris: [
+          _Baris('Pendapatan', rp(k.income)),
+          _Baris('Belanja', rp(k.expense)),
+          Text(
+            'Dari laporan resmi ${bulanTahun(k.year, k.month)}. Laporan '
+            'lengkap ada pada Bendahara Jemaat.',
+          ),
         ],
       ),
   ];

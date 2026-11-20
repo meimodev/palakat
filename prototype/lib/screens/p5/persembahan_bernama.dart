@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../providers/keuangan/persembahan_bernama.dart';
 
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
@@ -6,19 +9,21 @@ import 'persembahan_bernama_blok.dart';
 import '../../app/layar.dart';
 
 /// 93 · Persembahan bernama (spec 22): attaching a giver to a named envelope.
-class PersembahanBernamaScreen extends StatefulWidget {
+class PersembahanBernamaScreen extends ConsumerStatefulWidget {
   const PersembahanBernamaScreen({super.key});
 
   @override
-  State<PersembahanBernamaScreen> createState() =>
+  ConsumerState<PersembahanBernamaScreen> createState() =>
       _PersembahanBernamaScreenState();
 }
 
-class _PersembahanBernamaScreenState extends State<PersembahanBernamaScreen>
+class _PersembahanBernamaScreenState
+    extends ConsumerState<PersembahanBernamaScreen>
     with KeadaanPemberi {
   @override
   Widget build(BuildContext context) {
-    final i = ki(context, 'PersembahanBernama');
+    final s = ref.watch(sampulProvider);
+    final i = ki(s);
     return Material(
       type: MaterialType.transparency,
       child: LayarPonsel(
@@ -39,13 +44,17 @@ class _PersembahanBernamaScreenState extends State<PersembahanBernamaScreen>
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   spacing: 16,
                   children: [
-                    const KartuSampul(),
-                    ...blokPemberi(
-                      context,
-                      ki: i,
-                      pilih: pilih,
-                      ke: Layar.persembahanSaya,
-                    ),
+                    if (s != null) ...[
+                      KartuSampul(s),
+                      ...blokPemberi(
+                        context,
+                        ref,
+                        s: s,
+                        ki: i,
+                        k: this,
+                        ke: Layar.persembahanSaya,
+                      ),
+                    ],
                   ],
                 ),
               ),

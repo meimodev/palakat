@@ -56,7 +56,7 @@ class MemoryLetterRepository implements LetterRepository {
       requestedAt: ctx.now,
       purpose: keperluan == null || keperluan.isEmpty ? null : keperluan,
       atOffice: atOffice,
-      household: ctx.sek.households[forPersonId],
+      household: ctx.barisKeluarga(forPersonId),
     );
     ctx.sek.letters.add(r);
     final ref = RecordRef('letter', r.id);
