@@ -294,6 +294,21 @@ const _mono = TextStyle(
 );
 
 /// Web · Uang Muka dan Titipan: catat pada kasus (spec 10-aifoto.md, WebKasus).
+/// (max-content, min-content) widths of [s], rounded up.
+(double, double) _lebar(BuildContext c, InlineSpan s) {
+  final tp = TextPainter(
+    text: s,
+    textDirection: TextDirection.ltr,
+    textScaler: MediaQuery.textScalerOf(c),
+  )..layout();
+  final r = (
+    tp.maxIntrinsicWidth.ceilToDouble(),
+    tp.minIntrinsicWidth.ceilToDouble(),
+  );
+  tp.dispose();
+  return r;
+}
+
 class WebKasusScreen extends StatefulWidget {
   const WebKasusScreen({super.key});
 
@@ -557,37 +572,68 @@ class _WebKasusScreenState extends State<WebKasusScreen> {
             decoration: BoxDecoration(
               border: Border(top: BorderSide(color: c.garis)),
             ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        e.n,
-                        style: const TextStyle(fontWeight: FontWeight.w600),
+            // Both sides flex-shrink as CSS does: on a narrow window the
+            // amount wraps after "−" too (never below its longest word).
+            child: LayoutBuilder(
+              builder: (context, k) {
+                final dasar = DefaultTextStyle.of(context).style;
+                final nama = dasar.copyWith(fontWeight: FontWeight.w600);
+                final sub = dasar.copyWith(fontSize: 13, color: c.tinta3);
+                final rinci = TextSpan(
+                  style: sub,
+                  children: [
+                    TextSpan(
+                      text: e.no,
+                      style: const TextStyle(fontFamily: PalakatText.mono),
+                    ),
+                    TextSpan(text: ' · ${e.t} · ${e.cat}'),
+                  ],
+                );
+                final jumlah = '− ${rp(e.jm)}';
+                final (n, nMin) = _lebar(
+                  context,
+                  TextSpan(text: e.n, style: nama),
+                );
+                final (r, rMin) = _lebar(context, rinci);
+                final (b, bMin) = _lebar(
+                  context,
+                  TextSpan(text: jumlah, style: dasar.merge(_mono)),
+                );
+                var a = n > r ? n : r, w = b;
+                final aMin = nMin > rMin ? nMin : rMin;
+                final lebih = a + b + 16 - k.maxWidth;
+                if (lebih > 0) {
+                  a -= lebih * a / (a + b);
+                  w = k.maxWidth - 16 - a;
+                  if (w < bMin) {
+                    w = bMin;
+                    a = k.maxWidth - 16 - w;
+                  } else if (a < aMin) {
+                    a = aMin;
+                    w = k.maxWidth - 16 - a;
+                  }
+                }
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    SizedBox(
+                      width: a,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(e.n, style: nama),
+                          Text.rich(rinci),
+                        ],
                       ),
-                      Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(
-                              text: e.no,
-                              style: const TextStyle(
-                                fontFamily: PalakatText.mono,
-                              ),
-                            ),
-                            TextSpan(text: ' · ${e.t} · ${e.cat}'),
-                          ],
-                        ),
-                        style: TextStyle(fontSize: 13, color: c.tinta3),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Text('− ${rp(e.jm)}', style: _mono),
-              ],
+                    ),
+                    SizedBox(
+                      width: w,
+                      child: Text(jumlah, style: _mono),
+                    ),
+                  ],
+                );
+              },
             ),
           ),
         ),

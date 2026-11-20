@@ -95,8 +95,10 @@ class _WebExcelScreenState extends State<WebExcelScreen> {
                   runSpacing: 6,
                   crossAxisAlignment: WrapCrossAlignment.end,
                   children: [
+                    // Zero-width space: Chrome may break after the hyphen
+                    // before "10", the Flutter breaker does not.
                     const Text(
-                      'Paket-Laporan-GMIM_Jemaat-Karunia_2026-10.xlsx',
+                      'Paket-Laporan-GMIM_Jemaat-Karunia_2026-​10.xlsx',
                       style: TextStyle(
                         fontFamily: PalakatText.mono,
                         fontSize: 14,

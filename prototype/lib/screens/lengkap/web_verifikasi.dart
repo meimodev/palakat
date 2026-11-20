@@ -173,19 +173,32 @@ class _WebVerifikasiScreenState extends State<WebVerifikasiScreen> {
               decoration: BoxDecoration(
                 border: i > 0 ? Border(top: BorderSide(color: c.garis)) : null,
               ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(l, style: TextStyle(fontSize: 14, color: c.tinta2)),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Text(
-                      v,
-                      textAlign: TextAlign.right,
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                ],
+              // Both sides flex-shrink as CSS does: on a narrow window the
+              // label wraps too, not only the value.
+              child: LayoutBuilder(
+                builder: (context, k) {
+                  final dasar = DefaultTextStyle.of(context).style;
+                  final gl = dasar.copyWith(fontSize: 14, color: c.tinta2);
+                  final gv = dasar.copyWith(fontWeight: FontWeight.w600);
+                  final skala = MediaQuery.textScalerOf(context);
+                  final (a, aMin) = _ukur(l, gl, skala);
+                  final (b, bMin) = _ukur(v, gv, skala);
+                  final (wa, wb) = _susut(a, aMin, b, bMin, k.maxWidth, 16);
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SizedBox(
+                        width: wa,
+                        child: Text(l, style: gl),
+                      ),
+                      SizedBox(
+                        width: wb,
+                        child: Text(v, textAlign: TextAlign.right, style: gv),
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
         ],

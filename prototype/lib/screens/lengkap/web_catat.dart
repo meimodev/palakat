@@ -690,7 +690,9 @@ class _BarisLencana extends StatelessWidget {
       fontWeight: FontWeight.w700,
       color: posted ? c.permukaan : c.tinta2,
     );
-    const cap = 'No. Bukti BKU-2026-0147';
+    // Zero-width spaces: Chrome may break after a hyphen before digits, the
+    // Flutter breaker may not (narrow windows wrap "…BKU-2026-" / "0147").
+    const cap = 'No. Bukti BKU-​2026-​0147';
     final gayaCap = dasar.merge(
       _mono.copyWith(fontSize: 14, fontWeight: FontWeight.w600, color: c.laut),
     );
@@ -857,6 +859,8 @@ class _Baris extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
+    final kode = _mono.copyWith(fontSize: 13, color: c.tinta2);
+    const nama = TextStyle(fontWeight: FontWeight.w600);
     return Padding(
       padding: const EdgeInsets.only(top: 4),
       child: Tekan(
@@ -878,16 +882,16 @@ class _Baris extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              Text(
-                '$pohon ${r.kode}',
-                style: _mono.copyWith(fontSize: 13, color: c.tinta2),
+              // Both spans flex-shrink 1: when they do not fit, each gives
+              // way in proportion to its max-content width (narrow windows).
+              Flexible(
+                flex: _lebar(context, '$pohon ${r.kode}', kode),
+                child: Text('$pohon ${r.kode}', style: kode),
               ),
               const SizedBox(width: 12),
               Flexible(
-                child: Text(
-                  r.nama,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
+                flex: _lebar(context, r.nama, nama),
+                child: Text(r.nama, style: nama),
               ),
             ],
           ),
@@ -895,6 +899,19 @@ class _Baris extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Max-content width of [t] (×100, as a flex factor): loose `Flexible`s with
+/// these factors share the row as CSS `flex-shrink: 1` does when it overflows.
+int _lebar(BuildContext c, String t, TextStyle g) {
+  final tp = TextPainter(
+    text: TextSpan(text: t, style: DefaultTextStyle.of(c).style.merge(g)),
+    textDirection: TextDirection.ltr,
+    textScaler: MediaQuery.textScalerOf(c),
+  )..layout();
+  final w = (tp.width * 100).ceil();
+  tp.dispose();
+  return w < 1 ? 1 : w;
 }
 
 /// TextField takes the theme's M3 letter spacing 0.5 unless the style sets

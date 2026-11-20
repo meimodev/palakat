@@ -263,13 +263,18 @@ class _WebKasusBaruScreenState extends State<WebKasusBaruScreen> {
       jabatanKosong: true,
       isi: [
         _judul(context),
-        ChipPilihan<String>(
-          pilihan: [
-            for (final t in const ['um', 'tt', 'pb'])
-              (nilai: t, teks: _cfg[t]!.tab),
-          ],
-          terpilih: _tab,
-          onPilih: _kosongkan,
+        // The last chip's 8 px right margin counts toward the line (CSS
+        // `margin: 0 8px 8px 0`): at 390 wide "Penggantian biaya" wraps.
+        Padding(
+          padding: const EdgeInsets.only(right: 8),
+          child: ChipPilihan<String>(
+            pilihan: [
+              for (final t in const ['um', 'tt', 'pb'])
+                (nilai: t, teks: _cfg[t]!.tab),
+            ],
+            terpilih: _tab,
+            onPilih: _kosongkan,
+          ),
         ),
         BarisLentur(
           jarak: 24,

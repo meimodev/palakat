@@ -65,6 +65,14 @@ class _WebRekonIsiState extends State<WebRekonIsiScreen> with RekonIsiLogika {
                     ),
                   ],
                 ),
+                // The h1's 26 / 1.45 strut: a wrapped line holding only the
+                // 15 px span stays as tall as the first.
+                strutStyle: const StrutStyle(
+                  fontFamily: PalakatText.sans,
+                  fontSize: 26,
+                  height: 1.45,
+                  leadingDistribution: TextLeadingDistribution.even,
+                ),
                 style: const TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w700,
