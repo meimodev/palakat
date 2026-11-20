@@ -50,13 +50,17 @@ class _WebAlurKeluargaScreenState extends State<WebAlurKeluargaScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const MarginNegatif(
-                // Tekan top-aligns the link in its 44 target: keep the
-                // board's 20 px line box.
-                bawah: 24,
+                // The 14 px <a> sits on the div's 15 × 1.45 strut: a 21.75 line
+                // box with the text 1.1 down; the 44 target overhangs it.
+                atas: 10.75,
+                bawah: 11.5,
                 child: Tautan(
                   ke: 'WebDataAnggota',
                   cara: Cara.naik,
-                  child: TautanTeks('Data jemaat', ukuran: 14),
+                  child: Center(
+                    widthFactor: 1,
+                    child: TautanTeks('Data jemaat', ukuran: 14),
+                  ),
                 ),
               ),
               const SizedBox(height: 2),

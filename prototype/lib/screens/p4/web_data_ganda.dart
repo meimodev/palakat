@@ -157,8 +157,6 @@ class _WebDataGandaScreenState extends State<WebDataGandaScreen> {
       },
     ];
 
-    // The breadcrumb line is 14 × 1.45 tall; its 44 px target overhangs it.
-    const lebih = (44 - 14 * 1.45) / 2;
     return PrimaryScrollController(
       controller: _gulir,
       automaticallyInheritForPlatforms: TargetPlatform.values.toSet(),
@@ -173,8 +171,10 @@ class _WebDataGandaScreenState extends State<WebDataGandaScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               MarginNegatif(
-                atas: lebih,
-                bawah: lebih,
+                // The 14 px <a> sits on the div's 15 × 1.45 strut: a 21.75 line
+                // box with the text 1.1 down; the 44 target overhangs it.
+                atas: 10.75,
+                bawah: 11.5,
                 child: Tautan(
                   ke: 'WebDataAnggota',
                   cara: Cara.naik,

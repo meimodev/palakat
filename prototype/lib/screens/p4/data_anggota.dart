@@ -195,7 +195,7 @@ class IsiDataAnggota extends StatelessWidget {
           anak: [
             Lentur(
               // The board's <a> is content-box: 150 and 340 plus padding 32
-              // and line 3.
+              // and line 3; min-height 48 likewise is 51 tall.
               dasar: 185,
               maks: 375,
               child: konfirmasi(
@@ -205,7 +205,7 @@ class IsiDataAnggota extends StatelessWidget {
                   garis: GarisBorder.penuh(c.tinta, radius: 14),
                   warnaTeks: c.tinta,
                   radius: 14,
-                  tinggi: 48,
+                  tinggi: 51,
                   paddingH: 16,
                 ),
               ),
