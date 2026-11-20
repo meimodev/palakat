@@ -70,15 +70,14 @@ class _WebJabatanKosongState extends State<WebJabatanKosongScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             MarginNegatif(
-              atas: (44 - 14 * 1.45) / 2,
-              bawah: (44 - 14 * 1.45) / 2,
+              atas: (44 - 15 * 1.45) / 2,
+              bawah: (44 - 15 * 1.45) / 2,
               child: const Tautan(
                 ke: 'WebBerandaJabatan',
                 cara: Cara.naik,
                 child: Align(
                   alignment: Alignment.centerLeft,
                   widthFactor: 1,
-                  heightFactor: 1,
                   child: TautanTeks('Beranda', ukuran: 14),
                 ),
               ),
@@ -134,7 +133,7 @@ class _WebJabatanKosongState extends State<WebJabatanKosongScreen> {
           tumbuh: 1.3,
           child: _KartuCatatan(
             judul: const Text(
-              'Saldo buku semua Kas/Bank',
+              'Saldo buku semua Kas/\u2060Bank',
               style: TextStyle(fontWeight: FontWeight.w700),
             ),
             ujung: Text(

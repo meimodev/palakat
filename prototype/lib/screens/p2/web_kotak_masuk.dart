@@ -55,70 +55,66 @@ class WebKotakMasukScreen extends StatelessWidget {
         ),
       ),
       isi: [
-        ledingCss(
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 44 px target on the div's 15 × 1.45 = 21.75 px line box (the
-              // strut of the 15 px parent, not the 14 px link): the rest overlaps.
-              MarginNegatif(
-                atas: 11.125,
-                bawah: 11.125,
-                child: Tautan(
-                  ke: 'WebBerandaJabatan',
-                  cara: Cara.naik,
-                  child: const Align(
-                    widthFactor: 1,
-                    alignment: Alignment.centerLeft,
-                    child: TautanTeks('Beranda', ukuran: 14),
-                  ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 44 px target on the div's 15 × 1.45 = 21.75 px line box (the
+            // strut of the 15 px parent, not the 14 px link): the rest overlaps.
+            MarginNegatif(
+              atas: 11.125,
+              bawah: 11.125,
+              child: Tautan(
+                ke: 'WebBerandaJabatan',
+                cara: Cara.naik,
+                child: const Align(
+                  widthFactor: 1,
+                  alignment: Alignment.centerLeft,
+                  child: TautanTeks('Beranda', ukuran: 14),
                 ),
               ),
-              const SizedBox(height: 2),
-              Semantics(
-                header: true,
-                child: Text(
-                  'Pemberitahuan',
-                  style: PalakatText.judulHalaman.copyWith(color: c.tinta),
-                ),
+            ),
+            const SizedBox(height: 2),
+            Semantics(
+              header: true,
+              child: Text(
+                'Pemberitahuan',
+                style: PalakatText.judulHalaman.copyWith(color: c.tinta),
               ),
-              Text(
-                'Satu kotak untuk semua modul yang aktif',
-                style: TextStyle(fontSize: 14, color: c.tinta2),
-              ),
-            ],
-          ),
+            ),
+            Text(
+              'Satu kotak untuk semua modul yang aktif',
+              style: TextStyle(fontSize: 14, color: c.tinta2),
+            ),
+          ],
         ),
-        ledingCss(
-          Align(
-            alignment: Alignment.topLeft,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1120),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: 16,
-                children: [
-                  if (ada)
-                    BarisLentur(
-                      jarak: 28,
-                      jarakBaris: 20,
-                      anak: [
-                        Lentur(
-                          dasar: 420,
-                          tumbuh: 1.3,
-                          child: _Kolom('Perlu tindakan', tindak),
-                        ),
-                        Lentur(
-                          dasar: 340,
-                          child: _Kolom('Untuk diketahui', tahu),
-                        ),
-                      ],
-                    )
-                  else
-                    const KotakKosong(),
-                  const CatatanKotakMasuk(),
-                ],
-              ),
+        Align(
+          alignment: Alignment.topLeft,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1120),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: 16,
+              children: [
+                if (ada)
+                  BarisLentur(
+                    jarak: 28,
+                    jarakBaris: 20,
+                    anak: [
+                      Lentur(
+                        dasar: 420,
+                        tumbuh: 1.3,
+                        child: _Kolom('Perlu tindakan', tindak),
+                      ),
+                      Lentur(
+                        dasar: 340,
+                        child: _Kolom('Untuk diketahui', tahu),
+                      ),
+                    ],
+                  )
+                else
+                  const KotakKosong(),
+                const CatatanKotakMasuk(),
+              ],
             ),
           ),
         ),
@@ -126,11 +122,6 @@ class WebKotakMasukScreen extends StatelessWidget {
     );
   }
 }
-
-Widget ledingCss(Widget w) => DefaultTextStyle.merge(
-  style: const TextStyle(leadingDistribution: TextLeadingDistribution.even),
-  child: w,
-);
 
 /// Heading and its list box: `permukaan`, 1 px `garis`, radius 14, a rule
 /// between rows.

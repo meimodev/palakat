@@ -130,18 +130,17 @@ class _WebAlurJabatanKosongScreenState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // The 44 px target overlaps the line above and below, so the
-              // block keeps the board's 22 px line (the 14 px link sits on
-              // the div's 15/1.45 strut).
+              // block keeps the board's line (the 14 px link sits on the
+              // div's 15 × 1.45 strut).
               MarginNegatif(
-                atas: 12,
-                bawah: 10,
+                atas: (44 - 15 * 1.45) / 2,
+                bawah: (44 - 15 * 1.45) / 2,
                 child: Tautan(
                   ke: 'WebJabatanKosong',
                   cara: Cara.naik,
                   child: const Align(
                     alignment: Alignment.centerLeft,
                     widthFactor: 1,
-                    heightFactor: 1,
                     child: TautanTeks('Menjalankan jabatan kosong', ukuran: 14),
                   ),
                 ),

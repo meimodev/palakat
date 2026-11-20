@@ -277,8 +277,8 @@ class _WebPenugasanScreenState extends State<WebPenugasanScreen> {
     };
 
     // The breadcrumb keeps its 44 px target without growing the title block
-    // (line box 14 × 1.45).
-    const lebihTautan = (44 - 14 * 1.45) / 2;
+    // (the inline 14 px link sits on the div's 15 × 1.45 strut).
+    const lebihTautan = (44 - 15 * 1.45) / 2;
     final judul = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -291,7 +291,6 @@ class _WebPenugasanScreenState extends State<WebPenugasanScreen> {
             child: const Align(
               alignment: Alignment.centerLeft,
               widthFactor: 1,
-              heightFactor: 1,
               child: TautanTeks('Beranda', ukuran: 14),
             ),
           ),

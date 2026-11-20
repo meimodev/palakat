@@ -109,7 +109,7 @@ class _JabatanKosongScreenState extends State<JabatanKosongScreen> {
         pita,
         kartu([
           barisJudul(
-            const Text('Saldo buku semua Kas/Bank', style: tebal),
+            const Text('Saldo buku semua Kas/\u2060Bank', style: tebal),
             Text(
               'Rp38.415.000',
               style: PalakatText.jumlah.copyWith(color: c.tinta),
@@ -286,8 +286,11 @@ class _JabatanKosongScreenState extends State<JabatanKosongScreen> {
           'Draf yang Anda siapkan tetap ada dan dapat dibukukan oleh '
           'Bendahara Jemaat.',
         ),
-        tombol([
-          const Tombol(
+        // An `<a>` is content-box: max-width 340 + padding 32 + line 3 = 375
+        // wide (so the full 350 here), 48 + 3 = 51 high.
+        const SizedBox(
+          height: 51,
+          child: Tombol(
             'Kembali ke Beranda',
             onPressed: null,
             jenis: JenisTombol.kedua,
@@ -295,7 +298,7 @@ class _JabatanKosongScreenState extends State<JabatanKosongScreen> {
             ke: 'BerandaJabatan',
             cara: Cara.naik,
           ),
-        ]),
+        ),
       ],
     };
 
