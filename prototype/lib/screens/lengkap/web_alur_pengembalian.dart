@@ -29,10 +29,10 @@ class WebAlurPengembalianScreen extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Inline 14 px link (line 20.3): the 44 px target overhangs it.
+            // Inline 14 px link in a 15 px line box (21.75): the 44 px target overhangs it.
             const MarginNegatif(
-              atas: 11.85,
-              bawah: 11.85,
+              atas: 11.125,
+              bawah: 11.125,
               child: Tautan(
                 ke: 'WebPengembalian',
                 cara: Cara.naik,

@@ -235,7 +235,12 @@ class _TabCatatScreenState extends State<TabCatatScreen> {
         const SizedBox(height: 2),
         Semantics(
           header: true,
-          child: Text('Catat transaksi', style: PalakatText.judulHalaman),
+          child: Text(
+            'Catat transaksi',
+            style: PalakatText.judulHalaman.copyWith(
+              color: context.warna.tinta,
+            ),
+          ),
         ),
       ],
     );

@@ -99,7 +99,12 @@ class _WebBerandaJabatanScreenState extends State<WebBerandaJabatanScreen>
               const SizedBox(height: 2),
               Semantics(
                 header: true,
-                child: Text('Beranda', style: PalakatText.judulHalaman),
+                child: Text(
+                  'Beranda',
+                  style: PalakatText.judulHalaman.copyWith(
+                    color: context.warna.tinta,
+                  ),
+                ),
               ),
               Text(
                 'Satu Beranda untuk semua jabatan Anda',

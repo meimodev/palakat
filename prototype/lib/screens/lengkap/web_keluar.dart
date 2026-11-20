@@ -40,10 +40,10 @@ class _WebKeluarScreenState extends State<WebKeluarScreen> {
     Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // The crumb keeps its 44 px target without growing the title block.
+        // The crumb keeps its 44 px target over the inline link's 15 × 1.45 line box.
         MarginNegatif(
-          atas: 12,
-          bawah: 12,
+          atas: 11.125,
+          bawah: 11.125,
           child: Tautan(
             ke: 'WebPengaturan',
             cara: Cara.naik,
