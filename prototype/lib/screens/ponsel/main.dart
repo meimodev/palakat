@@ -476,13 +476,32 @@ class _MainKendaliState extends State<MainKendali> {
 
 // ---------- Screen: one view per route ----------
 
-class MainScreen extends StatelessWidget {
+class MainScreen extends StatefulWidget {
   const MainScreen({super.key, this.anak, this.param = const {}});
   final String? anak;
   final Map<String, String> param;
 
   @override
+  State<MainScreen> createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // A deep link to detail before anything is booked has no transaction to show.
+    if (widget.anak == 'detail') {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && !_MainLingkup.baca(context).posted) {
+          context.kembaliKe('/Main');
+        }
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final anak = widget.anak;
     final m = _MainLingkup.of(context);
     final c = context.warna;
     final Widget isi = switch (anak) {
@@ -1024,13 +1043,15 @@ class _KartuTransaksi extends StatelessWidget {
                 'Dibalik' => StatusUang.dibalik,
                 _ => StatusUang.dibukukan,
               }, jarakHuruf: .3),
-              Text(
-                rp(r.jm),
-                style: TextStyle(
-                  fontFamily: _mono,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: draf ? c.tinta3 : c.tinta,
+              Flexible(
+                child: Text(
+                  rp(r.jm),
+                  style: TextStyle(
+                    fontFamily: _mono,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: draf ? c.tinta3 : c.tinta,
+                  ),
                 ),
               ),
             ],

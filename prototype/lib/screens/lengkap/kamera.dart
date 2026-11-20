@@ -539,6 +539,15 @@ class _UnggahState extends State<_Unggah> {
   _PapanKamera? _papan;
 
   @override
+  void initState() {
+    super.initState();
+    // A deep link with no photo sent yet has nothing to upload: the camera.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _papan!.st == 'bidik') context.kembaliKe('/$_stem');
+    });
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _papan = _LingkupKamera.of(context);
