@@ -60,7 +60,7 @@ const List<_Baris> _baris = [
     no: 'BKU-2026-0144',
     asal: '—',
     tgl: '12/11/2026',
-    ur: 'Pembalikan BKU-2026-0139',
+    ur: 'Pembalikan BKU-\u200B2026-\u200B0139', // Chrome breaks after its hyphens
     tanda: 'Pembalikan',
     jumlah: 750000,
     setuju: 'Tidak diperlukan (aturan: pembalikan)',
@@ -209,6 +209,14 @@ class _WebBuktiScreenState extends State<WebBuktiScreen> {
                   style: const TextStyle(
                     fontSize: 26,
                     fontWeight: FontWeight.w700,
+                  ),
+                  // The h1's 26 px line box also holds a wrapped line of
+                  // only the 15 px span (390 wide).
+                  strutStyle: const StrutStyle(
+                    fontFamily: PalakatText.sans,
+                    fontSize: 26,
+                    height: 1.45,
+                    leadingDistribution: TextLeadingDistribution.even,
                   ),
                 ),
               ),

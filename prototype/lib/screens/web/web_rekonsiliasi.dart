@@ -222,6 +222,13 @@ class _WebRekonsiliasiState extends State<WebRekonsiliasiScreen> {
                     fontSize: 26,
                     fontWeight: FontWeight.w700,
                   ),
+                  // The h1's 26 px line box also holds a wrapped line of
+                  // only the 15 px span (390 wide).
+                  strutStyle: const StrutStyle(
+                    fontFamily: PalakatText.sans,
+                    fontSize: 26,
+                    height: 1.45,
+                  ),
                 ),
               ),
               const SizedBox(width: 12),
@@ -914,7 +921,8 @@ class _BarisPerjalanan extends StatelessWidget {
                       children: [
                         const TextSpan(text: '· '),
                         TextSpan(
-                          text: t4.noBukti,
+                          // Chrome breaks the code after its hyphens.
+                          text: t4.noBukti?.replaceAll('-', '-\u200B'),
                           style: const TextStyle(fontFamily: PalakatText.mono),
                         ),
                         TextSpan(text: ' · ${t4.tanggal ?? kosong}'),

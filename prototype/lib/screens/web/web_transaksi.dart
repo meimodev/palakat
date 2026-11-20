@@ -320,7 +320,7 @@ class _WebTransaksiScreenState extends State<WebTransaksiScreen> {
             child: baris(
               status: const Text('Status'),
               tgl: const Text('Tanggal'),
-              ur: const Text('Uraian · No. Bukti · Kas/Bank'),
+              ur: const Text('Uraian · No. Bukti · Kas/\u2060Bank'),
               jm: const Text('Jumlah (Rp)', textAlign: TextAlign.right),
             ),
           ),
@@ -372,7 +372,7 @@ class _WebTransaksiScreenState extends State<WebTransaksiScreen> {
                             TextSpan(
                               children: [
                                 TextSpan(
-                                  text: r.no.isEmpty ? '—' : r.no,
+                                  text: r.no.isEmpty ? '—' : _putusKode(r.no),
                                   style: const TextStyle(
                                     fontFamily: PalakatText.mono,
                                   ),
@@ -384,7 +384,7 @@ class _WebTransaksiScreenState extends State<WebTransaksiScreen> {
                           ),
                           if (r.cat.isNotEmpty)
                             Text(
-                              r.cat,
+                              _putusKode(r.cat),
                               style: TextStyle(fontSize: 13, color: c.tinta3),
                             ),
                         ],
@@ -862,3 +862,9 @@ class _BarisFakta extends StatelessWidget {
     );
   }
 }
+
+/// Chrome breaks a code like BKU-2026-0146 only after a hyphen that follows a
+/// digit; Flutter breaks it elsewhere. Mark those places, and keep the rest.
+String _putusKode(String s) => s
+    .replaceAllMapped(RegExp(r'([A-Z])-'), (m) => '${m[1]}\u2060-')
+    .replaceAllMapped(RegExp(r'(\d)-'), (m) => '${m[1]}-\u200B');

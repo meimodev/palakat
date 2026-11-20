@@ -30,7 +30,7 @@ const List<_Usul> _usul = [
   (
     id: 'cocok',
     label: 'Usulan AI · pencocokan',
-    t: 'Mutasi bank “TARIK TUNAI −Rp2.000.000” (30/10) kemungkinan cocok dengan BKU-2026-0127 Pindah antar Kas/Bank: Bank BNI ke Kas.',
+    t: 'Mutasi bank “TARIK TUNAI −Rp2.000.000” (30/10) kemungkinan cocok dengan BKU-\u200B2026-\u200B0127 Pindah antar Kas/Bank: Bank BNI ke Kas.',
     ragu: false,
     pakaiTeks: 'Buka untuk dicocokkan',
     cat: 'Belum mencocokkan apa pun.',

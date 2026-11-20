@@ -328,7 +328,14 @@ class _WebPaketLaporanScreenState extends State<WebPaketLaporanScreen> {
                   Text.rich(
                     TextSpan(
                       children: [
-                        TextSpan(text: r.$4),
+                        // Chrome breaks a code after a hyphen between
+                        // digits (BKU-2026-|0105); Flutter does not.
+                        TextSpan(
+                          text: r.$4.replaceAllMapped(
+                            RegExp(r'(\d)-(?=\d)'),
+                            (m) => '${m[1]}-\u200B',
+                          ),
+                        ),
                         if (r.$5 != null) ...[
                           const TextSpan(text: ' '),
                           WidgetSpan(

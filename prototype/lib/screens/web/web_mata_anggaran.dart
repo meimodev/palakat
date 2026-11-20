@@ -202,44 +202,101 @@ class _WebMataAnggaranScreenState extends State<WebMataAnggaranScreen> {
             _lebarTeks(context, '${i + 1} · ${_tahap[i]}', gayaTahap) + 27,
         ].fold(0.0, (a, b) => a + b) +
         8 * (_tahap.length - 1);
+    Widget chip(int i, String t) => Container(
+      // span content-box: min-height 32 plus the 1.5 line twice.
+      constraints: const BoxConstraints(minHeight: 35),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: ShapeDecoration(
+        color: i <= ke ? c.tinta : null,
+        shape: i <= ke
+            ? GarisBorder.penuh(c.tinta, radius: 999)
+            : GarisBorder.putus(c.putus, radius: 999),
+      ),
+      // A min-size Row fills the min height and centres the text.
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: Text(
+              t,
+              style: gayaTahap.copyWith(
+                color: i <= ke ? c.permukaan : c.tinta3,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
     final tahapan = Semantics(
       container: true,
       label:
           'Langkah ${ke + 1} dari 3: '
           '${[for (var i = 0; i < 3; i++) '${i + 1} ${_tahap[i]}'].join(', ')}',
       child: ExcludeSemantics(
-        // One line on the board; wraps only when the block is squeezed.
-        child: Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            for (var i = 0; i < _tahap.length; i++) ...[
-              Container(
-                // span content-box: min-height 32 plus the 1.5 line twice.
-                constraints: const BoxConstraints(minHeight: 35),
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: ShapeDecoration(
-                  color: i <= ke ? c.tinta : null,
-                  shape: i <= ke
-                      ? GarisBorder.penuh(c.tinta, radius: 999)
-                      : GarisBorder.putus(c.putus, radius: 999),
-                ),
-                // A min-size Row fills the min height and centres the text.
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '${i + 1} · ${_tahap[i]}',
-                      softWrap: false,
-                      style: gayaTahap.copyWith(
-                        color: i <= ke ? c.permukaan : c.tinta3,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ],
+        // One nowrap flex row on the board: when it does not fit, each chip
+        // shrinks by its width down to its longest word and its text wraps
+        // (390 wide). Wraps the chips only where even that would overflow.
+        child: LayoutBuilder(
+          builder: (context, k) {
+            final teks = [
+              for (var i = 0; i < _tahap.length; i++) '${i + 1} · ${_tahap[i]}',
+            ];
+            final maks = [
+              for (final t in teks) _lebarTeks(context, t, gayaTahap) + 27,
+            ];
+            final min = [
+              for (final t in teks)
+                t
+                        .split(' ')
+                        .map((w) => _lebarTeks(context, w, gayaTahap))
+                        .reduce(math.max) +
+                    27,
+            ];
+            final ruang = k.maxWidth - 8 * (teks.length - 1);
+            final jumlahMaks = maks.fold(0.0, (a, b) => a + b);
+            final susut = jumlahMaks > ruang;
+            if (susut && min.fold(0.0, (a, b) => a + b) > ruang) {
+              return Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (var i = 0; i < teks.length; i++) chip(i, teks[i]),
+                ],
+              );
+            }
+            // flex-shrink by base size, an item clamped at its min-content
+            // is frozen and the rest shrinks again.
+            final lebar = [...maks];
+            final beku = List.filled(teks.length, false);
+            while (susut) {
+              var tetap = 0.0, dasar = 0.0;
+              for (var i = 0; i < teks.length; i++) {
+                beku[i] ? tetap += lebar[i] : dasar += maks[i];
+              }
+              final kurang = tetap + dasar - ruang;
+              var langgar = false;
+              for (var i = 0; i < teks.length; i++) {
+                if (beku[i]) continue;
+                lebar[i] = maks[i] - kurang * maks[i] / dasar;
+                if (lebar[i] < min[i]) {
+                  lebar[i] = min[i];
+                  beku[i] = langgar = true;
+                }
+              }
+              if (!langgar) break;
+            }
+            return Row(
+              children: [
+                for (var i = 0; i < teks.length; i++) ...[
+                  if (i > 0) const SizedBox(width: 8),
+                  SizedBox(
+                    width: lebar[i],
+                    child: chip(i, teks[i]),
+                  ),
+                ],
+              ],
+            );
+          },
         ),
       ),
     );
@@ -377,14 +434,24 @@ class _WebMataAnggaranScreenState extends State<WebMataAnggaranScreen> {
                   _konfirmasi = false;
                 }),
                 radius: 12,
-                child: RupaTombol(
-                  label: terbitkan,
-                  isi: c.permukaan,
-                  warnaTeks: c.tinta,
-                  radius: 12,
-                  tinggi: 46,
-                  paddingH: 20,
-                  lebarPenuh: false,
+                // RupaTombol, but the board's `button{text-align:left}`: the
+                // label wraps left-aligned (390 wide).
+                child: Container(
+                  constraints: const BoxConstraints(minHeight: 46),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  decoration: BoxDecoration(
+                    color: c.permukaan,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    widthFactor: 1,
+                    heightFactor: 1,
+                    child: Text(
+                      terbitkan,
+                      style: gayaTombol.copyWith(color: c.tinta),
+                    ),
+                  ),
                 ),
               ),
             ),

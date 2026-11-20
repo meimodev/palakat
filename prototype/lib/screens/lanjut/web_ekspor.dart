@@ -119,8 +119,9 @@ class _WebEksporScreenState extends State<WebEksporScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  '2 file Ditahan (alasan keamanan) · BKU-2026-0117, '
-                  'BKU-2026-0130',
+                  // Chrome breaks the code after 2026- (390 wide).
+                  '2 file Ditahan (alasan keamanan) · BKU-2026-\u200B0117, '
+                  'BKU-2026-\u200B0130',
                   style: s14,
                 ),
                 const SizedBox(height: 6),

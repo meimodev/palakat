@@ -556,6 +556,9 @@ class _WebTutupBukuScreenState extends State<WebTutupBukuScreen> {
                       bawah: (44 - 14 * 1.45) / 2,
                       child: Tautan(
                         ke: 'WebLaporan',
+                        // The words together are the target; a 44 px minimum
+                        // per word would widen the gaps between them.
+                        minLebar: 0,
                         child: Semantics(
                           label: 'Lihat laporan sementara',
                           excludeSemantics: true,

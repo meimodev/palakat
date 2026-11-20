@@ -128,6 +128,14 @@ class _WebPersembahanScreenState extends State<WebPersembahanScreen> {
               ],
             ),
             style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w700),
+            // The h1's 26 px line box also holds a wrapped line of only the
+            // 15 px span (390 wide).
+            strutStyle: const StrutStyle(
+              fontFamily: PalakatText.sans,
+              fontSize: 26,
+              height: 1.45,
+              leadingDistribution: TextLeadingDistribution.even,
+            ),
           ),
         ),
       ],
@@ -583,7 +591,12 @@ class _KartuBagianState extends State<_KartuBagian> {
                           decoration: InputDecoration(
                             isCollapsed: true,
                             border: InputBorder.none,
-                            constraints: const BoxConstraints(minHeight: 44),
+                            // min-height 44 with the figure centred, as the
+                            // <input> draws it (a minHeight alone kept the
+                            // line at the top).
+                            contentPadding: const EdgeInsets.symmetric(
+                              vertical: (44 - 26 * 1.45) / 2,
+                            ),
                             hintText: '—',
                             hintStyle: gayaAngka.copyWith(color: c.tinta3),
                           ),

@@ -369,7 +369,10 @@ class _TabelKasBank extends StatelessWidget {
         style: TextStyle(fontWeight: FontWeight.w600, color: c.tinta2),
       ),
     );
-    Widget sel(Widget isi) => Padding(padding: pad, child: isi);
+    // Body rows carry a 1 px top border that takes layout space on the board;
+    // a TableRow decoration does not, so the cell pads it.
+    Widget sel(Widget isi) =>
+        Padding(padding: pad.copyWith(top: 13), child: isi);
     Widget nama(String t) =>
         sel(Text(t, style: const TextStyle(fontWeight: FontWeight.w600)));
     Widget saldo(int n) =>
@@ -426,6 +429,7 @@ class _TabelKasBank extends StatelessWidget {
                           TextSpan(text: ' · '),
                         ],
                       ),
+                      textAlign: TextAlign.right,
                     ),
                     hitung,
                   ],

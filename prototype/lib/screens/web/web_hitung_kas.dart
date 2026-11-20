@@ -108,7 +108,13 @@ class _WebHitungKasScreenState extends State<WebHitungKasScreen> {
         ? 'Pilih petugas penghitung.'
         : 'Siap disimpan.';
 
-    Widget grid(Widget a, Widget b, Widget d) => Row(
+    Widget grid(
+      Widget a,
+      Widget b,
+      Widget d, {
+      CrossAxisAlignment rata = CrossAxisAlignment.center,
+    }) => Row(
+      crossAxisAlignment: rata,
       children: [
         Expanded(child: a),
         const SizedBox(width: 16),
@@ -213,6 +219,8 @@ class _WebHitungKasScreenState extends State<WebHitungKasScreen> {
                     const Text('Hasil hitung kas'),
                     const SizedBox.shrink(),
                     kanan(hasil, _mono.copyWith(color: warnaHasil)),
+                    // Grid default stretch: the figure stays on the first line.
+                    rata: CrossAxisAlignment.start,
                   ),
                 ),
               ),

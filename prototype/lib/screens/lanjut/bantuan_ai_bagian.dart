@@ -278,8 +278,10 @@ class _KalimatState extends State<_Kalimat> {
     final gaya = widget.web
         ? TextStyle(
             fontFamily: PalakatText.mono,
-            fontSize: 13,
-            height: 15 / 13,
+            // The textarea's UA font: monospace 13.33 px, so "tanggal"
+            // wraps where the board wraps it (390 wide).
+            fontSize: 40 / 3,
+            height: 15 / (40 / 3),
             color: c.tinta,
           )
         : DefaultTextStyle.of(context).style;

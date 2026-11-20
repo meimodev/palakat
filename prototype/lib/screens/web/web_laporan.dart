@@ -366,32 +366,36 @@ class _BarisF01 extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.warna;
     final (label, nilai, catatan, total, lihat) = b;
-    // ponytail: on windows under 600 px the link goes under the label; the
-    // board's row overflows the page there (spec check 5 asks for no scroll).
-    final sempit = MediaQuery.sizeOf(context).width < 600;
-    final teks = Text.rich(
-      TextSpan(
-        children: [
-          TextSpan(text: '$label '),
-          if (catatan.isNotEmpty)
-            TextSpan(
-              text: '· $catatan',
-              style: TextStyle(fontSize: 13, color: c.tinta3),
-            ),
-        ],
-      ),
-      style: TextStyle(fontWeight: total ? FontWeight.w700 : FontWeight.w500),
+    final gayaTeks = TextStyle(
+      fontWeight: total ? FontWeight.w700 : FontWeight.w500,
     );
-    const tautan = Tautan(
-      ke: 'WebTransaksi',
-      child: SizedBox(
-        height: 44,
-        child: Center(
-          widthFactor: 1,
-          child: TautanTeks('Lihat transaksi', ukuran: 13),
-        ),
-      ),
+    final rentangTeks = TextSpan(
+      children: [
+        TextSpan(text: '$label '),
+        if (catatan.isNotEmpty)
+          TextSpan(
+            text: '· $catatan',
+            style: TextStyle(fontSize: 13, color: c.tinta3),
+          ),
+      ],
     );
+    const gayaTautan = TextStyle(fontSize: 13, fontWeight: FontWeight.w600);
+    final gayaNilai = TextStyle(
+      fontFamily: PalakatText.mono,
+      fontWeight: total ? FontWeight.w600 : FontWeight.w400,
+    );
+    final dasar = DefaultTextStyle.of(context).style;
+    TextPainter ukur(InlineSpan t) => TextPainter(
+      text: TextSpan(style: dasar, children: [t]),
+      textDirection: TextDirection.ltr,
+      textScaler: MediaQuery.textScalerOf(context),
+    )..layout();
+    final pTeks = ukur(TextSpan(style: gayaTeks, children: [rentangTeks]));
+    final pTautan = ukur(
+      const TextSpan(text: 'Lihat transaksi', style: gayaTautan),
+    );
+    final pNilai = ukur(TextSpan(text: nilai, style: gayaNilai));
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 9),
       decoration: BoxDecoration(
@@ -403,32 +407,79 @@ class _BarisF01 extends StatelessWidget {
                     : BorderSide(color: c.garis),
               ),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.baseline,
-        textBaseline: TextBaseline.alphabetic,
-        children: [
-          Expanded(
-            child: sempit && lihat
-                ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [teks, tautan],
-                  )
-                : teks,
-          ),
-          if (lihat && !sempit) ...[const SizedBox(width: 12), tautan],
-          const SizedBox(width: 12),
-          SizedBox(
-            width: 150,
-            child: Text(
-              nilai,
-              textAlign: TextAlign.right,
-              style: TextStyle(
-                fontFamily: PalakatText.mono,
-                fontWeight: total ? FontWeight.w600 : FontWeight.w400,
+      child: LayoutBuilder(
+        builder: (context, k) {
+          // CSS flex: label `flex: 1` (basis 0), link and figure `0 1 auto`
+          // (link max-content, figure 150), none below its min-content; on a
+          // narrow page the label stops at its longest word and the link
+          // and figure shrink by their basis (390 wide).
+          final jarak = lihat ? 24.0 : 12.0;
+          final dTautan = lihat ? pTautan.maxIntrinsicWidth : 0.0;
+          var wTautan = dTautan, wNilai = 150.0;
+          var wTeks = k.maxWidth - jarak - wTautan - wNilai;
+          if (wTeks < pTeks.minIntrinsicWidth) {
+            wTeks = pTeks.minIntrinsicWidth;
+            final kurang = wTeks + jarak + dTautan + 150 - k.maxWidth;
+            final minT = lihat ? pTautan.minIntrinsicWidth : 0.0;
+            final minN = pNilai.maxIntrinsicWidth;
+            wTautan = dTautan - kurang * dTautan / (dTautan + 150);
+            wNilai = 150 - kurang * 150 / (dTautan + 150);
+            if (wTautan < minT) {
+              wTautan = minT;
+              wNilai = k.maxWidth - jarak - wTeks - minT;
+            } else if (wNilai < minN) {
+              wNilai = minN;
+              wTautan = k.maxWidth - jarak - wTeks - minN;
+            }
+            // Even the minimums overflow (very narrow box or wide font):
+            // scale all three to fit and let them wrap, never overflow.
+            wTautan = math.max(wTautan, minT);
+            wNilai = math.max(wNilai, minN);
+            final isi = wTeks + wTautan + wNilai;
+            if (isi > k.maxWidth - jarak) {
+              final f = math.max(0.0, k.maxWidth - jarak) / isi;
+              wTeks *= f;
+              wTautan *= f;
+              wNilai *= f;
+            }
+          }
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              SizedBox(
+                width: wTeks,
+                child: Text.rich(rentangTeks, style: gayaTeks),
               ),
-            ),
-          ),
-        ],
+              if (lihat) ...[
+                const SizedBox(width: 12),
+                SizedBox(
+                  width: wTautan,
+                  child: const Tautan(
+                    ke: 'WebTransaksi',
+                    child: SizedBox(
+                      height: 44,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        widthFactor: 1,
+                        child: TautanTeks('Lihat transaksi', ukuran: 13),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+              const SizedBox(width: 12),
+              SizedBox(
+                width: wNilai,
+                child: Text(
+                  nilai,
+                  textAlign: TextAlign.right,
+                  style: gayaNilai,
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

@@ -520,7 +520,8 @@ class _WebDokumenScreenState extends State<WebDokumenScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      d.uraian,
+                      // Chrome keeps "Kas/Bank" whole (390 wide).
+                      d.uraian.replaceAll('Kas/Bank', 'Kas/\u2060Bank'),
                       style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                     Text(
