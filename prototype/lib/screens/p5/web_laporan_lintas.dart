@@ -31,10 +31,10 @@ class WebLaporanLintasScreen extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 44 px target, laid out at the inline link's 14 × 1.45 height.
+            // A 44 px target drawn as the board's line box (15 × 1.45).
             MarginNegatif(
-              atas: 11.85,
-              bawah: 11.85,
+              atas: 11.125,
+              bawah: 11.125,
               child: Tautan(
                 ke: 'WebBerandaJabatan',
                 cara: Cara.naik,

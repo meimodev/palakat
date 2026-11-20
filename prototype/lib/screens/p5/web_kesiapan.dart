@@ -24,8 +24,8 @@ class _WebKesiapanScreenState extends State<WebKesiapanScreen>
   Widget build(BuildContext context) {
     final c = context.warna;
     final bend = bendahara(context);
-    // The 14/1.45 breadcrumb line inside its 44 px target.
-    const sisa = (44 - 14 * 1.45) / 2;
+    // The breadcrumb line box (15 × 1.45, the page strut) inside its 44 px target.
+    const sisa = (44 - 15 * 1.45) / 2;
     return HalamanWeb(
       nav: const NavSamping(
         item: navKeuangan,

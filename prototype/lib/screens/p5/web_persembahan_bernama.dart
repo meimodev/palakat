@@ -41,13 +41,19 @@ class _WebPersembahanBernamaScreenState
             key: kunciIsi,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // The link line (14 × 1.45) inside its 44 target.
+              // A 44 px target drawn as the board's line box (15 × 1.45).
               const MarginNegatif(
-                bawah: 44 - 14 * 1.45,
+                atas: 11.125,
+                bawah: 11.125,
                 child: Tautan(
                   ke: 'WebBeranda',
                   cara: Cara.naik,
-                  child: TautanTeks('Keuangan', ukuran: 14),
+                  child: Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    widthFactor: 1,
+                    heightFactor: 1,
+                    child: TautanTeks('Keuangan', ukuran: 14),
+                  ),
                 ),
               ),
               const SizedBox(height: 2),
