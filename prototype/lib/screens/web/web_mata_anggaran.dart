@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show OverflowBoxFit;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../motion/kerangka.dart';
 import '../../motion/urutan.dart';
@@ -17,63 +18,18 @@ import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import '../../app/layar.dart';
+import '../../domain/core/core.dart';
+import '../../domain/finance/finance.dart';
+import '../../providers/keuangan/pengaturan.dart';
+import '../../providers/repositories_keuangan.dart';
+import '../../widgets/penolakan.dart';
+import '../ponsel/mata_anggaran.dart';
 
-/// One Mata Anggaran row of the board's `DATA` (spec 04, WebMataAnggaran).
-typedef _Baris = ({String k, String n, bool grup, String tanda});
-
-const Map<String, List<_Baris>> _data = {
-  'Belanja': [
-    (k: '5.00.00.00', n: 'BELANJA OPERASIONAL', grup: true, tanda: ''),
-    (k: '5.01.02.00', n: 'Listrik, air dan telepon', grup: false, tanda: ''),
-    (k: '5.03.03.00', n: 'Biaya administrasi bank', grup: false, tanda: ''),
-    (
-      k: '5.06.01.00',
-      n: 'Internet dan langganan aplikasi',
-      grup: false,
-      tanda: 'Baru',
-    ),
-    (
-      k: '4.03.03.00',
-      n: 'Diakonia duka dan sakit',
-      grup: false,
-      tanda: 'Nama berubah',
-    ),
-    (
-      k: '2.2.01.02.00',
-      n: 'DANA TRANSIT Penyaluran Sentralisasi Sinode',
-      grup: false,
-      tanda: 'Baru',
-    ),
-  ],
-  'Pendapatan': [
-    (k: '1.3.53.00.00', n: 'PERSEMBAHAN', grup: true, tanda: ''),
-    (k: '1.3.53.07.00', n: 'Persembahan Ibadah Minggu', grup: false, tanda: ''),
-    (k: '1.3.53.09.00', n: 'Persembahan syukur', grup: false, tanda: ''),
-    (
-      k: '2.1.01.02.00',
-      n: 'DANA TRANSIT Sentralisasi Sinode',
-      grup: false,
-      tanda: 'Baru',
-    ),
-    (k: '1.4.10.02.00', n: 'Sumbangan donatur', grup: false, tanda: ''),
-    (k: '1.4.10.03.00', n: 'Sumbangan natura', grup: false, tanda: 'Baru'),
-  ],
-};
-
-const Map<String, String> _bolehAwal = {
-  '5.01.02.00': 'Milik sendiri',
-  '5.03.03.00': 'Milik sendiri',
-  '5.06.01.00': '',
-  '4.03.03.00': 'Milik sendiri',
-  '2.2.01.02.00': 'Titipan',
-  '1.3.53.07.00': 'Milik sendiri',
-  '1.3.53.09.00': 'Milik sendiri',
-  '2.1.01.02.00': 'Titipan',
-  '1.4.10.02.00': 'Keduanya',
-  '1.4.10.03.00': '',
-};
-
-const _pilihan = ['Milik sendiri', 'Titipan', 'Keduanya'];
+const _pilihan = [
+  AllowedEffect.owned,
+  AllowedEffect.custody,
+  AllowedEffect.both,
+];
 const _tahap = ['Draf', 'Sudah diperiksa', 'Diterbitkan'];
 const _urut = ['draf', 'periksa', 'terbit'];
 
@@ -96,35 +52,59 @@ double _lebarTeks(BuildContext context, String teks, TextStyle gaya) {
   return w.ceilToDouble();
 }
 
-class WebMataAnggaranScreen extends StatefulWidget {
+class WebMataAnggaranScreen extends ConsumerStatefulWidget {
   const WebMataAnggaranScreen({super.key});
 
   @override
-  State<WebMataAnggaranScreen> createState() => _WebMataAnggaranScreenState();
+  ConsumerState<WebMataAnggaranScreen> createState() =>
+      _WebMataAnggaranScreenState();
 }
 
-class _WebMataAnggaranScreenState extends State<WebMataAnggaranScreen> {
-  String _st = 'draf', _tab = 'Belanja';
+class _WebMataAnggaranScreenState extends ConsumerState<WebMataAnggaranScreen> {
+  MasterKind _tab = MasterKind.belanja;
   bool _konfirmasi = false;
-  final Map<String, String> _boleh = Map.of(_bolehAwal);
+  Refusal? _tolak;
+  VersiMataAnggaran _v = const VersiMataAnggaran();
+
+  /// 'draf', 'periksa' or 'terbit' (the board's stages).
+  String get _st => switch (_v.usulan?.status) {
+    MasterVersionStatus.reviewed => 'periksa',
+    MasterVersionStatus.published => 'terbit',
+    _ => 'draf',
+  };
 
   bool get _terbit => _st == 'terbit';
 
-  void _pick(String k, String o) {
-    if (_terbit) return;
+  String get _namaTab => _tab == MasterKind.belanja ? 'Belanja' : 'Pendapatan';
+
+  Future<void> _lakukan(Future<Refusal?> f, {bool tutup = false}) async {
+    final r = await f;
+    if (!mounted) return;
     setState(() {
-      _boleh[k] = _boleh[k] == o ? '' : o;
-      _st = 'draf';
-      _konfirmasi = false;
+      _tolak = r;
+      if (tutup) _konfirmasi = false;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final kosongN = _boleh.values.where((v) => v.isEmpty).length;
-    final vTeks = _terbit
-        ? 'Berlaku mulai Desember 2026 · diterbitkan oleh Meiske L., 16/11/2026 · tidak dapat diubah'
-        : '2 baris baru · 1 nama berubah dibanding versi 2026.1 · usulan berlaku mulai Desember 2026';
+    _v = ref.watch(versiMataAnggaranProvider);
+    final master = ref.watch(masterRepositoryProvider);
+    final usulan = _v.usulan;
+    final kosongN =
+        [for (final k in MasterKind.values) ...barisUsulan(master, _v, k)]
+            .where(
+              (b) =>
+                  b.baris.postable &&
+                  b.baris.allowedEffect == AllowedEffect.unset,
+            )
+            .length;
+    final vTeks = usulan == null
+        ? ''
+        : _terbit
+        ? '${teksUsulan(ref, usulan)} · tidak dapat diubah'
+        : '${bedaUsulan(master, _v)} · usulan berlaku mulai '
+              '${bulanDari(usulan.berlaku!)}';
 
     // CSS splits a line's leading evenly above and below the glyphs.
     return DefaultTextHeightBehavior(
@@ -163,12 +143,18 @@ class _WebMataAnggaranScreenState extends State<WebMataAnggaranScreen> {
             ),
           ],
         ),
-        _kartuVersi(context, vTeks),
+        if (_v.usulan != null) _kartuVersi(context, vTeks),
+        if (_tolak != null)
+          Penolakan(
+            tindakan: _tolak!.action,
+            sebab: _tolak!.because,
+            jalan: const [],
+          ),
         if (_konfirmasi) _panelKonfirmasi(context),
         _barisTab(context, kosongN),
         _tabel(context),
         Text(
-          'Contoh 6 dari ${_tab == 'Belanja' ? 158 : 131} baris $_tab. Nomor dan nama ditampilkan persis seperti tersimpan. Hanya baris bertanda “Dapat dibukukan” yang dapat dipilih pada transaksi, tidak ditebak dari akhiran nomornya. Baris tanpa “Boleh untuk” tidak dapat menerima titipan.',
+          '${_baris(_tab).length} baris $_namaTab. Nomor dan nama ditampilkan persis seperti tersimpan. Hanya baris bertanda “Dapat dibukukan” yang dapat dipilih pada transaksi, tidak ditebak dari akhiran nomornya. Baris tanpa “Boleh untuk” tidak dapat menerima titipan.',
           style: TextStyle(fontSize: 13, color: c.tinta3),
         ),
       ],
@@ -293,7 +279,7 @@ class _WebMataAnggaranScreenState extends State<WebMataAnggaranScreen> {
       'draf' => (
         Tombol(
           'Tandai sudah diperiksa',
-          onPressed: () => setState(() => _st = 'periksa'),
+          onPressed: () => _lakukan(periksaRilis(ref)),
           jenis: JenisTombol.kedua,
           ukuran: UkuranTombol.ringkas,
           lebarPenuh: false,
@@ -337,10 +323,10 @@ class _WebMataAnggaranScreenState extends State<WebMataAnggaranScreen> {
                       children: [
                         Row(
                           children: [
-                            const Flexible(
+                            Flexible(
                               child: Text(
-                                'Versi 2026.2',
-                                style: TextStyle(
+                                'Versi ${_v.usulan!.kode}',
+                                style: const TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.w700,
                                 ),
@@ -376,7 +362,9 @@ class _WebMataAnggaranScreenState extends State<WebMataAnggaranScreen> {
   Widget _panelKonfirmasi(BuildContext context) {
     final c = context.warna;
     const gayaTombol = TextStyle(fontWeight: FontWeight.w700);
-    const terbitkan = 'Terbitkan, berlaku mulai Desember 2026';
+    final u = _v.usulan!;
+    final mulai = bulanDari(u.berlaku!);
+    final terbitkan = 'Terbitkan, berlaku mulai $mulai';
     return Gerak(
       Kerangka.muncul,
       key: const ValueKey('konfirmasi'),
@@ -406,7 +394,10 @@ class _WebMataAnggaranScreenState extends State<WebMataAnggaranScreen> {
                     ),
                   ),
                   Text(
-                    'Perubahan berikutnya harus menjadi versi baru. Versi 2026.2 berlaku mulai Desember 2026; transaksi sampai November 2026 tetap memakai versi 2026.1.',
+                    'Perubahan berikutnya harus menjadi versi baru. Versi '
+                    '${u.kode} berlaku mulai $mulai; transaksi sampai '
+                    '${bulanDari(u.berlaku!.tambahHari(-1))} tetap memakai '
+                    'versi ${_v.kini?.kode ?? ''}.',
                     style: TextStyle(fontSize: 14, color: c.diTinta),
                   ),
                 ],
@@ -416,10 +407,7 @@ class _WebMataAnggaranScreenState extends State<WebMataAnggaranScreen> {
               dasar: _lebarTeks(context, terbitkan, gayaTombol) + 40,
               tumbuh: 0,
               child: Tekan(
-                onTap: () => setState(() {
-                  _st = 'terbit';
-                  _konfirmasi = false;
-                }),
+                onTap: () => _lakukan(terbitkanRilis(ref), tutup: true),
                 radius: 12,
                 // RupaTombol, but the board's `button{text-align:left}`: the
                 // label wraps left-aligned (390 wide).
@@ -472,9 +460,12 @@ class _WebMataAnggaranScreenState extends State<WebMataAnggaranScreen> {
       jarak: 8,
       rata: CrossAxisAlignment.center,
       anak: [
-        for (final t in const ['Belanja', 'Pendapatan'])
+        for (final (t, nama) in const [
+          (MasterKind.belanja, 'Belanja'),
+          (MasterKind.pendapatan, 'Pendapatan'),
+        ])
           () {
-            final teks = '$t · ${t == 'Belanja' ? '158' : '131'} baris';
+            final teks = '$nama · ${_baris(t).length} baris';
             return Lentur(
               dasar: _lebarTeks(context, teks, gayaChip) + 35,
               tumbuh: 0,
@@ -493,7 +484,7 @@ class _WebMataAnggaranScreenState extends State<WebMataAnggaranScreen> {
             child: Text(
               kosongN > 0
                   ? '$kosongN baris belum punya “Boleh untuk” (ditandai garis bata). Diisi atas keputusan Pimpinan Jemaat yang berwenang.'
-                  : 'Semua baris contoh sudah punya “Boleh untuk”.',
+                  : 'Semua baris sudah punya “Boleh untuk”.',
               style: TextStyle(fontSize: 14, color: c.tinta2),
             ),
           ),
@@ -556,7 +547,7 @@ class _WebMataAnggaranScreenState extends State<WebMataAnggaranScreen> {
                       ], rata: CrossAxisAlignment.start),
                     ),
                   ),
-                  for (final r in _data[_tab]!) _baris(context, r, kisi),
+                  for (final r in _baris(_tab)) _barisTabel(context, r, kisi),
                 ],
               ),
             ),
@@ -566,13 +557,18 @@ class _WebMataAnggaranScreenState extends State<WebMataAnggaranScreen> {
     );
   }
 
-  Widget _baris(
+  List<BarisUsulan> _baris(MasterKind k) =>
+      barisUsulan(ref.read(masterRepositoryProvider), _v, k);
+
+  Widget _barisTabel(
     BuildContext context,
-    _Baris r,
+    BarisUsulan b,
     Widget Function(List<Widget>, {CrossAxisAlignment rata}) kisi,
   ) {
     final c = context.warna;
-    final cur = _boleh[r.k] ?? '';
+    final m = b.baris;
+    final r = (k: m.code, n: m.name, grup: !m.postable, tanda: b.tanda ?? '');
+    final cur = m.allowedEffect;
     final gayaNama = TextStyle(
       fontWeight: r.grup ? FontWeight.w700 : FontWeight.w500,
     );
@@ -662,10 +658,12 @@ class _WebMataAnggaranScreenState extends State<WebMataAnggaranScreen> {
             children: [
               for (final o in _pilihan)
                 _ChipBoleh(
-                  teks: o,
+                  teks: labelBoleh(o),
                   dipilih: cur == o,
-                  kosong: cur.isEmpty,
-                  onTap: _terbit ? null : () => _pick(r.k, o),
+                  kosong: cur == AllowedEffect.unset,
+                  onTap: _terbit
+                      ? null
+                      : () => _lakukan(pilihBoleh(ref, _tab, m, o)),
                 ),
             ],
           ),

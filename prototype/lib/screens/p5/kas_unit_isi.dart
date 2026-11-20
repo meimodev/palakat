@@ -1,4 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../core/format.dart';
+import '../../domain/core/core.dart';
+import '../../domain/finance/finance.dart';
+import '../../providers/core_repositories.dart';
+import '../../providers/keuangan/pengaturan.dart';
+import '../../providers/repositories_keuangan.dart';
 
 import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
@@ -11,35 +19,25 @@ import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
 
-/// The fixed Kas/Bank cards of KasUnit and WebKasUnit: name, sub-line.
-const _tetap = [
-  ('Kas', 'Dikelola Jemaat'),
-  ('Bank BNI ··4821', 'Dikelola Jemaat'),
-  ('Bank SulutGo ··1107', 'Dikelola Jemaat'),
-  ('Kas Kolom 7', 'Dikelola oleh Kolom 7 · Bendahara: Deasy Tumbelaka'),
-];
-
-const _semuaUnit = ['Panitia Natal 2026', 'Kolom 4', 'Komisi Diakonia'];
-
 /// The body of KasUnit (phone) and WebKasUnit (web): the boards share one
 /// logic class, handler for handler. [web] puts the `tambah` form in the
-/// two-column form row.
-class KasUnitIsi extends StatefulWidget {
+/// two-column form row. A new Kas/Bank operated by a unit is added through
+/// `AccountRepository.add` from the 1st of M+1 (DL32).
+class KasUnitIsi extends ConsumerStatefulWidget {
   const KasUnitIsi({super.key, this.web = false});
 
   final bool web;
 
   @override
-  State<KasUnitIsi> createState() => _KasUnitIsiState();
+  ConsumerState<KasUnitIsi> createState() => _KasUnitIsiState();
 }
 
-class _KasUnitIsiState extends State<KasUnitIsi> {
+class _KasUnitIsiState extends ConsumerState<KasUnitIsi> {
   String _v = 'daftar';
   final _nama = TextEditingController();
   String? _unit;
   String _pesan = '';
-  final _riw = <String>[];
-  final _k = <(String, String)>[];
+  Refusal? _tolak;
 
   @override
   void dispose() {
@@ -47,11 +45,25 @@ class _KasUnitIsiState extends State<KasUnitIsi> {
     super.dispose();
   }
 
+  /// The unit's treasurer in force today, or null.
+  String? _bendahara(String scopeId) {
+    for (final p in ref.read(roleRepositoryProvider).posts(scopeId: scopeId)) {
+      if (p.post.role == Role.bendaharaUnit && p.holder != null) {
+        return ref
+            .read(peopleRepositoryProvider)
+            .person(p.holder!.personId)
+            ?.name;
+      }
+    }
+    return null;
+  }
+
   String _alasan() {
     if (_nama.text.trim().isEmpty) return 'nama Kas/Bank belum diisi.';
     if (_unit == null) return 'unit belum dipilih.';
-    if (_unit == 'Komisi Diakonia') {
-      return 'Komisi Diakonia belum punya bendahara unit.';
+    if (_bendahara(_unit!) == null) {
+      final n = ref.read(orgRepositoryProvider).scope(_unit!)?.name ?? '';
+      return '$n belum punya bendahara unit.';
     }
     return '';
   }
@@ -61,6 +73,7 @@ class _KasUnitIsiState extends State<KasUnitIsi> {
     setState(() {
       _v = v;
       _pesan = '';
+      _tolak = null;
       lagi?.call();
     });
     final p = Scrollable.maybeOf(context)?.position;
@@ -72,15 +85,40 @@ class _KasUnitIsiState extends State<KasUnitIsi> {
     _unit = null;
   });
 
-  void _simpan() {
+  Future<void> _simpan() async {
     final n = _nama.text.trim();
-    final t = '$n dikelola oleh $_unit, berlaku mulai Desember 2026.';
     final unit = _unit!;
-    _ke('daftar', () {
-      _k.add((n, unit));
-      _pesan = t;
-      _riw.insert(0, '16/11/2026 · $t Oleh Meiske Lumentut, Bendahara Jemaat.');
-    });
+    final mulai = ref.read(pengaturanProvider).bulanBerlaku.first;
+    final r = await jalankanPengaturan(
+      ref,
+      (a, k) => ref
+          .read(accountRepositoryProvider)
+          .add(
+            a,
+            AccountDraft(
+              name: n,
+              shortName: n,
+              type: n.toLowerCase().startsWith('bank')
+                  ? AccountType.bank
+                  : AccountType.cash,
+              operatedByScopeId: unit,
+            ),
+            mulai,
+            idempotencyKey: k,
+          ),
+    );
+    if (!mounted) return;
+    if (r != null) {
+      setState(() => _tolak = r);
+      return;
+    }
+    final namaUnit = ref.read(orgRepositoryProvider).scope(unit)?.name ?? '';
+    _ke(
+      'daftar',
+      () => _pesan =
+          '$n dikelola oleh $namaUnit, berlaku mulai '
+          '${bulanDari(mulai)}.',
+    );
   }
 
   @override
@@ -100,33 +138,62 @@ class _KasUnitIsiState extends State<KasUnitIsi> {
     );
   }
 
-  List<Widget> _daftar(PalakatWarna c) => [
-    if (_pesan.isNotEmpty) Pesan(Text(_pesan)),
-    for (final (j, s) in _tetap) _kartu(c, j, s, 'Aktif', BentukLencana.laut),
-    for (final (j, u) in _k)
-      _kartu(
-        c,
-        j,
-        'Dikelola oleh $u',
-        'Berlaku mulai Desember 2026',
-        BentukLencana.draf,
+  List<Widget> _daftar(PalakatWarna c) {
+    final p = ref.watch(pengaturanProvider);
+    // A unit's Kas/Bank: added for a unit, or handed to one.
+    final riwayat = [
+      for (final r in p.riwayat)
+        if ((r.action == 'finance.account.add' && r.after != null) ||
+            r.action == 'finance.account.assign_unit')
+          '${tgl(r.at)} · ${r.summary}. Oleh ${r.actorLine}.',
+    ];
+    return [
+      if (_pesan.isNotEmpty) Pesan(Text(_pesan)),
+      for (final k in p.kas)
+        if (!k.mati)
+          if (k.akun.activeFrom > p.hariIni)
+            _kartu(
+              c,
+              k.akun.name,
+              k.akun.operatedByScopeId == null
+                  ? 'Dikelola Jemaat'
+                  : 'Dikelola oleh ${k.unit ?? ''}',
+              'Berlaku mulai ${bulanDari(k.akun.activeFrom)}',
+              BentukLencana.draf,
+            )
+          else
+            _kartu(
+              c,
+              k.akun.name,
+              [
+                if (k.akun.operatedByScopeId == null)
+                  'Dikelola Jemaat'
+                else ...[
+                  'Dikelola oleh ${k.unit ?? ''}',
+                  if (_bendahara(k.akun.operatedByScopeId!) case final b?)
+                    'Bendahara: $b',
+                ],
+              ].join(' · '),
+              'Aktif',
+              BentukLencana.laut,
+            ),
+      BarisTombol(
+        anak: [
+          Tombol(
+            'Tambah Kas/Bank unit',
+            jenis: JenisTombol.tinta,
+            onPressed: _keTambah,
+          ),
+        ],
       ),
-    BarisTombol(
-      anak: [
-        Tombol(
-          'Tambah Kas/Bank unit',
-          jenis: JenisTombol.tinta,
-          onPressed: _keTambah,
-        ),
-      ],
-    ),
-    Text(
-      'Bendahara unit membukukan hanya pada Kas/Bank yang dikelola unitnya. '
-      'Kas/Bank lain tetap pada Bendahara Jemaat.',
-      style: TextStyle(fontSize: 13, color: c.tinta3),
-    ),
-    if (_riw.isNotEmpty) RiwayatAlur(baris: List.of(_riw)),
-  ];
+      Text(
+        'Bendahara unit membukukan hanya pada Kas/Bank yang dikelola unitnya. '
+        'Kas/Bank lain tetap pada Bendahara Jemaat.',
+        style: TextStyle(fontSize: 13, color: c.tinta3),
+      ),
+      if (riwayat.isNotEmpty) RiwayatAlur(baris: riwayat),
+    ];
+  }
 
   Widget _kartu(
     PalakatWarna c,
@@ -139,9 +206,17 @@ class _KasUnitIsiState extends State<KasUnitIsi> {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        KepalaKartu(
-          judul: j,
-          ujung: LencanaStatus(l, bentuk: b),
+        // KepalaKartu's row, wrapping: a long draf badge ("Berlaku mulai
+        // {bulan}") moves under the name instead of overflowing.
+        Wrap(
+          alignment: WrapAlignment.spaceBetween,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 16,
+          runSpacing: 6,
+          children: [
+            Text(j, style: const TextStyle(fontWeight: FontWeight.w700)),
+            LencanaStatus(l, bentuk: b),
+          ],
         ),
         const SizedBox(height: 6),
         Text(s, style: TextStyle(fontSize: 13, color: c.tinta3)),
@@ -151,12 +226,21 @@ class _KasUnitIsiState extends State<KasUnitIsi> {
 
   List<Widget> _tambah(PalakatWarna c) {
     final alasan = _alasan();
+    final p = ref.watch(pengaturanProvider);
+    final unit = [
+      for (final s in ref.watch(orgRepositoryProvider).scopes())
+        if (s.active &&
+            (s.type == ScopeType.panitia ||
+                s.type == ScopeType.komisi ||
+                s.type == ScopeType.kolom))
+          s,
+    ];
     final kiri = [
       _TanpaJarakHuruf(
         child: IsianAlur(
           label: 'Nama Kas/Bank',
           controller: _nama,
-          petunjuk: 'Contoh: Kas Panitia Natal 2026',
+          petunjuk: 'Contoh: Kas Panitia Natal',
           onChanged: (_) => setState(() {}),
         ),
       ),
@@ -164,21 +248,28 @@ class _KasUnitIsiState extends State<KasUnitIsi> {
         label: 'Dikelola oleh',
         jarakLabel: 6,
         jarakBawah: 0,
-        pilihan: [for (final u in _semuaUnit) (nilai: u, teks: u)],
+        pilihan: [for (final u in unit) (nilai: u.id, teks: u.name)],
         terpilih: _unit,
         onPilih: (u) => setState(() {
           _unit = u;
           _pesan = '';
         }),
       ),
-      const BarisInfo('Berlaku mulai', 'Desember 2026'),
+      BarisInfo('Berlaku mulai', bulanDari(p.bulanBerlaku.first)),
       Text(
         'Perubahan pengaturan berlaku mulai bulan berikutnya.',
         style: TextStyle(fontSize: 13, color: c.tinta3),
       ),
     ];
     final kanan = [
-      if ((_nama.text.isNotEmpty || _unit != null) && alasan.isNotEmpty)
+      if (_tolak != null)
+        Penolakan(
+          tindakan: _tolak!.action,
+          sebab: _tolak!.because,
+          jalan: const [],
+          ukuranTeks: 14,
+        )
+      else if ((_nama.text.isNotEmpty || _unit != null) && alasan.isNotEmpty)
         Penolakan(
           tindakan: 'Simpan',
           sebab: alasan,

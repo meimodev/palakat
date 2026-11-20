@@ -1,6 +1,5 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../motion/kerangka.dart';
 import '../../shell/halaman_web.dart';
@@ -15,44 +14,41 @@ import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
 import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
+import '../../core/format.dart';
+import '../../domain/core/core.dart';
+import '../../providers/actor.dart';
+import '../../providers/core_repositories.dart';
+import '../../providers/keuangan/pengaturan.dart';
+import '../p2/akun_saya.dart';
 
-/// Web · Serah terima Bendahara (spec 10-aifoto.md, WebSerahTerima).
-class WebSerahTerimaScreen extends StatefulWidget {
+/// Web · Serah terima Bendahara (spec 10-aifoto.md, WebSerahTerima): the
+/// holder prepares the handover through RoleRepository.proposeHandover
+/// (DP39); the stages after it follow the post's real state.
+class WebSerahTerimaScreen extends ConsumerStatefulWidget {
   const WebSerahTerimaScreen({super.key});
 
   @override
-  State<WebSerahTerimaScreen> createState() => _WebSerahTerimaScreenState();
+  ConsumerState<WebSerahTerimaScreen> createState() =>
+      _WebSerahTerimaScreenState();
 }
 
-const _subSesi = {
-  'Ponsel ini': 'Sesi ini · aktif sekarang',
-  'Chrome di laptop': 'Terakhir dipakai 14/11/2026 20.15',
-};
-
-class _WebSerahTerimaScreenState extends State<WebSerahTerimaScreen> {
-  String _tahap = 'belum';
+class _WebSerahTerimaScreenState extends ConsumerState<WebSerahTerimaScreen> {
   static const _namaAwal = 'Yohanis Tumbelaka';
   String _nama = _namaAwal;
-  List<String> _sesi = const ['Ponsel ini', 'Chrome di laptop'];
   late final _isian = TextEditingController(text: _nama);
-  Timer? _t;
+  Refusal? _tolak;
 
   bool get _okNama => _nama.trim().isNotEmpty;
   String _alasan() => _okNama ? '' : 'Nama yang ditunjuk belum diisi.';
 
-  void _kirim() {
+  Future<void> _kirim() async {
     if (!_okNama) return;
-    setState(() => _tahap = 'tunggu');
-    _t?.cancel();
-    _t = Timer(const Duration(milliseconds: 2800), () {
-      if (mounted) setState(() => _tahap = 'aktif');
-    });
+    final r = await siapkanSerahTerima(ref, _nama);
+    if (mounted) setState(() => _tolak = r);
   }
 
   @override
   void dispose() {
-    _t?.cancel();
     _isian.dispose();
     super.dispose();
   }
@@ -60,9 +56,23 @@ class _WebSerahTerimaScreenState extends State<WebSerahTerimaScreen> {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final kosong =
-        belumDipindah<String>('Bendahara aktif') != 'Bendahara aktif';
-    final aktif = _tahap == 'aktif', tunggu = _tahap == 'tunggu';
+    final st = ref.watch(serahTerimaProvider);
+    final post = st.post;
+    final kosong = post != null && post.holder == null && post.pending == null;
+    final aktif = st.tahap == 'aktif',
+        diajukan = st.tahap == 'diajukan',
+        tunggu = st.tahap == 'tunggu' || diajukan;
+    final namaBaru = st.tahap == 'belum' ? _nama : st.namaBaru;
+    final dokumen = st.dokumenBaru ?? '';
+    final akhir = post?.lastHolder;
+    final orang = ref.watch(peopleRepositoryProvider);
+    final namaAkhir = orang.person(akhir?.personId ?? '')?.name ?? '';
+    final jemaat = ref.watch(workspaceRepositoryProvider).workspace().name;
+    final pegang = aktif ? st.baru : post?.holder;
+    final saya = ref.watch(actorProvider);
+    final perangkat = saya == null || pegang?.personId != saya.personId
+        ? const <Device>[]
+        : ref.watch(sessionRepositoryProvider).devices(saya.personId);
     const tebal = TextStyle(fontWeight: FontWeight.w700);
 
     final judul = Column(
@@ -116,11 +126,12 @@ class _WebSerahTerimaScreenState extends State<WebSerahTerimaScreen> {
             Text.rich(
               TextSpan(
                 text:
-                    'Wewenang Meiske Lumentut dicabut pada 16/11/2026 08.10 '
-                    'oleh Petugas verifikasi. Semua data hanya dapat dilihat. ',
+                    'Wewenang $namaAkhir berakhir pada '
+                    '${akhir?.endedAt == null ? akhir?.end ?? '' : tglJam(akhir!.endedAt!)}. '
+                    'Semua data hanya dapat dilihat. ',
                 children: [
                   TextSpan(
-                    text: 'Yang perlu bertindak: BPMJ Jemaat Karunia.',
+                    text: 'Yang perlu bertindak: BPMJ $jemaat.',
                     style: tebal.copyWith(color: c.permukaan),
                   ),
                 ],
@@ -174,7 +185,7 @@ class _WebSerahTerimaScreenState extends State<WebSerahTerimaScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _JudulLencana(
-            judul: 'Meiske Lumentut',
+            judul: st.namaLama,
             lencana: aktif
                 ? _Lencana(
                     'Wewenang berakhir',
@@ -191,7 +202,7 @@ class _WebSerahTerimaScreenState extends State<WebSerahTerimaScreen> {
           ),
           Text(
             aktif
-                ? 'Berakhir 16/11/2026 · semua sesi diakhiri'
+                ? 'Berakhir ${st.lama?.end ?? ''} · semua sesi diakhiri'
                 : 'Tetap aktif sampai Bendahara baru diverifikasi',
             style: TextStyle(fontSize: 13, color: c.tinta3),
           ),
@@ -220,13 +231,17 @@ class _WebSerahTerimaScreenState extends State<WebSerahTerimaScreen> {
                     garis: GarisBorder.penuh(c.laut, radius: 6),
                   )
                 : _Lencana(
-                    tunggu ? 'Menunggu verifikasi wewenang' : 'Belum dikirim',
+                    diajukan
+                        ? 'Menunggu dicatat'
+                        : tunggu
+                        ? 'Menunggu verifikasi wewenang'
+                        : 'Belum dikirim',
                     teks: c.tinta2,
                     garis: GarisBorder.putus(c.putus, radius: 6),
                   ),
           ),
           const SizedBox(height: 10),
-          if (_tahap == 'belum') ...[
+          if (st.tahap == 'belum') ...[
             IsianTeks(
               controller: _isian,
               label: 'Nama yang ditunjuk',
@@ -239,7 +254,7 @@ class _WebSerahTerimaScreenState extends State<WebSerahTerimaScreen> {
                 text: 'Surat penunjukan baru: ',
                 children: [
                   TextSpan(
-                    text: 'SK-BPMJ-09-2026.pdf · Terlampir',
+                    text: '$dokumen.pdf · Terlampir',
                     style: tebal.copyWith(color: c.tinta),
                   ),
                 ],
@@ -249,10 +264,10 @@ class _WebSerahTerimaScreenState extends State<WebSerahTerimaScreen> {
             const SizedBox(height: 10),
             // Rule A02: the sentence the board lacks, once the name is
             // edited; drawn here so the hugged button keeps its width.
-            if (_nama != _namaAwal && !_okNama) ...[
+            if (_tolak != null || (_nama != _namaAwal && !_okNama)) ...[
               Penolakan(
-                tindakan: 'Kirim untuk diverifikasi',
-                sebab: _alasan(),
+                tindakan: _tolak?.action ?? 'Kirim untuk diverifikasi',
+                sebab: _tolak?.because ?? _alasan(),
                 jalan: const [],
                 ukuranTeks: 14,
               ),
@@ -284,11 +299,13 @@ class _WebSerahTerimaScreenState extends State<WebSerahTerimaScreen> {
               child: Text.rich(
                 TextSpan(
                   children: [
-                    TextSpan(text: _nama, style: tebal),
-                    const TextSpan(
-                      text:
-                          ' · menunggu Petugas verifikasi memeriksa surat '
-                          'penunjukan.',
+                    TextSpan(text: namaBaru, style: tebal),
+                    TextSpan(
+                      text: diajukan
+                          ? ' · menunggu Pimpinan Jemaat yang berwenang '
+                                'mencatat penunjukan.'
+                          : ' · menunggu Petugas verifikasi memeriksa surat '
+                                'penunjukan.',
                     ),
                   ],
                 ),
@@ -306,9 +323,11 @@ class _WebSerahTerimaScreenState extends State<WebSerahTerimaScreen> {
                 child: Text.rich(
                   TextSpan(
                     children: [
-                      TextSpan(text: _nama, style: tebal),
-                      const TextSpan(
-                        text: ' · aktif sejak 16/11/2026 · SK-BPMJ-09-2026',
+                      TextSpan(text: namaBaru, style: tebal),
+                      TextSpan(
+                        text:
+                            ' · aktif sejak ${st.baru?.start ?? ''} · '
+                            '$dokumen',
                       ),
                     ],
                   ),
@@ -345,16 +364,16 @@ class _WebSerahTerimaScreenState extends State<WebSerahTerimaScreen> {
       color: c.tinta,
     );
     final sesi = aktif
-        ? const [
+        ? [
             (
               n: 'Belum ada sesi',
-              s: 'Semua sesi Meiske Lumentut diakhiri 16/11/2026',
-              bisa: false,
+              s: 'Semua sesi ${st.namaLama} diakhiri ${st.lama?.end ?? ''}',
+              d: null as Device?,
             ),
           ]
         : [
-            for (final n in _sesi)
-              (n: n, s: _subSesi[n]!, bisa: n != 'Ponsel ini'),
+            (n: 'Browser ini', s: 'Sesi ini · aktif sekarang', d: null),
+            for (final d in perangkat) (n: d.name, s: barisPerangkat(d), d: d),
           ];
 
     final aturan = Column(
@@ -383,7 +402,7 @@ class _WebSerahTerimaScreenState extends State<WebSerahTerimaScreen> {
         ),
         const SizedBox(height: 16),
         Text(
-          'Sesi yang sedang masuk · ${aktif ? _nama : 'Meiske Lumentut'}',
+          'Sesi yang sedang masuk · ${aktif ? st.namaBaru : st.namaLama}',
           style: judulSedang,
         ),
         const SizedBox(height: 8),
@@ -423,15 +442,13 @@ class _WebSerahTerimaScreenState extends State<WebSerahTerimaScreen> {
                           ],
                         ),
                       ),
-                      if (x.bisa) ...[
+                      if (x.d case final d?) ...[
                         const SizedBox(width: 12),
                         Tekan(
-                          onTap: () => setState(
-                            () => _sesi = [
-                              for (final s in _sesi)
-                                if (s != x.n) s,
-                            ],
-                          ),
+                          onTap: () async {
+                            final r = await keluarkanPerangkat(ref, d);
+                            if (mounted) setState(() => _tolak = r);
+                          },
                           radius: 10,
                           child: RupaTombol(
                             label: 'Akhiri sesi',

@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../mock/keuangan.dart';
-import '../../mock/model.dart';
+import '../../core/format.dart';
+import '../../domain/core/core.dart';
+import '../../domain/finance/finance.dart';
+import '../../providers/core_repositories.dart';
+import '../../providers/keuangan/pengaturan.dart';
+import '../../providers/repositories_keuangan.dart';
+import '../../widgets/penolakan.dart';
 import '../../motion/kerangka.dart';
 import '../../motion/urutan.dart';
 import '../../shell/kepala_ponsel.dart';
@@ -19,49 +25,107 @@ import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import '../../app/layar.dart';
 
-// ---------- Board state (MataAnggaran.dc.html logic class) ----------
+// ---------- Board state: the open tab, the sheet, a refusal ----------
 
-enum _St { draf, periksa, terbit }
-
-const _tabs = ['Belanja', 'Pendapatan'];
-const _bolehAwal = {
-  '5.01.02.00': 'Milik sendiri',
-  '5.03.03.00': 'Milik sendiri',
-  '5.06.01.00': '',
-  '4.03.03.00': 'Milik sendiri',
-  '1.3.53.07.00': 'Milik sendiri',
-  '1.3.53.09.00': 'Milik sendiri',
-  '2.1.01.02.00': 'Titipan',
-  '1.4.10.02.00': 'Keduanya',
-};
+const _tabs = [
+  (MasterKind.belanja, 'Belanja'),
+  (MasterKind.pendapatan, 'Pendapatan'),
+];
 
 class _Keadaan extends ChangeNotifier {
-  _St st = _St.draf;
-  String tab = 'Belanja';
+  MasterKind tab = MasterKind.belanja;
   bool sheet = false;
-  final Map<String, String> boleh = {..._bolehAwal};
-
-  void ulang() {
-    st = _St.draf;
-    tab = 'Belanja';
-    sheet = false;
-    boleh
-      ..clear()
-      ..addAll(_bolehAwal);
-    notifyListeners();
-  }
+  Refusal? tolak;
 
   void ubah(VoidCallback f) {
     f();
     notifyListeners();
   }
+}
 
-  void pick(String kode, String o) {
-    if (st == _St.terbit) return;
-    boleh[kode] = boleh[kode] == o ? '' : o;
-    st = _St.draf;
-    notifyListeners();
+/// Runs [perintah] on every tree of the proposed release that [perlu]
+/// selects; the first refusal stops it.
+Future<Refusal?> perintahRilis(
+  WidgetRef ref,
+  bool Function(MasterVersion v) perlu,
+  Future<Result<MasterVersion>> Function(Actor a, MasterVersion v, String kunci)
+  perintah,
+) async {
+  final usulan = ref.read(versiMataAnggaranProvider).usulan;
+  for (final v in usulan?.versi.values ?? const <MasterVersion>[]) {
+    if (!perlu(v)) continue;
+    final r = await jalankanPengaturan(ref, (a, k) => perintah(a, v, k));
+    if (r != null) return r;
   }
+  return null;
+}
+
+/// "Tandai sudah diperiksa" on both trees.
+Future<Refusal?> periksaRilis(WidgetRef ref) => perintahRilis(
+  ref,
+  (v) => v.status == MasterVersionStatus.draft,
+  (a, v, k) => ref
+      .read(masterRepositoryProvider)
+      .review(a, v.id, expectedRevision: v.revision, idempotencyKey: k),
+);
+
+/// "Terbitkan" both trees from their proposed month.
+Future<Refusal?> terbitkanRilis(WidgetRef ref) => perintahRilis(
+  ref,
+  (v) => v.status == MasterVersionStatus.reviewed,
+  (a, v, k) => ref
+      .read(masterRepositoryProvider)
+      .publish(
+        a,
+        v.id,
+        v.effectiveFrom!,
+        expectedRevision: v.revision,
+        idempotencyKey: k,
+      ),
+);
+
+/// A "Boleh untuk" chip: the same choice again clears it.
+Future<Refusal?> pilihBoleh(
+  WidgetRef ref,
+  MasterKind kind,
+  MasterRow r,
+  AllowedEffect e,
+) {
+  final v = ref.read(versiMataAnggaranProvider).usulan?.versi[kind];
+  if (v == null) return Future.value(null);
+  return jalankanPengaturan(
+    ref,
+    (a, k) => ref
+        .read(masterRepositoryProvider)
+        .setAllowedEffect(
+          a,
+          v.id,
+          r.code,
+          r.allowedEffect == e ? AllowedEffect.unset : e,
+          expectedRevision: v.revision,
+          idempotencyKey: k,
+        ),
+  );
+}
+
+/// "Berlaku mulai {bulan} · diterbitkan oleh {nama}, dd/mm/yyyy" or
+/// "Belum berlaku · usulan berlaku mulai {bulan}".
+String teksUsulan(WidgetRef ref, RilisMataAnggaran r) {
+  final mulai = bulanDari(r.berlaku!);
+  if (!r.terbit) return 'Belum berlaku · usulan berlaku mulai $mulai';
+  final v = r.versi.values.first;
+  final nama = ref.read(peopleRepositoryProvider).person(v.publishedBy ?? '');
+  return 'Berlaku mulai $mulai · diterbitkan oleh ${nama?.name ?? ''}, '
+      '${tgl(v.publishedAt!)}';
+}
+
+/// "Pendapatan {n} baris · Belanja {n} baris".
+String teksJumlahBaris(WidgetRef ref, RilisMataAnggaran r) {
+  final m = ref.read(masterRepositoryProvider);
+  return [
+    for (final (k, nama) in _tabs.reversed)
+      if (r.versi[k] case final v?) '$nama ${m.rows(v.id).length} baris',
+  ].join(' · ');
 }
 
 class _Lingkup extends InheritedNotifier<_Keadaan> {
@@ -119,27 +183,27 @@ class MataAnggaranScreen extends StatelessWidget {
   );
 }
 
-/// The 2026.2 status badge (header and card).
-Widget _lencana(_St st) => switch (st) {
-  _St.draf => LencanaStatus.uang(StatusUang.draf),
-  _St.periksa => LencanaStatus.uang(StatusUang.sudahDiperiksa),
-  _St.terbit => const LencanaStatus('Diterbitkan', bentuk: BentukLencana.tinta),
+/// The proposed version's status badge (header and card).
+Widget _lencana(MasterVersionStatus st) => switch (st) {
+  MasterVersionStatus.draft => LencanaStatus.uang(StatusUang.draf),
+  MasterVersionStatus.reviewed => LencanaStatus.uang(StatusUang.sudahDiperiksa),
+  MasterVersionStatus.published => const LencanaStatus(
+    'Diterbitkan',
+    bentuk: BentukLencana.tinta,
+  ),
 };
 
 // ---------- Versi ----------
 
-class _Versi extends StatelessWidget {
+class _Versi extends ConsumerWidget {
   const _Versi();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
-    final k = _Lingkup.of(context);
-    final terbit = k.st == _St.terbit;
+    final v = ref.watch(versiMataAnggaranProvider);
+    final usulan = v.usulan, kini = v.kini;
     const judul = TextStyle(fontSize: 18, fontWeight: FontWeight.w700);
-    final v2Teks = terbit
-        ? teksVersiUsulanDiterbitkan
-        : 'Belum berlaku · $berlakuVersiUsulan';
 
     // The whole view fades in (`pudar` on the board's view container).
     return Gerak(
@@ -165,89 +229,99 @@ class _Versi extends StatelessWidget {
                     'menjadi versi baru yang berlaku mulai bulan berikutnya.',
                     style: TextStyle(fontSize: 14, color: c.tinta2),
                   ),
-                  Tekan(
-                    onTap: () =>
-                        context.dorongKe(Layar.mataAnggaran, anak: 'rinci'),
-                    radius: 16,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: Stack(
-                        children: [
-                          Kartu(
-                            status: k.st == _St.draf
-                                ? GarisStatus.draf
-                                : GarisStatus.terpilih,
-                            radius: 16,
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              spacing: 4,
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  spacing: 8,
-                                  children: [
-                                    const Flexible(
-                                      child: Text('Versi 2026.2', style: judul),
+                  if (usulan != null)
+                    Tekan(
+                      onTap: () =>
+                          context.dorongKe(Layar.mataAnggaran, anak: 'rinci'),
+                      radius: 16,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: Stack(
+                          children: [
+                            Kartu(
+                              status: usulan.status == MasterVersionStatus.draft
+                                  ? GarisStatus.draf
+                                  : GarisStatus.terpilih,
+                              radius: 16,
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                spacing: 4,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    spacing: 8,
+                                    children: [
+                                      Flexible(
+                                        child: Text(
+                                          'Versi ${usulan.kode}',
+                                          style: judul,
+                                        ),
+                                      ),
+                                      _lencana(usulan.status),
+                                    ],
+                                  ),
+                                  Text(
+                                    teksUsulan(ref, usulan),
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: c.tinta2,
                                     ),
-                                    _lencana(k.st),
-                                  ],
-                                ),
-                                Text(
-                                  v2Teks,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: c.tinta2,
                                   ),
-                                ),
-                                Text(
-                                  teksBedaVersiUsulan,
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: c.tinta3,
+                                  Text(
+                                    bedaUsulan(
+                                      ref.watch(masterRepositoryProvider),
+                                      v,
+                                    ),
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: c.tinta3,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
+                            if (usulan.terbit) const SapuTinta(),
+                          ],
+                        ),
+                      ),
+                    ),
+                  if (kini != null)
+                    Kartu(
+                      status: GarisStatus.terpilih,
+                      radius: 16,
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        spacing: 4,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            spacing: 8,
+                            children: [
+                              Flexible(
+                                child: Text('Versi ${kini.kode}', style: judul),
+                              ),
+                              const LencanaStatus(
+                                'Diterbitkan',
+                                bentuk: BentukLencana.tinta,
+                                kepala: true,
+                              ),
+                            ],
                           ),
-                          if (terbit) const SapuTinta(),
+                          Text(
+                            'Berlaku mulai ${bulanDari(kini.berlaku!)} · '
+                            '${usulan?.terbit ?? false ? 'dipakai sampai ${bulanDari(usulan!.berlaku!.tambahHari(-1))}' : 'versi yang sedang dipakai'}',
+                            style: TextStyle(fontSize: 14, color: c.tinta2),
+                          ),
+                          Text(
+                            teksJumlahBaris(ref, kini),
+                            style: TextStyle(fontSize: 13, color: c.tinta3),
+                          ),
                         ],
                       ),
                     ),
-                  ),
-                  Kartu(
-                    status: GarisStatus.terpilih,
-                    radius: 16,
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      spacing: 4,
-                      children: [
-                        const Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          spacing: 8,
-                          children: [
-                            Flexible(child: Text('Versi 2026.1', style: judul)),
-                            LencanaStatus(
-                              'Diterbitkan',
-                              bentuk: BentukLencana.tinta,
-                              kepala: true,
-                            ),
-                          ],
-                        ),
-                        Text(
-                          'Berlaku mulai September 2026 · '
-                          '${terbit ? 'dipakai sampai November 2026' : 'versi yang sedang dipakai'}',
-                          style: TextStyle(fontSize: 14, color: c.tinta2),
-                        ),
-                        Text(
-                          teksBarisVersiSekarang,
-                          style: TextStyle(fontSize: 13, color: c.tinta3),
-                        ),
-                      ],
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -260,10 +334,10 @@ class _Versi extends StatelessWidget {
 
 // ---------- Rinci ----------
 
-class _Rinci extends StatelessWidget {
+class _Rinci extends ConsumerWidget {
   const _Rinci();
 
-  /// `keVersi`: pop to `/MataAnggaran` (closes the sheet too).
+  /// `keVersi`: pop to `/mata-anggaran` (closes the sheet too).
   static void _keVersi(BuildContext context) {
     final k = _Lingkup.baca(context);
     k.ubah(() => k.sheet = false);
@@ -271,23 +345,39 @@ class _Rinci extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
     final k = _Lingkup.of(context);
-    final terbit = k.st == _St.terbit;
-    final rows = k.tab == 'Belanja' ? maUsulanBelanja : maUsulanPendapatan;
-    final kosongN = k.boleh.values.where((v) => v.isEmpty).length;
+    final v = ref.watch(versiMataAnggaranProvider);
+    final usulan = v.usulan;
+    if (usulan == null) return const SizedBox.shrink();
+    final st = usulan.status;
+    final terbit = usulan.terbit;
+    final master = ref.watch(masterRepositoryProvider);
+    final rows = barisUsulan(master, v, k.tab);
+    final kosongN =
+        [for (final t in MasterKind.values) ...barisUsulan(master, v, t)]
+            .where(
+              (b) =>
+                  b.baris.postable &&
+                  b.baris.allowedEffect == AllowedEffect.unset,
+            )
+            .length;
     final kakiTeks = terbit
         ? 'Diterbitkan. Versi ini tidak dapat diubah lagi.'
-        : k.st == _St.periksa
+        : st == MasterVersionStatus.reviewed
         ? 'Sudah diperiksa. Mengubah isi mengembalikan versi ini ke Draf.'
         : kosongN > 0
         ? '$kosongN baris belum punya “Boleh untuk”. Boleh dibiarkan kosong; '
               'baris itu tidak dapat menerima titipan.'
-        : 'Semua baris contoh sudah punya “Boleh untuk”.';
+        : 'Semua baris sudah punya “Boleh untuk”.';
     final garisAtas = BoxDecoration(
       border: Border(top: BorderSide(color: c.garis)),
     );
+    Future<void> lakukan(Future<Refusal?> f) async {
+      final r = await f;
+      k.ubah(() => k.tolak = r);
+    }
 
     return PopScope(
       // An open sheet takes system Back first (navigation.md 5.1).
@@ -299,18 +389,18 @@ class _Rinci extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           KepalaPonsel(
-            judul: 'Versi 2026.2',
+            judul: 'Versi ${usulan.kode}',
             onKembali: () => _keVersi(context),
-            ujung: _lencana(k.st),
+            ujung: _lencana(st),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
             child: Wrap(
               spacing: 8,
               children: [
-                for (final t in _tabs)
+                for (final (t, nama) in _tabs)
                   ChipSatu(
-                    teks: t,
+                    teks: nama,
                     dipilih: k.tab == t,
                     padding: 16,
                     onTap: () => k.ubah(() => k.tab = t),
@@ -328,13 +418,19 @@ class _Rinci extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: garisAtas,
-                      child: _baris(context, k, r, terbit),
+                      child: _baris(
+                        context,
+                        k,
+                        r,
+                        terbit,
+                        (e) => lakukan(pilihBoleh(ref, k.tab, r.baris, e)),
+                      ),
                     ),
                   Container(
                     padding: const EdgeInsets.only(top: 12),
                     decoration: garisAtas,
                     child: Text(
-                      'Contoh 5 dari ${k.tab == 'Belanja' ? 158 : 131} baris. '
+                      '${rows.length} baris. '
                       '“Boleh untuk” diisi atas keputusan Pimpinan Jemaat yang '
                       'berwenang. Baris yang dibiarkan kosong tidak dapat '
                       'menerima titipan.',
@@ -355,14 +451,20 @@ class _Rinci extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               spacing: 8,
               children: [
+                if (k.tolak != null)
+                  Penolakan(
+                    tindakan: k.tolak!.action,
+                    sebab: k.tolak!.because,
+                    jalan: const [],
+                  ),
                 Text(kakiTeks, style: TextStyle(fontSize: 14, color: c.tinta2)),
-                if (k.st == _St.draf)
+                if (st == MasterVersionStatus.draft)
                   Tombol(
                     'Tandai sudah diperiksa',
                     jenis: JenisTombol.kedua,
-                    onPressed: () => k.ubah(() => k.st = _St.periksa),
+                    onPressed: () => lakukan(periksaRilis(ref)),
                   ),
-                if (k.st == _St.periksa)
+                if (st == MasterVersionStatus.reviewed)
                   Gerak(
                     Kerangka.muncul,
                     lama: const Duration(milliseconds: 300),
@@ -379,10 +481,18 @@ class _Rinci extends StatelessWidget {
     );
   }
 
-  Widget _baris(BuildContext context, _Keadaan k, MataAnggaran r, bool kunci) {
+  Widget _baris(
+    BuildContext context,
+    _Keadaan k,
+    BarisUsulan b,
+    bool kunci,
+    ValueChanged<AllowedEffect> pilih,
+  ) {
     final c = context.warna;
-    final grup = r.judulKelompok;
-    final cur = k.boleh[r.kode] ?? '';
+    final r = b.baris;
+    final grup = !r.postable;
+    final cur = labelBoleh(r.allowedEffect);
+    final nama = _tabs.firstWhere((t) => t.$1 == k.tab).$2;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -393,7 +503,7 @@ class _Rinci extends StatelessWidget {
           children: [
             Flexible(
               child: Text(
-                '${k.tab} ${r.kode}',
+                '$nama ${r.code}',
                 style: TextStyle(
                   fontFamily: PalakatText.mono,
                   fontSize: 13,
@@ -401,14 +511,14 @@ class _Rinci extends StatelessWidget {
                 ),
               ),
             ),
-            if (r.tanda != null)
+            if (b.tanda != null)
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 1),
                 decoration: ShapeDecoration(
                   shape: GarisBorder.penuh(c.laut, radius: 6),
                 ),
                 child: Text(
-                  r.tanda!,
+                  b.tanda!,
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -419,7 +529,7 @@ class _Rinci extends StatelessWidget {
           ],
         ),
         Text(
-          r.nama,
+          r.name,
           style: TextStyle(
             fontSize: 15,
             fontWeight: grup ? FontWeight.w700 : FontWeight.w600,
@@ -456,12 +566,12 @@ class _Rinci extends StatelessWidget {
                 Wrap(
                   spacing: 6,
                   children: [
-                    for (final o in BolehUntuk.values)
-                      if (o != BolehUntuk.kosong)
+                    for (final o in AllowedEffect.values)
+                      if (o != AllowedEffect.unset)
                         _ChipBoleh(
-                          teks: o.label,
-                          dipilih: cur == o.label,
-                          onTap: kunci ? null : () => k.pick(r.kode, o.label),
+                          teks: labelBoleh(o),
+                          dipilih: r.allowedEffect == o,
+                          onTap: kunci ? null : () => pilih(o),
                         ),
                   ],
                 ),
@@ -522,18 +632,23 @@ class _ChipBoleh extends StatelessWidget {
 
 // ---------- Terbitkan sheet ----------
 
-class _LembarTerbit extends StatelessWidget {
+class _LembarTerbit extends ConsumerWidget {
   const _LembarTerbit({required this.k});
   final _Keadaan k;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
+    final v = ref.watch(versiMataAnggaranProvider);
+    final usulan = v.usulan;
+    if (usulan == null) return const SizedBox.shrink();
+    final mulai = bulanDari(usulan.berlaku!);
+    final sampai = bulanDari(usulan.berlaku!.tambahHari(-1));
     void tutup() => k.ubah(() => k.sheet = false);
     return LembarBawah(
-      judul: 'Terbitkan versi 2026.2?',
+      judul: 'Terbitkan versi ${usulan.kode}?',
       ukuranJudul: 20,
-      labelTirai: 'Kembali ke versi 2026.2',
+      labelTirai: 'Kembali ke versi ${usulan.kode}',
       onTutup: tutup,
       isi: [
         Kartu(
@@ -559,13 +674,13 @@ class _LembarTerbit extends StatelessWidget {
           TextSpan(
             children: [
               TextSpan(
-                text: 'Berlaku mulai Desember 2026.',
+                text: 'Berlaku mulai $mulai.',
                 style: TextStyle(fontWeight: FontWeight.w700, color: c.tinta),
               ),
-              const TextSpan(
+              TextSpan(
                 text:
-                    ' Transaksi sampai November 2026 tetap memakai versi '
-                    '2026.1 dan tidak berubah.',
+                    ' Transaksi sampai $sampai tetap memakai versi '
+                    '${v.kini?.kode ?? ''} dan tidak berubah.',
               ),
             ],
           ),
@@ -573,13 +688,16 @@ class _LembarTerbit extends StatelessWidget {
         ),
         Builder(
           builder: (ctx) => Tombol(
-            'Terbitkan, berlaku mulai Desember 2026',
-            onPressed: () {
+            'Terbitkan, berlaku mulai $mulai',
+            onPressed: () async {
+              final router = GoRouter.of(ctx);
+              final r = await terbitkanRilis(ref);
               k.ubah(() {
-                k.st = _St.terbit;
+                k.tolak = r;
                 k.sheet = false;
               });
-              _keRoot(ctx);
+              // `terbitkan` also switches the board to the Versi view.
+              if (r == null) kembaliKeDengan(router, Layar.mataAnggaran.jalur);
             },
           ),
         ),
@@ -591,11 +709,5 @@ class _LembarTerbit extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  /// `terbitkan` also switches the board to the Versi view.
-  static void _keRoot(BuildContext context) {
-    final router = GoRouter.of(context);
-    kembaliKeDengan(router, Layar.mataAnggaran.jalur);
   }
 }

@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
+import '../../providers/keuangan/pengaturan.dart';
 import 'awal_isian_isi.dart';
 import '../../app/layar.dart';
 
 /// 24 · Pengaturan awal: identitas dan daftar (phone).
-class AwalIsianScreen extends StatefulWidget {
+class AwalIsianScreen extends ConsumerStatefulWidget {
   const AwalIsianScreen({super.key});
 
   @override
-  State<AwalIsianScreen> createState() => _AwalIsianScreenState();
+  ConsumerState<AwalIsianScreen> createState() => _AwalIsianScreenState();
 }
 
-class _AwalIsianScreenState extends State<AwalIsianScreen> {
-  final _k = KeadaanAwalIsian();
+class _AwalIsianScreenState extends ConsumerState<AwalIsianScreen> {
+  late final _k = KeadaanAwalIsian(ref.read(awalProvider));
 
   @override
   void dispose() {

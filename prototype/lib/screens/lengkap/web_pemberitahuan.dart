@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
@@ -7,14 +8,15 @@ import 'pemberitahuan.dart';
 
 /// Web · Pemberitahuan: the phone board's list and switches in two columns
 /// under the finance side nav (Beranda active).
-class WebPemberitahuanScreen extends StatefulWidget {
+class WebPemberitahuanScreen extends ConsumerStatefulWidget {
   const WebPemberitahuanScreen({super.key});
 
   @override
-  State<WebPemberitahuanScreen> createState() => _WebPemberitahuanScreenState();
+  ConsumerState<WebPemberitahuanScreen> createState() =>
+      _WebPemberitahuanScreenState();
 }
 
-class _WebPemberitahuanScreenState extends State<WebPemberitahuanScreen>
+class _WebPemberitahuanScreenState extends ConsumerState<WebPemberitahuanScreen>
     with PemberitahuanLogika {
   @override
   Widget build(BuildContext context) => Material(

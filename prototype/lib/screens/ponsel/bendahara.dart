@@ -1,7 +1,7 @@
-import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../motion/kerangka.dart';
 import '../../motion/ulang.dart';
@@ -17,55 +17,31 @@ import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
 import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
+import '../../core/format.dart';
+import '../../domain/core/core.dart';
+import '../../providers/actor.dart';
+import '../../providers/core_repositories.dart';
+import '../../providers/keuangan/beranda.dart';
+import '../../providers/keuangan/pengaturan.dart';
+import '../../widgets/penolakan.dart';
+import '../p2/akun_saya.dart';
 
 const _namaAwal = 'Yohanis Tumbelaka';
-const _sesiAwal = ['Ponsel ini', 'Chrome di laptop'];
-const _subSesi = {
-  'Ponsel ini': 'Sesi ini · aktif sekarang',
-  'Chrome di laptop': 'Terakhir dipakai 14/11/2026 20.15',
-};
 const _isiNama = 'Isi nama yang ditunjuk.';
 
-/// The board's state object, held above its child routes (spec 04, Bendahara).
+/// The board's UI state, held above its child routes (spec 04, Bendahara):
+/// the typed successor and a refusal. The handover itself is
+/// RoleRepository's (DP39); the Petugas verifikasi timer is the
+/// repository's.
 class _Papan extends ChangeNotifier {
-  String tahap = 'belum', nama = _namaAwal;
-  List<String> sesi = [..._sesiAwal];
-  Timer? _t;
+  String nama = _namaAwal;
+  Refusal? tolak;
 
-  bool get aktif => tahap == 'aktif';
   bool get okNama => nama.trim().isNotEmpty;
 
   void ubah(VoidCallback f) {
     f();
     notifyListeners();
-  }
-
-  void kirim() {
-    if (!okNama) return;
-    tahap = 'tunggu';
-    _t?.cancel();
-    // Stands for the Petugas verifikasi checking the letter; runs on while
-    // the Utama view is shown.
-    _t = Timer(
-      const Duration(milliseconds: 2800),
-      () => ubah(() => tahap = 'aktif'),
-    );
-    notifyListeners();
-  }
-
-  void ulang() {
-    _t?.cancel();
-    tahap = 'belum';
-    nama = _namaAwal;
-    sesi = [..._sesiAwal];
-    notifyListeners();
-  }
-
-  @override
-  void dispose() {
-    _t?.cancel();
-    super.dispose();
   }
 }
 
@@ -100,15 +76,15 @@ class _BendaharaKendaliState extends State<BendaharaKendali> {
   );
 }
 
-class BendaharaScreen extends StatelessWidget {
+class BendaharaScreen extends ConsumerWidget {
   const BendaharaScreen({super.key, this.anak, this.param = const {}});
   final String? anak;
   final Map<String, String> param;
 
   @override
-  Widget build(BuildContext context) {
-    final kosong =
-        belumDipindah<String>('Bendahara aktif') != 'Bendahara aktif';
+  Widget build(BuildContext context, WidgetRef ref) {
+    final post = ref.watch(postBendaharaProvider);
+    final kosong = post != null && post.holder == null && post.pending == null;
     return ColoredBox(
       color: context.warna.kertas,
       // CSS splits a line's leading evenly above and below the glyphs.
@@ -210,12 +186,26 @@ class _Lencana extends StatelessWidget {
 
 // ---------------------------------------------------------------- Kosong
 
-class _Kosong extends StatelessWidget {
+class _Kosong extends ConsumerWidget {
   const _Kosong();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
+    final post = ref.watch(postBendaharaProvider);
+    final akhir = post?.lastHolder;
+    final nama =
+        ref
+            .watch(peopleRepositoryProvider)
+            .person(akhir?.personId ?? '')
+            ?.name ??
+        '';
+    final jemaat = ref.watch(workspaceRepositoryProvider).workspace().name;
+    final beranda = ref.watch(berandaKeuanganProvider);
+    final berikut = beranda.bulan.berikutDitutup;
+    final saldo = rp(beranda.saldoBuku);
+    final draf = '${beranda.drafJumlah} · belum masuk saldo';
+    final bulan = berikut == null ? '—' : namaBulan(berikut);
     Widget baris(String label, Widget nilai, double lebarNilai, bool garis) {
       const gayaLabel = TextStyle(fontSize: 14);
       return Container(
@@ -248,7 +238,10 @@ class _Kosong extends StatelessWidget {
           PitaPeran(
             jenis: JenisPita.kunci,
             judul: 'Belum ada Bendahara aktif',
-            kalimat: 'Wewenang Meiske Lumentut dicabut pada 16/11/2026 08.10 oleh Petugas verifikasi, atas permintaan BPMJ. Semua sesinya sudah diakhiri.',
+            kalimat:
+                'Wewenang $nama berakhir pada '
+                '${akhir?.endedAt == null ? akhir?.end ?? '' : tglJam(akhir!.endedAt!)}. '
+                'Semua sesinya sudah diakhiri.',
             radius: 16,
             padding: const EdgeInsets.all(18),
             ukuranJudul: 19,
@@ -258,7 +251,7 @@ class _Kosong extends StatelessWidget {
                 TextSpan(
                   children: [
                     TextSpan(
-                      text: 'Yang perlu bertindak: BPMJ Jemaat Karunia.',
+                      text: 'Yang perlu bertindak: BPMJ $jemaat.',
                       style: TextStyle(
                         fontWeight: FontWeight.w700,
                         color: c.permukaan,
@@ -328,20 +321,20 @@ class _Kosong extends StatelessWidget {
               children: [
                 baris(
                   'Saldo buku semua Kas/Bank',
-                  const Text('Rp38.415.000', style: gayaMono),
-                  _lebarTeks(context, 'Rp38.415.000', gayaMono),
+                  Text(saldo, style: gayaMono),
+                  _lebarTeks(context, saldo, gayaMono),
                   false,
                 ),
                 baris(
                   'Draf yang tertinggal',
-                  const Text('2 · belum masuk saldo', style: gayaNilai),
-                  _lebarTeks(context, '2 · belum masuk saldo', gayaNilai),
+                  Text(draf, style: gayaNilai),
+                  _lebarTeks(context, draf, gayaNilai),
                   true,
                 ),
                 baris(
                   'Bulan berikutnya untuk tutup buku',
-                  const Text('Oktober 2026', style: gayaNilai),
-                  _lebarTeks(context, 'Oktober 2026', gayaNilai),
+                  Text(bulan, style: gayaNilai),
+                  _lebarTeks(context, bulan, gayaNilai),
                   true,
                 ),
               ],
@@ -349,7 +342,7 @@ class _Kosong extends StatelessWidget {
           ),
           const SizedBox(height: 18),
           Text(
-            'Riwayat tetap mencatat Meiske Lumentut sebagai pelaku semua tindakannya. Bendahara baru tidak mewarisi persetujuan yang pernah dicatat.',
+            'Riwayat tetap mencatat $nama sebagai pelaku semua tindakannya. Bendahara baru tidak mewarisi persetujuan yang pernah dicatat.',
             style: TextStyle(fontSize: 13, color: c.tinta3),
           ),
         ],
@@ -360,28 +353,34 @@ class _Kosong extends StatelessWidget {
 
 // ----------------------------------------------------------------- Utama
 
-class _Utama extends StatelessWidget {
+class _Utama extends ConsumerWidget {
   const _Utama();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
     final p = _Lingkup.of(context);
-    final aktif = p.aktif;
-    final namaAktif = aktif ? p.nama : 'Meiske Lumentut';
+    final st = ref.watch(serahTerimaProvider);
+    final aktif = st.tahap == 'aktif';
+    final pegang = aktif ? st.baru : st.post?.holder;
+    final namaAktif = aktif ? st.namaBaru : st.namaLama;
     const gayaNama = TextStyle(fontSize: 18, fontWeight: FontWeight.w700);
     const badge = 'Wewenang Bendahara aktif';
+    final saya = ref.watch(actorProvider);
+    final perangkat = saya == null || pegang?.personId != saya.personId
+        ? const <Device>[]
+        : ref.watch(sessionRepositoryProvider).devices(saya.personId);
     final sesi = aktif
         ? [
             (
               n: 'Belum ada sesi',
-              s: 'Semua sesi Meiske Lumentut diakhiri 16/11/2026',
-              bisa: false,
+              s: 'Semua sesi ${st.namaLama} diakhiri ${st.lama?.end ?? ''}',
+              d: null as Device?,
             ),
           ]
         : [
-            for (final n in p.sesi)
-              (n: n, s: _subSesi[n]!, bisa: n != 'Ponsel ini'),
+            (n: 'Ponsel ini', s: 'Sesi ini · aktif sekarang', d: null),
+            for (final d in perangkat) (n: d.name, s: barisPerangkat(d), d: d),
           ];
 
     return Column(
@@ -419,9 +418,8 @@ class _Utama extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        aktif
-                            ? 'Aktif sejak 16/11/2026 · SK-BPMJ-09-2026'
-                            : 'Aktif sejak 15/09/2026 · SK-BPMJ-04-2026',
+                        'Aktif sejak ${pegang?.start ?? ''} · '
+                        '${pegang?.documentRef ?? ''}',
                         style: TextStyle(fontSize: 14, color: c.tinta2),
                       ),
                       if (aktif) ...[
@@ -429,7 +427,9 @@ class _Utama extends StatelessWidget {
                         GarisLurus(warna: c.garisTegas, gaya: GayaGaris.putus),
                         const SizedBox(height: 8),
                         Text(
-                          'Sebelumnya: Meiske Lumentut · wewenang berakhir 16/11/2026. Riwayat tetap mencatatnya sebagai pelaku.',
+                          'Sebelumnya: ${st.namaLama} · wewenang berakhir '
+                          '${st.lama?.end ?? ''}. Riwayat tetap mencatatnya '
+                          'sebagai pelaku.',
                           style: TextStyle(fontSize: 13, color: c.tinta3),
                         ),
                       ],
@@ -486,17 +486,12 @@ class _Utama extends StatelessWidget {
                                   ],
                                 ),
                               ),
-                              if (sesi[i].bisa) ...[
+                              if (sesi[i].d case final d?) ...[
                                 const SizedBox(width: 12),
                                 Tekan(
-                                  onTap: () {
-                                    final n = sesi[i].n;
-                                    p.ubah(
-                                      () => p.sesi = [
-                                        for (final x in p.sesi)
-                                          if (x != n) x,
-                                      ],
-                                    );
+                                  onTap: () async {
+                                    final r = await keluarkanPerangkat(ref, d);
+                                    p.ubah(() => p.tolak = r);
                                   },
                                   radius: 10,
                                   child: RupaTombol(
@@ -546,14 +541,14 @@ class _Utama extends StatelessWidget {
 
 // ----------------------------------------------------------------- Serah
 
-class _Serah extends StatefulWidget {
+class _Serah extends ConsumerStatefulWidget {
   const _Serah();
 
   @override
-  State<_Serah> createState() => _SerahState();
+  ConsumerState<_Serah> createState() => _SerahState();
 }
 
-class _SerahState extends State<_Serah> {
+class _SerahState extends ConsumerState<_Serah> {
   late final TextEditingController _nama = TextEditingController(
     text: _Lingkup.of(context).nama,
   );
@@ -570,15 +565,26 @@ class _SerahState extends State<_Serah> {
   Widget build(BuildContext context) {
     final c = context.warna;
     final p = _Lingkup.of(context);
-    final aktif = p.aktif,
-        tunggu = p.tahap == 'tunggu',
+    final st = ref.watch(serahTerimaProvider);
+    final aktif = st.tahap == 'aktif',
+        diajukan = st.tahap == 'diajukan',
+        tunggu = st.tahap == 'tunggu' || diajukan,
         belum = !aktif && !tunggu;
+    final namaBaru = belum ? p.nama : st.namaBaru;
+    final dokumen = st.dokumenBaru ?? '';
+    Future<void> kirim() async {
+      final r = await siapkanSerahTerima(ref, p.nama);
+      p.ubah(() => p.tolak = r);
+    }
+
     const gayaNama = TextStyle(fontWeight: FontWeight.w700);
     const tebal = TextStyle(fontWeight: FontWeight.w700);
 
     final lamaTeks = aktif ? 'Wewenang berakhir' : 'Wewenang Bendahara aktif';
     final baruTeks = aktif
         ? 'Wewenang Bendahara aktif'
+        : diajukan
+        ? 'Menunggu dicatat'
         : tunggu
         ? 'Menunggu verifikasi wewenang'
         : 'Belum dikirim';
@@ -599,8 +605,8 @@ class _SerahState extends State<_Serah> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _BarisSusut(
-            kiri: const Text('Meiske Lumentut', style: gayaNama),
-            lebarKiri: _lebarTeks(context, 'Meiske Lumentut', gayaNama),
+            kiri: Text(st.namaLama, style: gayaNama),
+            lebarKiri: _lebarTeks(context, st.namaLama, gayaNama),
             kanan: aktif
                 ? _Lencana(
                     lamaTeks,
@@ -613,7 +619,7 @@ class _SerahState extends State<_Serah> {
           ),
           Text(
             aktif
-                ? 'Berakhir 16/11/2026 · semua sesi diakhiri'
+                ? 'Berakhir ${st.lama?.end ?? ''} · semua sesi diakhiri'
                 : 'Tetap aktif sampai Bendahara baru diverifikasi',
             style: TextStyle(fontSize: 13, color: c.tinta3),
           ),
@@ -640,7 +646,9 @@ class _SerahState extends State<_Serah> {
                 TextSpan(
                   // U+200B: Chrome also breaks after "09-"; Flutter (UAX 14)
                   // never breaks a hyphen before a digit.
-                  text: 'SK-BPMJ-09-\u200B2026.pdf · Terlampir',
+                  text:
+                      '${dokumen.replaceFirst('09-', '09-\u200B')}.pdf · '
+                      'Terlampir',
                   style: tebal.copyWith(color: c.tinta),
                 ),
               ],
@@ -652,24 +660,32 @@ class _SerahState extends State<_Serah> {
     } else if (tunggu) {
       isiBaru = Row(
         children: [
-          Putar(
-            periode: const Duration(seconds: 6),
-            child: SizedBox(
-              width: 34,
-              height: 34,
-              child: CustomPaint(painter: _Lingkaran(c.tinta)),
+          // The spinner stands for the Petugas verifikasi at work; while the
+          // handover waits for a person to record it, nothing turns.
+          if (!diajukan) ...[
+            Putar(
+              periode: const Duration(seconds: 6),
+              child: SizedBox(
+                width: 34,
+                height: 34,
+                child: CustomPaint(painter: _Lingkaran(c.tinta)),
+              ),
             ),
-          ),
-          const SizedBox(width: 12),
+            const SizedBox(width: 12),
+          ],
           Expanded(
             child: Semantics(
               liveRegion: true,
               child: Text.rich(
                 TextSpan(
                   children: [
-                    TextSpan(text: p.nama, style: tebal),
-                    const TextSpan(
-                      text: ' · menunggu Petugas verifikasi memeriksa surat penunjukan.',
+                    TextSpan(text: namaBaru, style: tebal),
+                    TextSpan(
+                      text: diajukan
+                          ? ' · menunggu Pimpinan Jemaat yang berwenang '
+                                'mencatat penunjukan.'
+                          : ' · menunggu Petugas verifikasi memeriksa surat '
+                                'penunjukan.',
                     ),
                   ],
                 ),
@@ -689,9 +705,9 @@ class _SerahState extends State<_Serah> {
           child: Text.rich(
             TextSpan(
               children: [
-                TextSpan(text: p.nama, style: tebal),
-                const TextSpan(
-                  text: ' · aktif sejak 16/11/2026 · SK-BPMJ-09-2026',
+                TextSpan(text: namaBaru, style: tebal),
+                TextSpan(
+                  text: ' · aktif sejak ${st.baru?.start ?? ''} · $dokumen',
                 ),
               ],
             ),
@@ -764,12 +780,20 @@ class _SerahState extends State<_Serah> {
               Text(_isiNama, style: TextStyle(fontSize: 14, color: c.tinta2)),
               const SizedBox(height: 8),
             ],
+            if (p.tolak != null) ...[
+              Penolakan(
+                tindakan: p.tolak!.action,
+                sebab: p.tolak!.because,
+                jalan: const [],
+              ),
+              const SizedBox(height: 8),
+            ],
             TombolBersyarat(
               label: 'Kirim untuk diverifikasi',
               tindakan: 'Kirim untuk diverifikasi',
               alasan: p.okNama ? '' : _isiNama,
               periksa: () => p.okNama ? '' : _isiNama,
-              onPressed: p.kirim,
+              onPressed: kirim,
               // The board's own sentence sits above; no "Tidak dapat …" form.
               sudahMulai: false,
               warnaSiap: JenisTombol.utama,

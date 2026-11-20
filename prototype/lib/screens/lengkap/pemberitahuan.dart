@@ -1,4 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../core/format.dart';
+import '../../domain/core/core.dart';
+import '../../providers/actor.dart';
+import '../../providers/clock.dart';
+import '../../providers/core_repositories.dart';
+import '../../providers/revision.dart';
 
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
@@ -11,14 +19,15 @@ import '../../app/layar.dart';
 
 /// 26 · Pemberitahuan: the in-app notification list with per-type switches
 /// (D28, C06). The list and switches are shared with WebPemberitahuan.
-class PemberitahuanScreen extends StatefulWidget {
+class PemberitahuanScreen extends ConsumerStatefulWidget {
   const PemberitahuanScreen({super.key});
 
   @override
-  State<PemberitahuanScreen> createState() => _PemberitahuanScreenState();
+  ConsumerState<PemberitahuanScreen> createState() =>
+      _PemberitahuanScreenState();
 }
 
-class _PemberitahuanScreenState extends State<PemberitahuanScreen>
+class _PemberitahuanScreenState extends ConsumerState<PemberitahuanScreen>
     with PemberitahuanLogika {
   @override
   Widget build(BuildContext context) => Material(
@@ -60,83 +69,73 @@ class _PemberitahuanScreenState extends State<PemberitahuanScreen>
   );
 }
 
-typedef _Notif = ({
-  String id,
-  String jenis,
-  String judul,
-  String ket,
-  String waktu,
-});
-
-const List<_Notif> _daftar = [
-  (
-    id: 'n1',
-    jenis: 'tindak',
-    judul: 'Oktober 2026 belum ditutup',
-    ket: '1 hambatan · bulan berikutnya untuk tutup buku',
-    waktu: 'Hari ini 08.00',
-  ),
-  (
-    id: 'n2',
-    jenis: 'file',
-    judul: 'File Excel laporan gagal dibuat',
-    ket: 'Laporan resmi September 2026 · cukup dibuat lagi',
-    waktu: 'Hari ini 07.42',
-  ),
-  (
-    id: 'n3',
-    jenis: 'tempo',
-    judul: 'Uang muka lewat jatuh tempo',
-    ket: 'Retret Pemuda · sisa Rp500.000 · jatuh tempo 10/11/2026',
-    waktu: '11/11/2026',
-  ),
-  (
-    id: 'n4',
-    jenis: 'tindak',
-    judul: '1 dokumen pendukung wajib, belum ada',
-    ket: 'BKU-2026-0143 · Sewa sound system',
-    waktu: '11/11/2026',
-  ),
-  (
-    id: 'n5',
-    jenis: 'ai',
-    judul: 'AI sedang tidak tersedia',
-    ket: 'Pencatatan berjalan seperti biasa',
-    waktu: '09/11/2026',
-  ),
-];
-
 const List<({String kunci, String nama, String ket})> _jenis = [
   (
-    kunci: 'tindak',
+    kunci: NotificationType.action,
     nama: 'Perlu tindakan',
     ket: 'Hambatan, draf, dokumen pendukung',
   ),
-  (kunci: 'tempo', nama: 'Jatuh tempo', ket: 'Uang muka dan titipan'),
-  (kunci: 'file', nama: 'File laporan', ket: 'Siap diunduh atau gagal dibuat'),
-  (kunci: 'ai', nama: 'Bantuan AI', ket: 'Tidak tersedia, batas biaya'),
+  (
+    kunci: NotificationType.due,
+    nama: 'Jatuh tempo',
+    ket: 'Uang muka dan titipan',
+  ),
+  (kunci: NotificationType.file, nama: 'File laporan', ket: 'Siap diunduh'),
+  (kunci: NotificationType.ai, nama: 'Bantuan AI', ket: 'Batas biaya'),
 ];
 
-/// The board's logic class: state `baca` / `atur` and handlers `buka`,
-/// `semua`, `pick`, with the parts both boards draw from them.
-mixin PemberitahuanLogika<T extends StatefulWidget> on State<T> {
-  final Set<String> _baca = {};
-  final Map<String, bool> _atur = {
-    'tindak': true,
-    'tempo': true,
-    'file': true,
-    'ai': false,
-  };
+/// "Hari ini 08.00" for today, else dd/mm/yyyy.
+String waktuPemberitahuan(DateTime t, DateTime kini) =>
+    tgl(t) == tgl(kini) ? 'Hari ini ${jam(t)}' : tgl(t);
 
-  List<_Notif> get _tampil => [
-    for (final n in _daftar)
-      if (_atur[n.jenis]!) n,
-  ];
+/// The board's logic class: the signed-in person's finance notifications
+/// from NotificationRepository (types switched off are left out) and their
+/// per-type switches; opening a row marks it read (F21).
+mixin PemberitahuanLogika<T extends ConsumerStatefulWidget>
+    on ConsumerState<T> {
+  String get _saya => ref.watch(actorProvider)?.personId ?? '';
+
+  List<AppNotification> get _tampil {
+    ref.watch(revisionProvider);
+    return [
+      for (final n in ref.watch(notificationRepositoryProvider).inbox(_saya))
+        if (n.module == Module.finance) n,
+    ];
+  }
+
+  String _kunci(Actor a) => kunciBaru(a.personId, ref.read(clockProvider));
+
+  Future<void> _baca(Iterable<AppNotification> semua) async {
+    final a = ref.read(actorProvider);
+    if (a == null) return;
+    final repo = ref.read(notificationRepositoryProvider);
+    for (final n in semua.where((n) => !n.read).toList()) {
+      await repo.markRead(
+        a,
+        n.id,
+        expectedRevision: n.revision,
+        idempotencyKey: _kunci(a),
+      );
+    }
+  }
+
+  Future<void> _atur(String jenis, bool on) async {
+    final a = ref.read(actorProvider);
+    if (a == null) return;
+    final repo = ref.read(notificationRepositoryProvider);
+    await repo.setPreference(
+      a,
+      jenis,
+      on,
+      expectedRevision: repo.preferences(a.personId).revision,
+      idempotencyKey: _kunci(a),
+    );
+  }
 
   /// "Belum dibaca · n" with "Tandai semua dibaca".
   Widget barisBelumDibaca() {
     final c = context.warna;
-    final n = _tampil.where((x) => !_baca.contains(x.id)).length;
+    final n = _tampil.where((x) => !x.read).length;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       spacing: 16,
@@ -147,8 +146,7 @@ mixin PemberitahuanLogika<T extends StatefulWidget> on State<T> {
         ),
         Flexible(
           child: Tekan(
-            // Marks all five read, the hidden ones too.
-            onTap: () => setState(() => _baca.addAll(_daftar.map((x) => x.id))),
+            onTap: () => _baca(_tampil),
             child: Container(
               constraints: const BoxConstraints(minHeight: 44),
               padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -196,10 +194,14 @@ mixin PemberitahuanLogika<T extends StatefulWidget> on State<T> {
     );
   }
 
-  Widget _barisNotif(PalakatWarna c, _Notif n, {required bool pertama}) {
-    final dibaca = _baca.contains(n.id);
+  Widget _barisNotif(
+    PalakatWarna c,
+    AppNotification n, {
+    required bool pertama,
+  }) {
+    final dibaca = n.read;
     return Tekan(
-      onTap: () => setState(() => _baca.add(n.id)),
+      onTap: () => _baca([n]),
       child: Container(
         constraints: const BoxConstraints(minHeight: 64),
         padding: const EdgeInsets.symmetric(vertical: 12),
@@ -224,19 +226,19 @@ mixin PemberitahuanLogika<T extends StatefulWidget> on State<T> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    n.judul,
+                    n.title,
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: dibaca ? FontWeight.w500 : FontWeight.w700,
                     ),
                   ),
-                  Text(n.ket, style: TextStyle(fontSize: 13, color: c.tinta3)),
+                  Text(n.body, style: TextStyle(fontSize: 13, color: c.tinta3)),
                 ],
               ),
             ),
             const SizedBox(width: 12),
             Text(
-              n.waktu,
+              waktuPemberitahuan(n.createdAt, ref.read(clockProvider).now()),
               softWrap: false,
               style: TextStyle(fontSize: 13, color: c.tinta3),
             ),
@@ -287,9 +289,12 @@ mixin PemberitahuanLogika<T extends StatefulWidget> on State<T> {
                   ),
                   const SizedBox(width: 12),
                   Sakelar(
-                    nilai: _atur[_jenis[i].kunci]!,
+                    nilai: ref
+                        .watch(notificationRepositoryProvider)
+                        .preferences(_saya)
+                        .allows(_jenis[i].kunci),
                     label: 'Pemberitahuan ${_jenis[i].nama}',
-                    onUbah: (v) => setState(() => _atur[_jenis[i].kunci] = v),
+                    onUbah: (v) => _atur(_jenis[i].kunci, v),
                   ),
                 ],
               ),

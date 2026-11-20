@@ -1,8 +1,8 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../motion/kerangka.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
 import '../../shell/tautan.dart';
@@ -11,73 +11,82 @@ import '../../widgets/garis.dart';
 import '../../widgets/garis_status.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/pita_peran.dart';
-import '../../widgets/sakelar.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
-
-const _kas = [
-  (id: 'kas', n: 'Kas', mati: false),
-  (id: 'bni', n: 'Bank BNI ··4821', mati: false),
-  (id: 'bsg', n: 'Bank SulutGo ··1107', mati: false),
-  (id: 'hut', n: 'Kas Panitia HUT', mati: true),
-];
-
-const _subSesi = {
-  'Browser ini': 'Sesi ini · aktif sekarang',
-  'Ponsel Android': 'Terakhir dipakai 16/11/2026 10.42',
-};
-
-const _riwayat = [
-  ('16/11/2026 10.42', 'Meiske L.', 'Membukukan BKU-2026-0147'),
-  (
-    '12/11/2026 09.31',
-    'Meiske L.',
-    'Membuat pembalikan BKU-2026-0144 · alasan: Mata Anggaran keliru',
-  ),
-  (
-    '28/10/2026 16.44',
-    'Meiske L.',
-    'Menonaktifkan Kas Panitia HUT · berlaku mulai November 2026',
-  ),
-  ('05/10/2026 19.02', 'Meiske L.', 'Menutup buku September 2026'),
-  ('03/10/2026 10.15', 'Meiske L.', 'Mencatat persetujuan format laporan'),
-  (
-    '15/09/2026 10.15',
-    'Petugas verifikasi',
-    'Mengaktifkan wewenang Bendahara untuk Meiske Lumentut',
-  ),
-];
+import '../../core/format.dart';
+import '../../domain/core/core.dart';
+import '../../domain/finance/finance.dart';
+import '../../providers/actor.dart';
+import '../../providers/core_repositories.dart';
+import '../../providers/keuangan/pengaturan.dart';
+import '../../providers/repositories_keuangan.dart';
+import '../../widgets/penolakan.dart';
+import '../p2/akun_saya.dart';
+import '../ponsel/lainnya.dart';
 
 /// Web · Pengaturan (04-lainnya.md): the laptop settings hub on one page.
-class WebPengaturanScreen extends StatefulWidget {
+class WebPengaturanScreen extends ConsumerStatefulWidget {
   const WebPengaturanScreen({super.key});
   @override
-  State<WebPengaturanScreen> createState() => _WebPengaturanScreenState();
+  ConsumerState<WebPengaturanScreen> createState() =>
+      _WebPengaturanScreenState();
 }
 
-class _WebPengaturanScreenState extends State<WebPengaturanScreen> {
-  final _non = <String>{};
-  bool _mc = false;
-  List<String> _sesi = ['Browser ini', 'Ponsel Android'];
+class _WebPengaturanScreenState extends ConsumerState<WebPengaturanScreen> {
+  Refusal? _tolak;
+
+  Future<void> _nonaktifkan(BarisKasBank k, Pengaturan p) async {
+    final r = await jalankanPengaturan(
+      ref,
+      (a, kunci) => ref
+          .read(accountRepositoryProvider)
+          .deactivate(
+            a,
+            k.akun.id,
+            p.bulanBerlaku.first,
+            reason: 'Tidak dipakai lagi',
+            expectedRevision: k.akun.revision,
+            idempotencyKey: kunci,
+          ),
+    );
+    if (mounted) setState(() => _tolak = r);
+  }
+
+  Future<void> _akhiri(Device d) async {
+    final r = await keluarkanPerangkat(ref, d);
+    if (mounted) setState(() => _tolak = r);
+  }
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final kosong =
-        belumDipindah<String>('Bendahara aktif') != 'Bendahara aktif';
-    final riwayat = kosong
-        ? [
-            (
-              '16/11/2026 08.10',
-              'Petugas verifikasi',
-              'Mencabut wewenang Bendahara Meiske Lumentut · semua sesi diakhiri',
-            ),
-            ..._riwayat.where((r) => !r.$1.contains('16/11/2026')),
-          ]
-        : _riwayat;
+    final p = ref.watch(pengaturanProvider);
+    final post = ref.watch(postBendaharaProvider);
+    final orang = ref.watch(peopleRepositoryProvider);
+    final pemegang = post?.holder;
+    final kosong = pemegang == null;
+    final namaPemegang = orang.person(pemegang?.personId ?? '')?.name ?? '';
+    final terakhir = post?.lastHolder;
+    final namaTerakhir = orang.person(terakhir?.personId ?? '')?.name ?? '';
+    final format = ref
+        .watch(reportRepositoryProvider)
+        .templates()
+        .where((t) => t.acceptedAt != null)
+        .firstOrNull;
+    final saya = ref.watch(actorProvider);
+    final perangkat = saya == null || pemegang?.personId != saya.personId
+        ? const <Device>[]
+        : ref.watch(sessionRepositoryProvider).devices(saya.personId);
+    final riwayat = [
+      for (final r in p.riwayat.take(40))
+        (
+          tglJam(r.at),
+          r.personName,
+          [r.summary, if (r.reason != null) 'alasan: ${r.reason}'].join(' · '),
+        ),
+    ];
     final ket14 = TextStyle(fontSize: 14, color: c.tinta2);
     final ket13 = TextStyle(fontSize: 13, color: c.tinta3);
     final atas = BorderSide(color: c.garis);
@@ -136,13 +145,14 @@ class _WebPengaturanScreenState extends State<WebPengaturanScreen> {
 
     final jemaat = kartu(
       kolom([
-        kepala('Jemaat Karunia', 'Pengaturan awal Jemaat', ke: Layar.awal),
+        kepala(p.jemaat, 'Pengaturan awal Jemaat', ke: Layar.awal),
         Text(
           'WITA · tahun buku mulai 1 Januari (tidak dapat diubah)',
           style: ket14,
         ),
         Text(
-          'Tanggal mulai pencatatan 15 September 2026 · bulan pertama pencatatan September 2026',
+          'Tanggal mulai pencatatan ${tglPanjang(p.mulai.awal)} · bulan '
+          'pertama pencatatan ${bulanDari(p.mulai)}',
           style: ket14,
         ),
         Padding(
@@ -164,22 +174,16 @@ class _WebPengaturanScreenState extends State<WebPengaturanScreen> {
             padding: EdgeInsets.only(bottom: 6),
             child: _H2('Kas/Bank'),
           ),
-          for (final k in _kas)
+          for (final k in p.kas)
             baris(
-              k.n,
-              k.mati
-                  ? 'Nonaktif sejak November 2026 · tetap tampil di laporan lama'
-                  : _non.contains(k.id)
-                  ? 'Aktif sampai akhir November 2026 · nonaktif mulai Desember 2026'
-                  : 'Aktif · dipakai sejak September 2026',
+              k.akun.name,
+              k.sub,
               warna: k.mati ? c.tinta2 : c.tinta,
-              aksi: k.mati || _non.contains(k.id)
+              aksi: !k.bisaNonaktif
                   ? null
                   : _TombolBaris(
                       'Nonaktifkan',
-                      onTap: kosong
-                          ? null
-                          : () => setState(() => _non.add(k.id)),
+                      onTap: kosong ? null : () => _nonaktifkan(k, p),
                     ),
             ),
           Padding(
@@ -206,16 +210,10 @@ class _WebPengaturanScreenState extends State<WebPengaturanScreen> {
       kolom([
         blok(
           'Peruntukan',
-          Text('Umum Jemaat · Diakonia · Pembangunan', style: ket14),
+          Text(p.peruntukan.join(' · '), style: ket14),
           garis: false,
         ),
-        blok(
-          'Lingkup',
-          Text(
-            'Jemaat · Kolom 3 · BIPRA Pemuda · Komisi Diakonia · Panitia Natal',
-            style: ket14,
-          ),
-        ),
+        blok('Lingkup', Text(p.lingkup.join(' · '), style: ket14)),
         blok(
           'Seri No. Bukti',
           Column(
@@ -225,11 +223,11 @@ class _WebPengaturanScreenState extends State<WebPengaturanScreen> {
                 TextSpan(
                   // U+200B: Chrome breaks after these hyphens; Flutter does not.
                   children: [
-                    TextSpan(text: 'BKU-\u200B2026-\u200B0001', style: mono),
+                    TextSpan(text: _seri(VoucherSeries.bku, p), style: mono),
                     const TextSpan(text: ' Biasa · '),
-                    TextSpan(text: 'OPN-\u200B2026-\u200B0001', style: mono),
+                    TextSpan(text: _seri(VoucherSeries.opn, p), style: mono),
                     const TextSpan(text: ' Saldo awal pencatatan · '),
-                    TextSpan(text: 'ADJ-\u200B2026-\u200B0001', style: mono),
+                    TextSpan(text: _seri(VoucherSeries.adj, p), style: mono),
                     const TextSpan(text: ' Penyesuaian'),
                   ],
                 ),
@@ -247,15 +245,28 @@ class _WebPengaturanScreenState extends State<WebPengaturanScreen> {
 
     final mataAnggaran = kartu(
       kolom([
-        kepala('Mata Anggaran', 'Buka versi 2026.2', ke: Layar.mataAnggaran),
-        Text(
-          'Versi 2026.1 · Diterbitkan · berlaku mulai September 2026',
-          style: ket14,
+        kepala(
+          'Mata Anggaran',
+          p.versiDraf == null
+              ? 'Buka Mata Anggaran'
+              : 'Buka versi ${p.versiDraf!.code}',
+          ke: Layar.mataAnggaran,
         ),
-        Text(
-          'Versi 2026.2 · Draf · usulan berlaku mulai Desember 2026',
-          style: ket14,
-        ),
+        if (p.versiTerbit case final v?)
+          Text(
+            'Versi ${v.code} · Diterbitkan · berlaku mulai '
+            '${bulanDari(v.effectiveFrom!)}',
+            style: ket14,
+          ),
+        if (p.versiDraf case final v?)
+          Text(
+            'Versi ${v.code} · ${switch (v.status) {
+              MasterVersionStatus.draft => 'Draf · usulan berlaku mulai',
+              MasterVersionStatus.reviewed => 'Sudah diperiksa · usulan berlaku mulai',
+              MasterVersionStatus.published => 'Diterbitkan · berlaku mulai',
+            }} ${bulanDari(v.effectiveFrom!)}',
+            style: ket14,
+          ),
       ], 4),
     );
 
@@ -269,71 +280,17 @@ class _WebPengaturanScreenState extends State<WebPengaturanScreen> {
         Container(
           padding: const EdgeInsets.only(top: 10),
           decoration: BoxDecoration(border: Border(top: atas)),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Wajib pemeriksa kedua',
-                      style: TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                    Text(
-                      _mc
-                          ? 'Hidup mulai Desember 2026'
-                          : 'Mati · Bendahara memeriksa dan membukukan sendiri',
-                      style: ket13,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 12),
-              Sakelar(
-                nilai: _mc,
-                label: 'Wajib pemeriksa kedua',
-                nonaktif: kosong,
-                onUbah: (_) => setState(() => _mc = !_mc),
-              ),
-            ],
-          ),
+          child: SakelarPemeriksa(nonaktif: kosong),
         ),
-        if (_mc)
-          Gerak(
-            Kerangka.muncul,
-            key: const ValueKey('mc'),
-            lama: const Duration(milliseconds: 300),
-            child: Text.rich(
-              TextSpan(
-                children: [
-                  const TextSpan(
-                    text: 'Berlaku mulai Desember 2026.',
-                    style: TextStyle(fontWeight: FontWeight.w700),
-                  ),
-                  const TextSpan(text: ' '),
-                  TextSpan(
-                    text: 'Belum ada pemeriksa kedua yang ditunjuk; tanpa itu Bukukan akan ditolak mulai Desember 2026.',
-                    style: TextStyle(
-                      color: c.bata,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const TextSpan(
-                    text: ' Transaksi sebelumnya tidak terpengaruh.',
-                  ),
-                ],
-              ),
-              style: const TextStyle(fontSize: 14),
-            ),
-          ),
       ], 10),
     );
 
-    final format = kartu(
+    final formatLaporan = kartu(
       kolom([
         kepala('Format laporan', 'Lihat laporan', ke: Layar.laporan),
         Text(
-          'Bawaan Palakat v1 · Persetujuan format: sudah dicatat · 01/11/2026',
+          'Bawaan Palakat v1 · Persetujuan format: '
+          '${format == null ? 'belum dicatat' : 'sudah dicatat · ${tgl(format.acceptedAt!)}'}',
           style: ket14,
         ),
       ], 4),
@@ -367,25 +324,23 @@ class _WebPengaturanScreenState extends State<WebPengaturanScreen> {
             padding: const EdgeInsets.only(bottom: 10),
             child: Text(
               kosong
-                  ? 'Meiske Lumentut · Wewenang dicabut 16/11/2026 · Riwayat tetap mencatatnya sebagai pelaku tindakannya.'
-                  : 'Meiske Lumentut · aktif sejak 15/09/2026 · SK-BPMJ-04-2026',
+                  ? '$namaTerakhir · Wewenang berakhir '
+                        '${terakhir?.end ?? ''} · Riwayat tetap mencatatnya '
+                        'sebagai pelaku tindakannya.'
+                  : '$namaPemegang · aktif sejak ${pemegang.start} · '
+                        '${pemegang.documentRef ?? ''}',
               style: ket14,
             ),
           ),
-          if (!kosong)
-            for (final n in _sesi)
+          if (!kosong && perangkat.isNotEmpty) ...[
+            baris('Browser ini', 'Sesi ini · aktif sekarang'),
+            for (final d in perangkat)
               baris(
-                n,
-                _subSesi[n]!,
-                aksi: n == 'Browser ini'
-                    ? null
-                    : _TombolBaris(
-                        'Akhiri sesi',
-                        onTap: () => setState(
-                          () => _sesi = _sesi.where((x) => x != n).toList(),
-                        ),
-                      ),
+                d.name,
+                barisPerangkat(d),
+                aksi: _TombolBaris('Akhiri sesi', onTap: () => _akhiri(d)),
               ),
+          ],
           if (!kosong)
             Container(
               padding: const EdgeInsets.fromLTRB(0, 12, 0, 10),
@@ -444,6 +399,12 @@ class _WebPengaturanScreenState extends State<WebPengaturanScreen> {
               _Tautan('Akun dan keluar', ke: Layar.keluar, ukuran: null),
             ],
           ),
+          if (_tolak != null)
+            Penolakan(
+              tindakan: _tolak!.action,
+              sebab: _tolak!.because,
+              jalan: const [],
+            ),
           if (kosong)
             PitaPeran(
               jenis: JenisPita.kunci,
@@ -455,8 +416,11 @@ class _WebPengaturanScreenState extends State<WebPengaturanScreen> {
                 Text.rich(
                   TextSpan(
                     children: [
-                      const TextSpan(
-                        text: 'Wewenang Meiske Lumentut dicabut pada 16/11/2026 08.10 oleh Petugas verifikasi. Semua data hanya dapat dilihat. ',
+                      TextSpan(
+                        text:
+                            'Wewenang $namaTerakhir berakhir pada '
+                            '${terakhir?.endedAt == null ? terakhir?.end ?? '' : tglJam(terakhir!.endedAt!)}. '
+                            'Semua data hanya dapat dilihat. ',
                       ),
                       TextSpan(
                         text: 'Yang perlu bertindak: BPMJ Jemaat Karunia',
@@ -478,7 +442,7 @@ class _WebPengaturanScreenState extends State<WebPengaturanScreen> {
             jarak: 20,
             anak: [
               kolom([jemaat, kasBank, daftar], 20),
-              kolom([mataAnggaran, aturan, format, bendahara], 20),
+              kolom([mataAnggaran, aturan, formatLaporan, bendahara], 20),
             ],
           ),
           kolom([
@@ -513,6 +477,10 @@ class _WebPengaturanScreenState extends State<WebPengaturanScreen> {
     );
   }
 }
+
+/// '{seri}-{tahun}-0001', breakable after the hyphens like Chrome (U+200B).
+String _seri(VoucherSeries s, Pengaturan p) =>
+    voucherCode(s, p.hariIni.tahun, 1).replaceAll('-', '-\u200B');
 
 /// h2 17/700 (off-token).
 class _H2 extends StatelessWidget {

@@ -1,23 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/tata_letak.dart';
+import '../../providers/keuangan/pengaturan.dart';
 import 'awal_isian_isi.dart';
 import '../../app/layar.dart';
 
 /// Web · Pengaturan awal: identitas dan daftar.
-class WebAwalIsianScreen extends StatefulWidget {
+class WebAwalIsianScreen extends ConsumerStatefulWidget {
   const WebAwalIsianScreen({super.key});
 
   @override
-  State<WebAwalIsianScreen> createState() => _WebAwalIsianScreenState();
+  ConsumerState<WebAwalIsianScreen> createState() => _WebAwalIsianScreenState();
 }
 
-class _WebAwalIsianScreenState extends State<WebAwalIsianScreen> {
-  final _k = KeadaanAwalIsian();
+class _WebAwalIsianScreenState extends ConsumerState<WebAwalIsianScreen> {
+  late final _k = KeadaanAwalIsian(ref.read(awalProvider));
 
   @override
   void dispose() {

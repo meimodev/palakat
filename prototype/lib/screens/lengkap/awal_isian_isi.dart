@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../core/format.dart';
+import '../../core/tanggal.dart';
 import '../../motion/kerangka.dart';
+import '../../providers/keuangan/pengaturan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/chip_pilihan.dart';
 import '../../widgets/garis.dart';
@@ -43,19 +46,29 @@ const _bagian = [
   ),
 ];
 
-/// The board state `{ nama, zona, terbit, isi, d }`.
+/// The board state `{ nama, zona, terbit, isi, d }`. The opening is seeded
+/// complete (D19): built from [Awal], already published, read-only.
 class KeadaanAwalIsian extends ChangeNotifier {
-  final nama = TextEditingController(text: 'Jemaat Karunia');
+  KeadaanAwalIsian(Awal? a)
+    : nama = TextEditingController(text: a?.jemaat ?? ''),
+      mulai = a?.mulai ?? const Tanggal(2000, 1, 1),
+      terbit = a != null,
+      d = {
+        'kas': [...?a?.kas],
+        'per': [...?a?.peruntukan],
+        'ling': [...?a?.lingkup],
+        'um': [],
+        'tt': [],
+      };
+
+  final TextEditingController nama;
+
+  /// The cutover date.
+  final Tanggal mulai;
   String zona = 'WITA';
-  bool terbit = false;
+  bool terbit;
   final isi = {for (final b in _bagian) b.$1: TextEditingController()};
-  final d = <String, List<String>>{
-    'kas': ['Kas', 'Bank BNI ··4821'],
-    'per': ['Umum Jemaat'],
-    'ling': ['Jemaat'],
-    'um': [],
-    'tt': [],
-  };
+  final Map<String, List<String>> d;
 
   bool get _okNama => nama.text.trim().isNotEmpty;
   bool get _kurang => ['kas', 'per', 'ling'].any((k) => d[k]!.isEmpty);
@@ -167,10 +180,14 @@ class KartuIdentitas extends StatelessWidget {
           onPilih: k.pilihZona,
         ),
         fakta('Tahun buku', 'Mulai 1 Januari · tidak dapat diubah'),
-        fakta('Tanggal mulai pencatatan', '15 September 2026', kanan: false),
+        fakta(
+          'Tanggal mulai pencatatan',
+          tglPanjang(k.mulai.awal),
+          kanan: false,
+        ),
         fakta(
           'Bulan pertama pencatatan',
-          'September 2026 · dari tanggal mulai',
+          '${bulanDari(k.mulai)} · dari tanggal mulai',
         ),
       ], 12),
     );
@@ -356,6 +373,7 @@ class CatatanSatu extends StatelessWidget {
 
 /// Note (when shown), then the reason line and button, or the result card.
 List<Widget> akhirAwal(BuildContext context, KeadaanAwalIsian k) {
+  final mulai = bulanDari(k.mulai);
   final c = context.warna;
   return [
     if (k.satu) const CatatanSatu(),
@@ -391,7 +409,7 @@ List<Widget> akhirAwal(BuildContext context, KeadaanAwalIsian k) {
                 style: TextStyle(fontWeight: FontWeight.w700),
               ),
               Text(
-                'Berlaku mulai September 2026. Perubahan berikutnya dilakukan lewat Pengaturan dan berlaku mulai bulan tertentu. Yang sudah dipakai hanya dapat dinonaktifkan.',
+                'Berlaku mulai $mulai. Perubahan berikutnya dilakukan lewat Pengaturan dan berlaku mulai bulan tertentu. Yang sudah dipakai hanya dapat dinonaktifkan.',
                 style: TextStyle(fontSize: 14, color: c.tinta2),
               ),
             ],

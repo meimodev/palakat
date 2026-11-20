@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../motion/kerangka.dart';
 import '../../shell/kepala_ponsel.dart';
@@ -15,63 +16,15 @@ import '../../widgets/sakelar.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
-
-// ---------- Board data (Lainnya.dc.html logic class) ----------
-
-typedef _Kas = ({String id, String n, String s, bool mati});
-
-const List<_Kas> _kasDaftar = [
-  (id: 'kas', n: 'Kas', s: 'Aktif · dipakai sejak September 2026', mati: false),
-  (
-    id: 'bni',
-    n: 'Bank BNI ··4821',
-    s: 'Aktif · dipakai sejak September 2026',
-    mati: false,
-  ),
-  (
-    id: 'bsg',
-    n: 'Bank SulutGo ··1107',
-    s: 'Aktif · dipakai sejak September 2026',
-    mati: false,
-  ),
-  (
-    id: 'hut',
-    n: 'Kas Panitia HUT',
-    s: 'Nonaktif sejak November 2026 · tetap tampil di laporan lama',
-    mati: true,
-  ),
-];
-
-const _bulanPilihan = ['Desember 2026', 'Januari 2027'];
-
-const _riwayat = [
-  (
-    'Meiske L. membukukan BKU-2026-0146',
-    '15/11/2026 12.20 · Persembahan Ibadah Minggu',
-  ),
-  (
-    // U+200B: Chrome breaks after the hyphen; Flutter (UAX 14) does not.
-    'Meiske L. membuat pembalikan BKU-\u200B2026-\u200B0144',
-    '12/11/2026 09.31 · Alasan: Mata Anggaran keliru',
-  ),
-  (
-    'Meiske L. menonaktifkan Kas Panitia HUT',
-    '28/10/2026 16.44 · berlaku mulai November 2026',
-  ),
-  (
-    'Meiske L. menutup buku September 2026',
-    '05/10/2026 19.02 · Periode laporan 15–30 September 2026',
-  ),
-  (
-    'Meiske L. mencatat persetujuan format laporan',
-    '03/10/2026 10.15 · Pemberi persetujuan: Pdt. Lidya Rondonuwu, Ketua BPMJ',
-  ),
-  (
-    'Petugas verifikasi mengaktifkan wewenang Bendahara',
-    '15/09/2026 10.15 · Meiske Lumentut',
-  ),
-];
+import '../../core/format.dart';
+import '../../core/tanggal.dart';
+import '../../domain/core/core.dart';
+import '../../domain/finance/finance.dart';
+import '../../providers/actor.dart';
+import '../../providers/core_repositories.dart';
+import '../../providers/keuangan/pengaturan.dart';
+import '../../providers/repositories_keuangan.dart';
+import '../../widgets/penolakan.dart';
 
 /// Group card C: every row is a push link.
 const _tautanC = [
@@ -125,7 +78,7 @@ const _tautanC = [
   ),
   (
     judul: 'Persetujuan format laporan',
-    ket: 'Sudah dicatat · 03/10/2026',
+    ket: '',
     ke: Layar.formatLaporan,
     param: <String, String>{},
   ),
@@ -154,14 +107,8 @@ const _tautanC = [
     param: <String, String>{},
   ),
   (
-    judul: 'Persetujuan di luar aplikasi',
-    ket: 'Ganti catatan, dan yang terjadi bila transaksi diubah',
-    ke: Layar.persetujuan,
-    param: {'id': belumDipindahId},
-  ),
-  (
     judul: 'Akun dan keluar',
-    ket: 'Meiske Lumentut · perangkat ini',
+    ket: '',
     ke: Layar.keluar,
     param: <String, String>{},
   ),
@@ -170,43 +117,32 @@ const _tautanC = [
 // ---------- Board state ----------
 
 class _Keadaan extends ChangeNotifier {
+  /// The account whose Nonaktifkan sheet is open.
   String? sheet;
-  String bulan = 'Desember 2026';
-  final Map<String, String> non = {};
-  bool mc = false;
-
-  void ulang() {
-    sheet = null;
-    bulan = 'Desember 2026';
-    non.clear();
-    mc = false;
-    notifyListeners();
-  }
+  Tanggal? bulan;
+  Refusal? tolak;
 
   void buka(String id) {
     sheet = id;
-    bulan = 'Desember 2026';
+    bulan = null;
+    tolak = null;
     notifyListeners();
   }
 
-  void pick(String b) {
+  void pick(Tanggal b) {
     bulan = b;
     notifyListeners();
   }
 
   void tutupSheet() {
     sheet = null;
+    tolak = null;
     notifyListeners();
   }
 
-  void nonaktifkan() {
-    non[sheet!] = bulan;
-    sheet = null;
-    notifyListeners();
-  }
-
-  void toggleMc() {
-    mc = !mc;
+  void tolakan(Refusal? r) {
+    tolak = r;
+    if (r == null) sheet = null;
     notifyListeners();
   }
 }
@@ -333,13 +269,22 @@ Widget _grup(List<Widget> baris) => Kartu(
 
 // ---------- Hub ----------
 
-class _Hub extends StatelessWidget {
+class _Hub extends ConsumerWidget {
   const _Hub();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
-    final k = _Lingkup.of(context);
+    final p = ref.watch(pengaturanProvider);
+    final bendahara = ref.watch(postBendaharaProvider);
+    final pemegang = bendahara?.holder;
+    final orang = ref.watch(peopleRepositoryProvider);
+    final format = ref
+        .watch(reportRepositoryProvider)
+        .templates()
+        .where((t) => t.acceptedAt != null)
+        .firstOrNull;
+    final saya = ref.watch(actorProvider);
     const mono = TextStyle(fontFamily: PalakatText.mono);
     Tautan ruteMain(Widget isi) =>
         Tautan(ke: Layar.keuangan, cara: Cara.ganti, child: isi);
@@ -357,16 +302,16 @@ class _Hub extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: 2,
           children: [
-            const Text(
-              'Jemaat Karunia',
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 17),
+            Text(
+              p.jemaat,
+              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 17),
             ),
             Text(
               'WITA · tahun buku mulai 1 Januari (tidak dapat diubah)',
               style: TextStyle(fontSize: 14, color: c.tinta2),
             ),
             Text(
-              'Tanggal mulai pencatatan 15 September 2026',
+              'Tanggal mulai pencatatan ${tglPanjang(p.mulai.awal)}',
               style: TextStyle(fontSize: 14, color: c.tinta2),
             ),
           ],
@@ -380,33 +325,33 @@ class _Hub extends StatelessWidget {
       _grup([
         BarisDaftar(
           judul: 'Kas/Bank',
-          keterangan:
-              '${_kasDaftar.where((x) => !x.mati).length} aktif · 1 nonaktif',
+          keterangan: '${p.kasAktif} aktif · ${p.kasMati} nonaktif',
           pertama: true,
           onTap: () => context.dorongKe(Layar.pengaturan, anak: 'kas'),
         ),
-        const _BarisTetap(
+        _BarisTetap(
           judul: 'Peruntukan',
-          ket: TextSpan(text: 'Umum Jemaat · Diakonia · Pembangunan'),
+          ket: TextSpan(text: p.peruntukan.join(' · ')),
         ),
-        const _BarisTetap(
+        _BarisTetap(
           judul: 'Lingkup',
-          ket: TextSpan(
-            text: 'Jemaat · Kolom 3 · BIPRA Pemuda · Komisi Diakonia · Panitia Natal',
-          ),
+          ket: TextSpan(text: p.lingkup.join(' · ')),
         ),
-        const Tautan(
+        Tautan(
           ke: Layar.mataAnggaran,
           child: BarisDaftar(
             judul: 'Mata Anggaran',
-            keterangan: 'Versi 2026.1 diterbitkan · versi 2026.2 masih draf',
+            keterangan: p.teksMataAnggaran,
           ),
         ),
-        const _BarisTetap(
+        _BarisTetap(
           judul: 'Seri No. Bukti',
           ket: TextSpan(
             children: [
-              TextSpan(text: 'BKU-2026-0001', style: mono),
+              TextSpan(
+                text: voucherCode(VoucherSeries.bku, p.hariIni.tahun, 1),
+                style: mono,
+              ),
               TextSpan(text: ' Biasa · '),
               TextSpan(text: 'OPN', style: mono),
               TextSpan(text: ' Saldo awal pencatatan · '),
@@ -419,23 +364,26 @@ class _Hub extends StatelessWidget {
       _grup([
         BarisDaftar(
           judul: 'Aturan persetujuan dan dokumen pendukung',
-          keterangan: k.mc
-              ? 'Wajib pemeriksa kedua: hidup mulai Desember 2026'
-              : 'Wajib pemeriksa kedua: mati',
+          keterangan: p.teksPemeriksa,
           pertama: true,
           onTap: () => context.dorongKe(Layar.pengaturan, anak: 'aturan'),
         ),
-        const _BarisTetap(
+        _BarisTetap(
           judul: 'Format laporan',
           ket: TextSpan(
-            text: 'Bawaan Palakat v1 · Persetujuan format: sudah dicatat',
+            text:
+                'Bawaan Palakat v1 · Persetujuan format: '
+                '${format == null ? 'belum dicatat' : 'sudah dicatat'}',
           ),
         ),
-        const Tautan(
+        Tautan(
           ke: Layar.bendahara,
           child: BarisDaftar(
             judul: 'Bendahara dan sesi',
-            keterangan: 'Meiske Lumentut · Wewenang Bendahara aktif',
+            keterangan: pemegang == null
+                ? 'Belum ada Bendahara aktif'
+                : '${orang.person(pemegang.personId)?.name ?? ''} · '
+                      'Wewenang Bendahara aktif',
           ),
         ),
         BarisDaftar(
@@ -451,7 +399,16 @@ class _Hub extends StatelessWidget {
             param: t.param,
             child: BarisDaftar(
               judul: t.judul,
-              keterangan: t.ket,
+              keterangan: switch (t.ke) {
+                Layar.formatLaporan =>
+                  format == null
+                      ? 'Belum dicatat'
+                      : 'Sudah dicatat · ${tgl(format.acceptedAt!)}',
+                Layar.keluar =>
+                  '${orang.person(saya?.personId ?? '')?.name ?? ''} · '
+                      'perangkat ini',
+                _ => t.ket,
+              },
               pertama: i == 0,
             ),
           ),
@@ -495,13 +452,14 @@ class _Hub extends StatelessWidget {
 
 // ---------- Kas/Bank ----------
 
-class _KasBank extends StatelessWidget {
+class _KasBank extends ConsumerWidget {
   const _KasBank();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
     final k = _Lingkup.of(context);
+    final p = ref.watch(pengaturanProvider);
     // An open sheet takes system Back first (navigation.md 5.1).
     return PopScope(
       canPop: k.sheet == null,
@@ -516,7 +474,7 @@ class _KasBank extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             spacing: 10,
             children: [
-              for (final x in _kasDaftar) _kartuKas(context, k, x),
+              for (final x in p.kas) _kartuKas(context, k, x),
               Padding(
                 padding: const EdgeInsets.only(top: 6),
                 child: Text(
@@ -533,19 +491,12 @@ class _KasBank extends StatelessWidget {
     );
   }
 
-  Widget _kartuKas(BuildContext context, _Keadaan k, _Kas x) {
+  Widget _kartuKas(BuildContext context, _Keadaan k, BarisKasBank x) {
     final c = context.warna;
-    final akan = k.non[x.id];
-    final bisa = !x.mati && akan == null;
-    final sub = akan == null
-        ? x.s
-        : 'Aktif sampai akhir '
-              '${akan == 'Desember 2026' ? 'November 2026' : 'Desember 2026'}'
-              ' · nonaktif mulai $akan';
     return Padding(
       padding: const EdgeInsets.only(bottom: 2),
       child: Kartu(
-        status: (x.mati || akan != null)
+        status: (x.mati || x.akanMati)
             ? GarisStatus.draf
             : GarisStatus.dibukukan,
         isi: x.mati ? null : c.permukaan,
@@ -557,18 +508,18 @@ class _KasBank extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    x.n,
+                    x.akun.name,
                     style: _judulBaris().copyWith(
                       color: x.mati ? c.tinta2 : c.tinta,
                     ),
                   ),
-                  Text(sub, style: TextStyle(fontSize: 13, color: c.tinta3)),
+                  Text(x.sub, style: TextStyle(fontSize: 13, color: c.tinta3)),
                 ],
               ),
             ),
-            if (bisa)
+            if (x.bisaNonaktif)
               Tekan(
-                onTap: () => k.buka(x.id),
+                onTap: () => k.buka(x.akun.id),
                 radius: 10,
                 child: RupaTombol(
                   label: 'Nonaktifkan',
@@ -589,16 +540,36 @@ class _KasBank extends StatelessWidget {
   }
 }
 
-class _LembarNonaktifkan extends StatelessWidget {
+class _LembarNonaktifkan extends ConsumerWidget {
   const _LembarNonaktifkan({required this.k});
   final _Keadaan k;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
-    final nama = _kasDaftar.firstWhere((x) => x.id == k.sheet).n;
+    final p = ref.watch(pengaturanProvider);
+    final x = p.kas.where((x) => x.akun.id == k.sheet).firstOrNull;
+    if (x == null) return const SizedBox.shrink();
+    final bulan = k.bulan ?? p.bulanBerlaku.first;
+    Future<void> nonaktifkan() async {
+      final r = await jalankanPengaturan(
+        ref,
+        (a, kunci) => ref
+            .read(accountRepositoryProvider)
+            .deactivate(
+              a,
+              x.akun.id,
+              bulan,
+              reason: 'Tidak dipakai lagi',
+              expectedRevision: x.akun.revision,
+              idempotencyKey: kunci,
+            ),
+      );
+      k.tolakan(r);
+    }
+
     return LembarBawah(
-      judul: 'Nonaktifkan $nama',
+      judul: 'Nonaktifkan ${x.akun.name}',
       anakJudul: 'Transaksi lama tidak berubah dan tetap tampil di laporannya.',
       labelTirai: 'Kembali ke daftar Kas/Bank',
       onTutup: k.tutupSheet,
@@ -606,10 +577,12 @@ class _LembarNonaktifkan extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ChipPilihan<String>(
+            ChipPilihan<Tanggal>(
               label: 'Berlaku mulai',
-              pilihan: [for (final b in _bulanPilihan) (nilai: b, teks: b)],
-              terpilih: k.bulan,
+              pilihan: [
+                for (final b in p.bulanBerlaku) (nilai: b, teks: bulanDari(b)),
+              ],
+              terpilih: bulan,
               onPilih: k.pick,
               jarakBaris: 0,
             ),
@@ -620,10 +593,16 @@ class _LembarNonaktifkan extends StatelessWidget {
             ),
           ],
         ),
+        if (k.tolak != null)
+          Penolakan(
+            tindakan: k.tolak!.action,
+            sebab: k.tolak!.because,
+            jalan: const [],
+          ),
         Tombol(
-          'Nonaktifkan mulai ${k.bulan}',
+          'Nonaktifkan mulai ${bulanDari(bulan)}',
           jenis: JenisTombol.tinta,
-          onPressed: k.nonaktifkan,
+          onPressed: nonaktifkan,
         ),
         Tombol(
           'Kembali',
@@ -638,13 +617,137 @@ class _LembarNonaktifkan extends StatelessWidget {
 
 // ---------- Aturan ----------
 
-class _Aturan extends StatelessWidget {
-  const _Aturan();
+/// The second-checker switch, shared with WebPengaturan: the value from M+1
+/// (a scheduled change, else today's); switching it schedules the change
+/// from the 1st of M+1 (D24).
+class SakelarPemeriksa extends ConsumerStatefulWidget {
+  const SakelarPemeriksa({super.key, this.nonaktif = false});
+  final bool nonaktif;
+
+  @override
+  ConsumerState<SakelarPemeriksa> createState() => _SakelarPemeriksaState();
+}
+
+class _SakelarPemeriksaState extends ConsumerState<SakelarPemeriksa> {
+  Refusal? _tolak;
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final k = _Lingkup.of(context);
+    final p = ref.watch(pengaturanProvider);
+    final j = p.jadwalPemeriksa;
+    final nanti = j?.on ?? p.pemeriksa;
+    final berubah = j != null && j.on != p.pemeriksa;
+    final mulai = j?.effectiveFrom ?? p.bulanBerlaku.first;
+    final kini = bulanDari(mulai.tambahHari(-1));
+    final sub = berubah
+        ? '${nanti ? 'Hidup' : 'Mati'} mulai ${bulanDari(mulai)}'
+        : nanti
+        ? 'Hidup · Bukukan memerlukan orang kedua yang menandai sudah '
+              'diperiksa'
+        : 'Mati · Bendahara memeriksa dan membukukan sendiri';
+    Future<void> ubah(bool v) async {
+      final r = await jalankanPengaturan(
+        ref,
+        (a, kunci) => ref
+            .read(settingsRepositoryProvider)
+            .setRule(
+              a,
+              FinanceRule.secondChecker,
+              v,
+              p.bulanBerlaku.first,
+              reason: '',
+              expectedRevision: p.revisiPemeriksa,
+              idempotencyKey: kunci,
+            ),
+      );
+      if (mounted) setState(() => _tolak = r);
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: 10,
+      children: [
+        Row(
+          spacing: 12,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Wajib pemeriksa kedua', style: _judulBaris()),
+                  Text(sub, style: TextStyle(fontSize: 13, color: c.tinta3)),
+                ],
+              ),
+            ),
+            Sakelar(
+              nilai: nanti,
+              onUbah: ubah,
+              nonaktif: widget.nonaktif,
+              label: 'Wajib pemeriksa kedua',
+            ),
+          ],
+        ),
+        if (_tolak != null)
+          Penolakan(
+            tindakan: _tolak!.action,
+            sebab: _tolak!.because,
+            jalan: const [],
+          ),
+        if (berubah)
+          Gerak(
+            Kerangka.muncul,
+            key: ValueKey(nanti),
+            lama: const Duration(milliseconds: 300),
+            child: Container(
+              padding: const EdgeInsets.only(top: 10),
+              decoration: BoxDecoration(
+                border: Border(top: BorderSide(color: c.garis)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: 6,
+                children: [
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'Berlaku mulai ${bulanDari(mulai)}.',
+                          style: const TextStyle(fontWeight: FontWeight.w700),
+                        ),
+                        TextSpan(
+                          text: nanti
+                              ? ' Sejak itu, Bukukan memerlukan orang kedua '
+                                    'yang menandai sudah diperiksa. Pemeriksa '
+                                    'kedua tidak boleh orang yang mencatat.'
+                              : ' Sejak itu, Bendahara memeriksa dan '
+                                    'membukukan sendiri. Sampai akhir $kini, '
+                                    'Bukukan tetap memerlukan pemeriksa kedua.',
+                        ),
+                      ],
+                    ),
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                  Text(
+                    'Transaksi $kini dan sebelumnya tidak terpengaruh.',
+                    style: TextStyle(fontSize: 13, color: c.tinta3),
+                  ),
+                ],
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _Aturan extends ConsumerWidget {
+  const _Aturan();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.warna;
+    final p = ref.watch(pengaturanProvider);
     Widget baris(String judul, String teks, {bool pertama = false}) =>
         Container(
           padding: const EdgeInsets.symmetric(vertical: 12),
@@ -677,7 +780,7 @@ class _Aturan extends StatelessWidget {
                   baris(
                     'Persetujuan di luar aplikasi',
                     'Wajib untuk Belanja Rp2.000.000 ke atas · berlaku mulai '
-                        'September 2026',
+                        '${bulanDari(p.mulai)}',
                     pertama: true,
                   ),
                   baris(
@@ -689,90 +792,7 @@ class _Aturan extends StatelessWidget {
                 ],
               ),
             ),
-            Kartu(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: 10,
-                children: [
-                  Row(
-                    spacing: 12,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Wajib pemeriksa kedua', style: _judulBaris()),
-                            Text(
-                              k.mc
-                                  ? 'Hidup mulai Desember 2026'
-                                  : 'Mati · Bendahara memeriksa dan membukukan '
-                                        'sendiri',
-                              style: TextStyle(fontSize: 13, color: c.tinta3),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Sakelar(
-                        nilai: k.mc,
-                        onUbah: (_) => k.toggleMc(),
-                        label: 'Wajib pemeriksa kedua',
-                      ),
-                    ],
-                  ),
-                  if (k.mc)
-                    Gerak(
-                      Kerangka.muncul,
-                      lama: const Duration(milliseconds: 300),
-                      child: Container(
-                        padding: const EdgeInsets.only(top: 10),
-                        decoration: BoxDecoration(
-                          border: Border(top: BorderSide(color: c.garis)),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          spacing: 6,
-                          children: [
-                            const Text.rich(
-                              TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: 'Berlaku mulai Desember 2026.',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                  TextSpan(
-                                    text:
-                                        ' Sejak itu, Bukukan memerlukan orang '
-                                        'kedua yang menandai sudah diperiksa. '
-                                        'Pemeriksa kedua tidak boleh orang yang '
-                                        'mencatat.',
-                                  ),
-                                ],
-                              ),
-                              style: TextStyle(fontSize: 14),
-                            ),
-                            Text(
-                              'Belum ada pemeriksa kedua yang ditunjuk. Tanpa '
-                              'itu, Bukukan akan ditolak mulai Desember 2026.',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: c.bata,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            Text(
-                              'Transaksi November 2026 dan sebelumnya tidak '
-                              'terpengaruh.',
-                              style: TextStyle(fontSize: 13, color: c.tinta3),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
+            const Kartu(child: SakelarPemeriksa()),
           ],
         ),
       ),
@@ -782,12 +802,13 @@ class _Aturan extends StatelessWidget {
 
 // ---------- Riwayat aktivitas ----------
 
-class _Riwayat extends StatelessWidget {
+class _Riwayat extends ConsumerWidget {
   const _Riwayat();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
+    final riwayat = ref.watch(pengaturanProvider).riwayat.take(40).toList();
     return _Dalam(
       judul: 'Riwayat aktivitas',
       isi: SingleChildScrollView(
@@ -795,7 +816,7 @@ class _Riwayat extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            for (final (i, r) in _riwayat.indexed)
+            for (final (i, r) in riwayat.map(barisRiwayat).indexed)
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: i == 0
@@ -806,8 +827,11 @@ class _Riwayat extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(r.$1, style: _judulBaris()),
-                    Text(r.$2, style: TextStyle(fontSize: 13, color: c.tinta3)),
+                    Text(r.judul, style: _judulBaris()),
+                    Text(
+                      r.waktu,
+                      style: TextStyle(fontSize: 13, color: c.tinta3),
+                    ),
                   ],
                 ),
               ),
