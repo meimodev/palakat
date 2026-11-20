@@ -192,14 +192,18 @@ class _WebPaketLaporanScreenState extends State<WebPaketLaporanScreen> {
       badan = [
         const Align(
           alignment: Alignment.centerLeft,
-          child: Tombol(
-            'Buka halaman F01',
-            onPressed: null,
-            ke: 'WebLaporan',
-            jenis: JenisTombol.kedua,
-            ukuran: UkuranTombol.kecil,
-            paddingH: 18,
-            lebarPenuh: false,
+          // Board `<a>` is content-box: 44 + 1.5 px lines = 47.
+          child: SizedBox(
+            height: 47,
+            child: Tombol(
+              'Buka halaman F01',
+              onPressed: null,
+              ke: 'WebLaporan',
+              jenis: JenisTombol.kedua,
+              ukuran: UkuranTombol.kecil,
+              paddingH: 18,
+              lebarPenuh: false,
+            ),
           ),
         ),
       ];

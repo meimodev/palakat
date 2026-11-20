@@ -123,26 +123,34 @@ class _WebBantuanAIScreenState extends State<WebBantuanAIScreen> {
                     // The board writes `turun` here but never declares it.
                     DrafBantuanAI(s: _s, turun: false),
                     const SizedBox(height: 16),
+                    // Board `<a>` buttons are content-box: 46 + 1.5 px lines = 49,
+                    // and the run stretches both to it.
                     const Wrap(
                       spacing: 8,
                       runSpacing: 8,
                       children: [
-                        Tombol(
-                          'Periksa dan bukukan',
-                          onPressed: null,
-                          ke: 'WebCatat',
-                          cara: Cara.ganti,
-                          ukuran: UkuranTombol.ringkas,
-                          lebarPenuh: false,
+                        SizedBox(
+                          height: 49,
+                          child: Tombol(
+                            'Periksa dan bukukan',
+                            onPressed: null,
+                            ke: 'WebCatat',
+                            cara: Cara.ganti,
+                            ukuran: UkuranTombol.ringkas,
+                            lebarPenuh: false,
+                          ),
                         ),
-                        Tombol(
-                          'Simpan sebagai draf',
-                          onPressed: null,
-                          jenis: JenisTombol.kedua,
-                          ke: 'WebTransaksi',
-                          cara: Cara.ganti,
-                          ukuran: UkuranTombol.ringkas,
-                          lebarPenuh: false,
+                        SizedBox(
+                          height: 49,
+                          child: Tombol(
+                            'Simpan sebagai draf',
+                            onPressed: null,
+                            jenis: JenisTombol.kedua,
+                            ke: 'WebTransaksi',
+                            cara: Cara.ganti,
+                            ukuran: UkuranTombol.ringkas,
+                            lebarPenuh: false,
+                          ),
                         ),
                       ],
                     ),
