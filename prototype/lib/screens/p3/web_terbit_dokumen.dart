@@ -45,11 +45,12 @@ class _WebTerbitDokumenScreenState extends State<WebTerbitDokumenScreen>
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Inline breadcrumb: a 44 px target without growing the block.
-                MarginNegatif(
-                  atas: (44 - 14 * 1.45) / 2,
-                  bawah: (44 - 14 * 1.45) / 2,
-                  child: const Tautan(
+                // Inline breadcrumb in the 15 px page text (a 22 px line box):
+                // the 44 px target overhangs it by 11 above and below.
+                const MarginNegatif(
+                  atas: 11,
+                  bawah: 11,
+                  child: Tautan(
                     ke: 'WebDokumenGereja',
                     cara: Cara.naik,
                     child: SizedBox(

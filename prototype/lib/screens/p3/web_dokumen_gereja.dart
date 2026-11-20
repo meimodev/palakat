@@ -47,13 +47,22 @@ class _WebDokumenGerejaScreenState extends State<WebDokumenGerejaScreen>
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Inline link: a 44 target that overhangs its 20 px line.
+            // Inline link in the 15 px page text: its line box is 22 high;
+            // the 44 target overhangs it by 11 above and below.
             const MarginNegatif(
-              bawah: 44 - 14 * 1.45,
+              atas: 11,
+              bawah: 11,
               child: Tautan(
                 ke: 'WebBerandaJabatan',
                 cara: Cara.naik,
-                child: TautanTeks('Beranda', ukuran: 14),
+                child: SizedBox(
+                  height: 44,
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    widthFactor: 1,
+                    child: TautanTeks('Beranda', ukuran: 14),
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 2),

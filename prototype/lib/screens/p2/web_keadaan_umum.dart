@@ -43,17 +43,19 @@ class _WebKeadaanUmumScreenState extends State<WebKeadaanUmumScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // 44 px target around the 14 px breadcrumb, without growing the block.
-              MarginNegatif(
-                atas: 11.8,
-                bawah: 11.8,
+              const MarginNegatif(
+                atas: 11,
+                bawah: 11,
                 child: Tautan(
                   ke: 'WebBerandaJabatan',
                   cara: Cara.naik,
-                  child: const Align(
-                    alignment: Alignment.centerLeft,
-                    widthFactor: 1,
-                    heightFactor: 1,
-                    child: TautanTeks('Beranda', ukuran: 14),
+                  child: SizedBox(
+                    height: 44,
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      widthFactor: 1,
+                      child: TautanTeks('Beranda', ukuran: 14),
+                    ),
                   ),
                 ),
               ),
