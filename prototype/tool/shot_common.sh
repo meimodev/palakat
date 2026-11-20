@@ -9,7 +9,7 @@ CANVAS="${CANVAS:-$REPO/docs/design/handoff/canvas}"
 BOARDS="${BOARDS:-$CANVAS/boards}"
 CHROME="${CHROME:-/Applications/Google Chrome.app/Contents/MacOS/Google Chrome}"
 
-STEM="" OUT="" DEFW="" DEFH="" WIDTH="" HEIGHT="" ROUTE="" MS=""
+GELAP="" STEM="" OUT="" DEFW="" DEFH="" WIDTH="" HEIGHT="" ROUTE="" MS=""
 TWEAKS=() CLICKS=()
 
 parse_args() {
@@ -27,6 +27,8 @@ parse_args() {
       --wait) [[ "$2" =~ ^[0-9]+$ ]] || { echo "--wait needs milliseconds" >&2; exit 2; }; CLICKS+=("tunggu:$2"); shift 2 ;;
       --route) ROUTE="$2"; shift 2 ;;
       --ms) MS="$2"; shift 2 ;;
+      # App side only: the dark (Gelap) theme. Boards are light only; check legibility, not parity.
+      --gelap) GELAP=1; shift ;;
       *=*) TWEAKS+=("$1"); shift ;;
       *) echo "unknown argument: $1" >&2; exit 2 ;;
     esac
@@ -44,6 +46,7 @@ shot_name() {
   [[ -n "$ROUTE" && "$ROUTE" != "/$STEM" ]] && n+="__route${ROUTE#/"$STEM"}"
   for c in ${CLICKS[@]+"${CLICKS[@]}"}; do n+="__klik-$c"; done
   [[ "$WIDTH" != "$DEFW" || "$HEIGHT" != "$DEFH" ]] && n+="__${WIDTH}x${HEIGHT}"
+  [[ -n "$GELAP" ]] && n+="__gelap"
   printf '%s' "$n" | LC_ALL=C sed -E 's/[^A-Za-z0-9._-]+/_/g' | cut -c1-180
 }
 

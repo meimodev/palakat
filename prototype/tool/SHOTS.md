@@ -73,4 +73,5 @@ A stand-in for the canvas runtime the boards load as `./support.js` (not in the 
 - The yellow double underline on app text means the widget has no `Material`/`DefaultTextStyle` ancestor; it is in the app (the `BelumDibangun` stubs show it), not the harness.
 - `board_check.sh` checks rendering (JS errors, unreplaced `{{`, the ready marker) at default tweaks, not pixels. Last run: 199 of 199 boards ok; a one-off sweep of every non-default tweak option (323 renders) was also all ok.
 - macOS paths: Chrome at `/Applications/Google Chrome.app` (override with `CHROME=`), `fvm`, `python3`, `perl`.
+- `app_shot.sh <Stem> --gelap` renders the app in the dark (Gelap) theme, named `<name>__gelap.png`. The boards are light only, so use it to check legibility, not parity.
 - Headless Chrome lays a page out in a viewport about 87 px shorter than `--window-size` (`innerHeight` 913 for 1000, 757 for 844). `support.js` therefore resolves the boards' `vh` units against `_h` (the frame height, as on the canvas), so `min-height: 100vh` boards fill the frame.

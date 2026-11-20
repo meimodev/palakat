@@ -32,6 +32,7 @@ final _klik = _arg('KLIK', const String.fromEnvironment('KLIK'));
 final _out = _arg('OUT', const String.fromEnvironment('OUT'));
 final _w = int.tryParse(_arg('W', '')) ?? const int.fromEnvironment('W');
 final _h = int.tryParse(_arg('H', '')) ?? const int.fromEnvironment('H');
+final _gelap = _arg('GELAP', '') == '1';
 final _ms =
     int.tryParse(_arg('MS', '')) ??
     const int.fromEnvironment('MS', defaultValue: 2500);
@@ -69,7 +70,9 @@ void main() {
     addTearDown(tester.view.reset);
 
     // Reduced motion, like the board side: end states, loops at rest.
-    final keadaan = PrototypeState()..kurangiGerak = true;
+    final keadaan = PrototypeState()
+      ..kurangiGerak = true
+      ..tema = _gelap ? ThemeMode.dark : ThemeMode.light;
     if (_tweaks.isNotEmpty) {
       for (final MapEntry(key: nama, value: v) in Uri.splitQueryString(
         _tweaks,
