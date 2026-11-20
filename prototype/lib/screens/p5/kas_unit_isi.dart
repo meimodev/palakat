@@ -160,19 +160,16 @@ class _KasUnitIsiState extends State<KasUnitIsi> {
           onChanged: (_) => setState(() {}),
         ),
       ),
-      // Board pills sit in a gap-8 wrap with no bottom margin.
-      MarginNegatif(
-        bawah: 8,
-        child: ChipPilihan<String>(
-          label: 'Dikelola oleh',
-          jarakLabel: 6,
-          pilihan: [for (final u in _semuaUnit) (nilai: u, teks: u)],
-          terpilih: _unit,
-          onPilih: (u) => setState(() {
-            _unit = u;
-            _pesan = '';
-          }),
-        ),
+      ChipPilihan<String>(
+        label: 'Dikelola oleh',
+        jarakLabel: 6,
+        jarakBawah: 0,
+        pilihan: [for (final u in _semuaUnit) (nilai: u, teks: u)],
+        terpilih: _unit,
+        onPilih: (u) => setState(() {
+          _unit = u;
+          _pesan = '';
+        }),
       ),
       const BarisInfo('Berlaku mulai', 'Desember 2026'),
       Text(

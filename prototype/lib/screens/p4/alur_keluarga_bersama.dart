@@ -166,7 +166,7 @@ mixin AlurKeluargaLogika<T extends StatefulWidget> on State<T> {
       ChipPilihan<String>(
         label: 'Keputusan Anda',
         jarakLabel: 6,
-        jarakBaris: 0,
+        jarakBawah: 0,
         pilihan: const [
           (nilai: 'Gabungkan', teks: 'Gabungkan'),
           (nilai: 'Bukan orang yang sama', teks: 'Bukan orang yang sama'),

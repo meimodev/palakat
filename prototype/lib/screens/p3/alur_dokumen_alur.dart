@@ -10,7 +10,6 @@ import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/penolakan.dart';
 import '../../widgets/riwayat_alur.dart';
-import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
 
@@ -247,18 +246,14 @@ Widget _chip(
   List<String> pil,
   String nilai,
   ValueChanged<String> pilih,
-) =>
-    // ChipPilihan pads 8 under its chips; the flow boards' wrap has none.
-    MarginNegatif(
-      bawah: 8,
-      child: ChipPilihan<String>(
-        label: label,
-        jarakLabel: 6,
-        pilihan: [for (final p in pil) (nilai: p, teks: p)],
-        terpilih: nilai.isEmpty ? null : nilai,
-        onPilih: pilih,
-      ),
-    );
+) => ChipPilihan<String>(
+  label: label,
+  jarakLabel: 6,
+  jarakBawah: 0,
+  pilihan: [for (final p in pil) (nilai: p, teks: p)],
+  terpilih: nilai.isEmpty ? null : nilai,
+  onPilih: pilih,
+);
 
 /// View `form`, left part (3a–3d).
 List<Widget> isianTerbit(AlurDokumenData a) => [

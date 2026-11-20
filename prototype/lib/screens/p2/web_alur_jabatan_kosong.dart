@@ -10,6 +10,7 @@ import '../../widgets/garis_status.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/penolakan.dart';
+import '../../widgets/pita_jabatan_kosong.dart';
 import '../../widgets/riwayat_alur.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
@@ -215,33 +216,13 @@ class _WebAlurJabatanKosongScreenState
           ],
         ),
       ],
-      // The board's running banner has no role="status" (spec 15), and the
-      // shared PitaJabatanKosong.web is always a live region, so it is
-      // drawn here.
+      // The board's running banner has no role="status" (spec 15).
       if (_jalan)
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          decoration: BoxDecoration(
-            color: c.tinta,
-            borderRadius: BorderRadius.circular(14),
-          ),
-          child: Text.rich(
-            TextSpan(
-              children: [
-                const TextSpan(
-                  text: 'Anda menjalankan jabatan kosong Penatua Kolom 2.',
-                  style: TextStyle(fontWeight: FontWeight.w700),
-                ),
-                TextSpan(
-                  text:
-                      ' Setiap tindakan dicatat sebagai dijalankan oleh '
-                      'Operator Yanti Sumual.',
-                  style: TextStyle(color: c.diTinta2),
-                ),
-              ],
-            ),
-            style: TextStyle(fontSize: 14, color: c.permukaan),
-          ),
+        const PitaJabatanKosong.web(
+          jabatan: 'Penatua Kolom 2',
+          sejak: null,
+          siaran: false,
+          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         ),
       if (_terisi)
         Kartu(

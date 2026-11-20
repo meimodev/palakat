@@ -336,7 +336,7 @@ class _AlurMasukIsiState extends State<AlurMasukIsi> {
         ChipPilihan<String>(
           label: 'Kirim kode lewat',
           jarakLabel: 6,
-          jarakBaris: 0,
+          jarakBawah: 0,
           pilihan: const [
             (nilai: 'WhatsApp', teks: 'WhatsApp'),
             (nilai: 'SMS', teks: 'SMS'),
