@@ -223,7 +223,8 @@ All copy is quoted from the boards. "Today" is 16/11/2026 and the actor is Meisk
 - **Notes**
   - **Off-token values**: saldo input mono 26 (not `jumlahIsian` 30); "Rp" prefix 18; total mono 22/600; badge padding 3 9 (LencanaStatus elsewhere uses 4 10); candidate radius 10; "Pastikan lagi" height 46. Copy them.
   - **The reason shows on an empty form.** TombolBersyarat says an empty form opens without a refusal, but the board wins. Copy each reason verbatim, without the "Tidak dapat dilakukan:" prefix.
-  - **"Tambah" has no disabled look.** The board's CSS keeps the same colours when it is disabled, and it shows no reason. Keep the look and block the press. This breaks "a disabled action always shows its reason"; flag it for the design owner.
+  - **"Tambah" has no disabled look.** The board's CSS keeps the same colours when it is disabled, and it shows no reason. Keep the look and block the press. Added for rules A02/A03 (rules-checklist 4.1), not on the board: once Uraian or Jumlah holds text and the condition is unmet, "Tidak dapat dilakukan: Tambah. Uraian mutasi belum diisi." (or "… Jumlah mutasi belum diisi.") shows between the Uraian field and the Jumlah/Tambah row, drawn with Penolakan 14 (the outlined button and its row stay the board's; the button's semantics hint is the same reason). The empty pair shows none.
+  - **Saldo field height (X03).** The field measured 43.6; it has a 44 minimum, the extra 0.4 below the top-aligned figure, so the figure does not move.
   - **A typed mutation blocks confirmation.** It can never be matched or removed, so it blocks confirmation until the board is re-entered. Keep as drawn.
   - **The CSV line keeps saying "Belum ada yang dicocokkan."** even though BIAYA ADM is pre-matched and after matching. Keep it verbatim.
   - **The upload is instant**, against the rule "upload always looks in progress". Keep as drawn and flag.
@@ -300,7 +301,7 @@ All copy is quoted from the boards. "Today" is 16/11/2026 and the actor is Meisk
   4. **At 800 px wide**: the nav is a top bar with "Menu". Tapping it shows the seven items and the footer, and it reads "Tutup menu". The mutation cards stack below the button.
   5. **`jabatanKosong` on**: the banner "Anda menjalankan jabatan kosong Bendahara Jemaat sejak 16/11/2026 08.15. …" is above the breadcrumb, and the nav footer shows "Yanti Sumual · Operator".
   6. **Breadcrumb "Rekonsiliasi"** returns to WebRekonsiliasi (a pop when that page is beneath).
-- **Notes** Same notes as RekonIsi (off-token sizes, reason on an empty form, "Tambah" without a disabled look, the instant upload, the empty total "Rp0"). This board's h1 is 26 and its suffix 15/500, and the body text is `isiWeb`.
+- **Notes** Same notes as RekonIsi (off-token sizes, reason on an empty form, "Tambah" without a disabled look and its added reason, the 44 Saldo field, the instant upload, the empty total "Rp0"). This board's h1 is 26 and its suffix 15/500, and the body text is `isiWeb`.
 
 ---
 
@@ -532,7 +533,7 @@ All copy is quoted from the boards. "Today" is 16/11/2026 and the actor is Meisk
   - ChipPilihan: the tabs (smaller variant), Jenis, Berlaku mulai, Jumlah angka.
   - IsianJumlah variant (26 px) for the approval threshold.
   - Text inputs.
-  - Tombol primary "Simpan sebagai versi baru". It is TombolBersyarat-like but has no reason.
+  - TombolBersyarat "Simpan sebagai versi baru" (`utama`, unmet text `tinta3`); the board draws no reason, the prototype adds one (Notes).
   - Line language: draf, for the pending entries.
   - The "effective-from sentence" pattern is in every entry.
 - **Internal views and states**
@@ -597,7 +598,7 @@ All copy is quoted from the boards. "Today" is 16/11/2026 and the actor is Meisk
      - Clear the field: the button turns grey.
   7. **The back arrow** returns to Lainnya.
 - **Notes**
-  - **No reason when the button is disabled.** This breaks "a disabled action always shows its reason", but the board wins on what is shown. Flag it for the design owner; do not invent copy.
+  - **No reason when the button is disabled** on the board. Added for rules A02/A03 (rules-checklist 4.1), not on the board: "Simpan sebagai versi baru" is TombolBersyarat; once a field of the open tab differs from its start value and the tab's condition is unmet, it shows "Tidak dapat dilakukan: Simpan sebagai versi baru. {field} belum diisi." above the button, {field} the first unmet one as labelled on the board: "Nama bank" / "Tempat atau pemegang", then "Empat angka akhir No. rekening" (Kas/Bank); "Awalan seri Biasa" (Seri); "Wajib untuk Belanja mulai dari" (Aturan). The untouched form shows none.
   - **The tab chips are 13 px with padding 0 12 and margin 0 6 6 0**, smaller than the other chips (14 px, 0 14). Copy it.
   - **Off-token values**: preview mono 24, threshold mono 26, "Rp" prefix 18.
   - **Seri and Aturan are valid from the start**, so saving without any change creates an entry ("Seri Biasa menjadi BKU-2027-0001 …"). Keep as drawn.
@@ -640,7 +641,7 @@ All copy is quoted from the boards. "Today" is 16/11/2026 and the actor is Meisk
   3. **Switch the global `jabatanKosong` on**: no banner, and the footer still reads "Meiske L. · Bendahara".
   4. **At 800 px**: the nav collapses behind "Menu", and the pending list stacks under the button.
   5. **Breadcrumb "Pengaturan"** returns to WebPengaturan.
-- **Notes** Same as UbahPengaturan. There is no reason line beside the disabled button; flag it, as on the phone. The nav footer ignores the vacancy switch because the board has no such tweak.
+- **Notes** Same as UbahPengaturan, including the added reason sentence above the button. The nav footer ignores the vacancy switch because the board has no such tweak.
 
 ---
 
@@ -860,7 +861,7 @@ All copy is quoted from the boards. "Today" is 16/11/2026 and the actor is Meisk
          3. Bold "Tercatat di Riwayat aktivitas" then " sebagai pemulihan akun, 16/11/2026 12.05."
        - Link-button "Buka Beranda": full width, min height 52, radius 14, `laut`, `diLaut` 700, centred, no underline.
 - **Components**
-  - Tombol primary, used as a TombolBersyarat-like button with no reason line.
+  - TombolBersyarat (`utama`, unmet text `tinta3`); the board draws no reason line, the prototype adds one (Notes).
   - The pattern "six-digit code entry", a reduced form: no wrong-code path.
   - A plain info card.
   - A 3-row confirmation card.
@@ -904,7 +905,7 @@ All copy is quoted from the boards. "Today" is 16/11/2026 and the actor is Meisk
 - **Notes**
   - **Off-token values**: step titles 24/700 (between `judulBesar` 22 and `judulHalaman` 26); 15 px body on the phone (the `isiWeb` size); code input mono 26 with letter spacing 8 and height 60.
   - **Two h1s** (the header and the step title). Keep the look, but give the step title heading semantics as the page heading and the header the app-bar role.
-  - **No reason line under either disabled button.** This breaks "a disabled action always shows its reason". The board wins on what is shown; flag it for the design owner.
+  - **No reason line under either disabled button** on the board. Added for rules A02/A03 (rules-checklist 4.1), not on the board: both buttons are TombolBersyarat; once the step's field holds text and is unmet, "Tidak dapat dilakukan: Kirim kode pemulihan. Email cadangan akun belum diisi." or "Tidak dapat dilakukan: Pulihkan akun. Kode enam angka belum diisi." shows above the button. The empty field shows none.
   - **The six-digit code pattern** (a wrong code clears the field, three attempts) is not drawn here: any code passes. The code is "sent" instantly, with no progress. Keep as drawn.
   - **The email check `.+@.+\..+` also accepts spaces**, for example "a b@c.d". Keep it.
 
@@ -950,4 +951,4 @@ All copy is quoted from the boards. "Today" is 16/11/2026 and the actor is Meisk
 - **Notes**
   - **The active nav item is "Masuk"**, not "Pemulihan akun": the board copied WebMasuk's nav and kept index 0 active. The board wins on what is shown; flag it for the design owner.
   - **Off-token radius 18** on the card, plus Pemulihan's off-token sizes (24 titles, 15 body, code 26/letter spacing 8).
-  - No reason line under the disabled buttons. Flag it, as on the phone.
+  - No reason line under the disabled buttons on the board; the phone's added reason sentences apply (shared `LangkahPemulihan`).

@@ -11,8 +11,10 @@ import '../../theme/palakat_tema.dart';
 import '../../widgets/garis.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
+import '../../widgets/penolakan.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
+import '../../widgets/tombol_bersyarat.dart';
 
 /// Web · Serah terima Bendahara (spec 10-aifoto.md, WebSerahTerima).
 class WebSerahTerimaScreen extends StatefulWidget {
@@ -29,12 +31,14 @@ const _subSesi = {
 
 class _WebSerahTerimaScreenState extends State<WebSerahTerimaScreen> {
   String _tahap = 'belum';
-  String _nama = 'Yohanis Tumbelaka';
+  static const _namaAwal = 'Yohanis Tumbelaka';
+  String _nama = _namaAwal;
   List<String> _sesi = const ['Ponsel ini', 'Chrome di laptop'];
   late final _isian = TextEditingController(text: _nama);
   Timer? _t;
 
   bool get _okNama => _nama.trim().isNotEmpty;
+  String _alasan() => _okNama ? '' : 'Nama yang ditunjuk belum diisi.';
 
   void _kirim() {
     if (!_okNama) return;
@@ -242,21 +246,32 @@ class _WebSerahTerimaScreenState extends State<WebSerahTerimaScreen> {
               style: TextStyle(fontSize: 14, color: c.tinta2),
             ),
             const SizedBox(height: 10),
+            // Rule A02: the sentence the board lacks, once the name is
+            // edited; drawn here so the hugged button keeps its width.
+            if (_nama != _namaAwal && !_okNama) ...[
+              Penolakan(
+                tindakan: 'Kirim untuk diverifikasi',
+                sebab: _alasan(),
+                jalan: const [],
+                ukuranTeks: 14,
+              ),
+              const SizedBox(height: 8),
+            ],
             Align(
               alignment: Alignment.centerLeft,
-              child: TekanAria(
-                onTap: _kirim,
-                aktif: _okNama,
-                petunjuk: _okNama ? null : 'Nama yang ditunjuk belum diisi.',
-                radius: 12,
-                child: RupaTombol(
+              child: IntrinsicWidth(
+                child: TombolBersyarat(
                   label: 'Kirim untuk diverifikasi',
-                  isi: _okNama ? c.laut : c.garis,
-                  warnaTeks: _okNama ? c.diLaut : c.tinta3,
-                  radius: 12,
+                  tindakan: 'Kirim untuk diverifikasi',
+                  alasan: _alasan(),
+                  periksa: _alasan,
+                  onPressed: _kirim,
+                  sudahMulai: false,
+                  warnaSiap: JenisTombol.utama,
+                  teksBelumRedup: true,
                   tinggi: 46,
+                  radius: 12,
                   paddingH: 20,
-                  lebarPenuh: false,
                 ),
               ),
             ),

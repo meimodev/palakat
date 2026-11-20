@@ -1320,6 +1320,9 @@ class _Kejadian extends StatefulWidget {
 class _KejadianState extends State<_Kejadian> {
   TextEditingController? _kejadian;
 
+  /// The two optional fields, only to know the form was typed into.
+  String _dampak = '', _pj = '';
+
   @override
   void dispose() {
     _kejadian?.dispose();
@@ -1331,7 +1334,7 @@ class _KejadianState extends State<_Kejadian> {
     final c = context.warna;
     final p = _papan(context);
     final isi = _kejadian ??= TextEditingController(text: p.kejadian);
-    const sebab = 'Isi penjelasan untuk melanjutkan.';
+    const sebab = 'Penjelasan belum diisi.';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1369,15 +1372,17 @@ class _KejadianState extends State<_Kejadian> {
                 contoh: 'Apa yang ditemukan, apa adanya',
               ),
             ),
-            const IsianTeks(
+            IsianTeks(
               label: 'Dampak pada rekonsiliasi',
               jarakLabel: 6,
               petunjuk: 'Misalnya: tidak ada',
+              onChanged: (v) => setState(() => _dampak = v),
             ),
-            const IsianTeks(
+            IsianTeks(
               label: 'Penanggung jawab',
               jarakLabel: 6,
               petunjuk: 'Nama dan jabatan',
+              onChanged: (v) => setState(() => _pj = v),
             ),
             Text(
               'Penyelesaian keuangan dicatat terpisah dari penjelasan, '
@@ -1392,7 +1397,8 @@ class _KejadianState extends State<_Kejadian> {
             tindakan: 'Catat kejadian',
             alasan: IsianAlasan.terisi(p.kejadian) ? '' : sebab,
             periksa: () => IsianAlasan.terisi(isi.text) ? '' : sebab,
-            sudahMulai: false,
+            // Rule A02: the sentence the board lacks, once typed into.
+            sudahMulai: [p.kejadian, _dampak, _pj].any((t) => t.isNotEmpty),
             teksBelumRedup: true,
             onPressed: () {
               p.ubah(() {

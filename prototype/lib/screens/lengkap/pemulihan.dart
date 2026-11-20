@@ -12,6 +12,7 @@ import '../../theme/palakat_tema.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
+import '../../widgets/tombol_bersyarat.dart';
 
 enum TahapPemulihan { mulai, kode, selesai }
 
@@ -73,8 +74,21 @@ class _LangkahPemulihanState extends State<LangkahPemulihan> {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    Widget tombol(String label) =>
-        Tombol(label, onPressed: _maju, nonaktif: !_k.ok);
+    // Rule A02: the sentence the board lacks, once the step's field is typed into.
+    final mulai = _k.tahap == TahapPemulihan.mulai;
+    String alasan() => _k.ok
+        ? ''
+        : '${mulai ? 'Email cadangan akun' : 'Kode enam angka'} belum diisi.';
+    Widget tombol(String label) => TombolBersyarat(
+      label: label,
+      tindakan: label,
+      alasan: alasan(),
+      periksa: alasan,
+      onPressed: _maju,
+      sudahMulai: (mulai ? _k.email : _k.kode).isNotEmpty,
+      warnaSiap: JenisTombol.utama,
+      teksBelumRedup: true,
+    );
 
     final List<Widget> isi = switch (_k.tahap) {
       TahapPemulihan.mulai => [

@@ -11,6 +11,7 @@ import '../../widgets/garis.dart';
 import '../../widgets/garis_status.dart';
 import '../../widgets/input_format.dart';
 import '../../widgets/kecil.dart';
+import '../../widgets/penolakan.dart';
 import '../../widgets/tahapan.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
@@ -171,6 +172,13 @@ mixin RekonIsiLogika<W extends StatefulWidget> on State<W> {
 
   bool get _okF => _fu.text.trim().isNotEmpty && (angkaDari(_fj.text) ?? 0) > 0;
 
+  /// Rule A02: the first unmet field, named by its label on the board.
+  String get _alasanF => _fu.text.trim().isEmpty
+      ? 'Uraian mutasi belum diisi.'
+      : _okF
+      ? ''
+      : 'Jumlah mutasi belum diisi.';
+
   void _tambahMutasi() {
     if (!_okF) return;
     setState(() {
@@ -281,6 +289,16 @@ mixin RekonIsiLogika<W extends StatefulWidget> on State<W> {
                 labelSemantik: 'Uraian mutasi',
                 onChanged: (_) => setState(() {}),
               ),
+              // Rule A02: the TombolBersyarat sentence the board lacks, above
+              // the row (the outlined button and its row are the board's).
+              if (_alasanF.isNotEmpty &&
+                  (_fu.text.isNotEmpty || _fj.text.isNotEmpty))
+                Penolakan(
+                  tindakan: 'Tambah',
+                  sebab: _alasanF,
+                  jalan: const [],
+                  ukuranTeks: 14,
+                ),
               Row(
                 children: [
                   Expanded(
@@ -298,6 +316,7 @@ mixin RekonIsiLogika<W extends StatefulWidget> on State<W> {
                   TekanAria(
                     onTap: _tambahMutasi,
                     aktif: _okF,
+                    petunjuk: _okF ? null : _alasanF,
                     radius: 12,
                     child: RupaTombol(
                       label: 'Tambah',
@@ -717,28 +736,35 @@ class _IsianSaldoState extends State<_IsianSaldo> {
                   label: 'Saldo rekening koran',
                   child: CincinFokus(
                     tampil: _fokus.hasFocus,
-                    child: Material(
-                      type: MaterialType.transparency,
-                      child: TextField(
-                        controller: widget.controller,
-                        focusNode: _fokus,
-                        onChanged: widget.onChanged,
-                        readOnly: widget.hanyaBaca,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: const [RupiahInputFormatter(maks: 12)],
-                        textAlignVertical: TextAlignVertical.center,
-                        style: angka,
-                        cursorColor: c.laut,
-                        decoration: InputDecoration(
-                          isCollapsed: true,
-                          border: InputBorder.none,
-                          // min-height 44 with the line centred, as in Chrome.
-                          contentPadding: EdgeInsets.symmetric(
-                            vertical: ((44 - 26 * (dasar.height ?? 1.4)) / 2)
-                                .clamp(0, 22),
+                    // Rule X03: the field measured 43.6; the 0.4 goes below
+                    // the top-aligned line, so the figure stays put.
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(minHeight: 44),
+                      child: Material(
+                        type: MaterialType.transparency,
+                        child: TextField(
+                          controller: widget.controller,
+                          focusNode: _fokus,
+                          onChanged: widget.onChanged,
+                          readOnly: widget.hanyaBaca,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: const [
+                            RupiahInputFormatter(maks: 12),
+                          ],
+                          textAlignVertical: TextAlignVertical.top,
+                          style: angka,
+                          cursorColor: c.laut,
+                          decoration: InputDecoration(
+                            isCollapsed: true,
+                            border: InputBorder.none,
+                            // min-height 44 with the line centred, as in Chrome.
+                            contentPadding: EdgeInsets.symmetric(
+                              vertical: ((44 - 26 * (dasar.height ?? 1.4)) / 2)
+                                  .clamp(0, 22),
+                            ),
+                            hintText: '—',
+                            hintStyle: angka.copyWith(color: c.tinta3),
                           ),
-                          hintText: '—',
-                          hintStyle: angka.copyWith(color: c.tinta3),
                         ),
                       ),
                     ),

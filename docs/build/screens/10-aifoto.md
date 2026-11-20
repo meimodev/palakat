@@ -504,7 +504,7 @@ Shared notes for this file:
   - Name input → `nama` = text, as typed.
   - "Kirim untuk diverifikasi" condition: `nama.trim()` is not empty.
     - Re-checked on press, so the first press after typing works.
-    - Blank → disabled look and the press does nothing. No reason sentence on the board.
+    - Blank → disabled look and the press does nothing. No reason sentence on the board; the prototype adds one (Notes).
     - Valid → `tahap = 'tunggu'`. Any timer is cancelled, then after 2800 ms (this fakes the Petugas verifikasi on another device) `tahap = 'aktif'`.
   - On *aktif*:
     - The old card's border, badge and sub change. The new card turns solid with the `laut` badge.
@@ -539,7 +539,7 @@ Shared notes for this file:
 - **Notes**
   - The board contradicts itself under "Belum ada Bendahara aktif": the banner says nobody is active, while the old card and the footer still say Meiske is. Keep it, since the board wins.
   - "Ponsel ini" on a laptop page is the board's session name; keep it.
-  - Kirim is disabled with no visible reason. The board has none; add only a Semantics hint.
+  - Kirim is disabled with no visible reason on the board. Added for rules A02/A03 (rules-checklist 4.1), not on the board: once the name differs from "Yohanis Tumbelaka" and is blank, "Tidak dapat dilakukan: Kirim untuk diverifikasi. Nama yang ditunjuk belum diisi." shows above the button (Penolakan 14, so the hugged TombolBersyarat keeps its width). The prefilled form shows none.
   - Off-token values: 19 px banner title, radius 10 on "Akhiri sesi".
 
 ### KasusBaru — 37 · Kasus baru: Uang Muka, Titipan, Penggantian biaya
