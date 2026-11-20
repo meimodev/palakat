@@ -687,6 +687,17 @@ class _Sel extends StatefulWidget {
   State<_Sel> createState() => _SelState();
 }
 
+/// Vertical padding that centres one line of [gaya] in a 44 px field.
+double _tepi(TextStyle gaya) {
+  final tp = TextPainter(
+    text: TextSpan(text: '0', style: gaya),
+    textDirection: TextDirection.ltr,
+  )..layout();
+  final h = tp.preferredLineHeight;
+  tp.dispose();
+  return h >= 44 ? 0 : (44 - h) / 2;
+}
+
 class _SelState extends State<_Sel> {
   final _fokus = FocusNode();
 
@@ -733,38 +744,41 @@ class _SelState extends State<_Sel> {
             onTap: _fokus.requestFocus,
             child: SizedBox(
               height: 44,
-              child: Center(
-                child: Semantics(
-                  label: widget.label,
-                  child: Material(
-                    type: MaterialType.transparency,
-                    // Flutter keeps cursorWidth + 1 free right of right-aligned text;
-                    // shift it so the figure ends at the board's 10 px padding.
-                    child: Transform.translate(
-                      offset: const Offset(3, 0),
-                      child: TextField(
-                        controller: widget.controller,
-                        focusNode: _fokus,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: const [
-                          RupiahInputFormatter(sisakanNol: true, maks: 12),
-                        ],
-                        textAlign: TextAlign.right,
-                        // One line, as an <input>: a figure wider than the
-                        // field scrolls instead of wrapping (390 and 860 wide).
-                        style: gaya.copyWith(color: c.tinta),
-                        cursorColor: c.laut,
-                        decoration: InputDecoration(
-                          isCollapsed: true,
-                          border: InputBorder.none,
-                          // The field is shifted 3 px right; the placeholder is not caret-inset.
-                          hint: Transform.translate(
-                            offset: const Offset(-3, 0),
-                            child: Text(
-                              '—',
-                              textAlign: TextAlign.right,
-                              style: gaya.copyWith(color: c.tinta3),
-                            ),
+              // The field itself fills the 44 px box (X03); its padding centres
+              // the one line where Center used to put it.
+              child: Semantics(
+                label: widget.label,
+                child: Material(
+                  type: MaterialType.transparency,
+                  // Flutter keeps cursorWidth + 1 free right of right-aligned text;
+                  // shift it so the figure ends at the board's 10 px padding.
+                  child: Transform.translate(
+                    offset: const Offset(3, 0),
+                    child: TextField(
+                      controller: widget.controller,
+                      focusNode: _fokus,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: const [
+                        RupiahInputFormatter(sisakanNol: true, maks: 12),
+                      ],
+                      textAlign: TextAlign.right,
+                      // One line, as an <input>: a figure wider than the
+                      // field scrolls instead of wrapping (390 and 860 wide).
+                      style: gaya.copyWith(color: c.tinta),
+                      cursorColor: c.laut,
+                      decoration: InputDecoration(
+                        isCollapsed: true,
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: _tepi(gaya),
+                        ),
+                        // The field is shifted 3 px right; the placeholder is not caret-inset.
+                        hint: Transform.translate(
+                          offset: const Offset(-3, 0),
+                          child: Text(
+                            '—',
+                            textAlign: TextAlign.right,
+                            style: gaya.copyWith(color: c.tinta3),
                           ),
                         ),
                       ),
