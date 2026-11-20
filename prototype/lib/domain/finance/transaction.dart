@@ -174,6 +174,8 @@ class Transaction {
     this.reversedBy,
     this.correctionOf,
     this.correctedBy,
+    this.refundOf,
+    this.countedBy = const [],
     this.importRowId,
     this.aiProposalId,
     this.seedKey,
@@ -237,6 +239,12 @@ class Transaction {
   /// The original this replaces; the replacement of this.
   String? correctionOf;
   String? correctedBy;
+
+  /// The posted transaction this refunds or returns (D25, RD04).
+  final String? refundOf;
+
+  /// 'Petugas penghitung' of a counted offering (person ids).
+  final List<String> countedBy;
   String? importRowId;
   String? aiProposalId;
 
@@ -298,6 +306,8 @@ class Transaction {
     reversedBy: reversedBy,
     correctionOf: correctionOf,
     correctedBy: correctedBy,
+    refundOf: refundOf,
+    countedBy: countedBy,
     seedKey: seedKey,
     revision: revision,
   );
@@ -332,6 +342,8 @@ class TransactionDraft {
     this.aiProposalId,
     this.reversalOf,
     this.correctionOf,
+    this.refundOf,
+    this.countedBy = const [],
   });
 
   final TransactionType type;
@@ -353,6 +365,10 @@ class TransactionDraft {
   /// Set by the repository's own reverse and correct.
   final String? reversalOf;
   final String? correctionOf;
+
+  /// See [Transaction.refundOf] and [Transaction.countedBy].
+  final String? refundOf;
+  final List<String> countedBy;
 }
 
 /// `TransactionRepository.editDraft`: only the fields given change. A

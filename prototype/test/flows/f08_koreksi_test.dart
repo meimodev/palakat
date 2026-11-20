@@ -138,5 +138,95 @@ void main() {
         expect(find.text('Koreksi dengan pembalikan'), findsNothing);
       });
     }
+
+    // DM 4.3, 5.1, 5.2: a correction's pair books both or neither from any
+    // "Periksa dan bukukan" (here Draf of the replacement); the reversal is
+    // not edited; a Belanja of Rp2.000.000+ replacement needs approval.
+    testWidgets('pasangan dibukukan bersama', (tester) async {
+      final w = await bukaAplikasi(tester);
+      final k = w.read(seedProvider).keuangan;
+      final tx = w.read(transactionRepositoryProvider);
+      await masukSebagai(tester, Persona.meiske);
+      final a = w.read(actorProvider)!;
+      final asal = k.transactions.lastWhere(
+        (t) =>
+            t.isPosted &&
+            t.type == TransactionType.expense &&
+            !t.isReversed &&
+            t.total >= 2000000 &&
+            !(k.periodOf(t.effectiveDate)?.isClosed ?? true),
+      );
+      final r = await tx.correct(
+        a,
+        asal.id,
+        TransactionDraft(
+          type: asal.type,
+          effectiveDate: w.read(hariIniProvider),
+          description: '${asal.description} (koreksi)',
+          accountId: asal.accountId,
+          allocations: asal.allocations,
+        ),
+        reason: 'keliru',
+        expectedRevision: asal.revision,
+        idempotencyKey: 'f8-pasangan',
+      );
+      final balik = r.value.reversal, ganti = r.value.replacement;
+      expect(ganti.approvalMode, ApprovalMode.external);
+      final ubah = await tx.editDraft(
+        a,
+        balik.id,
+        const TransactionPatch(description: 'ubah'),
+        expectedRevision: balik.revision,
+        idempotencyKey: 'f8-ubah-balik',
+      );
+      expect(ubah.refusal?.because, contains('Pembalikan tidak dapat diubah'));
+
+      await periksaOlehJefry(tester, balik.description);
+      Future<void> bukukanDraf(String id) async {
+        w.read(routerProvider).go(Layar.draf.lokasi(param: {'id': id}));
+        await tester.pumpAndSettle();
+        await tekan(tester, 'Periksa dan bukukan');
+      }
+
+      // The checked reversal does not book alone while its replacement
+      // lacks approval and the second check.
+      await bukukanDraf(balik.id);
+      expect(
+        find.textContaining('Tidak dapat dilakukan: Bukukan'),
+        findsWidgets,
+      );
+      expect(tx.get(balik.id)!.isDraft && tx.get(ganti.id)!.isDraft, isTrue);
+
+      await w
+          .read(approvalRepositoryProvider)
+          .recordExternal(
+            a,
+            ganti.id,
+            ApprovalDeclaration(
+              approverName: 'Pdt. Lidya Rondonuwu',
+              approverRole: 'Ketua BPMJ',
+              date: w.read(hariIniProvider),
+              method: 'notulen rapat',
+            ),
+            expectedRevision: tx.get(ganti.id)!.revision,
+            idempotencyKey: 'f8-setuju',
+          );
+      await periksaOlehJefry(tester, ganti.description);
+      final tahun = w.read(hariIniProvider).tahun;
+      final berikut =
+          tx
+              .voucherSeries(VoucherSeries.bku, tahun)
+              .fold(0, (m, e) => max(m, e.number)) +
+          1;
+      await bukukanDraf(ganti.id);
+      expect(
+        (tx.get(balik.id)!.voucher, tx.get(ganti.id)!.voucher),
+        (
+          voucherCode(VoucherSeries.bku, tahun, berikut),
+          voucherCode(VoucherSeries.bku, tahun, berikut + 1),
+        ),
+      );
+      expect(tx.get(asal.id)!.isReversed, isTrue);
+    });
   });
 }

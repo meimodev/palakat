@@ -186,12 +186,11 @@ class WebKasusScreen extends ConsumerStatefulWidget {
 }
 
 class _WebKasusScreenState extends ConsumerState<WebKasusScreen> {
-  // Board state: { tab, buka, sheet, isi, cek }. The cases are read from
-  // daftarKasusProvider; `cek` is the board's claim check (no command).
+  // Board state: { tab, buka, sheet, isi }. The cases are read from
+  // daftarKasusProvider; "Cek klaim" is CaseRepository.checkClaim.
   String _tab = 'um';
   String? _buka, _sheet;
   String _isi = '';
-  final Set<String> _cek = {};
   Refusal? _pesan;
   final _isian = TextEditingController();
   final _fokus = FocusNode();
@@ -401,7 +400,7 @@ class _WebKasusScreenState extends ConsumerState<WebKasusScreen> {
     final c = context.warna;
     final csisa = cur.sisa;
     final akt = _akt;
-    final sudahCek = cur.dicek || _cek.contains(cur.id);
+    final sudahCek = cur.dicek;
     final status = statusKasus(cur);
     final aksi = csisa > 0 && !cur.awalDraf
         ? [
@@ -697,15 +696,18 @@ class _WebKasusScreenState extends ConsumerState<WebKasusScreen> {
                 ukuran: UkuranTombol.ringkas,
                 paddingH: 18,
                 lebarPenuh: false,
-                onPressed: () => setState(() {
+                onPressed: () async {
                   if (a.cek) {
-                    _cek.add(cur.id);
+                    final r = await cekKlaim(ref, cur);
+                    if (mounted) setState(() => _pesan = r);
                     return;
                   }
-                  _sheet = a.id;
-                  _pesan = null;
-                  _isiKe('$csisa');
-                }),
+                  setState(() {
+                    _sheet = a.id;
+                    _pesan = null;
+                    _isiKe('$csisa');
+                  });
+                },
               ),
           ],
         ),

@@ -794,9 +794,8 @@ Future<({bool selesai, String? no, Refusal? pesan})> simpanKasusBaru(
       .parties()
       .where((x) => x.displayName.toLowerCase() == nama.toLowerCase())
       .firstOrNull;
-  // ponytail: a name with no Party is kept as the case's party label; a
-  // "create Party" command is a request to the core owner.
-  final pihakId = party?.id ?? nama;
+  final pihakId = party?.id;
+  final namaBaru = party == null && nama.isNotEmpty ? nama : null;
   final umum =
       ref.read(pilihanCatatProvider(ref.read(hariIniProvider))).umum ?? 'umum';
   final Result<String> r;
@@ -806,6 +805,7 @@ Future<({bool selesai, String? no, Refusal? pesan})> simpanKasusBaru(
       ClaimDraft(
         title: uraian.trim(),
         partyId: pihakId,
+        payeeName: namaBaru,
         fundId: umum,
         amount: jumlah,
       ),
@@ -821,6 +821,7 @@ Future<({bool selesai, String? no, Refusal? pesan})> simpanKasusBaru(
         fundId: um ? (per ?? umum) : umum,
         amount: jumlah,
         partyId: pihakId,
+        payeeName: namaBaru,
         scopeId: um ? ling : null,
         accountId: akunId,
         dueDate: um ? tempo : null,

@@ -188,8 +188,8 @@ enum Layar {
     kemampuan: Capability.financeRecord,
   ),
 
-  /// Pengembalian + AlurPengembalian, WebPengembalian + WebAlurPengembalian
-  /// (pending RD04, D25).
+  /// Pengembalian (AlurPengembalian merged into it), WebPengembalian
+  /// (WebAlurPengembalian merged into it) (pending RD04, D25).
   pengembalian(
     '/pengembalian',
     ModulLayar.keuangan,
@@ -238,7 +238,8 @@ enum Layar {
   rekeningKoran(
     '/rekening-koran',
     ModulLayar.keuangan,
-    kemampuan: Capability.financeReconcile,
+    // The Pemeriksa kedua marks a session checked here (D24).
+    kemampuan: Capability.financeReview,
   ),
 
   /// HitungKas (child route `banding`), WebHitungKas.

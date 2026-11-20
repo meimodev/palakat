@@ -2,8 +2,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/format.dart';
 import '../../core/tanggal.dart';
+import '../../domain/core/core.dart';
 import '../../domain/finance/finance.dart';
 import '../actor.dart';
+import '../clock.dart';
 import '../core_repositories.dart';
 import '../repositories_keuangan.dart';
 import '../revision.dart';
@@ -182,7 +184,7 @@ final daftarKasusProvider = Provider<List<BarisKasus>>((ref) {
         ),
       );
     }
-    final nama = pihak[c.partyId] ?? c.partyId ?? '—';
+    final nama = pihak[c.partyId] ?? c.payeeName ?? '—';
     final String awalCat;
     switch (c.kind) {
       case CaseKind.advance:
@@ -256,7 +258,7 @@ final pilihanKasusBaruProvider = Provider<PilihanKasusBaru>((ref) {
   final akun = ref.watch(accountRepositoryProvider);
   final gereja = {
     for (final a in akun.accounts())
-      if (a.operatedByScopeId == null) a.id,
+      if (a.operatorAt(hari) == null) a.id,
   };
   Tanggal akhir(int tahun, int bulan) =>
       Tanggal.dari(DateTime.utc(tahun, bulan + 1, 0));
@@ -283,3 +285,18 @@ final pilihanKasusBaruProvider = Provider<PilihanKasusBaru>((ref) {
     ],
   );
 });
+
+/// "Cek klaim" on claim [k]: the refusal, or null.
+Future<Refusal?> cekKlaim(WidgetRef ref, BarisKasus k) async {
+  final a = ref.read(actorProvider);
+  if (a == null) return null;
+  final r = await ref
+      .read(caseRepositoryProvider)
+      .checkClaim(
+        a,
+        k.id,
+        expectedRevision: k.revisi,
+        idempotencyKey: kunciBaru(a.personId, ref.read(clockProvider)),
+      );
+  return r.refusal;
+}

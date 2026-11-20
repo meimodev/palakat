@@ -6,6 +6,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:palakat_prototype/app/layar.dart';
 import 'package:palakat_prototype/app/router.dart';
+import 'package:palakat_prototype/domain/finance/finance.dart';
 import 'package:palakat_prototype/providers/actor.dart';
 import 'package:palakat_prototype/providers/keuangan/ekspor.dart';
 import 'package:palakat_prototype/providers/seed.dart';
@@ -21,6 +22,14 @@ void main() {
         final k = w.read(seedProvider).keuangan;
         final kurang = w.read(eksporProvider).tanpaDokumen;
         expect(kurang.map((t) => t.id), contains(k.bySeedKey('0143')!.id));
+        // Exactly the posted transactions whose required document is still
+        // missing, counted from the ledger, not the read model.
+        expect(kurang.map((t) => t.id).toSet(), {
+          for (final t in k.transactions)
+            if (t.isPosted &&
+                k.evidenceStatus(t) == EvidenceStatus.requiredMissing)
+              t.id,
+        });
 
         w.read(routerProvider).go(Layar.ekspor.lokasi());
         await tester.pumpAndSettle();
@@ -51,6 +60,8 @@ void main() {
           ),
           findsOneWidget,
         );
+        // README 8.1: the audit actor of the commands run here.
+        expect(jejakTerakhir(w, 'export.build').personId, 'meiske');
       });
     }
   });

@@ -205,6 +205,23 @@ void main() {
           riwayatTeratas(),
           'Menonaktifkan ${sulut.name} · berlaku mulai $bulanDepan',
         );
+        // Each change has its line on the Riwayat screen (Lainnya /riwayat,
+        // WebPengaturan), with its recorded actor.
+        await ke(Layar.pengaturan, anak: ponsel ? 'riwayat' : null);
+        for (final r in [
+          'Menambah Kas/Bank $bank · berlaku mulai $bulanDepan',
+          'Menambah peruntukan Beasiswa · berlaku mulai $bulanDepan',
+          'Menambah Lingkup Kolom 4 · berlaku mulai $bulanDepan',
+          'Menonaktifkan ${sulut.name} · berlaku mulai $bulanDepan',
+        ]) {
+          // The web table puts the actor in its own "Pelaku" column.
+          expect(
+            berisi(ponsel ? 'Meiske Lumentut · $r' : r),
+            findsOneWidget,
+            reason: r,
+          );
+        }
+        if (!ponsel) expect(find.text('Meiske Lumentut'), findsWidgets);
 
         // ---- Mata Anggaran: Boleh untuk, diperiksa, terbitkan from M+1 ----
         final usulan = c.read(versiMataAnggaranProvider).usulan!;
@@ -334,11 +351,14 @@ void main() {
         );
         expect(await serahkan('kolom-7', depan), isA<Ok<Account>>());
         Account kas() => akun.accounts().firstWhere((a) => a.id == 'kas');
-        expect(kas().operatedByScopeId, isNull, reason: 'belum berlaku');
+        expect(kas().operatorAt(hari), isNull, reason: 'belum berlaku');
+        expect(kas().operatorAt(depan), 'kolom-7');
         await majukanJam(tester, depan.awal.difference(hari.awal));
-        expect(kas().operatedByScopeId, 'kolom-7');
+        expect(kas().operatorAt(c.read(hariIniProvider)), 'kolom-7');
         expect(akun.accounts().any((a) => a.id == 'bsg'), isFalse);
         expect(akun.accounts().any((a) => a.name == bank), isTrue);
+        // README 8.1: the audit actor of the commands run here.
+        expect(jejakTerakhir(c, 'finance.rule.set').personId, 'meiske');
       });
     }
   });

@@ -130,6 +130,7 @@ class FinanceCase {
     required this.createdBy,
     required this.createdAt,
     this.partyId,
+    this.payeeName,
     this.scopeId,
     this.accountId,
     this.dueDate,
@@ -153,6 +154,9 @@ class FinanceCase {
 
   /// Recipient, beneficiary or claimant.
   String? partyId;
+
+  /// Their name as typed when they are no Party ('Ibu Wenas').
+  String? payeeName;
   String? scopeId;
 
   /// Where a Titipan is kept ('Disimpan di Bank BNI ··4821').
@@ -211,6 +215,7 @@ class CaseDraft {
     required this.fundId,
     required this.amount,
     this.partyId,
+    this.payeeName,
     this.scopeId,
     this.accountId,
     this.dueDate,
@@ -224,6 +229,9 @@ class CaseDraft {
   final String fundId;
   final int amount;
   final String? partyId;
+
+  /// See [FinanceCase.payeeName].
+  final String? payeeName;
   final String? scopeId;
   final String? accountId;
   final Tanggal? dueDate;
@@ -257,14 +265,18 @@ class CaseEntryDraft {
 class ClaimDraft {
   const ClaimDraft({
     required this.title,
-    required this.partyId,
     required this.fundId,
     required this.amount,
+    this.partyId,
+    this.payeeName,
     this.note,
   });
 
   final String title;
-  final String partyId;
+
+  /// The claimant: a Party, or a name typed as [payeeName].
+  final String? partyId;
+  final String? payeeName;
   final String fundId;
   final int amount;
   final String? note;

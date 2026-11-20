@@ -123,7 +123,8 @@ class Pengaturan {
 
 /// One history line as the boards print it: who and what, then when.
 ({String judul, String waktu}) barisRiwayat(AuditRecord r) => (
-  judul: '${r.personName} · ${r.summary}',
+  // README 3.4: a cover reads "Yanti Sumual, Operator · menjalankan …".
+  judul: '${r.via == Via.direct ? r.personName : r.actorLine} · ${r.summary}',
   waktu: [
     tglJam(r.at),
     if (r.reason != null) 'Alasan: ${r.reason}',
@@ -147,7 +148,7 @@ final pengaturanProvider = Provider<Pengaturan>((ref) {
       () {
         final mati = a.activeTo != null && a.activeTo! < hari;
         final akan = a.activeTo != null && !mati;
-        final unit = namaUnit(a.operatedByScopeId);
+        final unit = namaUnit(a.operatorAt(hari));
         final sub = mati
             ? 'Nonaktif sejak ${bulanDari(a.activeTo!.tambahHari(1))} · '
                   'tetap tampil di laporan lama'
@@ -206,22 +207,13 @@ final pengaturanProvider = Provider<Pengaturan>((ref) {
       )
       .lastOrNull;
 
-  // ponytail: AuditRepository.list sorts with List.sort, which is not
-  // stable, so lines of one instant can come out of order; they are put
-  // back in append order by their 'aud-N' id. Drop once the M5 request to
-  // sort stably is applied.
-  int nomor(AuditRecord r) => int.tryParse(r.id.split('-').last) ?? 0;
-  final riwayat =
-      [
-        for (final r
-            in ref.watch(auditRepositoryProvider).list(const AuditFilter()))
-          if (r.module == Module.finance ||
-              (r.action.startsWith('role.') && r.summary.contains('Bendahara')))
-            r,
-      ]..sort((a, b) {
-        final d = b.at.compareTo(a.at);
-        return d != 0 ? d : nomor(b).compareTo(nomor(a));
-      });
+  final riwayat = [
+    for (final r
+        in ref.watch(auditRepositoryProvider).list(const AuditFilter()))
+      if (r.module == Module.finance ||
+          (r.action.startsWith('role.') && r.summary.contains('Bendahara')))
+        r,
+  ];
 
   return Pengaturan(
     jemaat: jemaat,
@@ -231,10 +223,8 @@ final pengaturanProvider = Provider<Pengaturan>((ref) {
     peruntukan: peruntukan,
     lingkup: lingkup,
     pemeriksa: aturan.secondChecker,
-    // ponytail: SettingsRepository has no query for the value in force; a
-    // RuleValue is never edited (a change adds a value), so its revision is
-    // 1. Upgrade with the requested `valueInForce` query (M5 notes).
-    revisiPemeriksa: 1,
+    revisiPemeriksa:
+        setel.valueInForce(FinanceRule.secondChecker, at: hari)?.revision ?? 0,
     jadwalPemeriksa: jadwal,
     versiTerbit: terbit,
     versiDraf: draf,

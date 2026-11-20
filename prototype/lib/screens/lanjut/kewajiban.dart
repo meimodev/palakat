@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -165,10 +166,6 @@ class _Papan extends ChangeNotifier {
   String tab = 'um';
   String? buka, sheet;
 
-  /// Claims checked on this board ("Cek klaim"): the check changes no
-  /// balance and CaseRepository has no command for it.
-  Set<String> cek = {};
-
   /// The last refusal of a command, shown under the history.
   Refusal? pesan;
   final isi = TextEditingController();
@@ -210,17 +207,21 @@ class _Papan extends ChangeNotifier {
     buka = null;
     sheet = null;
     pesan = null;
-    notifyListeners();
+    // A router `go` pops this route while the Navigator builds: notify after.
+    if (SchedulerBinding.instance.schedulerPhase ==
+        SchedulerPhase.persistentCallbacks) {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        if (!_habis) notifyListeners();
+      });
+    } else {
+      notifyListeners();
+    }
   }
 
   void tekanAksi(BarisKasus c, _Aksi a) {
-    if (a.cek) {
-      cek = {...cek, c.id};
-    } else {
-      sheet = a.id;
-      pesan = null;
-      isi.text = titik('${c.sisa}');
-    }
+    sheet = a.id;
+    pesan = null;
+    isi.text = titik('${c.sisa}');
     notifyListeners();
   }
 
@@ -229,8 +230,11 @@ class _Papan extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool _habis = false;
+
   @override
   void dispose() {
+    _habis = true;
     isi.dispose();
     super.dispose();
   }
@@ -241,7 +245,11 @@ class _Papan extends ChangeNotifier {
 String? kasGereja(WidgetRef ref) => ref
     .read(accountRepositoryProvider)
     .accounts()
-    .where((a) => a.type == AccountType.cash && a.operatedByScopeId == null)
+    .where(
+      (a) =>
+          a.type == AccountType.cash &&
+          a.operatorAt(ref.read(hariIniProvider)) == null,
+    )
     .firstOrNull
     ?.id;
 
@@ -603,6 +611,11 @@ class _RinciState extends ConsumerState<_Rinci> {
     p.ubah();
   }
 
+  Future<void> _cekKlaim(_Papan p, BarisKasus k) async {
+    p.pesan = await cekKlaim(ref, k);
+    p.ubah();
+  }
+
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
@@ -615,7 +628,7 @@ class _RinciState extends ConsumerState<_Rinci> {
     final lb = p.lbl;
     final csisa = cur.sisa;
     final beres = csisa <= 0 && !cur.awalDraf;
-    final sudahCek = cur.dicek || p.cek.contains(cur.id);
+    final sudahCek = cur.dicek;
     final aksi = beres || cur.awalDraf
         ? const <_Aksi>[]
         : _aksi[cur.jenis]!
@@ -857,7 +870,8 @@ class _RinciState extends ConsumerState<_Rinci> {
                       utama:
                           a.utama && !(cur.jenis == 'pb' && !sudahCek) ||
                           (a.cek && !sudahCek),
-                      onTap: () => p.tekanAksi(cur, a),
+                      onTap: () =>
+                          a.cek ? _cekKlaim(p, cur) : p.tekanAksi(cur, a),
                     ),
                   ],
                   if (beres)

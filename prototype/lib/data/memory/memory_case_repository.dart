@@ -2,28 +2,20 @@ import '../../core/format.dart';
 import '../../domain/core/core.dart';
 import '../../domain/finance/finance.dart';
 import '../repositories/case_repository.dart';
+import '../repositories/transaction_repository.dart';
 import 'memory_finance.dart';
-import 'memory_master_repository.dart';
-import 'memory_settings_repository.dart';
-import 'memory_transaction_repository.dart';
 
 /// Advances, transit and claims with derived figures (README 4.2, DM 5.4).
 /// Every command but [recordClaim] drafts its linked transaction through
 /// `TransactionRepository.createDraft`; outstanding amounts count FINALIZED
 /// parts only, and the draft uses the case's Fund (EC06).
 class MemoryCaseRepository implements CaseRepository {
-  MemoryCaseRepository(this.f)
-    : _tx = MemoryTransactionRepository(
-        f,
-        MemorySettingsRepository(f),
-        MemoryMasterRepository(f),
-      );
+  MemoryCaseRepository(this.f, this._tx);
 
   final MemoryFinance f;
 
-  // ponytail: its own ledger instance over the same store, because the shared
-  // provider file gives this repository only MemoryFinance (README 10.1).
-  final MemoryTransactionRepository _tx;
+  /// The shared ledger: drafts go through its createDraft.
+  final TransactionRepository _tx;
 
   static const _ref = 'case';
 
@@ -90,7 +82,7 @@ class MemoryCaseRepository implements CaseRepository {
           .where((p) => p.id == c.partyId)
           .firstOrNull
           ?.displayName ??
-      c.partyId ??
+      c.payeeName ??
       c.title;
 
   /// The checks every entry on an existing case shares; null when fine.
@@ -135,6 +127,7 @@ class MemoryCaseRepository implements CaseRepository {
         effectiveDate: d.effectiveDate ?? f.today,
         description: d.description ?? description,
         accountId: accountId,
+        payee: c.payeeName,
         allocations: [
           Allocation(
             amount: d.amount,
@@ -198,6 +191,7 @@ class MemoryCaseRepository implements CaseRepository {
       createdBy: actor.personId,
       createdAt: f.now,
       partyId: d.partyId,
+      payeeName: d.payeeName,
       scopeId: d.scopeId,
       accountId: d.accountId,
       dueDate: d.dueDate,
@@ -215,6 +209,7 @@ class MemoryCaseRepository implements CaseRepository {
             ? 'Titipan untuk: ${_who(c)} · ${c.title}'
             : 'Uang Muka diberikan · ${c.title}',
         accountId: d.accountId,
+        payee: d.payeeName,
         allocations: [
           Allocation(
             amount: d.amount,
@@ -393,6 +388,7 @@ class MemoryCaseRepository implements CaseRepository {
       createdBy: actor.personId,
       createdAt: f.now,
       partyId: d.partyId,
+      payeeName: d.payeeName,
       claimAmount: d.amount,
       note: d.note,
     );
@@ -438,14 +434,47 @@ class MemoryCaseRepository implements CaseRepository {
     );
   });
 
+  @override
+  Future<Result<FinanceCase>> checkClaim(
+    Actor actor,
+    String claimId, {
+    required int expectedRevision,
+    required String idempotencyKey,
+  }) => f.ctx.command(idempotencyKey, () {
+    const aksi = 'Cek klaim';
+    final g = f.ctx.grant(actor, Capability.financeRecord, ScopeRef.jemaat);
+    if (g == null) {
+      return f.ctx.refuse(actor, Capability.financeRecord, ScopeRef.jemaat);
+    }
+    final c = f.k.kase(claimId);
+    if (c == null || c.kind != CaseKind.claim) {
+      return f.ctx.no(aksi, 'Klaim tidak ditemukan.');
+    }
+    if (c.checkedBy != null) return f.ctx.no(aksi, 'Klaim sudah dicek.');
+    final basi = f.ctx.stale<FinanceCase>(c.revision, expectedRevision, aksi);
+    if (basi != null) return basi;
+    c
+      ..checkedBy = actor.personId
+      ..checkedAt = f.now
+      ..revision += 1;
+    f.audit(
+      g,
+      action: 'finance.case.claim.check',
+      summary: 'Klaim sudah dicek: ${c.title}',
+      ref: RecordRef(_ref, c.id),
+    );
+    return Ok(c);
+  });
+
   // RD04: menunggu tabel kejadian. Built as drawn (D25): a supplier refund
   // lowers Belanja, a donor return lowers Pendapatan; linked to the original
-  // by its voucher in `sourceRef`.
+  // by `refundOf` (its voucher stays in `sourceRef`, 'No. bukti asal').
   @override
   Future<Result<String>> refund(
     Actor actor,
     String originalTxnId,
     int amount, {
+    String? accountId,
     required String reason,
     required String idempotencyKey,
   }) => f.ctx.command(idempotencyKey, () {
@@ -486,8 +515,9 @@ class MemoryCaseRepository implements CaseRepository {
             ? 'Pengembalian dari pemasok · ${o.description}'
             : 'Pengembalian kepada donatur · ${o.description}',
         sourceRef: o.voucher,
+        refundOf: o.id,
         payee: o.payee,
-        accountId: o.accountOf(a0),
+        accountId: accountId ?? o.accountOf(a0),
         allocations: [
           Allocation(
             amount: amount,
@@ -525,12 +555,12 @@ bool? refundIsSupplier(Transaction o) => switch (o.type) {
 };
 
 /// RD04: what is already refunded on [o] (drafts and posted, not cancelled),
-/// found by its voucher in `sourceRef`.
+/// linked by `refundOf`.
 int refundedOf(Iterable<Transaction> all, Transaction o) => all
     .where(
       (t) =>
           t.status != TransactionStatus.cancelled &&
-          t.sourceRef == o.voucher &&
+          t.refundOf == o.id &&
           (t.type == TransactionType.supplierRefund ||
               t.type == TransactionType.donorReturn),
     )

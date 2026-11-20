@@ -182,28 +182,23 @@ Future<Refusal?> bukukanKoreksi(
   return bukukanRangkaian(ref, d.asal.id);
 }
 
-/// Books the drafted reversal, then the correction, of [asalId].
-// ponytail: two finalize calls, not one atomic pair; the reversal can post
-// while the correction is refused (e.g. not yet checked). Upgrade when
-// TransactionRepository finalizes a correction pair in one command.
+/// Books the drafted reversal and correction of [asalId] as one pair.
 Future<Refusal?> bukukanRangkaian(WidgetRef ref, String asalId) async {
   final a = ref.read(actorProvider);
   if (a == null) return null;
   final tx = ref.read(transactionRepositoryProvider);
-  final rantai = [
-    ...tx.list(null).where((x) => x.reversalOf == asalId && x.isDraft),
-    ...tx.list(null).where((x) => x.correctionOf == asalId && x.isDraft),
-  ];
-  for (final t in rantai) {
-    final r = await tx.finalize(
-      a,
-      t.id,
-      expectedRevision: t.revision,
-      idempotencyKey: kunciBaru(a.personId, ref.read(clockProvider)),
-    );
-    if (r.refusal case final p?) return p;
-  }
-  return null;
+  final balik = tx
+      .list(null)
+      .where((x) => x.reversalOf == asalId && x.isDraft)
+      .firstOrNull;
+  if (balik == null) return null;
+  final r = await tx.finalizeCorrection(
+    a,
+    asalId,
+    expectedRevision: balik.revision,
+    idempotencyKey: kunciBaru(a.personId, ref.read(clockProvider)),
+  );
+  return r.refusal;
 }
 
 /// "Catat kejadian" on [d]'s closed month.

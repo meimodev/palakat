@@ -7,7 +7,7 @@ import 'memory_context.dart';
 
 /// What every in-memory finance repository shares: the core context, the
 /// finance tables, the signed-in viewer for Fund-only filtering (README
-/// 3.5), period checks and the "belum tersedia" stub of M3–M5 commands.
+/// 3.5) and period checks.
 class MemoryFinance {
   MemoryFinance(this.ctx, this.viewer);
 
@@ -102,10 +102,5 @@ class MemoryFinance {
     type: type,
     module: Module.finance,
     ref: ref,
-  );
-
-  /// The stub of a command a later milestone (M3–M5) fills in.
-  Future<Result<T>> notYet<T>(String action) => Future.value(
-    Refused<T>(Refusal(action: action, because: 'Fitur ini belum tersedia.')),
   );
 }

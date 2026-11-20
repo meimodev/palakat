@@ -78,11 +78,17 @@ final evidenceRepositoryProvider = Provider<EvidenceRepository>(
 );
 
 final caseRepositoryProvider = Provider<CaseRepository>(
-  (ref) => MemoryCaseRepository(ref.watch(memoryFinanceProvider)),
+  (ref) => MemoryCaseRepository(
+    ref.watch(memoryFinanceProvider),
+    ref.watch(transactionRepositoryProvider),
+  ),
 );
 
 final importRepositoryProvider = Provider<ImportRepository>(
-  (ref) => MemoryImportRepository(ref.watch(memoryFinanceProvider)),
+  (ref) => MemoryImportRepository(
+    ref.watch(memoryFinanceProvider),
+    ref.watch(transactionRepositoryProvider),
+  ),
 );
 
 final reconciliationRepositoryProvider = Provider<ReconciliationRepository>(

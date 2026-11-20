@@ -10,6 +10,7 @@ import '../../motion/urutan.dart';
 import '../../providers/actor.dart';
 import '../../providers/clock.dart';
 import '../../providers/keuangan/beranda.dart';
+import '../../providers/keuangan/dokumen.dart';
 import '../../providers/keuangan/isian.dart';
 import '../../providers/keuangan/rinci_transaksi.dart';
 import '../../providers/keuangan/transaksi.dart';
@@ -205,6 +206,9 @@ class _WebTransaksiScreenState extends ConsumerState<WebTransaksiScreen> {
                         : null,
                     onBukukan: () => _bukukan(rinci.transaksi),
                     onUbah: () => _ubah(rinci.transaksi),
+                    pilihDokumen: ref
+                        .read(pilihanDokumenProvider.notifier)
+                        .pilih,
                   ),
                 ),
             ],
@@ -558,6 +562,7 @@ class _Panel extends StatelessWidget {
     required this.penolakan,
     required this.onBukukan,
     required this.onUbah,
+    required this.pilihDokumen,
   });
 
   final RincianTransaksi r;
@@ -568,6 +573,7 @@ class _Panel extends StatelessWidget {
   /// A refused "Periksa dan bukukan" of this row.
   final Refusal? penolakan;
   final VoidCallback onBukukan, onUbah;
+  final void Function(String id) pilihDokumen;
 
   @override
   Widget build(BuildContext context) {
@@ -741,9 +747,13 @@ class _Panel extends StatelessWidget {
                 onPressed: switch (a.jenis) {
                   JenisAksi.bukukan => onBukukan,
                   JenisAksi.ubah => onUbah,
+                  JenisAksi.tautan when a.dokumen != null => () {
+                    pilihDokumen(a.dokumen!);
+                    context.dorongKe(a.ke!, param: a.param, anak: a.anak);
+                  },
                   JenisAksi.tautan => null,
                 },
-                ke: a.ke,
+                ke: a.dokumen == null ? a.ke : null,
                 param: a.param,
                 anak: a.anak,
                 jenis: a.utama ? JenisTombol.utama : JenisTombol.kedua,

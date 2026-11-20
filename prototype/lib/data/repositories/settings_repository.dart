@@ -8,6 +8,10 @@ abstract interface class SettingsRepository {
   /// Each rule's value at [at] (the second checker for a draft dated [at]).
   RulesInForce rulesInForce({required Tanggal at});
 
+  /// The value of [rule] in force at [at], null when none was ever set. Its
+  /// revision at today is what [setRule] expects.
+  RuleValue? valueInForce(FinanceRule rule, {required Tanggal at});
+
   /// Rule values that take effect after today, soonest first.
   List<RuleValue> scheduled();
 

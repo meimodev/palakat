@@ -2,28 +2,20 @@ import '../../core/tanggal.dart';
 import '../../domain/core/core.dart';
 import '../../domain/finance/finance.dart';
 import '../repositories/import_repository.dart';
+import '../repositories/transaction_repository.dart';
 import 'memory_finance.dart';
-import 'memory_master_repository.dart';
-import 'memory_settings_repository.dart';
-import 'memory_transaction_repository.dart';
 
 /// Ledger import (README 4.2, DM 5.5, 6.2): STAGED → VALIDATED → REVIEWED →
 /// COMMITTED. Committed rows become DRAFT transactions through
 /// `TransactionRepository.createDraft`; refused and deselected rows stay with
 /// their disposition.
 class MemoryImportRepository implements ImportRepository {
-  MemoryImportRepository(this.f)
-    : _tx = MemoryTransactionRepository(
-        f,
-        MemorySettingsRepository(f),
-        MemoryMasterRepository(f),
-      );
+  MemoryImportRepository(this.f, this._tx);
 
   final MemoryFinance f;
 
-  // ponytail: own ledger instance over the same store (see the case
-  // repository); the shared provider file gives only MemoryFinance.
-  final MemoryTransactionRepository _tx;
+  /// The shared ledger: drafts go through its createDraft.
+  final TransactionRepository _tx;
 
   static const _ref = 'import';
 

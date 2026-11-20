@@ -9,6 +9,7 @@ import 'package:palakat_prototype/app/layar.dart';
 import 'package:palakat_prototype/app/router.dart';
 import 'package:palakat_prototype/app/tata.dart';
 import 'package:palakat_prototype/core/clock.dart';
+import 'package:palakat_prototype/core/tanggal.dart';
 import 'package:palakat_prototype/domain/core/core.dart';
 import 'package:palakat_prototype/domain/finance/finance.dart';
 import 'package:palakat_prototype/providers/clock.dart';
@@ -188,5 +189,52 @@ AuditRecord jejakTransaksi(ProviderContainer c, String id, String action) {
       .where((x) => x.action == action)
       .firstOrNull;
   expect(r, isNotNull, reason: 'tidak ada $action pada $id');
+  return r!;
+}
+
+/// The running month and the next month to close at each anchor (README
+/// 8.1: the B and C runs assert these labels).
+final bulanDiJangkar = {
+  jangkarA: ('November 2026', 'Oktober 2026'),
+  jangkarB: ('Januari 2027', 'Desember 2026'),
+  jangkarC: ('Maret 2027', 'Februari 2027'),
+};
+
+const _namaBulan = [
+  'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', //
+  'Agustus', 'September', 'Oktober', 'November', 'Desember',
+];
+
+/// Every date the screen shows (dd/mm/yyyy or "d Bulan yyyy") is not after
+/// [hari].
+void tidakAdaTanggalNanti(WidgetTester tester, Tanggal hari, String di) {
+  final angka = RegExp(r'\b(\d{2})/(\d{2})/(\d{4})\b');
+  final kata = RegExp('\\b(\\d{1,2}) (${_namaBulan.join('|')}) (\\d{4})\\b');
+  for (final w in tester.widgetList<RichText>(find.byType(RichText))) {
+    final s = w.text.toPlainText();
+    for (final m in angka.allMatches(s)) {
+      final t = Tanggal(int.parse(m[3]!), int.parse(m[2]!), int.parse(m[1]!));
+      expect(t <= hari, isTrue, reason: '$di: "$s" setelah $hari');
+    }
+    for (final m in kata.allMatches(s)) {
+      final t = Tanggal(
+        int.parse(m[3]!),
+        _namaBulan.indexOf(m[2]!) + 1,
+        int.parse(m[1]!),
+      );
+      expect(t <= hari, isTrue, reason: '$di: "$s" setelah $hari');
+    }
+  }
+}
+
+/// The newest audit line of [action], any record (README 8.1: the audit
+/// actor of each command a flow runs); fails when there is none.
+AuditRecord jejakTerakhir(ProviderContainer c, String action) {
+  final r = c
+      .read(auditRepositoryProvider)
+      .list(AuditFilter(actionPrefix: action))
+      .where((x) => x.action == action)
+      .firstOrNull;
+  expect(r, isNotNull, reason: 'tidak ada $action');
   return r!;
 }

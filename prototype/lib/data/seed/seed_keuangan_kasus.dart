@@ -7,9 +7,9 @@ import 'seed_store.dart';
 
 /// README 5.7, M3: cases, approvals, evidence and the staged import batch
 /// (seed.md 4, mock-data 2.10, 2.14, 2.15). The case ids are already on the
-/// parts of `seed_keuangan.dart`; this file adds the case records, the two
-/// rows that complete drawn cases (DP9 Selvie's spending, tt2), and the
-/// decision lines of approvals and documents.
+/// parts of `seed_keuangan.dart` (DP9 Selvie's spending 0133a and tt2's
+/// 0138b included); this file adds the case records and the decision lines
+/// of approvals and documents.
 void seedKeuanganKasus(SeedStore store, Jangkar a) {
   final k = store.keuangan;
   Tanggal h(int d) => a.hariCerita(d);
@@ -20,114 +20,9 @@ void seedKeuanganKasus(SeedStore store, Jangkar a) {
       bulanTahun(a.bulan(m).$1, a.bulan(m).$2).split(' ').first;
   final bku = k.bySeedKey;
 
-  // ---------- Two posted rows the drawn cases need ----------
-  Transaction buku(
-    String kunci,
-    TransactionType jenis,
-    Tanggal d,
-    String uraian,
-    Allocation bagian, {
-    String? akun,
-  }) {
-    final booked = a.jam(d, 10, 0);
-    final t = Transaction(
-      id: 'bku-$kunci',
-      seedKey: kunci,
-      type: jenis,
-      status: TransactionStatus.finalized,
-      effectiveDate: d,
-      description: uraian,
-      allocations: [bagian],
-      accountId: akun,
-      createdBy: 'meiske',
-      createdAt: booked.subtract(const Duration(minutes: 30)),
-      reviewedBy: 'jefry',
-      reviewedAt: booked.subtract(const Duration(minutes: 10)),
-      finalizedBy: 'meiske',
-      finalizedAt: booked,
-    );
-    // After the walk of seed_keuangan: the next free number of its year.
-    t
-      ..voucherYear = d.tahun
-      ..voucherNumber = store.nextVoucher(t.series.code, d.tahun);
-    k.transactions.add(t);
-    for (final (saat, orang, jabatan, aksi, ringkas) in [
-      (
-        t.createdAt,
-        'meiske',
-        'bendahara-jemaat',
-        'finance.txn.draft',
-        'Draf dicatat: $uraian',
-      ),
-      (
-        t.reviewedAt!,
-        'jefry',
-        'pemeriksa-kedua',
-        'finance.txn.review',
-        'Ditandai sudah diperiksa: $uraian',
-      ),
-      (
-        booked,
-        'meiske',
-        'bendahara-jemaat',
-        'finance.txn.finalize',
-        'Dibukukan ${t.voucher} · $uraian',
-      ),
-    ]) {
-      final post = store.inti.post(jabatan)!;
-      store.inti.audit.add(
-        AuditRecord(
-          id: store.newId('aud'),
-          at: saat,
-          personId: orang,
-          personName: store.inti.person(orang)!.name,
-          actingRole: post.title,
-          assignmentId: 'tugas-${post.id}-$orang',
-          scopeId: post.scopeId,
-          module: Module.finance,
-          action: aksi,
-          summary: ringkas,
-          ref: RecordRef('transaction', t.id),
-        ),
-      );
-    }
-    return t;
-  }
-
-  // DP9: Selvie's advance spent in full; the Rp75.000 above it is a claim.
-  buku(
-    '0119a',
-    TransactionType.advanceSpending,
-    h(4),
-    'Pertanggungjawaban uang muka · Konsumsi syukur HUT',
-    const Allocation(
-      amount: 300000,
-      fundId: 'umum',
-      scopeId: 'jemaat',
-      partyId: 'party-selvie',
-      masterCode: '5.04.01.00',
-      caseId: 'um4',
-    ),
-  );
-  // tt2: "Dari persembahan khusus {d} {bulan} · disimpan di Kas".
-  final khusus = a.mingguLalu(2);
-  buku(
-    '0132c',
-    TransactionType.transitCollection,
-    khusus,
-    'Titipan untuk: Wilayah · Persembahan khusus',
-    const Allocation(
-      amount: 450000,
-      fundId: 'umum',
-      scopeId: 'jemaat',
-      partyId: 'party-wilayah',
-      masterCode: '2.1.01.02.00',
-      caseId: 'tt2',
-    ),
-    akun: 'kas',
-  );
-
   // ---------- Cases (mock-data 2.10; DP9, DP27) ----------
+  // tt2's special offering (0138b in seed_keuangan.dart).
+  final khusus = a.mingguLalu(2);
   FinanceCase kasus(
     String id,
     CaseKind jenis,

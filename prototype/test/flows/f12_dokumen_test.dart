@@ -113,6 +113,9 @@ void main() {
           find.textContaining('Diunggah, belum diverifikasi'),
           findsWidgets,
         );
+        // DM 6.4: an uploaded, unverified document still blocks the close
+        // (README 8.3 F12); it stops after the verification below.
+        expect(menghalangi(b143), isTrue);
         await buka(Layar.keuangan.lokasi());
         expect(
           find.textContaining('dokumen pendukung wajib, belum ada'),
@@ -150,6 +153,10 @@ void main() {
         await tangkap();
         expect(status(t), EvidenceStatus.uploaded);
         expect(ev.forTransaction(t.id).single.by, 'meiske');
+        // README 8.1: the audit actor of the commands run here.
+        // Jefry verified Meiske's capture last; Meiske verified Yanti's receipt.
+        expect(jejakTerakhir(w, 'finance.evidence.verify').personId, 'jefry');
+        expect(jejakTerakhir(w, 'finance.evidence.upload').personId, 'meiske');
       });
     }
   });

@@ -6,6 +6,7 @@
 // allocated unfinished numbers: 6 at date A, and at date B 4 in M−1's year
 // and 2 in M0's (DP7).
 
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:palakat_prototype/app/app.dart';
@@ -19,7 +20,7 @@ import 'package:palakat_prototype/providers/layout.dart';
 import 'package:palakat_prototype/providers/repositories_keuangan.dart';
 import 'package:palakat_prototype/providers/seed.dart';
 
-import 'f15_tutup_buku_test.dart' show penggantiBuktiM3, tutupBulanLalu;
+import 'f15_tutup_buku_test.dart' show tutupBulanLalu;
 import 'harness.dart';
 
 ProviderContainer _c(WidgetTester tester) =>
@@ -53,10 +54,12 @@ void main() {
         testWidgets('${tata.name} $nama', (tester) async {
           final c = await bukaAplikasi(tester, tata: tata, saat: saat);
           final web = c.read(layoutProvider) != Tata.ponsel;
-          penggantiBuktiM3(c);
           final bulan = c.read(bulanBukuProvider).berikutDitutup!;
           final berjalan = c.read(bulanBukuProvider).berjalan!;
           final tx = c.read(transactionRepositoryProvider);
+          final hari = c.read(hariIniProvider);
+          // Computed labels (README 8.1): "Desember 2026" next to close at B.
+          expect((namaBulan(berjalan), namaBulan(bulan)), bulanDiJangkar[saat]);
 
           // Bukti's gap view (DP7).
           final celah = {
@@ -109,10 +112,26 @@ void main() {
             find.textContaining('pembukuannya tidak selesai'),
             findsNWidgets(celah.values.fold(0, (n, x) => n + x)),
           );
+          // Per BKU year on screen (at B: 4 in M−1's year, 2 in M0's).
+          for (final MapEntry(key: tahun, value: n) in celah.entries) {
+            expect(
+              find.byWidgetPredicate(
+                (w) =>
+                    w is RichText &&
+                    w.text.toPlainText().contains('BKU-$tahun-') &&
+                    w.text.toPlainText().contains('pembukuannya tidak selesai'),
+              ),
+              findsNWidgets(n),
+              reason: 'celah $tahun',
+            );
+          }
+          tidakAdaTanggalNanti(tester, hari, 'Bukti');
 
           // The provisional report holds it.
           await _ke(tester, Layar.laporan);
           expect(find.textContaining('Bukan laporan resmi'), findsWidgets);
+          expect(find.textContaining(namaBulan(bulan)), findsWidgets);
+          tidakAdaTanggalNanti(tester, hari, 'Laporan');
           if (web) {
             await _ke(tester, Layar.paketLaporan);
           } else {

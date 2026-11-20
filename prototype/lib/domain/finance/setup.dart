@@ -36,8 +36,21 @@ class Account {
   String? deactivationReason;
 
   /// The unit scope that operates it ('kolom-7'); null = Jemaat (DL32).
+  /// Until [nextOperatorFrom], when a takeover is scheduled: read
+  /// [operatorAt].
   String? operatedByScopeId;
+
+  /// A unit takeover scheduled by `assignToUnit` (D24, DL32): from
+  /// [nextOperatorFrom] on, [nextOperatorScopeId] operates it.
+  String? nextOperatorScopeId;
+  Tanggal? nextOperatorFrom;
   int revision;
+
+  /// Who operates it on [at]; null = Jemaat.
+  String? operatorAt(Tanggal at) =>
+      nextOperatorFrom != null && !(at < nextOperatorFrom!)
+      ? nextOperatorScopeId
+      : operatedByScopeId;
 
   bool activeAt(Tanggal at) =>
       activeFrom <= at && (activeTo == null || at <= activeTo!);

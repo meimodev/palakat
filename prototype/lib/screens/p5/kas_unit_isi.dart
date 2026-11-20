@@ -155,7 +155,7 @@ class _KasUnitIsiState extends ConsumerState<KasUnitIsi> {
             _kartu(
               c,
               k.akun.name,
-              k.akun.operatedByScopeId == null
+              k.akun.operatorAt(k.akun.activeFrom) == null
                   ? 'Dikelola Jemaat'
                   : 'Dikelola oleh ${k.unit ?? ''}',
               'Berlaku mulai ${bulanDari(k.akun.activeFrom)}',
@@ -166,13 +166,11 @@ class _KasUnitIsiState extends ConsumerState<KasUnitIsi> {
               c,
               k.akun.name,
               [
-                if (k.akun.operatedByScopeId == null)
-                  'Dikelola Jemaat'
-                else ...[
+                if (k.akun.operatorAt(p.hariIni) case final unit?) ...[
                   'Dikelola oleh ${k.unit ?? ''}',
-                  if (_bendahara(k.akun.operatedByScopeId!) case final b?)
-                    'Bendahara: $b',
-                ],
+                  if (_bendahara(unit) case final b?) 'Bendahara: $b',
+                ] else
+                  'Dikelola Jemaat',
               ].join(' · '),
               'Aktif',
               BentukLencana.laut,

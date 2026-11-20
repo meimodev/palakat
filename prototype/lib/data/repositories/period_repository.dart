@@ -64,4 +64,14 @@ abstract interface class PeriodRepository {
     TransactionDraft? settlementDraft, {
     required String idempotencyKey,
   });
+
+  /// "Catat penyelesaian keuangan": what was decided and done, after the
+  /// fact, on an incident with no settlement yet. Once saved, no edit.
+  Future<Result<CloseIncident>> resolveIncident(
+    Actor actor,
+    String incidentId,
+    String narrative, {
+    required int expectedRevision,
+    required String idempotencyKey,
+  });
 }

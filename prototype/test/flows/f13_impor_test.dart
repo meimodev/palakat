@@ -7,6 +7,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:palakat_prototype/app/layar.dart';
 import 'package:palakat_prototype/app/router.dart';
+import 'package:palakat_prototype/data/memory/memory_import_repository.dart'
+    show importDescription;
 import 'package:palakat_prototype/domain/finance/finance.dart';
 import 'package:palakat_prototype/providers/repositories_keuangan.dart';
 
@@ -22,6 +24,21 @@ void main() {
         final batch = repo.batches().first;
         final rows = repo.rows(batch.id);
         await masukSebagai(tester, Persona.meiske);
+        // Transaksi lists drafts first; count each importable description
+        // there before the import (the seed has "Honor pemusik" drafts too).
+        final uraian = {
+          for (final r in rows)
+            if (r.date != null) importDescription(r.raw),
+        };
+        Future<Map<String, int>> diTransaksi() async {
+          w.read(routerProvider).go(Layar.transaksi.lokasi());
+          await tester.pumpAndSettle();
+          return {
+            for (final u in uraian) u: find.textContaining(u).evaluate().length,
+          };
+        }
+
+        final sebelum = await diTransaksi();
         w.read(routerProvider).go(Layar.impor.lokasi());
         await tester.pumpAndSettle();
         expect(find.textContaining(batch.fileName), findsWidgets);
@@ -59,9 +76,19 @@ void main() {
         final draf = tx.drafts().where((t) => t.importRowId != null).toList();
         expect(draf, hasLength(4));
 
-        w.read(routerProvider).go(Layar.transaksi.lokasi());
-        await tester.pumpAndSettle();
-        expect(find.textContaining('Honor pemusik'), findsWidgets);
+        // Each imported draft shows in Transaksi as a draft.
+        final sesudah = await diTransaksi();
+        for (final t in draf) {
+          expect(t.isDraft, isTrue);
+          final n = draf.where((x) => x.description == t.description).length;
+          expect(
+            sesudah[t.description]! - sebelum[t.description]!,
+            greaterThanOrEqualTo(n),
+            reason: '"${t.description}" tidak tampil di Transaksi',
+          );
+        }
+        // README 8.1: the audit actor of the commands run here.
+        expect(jejakTerakhir(w, 'finance.import.commit').personId, 'meiske');
       });
     }
   });

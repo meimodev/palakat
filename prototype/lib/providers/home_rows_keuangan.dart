@@ -8,6 +8,7 @@ import '../widgets/lencana_status.dart' show GayaLabel;
 import 'actor.dart';
 import 'core_repositories.dart';
 import 'home_rows.dart';
+import 'keuangan/akhir_bulan.dart';
 import 'keuangan/beranda.dart';
 import 'keuangan/pemeriksa.dart';
 import 'repositories_keuangan.dart';
@@ -20,7 +21,7 @@ import 'repositories_keuangan.dart';
 ///   belum dibukukan", "N hambatan dari unit", and "N uang muka dengan sisa
 ///   belum dipertanggungjawabkan" (to know).
 /// - Pemeriksa kedua (finance.review without finalize): "N draf menunggu
-///   pemeriksaan".
+///   pemeriksaan" and "Rekonsiliasi {akun} menunggu pemeriksaan".
 /// - Unit treasurer: "N draf {unit} belum dibukukan".
 /// - Scoped preparer (DP37): "Kesiapan peruntukan {Fund} · {bulan}" while
 ///   missing or out of date for the next month to close.
@@ -102,6 +103,21 @@ List<HomeRow> barisKeuangan(Ref ref, Actor actor) {
           label: 'Draf',
           gaya: GayaLabel.draf,
           ke: Layar.pemeriksa,
+        ),
+      );
+    }
+    // A bank reconciliation ready for their check (D24, OPEN → REVIEWED).
+    final akunId = ref.watch(akunRekeningKoranProvider);
+    final r = akunId == null ? null : ref.watch(rekonAkunProvider(akunId));
+    if (r != null) {
+      baris.add(
+        HomeRow(
+          kelompok: KelompokBaris.tindak,
+          judul: 'Rekonsiliasi ${r.akun.name} menunggu pemeriksaan',
+          sub: 'Sebagai Pemeriksa kedua · ${namaBulan(r.periode)}',
+          label: 'Hambatan',
+          gaya: GayaLabel.bata,
+          ke: Layar.rekeningKoran,
         ),
       );
     }

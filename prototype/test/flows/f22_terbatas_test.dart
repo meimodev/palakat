@@ -15,7 +15,6 @@ import 'package:palakat_prototype/providers/keuangan/laporan.dart';
 import 'package:palakat_prototype/providers/repositories_keuangan.dart';
 import 'package:palakat_prototype/providers/seed.dart';
 
-import 'f15_tutup_buku_test.dart' show penggantiBuktiM3;
 import 'harness.dart';
 
 ProviderContainer _c(WidgetTester tester) =>
@@ -37,7 +36,6 @@ void main() {
     for (final tata in [Tata.ponsel, Tata.web]) {
       testWidgets(tata.name, (tester) async {
         final c = await bukaAplikasi(tester, tata: tata, saat: jangkarA);
-        penggantiBuktiM3(c);
         final k = c.read(seedProvider).keuangan;
         final tx = c.read(transactionRepositoryProvider);
         bool diakonia(String id) => k.transactions

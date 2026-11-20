@@ -19,7 +19,13 @@ class MemoryAuditRepository implements AuditRepository {
             (f.to == null || !r.at.isAfter(f.to!)))
           r,
     ];
-    // Newest first; equal times keep the newest-appended first.
-    return hasil..sort((a, b) => b.at.compareTo(a.at));
+    // Newest first; equal times keep the newest-appended first (List.sort
+    // is not stable, so the append order breaks ties).
+    final urut = Map<AuditRecord, int>.identity()
+      ..addAll({for (final (n, r) in hasil.indexed) r: n});
+    return hasil..sort((a, b) {
+      final d = b.at.compareTo(a.at);
+      return d != 0 ? d : urut[a]!.compareTo(urut[b]!);
+    });
   }
 }

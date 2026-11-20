@@ -62,6 +62,16 @@ abstract interface class TransactionRepository {
     required String idempotencyKey,
   });
 
+  /// Books the reversal draft of [originalId] and its replacement draft,
+  /// when there is one, as one pair: both post, or neither does. Returns
+  /// their vouchers. [expectedRevision] is the reversal draft's.
+  Future<Result<List<String>>> finalizeCorrection(
+    Actor actor,
+    String originalId, {
+    required int expectedRevision,
+    required String idempotencyKey,
+  });
+
   Future<Result<Transaction>> cancel(
     Actor actor,
     String id, {

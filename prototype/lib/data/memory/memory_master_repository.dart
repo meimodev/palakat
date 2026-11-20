@@ -60,9 +60,9 @@ class MemoryMasterRepository implements MasterRepository {
   /// The published version of [kind] effective last; null when none.
   MasterVersion? _terbitTerakhir(MasterKind kind) =>
       (versions(kind)
-            .where((v) => v.status == MasterVersionStatus.published)
-            .toList()
-          ..sort((a, b) => a.effectiveFrom!.compareTo(b.effectiveFrom!)))
+              .where((v) => v.status == MasterVersionStatus.published)
+              .toList()
+            ..sort((a, b) => a.effectiveFrom!.compareTo(b.effectiveFrom!)))
           .lastOrNull;
 
   /// The first month a new version of [kind] may take effect: M+1, or the

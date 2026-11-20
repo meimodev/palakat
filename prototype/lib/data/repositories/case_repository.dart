@@ -62,6 +62,14 @@ abstract interface class CaseRepository {
     required String idempotencyKey,
   });
 
+  /// "Cek klaim": records who checked the claim; no balance changes.
+  Future<Result<FinanceCase>> checkClaim(
+    Actor actor,
+    String claimId, {
+    required int expectedRevision,
+    required String idempotencyKey,
+  });
+
   Future<Result<String>> payClaim(
     Actor actor,
     String claimId,
@@ -70,12 +78,14 @@ abstract interface class CaseRepository {
     required String idempotencyKey,
   });
 
-  /// A new transaction linked to [originalTxnId], at most its amount (D25,
-  /// pending RD04).
+  /// A new transaction linked to [originalTxnId] (`refundOf`), at most its
+  /// amount less earlier refunds (D25, pending RD04), on [accountId] or the
+  /// original's Kas/Bank.
   Future<Result<String>> refund(
     Actor actor,
     String originalTxnId,
     int amount, {
+    String? accountId,
     required String reason,
     required String idempotencyKey,
   });

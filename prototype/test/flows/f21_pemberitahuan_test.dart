@@ -70,6 +70,8 @@ void main() {
           find.textContaining(beranda.perluTindakan.first.judul),
           findsWidgets,
         );
+        // README 8.1: the audit actor of the commands run here.
+        expect(jejakTerakhir(c, 'notification.read').personId, 'meiske');
       });
     }
   });

@@ -1139,7 +1139,11 @@ class _Rekon extends ConsumerWidget {
             .join(' + '),
       );
     }
-    final d = drafDariMutasi(m.baris, r.akun.id);
+    final d = drafDariMutasi(
+      m.baris,
+      r.akun.id,
+      ref.read(fundRepositoryProvider).funds(),
+    );
     return _BelumCocok(
       jenis: 'Mutasi bank · belum ada transaksinya',
       judul: m.baris.description,

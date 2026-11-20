@@ -126,9 +126,9 @@ mixin LogikaDraf<T extends ConsumerStatefulWidget> on ConsumerState<T> {
 
   String _nama(String personId) => ref.watch(namaPendekProvider(personId));
 
-  String _olehAudit(AuditRecord r) => r.via == Via.direct
-      ? _nama(r.personId)
-      : '${r.personName}, ${r.actingRole}';
+  // README 3.4: a cover or delegation reads as the recorded actor line.
+  String _olehAudit(AuditRecord r) =>
+      r.via == Via.direct ? _nama(r.personId) : r.actorLine;
 
   List<AuditRecord> get _audit => ref
       .watch(auditRepositoryProvider)

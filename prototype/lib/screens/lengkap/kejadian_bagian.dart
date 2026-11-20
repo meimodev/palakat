@@ -18,6 +18,7 @@ import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/penolakan.dart';
 import '../../widgets/tombol.dart';
+import '../../widgets/tombol_bersyarat.dart';
 
 /// Parts shared by Kejadian and WebKejadian (07-kejadian.md): the view
 /// state, the badge, the blocker statement, a card's lines, the detail and
@@ -72,7 +73,11 @@ class KeadaanKejadian extends ChangeNotifier {
     final kas = ref
         .read(accountRepositoryProvider)
         .accounts()
-        .where((a) => a.type == AccountType.cash && a.operatedByScopeId == null)
+        .where(
+          (a) =>
+              a.type == AccountType.cash &&
+              a.operatorAt(ref.read(hariIniProvider)) == null,
+        )
         .firstOrNull;
     final r = await perintah(
       ref,
@@ -378,9 +383,9 @@ class RinciKejadian extends StatelessWidget {
                 ),
               )
             else
-              Text(
-                'Penyelesaian keuangan belum diisi.',
-                style: TextStyle(fontSize: 15, color: c.tinta3),
+              _FormPenyelesaian(
+                key: ValueKey(b.kejadian.id),
+                kejadian: b.kejadian,
               ),
             if (draf != null && !draf.isPosted)
               Align(
@@ -409,6 +414,84 @@ class RinciKejadian extends StatelessWidget {
               ),
           ],
         ),
+      ],
+    );
+  }
+}
+
+/// "Catat penyelesaian keuangan" (07-kejadian.md): the textarea and the
+/// button; PeriodRepository.resolveIncident records it.
+class _FormPenyelesaian extends ConsumerStatefulWidget {
+  const _FormPenyelesaian({super.key, required this.kejadian});
+  final CloseIncident kejadian;
+
+  @override
+  ConsumerState<_FormPenyelesaian> createState() => _FormPenyelesaianState();
+}
+
+class _FormPenyelesaianState extends ConsumerState<_FormPenyelesaian> {
+  final _isi = TextEditingController();
+  Refusal? _tolak;
+
+  @override
+  void dispose() {
+    _isi.dispose();
+    super.dispose();
+  }
+
+  String get _alasan =>
+      _isi.text.trim().isEmpty ? 'Penyelesaian keuangan belum diisi.' : '';
+
+  Future<void> _simpan() async {
+    final k = widget.kejadian;
+    final r = await perintah(
+      ref,
+      (a, kunci) => ref
+          .read(periodRepositoryProvider)
+          .resolveIncident(
+            a,
+            k.id,
+            _isi.text,
+            expectedRevision: k.revision,
+            idempotencyKey: kunci,
+          ),
+    );
+    if (mounted) setState(() => _tolak = r?.refusal);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return KolomCelah(
+      celah: 8,
+      anak: [
+        Semantics(
+          label: 'Penyelesaian keuangan',
+          child: TextField(
+            controller: _isi,
+            minLines: 2,
+            maxLines: 2,
+            onChanged: (_) => setState(() {}),
+            decoration: const InputDecoration(
+              hintText:
+                  'Apa yang diputuskan dan dilakukan, setelah ada keputusan '
+                  'Jemaat',
+            ),
+          ),
+        ),
+        TombolBersyarat(
+          label: 'Catat penyelesaian keuangan',
+          tindakan: 'Catat penyelesaian keuangan',
+          alasan: _alasan,
+          periksa: () => _alasan,
+          sudahMulai: _isi.text.isNotEmpty,
+          tinggi: 46,
+          radius: 12,
+          paddingH: 20,
+          baris: const [],
+          onPressed: _simpan,
+        ),
+        if (_tolak case final t?)
+          Penolakan(tindakan: t.action, sebab: t.because, jalan: const []),
       ],
     );
   }

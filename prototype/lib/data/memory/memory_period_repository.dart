@@ -64,7 +64,7 @@ class MemoryPeriodRepository implements PeriodRepository {
     // 2. Every relevant Account reconciled and confirmed at the cutoff.
     for (final a in f.k.accounts) {
       if (!_relevant(a, p)) continue;
-      final unit = a.operatedByScopeId;
+      final unit = a.operatorAt(p.end);
       final s = f.k.reconSessions
           .where((x) => x.accountId == a.id && x.periodId == p.id)
           .lastOrNull;
@@ -402,7 +402,7 @@ class MemoryPeriodRepository implements PeriodRepository {
           BlockerKind.cashCountMissing ||
           BlockerKind.statementMissing:
         final akun = f.k.account(targetId);
-        final unit = akun?.operatedByScopeId;
+        final unit = akun?.operatorAt(p.end);
         if (akun == null || unit == null) {
           return f.ctx.no(aksi, 'Kas/Bank ini bukan milik unit.');
         }
@@ -614,4 +614,40 @@ class MemoryPeriodRepository implements PeriodRepository {
       return Ok(k);
     });
   }
+
+  @override
+  Future<Result<CloseIncident>> resolveIncident(
+    Actor actor,
+    String incidentId,
+    String narrative, {
+    required int expectedRevision,
+    required String idempotencyKey,
+  }) => f.ctx.command(idempotencyKey, () {
+    const aksi = 'Catat penyelesaian keuangan';
+    final g = f.ctx.grant(actor, Capability.financeClose, ScopeRef.jemaat);
+    if (g == null) {
+      return f.ctx.refuse(actor, Capability.financeClose, ScopeRef.jemaat);
+    }
+    final k = f.k.incidents.where((x) => x.id == incidentId).firstOrNull;
+    if (k == null) return f.ctx.no(aksi, 'Kejadian tidak ditemukan.');
+    if ((k.narrativeResolution ?? '').isNotEmpty ||
+        k.settlementTransactionId != null) {
+      return f.ctx.no(aksi, '${k.code} sudah ditindaklanjuti.');
+    }
+    if (narrative.trim().isEmpty) {
+      return f.ctx.no(aksi, 'Penyelesaian keuangan belum diisi.');
+    }
+    final basi = f.ctx.stale<CloseIncident>(k.revision, expectedRevision, aksi);
+    if (basi != null) return basi;
+    k
+      ..narrativeResolution = narrative.trim()
+      ..revision += 1;
+    f.audit(
+      g,
+      action: 'finance.incident.resolve',
+      summary: '${k.code} · penyelesaian keuangan dicatat',
+      ref: RecordRef('incident', k.id),
+    );
+    return Ok(k);
+  });
 }

@@ -215,7 +215,13 @@ class _IsiState extends ConsumerState<_Isi> {
 
   Future<void> _bukukan() async {
     final k = widget.k;
-    final r = await bukukanPersembahan(ref, k.p, k.untukBuku, drafId: k.drafId);
+    final r = await bukukanPersembahan(
+      ref,
+      k.p,
+      k.untukBuku,
+      penghitung: k.petugas,
+      drafId: k.drafId,
+    );
     k.simpan(r.id, r.no, r.pesan);
     // Back from Hasil leaves the board, not to an editable form.
     if (r.no != null && mounted) {

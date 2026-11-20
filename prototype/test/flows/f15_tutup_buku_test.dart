@@ -41,66 +41,20 @@ Future<void> _ketik(WidgetTester tester, String teks, {int i = 0}) async {
   await tester.pumpAndSettle();
 }
 
-/// ponytail: M3 seeds the evidence and approvals of the posted rows
-/// (seed_keuangan_kasus.dart). Until that file is merged, the M−1 rows get
-/// verified stand-ins here; once M3's seed is in, this does nothing.
-void penggantiBuktiM3(ProviderContainer c) {
-  final k = c.read(seedProvider).keuangan;
-  if (k.evidence.isNotEmpty || k.approvals.isNotEmpty) return;
-  for (final t in k.transactions.where((t) => t.isPosted)) {
-    if (t.evidenceRequired) {
-      k.evidence.add(
-        EvidenceItem(
-          id: 'pengganti-${t.id}',
-          transactionId: t.id,
-          state: EvidenceItemState.verified,
-          by: 'meiske',
-          at: t.finalizedAt!,
-        ),
-      );
-    }
-    if (t.approvalMode == ApprovalMode.external) {
-      k.approvals.add(
-        ApprovalRecord(
-          id: 'pengganti-${t.id}',
-          transactionId: t.id,
-          declaration: ApprovalDeclaration(
-            approverName: 'Pdt. Lidya Rondonuwu',
-            approverRole: 'Ketua BPMJ',
-            date: t.effectiveDate,
-            method: 'notulen rapat',
-          ),
-          recordedBy: 'meiske',
-          recordedAt: t.finalizedAt!,
-          transactionRevision: t.revision,
-        ),
-      );
-    }
-  }
-}
-
-/// ponytail: Pnt. Jefry Wowor has no screen to a reconciliation yet:
-/// Layar.tutupBuku and Layar.rekeningKoran need financeClose and
-/// financeReconcile, which the Pemeriksa kedua lacks (Request R4). Until the
-/// guard admits financeReview he marks it "Sudah diperiksa" through
-/// ReconciliationRepository.review as himself; the Bendahara then confirms
-/// it on screen.
+/// Pnt. Jefry Wowor opens the bank's reconciliation from his home row and
+/// marks it "Sudah diperiksa" (D24); then the earlier persona signs in again.
 Future<void> periksaRekonOlehJefry(WidgetTester tester, String akunId) async {
   final c = _c(tester);
   final sebelum = c.read(sessionProvider)?.persona;
   await keluar(tester);
   await masukSebagai(tester, Persona.jefry);
+  // His home row opens the session waiting for his check (no direct go).
+  final akun = c.read(rekonAkunProvider(akunId))!.akun.name;
+  await tekan(tester, 'Rekonsiliasi $akun menunggu pemeriksaan');
+  expect(find.text('Unggah mutasi dari file CSV'), findsNothing);
+  await tekan(tester, 'Tandai sudah diperiksa');
   final s = c.read(rekonAkunProvider(akunId))!.sesi!;
-  final h = await c
-      .read(reconciliationRepositoryProvider)
-      .review(
-        c.read(actorProvider)!,
-        s.id,
-        expectedRevision: s.revision,
-        idempotencyKey: 'periksa-rekon-${s.id}-${s.revision}',
-      );
-  expect(h.isOk, isTrue, reason: h.refusal?.because);
-  await tester.pumpAndSettle();
+  expect((s.status, s.reviewedBy), (ReconStatus.reviewed, 'jefry'));
   await keluar(tester);
   if (sebelum != null) await masukSebagai(tester, sebelum);
 }
@@ -110,7 +64,6 @@ Future<void> periksaRekonOlehJefry(WidgetTester tester, String akunId) async {
 /// signed in as Meiske. Returns the closed period.
 Future<Period> tutupBulanLalu(WidgetTester tester) async {
   final c = _c(tester);
-  penggantiBuktiM3(c);
   final web = c.read(layoutProvider) != Tata.ponsel;
   final per = c.read(periodRepositoryProvider);
   final bulan = c.read(bulanBukuProvider).berikutDitutup!;
@@ -139,6 +92,10 @@ Future<Period> tutupBulanLalu(WidgetTester tester) async {
   await tekan(tester, 'Cocokkan');
   await tekan(tester, 'Cocokkan');
   await tekan(tester, 'Tandai dalam perjalanan');
+  expect(
+    c.read(rekonAkunProvider('bni'))!.dalamPerjalanan.map((t) => t.seedKey),
+    ['0131'],
+  );
   await tekan(tester, 'Buat transaksi dari mutasi ini');
   final biaya = c
       .read(transactionRepositoryProvider)
@@ -300,6 +257,9 @@ void main() {
           final bulan = c.read(bulanBukuProvider).berikutDitutup!;
           final berjalan = c.read(bulanBukuProvider).berjalan!;
           expect(bulan.end < berjalan.start, isTrue);
+          // Computed labels (README 8.1): "Desember 2026" at B, a short
+          // February at C.
+          expect((namaBulan(berjalan), namaBulan(bulan)), bulanDiJangkar[saat]);
           final p = await tutupBulanLalu(tester);
 
           expect(p.isClosed, isTrue);
@@ -311,6 +271,10 @@ void main() {
           );
           expect(c.read(bulanBukuProvider).berikutDitutup!.id, berjalan.id);
           expect(c.read(sessionProvider)?.persona, Persona.meiske);
+          // README 8.1: the audit actors of the close and the second check.
+          expect(jejakTerakhir(c, 'finance.period.close').personId, 'meiske');
+          expect(jejakTerakhir(c, 'finance.recon.review').personId, 'jefry');
+          expect(jejakTerakhir(c, 'finance.recon.confirm').personId, 'meiske');
           final saya = c.read(actorProvider)!;
           final kunci = 'f15-${tata.name}-$nama';
 
@@ -339,6 +303,18 @@ void main() {
             idempotencyKey: '$kunci-balik',
           );
           expect(koreksi.refusal?.because, contains('catat kejadian'));
+          // The same refusal on Koreksi, with the Kejadian way forward.
+          c
+              .read(routerProvider)
+              .go(Layar.koreksi.lokasi(param: {'id': lama.id}));
+          await tester.pumpAndSettle();
+          expect(
+            find.textContaining(
+              'Tidak dapat dilakukan: koreksi dengan pembalikan',
+            ),
+            findsOneWidget,
+          );
+          expect(find.text('Catat kejadian'), findsOneWidget);
 
           // Back on Bulan: the closed card; M0 next to close.
           await _ke(tester, Layar.tutupBuku);
@@ -349,6 +325,10 @@ void main() {
             findsOneWidget,
           );
           expect(c.read(clockProvider).now().isAfter(p.closedAt!), isFalse);
+          tidakAdaTanggalNanti(tester, c.read(hariIniProvider), 'Bulan');
+          await _ke(tester, Layar.keuangan);
+          expect(find.textContaining(namaBulan(berjalan)), findsWidgets);
+          tidakAdaTanggalNanti(tester, c.read(hariIniProvider), 'Beranda');
         });
       }
     }

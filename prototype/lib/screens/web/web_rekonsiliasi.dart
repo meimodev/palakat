@@ -8,6 +8,7 @@ import '../../domain/core/core.dart';
 import '../../domain/finance/finance.dart';
 import '../../motion/hitung.dart';
 import '../../motion/kerangka.dart';
+import '../../providers/actor.dart';
 import '../../providers/core_repositories.dart';
 import '../../providers/keuangan/akhir_bulan.dart';
 import '../../providers/keuangan/beranda.dart';
@@ -322,7 +323,7 @@ class _WebRekonsiliasiState extends ConsumerState<WebRekonsiliasiScreen> {
             runSpacing: 8,
             children: [
               for (final a in akun)
-                if (a.operatedByScopeId == null)
+                if (a.operatorAt(ref.watch(hariIniProvider)) == null)
                   () {
                     final x = ref.watch(rekonAkunProvider(a.id));
                     final label = x?.dipastikan ?? false

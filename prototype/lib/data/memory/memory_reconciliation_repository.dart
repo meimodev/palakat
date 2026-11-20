@@ -116,7 +116,7 @@ class MemoryReconciliationRepository implements ReconciliationRepository {
   }
 
   Grant? _grant(Actor actor, String accountId) {
-    final unit = f.k.account(accountId)?.operatedByScopeId;
+    final unit = f.k.account(accountId)?.operatorAt(f.today);
     return f.ctx.grant(actor, Capability.financeReconcile, ScopeRef.jemaat) ??
         (unit == null
             ? null

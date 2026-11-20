@@ -106,6 +106,7 @@ void main() {
         );
         final d = tx.drafts().singleWhere((t) => t.sourceRef == asal.voucher);
         expect(d.type, TransactionType.supplierRefund);
+        expect(d.refundOf, asal.id);
         expect(d.total, 1500000);
         expect(belanja(), belanja0);
 
@@ -116,6 +117,20 @@ void main() {
         expect(tx.get(d.id)!.isPosted, isTrue);
         expect(belanja(), belanja0 - 1500000);
         expect(akun.balance(asal.accountId!), bank0 + 1500000);
+        // The finance home's "Belanja bulan ini" shows the lower figure.
+        w.read(routerProvider).go(Layar.keuangan.lokasi());
+        await tester.pumpAndSettle();
+        expect(find.text(rp(belanja0 - 1500000)), findsWidgets);
+        // DM 5.1: the original cannot be reversed while its refund stands.
+        final asalKini = tx.get(asal.id)!;
+        final tolakBalik = await tx.reverse(
+          w.read(actorProvider)!,
+          asal.id,
+          reason: 'keliru',
+          expectedRevision: asalKini.revision,
+          idempotencyKey: 'f9-balik-asal-${tata.name}',
+        );
+        expect(tolakBalik.refusal?.because, contains('Sudah ada pengembalian'));
 
         // What is left to refund.
         w.read(routerProvider).go(Layar.pengembalian.lokasi());
@@ -127,6 +142,8 @@ void main() {
           find.textContaining('paling banyak ${rp(asal.total - 1500000)}'),
           findsWidgets,
         );
+        // README 8.1: the audit actor of the commands run here.
+        expect(jejakTerakhir(w, 'finance.txn.refund').personId, 'meiske');
       });
     }
   });

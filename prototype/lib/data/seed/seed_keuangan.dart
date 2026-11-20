@@ -672,6 +672,15 @@ void seedKeuangan(SeedStore store, Jangkar a) {
   );
   titipanSinode('0132a', minggu(3, 1), 'Ibadah Minggu Pagi', 10);
   titipanSinode('0132b', minggu(3, 1), 'Ibadah Minggu Sore', 15);
+  // DP9: Selvie's advance (um4) spent in full; the Rp75.000 above it is a
+  // claim. The key sorts after DP7's 0133 and before 0134.
+  buku(
+    '0133a',
+    pj,
+    h(4),
+    'Pertanggungjawaban uang muka · Konsumsi syukur HUT',
+    [p(300000, '5.04.01.00', kasus: 'um4', pihak: 'party-selvie')],
+  );
   buku(
     '0149',
     pj,
@@ -722,6 +731,16 @@ void seedKeuangan(SeedStore store, Jangkar a) {
     ),
   ]);
   titipanSinode('0138a', minggu(2, 8), 'Ibadah Minggu Pagi', 10);
+  // tt2: "Dari persembahan khusus {d} {bulan} · disimpan di Kas".
+  buku(
+    '0138b',
+    titip,
+    minggu(2, 8),
+    'Titipan untuk: Wilayah · Persembahan khusus',
+    [p(450000, '2.1.01.02.00', kasus: 'tt2', pihak: 'party-wilayah')],
+    akun: 'kas',
+    jam: (12, 15),
+  );
   final b139 = buku(
     '0139',
     blj,

@@ -12,6 +12,9 @@ import 'package:palakat_prototype/domain/finance/finance.dart';
 import 'package:palakat_prototype/providers/actor.dart';
 import 'package:palakat_prototype/providers/keuangan/persetujuan.dart';
 import 'package:palakat_prototype/providers/repositories_keuangan.dart';
+import 'package:palakat_prototype/widgets/garis_status.dart';
+import 'package:palakat_prototype/widgets/kartu_persetujuan.dart';
+import 'package:palakat_prototype/widgets/kecil.dart';
 
 import 'harness.dart';
 
@@ -34,8 +37,6 @@ void main() {
             effectiveDate: hari,
             description: _uraian,
             accountId: 'bni',
-            approvalMode: ApprovalMode.external,
-            approvalRule: 'Belanja Rp2.000.000 ke atas',
             allocations: const [
               Allocation(
                 amount: 2500000,
@@ -49,6 +50,8 @@ void main() {
         );
         expect(baru.isOk, isTrue, reason: '${baru.refusal}');
         final id = baru.value.id;
+        // DM 5.2: the repository derives the approval from the amount.
+        expect(baru.value.approvalMode, ApprovalMode.external);
         List<ApprovalRecord> rekam(ApprovalStatus s) => [
           for (final a in setuju.forTransaction(id))
             if (a.status == s) a,
@@ -80,6 +83,24 @@ void main() {
         await kirim('Catat persetujuan');
         expect(rekam(ApprovalStatus.recorded), hasLength(1));
         expect(find.text('Persetujuan sudah dicatat'), findsOneWidget);
+        // Solid: no dashed draft line around the recorded card.
+        final kartu = find.ancestor(
+          of: find.text('Persetujuan sudah dicatat'),
+          matching: find.byType(KartuPersetujuan),
+        );
+        expect(
+          tester.widget<KartuPersetujuan>(kartu).keadaan,
+          KeadaanPersetujuan.sudahDicatat,
+        );
+        expect(
+          find.descendant(
+            of: kartu,
+            matching: find.byWidgetPredicate(
+              (x) => x is Kartu && x.status == GarisStatus.draf,
+            ),
+          ),
+          findsNothing,
+        );
         expect(find.textContaining('Pdt. Lidya Rondonuwu'), findsWidgets);
         expect(find.textContaining(tgl(hari.awal)), findsWidgets);
         expect(find.textContaining('notulen rapat'), findsWidgets);
@@ -113,6 +134,8 @@ void main() {
         expect(find.text('Persetujuan belum dicatat'), findsOneWidget);
         expect(find.textContaining('Tidak berlaku lagi sejak'), findsOneWidget);
         expect(find.textContaining('Digantikan '), findsOneWidget);
+        // README 8.1: the audit actor of the commands run here.
+        expect(jejakTerakhir(w, 'finance.approval.record').personId, 'meiske');
       });
     }
   });

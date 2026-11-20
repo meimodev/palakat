@@ -9,6 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:palakat_prototype/app/layar.dart';
 import 'package:palakat_prototype/app/router.dart';
 import 'package:palakat_prototype/domain/finance/finance.dart';
+import 'package:palakat_prototype/providers/actor.dart';
 import 'package:palakat_prototype/providers/keuangan/kasus.dart';
 import 'package:palakat_prototype/providers/repositories_keuangan.dart';
 
@@ -56,6 +57,24 @@ void main() {
           find.textContaining('peruntukan asal dan tujuan harus berbeda'),
           findsOneWidget,
         );
+        // The repository refuses it too (README 3.5).
+        final sama = await tx.createDraft(
+          w.read(actorProvider)!,
+          TransactionDraft(
+            type: TransactionType.fundTransfer,
+            effectiveDate: w.read(hariIniProvider),
+            description: _dasar,
+            accountId: bank.id,
+            allocations: [
+              Allocation(amount: 500000, fundId: dari.id, toFundId: dari.id),
+            ],
+          ),
+          idempotencyKey: 'f11-sama-${tata.name}',
+        );
+        expect(
+          sama.refusal?.because,
+          'Peruntukan asal dan tujuan harus berbeda.',
+        );
         await ketuk(find.text(ke.nama).at(1));
         await ketik(0, '${awal[dari.id]! + 1}');
         expect(
@@ -84,6 +103,8 @@ void main() {
         expect(akhir[dari.id], awal[dari.id]! - 500000);
         expect(akhir[ke.id], (awal[ke.id] ?? 0) + 500000);
         expect(akun.balance(bank.id), total);
+        // README 8.1: the audit actor of the commands run here.
+        expect(jejakTerakhir(w, 'finance.txn.finalize').personId, 'meiske');
       });
     }
   });

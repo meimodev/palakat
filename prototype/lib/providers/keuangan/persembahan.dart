@@ -21,9 +21,25 @@ import 'transaksi.dart';
 const maPersembahanMinggu = '1.3.53.07.00';
 const maTitipanSinode = '2.1.01.02.00';
 
-/// The counters of the Sunday offering (roles.md: listed as Petugas
-/// penghitung; not a post in the seed).
-const _penghitung = ['olga', 'jefry', 'meiske'];
+/// Petugas penghitung of the offering and the Kas count (roles.md: not a
+/// post in the seed): the church Bendahara and second checker in force
+/// today, then the preparers of the Funds not kept by a Kolom (DP37), so a
+/// handover (F20) changes the list.
+final penghitungProvider = Provider<List<Person>>((ref) {
+  ref.watch(revisionProvider);
+  final can = ref.watch(canProvider);
+  final hari = ref.watch(hariIniProvider);
+  final orang = ref.watch(peopleRepositoryProvider);
+  final org = ref.watch(orgRepositoryProvider);
+  final ids = <String>{
+    for (final c in [Capability.financeFinalize, Capability.financeReview])
+      for (final p in can.whoCan(c, ScopeRef.jemaat, at: hari)) p.id,
+    for (final f in ref.watch(fundRepositoryProvider).funds())
+      if (org.scope(f.ownerScopeId)?.type != ScopeType.kolom)
+        ?f.preparerPersonId,
+  };
+  return [for (final id in ids) ?orang.person(id)];
+});
 
 class PilihanPersembahan {
   const PilihanPersembahan({
@@ -35,11 +51,15 @@ class PilihanPersembahan {
     required this.maSendiri,
     required this.maTitipan,
     required this.petugas,
+    required this.petugasId,
   });
 
   /// Petugas penghitung to pick from (mock-data 2.13); the first is the
   /// default on both twins.
   final List<String> petugas;
+
+  /// The person ids of [petugas], in the same order.
+  final List<String> petugasId;
 
   /// The counting sheet attached to the offering on booking.
   String get lembar =>
@@ -82,7 +102,7 @@ final pilihanPersembahanProvider = Provider<PilihanPersembahan>((ref) {
   final akun = ref.watch(accountRepositoryProvider).accounts();
   final gereja = [
     for (final a in akun)
-      if (a.operatedByScopeId == null) a,
+      if (a.operatorAt(hari) == null) a,
   ];
   final orang = ref.watch(peopleRepositoryProvider);
   final kasus = ref.watch(caseRepositoryProvider).transits();
@@ -96,6 +116,7 @@ final pilihanPersembahanProvider = Provider<PilihanPersembahan>((ref) {
       )
       .firstOrNull;
   final master = ref.watch(masterRepositoryProvider);
+  final penghitung = ref.watch(penghitungProvider);
   return PilihanPersembahan(
     minggu: minggu,
     kasBank: [for (final a in gereja) (id: a.id, nama: a.name)],
@@ -118,10 +139,8 @@ final pilihanPersembahanProvider = Provider<PilihanPersembahan>((ref) {
           ),
     maSendiri: labelMataAnggaran(master, maPersembahanMinggu, minggu),
     maTitipan: labelMataAnggaran(master, maTitipanSinode, minggu),
-    petugas: [
-      for (final id in _penghitung)
-        ?ref.watch(peopleRepositoryProvider).person(id)?.short,
-    ],
+    petugas: [for (final o in penghitung) o.short],
+    petugasId: [for (final o in penghitung) o.id],
   );
 });
 
@@ -135,11 +154,13 @@ typedef BagianPersembahan = ({
 
 /// "Periksa dan bukukan": one income draft with a part per non-empty
 /// [bagian] (the Titipan ones as transit collections on [p]'s case), then
-/// Bukukan. Returns the draft id, the voucher once booked, and the refusal.
+/// Bukukan. [penghitung] are names of [PilihanPersembahan.petugas]. Returns
+/// the draft id, the voucher once booked, and the refusal.
 Future<({String? id, String? no, Refusal? pesan})> bukukanPersembahan(
   WidgetRef ref,
   PilihanPersembahan p,
   List<BagianPersembahan> bagian, {
+  required List<String> penghitung,
   String? drafId,
 }) async {
   final a = ref.read(actorProvider);
@@ -155,6 +176,10 @@ Future<({String? id, String? no, Refusal? pesan})> bukukanPersembahan(
         type: TransactionType.income,
         effectiveDate: p.minggu,
         description: p.uraian,
+        countedBy: [
+          for (final n in penghitung)
+            if (p.petugas.indexOf(n) case final i when i >= 0) p.petugasId[i],
+        ],
         allocations: [
           for (final b in bagian)
             if (b.jumlah > 0)

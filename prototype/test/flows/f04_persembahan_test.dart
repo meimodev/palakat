@@ -4,6 +4,9 @@
 // month's Titipan case (tt1, 2.1.01.02.00, Sinode, BNI); after
 // periksaOlehJefry it is booked with one voucher and tt1 rises by the part.
 
+import 'dart:math';
+
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:palakat_prototype/app/layar.dart';
 import 'package:palakat_prototype/app/router.dart';
@@ -60,6 +63,8 @@ void main() {
         expect(d.accountOf(titip), 'bni');
         expect(d.accountOf(d.allocations[0]), p.kas);
         expect(d.accountOf(d.allocations[1]), qris.id);
+        // The default Petugas penghitung is stored with the offering.
+        expect(d.countedBy, [p.petugasId.first]);
         // The counting sheet is uploaded with the draft (mock-data 2.13).
         expect(
           w
@@ -72,12 +77,30 @@ void main() {
         );
 
         await periksaOlehJefry(tester, p.uraian);
+        final tahun = d.effectiveDate.tahun;
+        final nomor =
+            tx
+                .voucherSeries(VoucherSeries.bku, tahun)
+                .fold(0, (m, e) => max(m, e.number)) +
+            1;
         w.read(routerProvider).go(Layar.draf.lokasi(param: {'id': d.id}));
         await tester.pumpAndSettle();
         await tekan(tester, 'Periksa dan bukukan');
         final t = tx.get(d.id)!;
         expect(t.isPosted, isTrue);
-        expect(t.voucher, isNotNull);
+        // One voucher for all parts: the next free number, on screen.
+        expect(t.voucher, voucherCode(VoucherSeries.bku, tahun, nomor));
+        expect(
+          find.byWidgetPredicate(
+            (x) =>
+                x is RichText &&
+                x.text
+                    .toPlainText()
+                    .replaceAll(RegExp('[\u200B\u2060]'), '')
+                    .contains(t.voucher!),
+          ),
+          findsWidgets,
+        );
         final naik = kasus.caseById('tt1')!.outstanding;
         expect(naik, tt1 + 450000);
 
@@ -104,6 +127,8 @@ void main() {
           ),
           findsWidgets,
         );
+        // README 8.1: the audit actor of the commands run here.
+        expect(jejakTerakhir(w, 'finance.txn.finalize').personId, 'meiske');
       });
     }
   });

@@ -9,6 +9,7 @@ import '../actor.dart';
 import '../clock.dart';
 import '../core_repositories.dart';
 import '../repositories_keuangan.dart';
+import 'persembahan.dart' show penghitungProvider;
 import '../revision.dart';
 import 'beranda.dart';
 
@@ -594,11 +595,41 @@ final akunRekonProvider = Provider<String?>((ref) {
           ?.id;
 });
 
+/// True when the actor reconciles the church's accounts (the Bendahara);
+/// the Pemeriksa kedua only marks a session checked (D24).
+final bisaMencocokkanProvider = Provider<bool>((ref) {
+  final a = ref.watch(actorProvider);
+  return a != null &&
+      ref
+          .watch(canProvider)
+          .can(
+            a,
+            Capability.financeReconcile,
+            ScopeRef.jemaat,
+            at: ref.watch(hariIniProvider),
+          );
+});
+
 /// The church bank RekonIsi fills: the first with no statement for the
-/// next month to close, else the TutupBuku one.
+/// next month to close, else the TutupBuku one. For the Pemeriksa kedua:
+/// the church bank whose session waits for their check.
 final akunRekeningKoranProvider = Provider<String?>((ref) {
   final p = ref.watch(bulanBukuProvider).berikutDitutup;
   if (p == null) return null;
+  if (!ref.watch(bisaMencocokkanProvider)) {
+    return _bankGereja(ref)
+        .where((a) {
+          final r = ref.watch(rekonAkunProvider(a.id));
+          return r != null &&
+              r.sesi != null &&
+              r.wajibPeriksa &&
+              !r.diperiksa &&
+              !r.dipastikan &&
+              r.alasanBelum == null;
+        })
+        .firstOrNull
+        ?.id;
+  }
   final r = ref.watch(reconciliationRepositoryProvider);
   final tx = ref.watch(transactionRepositoryProvider);
   final akun = ref.watch(accountRepositoryProvider);
@@ -618,9 +649,10 @@ final akunRekeningKoranProvider = Provider<String?>((ref) {
 
 List<Account> _bankGereja(Ref ref) {
   ref.watch(revisionProvider);
+  final hari = ref.watch(hariIniProvider);
   return [
     for (final a in ref.watch(accountRepositoryProvider).accounts())
-      if (a.type == AccountType.bank && a.operatedByScopeId == null) a,
+      if (a.type == AccountType.bank && a.operatorAt(hari) == null) a,
   ];
 }
 
@@ -649,25 +681,37 @@ SampleStatement sampelRekeningKoran(RekonAkun r, int saldo) {
 
 /// The bank fee draft made from a statement line (mock-data 2.11): Belanja
 /// 5.03.03.00, Umum Jemaat, Lingkup Jemaat; the line is its document.
-TransactionDraft drafDariMutasi(StatementLine l, String akunId) =>
-    TransactionDraft(
-      type: l.amount < 0 ? TransactionType.expense : TransactionType.income,
-      effectiveDate: l.date,
-      description: l.amount < 0
-          ? 'Biaya administrasi bank'
-          : 'Pendapatan dari rekening koran',
-      accountId: akunId,
-      evidenceRequired: false,
-      sourceRef: l.description,
-      allocations: [
-        Allocation(
-          amount: l.amount.abs(),
-          fundId: 'umum',
-          scopeId: 'jemaat',
-          masterCode: l.amount < 0 ? '5.03.03.00' : null,
-        ),
-      ],
-    );
+/// The Mata Anggaran of a bank fee (chart of accounts, like
+/// maPersembahanMinggu).
+const maBiayaBank = '5.03.03.00';
+
+/// A DRAFT for an unmatched statement line, in the church's general Fund
+/// (the first Fund the Jemaat owns, as Catat's default).
+TransactionDraft drafDariMutasi(
+  StatementLine l,
+  String akunId,
+  List<Fund> dana,
+) => TransactionDraft(
+  type: l.amount < 0 ? TransactionType.expense : TransactionType.income,
+  effectiveDate: l.date,
+  description: l.amount < 0
+      ? 'Biaya administrasi bank'
+      : 'Pendapatan dari rekening koran',
+  accountId: akunId,
+  evidenceRequired: false,
+  sourceRef: l.description,
+  allocations: [
+    Allocation(
+      amount: l.amount.abs(),
+      fundId: dana
+          .where((f) => f.ownerScopeId == ScopeRef.jemaatId)
+          .firstOrNull
+          ?.id,
+      scopeId: ScopeRef.jemaatId,
+      masterCode: l.amount < 0 ? maBiayaBank : null,
+    ),
+  ],
+);
 
 // ---------- Hitung kas ----------
 
@@ -701,7 +745,7 @@ final hitungKasProvider = Provider<HitungKas?>((ref) {
   final akun = ref
       .watch(accountRepositoryProvider)
       .accounts()
-      .where((a) => a.type == AccountType.cash && a.operatedByScopeId == null)
+      .where((a) => a.type == AccountType.cash && a.operatorAt(hari) == null)
       .firstOrNull;
   if (p == null || akun == null) return null;
   final r = ref.watch(reconciliationRepositoryProvider);
@@ -721,13 +765,9 @@ final hitungKasProvider = Provider<HitungKas?>((ref) {
 
 /// The counters the boards offer (mock-data 2.12): the Bendahara, the
 /// second checker and a unit treasurer.
-final petugasHitungProvider = Provider<List<String>>((ref) {
-  final orang = ref.watch(peopleRepositoryProvider);
-  return [
-    for (final id in ['meiske', 'jefry', 'olga'])
-      ?orang.person(id)?.shortName ?? orang.person(id)?.name,
-  ];
-});
+final petugasHitungProvider = Provider<List<String>>(
+  (ref) => [for (final p in ref.watch(penghitungProvider)) p.short],
+);
 
 // ---------- Kesiapan ----------
 
@@ -891,7 +931,11 @@ abstract final class AksiRekon {
         .createTxnFromLine(
           a,
           m.baris.id,
-          drafDariMutasi(m.baris, r.akun.id),
+          drafDariMutasi(
+            m.baris,
+            r.akun.id,
+            ref.read(fundRepositoryProvider).funds(),
+          ),
           idempotencyKey: k,
         ),
   );

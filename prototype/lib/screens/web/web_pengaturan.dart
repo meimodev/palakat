@@ -83,7 +83,8 @@ class _WebPengaturanScreenState extends ConsumerState<WebPengaturanScreen> {
       for (final r in p.riwayat.take(40))
         (
           tglJam(r.at),
-          r.personName,
+          // README 3.4: a cover reads as the recorded actor line.
+          r.via == Via.direct ? r.personName : r.actorLine,
           [r.summary, if (r.reason != null) 'alasan: ${r.reason}'].join(' · '),
         ),
     ];

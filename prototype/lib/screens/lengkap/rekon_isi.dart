@@ -282,7 +282,10 @@ mixin RekonIsiLogika<W extends ConsumerStatefulWidget> on ConsumerState<W> {
                   b.kind == BlockerKind.notReconciled &&
                   b.accountId == r.akun.id,
             );
-    final kerja = (!pasti && !r.diperiksa) || basi;
+    // The Pemeriksa kedua reads and marks; only the Bendahara types.
+    final kerja =
+        ref.watch(bisaMencocokkanProvider) &&
+        ((!pasti && !r.diperiksa) || basi);
     final daftar = r.mutasi;
     final sisaTotal = daftar.fold(0, (a, m) => a + m.sisa.abs());
     final okSaldo = _saldo.text.isNotEmpty;

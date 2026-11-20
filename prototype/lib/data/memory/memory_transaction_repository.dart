@@ -248,10 +248,11 @@ class MemoryTransactionRepository implements TransactionRepository {
     for (final a in t.allocations) {
       for (final id in {t.accountOf(a), t.toAccountId}) {
         final acc = f.k.account(id);
-        if (acc != null && acc.operatedByScopeId != scopeId) {
-          final oleh = acc.operatedByScopeId == null
+        final operator = acc?.operatorAt(t.effectiveDate);
+        if (acc != null && operator != scopeId) {
+          final oleh = operator == null
               ? 'Bendahara Jemaat'
-              : f.ctx.inti.scope(acc.operatedByScopeId!)?.name;
+              : f.ctx.inti.scope(operator)?.name;
           return '${acc.name} dikelola oleh $oleh, bukan oleh $unit.';
         }
       }
@@ -307,6 +308,24 @@ class MemoryTransactionRepository implements TransactionRepository {
     }
     return null;
   }
+
+  /// F11: a Fund transfer moves between two different Funds.
+  static String? _sameFund(TransactionType type, List<Allocation> parts) =>
+      parts.any(
+        (a) =>
+            (a.type ?? type) == TransactionType.fundTransfer &&
+            a.fundId != null &&
+            a.fundId == a.toFundId,
+      )
+      ? 'Peruntukan asal dan tujuan harus berbeda.'
+      : null;
+
+  /// DM 5.2: a Belanja of Rp2.000.000 or more needs approval outside the
+  /// app, whatever the caller passed.
+  static bool _needsApproval(TransactionType type, List<Allocation> parts) =>
+      type == TransactionType.expense &&
+      parts.fold<int>(0, (s, a) => s + a.amount) >= 2000000;
+  static const _approvalRule = 'Belanja Rp2.000.000 ke atas';
 
   void _dropReview(Transaction t, String why) {
     if (t.status == TransactionStatus.reviewed) {
@@ -365,6 +384,8 @@ class MemoryTransactionRepository implements TransactionRepository {
     if (draft.allocations.any((a) => a.amount < 0)) {
       return f.ctx.no(aksi, 'Jumlah tidak boleh kurang dari nol.');
     }
+    final samaDana = _sameFund(draft.type, draft.allocations);
+    if (samaDana != null) return f.ctx.no(aksi, samaDana);
     // The opening is seeded read-only (D19); a reversal or correction comes
     // only from reverse() and correct(), which hold their checks (DM 4.3).
     if (draft.type == TransactionType.opening ||
@@ -396,14 +417,20 @@ class MemoryTransactionRepository implements TransactionRepository {
       toAccountId: draft.toAccountId,
       payee: draft.payee,
       sourceRef: draft.sourceRef,
-      approvalMode: draft.approvalMode,
-      approvalRule: draft.approvalRule,
+      approvalMode: _needsApproval(draft.type, draft.allocations)
+          ? ApprovalMode.external
+          : draft.approvalMode,
+      approvalRule: _needsApproval(draft.type, draft.allocations)
+          ? _approvalRule
+          : draft.approvalRule,
       evidenceRequired: draft.evidenceRequired,
       unitScopeId: g.capabilities.contains(Capability.financeRecord)
           ? null
           : g.scopeId,
       importRowId: draft.importRowId,
       aiProposalId: draft.aiProposalId,
+      refundOf: draft.refundOf,
+      countedBy: List.of(draft.countedBy),
     );
     f.k.transactions.add(t);
     f.audit(
@@ -435,6 +462,10 @@ class MemoryTransactionRepository implements TransactionRepository {
             : 'Transaksi ini sudah dibatalkan.',
       );
     }
+    // DM 5.1: a reversal copies its original in full; it is not edited.
+    if (t.reversalOf != null) {
+      return f.ctx.no(aksi, 'Pembalikan tidak dapat diubah atau dibalik.');
+    }
     final basi = f.ctx.stale<Transaction>(t.revision, expectedRevision, aksi);
     if (basi != null) return basi;
     // DM 5.1: the maker, the church Bendahara (DL33) or the church's second
@@ -450,6 +481,11 @@ class MemoryTransactionRepository implements TransactionRepository {
     if (patch.allocations?.any((a) => a.amount < 0) ?? false) {
       return f.ctx.no(aksi, 'Jumlah tidak boleh kurang dari nol.');
     }
+    final samaDana = _sameFund(
+      patch.type ?? t.type,
+      patch.allocations ?? t.allocations,
+    );
+    if (samaDana != null) return f.ctx.no(aksi, samaDana);
     if (patch.effectiveDate != null) {
       final tutup = f.closedReason(patch.effectiveDate!);
       if (tutup != null) {
@@ -469,6 +505,11 @@ class MemoryTransactionRepository implements TransactionRepository {
       ..payee = patch.payee ?? t.payee
       ..sourceRef = patch.sourceRef ?? t.sourceRef
       ..revision += 1;
+    if (_needsApproval(t.type, t.allocations)) {
+      t
+        ..approvalMode = ApprovalMode.external
+        ..approvalRule = _approvalRule;
+    }
     if (patch.isMaterial) _dropReview(t, 'Transaksi diubah');
     f.audit(
       g,
@@ -556,14 +597,83 @@ class MemoryTransactionRepository implements TransactionRepository {
     final t = f.k.transaction(id);
     final hilang = _missing<String>(aksi, t);
     if (hilang != null) return hilang;
-    if (t!.status == TransactionStatus.cancelled) {
-      return f.ctx.no(aksi, 'Transaksi ini sudah dibatalkan.');
+    final basi = t!.isDraft
+        ? f.ctx.stale<String>(t.revision, expectedRevision, aksi)
+        : null;
+    if (basi != null) return basi;
+    // DM 4.3: a correction's reversal and replacement post together, so
+    // neither books alone from Pemeriksa, Transaksi, Main or Draf.
+    final asal = t.isDraft ? (t.reversalOf ?? t.correctionOf) : null;
+    if (asal != null &&
+        f.k.transactions.any((x) => x.correctionOf == asal && x.isDraft)) {
+      return switch (_postPair(aksi, actor, asal)) {
+        Ok(:final value) => Ok(value[t.correctionOf == null ? 0 : 1]),
+        Refused(:final refusal) => Refused(refusal),
+      };
+    }
+    final (g, tolak) = _canFinalize(aksi, actor, t);
+    if (tolak != null) return tolak;
+    return Ok(_post(actor, t, g!));
+  });
+
+  @override
+  Future<Result<List<String>>> finalizeCorrection(
+    Actor actor,
+    String originalId, {
+    required int expectedRevision,
+    required String idempotencyKey,
+  }) => f.ctx.command(idempotencyKey, () {
+    const aksi = 'Bukukan';
+    final balik = f.k.transactions
+        .where((x) => x.reversalOf == originalId && x.isDraft)
+        .firstOrNull;
+    final basi = balik == null
+        ? null
+        : f.ctx.stale<List<String>>(balik.revision, expectedRevision, aksi);
+    return basi ?? _postPair(aksi, actor, originalId);
+  });
+
+  /// Posts the reversal DRAFT of [originalId] and its replacement DRAFT, if
+  /// any, both or neither (DM 4.3).
+  Result<List<String>> _postPair(String aksi, Actor actor, String originalId) {
+    final balik = f.k.transactions
+        .where((x) => x.reversalOf == originalId && x.isDraft)
+        .firstOrNull;
+    final ganti = f.k.transactions
+        .where((x) => x.correctionOf == originalId && x.isDraft)
+        .firstOrNull;
+    if (balik == null) {
+      return f.ctx.no<List<String>>(aksi, 'Belum ada draf pembalikan.');
+    }
+    final (g, tolak) = _canFinalize(aksi, actor, balik);
+    if (tolak != null) return Refused(tolak.refusal);
+    if (ganti != null) {
+      // The replacement is checked as if the reversal were posted (a case
+      // or Fund freed by the reversal counts), then the pair posts together.
+      final semula = balik.status;
+      balik.status = TransactionStatus.finalized;
+      final (_, tolakGanti) = _canFinalize(aksi, actor, ganti);
+      balik.status = semula;
+      if (tolakGanti != null) return Refused(tolakGanti.refusal);
+    }
+    return Ok([
+      _post(actor, balik, g!),
+      if (ganti != null) _post(actor, ganti, g),
+    ]);
+  }
+
+  /// The grant that books [t], or why it cannot be booked now.
+  (Grant?, Refused<String>?) _canFinalize(
+    String aksi,
+    Actor actor,
+    Transaction t,
+  ) {
+    if (t.status == TransactionStatus.cancelled) {
+      return (null, f.ctx.no(aksi, 'Transaksi ini sudah dibatalkan.'));
     }
     if (t.isPosted) {
-      return f.ctx.no(aksi, 'Sudah dibukukan sebagai ${t.voucher}.');
+      return (null, f.ctx.no(aksi, 'Sudah dibukukan sebagai ${t.voucher}.'));
     }
-    final basi = f.ctx.stale<String>(t.revision, expectedRevision, aksi);
-    if (basi != null) return basi;
     final gereja = f.ctx.grant(
       actor,
       Capability.financeFinalize,
@@ -573,42 +683,55 @@ class MemoryTransactionRepository implements TransactionRepository {
         gereja ??
         f.ctx.grant(actor, Capability.unitFinanceFinalize, ScopeRef.anywhere);
     if (g == null) {
-      return f.ctx.refuse(actor, Capability.financeFinalize, ScopeRef.jemaat);
+      return (
+        null,
+        f.ctx.refuse(actor, Capability.financeFinalize, ScopeRef.jemaat),
+      );
     }
     final tutup = f.closedReason(t.effectiveDate);
     if (tutup != null) {
-      return f.ctx.no(
-        aksi,
-        '$tutup Yang masih dapat Anda lakukan: pindah tanggal ke bulan yang '
-        'belum ditutup, atau batalkan.',
+      return (
+        null,
+        f.ctx.no(
+          aksi,
+          '$tutup Yang masih dapat Anda lakukan: pindah tanggal ke bulan yang '
+          'belum ditutup, atau batalkan.',
+        ),
       );
     }
     for (final asal in {t.reversalOf, t.correctionOf}) {
       final o = f.k.transaction(asal);
       if (o != null && f.closedReason(o.effectiveDate) != null) {
-        return f.ctx.no(aksi, _closedForCorrection(o));
+        return (null, f.ctx.no(aksi, _closedForCorrection(o)));
       }
     }
     if (gereja == null) {
       final luar = _outsideUnit(t, g.scopeId);
-      if (luar != null) return f.ctx.no(aksi, luar);
+      if (luar != null) return (null, f.ctx.no(aksi, luar));
     }
     final aturan = settings.rulesInForce(at: t.effectiveDate);
     if (aturan.secondChecker && t.status != TransactionStatus.reviewed) {
       final siapa = _checkers(t);
-      return f.ctx.no(
-        aksi,
-        siapa == null
-            ? 'Wajib pemeriksa kedua, dan belum ada pemeriksa kedua yang '
-                  'ditunjuk.'
-            : 'Wajib pemeriksa kedua: transaksi ini belum ditandai sudah '
-                  'diperiksa oleh orang lain.',
-        whoCanAct: siapa,
+      return (
+        null,
+        f.ctx.no(
+          aksi,
+          siapa == null
+              ? 'Wajib pemeriksa kedua, dan belum ada pemeriksa kedua yang '
+                    'ditunjuk.'
+              : 'Wajib pemeriksa kedua: transaksi ini belum ditandai sudah '
+                    'diperiksa oleh orang lain.',
+          whoCanAct: siapa,
+        ),
       );
     }
     final kurang = _incomplete(t) ?? _overCase(t) ?? _overFund(t);
-    if (kurang != null) return f.ctx.no(aksi, kurang);
+    if (kurang != null) return (null, f.ctx.no(aksi, kurang));
+    return (g, null);
+  }
 
+  /// Gives [t] the next voucher of its year and posts it.
+  String _post(Actor actor, Transaction t, Grant g) {
     t
       ..series = t.type == TransactionType.opening
           ? VoucherSeries.opn
@@ -642,8 +765,8 @@ class MemoryTransactionRepository implements TransactionRepository {
       summary: 'Dibukukan ${t.voucher} · ${t.description}',
       ref: RecordRef(_ref, t.id),
     );
-    return Ok(t.voucher!);
-  });
+    return t.voucher!;
+  }
 
   @override
   Future<Result<Transaction>> cancel(
@@ -775,6 +898,20 @@ class MemoryTransactionRepository implements TransactionRepository {
       (x) => x.reversalOf == t.id && x.status != TransactionStatus.cancelled,
     );
     if (sudah) return f.ctx.no(aksi, 'Transaksi ini sudah dibalik.');
+    // DM 5.1 dependency check: a refund linked by refundOf would leave
+    // Belanja or Pendapatan short by its amount.
+    final kembali = f.k.transactions
+        .where(
+          (x) => x.refundOf == t.id && x.status != TransactionStatus.cancelled,
+        )
+        .firstOrNull;
+    if (kembali != null) {
+      return f.ctx.no(
+        aksi,
+        'Sudah ada pengembalian ${kembali.voucher ?? kembali.description}. '
+        'Balik atau batalkan pengembalian itu lebih dulu.',
+      );
+    }
     if (reason.trim().isEmpty) return f.ctx.no(aksi, 'Alasan belum diisi.');
     final basi = f.ctx.stale<T>(t.revision, expectedRevision, aksi);
     if (basi != null) return basi;
@@ -898,8 +1035,12 @@ class MemoryTransactionRepository implements TransactionRepository {
       toAccountId: replacement.toAccountId,
       payee: replacement.payee,
       sourceRef: replacement.sourceRef,
-      approvalMode: replacement.approvalMode,
-      approvalRule: replacement.approvalRule,
+      approvalMode: _needsApproval(replacement.type, replacement.allocations)
+          ? ApprovalMode.external
+          : replacement.approvalMode,
+      approvalRule: _needsApproval(replacement.type, replacement.allocations)
+          ? _approvalRule
+          : replacement.approvalRule,
       evidenceRequired: replacement.evidenceRequired,
       correctionOf: t.id,
     );

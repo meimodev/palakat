@@ -338,8 +338,7 @@ final _pudar200 = (
   tanpaGerak: false,
 );
 
-/// `laporanResmi` by `bentuk` (README 7.2): F02 is A4F02a until M4 paginates
-/// A4F02a–c into one view.
+/// `laporanResmi` by `bentuk` (README 7.2): F02 is the paginated A4F02aScreen.
 Widget _laporanResmi(GoRouterState s) => switch (s.pathParameters['bentuk']) {
   'f02' => const A4F02aScreen(),
   'f14' => const A4F14Screen(),

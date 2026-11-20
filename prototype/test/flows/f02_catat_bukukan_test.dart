@@ -26,40 +26,6 @@ const _kueri = 'lakban';
 const _jumlah = 150000;
 const _jumlahDraf = 50000;
 
-/// The running month and the next month to close at each anchor.
-final _bulan = {
-  jangkarA: ('November 2026', 'Oktober 2026'),
-  jangkarB: ('Januari 2027', 'Desember 2026'),
-  jangkarC: ('Maret 2027', 'Februari 2027'),
-};
-
-const _namaBulan = [
-  'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', //
-  'Agustus', 'September', 'Oktober', 'November', 'Desember',
-];
-
-/// Every date the screen shows (dd/mm/yyyy or "d Bulan yyyy") is not after
-/// [hari].
-void _tidakAdaTanggalNanti(WidgetTester tester, Tanggal hari, String di) {
-  final angka = RegExp(r'\b(\d{2})/(\d{2})/(\d{4})\b');
-  final kata = RegExp('\\b(\\d{1,2}) (${_namaBulan.join('|')}) (\\d{4})\\b');
-  for (final w in tester.widgetList<RichText>(find.byType(RichText))) {
-    final s = w.text.toPlainText();
-    for (final m in angka.allMatches(s)) {
-      final t = Tanggal(int.parse(m[3]!), int.parse(m[2]!), int.parse(m[1]!));
-      expect(t <= hari, isTrue, reason: '$di: "$s" setelah $hari');
-    }
-    for (final m in kata.allMatches(s)) {
-      final t = Tanggal(
-        int.parse(m[3]!),
-        _namaBulan.indexOf(m[2]!) + 1,
-        int.parse(m[1]!),
-      );
-      expect(t <= hari, isTrue, reason: '$di: "$s" setelah $hari');
-    }
-  }
-}
-
 /// Text containing [s] once zero-width breaks (U+200B, U+2060) are removed:
 /// the web stamp may break a voucher after its hyphens.
 Finder _teksBersih(String s) => find.byWidgetPredicate(
@@ -110,13 +76,13 @@ void main() {
           await keBeranda();
 
           // Computed labels: the running month and the next one to close.
-          final (berjalan, berikut) = _bulan[saat]!;
+          final (berjalan, berikut) = bulanDiJangkar[saat]!;
           final b0 = beranda();
           expect(namaBulan(b0.bulan.berjalan!), berjalan);
           expect(namaBulan(b0.bulan.berikutDitutup!), berikut);
           expect(find.textContaining(berjalan), findsWidgets);
           expect(find.textContaining('$berikut belum ditutup'), findsWidgets);
-          _tidakAdaTanggalNanti(tester, hari, 'Beranda');
+          tidakAdaTanggalNanti(tester, hari, 'Beranda');
 
           final saldo0 = b0.saldoBuku, belanja0 = b0.bulanIni!.belanja;
           expect(find.text(rp(saldo0)), findsWidgets);
@@ -218,7 +184,7 @@ void main() {
           }
           expect(find.text(_uraian), findsWidgets);
           expect(_teksBersih(t.voucher!), findsWidgets);
-          _tidakAdaTanggalNanti(tester, hari, 'Transaksi');
+          tidakAdaTanggalNanti(tester, hari, 'Transaksi');
 
           // ...and in Cari.
           pergi(Layar.cari);
@@ -264,7 +230,7 @@ void main() {
             findsOneWidget,
           );
           expect(b2.saldoBuku, b1.saldoBuku, reason: 'a draft moves nothing');
-          _tidakAdaTanggalNanti(tester, hari, 'Beranda');
+          tidakAdaTanggalNanti(tester, hari, 'Beranda');
           expect(tester.takeException(), isNull);
         });
       }

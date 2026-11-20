@@ -653,7 +653,7 @@ List<String> _riwayat(WidgetRef ref, Transaction t, Tanggal hari) {
     return [
       for (final r in jejak)
         '${kapan(r.at)} · ${_aksi[r.action] ?? r.summary} oleh '
-            '${r.via == Via.direct ? siapa(r.personId) : '${r.personName}, ${r.actingRole}'}',
+            '${r.via == Via.direct ? siapa(r.personId) : r.actorLine}',
     ];
   }
   return [

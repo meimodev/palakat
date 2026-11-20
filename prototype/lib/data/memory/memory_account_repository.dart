@@ -5,40 +5,16 @@ import '../../domain/finance/finance.dart';
 import '../repositories/account_repository.dart';
 import 'memory_finance.dart';
 
-/// A unit takeover waiting for its month (assignToUnit, D24), kept beside
-/// the [Account] it belongs to; a reseed drops it with the account.
-final _operatorBerikut = Expando<({String scopeId, Tanggal mulai})>(
-  'operator berikut',
-);
-
 /// Kas/Bank and their balances; settings commands need finance.settings.
 class MemoryAccountRepository implements AccountRepository {
   MemoryAccountRepository(this.f);
   final MemoryFinance f;
 
-  // ponytail: Account has no dated operator, so a scheduled takeover lands
-  // here, on the next read or command of this repository after its 1st.
-  // Readers of f.k.accounts outside it (TransactionRepository.finalize,
-  // PeriodRepository) see it once any account read ran, which every finance
-  // screen does. Upgrade when Account gets a dated operator (M5 request 5).
-  void _terapkan() {
-    for (final a in f.k.accounts) {
-      final b = _operatorBerikut[a];
-      if (b != null && b.mulai <= f.today) {
-        a.operatedByScopeId = b.scopeId;
-        _operatorBerikut[a] = null;
-      }
-    }
-  }
-
   @override
-  List<Account> accounts({bool includeInactive = false}) {
-    _terapkan();
-    return [
-      for (final a in f.k.accounts)
-        if (includeInactive || a.activeAt(f.today)) a,
-    ];
-  }
+  List<Account> accounts({bool includeInactive = false}) => [
+    for (final a in f.k.accounts)
+      if (includeInactive || a.activeAt(f.today)) a,
+  ];
 
   @override
   int balance(String accountId, {Tanggal? at}) =>
@@ -185,7 +161,6 @@ class MemoryAccountRepository implements AccountRepository {
     if (g == null) {
       return f.ctx.refuse(actor, Capability.financeSettings, ScopeRef.jemaat);
     }
-    _terapkan();
     final a = f.k.accounts.where((x) => x.id == id).firstOrNull;
     if (a == null) return f.ctx.no(aksi, 'Kas/Bank tidak ditemukan.');
     final basi = f.ctx.stale<Account>(a.revision, expectedRevision, aksi);
@@ -197,14 +172,18 @@ class MemoryAccountRepository implements AccountRepository {
     if (a.activeTo != null && a.activeTo! < effectiveFrom) {
       return f.ctx.no(aksi, '${a.name} sudah nonaktif.');
     }
-    if ((_operatorBerikut[a]?.scopeId ?? a.operatedByScopeId) == scopeId) {
+    if (a.operatorAt(effectiveFrom) == scopeId) {
       return f.ctx.no(
         aksi,
         '${a.name} sudah dikelola ${f.ctx.inti.scope(scopeId)!.name}.',
       );
     }
-    _operatorBerikut[a] = (scopeId: scopeId, mulai: effectiveFrom);
-    a.revision += 1;
+    // A takeover already in force today becomes the operator before this one.
+    a
+      ..operatedByScopeId = a.operatorAt(f.today)
+      ..nextOperatorScopeId = scopeId
+      ..nextOperatorFrom = effectiveFrom
+      ..revision += 1;
     f.audit(
       g,
       action: 'finance.account.assign_unit',

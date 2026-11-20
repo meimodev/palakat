@@ -24,6 +24,10 @@ class MemorySettingsRepository implements SettingsRepository {
   }
 
   @override
+  RuleValue? valueInForce(FinanceRule rule, {required Tanggal at}) =>
+      _inForce(rule, at);
+
+  @override
   RulesInForce rulesInForce({required Tanggal at}) => RulesInForce({
     for (final r in FinanceRule.values) r: _inForce(r, at)?.on ?? false,
   });

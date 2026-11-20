@@ -152,7 +152,9 @@ class _WebHitungKasScreenState extends ConsumerState<WebHitungKasScreen> {
         : '${d.akun.name} · ${tglPanjang(sekarang)} · ${jam(sekarang)}';
     final bank = [
       for (final a in ref.watch(accountRepositoryProvider).accounts())
-        if (a.type == AccountType.bank && a.operatedByScopeId == null) a,
+        if (a.type == AccountType.bank &&
+            a.operatorAt(Tanggal.dari(sekarang)) == null)
+          a,
     ];
     final hasil = dihitung ? rp(total) : kosong;
     final warnaHasil = dihitung ? c.tinta : c.tinta3;

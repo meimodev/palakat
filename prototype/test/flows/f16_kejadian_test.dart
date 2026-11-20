@@ -4,6 +4,7 @@
 // the settlement is a separate draft in M0, booked after `periksaOlehJefry`;
 // M0's blockers stay (D11).
 
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:palakat_prototype/app/app.dart';
@@ -31,6 +32,8 @@ void main() {
       testWidgets(tata.name, (tester) async {
         final c = await bukaAplikasi(tester, tata: tata, saat: jangkarA);
         final ditutup = await tutupBulanLalu(tester);
+        await keluar(tester);
+        await masukSebagai(tester, Persona.meiske);
         final k = c.read(seedProvider).keuangan;
         final per = c.read(periodRepositoryProvider);
         final tx = c.read(transactionRepositoryProvider);
@@ -78,17 +81,40 @@ void main() {
         expect(tx.get(draf.id)!.voucher, nomor);
         expect(k.accountBalance('kas', at: ditutup.end), kasDitutup);
 
+        // An incident with no settlement draft: "Catat penyelesaian
+        // keuangan" records what was decided afterwards.
+        await _ke(tester, Layar.kejadian);
+        await tekan(tester, 'Catat kejadian baru');
+        await isi(tester, 'Judul', 'Kuitansi rangkap');
+        await isi(tester, 'Penjelasan', 'Satu kuitansi tercatat dua kali.');
+        await isi(tester, 'Dampak pada rekonsiliasi', 'Tidak ada.');
+        await isi(tester, 'Penanggung jawab', 'Meiske L., Bendahara');
+        await tekan(tester, 'Catat kejadian');
+        final k3 = per.incidents().last;
+        expect(k3.code, 'K-$tahun-03');
+        if (c.read(layoutProvider) == Tata.ponsel) {
+          await tekan(tester, 'Kuitansi rangkap');
+        }
+        const putusan = 'Kuitansi rangkap ditandai batal oleh BPMJ.';
+        final kolom = find.byType(TextField).last;
+        await tester.ensureVisible(kolom);
+        await tester.enterText(kolom, putusan);
+        await tester.pumpAndSettle();
+        await tekan(tester, 'Catat penyelesaian keuangan');
+        expect(per.incidents().last.narrativeResolution, putusan);
+        expect(find.text(putusan), findsOneWidget);
+
         // M0's blockers stay.
         expect(per.blockers(berjalan.id), isNotEmpty);
         await _ke(tester, Layar.kejadian);
-        if (c.read(layoutProvider) == Tata.ponsel) {
-          await tekan(tester, 'Kas Jemaat lebih Rp85.000');
-        }
+        await tekan(tester, 'Kas Jemaat lebih Rp85.000');
         expect(
           find.text('Hambatan tutup buku ${namaBulan(berjalan)} tetap ada.'),
           findsOneWidget,
         );
         expect(find.textContaining(nomor), findsOneWidget);
+        // README 8.1: the audit actor of the commands run here.
+        expect(jejakTerakhir(c, 'finance.incident.record').personId, 'meiske');
       });
     }
   });

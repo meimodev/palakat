@@ -75,15 +75,21 @@ class _WebPersembahanScreenState extends ConsumerState<WebPersembahanScreen> {
   }
 
   Future<void> _bukukan() async {
-    final r = await bukukanPersembahan(ref, _p, [
-      for (final b in _bagian)
-        (
-          nama: b.n,
-          jumlah: b.nilai,
-          titipan: b.milik == 'titipan',
-          akun: b.akun,
-        ),
-    ], drafId: _drafId);
+    final r = await bukukanPersembahan(
+      ref,
+      _p,
+      [
+        for (final b in _bagian)
+          (
+            nama: b.n,
+            jumlah: b.nilai,
+            titipan: b.milik == 'titipan',
+            akun: b.akun,
+          ),
+      ],
+      penghitung: _p.petugas.take(1).toList(),
+      drafId: _drafId,
+    );
     if (!mounted) return;
     setState(() {
       _drafId = r.id ?? _drafId;

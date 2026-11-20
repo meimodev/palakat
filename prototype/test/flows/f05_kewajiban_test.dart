@@ -3,11 +3,15 @@
 // advance is refused and offered as Penggantian biaya; the home row "N uang
 // muka…" follows the count; um2 shows overdue at both dates.
 
+import 'dart:math';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:palakat_prototype/app/layar.dart';
 import 'package:palakat_prototype/app/router.dart';
 import 'package:palakat_prototype/core/format.dart';
+import 'package:palakat_prototype/domain/finance/finance.dart';
+import 'package:palakat_prototype/providers/actor.dart';
 import 'package:palakat_prototype/providers/repositories_keuangan.dart';
 
 import 'harness.dart';
@@ -48,7 +52,16 @@ void main() {
 
         await masukSebagai(tester, Persona.meiske);
 
-        // The list: computed remainders; um2 is overdue at both dates.
+        // Computed month labels on the finance home (README 8.1).
+        final (berjalan, berikut) = bulanDiJangkar[saat]!;
+        await buka(Layar.keuangan.lokasi());
+        expect(find.textContaining(berjalan), findsWidgets);
+        expect(find.textContaining('$berikut belum ditutup'), findsWidgets);
+
+        // The list: computed remainders; um2 is overdue at both dates, on
+        // its own page too.
+        await buka(Layar.kewajiban.lokasi(anak: 'kasus/um2'));
+        expect(find.textContaining('Lewat jatuh tempo'), findsWidgets);
         await buka(Layar.kewajiban.lokasi());
         expect(kasus.caseById('um2')!.overdue, isTrue);
         expect(kasus.caseById('um1')!.outstanding, 650000);
@@ -110,6 +123,17 @@ void main() {
         await periksaOlehJefry(tester, _pj);
         await periksaOlehJefry(tester, 'Uang Muka diberikan · $_baru');
         final hitung = jumlahUangMuka();
+        final tx = w.read(transactionRepositoryProvider);
+        final dPj = tx.drafts().singleWhere((t) => t.description == _pj);
+        final dBaru = tx.drafts().singleWhere(
+          (t) => t.description.endsWith(_baru),
+        );
+        final tahun = w.read(hariIniProvider).tahun;
+        final nomor =
+            tx
+                .voucherSeries(VoucherSeries.bku, tahun)
+                .fold(0, (m, e) => max(m, e.number)) +
+            1;
         await buka(Layar.kewajiban.lokasi(anak: 'kasus/um1'));
         await tekan(
           tester,
@@ -130,6 +154,14 @@ void main() {
         );
         expect(kasus.caseById(baru.kase.id)!.outstanding, 300000);
         expect(jumlahUangMuka(), hitung + 1);
+        // The next free numbers of today's year (a restart at date B).
+        expect(
+          (tx.get(dPj.id)!.voucher, tx.get(dBaru.id)!.voucher),
+          (
+            voucherCode(VoucherSeries.bku, tahun, nomor),
+            voucherCode(VoucherSeries.bku, tahun, nomor + 1),
+          ),
+        );
 
         // The home row follows the count.
         await buka(Layar.keuangan.lokasi());
@@ -141,6 +173,17 @@ void main() {
           findsOneWidget,
         );
         expect(kasus.caseById('um2')!.overdue, isTrue);
+        tidakAdaTanggalNanti(tester, w.read(hariIniProvider), 'Beranda');
+
+        // "Cek klaim" records the check; no balance changes.
+        await buka(Layar.kewajiban.lokasi(anak: 'kasus/pb1'));
+        await tekan(tester, 'Cek klaim · tidak mengubah saldo');
+        expect(kasus.caseById('pb1')!.kase.checkedBy, 'meiske');
+        expect(find.textContaining('klaim sudah dicek'), findsWidgets);
+        // README 8.1: the audit actor of the commands run here.
+        expect(jejakTerakhir(w, 'finance.case.claim.check').personId, 'meiske');
+        expect(jejakTerakhir(w, 'finance.txn.finalize').personId, 'meiske');
+        expect(jejakTerakhir(w, 'finance.txn.review').personId, 'jefry');
       });
     }
   });

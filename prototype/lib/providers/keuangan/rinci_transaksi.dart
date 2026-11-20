@@ -33,6 +33,7 @@ class AksiTransaksi {
     this.param = const {},
     this.anak,
     this.utama = false,
+    this.dokumen,
   });
 
   final String label;
@@ -41,6 +42,10 @@ class AksiTransaksi {
   final Map<String, String> param;
   final String? anak;
   final bool utama;
+
+  /// The transaction a document screen ([ke]) works on: pick it in
+  /// `pilihanDokumenProvider` before opening (those routes carry no id).
+  final String? dokumen;
 }
 
 /// The transaction detail (WebTransaksi and TabTransaksi panel; Main
@@ -226,6 +231,7 @@ final rincianTransaksiProvider = Provider.family<RincianTransaksi?, String>((
     JenisAksi.tautan,
     ke: Layar.fotoDokumen,
     anak: 'unggah',
+    dokumen: t.id,
   );
   AksiTransaksi koreksi({bool utama = false}) => AksiTransaksi(
     'Koreksi dengan pembalikan',
@@ -269,7 +275,8 @@ final rincianTransaksiProvider = Provider.family<RincianTransaksi?, String>((
         JenisAksi.bukukan,
         utama: true,
       ),
-      const AksiTransaksi('Ubah', JenisAksi.ubah),
+      // DM 5.1: a reversal is not edited.
+      if (t.reversalOf == null) const AksiTransaksi('Ubah', JenisAksi.ubah),
       AksiTransaksi(
         'Pindah tanggal',
         JenisAksi.tautan,
@@ -292,7 +299,7 @@ final rincianTransaksiProvider = Provider.family<RincianTransaksi?, String>((
           utama: !maKosong,
         ),
       if (dokumen?.$2 ?? false) lampir,
-      const AksiTransaksi('Ubah', JenisAksi.ubah),
+      if (t.reversalOf == null) const AksiTransaksi('Ubah', JenisAksi.ubah),
       batalkan,
     ];
     catatan = 'Tidak dapat dilakukan: Bukukan. ${_kalimat(kurang)}';
@@ -338,11 +345,13 @@ final rincianTransaksiProvider = Provider.family<RincianTransaksi?, String>((
           ke: lampir.ke,
           anak: lampir.anak,
           utama: true,
+          dokumen: t.id,
         ),
-        const AksiTransaksi(
+        AksiTransaksi(
           'Catat pengecualian',
           JenisAksi.tautan,
           ke: Layar.dokumen,
+          dokumen: t.id,
         ),
         koreksi(),
       ],
