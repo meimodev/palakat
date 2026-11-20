@@ -62,16 +62,22 @@ class _NavSampingState extends State<NavSamping> {
           const TandaPalakat(),
           const SizedBox(width: 10),
           Flexible(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const KataPalakat(),
-                Text(
-                  'Jemaat Karunia',
-                  style: TextStyle(fontSize: 13, color: c.tinta3),
-                ),
-              ],
+            // CSS half-leading: 'palakat' (line-height 1.1) and the 13 px line.
+            child: DefaultTextStyle.merge(
+              style: const TextStyle(
+                leadingDistribution: TextLeadingDistribution.even,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const KataPalakat(),
+                  Text(
+                    'Jemaat Karunia',
+                    style: TextStyle(fontSize: 13, color: c.tinta3),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -197,6 +203,9 @@ class _NavSampingState extends State<NavSamping> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
+          // HalamanWeb may give the bar extra height (the boards' flex-line
+          // stretch); each wrapped line takes an equal share, centred.
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             Row(
               children: [

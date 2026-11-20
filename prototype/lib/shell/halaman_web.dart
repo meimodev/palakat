@@ -1,3 +1,4 @@
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 import '../theme/palakat_tema.dart';
@@ -7,7 +8,7 @@ import 'prototipe_state.dart';
 
 /// Laptop page scaffold (components.md 4.4): `kertas`, body 15 / 1.45, at
 /// least the window height, scrolls as one page. [nav] beside `main` when
-/// the window is wider than 860, above it otherwise.
+/// the window is wider than 860, above it otherwise (see [_HalamanSempit]).
 ///
 /// `main`: padding 28 `clamp(16px, 3vw, 40px)` 40, column gap [jarak]; its
 /// first child is `PitaJabatanKosong.web` while [jabatanKosong] and the global
@@ -28,7 +29,7 @@ class HalamanWeb extends StatelessWidget {
   final List<Widget> isi;
 
   /// Main column gap: 20 (most), 24 (WebBeranda, TabBeranda), 22 (WebAwal,
-  /// WebAwalIsian), 18 (WebLaporan).
+  /// WebTutupBuku), 18 (WebLaporan).
   final double jarak;
 
   /// The board carries the `jabatanKosong` tweak.
@@ -73,10 +74,7 @@ class HalamanWeb extends StatelessWidget {
               child: nav == null
                   ? utama
                   : sempit
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [nav!, utama],
-                    )
+                  ? _HalamanSempit(children: [nav!, utama])
                   : Stack(
                       children: [
                         Padding(
@@ -98,4 +96,63 @@ class HalamanWeb extends StatelessWidget {
       ),
     );
   }
+}
+
+/// The narrow page (860 px and below): the boards' root is `min-height:100vh;
+/// display:flex; flex-wrap:wrap` with nav and `main` on separate lines, so
+/// align-content stretch shares the spare height equally between them. The
+/// nav (first child) gets its half (NavSamping centres its row in it); `main`
+/// keeps its content at the top and the page ends at the minimum height.
+class _HalamanSempit extends MultiChildRenderObjectWidget {
+  const _HalamanSempit({required super.children});
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderHalamanSempit();
+}
+
+class _RenderHalamanSempit extends RenderBox
+    with
+        ContainerRenderObjectMixin<RenderBox, MultiChildLayoutParentData>,
+        RenderBoxContainerDefaultsMixin<RenderBox, MultiChildLayoutParentData> {
+  @override
+  void setupParentData(RenderBox child) {
+    if (child.parentData is! MultiChildLayoutParentData) {
+      child.parentData = MultiChildLayoutParentData();
+    }
+  }
+
+  @override
+  void performLayout() {
+    final nav = firstChild!;
+    final utama = childAfter(nav)!;
+    final lebar = constraints.maxWidth;
+    nav.layout(BoxConstraints.tightFor(width: lebar), parentUsesSize: true);
+    utama.layout(BoxConstraints.tightFor(width: lebar), parentUsesSize: true);
+    final sisa = constraints.minHeight - nav.size.height - utama.size.height;
+    if (sisa > 0) {
+      nav.layout(
+        BoxConstraints.tightFor(
+          width: lebar,
+          height: nav.size.height + sisa / 2,
+        ),
+        parentUsesSize: true,
+      );
+    }
+    (utama.parentData! as MultiChildLayoutParentData).offset = Offset(
+      0,
+      nav.size.height,
+    );
+    size = constraints.constrain(
+      Size(lebar, nav.size.height + utama.size.height),
+    );
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) =>
+      defaultPaint(context, offset);
+
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) =>
+      defaultHitTestChildren(result, position: position);
 }
