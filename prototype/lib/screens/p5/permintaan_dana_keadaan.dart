@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:flutter/rendering.dart' show OverflowBoxFit;
 import 'package:flutter/widgets.dart';
 
 import '../../shell/kepala_ponsel.dart';
@@ -90,9 +91,9 @@ class KartuFakta extends StatelessWidget {
   );
 }
 
-/// Card head row with a badge. Spec 22 "Chip overflow": when the badge and
-/// the title's longest word do not fit side by side, the badge drops under
-/// the title, start-aligned, 6 below. Never overflows.
+/// Card head row with a badge. When the badge and the title's longest word do
+/// not fit side by side, the board wins over spec 22 "Chip overflow": the
+/// badge stays beside a one-word-wide title and overflows the card.
 class KepalaLencana extends StatelessWidget {
   const KepalaLencana(
     this.judul,
@@ -123,12 +124,23 @@ class KepalaLencana extends StatelessWidget {
         if (kata + 16 + chip <= ruang.maxWidth) {
           return KepalaKartu(judul: judul, ujung: lencana);
         }
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 6,
+        // As the board's flex row: the title shrinks to its longest word and
+        // the `flex: none` badge keeps its width, running past the card edge.
+        return Row(
           children: [
-            Text(judul, style: gaya),
-            lencana,
+            SizedBox(
+              width: kata.ceilToDouble(),
+              child: Text(judul, style: gaya),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: OverflowBox(
+                alignment: AlignmentDirectional.centerStart,
+                maxWidth: double.infinity,
+                fit: OverflowBoxFit.deferToChild,
+                child: lencana,
+              ),
+            ),
           ],
         );
       },
