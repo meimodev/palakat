@@ -312,7 +312,15 @@ class _AlurSuratIsiState extends State<AlurSuratIsi> {
       onChanged: (_) => setState(() {}),
       baris: 3,
     ),
-    // The board's `sebab2` is `al && !al`: its refusal line never shows.
+    // The board's `sebab2` is `al && !al`: its refusal line never shows, so
+    // (A02) the reason shows in that slot once the person has typed.
+    if (_alasan.text.isNotEmpty && _alasanTolak().isNotEmpty)
+      Penolakan(
+        tindakan: 'Catat tidak diterbitkan',
+        sebab: _alasanTolak(),
+        jalan: const [],
+        ukuranTeks: 14,
+      ),
     BarisTombol(
       anak: [
         TombolBersyarat(

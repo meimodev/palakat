@@ -715,45 +715,53 @@ class _SelState extends State<_Sel> {
     return CincinFokus(
       tampil: _fokus.hasFocus,
       radius: 10,
-      child: Container(
-        constraints: const BoxConstraints(minHeight: 44),
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        alignment: Alignment.centerRight,
+      // DecoratedBox, not Container: a Container pads by the border width, and
+      // its alignment loosened the field to 23 px. The field itself is 44
+      // (X03); the padding keeps the figure where the border inset put it.
+      child: DecoratedBox(
         decoration: ShapeDecoration(
           color: kosong ? c.bataLembut : c.permukaan,
           shape: kosong
               ? GarisBorder.putus(c.bata, radius: 10)
               : GarisBorder.penuh(c.garisTegas, tebal: 1, radius: 10),
         ),
-        child: Semantics(
-          label: widget.label,
-          child: Material(
-            type: MaterialType.transparency,
-            // Flutter keeps cursorWidth + 1 free right of right-aligned text;
-            // shift it so the figure ends at the board's 10 px padding.
-            child: Transform.translate(
-              offset: const Offset(3, 0),
-              child: TextField(
-                controller: widget.controller,
-                focusNode: _fokus,
-                keyboardType: TextInputType.number,
-                inputFormatters: const [
-                  RupiahInputFormatter(sisakanNol: true, maks: 12),
-                ],
-                textAlign: TextAlign.right,
-                textAlignVertical: TextAlignVertical.center,
-                style: gaya.copyWith(color: c.tinta),
-                cursorColor: c.laut,
-                decoration: InputDecoration(
-                  isCollapsed: true,
-                  border: InputBorder.none,
-                  // The field is shifted 3 px right; the placeholder is not caret-inset.
-                  hint: Transform.translate(
-                    offset: const Offset(-3, 0),
-                    child: Text(
-                      '—',
-                      textAlign: TextAlign.right,
-                      style: gaya.copyWith(color: c.tinta3),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: kosong ? 11.5 : 11),
+          child: SizedBox(
+            height: 44,
+            child: Semantics(
+              label: widget.label,
+              child: Material(
+                type: MaterialType.transparency,
+                // Flutter keeps cursorWidth + 1 free right of right-aligned text;
+                // shift it so the figure ends at the board's 10 px padding.
+                child: Transform.translate(
+                  offset: const Offset(3, 0),
+                  child: TextField(
+                    controller: widget.controller,
+                    focusNode: _fokus,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: const [
+                      RupiahInputFormatter(sisakanNol: true, maks: 12),
+                    ],
+                    textAlign: TextAlign.right,
+                    textAlignVertical: TextAlignVertical.center,
+                    expands: true,
+                    maxLines: null,
+                    style: gaya.copyWith(color: c.tinta),
+                    cursorColor: c.laut,
+                    decoration: InputDecoration(
+                      isCollapsed: true,
+                      border: InputBorder.none,
+                      // The field is shifted 3 px right; the placeholder is not caret-inset.
+                      hint: Transform.translate(
+                        offset: const Offset(-3, 0),
+                        child: Text(
+                          '—',
+                          textAlign: TextAlign.right,
+                          style: gaya.copyWith(color: c.tinta3),
+                        ),
+                      ),
                     ),
                   ),
                 ),

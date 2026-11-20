@@ -553,7 +553,15 @@ class _WebAlurWartaScreenState extends State<WebAlurWartaScreen> {
           onChanged: (_) => setState(() {}),
           baris: 3,
         ),
-        // The board's refusal line here is `al && !al`: it never shows.
+        // The board's refusal line here is `al && !al`: it never shows, so
+        // (A02) the reason shows in that slot once the person has typed.
+        if (_alasan.text.isNotEmpty && _sebabN().isNotEmpty)
+          Penolakan(
+            tindakan: 'Catat pengecualian',
+            sebab: _sebabN(),
+            jalan: const [],
+            ukuranTeks: 14,
+          ),
         BarisTombol(
           anak: [
             TombolBersyarat(
@@ -588,7 +596,15 @@ class _WebAlurWartaScreenState extends State<WebAlurWartaScreen> {
       onChanged: (_) => setState(() {}),
       baris: 3,
     ),
-    // The board's refusal line here is `rl && !rl`: it never shows.
+    // The board's refusal line here is `rl && !rl`: it never shows, so
+    // (A02) the reason shows in that slot once the person has typed.
+    if (_ralat.text.isNotEmpty && _sebabR().isNotEmpty)
+      Penolakan(
+        tindakan: 'Terbitkan ralat',
+        sebab: _sebabR(),
+        jalan: const [],
+        ukuranTeks: 14,
+      ),
     BarisTombol(
       anak: [
         TombolBersyarat(

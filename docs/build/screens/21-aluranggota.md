@@ -97,7 +97,7 @@ Shared notes for this file:
   6. **Penatua, return form** (same as 5 but `v = 'kembali'`):
      a. Card with only its head row: "Permohonan menjadi anggota" + `garis` badge "Diajukan".
      b. Textarea "Alasan · wajib".
-     c. (The board has a refusal slot "Tidak dapat dilakukan: Kembalikan." but its condition can never be true, so it never shows.)
+     c. (The board has a refusal slot "Tidak dapat dilakukan: Kembalikan." but its condition can never be true, so it never shows. The prototype shows it with "alasan belum diisi." once the field has text that is blank after trimming; A02, see Notes.)
      d. Button row: TombolBersyarat "Kembalikan" and text button "Batal", one line at 171 each.
   7. **Penatua, nothing waiting** (`akt = 'Penatua Kolom 7'` and not case 5/6): dashed box with "Tidak ada data yang menunggu verifikasi" 700 and, under it, 14 `tinta2` `kosongTeks`:
      - `st = 'Diajukan'` with Kolom 4: "Pengajuan ini ditujukan ke Kolom 4; hanya Penatua Kolom itu yang melihatnya."
@@ -142,7 +142,7 @@ Shared notes for this file:
   - "Verifikasi data" (`verif`, unconditional) → `st = 'Diverifikasi'`, `pesan = ''`. Riwayat gains "16/11/2026 · Permohonan menjadi anggota Diverifikasi · Pnt. Hendrik Rumagit, Penatua Kolom 7". The Penatua then sees "Sudah Diverifikasi."
   - "Kembalikan dengan alasan" (`keKembali`) → `v = 'kembali'`, `pesan = ''`, `alasan = ''`.
   - Textarea (`onAlasan`) → `alasan` as typed.
-  - "Kembalikan" (TombolBersyarat). Condition: `alasan` not blank after trimming. No reason sentence is ever shown. Press when met (`kembalikan`):
+  - "Kembalikan" (TombolBersyarat). Condition: `alasan` not blank after trimming. The board never shows a reason sentence; the prototype adds one (A02, see Notes). Press when met (`kembalikan`):
     - `st = 'Dikembalikan'`, `v = 'isi'`, `kembali` = trimmed reason, `alasan = ''`, `pesan = ''`.
     - Riwayat gains "16/11/2026 · Permohonan menjadi anggota dikembalikan · alasan: {reason} · Pnt. Hendrik Rumagit".
     - The Penatua sees "Pengajuan dari Kolom 7 akan muncul di sini.". The applicant sees the form again with all earlier values kept, under the dashed "Dikembalikan …" note. Because `sentuh` is still true and all fields are valid, "Ajukan" is `tinta` straight away and no refusal shows.
@@ -185,7 +185,7 @@ Shared notes for this file:
   9. Fresh board: choose "Kolom 4" and submit → status "… menunggu Penatua Kolom 4"; as Penatua, "Pengajuan ini ditujukan ke Kolom 4; hanya Penatua Kolom itu yang melihatnya."
   10. Header back → `/DataAnggota`.
 - **Notes**
-  - The "Kembalikan" refusal can never show (the board's condition is `al && !al`). The board wins on what is shown, so no visible sentence. Give the grey button a Semantics hint "alasan belum diisi." so a screen reader hears the reason (TombolBersyarat rule).
+  - The "Kembalikan" refusal can never show on the board (its condition is `al && !al`). Added sentence (A02, a disabled action always shows its reason): once the Alasan field has text but is blank after trimming, the slot above the button row shows "Tidak dapat dilakukan: Kembalikan. alasan belum diisi." (Penolakan 14, as the "Ajukan" refusal). The empty field shows no line; the grey button keeps the Semantics hint "alasan belum diisi.".
   - The "Ajukan" refusal appears only after typing in Nama or Tanggal lahir, not after picking pills. Keep.
   - The Riwayat row always names "Novita Wenas", whatever name was typed. Keep.
   - The back arrow goes to Data jemaat even for an applicant who came from sign-in (AlurMasuk). Keep the board.
@@ -234,7 +234,7 @@ Shared notes for this file:
         - "Lampiran" → "1 file".
      b. 13 `tinta3` "Anda memverifikasi hanya data Kolom 7, dan bukan data keluarga Anda sendiri."
      c. Button row: primary "Verifikasi data" + secondary "Kembalikan dengan alasan" (171 each).
-  6. **Penatua, return form** (`v = 'kembali'`): card with only the head row "Peristiwa" + "Diajukan"; textarea "Alasan · wajib"; (dead refusal slot "Tidak dapat dilakukan: Kembalikan."); button row TombolBersyarat "Kembalikan" + text "Batal".
+  6. **Penatua, return form** (`v = 'kembali'`): card with only the head row "Peristiwa" + "Diajukan"; textarea "Alasan · wajib"; (dead refusal slot "Tidak dapat dilakukan: Kembalikan."; the prototype fills it, see Notes); button row TombolBersyarat "Kembalikan" + text "Batal".
   7. **Penatua, nothing waiting**: dashed box "Tidak ada data yang menunggu verifikasi" 700 + 14 `tinta2`. After verification: "Sudah Diverifikasi."; otherwise: "Pengajuan dari Kolom 7 akan muncul di sini." The Kolom is fixed to Kolom 7 on this board, so the "ditujukan ke …" text cannot occur.
   8. Riwayat.
 - **Components** ChipPilihan, TombolBersyarat ("Ajukan", "Kembalikan"), Penolakan, Tombol (primary "Verifikasi data"; secondary "Kembalikan dengan alasan", "Pilih file"; text "Batal"), LencanaStatus-shaped badges ("Wajib, belum ada", "Terlampir", "Diajukan", "Diverifikasi"), IsianAlasan, RiwayatAlur, message banner. The attachment box is the "supporting document" pattern: badge plus "Pilih file". The two-person step pattern.
@@ -285,7 +285,7 @@ Shared notes for this file:
   8. Header back → `/DataAnggota`.
 - **Notes**
   - "Pilih file" attaches instantly. Foundations say uploads always look in progress, but the board shows no progress. Keep the board.
-  - "Kembalikan" has no visible reason sentence (dead condition). Add the Semantics hint "alasan belum diisi.", as on AlurAnggota.
+  - "Kembalikan" has no visible reason sentence on the board (dead condition). As on AlurAnggota (shared `formKembali`), the prototype adds "Tidak dapat dilakukan: Kembalikan. alasan belum diisi." above the button row once the field has text that is blank after trimming (A02), and keeps the Semantics hint "alasan belum diisi.".
   - The applicant status shows no next step after Diverifikasi (empty `pAktif` branch). Keep.
   - No 12 px text. Subtitle 14→13.
 
