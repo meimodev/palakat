@@ -131,10 +131,13 @@ class _RenderHalamanSempit extends RenderBox
     utama.layout(BoxConstraints.tightFor(width: lebar), parentUsesSize: true);
     final sisa = constraints.minHeight - nav.size.height - utama.size.height;
     if (sisa > 0) {
+      // A minimum, not a tight height: tight constraints would make the nav a
+      // relayout boundary, and an opened Menu would then overflow that height.
       nav.layout(
-        BoxConstraints.tightFor(
-          width: lebar,
-          height: nav.size.height + sisa / 2,
+        BoxConstraints(
+          minWidth: lebar,
+          maxWidth: lebar,
+          minHeight: nav.size.height + sisa / 2,
         ),
         parentUsesSize: true,
       );

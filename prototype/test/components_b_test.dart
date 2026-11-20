@@ -106,7 +106,17 @@ void main() {
           contains('Jumlah (Rp)'),
         );
         expect(
-          t.getSize(find.byType(TextField)).height,
+          // The 44 px target is the box around the field (it centres the line).
+          t
+              .getSize(
+                find
+                    .ancestor(
+                      of: find.byType(TextField),
+                      matching: find.byType(ConstrainedBox),
+                    )
+                    .first,
+              )
+              .height,
           greaterThanOrEqualTo(44),
         );
         if (u == UkuranJumlah.baris) {
