@@ -253,6 +253,13 @@
     if (H && pv && pv.height) Array.prototype.forEach.call(x.children, function (n) {
       if (n.style && n.style.height === pv.height + 'px') n.style.height = H + 'px';
     });
+    // Headless Chrome lays the page out in a viewport ~87 px shorter than --window-size, so a
+    // board's `min-height: 100vh` ended short. On the canvas vh is the frame: resolve it against _h.
+    if (H) {
+      var vh = function (s) { return s.replace(/(\d*\.?\d+)vh\b/g, function (m, n) { return Number(n) * H / 100 + 'px'; }); };
+      Array.prototype.forEach.call(x.querySelectorAll('[style*="vh"]'), function (n) { n.setAttribute('style', vh(n.getAttribute('style'))); });
+      Array.prototype.forEach.call(document.querySelectorAll('style'), function (n) { if (/\dvh\b/.test(n.textContent)) n.textContent = vh(n.textContent); });
+    }
     root = document.createElement('div');
     root.id = 'dc-root';
     root.style.display = 'contents';
