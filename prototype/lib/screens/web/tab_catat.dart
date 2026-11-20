@@ -435,24 +435,36 @@ class _TabCatatScreenState extends State<TabCatatScreen> {
                                   radius: 10,
                                 ),
                         ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.baseline,
-                          textBaseline: TextBaseline.alphabetic,
-                          children: [
-                            Text(
-                              '${l.pohon} ${r.kode}',
-                              style: mono.copyWith(color: c.tinta2),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                r.nama,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
+                        child: Builder(
+                          builder: (context) {
+                            final kode = '${l.pohon} ${r.kode}';
+                            final gayaKode = mono.copyWith(color: c.tinta2);
+                            const gayaNama = TextStyle(
+                              fontWeight: FontWeight.w600,
+                            );
+                            // Two `flex: 0 1 auto` spans: when they do not
+                            // fit, CSS shrinks each in proportion to its
+                            // max-content width, so the code wraps too.
+                            // ponytail: no min-content floor; add one if a
+                            // longer name ever squeezes a word apart.
+                            return Row(
+                              crossAxisAlignment: CrossAxisAlignment.baseline,
+                              textBaseline: TextBaseline.alphabetic,
+                              children: [
+                                Flexible(
+                                  flex: (_lebar(context, kode, gayaKode) * 10)
+                                      .round(),
+                                  child: Text(kode, style: gayaKode),
                                 ),
-                              ),
-                            ),
-                          ],
+                                const SizedBox(width: 12),
+                                Flexible(
+                                  flex: (_lebar(context, r.nama, gayaNama) * 10)
+                                      .round(),
+                                  child: Text(r.nama, style: gayaNama),
+                                ),
+                              ],
+                            );
+                          },
                         ),
                       ),
                     ),
@@ -582,50 +594,68 @@ class _TabCatatScreenState extends State<TabCatatScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(
-                child: _posted
-                    ? const LencanaStatus(
+          if (!_posted)
+            const LencanaStatus(
+              'Draf · belum masuk saldo',
+              bentuk: BentukLencana.draf,
+            )
+          else
+            LayoutBuilder(
+              builder: (context, k) {
+                // Chrome breaks after these hyphens; ICU does not.
+                final no = 'No. Bukti ${catatPosting.noBukti}'.replaceAll(
+                  '-',
+                  '-​',
+                );
+                final gayaNo = TextStyle(
+                  fontFamily: PalakatText.mono,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: c.laut,
+                );
+                // Two `flex: 0 1 auto` spans and a 16 gap: an overflow is
+                // taken from each in proportion to its text width (the
+                // badge has 9 + 1.5 a side around it, the stamp 10 + 2).
+                final a = _lebar(
+                  context,
+                  'Dibukukan',
+                  const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+                );
+                final b = _lebar(context, no, gayaNo);
+                final lebih = a + 21 + b + 24 + 16 - k.maxWidth;
+                final kurang = lebih > 0 ? lebih / (a + b) : 0.0;
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    SizedBox(
+                      width: a + 21 - a * kurang,
+                      child: const LencanaStatus(
                         'Dibukukan',
                         bentuk: BentukLencana.tinta,
-                      )
-                    : const LencanaStatus(
-                        'Draf · belum masuk saldo',
-                        bentuk: BentukLencana.draf,
                       ),
-              ),
-              if (_posted) ...[
-                const SizedBox(width: 16),
-                Flexible(
-                  child: Gerak(
-                    Kerangka.muncul,
-                    lama: const Duration(milliseconds: 400),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: c.laut, width: 2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        'No. Bukti ${catatPosting.noBukti}',
-                        style: TextStyle(
-                          fontFamily: PalakatText.mono,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: c.laut,
+                    ),
+                    SizedBox(
+                      width: b + 24 - b * kurang,
+                      child: Gerak(
+                        Kerangka.muncul,
+                        lama: const Duration(milliseconds: 400),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: c.laut, width: 2),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(no, style: gayaNo),
                         ),
                       ),
                     ),
-                  ),
-                ),
-              ],
-            ],
-          ),
+                  ],
+                );
+              },
+            ),
           const SizedBox(height: 6),
           Text(
             rp(_j * l.tanda),
@@ -795,3 +825,18 @@ List<Widget> _jarak(double g, List<Widget> anak) => [
     anak[i],
   ],
 ];
+
+/// Max-content width of [teks] in [gaya] (CSS flex base size).
+double _lebar(BuildContext context, String teks, TextStyle gaya) {
+  final p = TextPainter(
+    text: TextSpan(
+      text: teks,
+      style: DefaultTextStyle.of(context).style.merge(gaya),
+    ),
+    textDirection: TextDirection.ltr,
+    textScaler: MediaQuery.textScalerOf(context),
+  )..layout();
+  final lebar = p.width;
+  p.dispose();
+  return lebar;
+}
