@@ -656,7 +656,9 @@ class _SerahState extends State<_Serah> {
               children: [
                 const TextSpan(text: 'Surat penunjukan baru: '),
                 TextSpan(
-                  text: 'SK-BPMJ-09-2026.pdf · Terlampir',
+                  // U+200B: Chrome also breaks after "09-"; Flutter (UAX 14)
+                  // never breaks a hyphen before a digit.
+                  text: 'SK-BPMJ-09-\u200B2026.pdf · Terlampir',
                   style: tebal.copyWith(color: c.tinta),
                 ),
               ],

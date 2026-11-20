@@ -222,12 +222,13 @@ class _WebPengaturanScreenState extends State<WebPengaturanScreen> {
             children: [
               Text.rich(
                 TextSpan(
+                  // U+200B: Chrome breaks after these hyphens; Flutter does not.
                   children: [
-                    TextSpan(text: 'BKU-2026-0001', style: mono),
+                    TextSpan(text: 'BKU-\u200B2026-\u200B0001', style: mono),
                     const TextSpan(text: ' Biasa · '),
-                    TextSpan(text: 'OPN-2026-0001', style: mono),
+                    TextSpan(text: 'OPN-\u200B2026-\u200B0001', style: mono),
                     const TextSpan(text: ' Saldo awal pencatatan · '),
-                    TextSpan(text: 'ADJ-2026-0001', style: mono),
+                    TextSpan(text: 'ADJ-\u200B2026-\u200B0001', style: mono),
                     const TextSpan(text: ' Penyesuaian'),
                   ],
                 ),

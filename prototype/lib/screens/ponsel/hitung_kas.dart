@@ -565,13 +565,17 @@ class _BandingState extends State<_Banding> {
                         style: TextStyle(fontSize: 14, color: c.tinta2),
                       ),
                       const SizedBox(height: 10),
-                      const Tombol(
-                        'Catat transaksi yang terlewat',
-                        onPressed: null,
-                        jenis: JenisTombol.kedua,
-                        ukuran: UkuranTombol.sedang,
-                        ke: 'Main',
-                        cara: Cara.ganti,
+                      // `<a>` is content-box: min-height 48 plus the 1.5 line.
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(minHeight: 51),
+                        child: const Tombol(
+                          'Catat transaksi yang terlewat',
+                          onPressed: null,
+                          jenis: JenisTombol.kedua,
+                          ukuran: UkuranTombol.sedang,
+                          ke: 'Main',
+                          cara: Cara.ganti,
+                        ),
                       ),
                       const SizedBox(height: 10),
                       Tombol(
@@ -641,12 +645,16 @@ class _BandingState extends State<_Banding> {
           ),
           _Kaki(
             child: k.tersimpan
-                ? const Tombol(
-                    'Kembali ke Bulan',
-                    onPressed: null,
-                    jenis: JenisTombol.kedua,
-                    ke: 'TutupBuku',
-                    cara: Cara.naik,
+                ? ConstrainedBox(
+                    // `<a>`: content-box, 52 plus the 1.5 line.
+                    constraints: const BoxConstraints(minHeight: 55),
+                    child: const Tombol(
+                      'Kembali ke Bulan',
+                      onPressed: null,
+                      jenis: JenisTombol.kedua,
+                      ke: 'TutupBuku',
+                      cara: Cara.naik,
+                    ),
                   )
                 : Tombol('Simpan hitung kas', onPressed: k.simpan),
           ),

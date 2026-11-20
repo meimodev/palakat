@@ -16,6 +16,12 @@ import '../../widgets/tombol.dart';
 
 const _mono = TextStyle(fontFamily: PalakatText.mono);
 
+/// `<span>`/`<a>` chips are content-box: min-height 44 plus two 1.5 lines.
+Widget _isiKotak(Widget chip) => ConstrainedBox(
+  constraints: const BoxConstraints(minHeight: 47),
+  child: chip,
+);
+
 /// The board's `onChange`: digits only, leading zeros before a digit dropped
 /// ("007" → "7", "0" stays), at most 5 characters, caret at the end.
 class _FormatLembar extends TextInputFormatter {
@@ -131,7 +137,9 @@ class _WebHitungKasScreenState extends State<WebHitungKasScreen> {
       ke: 'WebRekonsiliasi',
       cara: Cara.ganti,
       radius: 22,
-      child: ChipSatu(teks: teks, dipilih: false, onTap: null, padding: 16),
+      child: _isiKotak(
+        ChipSatu(teks: teks, dipilih: false, onTap: null, padding: 16),
+      ),
     );
 
     final kiri = Column(
@@ -331,6 +339,8 @@ class _WebHitungKasScreenState extends State<WebHitungKasScreen> {
                               fontSize: 28,
                               fontWeight: FontWeight.w600,
                               height: 1.45,
+                              // Replaces the inherited style: keep CSS leading.
+                              leadingDistribution: TextLeadingDistribution.even,
                               color: !dihitung
                                   ? c.tinta3
                                   : selisih == 0
@@ -484,11 +494,13 @@ class _WebHitungKasScreenState extends State<WebHitungKasScreen> {
               Semantics(
                 // aria-current="page"
                 selected: true,
-                child: const ChipSatu(
-                  teks: 'Kas · hitung kas',
-                  dipilih: true,
-                  onTap: null,
-                  padding: 16,
+                child: _isiKotak(
+                  const ChipSatu(
+                    teks: 'Kas · hitung kas',
+                    dipilih: true,
+                    onTap: null,
+                    padding: 16,
+                  ),
                 ),
               ),
               chipBank('Bank BNI ··4821'),
