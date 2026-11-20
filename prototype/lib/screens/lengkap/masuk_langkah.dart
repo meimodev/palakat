@@ -141,16 +141,26 @@ class _LangkahMasukState extends State<LangkahMasuk> {
     ],
   );
 
-  Widget _tombol(String label, bool siap, String alasan, VoidCallback aksi) =>
-      TombolBersyarat(
-        label: label,
-        tindakan: label,
-        alasan: siap ? '' : alasan,
-        onPressed: aksi,
-        sudahMulai: false,
-        warnaSiap: JenisTombol.utama,
-        teksBelumRedup: true,
-      );
+  /// Rule A02: the sentence the board lacks, once [isian] is typed into.
+  Widget _tombol(
+    String label,
+    bool Function() siap,
+    String nama,
+    TextEditingController isian,
+    VoidCallback aksi,
+  ) {
+    String alasan() => siap() ? '' : '$nama belum diisi.';
+    return TombolBersyarat(
+      label: label,
+      tindakan: label,
+      alasan: alasan(),
+      periksa: alasan,
+      onPressed: aksi,
+      sudahMulai: isian.text.isNotEmpty,
+      warnaSiap: JenisTombol.utama,
+      teksBelumRedup: true,
+    );
+  }
 
   Widget _langkahEmail(BuildContext context) {
     final c = context.warna;
@@ -175,7 +185,7 @@ class _LangkahMasukState extends State<LangkahMasuk> {
         ],
         onChanged: (_) => setState(() {}),
       ),
-      _tombol('Kirim kode masuk', _okE, 'Nomor ponsel', _kirim),
+      _tombol('Kirim kode masuk', () => _okE, 'Nomor ponsel', _email, _kirim),
       Text(
         'Kode enam angka dikirim ke nomor ponsel Anda lewat WhatsApp atau SMS. Tidak ada kata sandi yang perlu diingat.',
         style: TextStyle(fontSize: 13, color: c.tinta3),
@@ -205,7 +215,7 @@ class _LangkahMasukState extends State<LangkahMasuk> {
         ),
       ),
       _IsianKode(controller: _kode, onChanged: () => setState(() {})),
-      _tombol('Masuk', _okK, 'Kode enam angka', _masuk),
+      _tombol('Masuk', () => _okK, 'Kode enam angka', _kode, _masuk),
       Tombol('Pakai nomor lain', onPressed: _ulang, jenis: JenisTombol.teks),
     ]);
   }

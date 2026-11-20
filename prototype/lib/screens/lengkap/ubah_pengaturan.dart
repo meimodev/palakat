@@ -13,6 +13,7 @@ import '../../widgets/input_format.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
+import '../../widgets/tombol_bersyarat.dart';
 
 /// The board's logic class (shared with WebUbahPengaturan; each screen owns
 /// its own instance). Initial state as on the board.
@@ -32,6 +33,23 @@ class DataUbahPengaturan {
     'seri' => RegExp(r'^[A-Z]{2,4}$').hasMatch(awalan),
     _ => _batas > 0,
   };
+
+  /// Rule A02: a field of the open tab differs from its start value.
+  bool get sudahMulai => switch (tab) {
+    'kas' => nama.isNotEmpty || akhir.isNotEmpty,
+    'seri' => awalan != 'BKU',
+    _ => batas != '3000000',
+  };
+
+  /// The first unmet field of the open tab, as named on the board.
+  String get alasan => ok
+      ? ''
+      : '${switch (tab) {
+          'kas' when nama.trim().isEmpty => jenis == 'Kas' ? 'Tempat atau pemegang' : 'Nama bank',
+          'kas' => 'Empat angka akhir No. rekening',
+          'seri' => 'Awalan seri Biasa',
+          _ => 'Wajib untuk Belanja mulai dari',
+        }} belum diisi.';
 
   String get contoh => '$awalan-2027-${'0' * (digit - 1)}1';
 
@@ -300,10 +318,15 @@ class _IsiUbahPengaturanState extends State<IsiUbahPengaturan> {
           ],
         ],
       ),
-      tombol: Tombol(
-        'Simpan sebagai versi baru',
+      tombol: TombolBersyarat(
+        label: 'Simpan sebagai versi baru',
+        tindakan: 'Simpan sebagai versi baru',
+        alasan: d.alasan,
+        periksa: () => d.alasan,
         onPressed: () => _ubah(d.simpan),
-        nonaktif: !d.ok,
+        sudahMulai: d.sudahMulai,
+        warnaSiap: JenisTombol.utama,
+        teksBelumRedup: true,
         paddingH: 20,
       ),
       judul: const JudulBagian('Perubahan yang menunggu berlaku'),

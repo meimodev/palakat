@@ -280,7 +280,7 @@ Shared notes for this file:
   - Off-token: h1 mono 17, amount 34, total 20; scrim `tinta` at 45 % alpha (board `rgba(19,32,28,.45)`): use `context.warna.tinta.withValues(alpha: .45)`.
   - The closed-month refusal is bold `tinta` here, while Penolakan (and WebKoreksi) use `bata` for "Tidak dapat dilakukan: …". Follow each board.
   - The form shows its reason "Isi alasan untuk melanjutkan." before typing starts and does not use the "Tidak dapat dilakukan: …" sentence (TombolBersyarat says otherwise). Follow the board.
-  - The kejadian button has no reason line while unmet; the label "· wajib" next to the field is the only cue. Follow the board; flag for the design owner (CONVENTIONS asks for a reason next to every disabled action).
+  - The kejadian button has no reason line on the board. Added for rules A02/A03 (rules-checklist 4.1), not on the board: once any of the three fields (Penjelasan, Dampak pada rekonsiliasi, Penanggung jawab) holds text and Penjelasan is blank, TombolBersyarat shows "Tidak dapat dilakukan: Catat kejadian. Penjelasan belum diisi." above the button. The empty form shows none, as on the board.
   - The approval sheet accepts blank name/post; no condition in the board. Keep.
   - The primary actions on detail ("Koreksi dengan pembalikan", "Catat kejadian") use a `tinta` field, not `laut`, and the kejadian save button is `tinta` too. Copy.
   - The `cap` keyframe here has no rotation, unlike Awal/WebAwal/WebTransaksi. `motion.md` has both: this is `cap` variant B (scale only, `.5s .2s`, `ease`); the rotated No. Bukti stamp is variant A.

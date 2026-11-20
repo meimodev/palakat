@@ -6,12 +6,14 @@ import '../../theme/palakat_tema.dart';
 import '../../widgets/garis_status.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
+import '../../widgets/penolakan.dart';
 import '../../widgets/tombol_bersyarat.dart';
 
 /// Parts shared by Kejadian and WebKejadian (07-kejadian.md): the board state,
 /// the badge, the blocker statement, a card's lines and the detail regions a–e.
 
 // Board figures the mock lacks for K-2026-02 (its `eskalasi` and `beres`).
+const _belum = 'Penyelesaian keuangan belum diisi.';
 const _eskalasi = {'K-2026-02': 'Tidak perlu eskalasi.'};
 const _beres = {
   'K-2026-02': 'Tidak ada penyelesaian keuangan; kuitansi dilampirkan sebagai dokumen susulan.',
@@ -352,17 +354,25 @@ class RinciKejadian extends StatelessWidget {
                 // The M3 bodyLarge letterSpacing .5 leaks into TextField.
                 gaya: const TextStyle(letterSpacing: 0),
               ),
+              // Rule A02: the sentence the board lacks, once typed into. It
+              // is drawn here, not by TombolBersyarat, so the hugged button
+              // keeps its width (IntrinsicWidth would widen it to the line).
+              if (s.isi.text.isNotEmpty && !s.ok)
+                const Penolakan(
+                  tindakan: 'Catat penyelesaian keuangan',
+                  sebab: _belum,
+                  jalan: [],
+                  ukuranTeks: 14,
+                ),
               Align(
                 alignment: Alignment.centerLeft,
                 child: IntrinsicWidth(
                   child: TombolBersyarat(
                     label: 'Catat penyelesaian keuangan',
                     tindakan: 'Catat penyelesaian keuangan',
-                    alasan: s.ok ? '' : 'Penyelesaian keuangan masih kosong',
-                    periksa: () =>
-                        s.ok ? '' : 'Penyelesaian keuangan masih kosong',
+                    alasan: s.ok ? '' : _belum,
+                    periksa: () => s.ok ? '' : _belum,
                     onPressed: s.simpan,
-                    // The board shows no reason sentence (spec Notes).
                     sudahMulai: false,
                     teksBelumRedup: true,
                     tinggi: 46,

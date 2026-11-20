@@ -15,7 +15,8 @@ import '../../widgets/tombol_bersyarat.dart';
 /// The board state `{ st, nama, jabatan, cara }`, owned by the screen.
 class DataFormatLaporan {
   final nama = TextEditingController();
-  final jabatan = TextEditingController(text: 'Ketua BPMJ');
+  static const jabatanAwal = 'Ketua BPMJ';
+  final jabatan = TextEditingController(text: jabatanAwal);
 
   /// The label is drawn by the screen (bold suffix), so a tap on it focuses
   /// the field through this node, as `<label for="en">` does.
@@ -105,7 +106,8 @@ List<Widget> bagianPersetujuan(
     ];
   }
 
-  String alasan() => d.nama.text.trim().isEmpty ? _wajib : '';
+  String alasan() =>
+      d.nama.text.trim().isEmpty ? 'Pemberi persetujuan belum diisi.' : '';
   return [
     Kartu(
       status: GarisStatus.hambatan,
@@ -196,8 +198,10 @@ List<Widget> bagianPersetujuan(
       tindakan: 'Catat persetujuan format',
       alasan: alasan(),
       periksa: alasan,
-      // The board shows no reason sentence; the reason is the semantics hint.
-      sudahMulai: false,
+      // Rule A02: the sentence the board lacks, once a field differs from its start.
+      sudahMulai:
+          d.nama.text.isNotEmpty ||
+          d.jabatan.text != DataFormatLaporan.jabatanAwal,
       warnaSiap: JenisTombol.utama,
       teksBelumRedup: true,
       paddingH: 20,
