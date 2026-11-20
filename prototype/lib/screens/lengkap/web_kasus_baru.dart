@@ -637,8 +637,9 @@ class _WebKasusBaruScreenState extends State<WebKasusBaruScreen> {
   }
 }
 
-/// A board field with a "{label} **· wajib**" label 6 px above it.
-class _IsianWajib extends StatelessWidget {
+/// A board field with a "{label} **· wajib**" label 6 px above it; the
+/// label is a `<label for>`, so pressing it focuses the field.
+class _IsianWajib extends StatefulWidget {
   const _IsianWajib({
     required this.label,
     required this.controller,
@@ -654,32 +655,53 @@ class _IsianWajib extends StatelessWidget {
   final String? petunjuk;
 
   @override
+  State<_IsianWajib> createState() => _IsianWajibState();
+}
+
+class _IsianWajibState extends State<_IsianWajib> {
+  final _fokus = FocusNode();
+
+  @override
+  void dispose() {
+    _fokus.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final c = context.warna;
+    final w = widget;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         ExcludeSemantics(
-          child: Text.rich(
-            TextSpan(
-              text: '$label ',
-              children: [
-                TextSpan(
-                  text: '· wajib',
-                  style: TextStyle(fontWeight: FontWeight.w700, color: c.tinta),
-                ),
-              ],
+          child: GestureDetector(
+            onTap: _fokus.requestFocus,
+            child: Text.rich(
+              TextSpan(
+                text: '${w.label} ',
+                children: [
+                  TextSpan(
+                    text: '· wajib',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      color: c.tinta,
+                    ),
+                  ),
+                ],
+              ),
+              style: TextStyle(fontSize: 14, color: c.tinta2),
             ),
-            style: TextStyle(fontSize: 14, color: c.tinta2),
           ),
         ),
         const SizedBox(height: 6),
         IsianTeks(
-          controller: controller,
-          labelSemantik: '$label · wajib',
-          petunjuk: petunjuk,
-          onChanged: onChanged,
-          hanyaBaca: hanyaBaca,
+          controller: w.controller,
+          focusNode: _fokus,
+          labelSemantik: '${w.label} · wajib',
+          petunjuk: w.petunjuk,
+          onChanged: w.onChanged,
+          hanyaBaca: w.hanyaBaca,
         ),
       ],
     );

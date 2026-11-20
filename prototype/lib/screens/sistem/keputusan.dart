@@ -4,6 +4,7 @@ import '../../shell/halaman_lembar.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis.dart';
+import '../../widgets/tata_letak.dart';
 
 /// Keputusan desain: the decisions sheet D01–D35, each row a link to the
 /// board that draws it.
@@ -383,7 +384,21 @@ class _BarisKeputusan extends StatelessWidget {
         ),
       ),
     );
-    return ke == null ? isi : Tautan(ke: ke, child: isi);
+    if (ke == null) return isi;
+    // A one-line row is 39.3 px (14 / 1.45 + 9 + 9 + 1): the 44 px target
+    // overhangs its neighbours instead of making the row taller.
+    const h = 2.5;
+    return MarginNegatif(
+      atas: h,
+      bawah: h,
+      child: Tautan(
+        ke: ke,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: h),
+          child: isi,
+        ),
+      ),
+    );
   }
 }
 

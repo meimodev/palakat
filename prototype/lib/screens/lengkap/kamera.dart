@@ -158,12 +158,15 @@ void _keluarKe(BuildContext context, {required String ke}) {
 }
 
 /// The photographed receipt (#FBFAF6 paper, the only shadow).
+/// Ink on the receipt paper ([PalakatIlustrasi.kertasNota]), which stays
+/// light in the Gelap theme too.
+final _kertas = PalakatWarna.terang;
+
 class _Nota extends StatelessWidget {
   const _Nota();
 
   @override
   Widget build(BuildContext context) {
-    final c = context.warna;
     Widget baris(String a, String b, {bool tebal = false}) => Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       spacing: 8,
@@ -180,7 +183,7 @@ class _Nota extends StatelessWidget {
     );
     final putus = Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
-      child: GarisLurus(warna: c.tinta3, gaya: GayaGaris.putus),
+      child: GarisLurus(warna: _kertas.tinta3, gaya: GayaGaris.putus),
     );
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
@@ -195,7 +198,8 @@ class _Nota extends StatelessWidget {
             fontFamily: PalakatText.mono,
             fontSize: 13,
             height: 1.55,
-            color: c.tinta,
+            leadingDistribution: TextLeadingDistribution.even,
+            color: _kertas.tinta,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -731,10 +735,10 @@ class _KartuFile extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               spacing: 4,
               children: [
-                garis(c.tinta, 1, Alignment.centerLeft),
-                garis(c.putus, 1, Alignment.centerLeft),
-                garis(c.putus, .7, Alignment.centerLeft),
-                garis(c.tinta, .5, Alignment.centerRight),
+                garis(_kertas.tinta, 1, Alignment.centerLeft),
+                garis(_kertas.putus, 1, Alignment.centerLeft),
+                garis(_kertas.putus, .7, Alignment.centerLeft),
+                garis(_kertas.tinta, .5, Alignment.centerRight),
               ],
             ),
           ),
