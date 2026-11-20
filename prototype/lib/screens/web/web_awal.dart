@@ -102,7 +102,8 @@ class _WebAwalScreenState extends State<WebAwalScreen> {
       ('Penunjukan Bendahara', 'Wewenang Bendahara aktif', 'ok'),
       (
         'Saldo awal pencatatan',
-        _opn ? 'Dibukukan · OPN-2026-0001' : 'Giliran Anda',
+        // U+200B: the browser may break after a hyphen; Flutter does not.
+        _opn ? 'Dibukukan · OPN-2026-\u200B0001' : 'Giliran Anda',
         _opn ? 'ok' : 'kini',
       ),
       (

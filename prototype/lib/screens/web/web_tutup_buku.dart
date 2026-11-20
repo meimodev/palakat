@@ -267,6 +267,7 @@ class _WebTutupBukuScreenState extends State<WebTutupBukuScreen> {
         // HalamanWeb's body style; this context is above it.
         style: PalakatText.isiWeb.copyWith(
           height: 1.45,
+          leadingDistribution: TextLeadingDistribution.even,
           color: tutup ? c.permukaan : c.tinta,
         ),
         child: Column(
@@ -537,24 +538,35 @@ class _WebTutupBukuScreenState extends State<WebTutupBukuScreen> {
                     ' untuk seluruh Jemaat: semua peruntukan dan semua '
                     'kas/bank. ',
               ),
-              WidgetSpan(
-                alignment: PlaceholderAlignment.baseline,
-                baseline: TextBaseline.alphabetic,
-                // An inline link keeps its 44 px target without growing the line.
-                child: MarginNegatif(
-                  atas: (44 - 14 * 1.45) / 2,
-                  bawah: (44 - 14 * 1.45) / 2,
-                  child: Tautan(
-                    ke: 'WebLaporan',
-                    child: _tengah(
-                      const TautanTeks(
-                        'Lihat laporan sementara',
-                        berat: FontWeight.w700,
+              // One span per word: the board's inline <a> wraps between its
+              // words at 860 px. Each keeps a 44 px target without growing
+              // the line; screen readers hear one link.
+              for (final (i, kata) in const [
+                'Lihat ',
+                'laporan ',
+                'sementara',
+              ].indexed)
+                WidgetSpan(
+                  alignment: PlaceholderAlignment.baseline,
+                  baseline: TextBaseline.alphabetic,
+                  child: ExcludeSemantics(
+                    excluding: i > 0,
+                    child: MarginNegatif(
+                      atas: (44 - 14 * 1.45) / 2,
+                      bawah: (44 - 14 * 1.45) / 2,
+                      child: Tautan(
+                        ke: 'WebLaporan',
+                        child: Semantics(
+                          label: 'Lihat laporan sementara',
+                          excludeSemantics: true,
+                          child: _tengah(
+                            TautanTeks(kata, berat: FontWeight.w700),
+                          ),
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
             ],
           ),
           style: const TextStyle(fontSize: 14),

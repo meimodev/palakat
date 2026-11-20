@@ -874,10 +874,12 @@ class _Rekon extends StatelessWidget {
                                     const Duration(milliseconds: 300),
                                   ),
                                   curve: Curves.ease,
-                                  style: _mono.copyWith(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.w600,
-                                    color: n == 0 ? c.laut : c.bata,
+                                  style: DefaultTextStyle.of(ctx).style.merge(
+                                    _mono.copyWith(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.w600,
+                                      color: n == 0 ? c.laut : c.bata,
+                                    ),
                                   ),
                                   child: Text(rp(n)),
                                 ),

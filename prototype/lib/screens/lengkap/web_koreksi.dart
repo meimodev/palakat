@@ -65,7 +65,8 @@ class _WebKoreksiScreenState extends State<WebKoreksiScreen> {
       children: [
         _TautanSebaris(
           ke: 'WebTransaksi',
-          tinggiBaris: 14 * 1.45,
+          // The 14 px <a> sits in a 15 px line: the body's strut sets its height.
+          tinggiBaris: 15 * 1.45,
           child: TautanTeks('Transaksi', ukuran: 14),
         ),
         const SizedBox(height: 2),

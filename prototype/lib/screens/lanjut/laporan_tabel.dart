@@ -132,7 +132,7 @@ const Map<String, LaporanTabel> laporanTabel = {
         '09/10/2026',
         'BKU-2026-0105',
         '5.02.01.00',
-        'Konsumsi rapat majelis · Dibalik oleh BKU-2026-0109',
+        'Konsumsi rapat majelis · Dibalik oleh BKU-2026-\u200B0109',
         'Kas',
         '',
         'Rp750.000',
@@ -438,7 +438,7 @@ const Map<String, LaporanTabel> laporanTabel = {
       [
         '09/10/2026',
         'BKU-2026-0105',
-        'Konsumsi rapat majelis · Dibalik oleh BKU-2026-0109',
+        'Konsumsi rapat majelis · Dibalik oleh BKU-2026-\u200B0109',
         '',
         'Rp750.000',
         'Rp220.000',
@@ -849,7 +849,7 @@ const Map<String, LaporanTabel> laporanTabel = {
       [
         'BKU-2026-0105',
         '09/10/2026',
-        'Konsumsi rapat majelis · Dibalik oleh BKU-2026-0109',
+        'Konsumsi rapat majelis · Dibalik oleh BKU-2026-\u200B0109',
         '−Rp750.000',
         'Tidak diperlukan',
         'Terverifikasi',
