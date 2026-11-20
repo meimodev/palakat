@@ -27,6 +27,7 @@ class IsianAlur extends StatelessWidget {
     this.keyboard = TextInputType.text,
     this.formatter = const [],
     this.hanyaBaca = false,
+    this.autofillHints,
   });
 
   /// Verbatim: 'Nomor ponsel', 'Alasan · wajib'.
@@ -45,6 +46,7 @@ class IsianAlur extends StatelessWidget {
   final TextInputType keyboard;
   final List<TextInputFormatter> formatter;
   final bool hanyaBaca;
+  final Iterable<String>? autofillHints;
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +64,7 @@ class IsianAlur extends StatelessWidget {
       gaya: TextStyle(fontSize: 14, color: c.tinta2),
       baris: baris,
       hanyaBaca: hanyaBaca,
+      autofillHints: autofillHints,
     );
     if (area || keterangan == null) return isian;
     return Column(

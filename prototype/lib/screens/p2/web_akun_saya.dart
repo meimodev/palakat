@@ -450,6 +450,7 @@ class _WebAkunSayaState extends State<WebAkunSayaScreen> {
         controller: _kode,
         petunjuk: '••••••',
         keyboard: TextInputType.number,
+        autofillHints: const [AutofillHints.oneTimeCode],
         formatter: _angka(6),
         onChanged: (_) => setState(() {}),
       ),

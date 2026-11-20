@@ -374,6 +374,7 @@ class _AlurMasukIsiState extends State<AlurMasukIsi> {
           onChanged: _ubah,
           petunjuk: '••••••',
           keyboard: TextInputType.number,
+          autofillHints: const [AutofillHints.oneTimeCode],
           formatter: [
             FilteringTextInputFormatter.digitsOnly,
             LengthLimitingTextInputFormatter(6),
