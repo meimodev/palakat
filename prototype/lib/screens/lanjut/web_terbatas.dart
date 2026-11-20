@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/format.dart';
-import '../../mock/mock.dart';
+import '../../providers/keuangan/beranda.dart';
+import '../../providers/keuangan/laporan.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
 import '../../theme/palakat_tema.dart';
@@ -15,17 +17,18 @@ import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import 'terbatas_data.dart';
 import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
+import 'terbatas.dart' show peruntukanTerbatas;
 
-class WebTerbatasScreen extends StatefulWidget {
+/// WebTerbatas: a Fund-only viewer's Fund (`terbatasProvider`, D27).
+class WebTerbatasScreen extends ConsumerStatefulWidget {
   const WebTerbatasScreen({super.key});
   @override
-  State<WebTerbatasScreen> createState() => _WebTerbatasScreenState();
+  ConsumerState<WebTerbatasScreen> createState() => _WebTerbatasScreenState();
 }
 
-class _WebTerbatasScreenState extends State<WebTerbatasScreen> {
+class _WebTerbatasScreenState extends ConsumerState<WebTerbatasScreen> {
   final _cari = TextEditingController();
-  String _pilih = 'BKU-2026-0141';
+  String? _pilih;
 
   @override
   void initState() {
@@ -42,21 +45,31 @@ class _WebTerbatasScreenState extends State<WebTerbatasScreen> {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
+    final t = ref.watch(terbatasProvider);
+    if (t == null) {
+      return const HalamanWeb(
+        nav: NavSamping(item: navTerbatas, aktif: 0),
+        isi: [Text('Tidak berwenang')],
+      );
+    }
+    final dana = t.dana.name;
     final rows = saringTerbatas(
+      t.baris,
       _cari.text,
       (r) => '${r.no} ${r.maPenuh} ${r.tgl}',
     );
-    final d = dataTerbatas.firstWhere((r) => r.no == _pilih);
+    final d =
+        t.baris.where((r) => r.no == _pilih).firstOrNull ?? t.baris.firstOrNull;
 
     final saldo = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          terbatasSaldoDiakoniaNovember.$1,
+          'Saldo $dana hari ini',
           style: TextStyle(fontSize: 14, color: c.tinta2),
         ),
         Text(
-          rp(terbatasSaldoDiakoniaNovember.$2),
+          rp(t.saldo),
           softWrap: false,
           style: const TextStyle(
             fontFamily: PalakatText.mono,
@@ -78,11 +91,13 @@ class _WebTerbatasScreenState extends State<WebTerbatasScreen> {
       child: HalamanWeb(
         nav: const NavSamping(item: navTerbatas, aktif: 0),
         isi: [
-          const PitaPeran(
+          PitaPeran(
             jenis: JenisPita.peran,
             sebaris: true,
-            judul: 'Akses terbatas: Peruntukan Diakonia',
-            kalimat: 'Anda hanya melihat bagian Diakonia. Bagian lain tidak ditampilkan dan tidak ikut dijumlahkan.',
+            judul: 'Akses terbatas: Peruntukan $dana',
+            kalimat:
+                'Anda hanya melihat bagian $dana. Bagian lain tidak '
+                'ditampilkan dan tidak ikut dijumlahkan.',
           ),
           BarisLentur(
             jarak: 40,
@@ -96,8 +111,8 @@ class _WebTerbatasScreenState extends State<WebTerbatasScreen> {
                 dasar: 280,
                 child: IsianTeks(
                   controller: _cari,
-                  labelSemantik: 'Cari transaksi Diakonia',
-                  petunjuk: 'Cari di peruntukan Diakonia',
+                  labelSemantik: 'Cari transaksi $dana',
+                  petunjuk: 'Cari di ${peruntukanTerbatas(t)}',
                 ),
               ),
             ],
@@ -108,12 +123,18 @@ class _WebTerbatasScreenState extends State<WebTerbatasScreen> {
                 dasar: 520,
                 tumbuh: 999,
                 child: _Tabel(
+                  t: t,
                   rows: rows,
-                  pilih: _pilih,
+                  pilih: d?.no ?? '',
                   onPilih: (no) => setState(() => _pilih = no),
                 ),
               ),
-              Lentur(dasar: 340, child: _Samping(d: d)),
+              Lentur(
+                dasar: 340,
+                child: d == null
+                    ? const SizedBox.shrink()
+                    : _Samping(t: t, d: d),
+              ),
             ],
           ),
         ],
@@ -138,10 +159,12 @@ Widget _kisi(List<Widget> sel) => Row(
 
 class _Tabel extends StatelessWidget {
   const _Tabel({
+    required this.t,
     required this.rows,
     required this.pilih,
     required this.onPilih,
   });
+  final Terbatas t;
   final List<BarisTerbatas> rows;
   final String pilih;
   final ValueChanged<String> onPilih;
@@ -176,11 +199,14 @@ class _Tabel extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                         color: c.tinta2,
                       ),
-                      child: _kisi(const [
-                        Text('No. Bukti'),
-                        Text('Tanggal'),
-                        Text('Mata Anggaran'),
-                        Text('Bagian Diakonia', textAlign: TextAlign.right),
+                      child: _kisi([
+                        const Text('No. Bukti'),
+                        const Text('Tanggal'),
+                        const Text('Mata Anggaran'),
+                        Text(
+                          'Bagian ${t.dana.name}',
+                          textAlign: TextAlign.right,
+                        ),
                       ]),
                     ),
                   ),
@@ -251,7 +277,8 @@ class _Tabel extends StatelessWidget {
                       padding: const EdgeInsets.all(18),
                       decoration: BoxDecoration(border: atas),
                       child: Text(
-                        'Tidak ada transaksi peruntukan Diakonia yang cocok.',
+                        'Tidak ada transaksi ${peruntukanTerbatas(t)} yang '
+                        'cocok.',
                         style: TextStyle(fontSize: 14, color: c.tinta2),
                       ),
                     ),
@@ -266,7 +293,8 @@ class _Tabel extends StatelessWidget {
 }
 
 class _Samping extends StatelessWidget {
-  const _Samping({required this.d});
+  const _Samping({required this.t, required this.d});
+  final Terbatas t;
   final BarisTerbatas d;
 
   /// Content width of a secondary link button (`padding: 0 14px`, 1.5 line).
@@ -318,7 +346,7 @@ class _Samping extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 10),
-              Text('Bagian peruntukan Diakonia', style: kecil),
+              Text('Bagian ${peruntukanTerbatas(t)}', style: kecil),
               const SizedBox(height: 4),
               Text(
                 rp(d.jm),
@@ -329,7 +357,10 @@ class _Samping extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 4),
-              Text('${d.maPenuh} · ${d.tgl} · Lingkup Jemaat', style: kecil),
+              Text(
+                '${d.maPenuh} · ${d.tgl} · Lingkup ${d.lingkup}',
+                style: kecil,
+              ),
             ],
           ),
         ),
@@ -358,59 +389,61 @@ class _Samping extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 14),
-        Kartu(
-          child: BarisLentur(
-            jarak: 10,
-            rata: CrossAxisAlignment.center,
-            anak: [
-              Lentur(
-                dasar: 180,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Laporan resmi Oktober 2026',
-                      style: TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                    Text(
-                      'TERBATAS · Peruntukan Diakonia',
-                      style: TextStyle(fontSize: 13, color: c.tinta2),
-                    ),
-                  ],
+        if (t.ditutup != null) ...[
+          const SizedBox(height: 14),
+          Kartu(
+            child: BarisLentur(
+              jarak: 10,
+              rata: CrossAxisAlignment.center,
+              anak: [
+                Lentur(
+                  dasar: 180,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Laporan resmi ${namaBulan(t.ditutup!)}',
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      Text(
+                        'TERBATAS · Peruntukan ${t.dana.name}',
+                        style: TextStyle(fontSize: 13, color: c.tinta2),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              Lentur(
-                dasar: _lebarTombol(context, 'Unduh PDF'),
-                tumbuh: 0,
-                child: const Tombol(
-                  'Unduh PDF',
-                  onPressed: null,
-                  jenis: JenisTombol.kedua,
-                  ukuran: UkuranTombol.kecil,
-                  paddingH: 14,
-                  lebarPenuh: false,
-                  ke: Layar.laporanTerbatas,
-                  param: {'periode': belumDipindahId, 'bentuk': 'pdf'},
+                Lentur(
+                  dasar: _lebarTombol(context, 'Unduh PDF'),
+                  tumbuh: 0,
+                  child: Tombol(
+                    'Unduh PDF',
+                    onPressed: null,
+                    jenis: JenisTombol.kedua,
+                    ukuran: UkuranTombol.kecil,
+                    paddingH: 14,
+                    lebarPenuh: false,
+                    ke: Layar.laporanTerbatas,
+                    param: {'periode': t.ditutup!.id, 'bentuk': 'pdf'},
+                  ),
                 ),
-              ),
-              Lentur(
-                dasar: _lebarTombol(context, 'Unduh Excel'),
-                tumbuh: 0,
-                child: const Tombol(
-                  'Unduh Excel',
-                  onPressed: null,
-                  jenis: JenisTombol.kedua,
-                  ukuran: UkuranTombol.kecil,
-                  paddingH: 14,
-                  lebarPenuh: false,
-                  ke: Layar.laporanTerbatas,
-                  param: {'periode': belumDipindahId, 'bentuk': 'excel'},
+                Lentur(
+                  dasar: _lebarTombol(context, 'Unduh Excel'),
+                  tumbuh: 0,
+                  child: Tombol(
+                    'Unduh Excel',
+                    onPressed: null,
+                    jenis: JenisTombol.kedua,
+                    ukuran: UkuranTombol.kecil,
+                    paddingH: 14,
+                    lebarPenuh: false,
+                    ke: Layar.laporanTerbatas,
+                    param: {'periode': t.ditutup!.id, 'bentuk': 'excel'},
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
+        ],
       ],
     );
   }

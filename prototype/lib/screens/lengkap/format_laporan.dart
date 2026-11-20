@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../providers/keuangan/laporan.dart';
 
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import 'format_laporan_bagian.dart';
 import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
 
 /// 23 · Persetujuan format laporan (screens/07-kejadian.md).
-class FormatLaporanScreen extends StatefulWidget {
+class FormatLaporanScreen extends ConsumerStatefulWidget {
   const FormatLaporanScreen({super.key});
 
   @override
-  State<FormatLaporanScreen> createState() => _FormatLaporanScreenState();
+  ConsumerState<FormatLaporanScreen> createState() =>
+      _FormatLaporanScreenState();
 }
 
-class _FormatLaporanScreenState extends State<FormatLaporanScreen> {
+class _FormatLaporanScreenState extends ConsumerState<FormatLaporanScreen> {
   final _d = DataFormatLaporan();
 
   @override
@@ -26,13 +29,16 @@ class _FormatLaporanScreenState extends State<FormatLaporanScreen> {
   @override
   Widget build(BuildContext context) {
     final anak = [
-      ...bagianPersetujuan(context, _d, setState),
-      ...kartuFormat(context, [
+      ...bagianPersetujuan(context, ref, _d, setState),
+      ...kartuFormat(context, ref, [
         tombolContoh('Lihat contoh PDF', ke: Layar.laporan),
         tombolContoh(
           'Lihat contoh Excel',
           ke: Layar.laporanResmi,
-          param: {'periode': belumDipindahId, 'bentuk': 'excel'},
+          param: {
+            'periode': ref.watch(laporanBulanProvider)?.periode.id ?? '',
+            'bentuk': 'excel',
+          },
         ),
       ]),
     ];
@@ -43,8 +49,7 @@ class _FormatLaporanScreenState extends State<FormatLaporanScreen> {
         children: [
           const KepalaPonsel(
             judul: 'Format laporan',
-            anakJudul:
-                'Wajib sebelum tutup buku pertama · contoh 3 Oktober 2026',
+            anakJudul: 'Wajib sebelum tutup buku pertama',
             kembaliKe: Layar.pengaturan,
             labelKembali: 'Kembali ke Lainnya',
           ),

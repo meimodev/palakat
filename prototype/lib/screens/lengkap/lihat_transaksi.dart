@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../providers/keuangan/laporan.dart';
 
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
@@ -7,18 +10,23 @@ import 'lihat_transaksi_rinci.dart';
 import '../../app/layar.dart';
 
 /// 42 · Lihat transaksi di balik angka laporan (phone).
-class LihatTransaksiScreen extends StatefulWidget {
+class LihatTransaksiScreen extends ConsumerStatefulWidget {
   const LihatTransaksiScreen({super.key});
 
   @override
-  State<LihatTransaksiScreen> createState() => _LihatTransaksiScreenState();
+  ConsumerState<LihatTransaksiScreen> createState() =>
+      _LihatTransaksiScreenState();
 }
 
-class _LihatTransaksiScreenState extends State<LihatTransaksiScreen> {
-  String _pilih = 'atk';
+class _LihatTransaksiScreenState extends ConsumerState<LihatTransaksiScreen> {
+  String? _pilih;
 
   @override
   Widget build(BuildContext context) {
+    final angka = ref.watch(angkaLaporanProvider);
+    final pilih = angka.any((x) => x.id == _pilih)
+        ? _pilih!
+        : angka.firstOrNull?.id ?? '';
     return Material(
       type: MaterialType.transparency,
       child: LayarPonsel(
@@ -35,18 +43,15 @@ class _LihatTransaksiScreenState extends State<LihatTransaksiScreen> {
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),
               child: ChipPilihan<String>(
-                pilihan: [
-                  for (final x in angkaLaporanOktober)
-                    (nilai: x.id, teks: x.pendek),
-                ],
-                terpilih: _pilih,
+                pilihan: [for (final x in angka) (nilai: x.id, teks: x.pendek)],
+                terpilih: pilih,
                 onPilih: (v) => setState(() => _pilih = v),
               ),
             ),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-                child: RinciAngkaLaporan(pilih: _pilih, ke: Layar.pilihBulan),
+                child: RinciAngkaLaporan(pilih: pilih, ke: Layar.pilihBulan),
               ),
             ),
           ],

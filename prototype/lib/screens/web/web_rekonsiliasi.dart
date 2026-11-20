@@ -1,11 +1,17 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/format.dart';
-import '../../mock/mock.dart';
+import '../../domain/core/core.dart';
+import '../../domain/finance/finance.dart';
 import '../../motion/hitung.dart';
 import '../../motion/kerangka.dart';
+import '../../providers/core_repositories.dart';
+import '../../providers/keuangan/akhir_bulan.dart';
+import '../../providers/keuangan/beranda.dart';
+import '../../providers/repositories_keuangan.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
 import '../../shell/tautan.dart';
@@ -13,150 +19,212 @@ import '../../theme/palakat_tema.dart';
 import '../../widgets/garis.dart';
 import '../../widgets/ikon.dart';
 import '../../widgets/kecil.dart';
+import '../../widgets/penolakan.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
 import '../../app/layar.dart';
 
-/// One selectable row: a bank mutation (m1…m3) or a posted transaction
-/// (t1…t4, with its No. Bukti).
+/// One selectable row: a statement line, or a posted transaction (with its
+/// No. Bukti).
 typedef _Baris = ({String id, String n, String? no, String tgl, int jm});
 
-final List<_Baris> _mutasi = [
-  for (final m in rekonBniOktober.mutasi)
-    (id: m.id, n: m.nama, no: null, tgl: m.tanggal, jm: m.jumlah),
-];
-final List<_Baris> _transaksi = [
-  for (var i = 0; i < rekonBniOktober.belumCocok.length; i++)
-    (
-      id: 't${i + 1}',
-      n: rekonBniOktober.belumCocok[i].uraian,
-      no: rekonBniOktober.belumCocok[i].noBukti,
-      tgl: rekonBniOktober.belumCocok[i].tanggal ?? kosong,
-      jm: rekonBniOktober.belumCocok[i].jumlah,
-    ),
-];
-
-const _biaya = 15000;
-
-/// A user match; [id] keys its cards so other groups do not replay.
-typedef _Grup = ({int id, List<String> m, List<String> t});
-
-class WebRekonsiliasiScreen extends StatefulWidget {
+/// Web · Rekonsiliasi (spec 03): the church bank of the next month to
+/// close (`akunRekonProvider`), matched on ReconciliationRepository. A
+/// selection of lines and transactions with the same sum is matched; with
+/// nothing selected, "Cocokkan" takes the fixed suggestion (README 4.6
+/// point 5).
+class WebRekonsiliasiScreen extends ConsumerStatefulWidget {
   const WebRekonsiliasiScreen({super.key});
   @override
-  State<WebRekonsiliasiScreen> createState() => _WebRekonsiliasiState();
+  ConsumerState<WebRekonsiliasiScreen> createState() => _WebRekonsiliasiState();
 }
 
-class _WebRekonsiliasiState extends State<WebRekonsiliasiScreen> {
-  List<String> _selM = [], _selT = [];
-  List<_Grup> _grup = [];
-  bool _perjalanan = false, _biayaOn = false, _pasti = false;
-  int _idBerikut = 0;
+class _WebRekonsiliasiState extends ConsumerState<WebRekonsiliasiScreen> {
+  Set<String> _selM = {}, _selT = {};
+  Refusal? _tolak;
 
-  int get _buku => rekonBniOktober.saldoBuku - (_biayaOn ? _biaya : 0);
-  int get _pembanding =>
-      rekonBniOktober.saldoRekeningKoran +
-      (_perjalanan ? rekonBniOktober.dalamPerjalanan : 0);
-
-  /// The board's `target(p)`; [Hitung] counts the shown figure to it.
-  int get _target => _buku - _pembanding;
-
-  /// `ubah(patch)`: pasti false plus the patch; the count follows the target.
-  void _ubah(VoidCallback patch) => setState(() {
-    _pasti = false;
-    patch();
-  });
-
-  int _jumlah(List<_Baris> list, List<String> sel) =>
-      list.where((r) => sel.contains(r.id)).fold(0, (a, r) => a + r.jm);
-
-  String _nama(List<_Baris> list, List<String> ids) =>
-      list.where((r) => ids.contains(r.id)).map((r) => r.n).join(' + ');
+  void _hasil(Refusal? r) {
+    if (!mounted) return;
+    setState(() {
+      _tolak = r;
+      if (r == null) {
+        _selM = {};
+        _selT = {};
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
+    final id = ref.watch(akunRekonProvider);
+    final r = id == null ? null : ref.watch(rekonAkunProvider(id));
+    final p = ref.watch(bulanBukuProvider).berikutDitutup;
+    final judulBulan = p == null ? '' : namaBulan(p);
+    if (r == null || r.sesi == null) {
+      return Material(
+        type: MaterialType.transparency,
+        child: HalamanWeb(
+          layarKeuangan: true,
+          nav: NavSamping(item: navKeuangan, aktif: 3),
+          isi: [
+            Text(
+              'Rekonsiliasi · $judulBulan',
+              style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w700),
+            ),
+            Text(
+              'Belum ada rekening koran untuk direkonsiliasi.',
+              style: TextStyle(fontSize: 14, color: c.tinta2),
+            ),
+            Tautan(
+              ke: Layar.rekeningKoran,
+              child: const Align(
+                alignment: Alignment.centerLeft,
+                widthFactor: 1,
+                child: TautanTeks('Isi rekening koran'),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+    final akunId = r.akun.id;
+    final pasti = r.dipastikan;
+    final berikut = bulanSesudah(r.periode);
+    _Baris mutasiBaris(BarisMutasi m) => (
+      id: m.baris.id,
+      n: m.baris.description,
+      no: null,
+      tgl: '${m.baris.date}',
+      jm: m.sisa,
+    );
+    _Baris txnBaris(Transaction t) => (
+      id: t.id,
+      n: t.description,
+      no: t.voucher,
+      tgl: '${t.effectiveDate}',
+      jm: diAkun(t, akunId),
+    );
+    final mutasi = r.belumCocok;
+    final transaksi = <Transaction>{
+      for (final m in mutasi) ...m.calon,
+      ...r.belumDiKoran,
+    }.toList()..sort((a, b) => a.effectiveDate.compareTo(b.effectiveDate));
+    final selM = {..._selM.where((x) => mutasi.any((m) => m.baris.id == x))};
+    final selT = {..._selT.where((x) => transaksi.any((t) => t.id == x))};
 
-    final dipakaiM = [for (final g in _grup) ...g.m, if (_biayaOn) 'm3'];
-    final dipakaiT = [for (final g in _grup) ...g.t, if (_perjalanan) 't4'];
-    final mutasi = [
-      for (final r in _mutasi)
-        if (!dipakaiM.contains(r.id)) r,
-    ];
-    final transaksi = [
-      for (final r in _transaksi)
-        if (!dipakaiT.contains(r.id)) r,
-    ];
-
-    final sm = _jumlah(_mutasi, _selM), st = _jumlah(_transaksi, _selT);
-    final ada = _selM.isNotEmpty && _selT.isNotEmpty;
+    final sm = mutasi
+        .where((m) => selM.contains(m.baris.id))
+        .fold(0, (a, m) => a + m.sisa);
+    final st = transaksi
+        .where((t) => selT.contains(t.id))
+        .fold(0, (a, t) => a + diAkun(t, akunId));
+    final ada = selM.isNotEmpty && selT.isNotEmpty;
     final sama = ada && sm == st;
-    final pilihTeks = _selM.isEmpty && _selT.isEmpty
-        ? 'Pilih mutasi bank dan transaksi yang sama jumlahnya. Satu mutasi '
-              'boleh dicocokkan dengan beberapa transaksi, dan sebaliknya.'
+    final saran = mutasi.where((m) => m.saran.isNotEmpty).firstOrNull;
+    final pilihTeks = selM.isEmpty && selT.isEmpty
+        ? (saran == null
+              ? 'Pilih mutasi bank dan transaksi yang sama jumlahnya. Satu '
+                    'mutasi boleh dicocokkan dengan beberapa transaksi, dan '
+                    'sebaliknya.'
+              : 'Saran: ${saran.baris.description} ↔ '
+                    '${saran.saran.map((t) => t.voucher).join(' + ')} · '
+                    'jumlah sama')
         : 'Mutasi bank dipilih ${rp(sm)} · transaksi dipilih ${rp(st)}'
               '${sama ? ' · jumlah sama' : (ada ? ' · sisa belum dicocokkan ${rp((sm - st).abs())}' : '')}';
 
-    final nol = _target == 0, habis = mutasi.isEmpty;
-    final bisaPasti = nol && habis && !_pasti;
-    final pastiAlasan = _pasti
-        ? 'Dipastikan oleh Meiske L. Perubahan pada buku membuatnya perlu '
-              'dipastikan lagi.'
+    final nol = r.selisih == 0, habis = mutasi.isEmpty;
+    final bisaPasti = r.alasanBelum == null && !pasti;
+    final oleh = ref
+        .watch(peopleRepositoryProvider)
+        .person(r.sesi?.confirmedBy ?? '');
+    final pastiAlasan = pasti
+        ? 'Dipastikan oleh ${oleh?.shortName ?? oleh?.name}. Perubahan pada '
+              'buku membuatnya perlu dipastikan lagi.'
         : (!nol
               ? 'Selisih belum dijelaskan harus Rp0.'
               : (!habis
                     ? 'Masih ada mutasi bank yang belum cocok.'
-                    : 'Selisih Rp0 dan semua mutasi bank sudah cocok.'));
+                    : r.alasanDiperiksa ??
+                          'Selisih Rp0 dan semua mutasi bank sudah cocok.'));
 
-    void toggle(List<String> sel, String id) => setState(() {
-      sel.contains(id) ? sel.remove(id) : sel.add(id);
-    });
+    Future<void> cocokkan() async {
+      if (sama) {
+        _hasil(
+          (await perintah(
+            ref,
+            (a, k) => ref
+                .read(reconciliationRepositoryProvider)
+                .match(
+                  a,
+                  r.sesi!.id,
+                  selM.toList(),
+                  [
+                    for (final m in mutasi)
+                      if (selM.contains(m.baris.id))
+                        for (final t in m.cocok)
+                          if (t.isPosted) t.id,
+                    ...selT,
+                  ],
+                  expectedRevision: r.sesi!.revision,
+                  idempotencyKey: k,
+                ),
+          ))?.refusal,
+        );
+      } else if (selM.isEmpty && selT.isEmpty && saran != null) {
+        _hasil(await AksiRekon.cocokkan(ref, r, saran, saran.saran));
+      }
+    }
 
-    _BarisPilih baris(_Baris r, List<String> sel) => _BarisPilih(
-      baris: r,
-      on: sel.contains(r.id),
-      onTap: () => toggle(sel, r.id),
-      aksi: switch (r.id) {
-        'm3' => 'Buat transaksi dari mutasi ini',
-        't4' => 'Tandai dalam perjalanan',
-        _ => null,
-      },
-      onAksi: switch (r.id) {
-        'm3' => () => _ubah(() {
-          _biayaOn = true;
-          _selM = _selM.where((x) => x != 'm3').toList();
-        }),
-        't4' => () => _ubah(() {
-          _perjalanan = true;
-          _selT = _selT.where((x) => x != 't4').toList();
-        }),
-        _ => null,
-      },
+    _BarisPilih barisM(BarisMutasi m) {
+      final draf = m.cocok.where((t) => !t.isPosted).firstOrNull;
+      return _BarisPilih(
+        baris: mutasiBaris(m),
+        on: selM.contains(m.baris.id),
+        onTap: () => setState(
+          () => selM.contains(m.baris.id)
+              ? _selM.remove(m.baris.id)
+              : _selM.add(m.baris.id),
+        ),
+        aksi: draf != null
+            ? 'Periksa dan bukukan'
+            : m.calon.isEmpty && m.cocok.isEmpty
+            ? 'Buat transaksi dari mutasi ini'
+            : null,
+        onAksi: draf != null
+            ? () => context.dorongKe(Layar.draf, param: {'id': draf.id})
+            : () async => _hasil(await AksiRekon.buatTransaksi(ref, r, m)),
+      );
+    }
+
+    _BarisPilih barisT(Transaction t) => _BarisPilih(
+      baris: txnBaris(t),
+      on: selT.contains(t.id),
+      onTap: () => setState(
+        () => selT.contains(t.id) ? _selT.remove(t.id) : _selT.add(t.id),
+      ),
+      aksi: r.belumDiKoran.contains(t) ? 'Tandai dalam perjalanan' : null,
+      onAksi: () async =>
+          _hasil(await AksiRekon.dalamPerjalanan(ref, r, t, berikut)),
     );
 
+    // Lines matched in the app (not at the statement import).
     final grup = [
-      for (final g in _grup)
-        _PasanganCocok(
-          key: ValueKey(g.id),
-          m: _nama(_mutasi, g.m),
-          t: _nama(_transaksi, g.t),
-          jenis: '${g.t.length} transaksi',
-          rp: rp(_jumlah(_mutasi, g.m)),
-          lepas: () => setState(() {
-            _grup = [..._grup]..remove(g);
-            _pasti = false;
-          }),
-        ),
-      if (_biayaOn)
-        _PasanganCocok(
-          key: const ValueKey('biaya'),
-          m: 'BIAYA ADM',
-          t: 'Biaya administrasi bank · BKU-2026-0133',
-          jenis: 'Belanja 5.03.03.00 · Dibukukan',
-          rp: rp(-_biaya),
-          lepas: () => _ubah(() => _biayaOn = false),
-        ),
+      for (final m in r.mutasi)
+        if (m.lunas && m.baris.revision > 1)
+          _PasanganCocok(
+            key: ValueKey(m.baris.id),
+            m: m.baris.description,
+            t: m.cocok
+                .map((t) => '${t.description} · ${t.voucher}')
+                .join(' + '),
+            jenis: '${m.cocok.length} transaksi',
+            rp: rp(m.baris.amount),
+            lepas: () async =>
+                _hasil(await AksiRekon.lepaskanMutasi(ref, r, m)),
+          ),
     ];
+    final akun = ref.watch(accountRepositoryProvider).accounts();
 
     final ket = TextStyle(fontSize: 13, color: c.tinta3);
     Widget judul2(String a, String b) => Text.rich(
@@ -200,7 +268,7 @@ class _WebRekonsiliasiState extends State<WebRekonsiliasiScreen> {
                     children: [
                       const TextSpan(text: 'Rekonsiliasi '),
                       TextSpan(
-                        text: '· Oktober 2026',
+                        text: '· $judulBulan',
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w500,
@@ -223,7 +291,7 @@ class _WebRekonsiliasiState extends State<WebRekonsiliasiScreen> {
                 ),
               ),
               const SizedBox(width: 12),
-              _Lencana(pasti: _pasti),
+              _Lencana(pasti: pasti, label: r.status),
             ],
           ),
           DeretTautan(
@@ -253,60 +321,59 @@ class _WebRekonsiliasiState extends State<WebRekonsiliasiScreen> {
             spacing: 8,
             runSpacing: 8,
             children: [
-              Tautan(
-                ke: Layar.hitungKas,
-                cara: Cara.ganti,
-                radius: 999,
-                child: _Chip(
-                  'Kas · Sudah dipastikan',
-                  isi: c.permukaan,
-                  garis: c.garisTegas,
-                  teks: c.tinta,
-                ),
-              ),
-              Semantics(
-                selected: true,
-                child: _Chip(
-                  'Bank BNI ··4821',
-                  isi: c.tinta,
-                  garis: c.tinta,
-                  teks: c.permukaan,
-                ),
-              ),
-              _Chip(
-                'Bank SulutGo ··1107 · Sudah dipastikan',
-                isi: c.permukaan,
-                garis: c.garisTegas,
-                teks: c.tinta2,
-              ),
+              for (final a in akun)
+                if (a.operatedByScopeId == null)
+                  () {
+                    final x = ref.watch(rekonAkunProvider(a.id));
+                    final label = x?.dipastikan ?? false
+                        ? '${a.name} · Sudah dipastikan'
+                        : a.name;
+                    if (a.id == akunId) {
+                      return Semantics(
+                        selected: true,
+                        child: _Chip(
+                          a.name,
+                          isi: c.tinta,
+                          garis: c.tinta,
+                          teks: c.permukaan,
+                        ),
+                      );
+                    }
+                    return _Chip(
+                      label,
+                      isi: c.permukaan,
+                      garis: c.garisTegas,
+                      teks: c.tinta2,
+                    );
+                  }(),
             ],
           ),
           _KartuSaldo(
-            buku: _buku,
-            pembanding: _pembanding,
-            perjalanan: _perjalanan,
-            target: _target,
+            buku: r.buku,
+            pembanding: r.pembanding ?? 0,
+            catatan:
+                '· rekening koran ${r.amati == null ? kosong : rp(r.amati!)}'
+                '${r.setor > 0 ? ' + dalam perjalanan ${rp(r.setor)}' : ''}'
+                '${r.bayar > 0 ? ' − pembayaran dalam perjalanan ${rp(r.bayar)}' : ''}',
+            perjalanan: r.setor > 0,
+            target: r.selisih ?? 0,
             bisaPasti: bisaPasti,
+            tombol: r.tombolPastikan,
             alasan: pastiAlasan,
-            pastikan: () {
-              if (bisaPasti) setState(() => _pasti = true);
+            pastikan: () async {
+              if (bisaPasti) _hasil(await AksiRekon.pastikan(ref, r));
             },
           ),
+          if (_tolak != null)
+            Penolakan(
+              tindakan: _tolak!.action,
+              sebab: _tolak!.because,
+              jalan: const [],
+            ),
           _BilahPilih(
             teks: pilihTeks,
-            sama: sama,
-            cocokkan: () {
-              if (!sama) return;
-              setState(() {
-                _grup = [
-                  ..._grup,
-                  (id: _idBerikut++, m: [..._selM], t: [..._selT]),
-                ];
-                _selM = [];
-                _selT = [];
-                _pasti = false;
-              });
-            },
+            sama: sama || (selM.isEmpty && selT.isEmpty && saran != null),
+            cocokkan: cocokkan,
           ),
           KisiOtomatis(
             minLebar: 440,
@@ -314,32 +381,40 @@ class _WebRekonsiliasiState extends State<WebRekonsiliasiScreen> {
             anak: [
               kolom([
                 judul2('Mutasi bank ', '· belum cocok'),
-                for (final r in mutasi) baris(r, _selM),
+                for (final m in mutasi) barisM(m),
                 if (habis) kosong('Semua mutasi bank sudah cocok.'),
               ]),
               kolom([
                 judul2('Transaksi ', '· sudah dibukukan, belum cocok'),
-                for (final r in transaksi) baris(r, _selT),
+                for (final t in transaksi) barisT(t),
                 if (transaksi.isEmpty)
                   kosong('Tidak ada transaksi yang belum cocok.'),
               ]),
             ],
           ),
-          if (_perjalanan)
+          if (r.dalamPerjalanan.isNotEmpty)
             Gerak(
               Kerangka.muncul,
               key: const ValueKey('perjalanan'),
               lama: const Duration(milliseconds: 300),
               child: kolom([
                 judul2('Dalam perjalanan ', '· dibawa ke bulan berikutnya'),
-                _BarisPerjalanan(lepas: () => _ubah(() => _perjalanan = false)),
+                for (final t in r.dalamPerjalanan)
+                  _BarisPerjalanan(
+                    t: t,
+                    jumlah: diAkun(t, akunId),
+                    lepas: () async => _hasil(
+                      await AksiRekon.dalamPerjalanan(ref, r, t, berikut),
+                    ),
+                  ),
               ]),
             ),
           kolom([
-            judul2('Cocok ', '· ${12 + dipakaiM.length} mutasi bank'),
+            judul2('Cocok ', '· ${r.cocok} mutasi bank'),
             ...grup,
             Text(
-              rekonCocokLainTeks,
+              '${r.cocok - grup.length} mutasi bank lain sudah cocok dengan '
+              'transaksinya.',
               style: TextStyle(fontSize: 14, color: c.tinta2),
             ),
           ]),
@@ -364,11 +439,13 @@ double _lebar(BuildContext context, String teks, TextStyle s) {
   return w;
 }
 
-/// Sedang dikerjakan / Sudah dipastikan, as this board draws it: padding
-/// 4 10 inside a 1.5 line, transparent while not confirmed.
+/// Sedang dikerjakan / Sudah diperiksa / Sudah dipastikan, as this board
+/// draws it: padding 4 10 inside a 1.5 line, transparent while not
+/// confirmed.
 class _Lencana extends StatelessWidget {
-  const _Lencana({required this.pasti});
+  const _Lencana({required this.pasti, required this.label});
   final bool pasti;
+  final String label;
 
   @override
   Widget build(BuildContext context) {
@@ -381,7 +458,7 @@ class _Lencana extends StatelessWidget {
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
-        pasti ? 'Sudah dipastikan' : 'Sedang dikerjakan',
+        label,
         style: TextStyle(
           fontSize: 13,
           fontWeight: FontWeight.w700,
@@ -506,15 +583,17 @@ class _KartuSaldo extends StatelessWidget {
   const _KartuSaldo({
     required this.buku,
     required this.pembanding,
+    required this.catatan,
     required this.perjalanan,
     required this.target,
     required this.bisaPasti,
+    required this.tombol,
     required this.alasan,
     required this.pastikan,
   });
   final int buku, pembanding, target;
   final bool perjalanan, bisaPasti;
-  final String alasan;
+  final String tombol, alasan, catatan;
   final VoidCallback pastikan;
 
   @override
@@ -527,10 +606,7 @@ class _KartuSaldo extends StatelessWidget {
       fontWeight: FontWeight.w500,
     );
     final tanda = angka.copyWith(fontWeight: FontWeight.w400, color: c.tinta3);
-    final cat =
-        '· rekening koran ${rp(rekonBniOktober.saldoRekeningKoran)}'
-        '${perjalanan ? ' + dalam perjalanan ${rp(rekonBniOktober.dalamPerjalanan)}' : ''}';
-    const tombol = 'Pastikan rekonsiliasi';
+    final cat = catatan;
     double l(String t, TextStyle s) => _lebar(context, t, s);
     double maks(double a, double b) => a > b ? a : b;
 
@@ -879,13 +955,18 @@ class _BarisPilih extends StatelessWidget {
 
 /// The deposit in transit: a draf-line row with "Lepaskan".
 class _BarisPerjalanan extends StatelessWidget {
-  const _BarisPerjalanan({required this.lepas});
+  const _BarisPerjalanan({
+    required this.t,
+    required this.jumlah,
+    required this.lepas,
+  });
+  final Transaction t;
+  final int jumlah;
   final VoidCallback lepas;
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final t4 = rekonBniOktober.belumCocok.last;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: ShapeDecoration(
@@ -899,9 +980,11 @@ class _BarisPerjalanan extends StatelessWidget {
               child: Text.rich(
                 TextSpan(
                   children: [
-                    const TextSpan(
-                      text: 'Setoran dalam perjalanan',
-                      style: TextStyle(
+                    TextSpan(
+                      text: jumlah > 0
+                          ? 'Setoran dalam perjalanan'
+                          : 'Pembayaran dalam perjalanan',
+                      style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
@@ -913,10 +996,10 @@ class _BarisPerjalanan extends StatelessWidget {
                         const TextSpan(text: '· '),
                         TextSpan(
                           // Chrome breaks the code after its hyphens.
-                          text: t4.noBukti?.replaceAll('-', '-\u200B'),
+                          text: t.voucher?.replaceAll('-', '-\u200B'),
                           style: const TextStyle(fontFamily: PalakatText.mono),
                         ),
-                        TextSpan(text: ' · ${t4.tanggal ?? kosong}'),
+                        TextSpan(text: ' · ${t.effectiveDate}'),
                       ],
                     ),
                   ],
@@ -925,7 +1008,7 @@ class _BarisPerjalanan extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             Text(
-              rp(rekonBniOktober.dalamPerjalanan),
+              rp(jumlah.abs()),
               style: const TextStyle(
                 fontFamily: PalakatText.mono,
                 fontWeight: FontWeight.w500,

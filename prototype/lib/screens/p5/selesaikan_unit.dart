@@ -1,24 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import 'selesaikan_unit_isi.dart';
 import '../../app/layar.dart';
 
-/// 87 · Hambatan dari unit (spec 21): the Bendahara Jemaat clears the two
-/// Kolom 7 blockers of the October 2026 close. Five views in place.
-class SelesaikanUnitScreen extends StatefulWidget {
+/// 87 · Hambatan dari unit (spec 21): the Bendahara Jemaat clears the unit
+/// blockers of the next month to close, each with a reason (DL33).
+class SelesaikanUnitScreen extends ConsumerStatefulWidget {
   const SelesaikanUnitScreen({super.key});
 
   @override
-  State<SelesaikanUnitScreen> createState() => _SelesaikanUnitState();
+  ConsumerState<SelesaikanUnitScreen> createState() => _SelesaikanUnitState();
 }
 
-class _SelesaikanUnitState extends State<SelesaikanUnitScreen>
+class _SelesaikanUnitState extends ConsumerState<SelesaikanUnitScreen>
     with KeadaanSelesaikan {
-  @override
-  String get stem => 'SelesaikanUnit';
-
   @override
   Widget build(BuildContext context) {
     final blok = blokSelesaikan(context, this, web: false);

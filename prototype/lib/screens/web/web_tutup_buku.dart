@@ -1,9 +1,16 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/format.dart';
-import '../../mock/mock.dart';
+import '../../domain/core/core.dart';
+import '../../domain/finance/finance.dart';
+import '../../providers/actor.dart';
+import '../../providers/core_repositories.dart';
+import '../../providers/keuangan/akhir_bulan.dart';
+import '../../providers/keuangan/beranda.dart';
+import '../../providers/repositories_keuangan.dart';
 import '../../motion/kerangka.dart';
 import '../../motion/ulang.dart';
 import '../../motion/urutan.dart';
@@ -14,68 +21,91 @@ import '../../theme/palakat_tema.dart';
 import '../../widgets/garis.dart';
 import '../../widgets/ikon.dart';
 import '../../widgets/kecil.dart';
+import '../../widgets/penolakan.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
 
 enum _Tahap { konfirmasi, proses, sudah }
 
-enum _Berkas { siap0, siap, gagal }
-
-/// Web · Tutup buku (spec 01-main.md, WebTutupBuku): the laptop month close.
-class WebTutupBukuScreen extends StatefulWidget {
+/// Web · Tutup buku (spec 01-main.md, WebTutupBuku): the laptop month close
+/// on the month-end read models (README 5.6): the months, the computed
+/// blockers of the next month to close, and its confirmation.
+class WebTutupBukuScreen extends ConsumerStatefulWidget {
   const WebTutupBukuScreen({super.key});
 
   @override
-  State<WebTutupBukuScreen> createState() => _WebTutupBukuScreenState();
+  ConsumerState<WebTutupBukuScreen> createState() => _WebTutupBukuScreenState();
 }
 
-class _WebTutupBukuScreenState extends State<WebTutupBukuScreen> {
+class _WebTutupBukuScreenState extends ConsumerState<WebTutupBukuScreen> {
   var _tahap = _Tahap.konfirmasi;
   var _centang = false;
-  var _pdf = _Berkas.siap0;
-  var _xls = _Berkas.siap0;
-  Timer? _t2, _t3, _t4;
+  Refusal? _tolak;
+
+  /// The month closed in this visit.
+  String? _ditutupId;
+  Timer? _t;
+
+  static const _lamaProses = Duration(milliseconds: 1500);
 
   @override
   void dispose() {
-    _t2?.cancel();
-    _t3?.cancel();
-    _t4?.cancel();
+    _t?.cancel();
     super.dispose();
   }
 
-  void _tutupBuku() {
-    setState(() => _tahap = _Tahap.proses);
-    _t2?.cancel();
-    _t2 = Timer(const Duration(milliseconds: 1500), () {
-      setState(() => _tahap = _Tahap.sudah);
-      _t3 = Timer(const Duration(milliseconds: 3600), () {
-        setState(() {
-          _pdf = _Berkas.siap;
-          _xls = _Berkas.gagal;
-        });
-      });
+  Future<void> _tutupBuku(Period p) async {
+    setState(() {
+      _tahap = _Tahap.proses;
+      _tolak = null;
     });
+    final r = await perintah(
+      ref,
+      (a, k) => ref
+          .read(periodRepositoryProvider)
+          .close(
+            a,
+            p.id,
+            pernyataanTutup(p),
+            expectedRevision: p.revision,
+            idempotencyKey: k,
+          ),
+    );
+    if (!mounted) return;
+    if (r is! Ok<ReportSnapshot>) {
+      setState(() {
+        _tahap = _Tahap.konfirmasi;
+        _centang = false;
+        _tolak = r?.refusal;
+      });
+      return;
+    }
+    _t?.cancel();
+    _menunggu = p.id;
+    _t = Timer(_lamaProses, _selesai); // tiruan: tutup buku sedang diproses
   }
 
-  void _xlsCoba() {
-    setState(() => _xls = _Berkas.siap0);
-    _t4?.cancel();
-    _t4 = Timer(
-      const Duration(milliseconds: 1800),
-      () => setState(() => _xls = _Berkas.siap),
-    );
+  String? _menunggu;
+
+  void _selesai() {
+    if (!mounted) return;
+    setState(() {
+      _tahap = _Tahap.sudah;
+      _ditutupId = _menunggu;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final jk = belumDipindah(false);
-    final hamb = belumDipindah<bool>(false);
-    final tutup = _tahap == _Tahap.sudah;
+    final tb = ref.watch(tutupBukuProvider);
+    final hari = ref.watch(hariIniProvider);
+    final semua = tb.bulan.semua;
+    final ditutup = semua.where((p) => p.id == _ditutupId).firstOrNull;
+    final tutup = _tahap == _Tahap.sudah && ditutup != null;
+    final hamb = tb.hambatan.isNotEmpty;
 
     return Material(
       type: MaterialType.transparency,
@@ -121,15 +151,27 @@ class _WebTutupBukuScreenState extends State<WebTutupBukuScreen> {
           _KisiSama(
             minLebar: 240,
             anak: [
-              _september(c),
-              _oktober(c, hamb, tutup),
-              _november(c, tutup),
+              for (final p in semua)
+                if (p.start <= hari) _kartuBulan(c, tb, p, semua.first == p),
             ],
           ),
-          if (hamb && !tutup) _hambatan(c),
-          if (!hamb && _tahap == _Tahap.konfirmasi) _konfirmasi(c, jk),
+          if (_tolak != null)
+            Penolakan(
+              tindakan: _tolak!.action,
+              sebab: _tolak!.because,
+              jalan: const [],
+            ),
+          if (hamb && !tutup) _hambatan(c, tb),
+          if (!hamb && tb.siap && _tahap == _Tahap.konfirmasi)
+            _konfirmasi(c, tb),
+          if (!hamb && !tb.siap && !tutup && tb.periode != null)
+            Text(
+              'Tidak ada hambatan. ${namaBulan(tb.periode!)} dapat ditutup '
+              'setelah bulannya berakhir.',
+              style: TextStyle(fontSize: 14, color: c.tinta2),
+            ),
           if (_tahap == _Tahap.proses) _proses(c),
-          if (tutup) _ditutup(c, jk),
+          if (tutup) _ditutup(c, ditutup),
         ],
       ),
     );
@@ -204,124 +246,89 @@ class _WebTutupBukuScreenState extends State<WebTutupBukuScreen> {
     );
   }
 
-  Widget _september(PalakatWarna c) => Container(
-    padding: const EdgeInsets.all(16),
-    decoration: BoxDecoration(
-      color: c.tinta,
-      borderRadius: BorderRadius.circular(16),
-    ),
-    child: DefaultTextStyle.merge(
-      style: TextStyle(color: c.permukaan),
+  Widget _kartuBulan(PalakatWarna c, TutupBuku tb, Period p, bool pertama) {
+    final nama = namaBulan(p);
+    if (p.isClosed) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: c.tinta,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: DefaultTextStyle.merge(
+          style: TextStyle(color: c.permukaan),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _judulBulan(
+                nama,
+                'Sudah ditutup',
+                teks: c.tinta,
+                isi: c.permukaan,
+                kepala: true,
+                tepi: 32,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Periode laporan ${rentangPeriode(p)}',
+                style: TextStyle(fontSize: 13, color: c.diTinta2),
+              ),
+              const SizedBox(height: 8),
+              Tautan(
+                ke: Layar.laporanResmi,
+                param: {'periode': p.id, 'bentuk': 'f01'},
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  heightFactor: 1,
+                  child: TautanTeks(
+                    'Lihat laporan resmi',
+                    berat: FontWeight.w700,
+                    ukuran: 14,
+                    warna: c.permukaan,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    final berikut = tb.periode;
+    final dulu = berikut == null ? '' : namaBulan(berikut);
+    final n = tb.hambatan.length;
+    final teks = p == tb.bulan.berjalan
+        ? (p == berikut
+              ? 'Berikutnya untuk tutup buku · bulan berjalan'
+              : 'Bulan berjalan · menunggu $dulu ditutup')
+        : p == berikut
+        ? 'Berikutnya untuk tutup buku · '
+              '${n > 0 ? '$n hambatan' : 'tidak ada hambatan'}'
+        : 'Menunggu $dulu ditutup';
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: c.permukaan,
+        border: p == berikut
+            ? Border.all(color: c.tinta, width: 2)
+            : Border.all(color: c.garis),
+        borderRadius: BorderRadius.circular(16),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _judulBulan(
-            'September 2026',
-            'Sudah ditutup',
-            teks: c.tinta,
-            isi: c.permukaan,
-            kepala: true,
-            tepi: 32,
+            nama,
+            'Belum ditutup',
+            teks: c.tinta2,
+            garis: c.tinta3,
+            tepi: p == berikut ? 36 : 34,
           ),
           const SizedBox(height: 4),
-          Text(
-            'Periode laporan 15–30 September 2026',
-            style: TextStyle(fontSize: 13, color: c.diTinta2),
-          ),
-          const SizedBox(height: 8),
-          Tautan(
-            ke: Layar.laporan,
-            child: Align(
-              alignment: Alignment.centerLeft,
-              heightFactor: 1,
-              child: TautanTeks(
-                'Lihat laporan resmi',
-                berat: FontWeight.w700,
-                ukuran: 14,
-                warna: c.permukaan,
-              ),
-            ),
-          ),
+          Text(teks, style: TextStyle(fontSize: 13, color: c.tinta2)),
         ],
-      ),
-    ),
-  );
-
-  Widget _oktober(PalakatWarna c, bool hamb, bool tutup) {
-    final lama = context.gerak(const Duration(milliseconds: 600));
-    return AnimatedContainer(
-      duration: lama,
-      curve: Curves.ease,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: tutup ? c.tinta : c.permukaan,
-        border: Border.all(color: c.tinta, width: 2),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: AnimatedDefaultTextStyle(
-        duration: lama,
-        curve: Curves.ease,
-        // HalamanWeb's body style; this context is above it.
-        style: PalakatText.isiWeb.copyWith(
-          height: 1.45,
-          leadingDistribution: TextLeadingDistribution.even,
-          color: tutup ? c.permukaan : c.tinta,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _judulBulan(
-              'Oktober 2026',
-              tutup ? 'Sudah ditutup' : 'Belum ditutup',
-              teks: tutup ? c.tinta : c.tinta2,
-              isi: tutup ? c.permukaan : null,
-              garis: tutup ? c.permukaan : c.tinta3,
-              tepi: 36,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              tutup
-                  ? 'Periode laporan 1–31 Oktober 2026'
-                  : 'Berikutnya untuk tutup buku · '
-                        '${hamb ? '2 hambatan' : 'tidak ada hambatan'}',
-              style: TextStyle(
-                fontSize: 13,
-                color: tutup ? c.diTinta2 : c.tinta2,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
-
-  Widget _november(PalakatWarna c, bool tutup) => Container(
-    padding: const EdgeInsets.all(16),
-    decoration: BoxDecoration(
-      color: c.permukaan,
-      border: Border.all(color: c.garis),
-      borderRadius: BorderRadius.circular(16),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _judulBulan(
-          'November 2026',
-          'Belum ditutup',
-          teks: c.tinta2,
-          garis: c.tinta3,
-          tepi: 34,
-        ),
-        const SizedBox(height: 4),
-        Text(
-          tutup
-              ? 'Berikutnya untuk tutup buku · bulan berjalan'
-              : 'Bulan berjalan · menunggu Oktober ditutup',
-          style: TextStyle(fontSize: 13, color: c.tinta2),
-        ),
-      ],
-    ),
-  );
 
   // ---- Hambatan ----
 
@@ -349,93 +356,78 @@ class _WebTutupBukuScreenState extends State<WebTutupBukuScreen> {
     ),
   );
 
-  Widget _hambatan(PalakatWarna c) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      Row(
-        children: [
-          Flexible(
-            child: Semantics(
-              header: true,
-              child: const Text(
-                'Hambatan tutup buku Oktober 2026',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+  Widget _hambatan(PalakatWarna c, TutupBuku tb) {
+    final tahu = untukDiketahuiTutup(tb);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            Flexible(
+              child: Semantics(
+                header: true,
+                child: Text(
+                  'Hambatan tutup buku ${namaBulan(tb.periode!)}',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 8),
-          Container(
-            constraints: const BoxConstraints(minWidth: 22),
-            height: 22,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: c.bata,
-              borderRadius: BorderRadius.circular(999),
-            ),
-            child: Text(
-              '2',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: c.diBata,
+            const SizedBox(width: 8),
+            Container(
+              constraints: const BoxConstraints(minWidth: 22),
+              height: 22,
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: c.bata,
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: Text(
+                '${tb.hambatan.length}',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: c.diBata,
+                ),
               ),
             ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        _KisiSama(
+          minLebar: 320,
+          anak: [
+            for (final h in tb.hambatan)
+              _kartuHambatan(
+                c,
+                judul: h.judul,
+                teks: TextSpan(text: h.sub),
+                tombol: Tombol(
+                  h.tombol,
+                  onPressed: null,
+                  ke: h.ke,
+                  param: h.param,
+                  anak: h.anak,
+                  jenis: JenisTombol.tinta,
+                  ukuran: UkuranTombol.kecil,
+                  lebarPenuh: false,
+                ),
+              ),
+          ],
+        ),
+        if (tahu.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          Text(
+            'Untuk diketahui (tidak menghalangi tutup buku): $tahu.',
+            style: TextStyle(fontSize: 14, color: c.tinta2),
           ),
         ],
-      ),
-      const SizedBox(height: 12),
-      _KisiSama(
-        minLebar: 320,
-        anak: [
-          _kartuHambatan(
-            c,
-            judul: 'Bank BNI ··4821 belum direkonsiliasi',
-            teks: TextSpan(text: 'Selisih belum dijelaskan ${rp(515000)}'),
-            tombol: const Tombol(
-              'Buka rekonsiliasi',
-              onPressed: null,
-              ke: Layar.tutupBuku,
-              anak: 'rekonsiliasi',
-              jenis: JenisTombol.tinta,
-              ukuran: UkuranTombol.kecil,
-              lebarPenuh: false,
-            ),
-          ),
-          _kartuHambatan(
-            c,
-            judul: '1 dokumen pendukung belum diverifikasi',
-            teks: TextSpan(
-              children: [
-                const TextSpan(
-                  text: 'BKU-2026-0122',
-                  style: TextStyle(fontFamily: PalakatText.mono),
-                ),
-                TextSpan(
-                  text:
-                      ' · Diakonia sakit · ${rp(300000)} · Diunggah, '
-                      'belum diverifikasi',
-                ),
-              ],
-            ),
-            tombol: const Tombol(
-              'Buka dokumen pendukung',
-              onPressed: null,
-              ke: Layar.dokumen,
-              jenis: JenisTombol.tinta,
-              ukuran: UkuranTombol.kecil,
-              lebarPenuh: false,
-            ),
-          ),
-        ],
-      ),
-      const SizedBox(height: 12),
-      Text(
-        'Untuk diketahui (tidak menghalangi tutup buku): 2 uang muka dengan '
-        'sisa belum dipertanggungjawabkan.',
-        style: TextStyle(fontSize: 14, color: c.tinta2),
-      ),
-    ],
-  );
+      ],
+    );
+  }
 
   // ---- Konfirmasi ----
 
@@ -449,16 +441,20 @@ class _WebTutupBukuScreenState extends State<WebTutupBukuScreen> {
     ],
   );
 
-  Widget _konfirmasi(PalakatWarna c, bool jk) {
+  Widget _konfirmasi(PalakatWarna c, TutupBuku tb) {
+    final p = tb.periode!;
+    final nama = namaBulan(p);
+    final jk = penutupJabatanKosong(ref);
+    final tahu = untukDiketahuiTutup(tb);
     final kiri = _jarak(16, [
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Semantics(
             header: true,
-            child: const Text(
-              'Tutup buku bulan Oktober 2026?',
-              style: TextStyle(
+            child: Text(
+              'Tutup buku bulan $nama?',
+              style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w700,
                 height: 1.2,
@@ -480,7 +476,7 @@ class _WebTutupBukuScreenState extends State<WebTutupBukuScreen> {
             style: TextStyle(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 6),
-          for (final t in syaratTutupBuku)
+          for (final s in tb.syarat)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 3),
               child: Row(
@@ -492,32 +488,30 @@ class _WebTutupBukuScreenState extends State<WebTutupBukuScreen> {
                   ),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: Text(t, style: const TextStyle(fontSize: 14)),
+                    child: Text(s.teks, style: const TextStyle(fontSize: 14)),
                   ),
                 ],
               ),
             ),
         ],
       ),
-      DefaultTextStyle.merge(
-        style: TextStyle(fontSize: 14, color: c.tinta2),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              'Untuk diketahui (tidak menghalangi tutup buku). Tetap '
-              'ditampilkan di laporan, dan yang masih tersisa dibawa ke '
-              'bulan berikutnya:',
-              style: TextStyle(fontWeight: FontWeight.w700, color: c.tinta),
-            ),
-            const SizedBox(height: 4),
-            const Text(
-              '2 uang muka dengan sisa belum dipertanggungjawabkan; 1 '
-              'setoran dalam perjalanan (belum tercatat di rekening koran)',
-            ),
-          ],
+      if (tahu.isNotEmpty)
+        DefaultTextStyle.merge(
+          style: TextStyle(fontSize: 14, color: c.tinta2),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Untuk diketahui (tidak menghalangi tutup buku). Tetap '
+                'ditampilkan di laporan, dan yang masih tersisa dibawa ke '
+                'bulan berikutnya:',
+                style: TextStyle(fontWeight: FontWeight.w700, color: c.tinta),
+              ),
+              const SizedBox(height: 4),
+              Text(tahu),
+            ],
+          ),
         ),
-      ),
       Container(
         padding: const EdgeInsets.only(top: 12),
         decoration: BoxDecoration(
@@ -527,9 +521,9 @@ class _WebTutupBukuScreenState extends State<WebTutupBukuScreen> {
           TextSpan(
             children: [
               const TextSpan(text: 'Laporan resmi mencakup '),
-              const TextSpan(
-                text: '1–31 Oktober 2026',
-                style: TextStyle(fontWeight: FontWeight.w700),
+              TextSpan(
+                text: rentangPeriode(p),
+                style: const TextStyle(fontWeight: FontWeight.w700),
               ),
               const TextSpan(
                 text:
@@ -589,9 +583,9 @@ class _WebTutupBukuScreenState extends State<WebTutupBukuScreen> {
             'Mencocokkan setoran dalam perjalanan dengan rekening koran bulan '
             'sesudahnya.',
           ),
-          const Text(
+          Text(
             'Melampirkan dokumen pendukung yang datang terlambat. Dokumen itu '
-            'tetap disimpan, tetapi laporan resmi Oktober 2026 tidak berubah.',
+            'tetap disimpan, tetapi laporan resmi $nama tidak berubah.',
           ),
         ]),
       ),
@@ -614,17 +608,15 @@ class _WebTutupBukuScreenState extends State<WebTutupBukuScreen> {
               color: c.permukaan,
             ),
           ),
-          const Text(
-            'Buku bulan Oktober 2026 menjadi final untuk semua pengguna, '
+          Text(
+            'Buku bulan $nama menjadi final untuk semua pengguna, '
             'siapa pun.',
           ),
-          const Text(
-            'Transaksi Oktober 2026 tidak dapat diubah, dibalik, atau '
+          Text(
+            'Transaksi $nama tidak dapat diubah, dibalik, atau '
             'dikoreksi, bahkan dari bulan-bulan sesudahnya.',
           ),
-          const Text(
-            'Laporan resmi Oktober 2026 dibekukan dan tidak akan berubah.',
-          ),
+          Text('Laporan resmi $nama dibekukan dan tidak akan berubah.'),
           const Text(
             'Kesalahan atau transaksi terlewat yang ditemukan di kemudian '
             'hari hanya dapat dicatat sebagai kejadian setelah tutup buku. '
@@ -681,12 +673,13 @@ class _WebTutupBukuScreenState extends State<WebTutupBukuScreen> {
               ),
             ),
             const SizedBox(width: 12),
-            const Expanded(
+            Expanded(
               child: Text(
-                'Saya sudah membaca ringkasan dan laporan sementara. Saya '
-                'mengerti bahwa tutup buku ini bersifat permanen dan '
-                'transaksi Oktober 2026 tidak dapat dikoreksi lagi.',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                pernyataanTutup(p),
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ],
@@ -708,26 +701,26 @@ class _WebTutupBukuScreenState extends State<WebTutupBukuScreen> {
 
     final kanan = _jarak(14, [
       permanen,
-      if (jk)
+      if (jk != null)
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration: garisTinta,
-          child: const Text.rich(
+          child: Text.rich(
             TextSpan(
               children: [
-                TextSpan(text: 'Ditutup oleh '),
+                const TextSpan(text: 'Ditutup oleh '),
                 TextSpan(
-                  text: 'Yanti Sumual, Operator',
-                  style: TextStyle(fontWeight: FontWeight.w700),
+                  text: jk,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
-                TextSpan(
+                const TextSpan(
                   text:
                       ', yang menjalankan jabatan kosong Bendahara Jemaat. '
                       'Nama dan keadaan ini tercatat pada tutup buku.',
                 ),
               ],
             ),
-            style: TextStyle(fontSize: 14),
+            style: const TextStyle(fontSize: 14),
           ),
         ),
       kotakCentang,
@@ -738,9 +731,9 @@ class _WebTutupBukuScreenState extends State<WebTutupBukuScreen> {
           Lentur(
             dasar: 240,
             child: TombolTahan(
-              'Tutup buku Oktober 2026',
+              'Tutup buku $nama',
               siap: _centang,
-              onSelesai: _tutupBuku,
+              onSelesai: () => _tutupBuku(p),
               tinggi: 54,
             ),
           ),
@@ -814,7 +807,6 @@ class _WebTutupBukuScreenState extends State<WebTutupBukuScreen> {
     PalakatWarna c, {
     required String judul,
     required String teks,
-    bool gagal = false,
     Widget? aksi,
     bool garisAtas = false,
   }) => Container(
@@ -831,14 +823,7 @@ class _WebTutupBukuScreenState extends State<WebTutupBukuScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(judul, style: const TextStyle(fontWeight: FontWeight.w600)),
-              Text(
-                teks,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: gagal ? c.bata : c.tinta2,
-                  fontWeight: gagal ? FontWeight.w700 : FontWeight.w400,
-                ),
-              ),
+              Text(teks, style: TextStyle(fontSize: 13, color: c.tinta2)),
             ],
           ),
         ),
@@ -847,13 +832,18 @@ class _WebTutupBukuScreenState extends State<WebTutupBukuScreen> {
     ),
   );
 
-  Widget _ditutup(PalakatWarna c, bool jk) {
-    String teksBerkas(_Berkas b) => switch (b) {
-      _Berkas.siap => 'Siap diunduh',
-      _Berkas.gagal =>
-        'File gagal dibuat. Angka tetap beku; cukup buat filenya lagi.',
-      _Berkas.siap0 => 'Sedang disiapkan',
-    };
+  Widget _ditutup(PalakatWarna c, Period p) {
+    final nama = namaBulan(p);
+    final oleh = ref.watch(peopleRepositoryProvider).person(p.closedBy ?? '');
+    Widget unduh(String label, String bentuk) => Tombol(
+      label,
+      onPressed: null,
+      ke: Layar.laporanResmi,
+      param: {'periode': p.id, 'bentuk': bentuk},
+      ukuran: UkuranTombol.kecil,
+      paddingH: 14,
+      lebarPenuh: false,
+    );
 
     final teks = Gerak(
       Kerangka.muncul,
@@ -862,9 +852,9 @@ class _WebTutupBukuScreenState extends State<WebTutupBukuScreen> {
       child: _jarak(6, [
         Semantics(
           header: true,
-          child: const Text(
-            'Buku bulan Oktober 2026 sudah ditutup.',
-            style: TextStyle(
+          child: Text(
+            'Buku bulan $nama sudah ditutup.',
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w700,
               height: 1.2,
@@ -872,12 +862,12 @@ class _WebTutupBukuScreenState extends State<WebTutupBukuScreen> {
           ),
         ),
         Text(
-          'Angka laporan resmi sudah dibekukan; file laporannya sedang '
-          'disiapkan.',
+          'Angka laporan resmi sudah dibekukan · ${p.snapshotId}',
           style: TextStyle(color: c.diTinta2),
         ),
         Text(
-          'Dikonfirmasi oleh ${plk2(jk)} · 16/11/2026 11.05',
+          'Dikonfirmasi oleh ${oleh?.shortName ?? oleh?.name} · '
+          '${p.closedAt == null ? '' : tglJam(p.closedAt!)}',
           style: TextStyle(fontSize: 13, color: c.diTinta2),
         ),
       ]),
@@ -901,47 +891,15 @@ class _WebTutupBukuScreenState extends State<WebTutupBukuScreen> {
               _barisBerkas(
                 c,
                 judul: 'Laporan resmi · PDF',
-                teks: _pdf == _Berkas.siap
-                    ? 'Siap diunduh'
-                    : 'Sedang disiapkan',
-                aksi: _pdf == _Berkas.siap
-                    ? const Tombol(
-                        'Unduh PDF',
-                        onPressed: null,
-                        ke: Layar.laporanResmi,
-                        param: {'periode': belumDipindahId, 'bentuk': 'f01'},
-                        ukuran: UkuranTombol.kecil,
-                        paddingH: 14,
-                        lebarPenuh: false,
-                      )
-                    : null,
+                teks: 'Siap diunduh',
+                aksi: unduh('Unduh PDF', 'f01'),
               ),
               _barisBerkas(
                 c,
                 judul: 'Laporan resmi · Excel',
-                teks: teksBerkas(_xls),
-                gagal: _xls == _Berkas.gagal,
+                teks: 'Siap diunduh',
                 garisAtas: true,
-                aksi: switch (_xls) {
-                  _Berkas.gagal => Tombol(
-                    'Coba lagi',
-                    onPressed: _xlsCoba,
-                    jenis: JenisTombol.garisBata,
-                    ukuran: UkuranTombol.kecil,
-                    paddingH: 14,
-                    lebarPenuh: false,
-                  ),
-                  _Berkas.siap => const Tombol(
-                    'Unduh Excel',
-                    onPressed: null,
-                    ke: Layar.laporanResmi,
-                    param: {'periode': belumDipindahId, 'bentuk': 'excel'},
-                    ukuran: UkuranTombol.kecil,
-                    paddingH: 14,
-                    lebarPenuh: false,
-                  ),
-                  _Berkas.siap0 => null,
-                },
+                aksi: unduh('Unduh Excel', 'excel'),
               ),
             ],
           ),

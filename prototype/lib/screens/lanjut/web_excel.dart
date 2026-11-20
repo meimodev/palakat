@@ -1,6 +1,11 @@
 import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../domain/finance/finance.dart';
+import '../../providers/keuangan/laporan.dart';
+import 'laporan_tabel.dart';
 
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
@@ -12,22 +17,26 @@ import '../../widgets/tekan.dart';
 import 'web_excel_data.dart';
 import '../../app/layar.dart';
 
-/// Web · Contoh file Excel (spec 08-cari.md, WebExcel): the October 2026
-/// report pack as a workbook, one sheet per form F01–F14.
-class WebExcelScreen extends StatefulWidget {
+/// Web · Contoh file Excel (spec 08-cari.md, WebExcel): the route month's
+/// report pack as a workbook, one sheet per form F01–F14, read from its
+/// datasets. "Unduh Excel" opens it; no file is written (D15).
+class WebExcelScreen extends ConsumerStatefulWidget {
   const WebExcelScreen({super.key});
 
   @override
-  State<WebExcelScreen> createState() => _WebExcelScreenState();
+  ConsumerState<WebExcelScreen> createState() => _WebExcelScreenState();
 }
 
-class _WebExcelScreenState extends State<WebExcelScreen> {
+class _WebExcelScreenState extends ConsumerState<WebExcelScreen> {
   String _pilih = 'F02';
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final l = lembarExcel.firstWhere((f) => f.kode == _pilih);
+    final lap = laporanRute(context, ref);
+    if (lap == null) return const SizedBox.shrink();
+    final lembar = lembarExcel(lap);
+    final l = lembar.firstWhere((f) => f.kode == _pilih);
     TextSpan tebal(String t) => TextSpan(
       text: t,
       style: TextStyle(color: c.tinta, fontWeight: FontWeight.w700),
@@ -96,8 +105,8 @@ class _WebExcelScreenState extends State<WebExcelScreen> {
                   children: [
                     // Zero-width space: Chrome may break after the hyphen
                     // before "10", the Flutter breaker does not.
-                    const Text(
-                      'Paket-Laporan-GMIM_Jemaat-Karunia_2026-​10.xlsx',
+                    Text(
+                      namaFileExcel(lap.periode).replaceAll('-', '-\u200B'),
                       style: TextStyle(
                         fontFamily: PalakatText.mono,
                         fontSize: 14,
@@ -105,14 +114,14 @@ class _WebExcelScreenState extends State<WebExcelScreen> {
                       ),
                     ),
                     Text(
-                      'Laporan resmi · ID SNP-2026-10-01 · satu lembar per '
-                      'laporan',
+                      '${lap.resmi ? 'Laporan resmi · ID ${lap.snapshot!.id}' : 'Laporan sementara · bukan laporan resmi'}'
+                      ' · satu lembar per laporan',
                       style: TextStyle(fontSize: 13, color: c.tinta3),
                     ),
                   ],
                 ),
               ),
-              _Lembar(l, key: ValueKey(l.kode)),
+              _Lembar(l, lap: lap, key: ValueKey(l.kode)),
               DecoratedBox(
                 decoration: BoxDecoration(
                   color: c.kertas,
@@ -122,7 +131,7 @@ class _WebExcelScreenState extends State<WebExcelScreen> {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      for (final f in lembarExcel)
+                      for (final f in lembar)
                         _Tab(
                           f.kode,
                           dipilih: f.kode == _pilih,
@@ -239,9 +248,10 @@ final _uang = RegExp(r'^.?Rp');
 /// The grid of one sheet: column letters, rows 1–6, then the data rows.
 /// Scrolls sideways on its own; the `fr` column takes what is left.
 class _Lembar extends StatelessWidget {
-  const _Lembar(this.l, {super.key});
+  const _Lembar(this.l, {required this.lap, super.key});
 
   final LembarExcel l;
+  final LaporanBulan lap;
 
   @override
   Widget build(BuildContext context) {
@@ -256,49 +266,52 @@ class _Lembar extends StatelessWidget {
         (lebar.contains(null) ? 300 : 0);
     final n = l.kolom.length;
     List<String> isi(String t) => [t, for (var i = 1; i < n; i++) ''];
-    final baris =
-        <({int no, List<String> sel, bool tebal, bool lebar, bool data})>[
-          (
-            no: 1,
-            sel: isi(l.nama.toUpperCase()),
-            tebal: true,
-            lebar: true,
-            data: false,
-          ),
-          (
-            no: 2,
-            sel: isi('Jemaat Karunia'),
-            tebal: false,
-            lebar: true,
-            data: false,
-          ),
-          (
-            no: 3,
-            sel: isi('Periode laporan: 01/10/2026 s.d. 31/10/2026'),
-            tebal: false,
-            lebar: true,
-            data: false,
-          ),
-          (
-            no: 4,
-            sel: isi(
-              'Laporan resmi · SNP-2026-10-01 · Versi Mata Anggaran 2026.1',
-            ),
-            tebal: false,
-            lebar: true,
-            data: false,
-          ),
-          (no: 5, sel: isi(''), tebal: false, lebar: false, data: false),
-          (no: 6, sel: l.kolom, tebal: true, lebar: false, data: false),
-          for (var i = 0; i < l.baris.length; i++)
-            (
-              no: 7 + i,
-              sel: l.baris[i].sel,
-              tebal: l.baris[i].tebal,
-              lebar: false,
-              data: true,
-            ),
-        ];
+    final baris = <({int no, List<String> sel, bool tebal, bool lebar, bool data})>[
+      (
+        no: 1,
+        sel: isi(l.nama.toUpperCase()),
+        tebal: true,
+        lebar: true,
+        data: false,
+      ),
+      (
+        no: 2,
+        sel: isi('Jemaat Karunia'),
+        tebal: false,
+        lebar: true,
+        data: false,
+      ),
+      (
+        no: 3,
+        sel: isi(
+          'Periode laporan: ${lap.periode.start} s.d. ${lap.periode.end}',
+        ),
+        tebal: false,
+        lebar: true,
+        data: false,
+      ),
+      (
+        no: 4,
+        sel: isi(
+          '${lap.resmi ? 'Laporan resmi · ${lap.snapshot!.id}' : 'Laporan sementara'}'
+          ' · Versi Mata Anggaran '
+          '${lap.data(ReportForm.f05).totals['versionCode'] ?? ''}',
+        ),
+        tebal: false,
+        lebar: true,
+        data: false,
+      ),
+      (no: 5, sel: isi(''), tebal: false, lebar: false, data: false),
+      (no: 6, sel: l.kolom, tebal: true, lebar: false, data: false),
+      for (var i = 0; i < l.baris.length; i++)
+        (
+          no: 7 + i,
+          sel: l.baris[i].sel,
+          tebal: l.baris[i].tebal,
+          lebar: false,
+          data: true,
+        ),
+    ];
     final garisKanan = Border(right: BorderSide(color: c.garis));
 
     Widget kolom(int i, Widget sel) => lebar[i] == null
@@ -336,7 +349,7 @@ class _Lembar extends StatelessWidget {
       final teks = uang
           ? v.replaceFirst('−Rp', '-').replaceFirst(RegExp('^Rp'), '')
           // Chrome breaks a sentence after "BKU-" before the digits; ICU
-          // keeps "-2026" together, so a zero-width space allows the break.
+          // keeps "-{year}" together, so a zero-width space allows the break.
           : mono
           ? v
           : v.replaceAll('-', '-\u200B');

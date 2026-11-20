@@ -1,9 +1,16 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/format.dart';
-import '../../mock/mock.dart';
+import '../../core/tanggal.dart';
+import '../../domain/core/core.dart';
+import '../../domain/finance/finance.dart';
+import '../../providers/clock.dart';
+import '../../providers/keuangan/akhir_bulan.dart';
+import '../../providers/keuangan/beranda.dart';
+import '../../providers/repositories_keuangan.dart';
 import '../../motion/kerangka.dart';
 import '../../motion/urutan.dart';
 import '../../shell/kepala_ponsel.dart';
@@ -13,18 +20,23 @@ import '../../theme/palakat_tema.dart';
 import '../../widgets/chip_pilihan.dart';
 import '../../widgets/garis.dart';
 import '../../widgets/kecil.dart';
+import '../../widgets/penolakan.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
 
 const _mono = TextStyle(fontFamily: PalakatText.mono);
-const _tanggal = '16/11/2026 11.30';
 
-/// Board state `{ n, nol, petugas, dok, tersimpan }`; `screen` is the route.
+/// The denominations counted (mock-data 2.12).
+const pecahanKas = [100000, 50000, 20000, 10000, 5000, 2000, 1000];
+
+/// The count form's UI state `{ n, nol, petugas, dok }`; the saved count is
+/// read from ReconciliationRepository (`tersimpan`: saved in this visit).
 class _Hitung extends ChangeNotifier {
   List<int>? n;
-  bool nol = false, dok = false, tersimpan = false;
+  bool nol = false, dok = false;
+  CashCount? tersimpan;
+  Refusal? tolak;
   List<String> petugas = [];
   bool _mati = false;
 
@@ -34,22 +46,16 @@ class _Hitung extends ChangeNotifier {
     notifyListeners();
   }
 
-  void ulang() => _ubah(() {
-    n = null;
-    nol = dok = tersimpan = false;
-    petugas = [];
-  });
-
   void lembar(List<int> sekarang, int i, int v) => _ubah(() {
     n = [...sekarang]..[i] = v;
     nol = false;
-    tersimpan = false;
+    tersimpan = null;
   });
 
   void kosong() => _ubah(() {
     n = List.filled(7, 0);
     nol = true;
-    tersimpan = false;
+    tersimpan = null;
   });
 
   void pilih(String o) => _ubah(() {
@@ -59,8 +65,33 @@ class _Hitung extends ChangeNotifier {
   });
 
   void lampirkan() => _ubah(() => dok = true);
-  void keHitung() => _ubah(() => tersimpan = false);
-  void simpan() => _ubah(() => tersimpan = true);
+  void keHitung() => _ubah(() {
+    tersimpan = null;
+    tolak = null;
+  });
+
+  /// "Simpan hitung kas": ReconciliationRepository.recordCashCount.
+  Future<void> simpan(WidgetRef ref, String akunId) async {
+    final r = await perintah(
+      ref,
+      (a, k) => ref
+          .read(reconciliationRepositoryProvider)
+          .recordCashCount(
+            a,
+            akunId,
+            {
+              for (var i = 0; i < 7; i++)
+                pecahanKas[i]: (n ?? List.filled(7, 0))[i],
+            },
+            petugas,
+            idempotencyKey: k,
+          ),
+    );
+    _ubah(() {
+      tolak = r?.refusal;
+      if (r is Ok<CashCount>) tersimpan = r.value;
+    });
+  }
 
   @override
   void dispose() {
@@ -73,20 +104,20 @@ class _Lingkup extends InheritedNotifier<_Hitung> {
   const _Lingkup({required _Hitung super.notifier, required super.child});
 }
 
-/// What `rv0()` derives from the state and the `contohTerisi` tweak.
+/// What `rv0()` derives from the form and the book (hitungKasProvider).
 class _Nilai {
-  _Nilai(BuildContext context)
+  _Nilai(BuildContext context, this.data)
     : k = context.dependOnInheritedWidgetOfExactType<_Lingkup>()!.notifier! {
-    n =
-        k.n ??
-        (belumDipindah<bool>(true) ? hitungKasTerisi : hitungKasKosong).lembar;
-    total = HitungKas(lembar: n, petugas: const []).jumlah;
+    n = k.n ?? List.filled(7, 0);
+    total = [for (var i = 0; i < 7; i++) n[i] * pecahanKas[i]]
+        .fold(0, (a, b) => a + b);
     dihitung = total > 0 || k.nol;
     bisa = dihitung && k.petugas.isNotEmpty;
-    selisih = hitungKasSaldoBuku - total;
+    selisih = (data?.buku ?? 0) - total;
   }
 
   final _Hitung k;
+  final HitungKas? data;
   late final List<int> n;
   late final int total, selisih;
   late final bool dihitung, bisa;
@@ -205,24 +236,34 @@ class _TombolPutus extends StatelessWidget {
   );
 }
 
+/// '{Kas} · akhir {bulan}' for an ended month, else '{Kas} · {today}'.
+String _judulHitung(HitungKas? d, DateTime sekarang) => d == null
+    ? 'Kas'
+    : d.periode.end < Tanggal.dari(sekarang)
+    ? '${d.akun.name} · akhir ${namaBulan(d.periode)}'
+    : '${d.akun.name} · ${tglPanjang(sekarang)} · ${jam(sekarang)}';
+
 /// Count view (`/HitungKas`), `pudar .2s` on mount.
-class _Hitungan extends StatelessWidget {
+class _Hitungan extends ConsumerWidget {
   const _Hitungan();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
-    final v = _Nilai(context);
+    final d = ref.watch(hitungKasProvider);
+    final v = _Nilai(context, d);
     final k = v.k;
+    final sekarang = ref.watch(clockProvider).now();
+    final petugasPilihan = ref.watch(petugasHitungProvider);
     return Gerak(
       Kerangka.pudar,
       lama: const Duration(milliseconds: 200),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const KepalaPonsel(
+          KepalaPonsel(
             judul: 'Hitung kas',
-            anakJudul: hitungKasJudul,
+            anakJudul: _judulHitung(d, sekarang),
             kembaliKe: Layar.tutupBuku,
             labelKembali: 'Kembali ke Bulan',
           ),
@@ -250,7 +291,7 @@ class _Hitungan extends StatelessWidget {
                         ? (v.total == 0
                               ? 'Dihitung: Rp0'
                               : 'Dihitung per pecahan')
-                        : hitungKasKosongTeks,
+                        : 'Belum dihitung. Kosong bukan Rp0.',
                     style: TextStyle(fontSize: 13, color: c.tinta3),
                   ),
                 ],
@@ -261,7 +302,7 @@ class _Hitungan extends StatelessWidget {
                   children: [
                     for (var i = 0; i < 7; i++)
                       _BarisPecahan(
-                        pecahan: HitungKas.pecahan[i],
+                        pecahan: pecahanKas[i],
                         lembar: v.n[i],
                         garisAtas: i > 0,
                         onUbah: (b) => k.lembar(v.n, i, b),
@@ -297,7 +338,7 @@ class _Hitungan extends StatelessWidget {
                       spacing: 8,
                       runSpacing: 8,
                       children: [
-                        for (final o in hitungKasPetugas)
+                        for (final o in petugasPilihan)
                           ChipSatu(
                             teks: o,
                             dipilih: k.petugas.contains(o),
@@ -344,8 +385,8 @@ class _Hitungan extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              '$hitungKasFile · Terlampir',
+                            Text(
+                              'lembar-hitung-${tgl(sekarang).substring(0, 5).replaceAll('/', '-')}.jpg · Terlampir',
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
@@ -381,7 +422,7 @@ class _Hitungan extends StatelessWidget {
                 TekanAria(
                   // TombolBersyarat: re-checks on press.
                   onTap: () {
-                    if (_Nilai(context).bisa) {
+                    if (_Nilai(context, d).bisa) {
                       context.dorongKe(Layar.hitungKas, anak: 'banding');
                     }
                   },
@@ -407,27 +448,31 @@ class _Hitungan extends StatelessWidget {
 }
 
 /// Comparison view (`/HitungKas/banding`); the route plays `masuk`.
-class _Banding extends StatefulWidget {
+class _Banding extends ConsumerStatefulWidget {
   const _Banding();
   @override
-  State<_Banding> createState() => _BandingState();
+  ConsumerState<_Banding> createState() => _BandingState();
 }
 
-class _BandingState extends State<_Banding> {
+class _BandingState extends ConsumerState<_Banding> {
   @override
   void initState() {
     super.initState();
     // Opened directly while the count cannot be compared: back to the count.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && !_Nilai(context).bisa) context.naikKe(Layar.hitungKas);
+      if (mounted && !_Nilai(context, ref.read(hitungKasProvider)).bisa) {
+        context.naikKe(Layar.hitungKas);
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final v = _Nilai(context);
+    final d = ref.watch(hitungKasProvider);
+    final v = _Nilai(context, d);
     final k = v.k;
+    final simpan = k.tersimpan;
     const muncul = Duration(milliseconds: 300);
     Widget baris(String a, String b) => Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -462,7 +507,7 @@ class _BandingState extends State<_Banding> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      baris('Saldo buku', rp(hitungKasSaldoBuku)),
+                      baris('Saldo buku', rp(d?.buku ?? 0)),
                       const SizedBox(height: 10),
                       Gerak(
                         Kerangka.muncul,
@@ -590,7 +635,7 @@ class _BandingState extends State<_Banding> {
                     ),
                   ),
                 ),
-              if (k.tersimpan)
+              if (simpan != null)
                 Gerak(
                   Kerangka.muncul,
                   key: const ValueKey('tersimpan'),
@@ -611,7 +656,7 @@ class _BandingState extends State<_Banding> {
                                 style: TextStyle(fontWeight: FontWeight.w700),
                               ),
                               Text(
-                                'Dihitung oleh ${k.petugas.join(' dan ')} · $_tanggal',
+                                'Dihitung oleh ${simpan.counters.join(' dan ')} · ${tglJam(simpan.countedAt)}',
                                 style: TextStyle(fontSize: 14, color: c.tinta2),
                               ),
                             ],
@@ -624,7 +669,7 @@ class _BandingState extends State<_Banding> {
             ],
           ),
           _Kaki(
-            child: k.tersimpan
+            child: simpan != null
                 ? ConstrainedBox(
                     // `<a>`: content-box, 52 plus the 1.5 line.
                     constraints: const BoxConstraints(minHeight: 55),
@@ -636,7 +681,25 @@ class _BandingState extends State<_Banding> {
                       cara: Cara.naik,
                     ),
                   )
-                : Tombol('Simpan hitung kas', onPressed: k.simpan),
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    spacing: 8,
+                    children: [
+                      if (k.tolak != null)
+                        Penolakan(
+                          tindakan: k.tolak!.action,
+                          sebab: k.tolak!.because,
+                          jalan: const [],
+                          ukuranTeks: 14,
+                        ),
+                      Tombol(
+                        'Simpan hitung kas',
+                        onPressed: d == null
+                            ? null
+                            : () => k.simpan(ref, d.akun.id),
+                      ),
+                    ],
+                  ),
           ),
         ],
       ),

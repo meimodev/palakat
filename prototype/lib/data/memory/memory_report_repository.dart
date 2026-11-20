@@ -12,7 +12,8 @@ import 'memory_finance.dart';
 ///   transitOut, advanceIssued, advanceReturned, closing; rows as F10.
 /// - F02 rows: transactionId, date, voucher, codes, description, accountIds,
 ///   in, out, balance (a reversal prints negative in its original's
-///   column, D12); totals: opening, in, out, closing.
+///   column, D12), reversedBy (the posted reversal's voucher), correctionOf
+///   (the corrected original's voucher); totals: opening, in, out, closing.
 /// - F03 rows: F02's keys plus accountId, per account; totals:
 ///   'opening:{accountId}', 'closing:{accountId}'.
 /// - F04, F06 rows: code, name, parentCode, level, postable, allowedEffect;
@@ -32,14 +33,11 @@ import 'memory_finance.dart';
 /// - F13 rows: caseId, partyId, title, opening, collected, remitted,
 ///   closing; totals: the sums and ownCentralization.
 /// - F14 rows: n (1–8), items (ids), count.
-///
-/// Commands: M4.
 class MemoryReportRepository implements ReportRepository {
   MemoryReportRepository(this.f, this.periods) {
     // A seeded CLOSED month (M−2, README 5.6) has its snapshot id but no
     // frozen pack: freeze it once, at its close time (README 4.6 point 3).
-    // ponytail: frozen when the repository is first built (launch), not by a
-    // close command; M4's close freezes its own month.
+    // `PeriodRepository.close` builds one after closing, which freezes it.
     for (final p in f.k.periods) {
       if (!p.isClosed || p.snapshotId == null || snapshot(p.id) != null) {
         continue;
@@ -166,7 +164,41 @@ class MemoryReportRepository implements ReportRepository {
     String templateId, {
     required int expectedRevision,
     required String idempotencyKey,
-  }) => f.notYet('Setujui format laporan');
+  }) => f.ctx.command(idempotencyKey, () {
+    const aksi = 'Catat persetujuan format laporan';
+    // RD03: the authorized church officer accepts; the Bendahara records
+    // that acceptance (DP11).
+    final g =
+        f.ctx.grant(actor, Capability.financeAcceptTemplate, ScopeRef.jemaat) ??
+        f.ctx.grant(actor, Capability.financeSettings, ScopeRef.jemaat);
+    if (g == null) {
+      return f.ctx.refuse(
+        actor,
+        Capability.financeAcceptTemplate,
+        ScopeRef.jemaat,
+      );
+    }
+    final t = f.k.templates.where((x) => x.id == templateId).firstOrNull;
+    if (t == null) return f.ctx.no(aksi, 'Format laporan tidak ditemukan.');
+    final basi = f.ctx.stale<ReportTemplate>(
+      t.revision,
+      expectedRevision,
+      aksi,
+    );
+    if (basi != null) return basi;
+    if (t.accepted) return f.ctx.no(aksi, 'Format ini sudah disetujui.');
+    t
+      ..acceptedBy = actor.personId
+      ..acceptedAt = f.now
+      ..revision += 1;
+    f.audit(
+      g,
+      action: 'finance.template.accept',
+      summary: 'Persetujuan format laporan dicatat: ${t.name}',
+      ref: RecordRef('template', t.id),
+    );
+    return Ok(t);
+  });
 }
 
 /// One computation of datasets for a period and perimeter.
@@ -274,6 +306,11 @@ class _Hitung {
             if (a.masterCode != null && _bagian(a)) a.masterCode,
         ],
         'description': t.description,
+        'reversedBy': f.k.posted
+            .where((x) => x.reversalOf == t.id)
+            .firstOrNull
+            ?.voucher,
+        'correctionOf': f.k.transaction(t.correctionOf)?.voucher,
         'accountIds': ids.toList(),
         'in': masuk,
         'out': keluar,

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../providers/keuangan/laporan.dart';
 
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
@@ -8,17 +11,18 @@ import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import 'format_laporan_bagian.dart';
 import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
 
 /// Web · Persetujuan format laporan (screens/07-kejadian.md).
-class WebFormatLaporanScreen extends StatefulWidget {
+class WebFormatLaporanScreen extends ConsumerStatefulWidget {
   const WebFormatLaporanScreen({super.key});
 
   @override
-  State<WebFormatLaporanScreen> createState() => _WebFormatLaporanScreenState();
+  ConsumerState<WebFormatLaporanScreen> createState() =>
+      _WebFormatLaporanScreenState();
 }
 
-class _WebFormatLaporanScreenState extends State<WebFormatLaporanScreen> {
+class _WebFormatLaporanScreenState
+    extends ConsumerState<WebFormatLaporanScreen> {
   final _d = DataFormatLaporan();
 
   @override
@@ -80,19 +84,23 @@ class _WebFormatLaporanScreenState extends State<WebFormatLaporanScreen> {
               tumbuh: 999,
               child: _kolom(
                 16,
-                kartuFormat(context, [
+                kartuFormat(context, ref, [
                   tombolContoh('Lihat contoh PDF', ke: Layar.paketLaporan),
                   tombolContoh(
                     'Lihat contoh Excel',
                     ke: Layar.laporanResmi,
-                    param: {'periode': belumDipindahId, 'bentuk': 'excel'},
+                    param: {
+                      'periode':
+                          ref.watch(laporanBulanProvider)?.periode.id ?? '',
+                      'bentuk': 'excel',
+                    },
                   ),
                 ]),
               ),
             ),
             Lentur(
               dasar: 380,
-              child: _kolom(14, bagianPersetujuan(context, _d, setState)),
+              child: _kolom(14, bagianPersetujuan(context, ref, _d, setState)),
             ),
           ],
         ),

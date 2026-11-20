@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../mock/mock.dart';
+import '../../providers/keuangan/akhir_bulan.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tekan.dart';
+import '../../widgets/tombol.dart';
 import 'kejadian_bagian.dart';
 import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
 
 /// 22 · Kejadian setelah tutup buku (07-kejadian.md). Owns the board state
 /// shared by `/Kejadian` (list) and `/Kejadian/rinci` (detail).
@@ -43,29 +44,28 @@ class _Lingkup extends InheritedNotifier<KeadaanKejadian> {
       context.dependOnInheritedWidgetOfExactType<_Lingkup>()!.notifier!;
 }
 
-class KejadianScreen extends StatelessWidget {
+class KejadianScreen extends ConsumerWidget {
   const KejadianScreen({super.key, this.anak, this.param = const {}});
   final String? anak;
   final Map<String, String> param;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final s = _Lingkup.of(context);
-    final hambat = belumDipindah<bool>(true);
-    return anak == 'rinci'
-        ? _Rinci(s: s, hambat: hambat)
-        : _Daftar(s: s, hambat: hambat);
+    final d = ref.watch(kejadianProvider);
+    return anak == 'rinci' ? _Rinci(s: s, d: d) : _Daftar(s: s, d: d);
   }
 }
 
 class _Daftar extends StatelessWidget {
-  const _Daftar({required this.s, required this.hambat});
+  const _Daftar({required this.s, required this.d});
   final KeadaanKejadian s;
-  final bool hambat;
+  final DaftarKejadian d;
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
+    final hambat = d.hambatan > 0 && d.butir.isNotEmpty;
     // The board unmounts the list while the detail is open; hide it under the
     // detail's `masuk` so it does not show through the fade.
     final atas = ModalRoute.of(context)?.isCurrent ?? true;
@@ -86,20 +86,32 @@ class _Daftar extends StatelessWidget {
               child: KolomCelah(
                 celah: 12,
                 anak: [
-                  if (hambat) const PernyataanHambatan(),
-                  for (final k in kejadian)
+                  if (hambat) PernyataanHambatan(d: d),
+                  if (s.membuka)
+                    FormKejadian(
+                      s: s,
+                      onCatat: () =>
+                          context.dorongKe(Layar.kejadian, anak: 'rinci'),
+                    )
+                  else if (d.ditutup != null)
+                    Tombol(
+                      'Catat kejadian baru',
+                      jenis: JenisTombol.kedua,
+                      onPressed: s.buka,
+                    ),
+                  for (final b in d.butir)
                     Tekan(
                       radius: 14,
                       onTap: () {
-                        s.pick(k.no);
+                        s.pick(b.kejadian.id);
                         context.dorongKe(Layar.kejadian, anak: 'rinci');
                       },
-                      child: Kartu(
-                        child: IsiKartuKejadian(
-                          k: k,
-                          selesai: s.sel(k).isNotEmpty,
-                        ),
-                      ),
+                      child: Kartu(child: IsiKartuKejadian(b: b)),
+                    ),
+                  if (d.butir.isEmpty)
+                    Text(
+                      'Belum ada kejadian.',
+                      style: TextStyle(fontSize: 14, color: c.tinta2),
                     ),
                   Text(
                     'Kejadian dicatat dari transaksi di bulan yang sudah '
@@ -117,25 +129,30 @@ class _Daftar extends StatelessWidget {
 }
 
 class _Rinci extends StatelessWidget {
-  const _Rinci({required this.s, required this.hambat});
+  const _Rinci({required this.s, required this.d});
   final KeadaanKejadian s;
-  final bool hambat;
+  final DaftarKejadian d;
 
   @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      KepalaPonsel(
-        judul: 'Kejadian',
-        // `tutupRinci`: back to the list view.
-        onKembali: () => context.naikKe(Layar.kejadian),
-      ),
-      Expanded(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-          child: RinciKejadian(s: s, hambat: hambat),
+  Widget build(BuildContext context) {
+    final b = s.cur(d);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        KepalaPonsel(
+          judul: 'Kejadian',
+          // `tutupRinci`: back to the list view.
+          onKembali: () => context.naikKe(Layar.kejadian),
         ),
-      ),
-    ],
-  );
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+            child: b == null
+                ? const SizedBox.shrink()
+                : RinciKejadian(b: b, d: d),
+          ),
+        ),
+      ],
+    );
+  }
 }

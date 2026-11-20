@@ -1,14 +1,22 @@
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../app/layar.dart';
 import '../../core/format.dart';
-import '../../mock/mock.dart' show plk2;
+import '../../domain/core/core.dart';
+import '../../domain/finance/finance.dart';
 import '../../motion/hitung.dart';
 import '../../motion/kerangka.dart';
 import '../../motion/ulang.dart';
 import '../../motion/urutan.dart';
+import '../../providers/actor.dart';
+import '../../providers/core_repositories.dart';
+import '../../providers/keuangan/akhir_bulan.dart';
+import '../../providers/keuangan/beranda.dart';
+import '../../providers/repositories_keuangan.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import '../../shell/tautan.dart';
@@ -18,70 +26,33 @@ import '../../widgets/garis_status.dart';
 import '../../widgets/ikon.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
+import '../../widgets/penolakan.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
-import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
 
 final _akar = Layar.tutupBuku.jalur;
 final _cek = '$_akar/cek';
 
-const _syarat = [
-  'bulan sebelumnya sudah ditutup',
-  'semua 3 kas/bank sudah direkonsiliasi',
-  'Mata Anggaran sudah dipilih untuk semua transaksi',
-  'persetujuan yang wajib sudah dicatat',
-  'dokumen pendukung wajib sudah terverifikasi atau dikecualikan',
-  'tidak ada transaksi Draf atau Sudah diperiksa',
-  'tidak ada baris impor yang tertunda',
-  'persetujuan format laporan sudah dicatat',
-];
-
-typedef _Hambatan = ({String j, String s, String tombol, VoidCallback aksi});
-
 enum _Fase { konfirmasi, proses, gagal }
 
-enum _File { siap0, siap, gagal }
-
-/// The board's state object, shared by `/TutupBuku` and its child routes.
+/// UI state shared by `/tutup-buku` and its child routes: the statement
+/// tick, the close phase and the last refusal. Every figure is read from
+/// the month-end read models (README 5.6).
 class _Papan extends ChangeNotifier {
   late GoRouter router;
 
-  bool perjalanan = false, biaya = false, pasti = false, centang = false;
-  bool tutup = false, sudahGagal = false, drafBaru = false;
-  _File pdf = _File.siap0, xls = _File.siap0;
+  bool centang = false;
   _Fase fase = _Fase.konfirmasi;
-  Timer? _t2, _t4, _t5;
+  Refusal? tolak;
+  Timer? _t;
 
   void _ubah(void Function() f) {
     f();
     notifyListeners();
   }
 
-  int get selisih =>
-      (24615000 - (biaya ? 15000 : 0)) - (24100000 + (perjalanan ? 500000 : 0));
-
-  List<_Hambatan> get hambatan => [
-    if (!pasti)
-      (
-        j: 'Bank BNI ··4821 belum direkonsiliasi',
-        s: selisih == 0
-            ? 'Selisih sudah Rp0, rekonsiliasi belum dipastikan'
-            : 'Selisih belum dijelaskan ${rp(selisih)}',
-        tombol: 'Buka rekonsiliasi',
-        aksi: () => router.push('$_akar/rekonsiliasi'),
-      ),
-    if (drafBaru)
-      (
-        j: '1 transaksi Draf bertanggal Oktober 2026',
-        s: 'Fotokopi liturgi · Rp85.000 · bukukan, pindah tanggal atau batalkan',
-        tombol: 'Buka draf',
-        aksi: () => _ubah(() => drafBaru = false),
-      ),
-  ];
-
   /// Pops down to [lokasi] when it is in the stack; otherwise pops to
-  /// `/TutupBuku` and pushes it (a child URL opened directly).
+  /// `/tutup-buku` and pushes it (a child URL opened directly).
   void _naik(String lokasi) {
     var t = tumpukanHalaman(router);
     final sasaran = t.contains(lokasi) ? lokasi : _akar;
@@ -104,86 +75,58 @@ class _Papan extends ChangeNotifier {
   void keKonfirmasi() {
     _ubah(() {
       centang = false;
+      tolak = null;
       fase = _Fase.konfirmasi;
     });
     router.push('$_akar/konfirmasi');
   }
 
-  void rekon({bool? perjalanan, bool? biaya}) => _ubah(() {
-    pasti = false;
-    this.perjalanan = perjalanan ?? this.perjalanan;
-    this.biaya = biaya ?? this.biaya;
-  });
+  void keRekon() {
+    _ubah(() => tolak = null);
+    router.push('$_akar/rekonsiliasi');
+  }
 
-  void pastikan() => _ubah(() => pasti = true);
   void ubahCentang(bool v) => _ubah(() => centang = v);
+  void tampilkan(Refusal? r) => _ubah(() => tolak = r);
 
-  void tutupBuku(bool gagalTweak) {
-    final gagal = gagalTweak && !sudahGagal;
+  /// "Tutup buku": the command runs at once; the board's progress view
+  /// shows before the closed view.
+  Future<void> tutupBuku(WidgetRef ref, Period p, String pernyataan) async {
     _ubah(() => fase = _Fase.proses);
-    _t2?.cancel();
-    _t2 = Timer(const Duration(milliseconds: 1500), () {
-      if (gagal) {
-        _ubah(() {
-          fase = _Fase.gagal;
-          sudahGagal = true;
-          drafBaru = true;
-          centang = false;
-        });
-        return;
-      }
-      _ubah(() {
-        tutup = true;
-        pdf = xls = _File.siap0;
-      });
-      _naik(_akar);
-      router.push('$_akar/ditutup');
-      _t4?.cancel();
-      _t4 = Timer(const Duration(milliseconds: 3600), _fileSelesai);
-    });
-  }
-
-  void _fileSelesai() => _ubah(() {
-    pdf = _File.siap;
-    xls = _File.gagal;
-  });
-
-  /// `/TutupBuku/ditutup` opened directly (01-main.md, Internal views).
-  void masukDitutup() {
-    if (!tutup) _ubah(() => tutup = true);
-    if (pdf == _File.siap0 && !(_t4?.isActive ?? false)) {
-      _t4 = Timer(const Duration(milliseconds: 3600), _fileSelesai);
-    }
-  }
-
-  void xlsCoba() {
-    _ubah(() => xls = _File.siap0);
-    _t5?.cancel();
-    _t5 = Timer(
-      const Duration(milliseconds: 1800),
-      () => _ubah(() => xls = _File.siap),
+    final r = await perintah(
+      ref,
+      (a, k) => ref
+          .read(periodRepositoryProvider)
+          .close(
+            a,
+            p.id,
+            pernyataan,
+            expectedRevision: p.revision,
+            idempotencyKey: k,
+          ),
     );
+    if (r is Refused<ReportSnapshot>) {
+      _ubah(() {
+        fase = _Fase.gagal;
+        tolak = r.refusal;
+        centang = false;
+      });
+      return;
+    }
+    _t?.cancel();
+    _t = Timer(_lamaProses, _keDitutup); // tiruan: tutup buku sedang diproses
   }
 
-  void _batalWaktu() {
-    _t2?.cancel();
-    _t4?.cancel();
-    _t5?.cancel();
-  }
+  static const _lamaProses = Duration(milliseconds: 1500);
 
-  void ulang() {
-    _batalWaktu();
-    _ubah(() {
-      perjalanan = biaya = pasti = centang = false;
-      tutup = sudahGagal = drafBaru = false;
-      pdf = xls = _File.siap0;
-      fase = _Fase.konfirmasi;
-    });
+  void _keDitutup() {
+    _naik(_akar);
+    router.push('$_akar/ditutup');
   }
 
   @override
   void dispose() {
-    _batalWaktu();
+    _t?.cancel();
     super.dispose();
   }
 }
@@ -234,6 +177,32 @@ class TutupBukuScreen extends StatelessWidget {
     'ditutup' => const _Ditutup(),
     _ => const _Bulan(),
   };
+}
+
+/// The last closed period, for the closed view.
+Period? _terakhirDitutup(List<Period> semua) =>
+    (semua.where((p) => p.isClosed).toList()..sort(
+          (a, b) =>
+              (a.closedAt ?? DateTime(0)).compareTo(b.closedAt ?? DateTime(0)),
+        ))
+        .lastOrNull;
+
+/// 'Periode laporan 1–31 {bulan}', with the cutover note on the first.
+String periodeLaporan(Period p, {required bool pertama}) =>
+    'Periode laporan ${rentangPeriode(p)}'
+    '${pertama ? ', sejak tanggal mulai pencatatan' : ''}';
+
+/// Opens a blocker's screen: its child route on TutupBuku, else its Layar.
+void bukaHambatan(
+  BuildContext context,
+  ButirHambatan h, {
+  VoidCallback? rekon,
+}) {
+  if (h.ke == Layar.tutupBuku && h.anak == 'rekonsiliasi' && rekon != null) {
+    rekon();
+    return;
+  }
+  context.dorongKe(h.ke, param: h.param, anak: h.anak);
 }
 
 // ---------------------------------------------------------------- bits
@@ -342,26 +311,104 @@ Widget _muncul(Widget child, {String? kunci, int ms = 300, int tunda = 0}) =>
 
 // ---------------------------------------------------------------- A. Bulan
 
-class _Bulan extends StatefulWidget {
+class _Bulan extends ConsumerWidget {
   const _Bulan();
-  @override
-  State<_Bulan> createState() => _BulanState();
-}
-
-class _BulanState extends State<_Bulan> {
-  /// The closed October card has played `cap` (it plays once, when Bulan is
-  /// seen again after the close).
-  bool _capDiputar = false;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
     final p = _Lingkup.of(context);
-    final jk = belumDipindah(false);
-    final terlihat = ModalRoute.of(context)?.isCurrent ?? true;
-    final nHambatan = p.hambatan.length;
-    final kartuTutup = p.tutup && (terlihat || _capDiputar);
-    if (kartuTutup) _capDiputar = true;
+    final tb = ref.watch(tutupBukuProvider);
+    final hari = ref.watch(hariIniProvider);
+    final kas = ref.watch(hitungKasProvider);
+    final orang = ref.watch(peopleRepositoryProvider);
+    final berikut = tb.periode;
+    final semua = tb.bulan.semua;
+    final bulan = [
+      for (final x in semua.reversed)
+        if (x.start <= hari) x,
+    ];
+    final kasLabel = kas?.terakhir == null
+        ? 'Hitung kas · Kas belum dihitung'
+        : 'Hitung kas · ${rp(kas!.terakhir!.total)} · '
+              '${tgl(kas.terakhir!.countedAt)}';
+    Widget kartu(Period x) {
+      final nama = namaBulan(x);
+      if (x.isClosed) {
+        final oleh = x.closedBy == null
+            ? null
+            : orang.person(x.closedBy!)?.shortName ??
+                  orang.person(x.closedBy!)?.name;
+        return _KartuTutup(
+          periode: x,
+          teks:
+              '${periodeLaporan(x, pertama: x == semua.first)}'
+              '${oleh == null || x.closedAt == null ? '' : ' · ditutup oleh $oleh, ${tglJam(x.closedAt!)}'}',
+        );
+      }
+      final berjalan = x == tb.bulan.berjalan;
+      if (berjalan) {
+        return _KartuBulan(
+          bulan: nama,
+          garis: x == berikut
+              ? Border.all(color: c.tinta, width: 2)
+              : Border.all(color: c.garis),
+          anak: [
+            Text(
+              x == berikut
+                  ? 'Berikutnya untuk tutup buku · bulan berjalan'
+                  : 'Bulan berjalan · menunggu ${berikut == null ? '' : namaBulan(berikut)} ditutup',
+              style: TextStyle(fontSize: 14, color: c.tinta2),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Tautan(
+                ke: Layar.hitungKas,
+                radius: 12,
+                child: RupaTombol(
+                  label: kasLabel,
+                  isi: null,
+                  garis: GarisBorder.penuh(c.tinta, radius: 12),
+                  warnaTeks: c.tinta,
+                  radius: 12,
+                  tinggi: 47,
+                  paddingH: 0,
+                ),
+              ),
+            ),
+          ],
+        );
+      }
+      final n = x == berikut ? tb.hambatan.length : 0;
+      return _KartuBulan(
+        bulan: nama,
+        garis: Border.all(
+          color: x == berikut ? c.tinta : c.garis,
+          width: x == berikut ? 2 : 1,
+        ),
+        anak: [
+          Text(
+            x == berikut
+                ? 'Berikutnya untuk tutup buku · '
+                      '${n > 0 ? '$n hambatan' : 'tidak ada hambatan'}'
+                : 'Menunggu ${berikut == null ? '' : namaBulan(berikut)} ditutup',
+            style: TextStyle(fontSize: 14, color: c.tinta2),
+          ),
+          if (x == berikut)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: _tombol(
+                'Periksa kesiapan tutup buku',
+                onTap: p.keCek,
+                isi: c.laut,
+                teks: c.diLaut,
+                tinggi: 48,
+              ),
+            ),
+        ],
+      );
+    }
+
     return ColoredBox(
       color: c.kertas,
       child: Gerak(
@@ -390,73 +437,7 @@ class _BulanState extends State<_Bulan> {
                   style: TextStyle(fontSize: 14, color: c.tinta2),
                 ),
               ),
-              _KartuBulan(
-                bulan: 'November 2026',
-                garis: Border.all(color: c.garis),
-                anak: [
-                  Text(
-                    p.tutup
-                        ? 'Berikutnya untuk tutup buku · bulan berjalan'
-                        : 'Bulan berjalan · menunggu Oktober ditutup',
-                    style: TextStyle(fontSize: 14, color: c.tinta2),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 6),
-                    // An `<a>` is content-box: min height 44 + the 1.5 line.
-                    child: Tautan(
-                      ke: Layar.hitungKas,
-                      radius: 12,
-                      child: RupaTombol(
-                        label: 'Hitung kas · Kas belum dihitung',
-                        isi: null,
-                        garis: GarisBorder.penuh(c.tinta, radius: 12),
-                        warnaTeks: c.tinta,
-                        radius: 12,
-                        tinggi: 47,
-                        paddingH: 0,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              if (kartuTutup)
-                Gerak(
-                  Kerangka.capSegel,
-                  key: const ValueKey('oktober-tutup'),
-                  lama: const Duration(milliseconds: 500),
-                  kurva: PalakatMotion.keluar,
-                  child: _KartuTutup(
-                    bulan: 'Oktober 2026',
-                    teks:
-                        'Periode laporan 1–31 Oktober 2026 · ditutup oleh ${plk2(jk)}, 16/11/2026 11.05',
-                  ),
-                )
-              else if (!p.tutup)
-                _KartuBulan(
-                  bulan: 'Oktober 2026',
-                  garis: Border.all(color: c.tinta, width: 2),
-                  anak: [
-                    Text(
-                      'Berikutnya untuk tutup buku · '
-                      '${nHambatan > 0 ? '$nHambatan hambatan' : 'tidak ada hambatan'}',
-                      style: TextStyle(fontSize: 14, color: c.tinta2),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8),
-                      child: _tombol(
-                        'Periksa kesiapan tutup buku',
-                        onTap: p.keCek,
-                        isi: c.laut,
-                        teks: c.diLaut,
-                        tinggi: 48,
-                      ),
-                    ),
-                  ],
-                ),
-              const _KartuTutup(
-                bulan: 'September 2026',
-                teks: 'Periode laporan 15–30 September 2026, sejak tanggal mulai pencatatan',
-              ),
+              for (final x in bulan) kartu(x),
             ],
           ),
         ),
@@ -494,10 +475,12 @@ class _KartuBulan extends StatelessWidget {
   );
 }
 
-/// A closed month: the `ditutup` (tinta) card.
+/// A closed month: the `ditutup` (tinta) card; its report line opens the
+/// official F01.
 class _KartuTutup extends StatelessWidget {
-  const _KartuTutup({required this.bulan, required this.teks});
-  final String bulan, teks;
+  const _KartuTutup({required this.periode, required this.teks});
+  final Period periode;
+  final String teks;
 
   @override
   Widget build(BuildContext context) {
@@ -516,18 +499,25 @@ class _KartuTutup extends StatelessWidget {
           spacing: 6,
           children: [
             _judulBulan(
-              bulan,
+              namaBulan(periode),
               const LencanaStatus(
                 'Sudah ditutup',
                 bentuk: BentukLencana.terbalik,
               ),
             ),
             Text(teks, style: TextStyle(fontSize: 14, color: c.diTinta2)),
-            const Padding(
-              padding: EdgeInsets.only(top: 4),
-              child: Text(
-                'Laporan resmi · PDF · Excel',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Tautan(
+                ke: Layar.laporanResmi,
+                param: {'periode': periode.id, 'bentuk': 'f01'},
+                child: const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Laporan resmi · PDF · Excel',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                  ),
+                ),
               ),
             ),
           ],
@@ -539,21 +529,30 @@ class _KartuTutup extends StatelessWidget {
 
 // ---------------------------------------------------------------- B. Cek
 
-class _Cek extends StatelessWidget {
+class _Cek extends ConsumerWidget {
   const _Cek();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
     final p = _Lingkup.of(context);
-    final hambatan = p.hambatan;
+    final tb = ref.watch(tutupBukuProvider);
+    final nama = tb.periode == null ? '' : namaBulan(tb.periode!);
+    final hambatan = tb.hambatan;
     final kosong = hambatan.isEmpty;
+    final tahu = [
+      if (tb.uangMuka > 0)
+        '${tb.uangMuka} uang muka dengan sisa belum dipertanggungjawabkan',
+      if (tb.dalamPerjalanan > 0)
+        '${tb.dalamPerjalanan} setoran dalam perjalanan (belum tercatat di '
+            'rekening koran)',
+    ];
     return ColoredBox(
       color: c.kertas,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          KepalaPonsel(judul: 'Tutup buku Oktober 2026', onKembali: p.keBulan),
+          KepalaPonsel(judul: 'Tutup buku $nama', onKembali: p.keBulan),
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
@@ -592,14 +591,14 @@ class _Cek extends StatelessWidget {
                               spacing: 4,
                               children: [
                                 Text(
-                                  h.j,
+                                  h.judul,
                                   style: const TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w700,
                                   ),
                                 ),
                                 Text(
-                                  h.s,
+                                  h.sub,
                                   style: TextStyle(
                                     fontSize: 14,
                                     color: c.tinta2,
@@ -609,7 +608,11 @@ class _Cek extends StatelessWidget {
                                   padding: const EdgeInsets.only(top: 8),
                                   child: Tombol(
                                     h.tombol,
-                                    onPressed: h.aksi,
+                                    onPressed: () => bukaHambatan(
+                                      context,
+                                      h,
+                                      rekon: p.keRekon,
+                                    ),
                                     jenis: JenisTombol.tinta,
                                     ukuran: UkuranTombol.kecil,
                                     paddingH: 6,
@@ -632,14 +635,17 @@ class _Cek extends StatelessWidget {
                           color: c.lautLembut,
                           borderRadius: BorderRadius.circular(14),
                         ),
-                        child: const Row(
+                        child: Row(
                           spacing: 12,
                           children: [
-                            PalakatIkon(Ikon.terpenuhi, ukuran: 26),
+                            const PalakatIkon(Ikon.terpenuhi, ukuran: 26),
                             Expanded(
                               child: Text(
-                                'Tidak ada hambatan. Oktober 2026 siap ditutup.',
-                                style: TextStyle(
+                                tb.sudahBerakhir
+                                    ? 'Tidak ada hambatan. $nama siap ditutup.'
+                                    : 'Tidak ada hambatan. $nama dapat '
+                                          'ditutup setelah bulannya berakhir.',
+                                style: const TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w700,
                                 ),
@@ -657,37 +663,34 @@ class _Cek extends StatelessWidget {
                         padding: EdgeInsets.only(bottom: 6),
                         child: JudulBagian('Syarat wajib'),
                       ),
-                      for (final (i, t) in _syarat.indexed)
-                        _syaratBaris(c, p, i, t),
+                      for (final s in tb.syarat) _syaratBaris(c, s),
                     ],
                   ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    spacing: 6,
-                    children: [
-                      const JudulBagian('Untuk diketahui'),
-                      Text(
-                        'Tidak menghalangi tutup buku.',
-                        style: TextStyle(fontSize: 13, color: c.tinta3),
-                      ),
-                      for (final d in [
-                        '2 uang muka dengan sisa belum dipertanggungjawabkan',
-                        if (p.perjalanan) '1 setoran dalam perjalanan (belum tercatat di rekening koran)',
-                      ])
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 3),
-                          child: Text(
-                            d,
-                            style: TextStyle(fontSize: 14, color: c.tinta2),
-                          ),
+                  if (tahu.isNotEmpty)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      spacing: 6,
+                      children: [
+                        const JudulBagian('Untuk diketahui'),
+                        Text(
+                          'Tidak menghalangi tutup buku.',
+                          style: TextStyle(fontSize: 13, color: c.tinta3),
                         ),
-                    ],
-                  ),
+                        for (final d in tahu)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 3),
+                            child: Text(
+                              d,
+                              style: TextStyle(fontSize: 14, color: c.tinta2),
+                            ),
+                          ),
+                      ],
+                    ),
                 ],
               ),
             ),
           ),
-          if (kosong)
+          if (tb.siap)
             _muncul(
               kunci: 'kaki-cek',
               _kaki(context, [
@@ -703,13 +706,8 @@ class _Cek extends StatelessWidget {
     );
   }
 
-  Widget _syaratBaris(PalakatWarna c, _Papan p, int i, String t) {
-    final no = (i == 1 && !p.pasti) || (i == 5 && p.drafBaru);
-    final teks = i == 1 && !p.pasti
-        ? '2 dari 3 kas/bank sudah direkonsiliasi'
-        : i == 5 && p.drafBaru
-        ? 'masih ada 1 transaksi Draf'
-        : t;
+  Widget _syaratBaris(PalakatWarna c, Syarat s) {
+    final no = !s.terpenuhi;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Row(
@@ -729,7 +727,7 @@ class _Cek extends StatelessWidget {
                 ),
           Expanded(
             child: Text(
-              teks,
+              s.teks,
               style: TextStyle(
                 fontSize: 14,
                 color: no ? c.bata : c.tinta,
@@ -745,15 +743,44 @@ class _Cek extends StatelessWidget {
 
 // ---------------------------------------------------------------- C. Rekonsiliasi
 
-class _Rekon extends StatelessWidget {
+class _Rekon extends ConsumerWidget {
   const _Rekon();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
     final p = _Lingkup.of(context);
-    final nol = p.selisih == 0;
-    final (bg, fg, bd) = p.pasti
+    final id = ref.watch(akunRekonProvider);
+    final r = id == null ? null : ref.watch(rekonAkunProvider(id));
+    if (r == null || r.sesi == null) {
+      return ColoredBox(
+        color: c.kertas,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            KepalaPonsel(judul: 'Rekonsiliasi', onKembali: p.keCek),
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: 12,
+                children: [
+                  Text(
+                    'Belum ada rekening koran untuk direkonsiliasi.',
+                    style: TextStyle(fontSize: 15, color: c.tinta2),
+                  ),
+                  _tautan(ke: Layar.rekeningKoran, teks: 'Isi rekening koran'),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+    final nol = r.selisih == 0;
+    final pasti = r.dipastikan;
+    final berikut = bulanSesudah(r.periode);
+    final (bg, fg, bd) = pasti
         ? (c.laut, c.diLaut, c.laut)
         : (null, c.tinta2, c.tinta3);
     final lencana = Container(
@@ -764,7 +791,7 @@ class _Rekon extends StatelessWidget {
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
-        p.pasti ? 'Sudah dipastikan' : 'Sedang dikerjakan',
+        r.status,
         style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: fg),
       ),
     );
@@ -777,6 +804,13 @@ class _Rekon extends StatelessWidget {
         Text(b, style: _mono.copyWith(fontSize: 14)),
       ],
     );
+    final pasangan = [
+      for (final m in r.mutasi)
+        if (m.lunas &&
+            m.cocok.length == 1 &&
+            m.cocok.first.sourceRef == m.baris.description)
+          m,
+    ];
     return ColoredBox(
       color: c.kertas,
       child: Column(
@@ -784,7 +818,7 @@ class _Rekon extends StatelessWidget {
         children: [
           KepalaPonsel(
             judul: 'Rekonsiliasi',
-            anakJudul: 'Bank BNI ··4821 · Oktober 2026',
+            anakJudul: '${r.akun.name} · ${namaBulan(r.periode)}',
             onKembali: p.keCek,
             ujung: lencana,
           ),
@@ -818,19 +852,27 @@ class _Rekon extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       spacing: 8,
                       children: [
+                        ringkas('Saldo buku', rp(r.buku)),
                         ringkas(
-                          'Saldo buku',
-                          rp(24615000 - (p.biaya ? 15000 : 0)),
+                          'Saldo rekening koran',
+                          r.amati == null ? kosong : rp(r.amati!),
                         ),
-                        ringkas('Saldo rekening koran', 'Rp24.100.000'),
-                        if (p.perjalanan)
+                        if (r.setor > 0)
                           _muncul(
                             kunci: 'ringkas-perjalanan',
-                            ringkas('Setoran dalam perjalanan', '+ Rp500.000'),
+                            ringkas(
+                              'Setoran dalam perjalanan',
+                              rpBeda(r.setor),
+                            ),
+                          ),
+                        if (r.bayar > 0)
+                          ringkas(
+                            'Pembayaran dalam perjalanan',
+                            rpBeda(-r.bayar),
                           ),
                         ringkas(
                           'Saldo pembanding',
-                          rp(24100000 + (p.perjalanan ? 500000 : 0)),
+                          r.pembanding == null ? kosong : rp(r.pembanding!),
                         ),
                         Container(
                           padding: const EdgeInsets.only(top: 10),
@@ -854,7 +896,7 @@ class _Rekon extends StatelessWidget {
                                 ),
                               ),
                               Hitung(
-                                nilai: p.selisih,
+                                nilai: r.selisih ?? 0,
                                 builder: (ctx, n) => AnimatedDefaultTextStyle(
                                   duration: ctx.gerak(
                                     const Duration(milliseconds: 300),
@@ -876,99 +918,106 @@ class _Rekon extends StatelessWidget {
                       ],
                     ),
                   ),
-                  if (!p.perjalanan || !p.biaya)
+                  if (r.belumCocok.isNotEmpty || r.belumDiKoran.isNotEmpty)
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       spacing: 10,
                       children: [
                         const JudulBagian('Belum cocok'),
-                        if (!p.perjalanan)
+                        for (final t in r.belumDiKoran)
                           _BelumCocok(
                             jenis: 'Transaksi · belum ada di rekening koran',
-                            judul: 'Setoran ke bank',
-                            jumlah: 'Rp500.000',
+                            judul: t.description,
+                            jumlah: rp(diAkun(t, r.akun.id)),
                             rinci: Text.rich(
                               TextSpan(
                                 children: [
                                   TextSpan(
-                                    text: 'BKU-2026-0131',
+                                    text: t.voucher,
                                     style: _mono.copyWith(
                                       fontWeight: FontWeight.w400,
                                     ),
                                   ),
-                                  const TextSpan(text: ' · 31/10/2026'),
+                                  TextSpan(text: ' · ${t.effectiveDate}'),
                                 ],
                               ),
                             ),
                             tombol: 'Tandai dalam perjalanan',
-                            aksi: () => p.rekon(perjalanan: true),
+                            aksi: () async => p.tampilkan(
+                              await AksiRekon.dalamPerjalanan(
+                                ref,
+                                r,
+                                t,
+                                berikut,
+                              ),
+                            ),
                             catatan: 'Dibawa ke bulan berikutnya',
                           ),
-                        if (!p.biaya)
-                          _BelumCocok(
-                            jenis: 'Mutasi bank · belum ada transaksinya',
-                            judul: 'BIAYA ADM',
-                            jumlah: '−Rp15.000',
-                            rinci: const Text(
-                              '31/10/2026 · sisa belum dicocokkan: Rp15.000',
-                            ),
-                            tombol: 'Buat transaksi dari mutasi ini',
-                            aksi: () => p.rekon(biaya: true),
-                            catatan:
-                                'Belanja 5.03.03.00 Biaya administrasi bank',
-                          ),
+                        for (final m in r.belumCocok)
+                          _kartuMutasi(context, ref, p, r, m),
                       ],
                     ),
-                  if (p.perjalanan)
+                  if (r.dalamPerjalanan.isNotEmpty)
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       spacing: 10,
                       children: [
                         const JudulBagian('Dalam perjalanan'),
-                        _muncul(
-                          kunci: 'kartu-perjalanan',
-                          Kartu(
-                            status: GarisStatus.draf,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
-                            child: Row(
-                              spacing: 12,
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        'Setoran dalam perjalanan',
-                                        style: TextStyle(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w600,
+                        for (final t in r.dalamPerjalanan)
+                          _muncul(
+                            kunci: 'kartu-perjalanan-${t.id}',
+                            Kartu(
+                              status: GarisStatus.draf,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12,
+                              ),
+                              child: Row(
+                                spacing: 12,
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          diAkun(t, r.akun.id) > 0
+                                              ? 'Setoran dalam perjalanan'
+                                              : 'Pembayaran dalam perjalanan',
+                                          style: const TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
-                                      ),
-                                      Text(
-                                        'Rp500.000 · dibawa ke November 2026',
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          color: c.tinta3,
+                                        Text(
+                                          '${rp(diAkun(t, r.akun.id).abs())} · '
+                                          'dibawa ke $berikut',
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            color: c.tinta3,
+                                          ),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                Tombol(
-                                  'Lepaskan',
-                                  onPressed: () => p.rekon(perjalanan: false),
-                                  jenis: JenisTombol.teks,
-                                  lebarPenuh: false,
-                                  paddingH: 12,
-                                ),
-                              ],
+                                  Tombol(
+                                    'Lepaskan',
+                                    onPressed: () async => p.tampilkan(
+                                      await AksiRekon.dalamPerjalanan(
+                                        ref,
+                                        r,
+                                        t,
+                                        berikut,
+                                      ),
+                                    ),
+                                    jenis: JenisTombol.teks,
+                                    lebarPenuh: false,
+                                    paddingH: 12,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
                       ],
                     ),
                   Column(
@@ -982,7 +1031,7 @@ class _Rekon extends StatelessWidget {
                             children: [
                               const TextSpan(text: 'Cocok '),
                               TextSpan(
-                                text: '· ${p.biaya ? 13 : 12} mutasi bank',
+                                text: '· ${r.cocok} mutasi bank',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w500,
                                   color: c.tinta3,
@@ -997,9 +1046,11 @@ class _Rekon extends StatelessWidget {
                           ),
                         ),
                       ),
-                      if (p.biaya) const _PasanganCocok(),
+                      for (final m in pasangan)
+                        _PasanganCocok(akun: r.akun.id, mutasi: m),
                       Text(
-                        '12 mutasi bank lain sudah cocok dengan transaksinya.',
+                        '${r.cocok - pasangan.length} mutasi bank lain sudah '
+                        'cocok dengan transaksinya.',
                         style: TextStyle(fontSize: 14, color: c.tinta2),
                       ),
                     ],
@@ -1009,21 +1060,37 @@ class _Rekon extends StatelessWidget {
             ),
           ),
           _kaki(context, [
-            if (!nol)
+            if (p.tolak != null)
+              Penolakan(
+                tindakan: p.tolak!.action,
+                sebab: p.tolak!.because,
+                jalan: const [],
+                ukuranTeks: 14,
+              ),
+            if (!pasti && r.alasanBelum != null)
               Text(
-                'Selisih belum dijelaskan harus Rp0 sebelum rekonsiliasi dapat dipastikan.',
+                nol
+                    ? r.alasanBelum!
+                    : 'Selisih belum dijelaskan harus Rp0 sebelum '
+                          'rekonsiliasi dapat dipastikan.',
                 style: TextStyle(fontSize: 14, color: c.tinta2),
               ),
-            if (nol && !p.pasti)
+            if (!pasti && r.alasanDiperiksa != null)
+              Text(
+                r.alasanDiperiksa!,
+                style: TextStyle(fontSize: 14, color: c.tinta2),
+              ),
+            if (!pasti && r.alasanBelum == null)
               _muncul(
                 kunci: 'pastikan',
                 Tombol(
-                  'Pastikan rekonsiliasi',
-                  onPressed: p.pastikan,
+                  r.tombolPastikan,
+                  onPressed: () async =>
+                      p.tampilkan(await AksiRekon.pastikan(ref, r)),
                   paddingH: 6,
                 ),
               ),
-            if (p.pasti)
+            if (pasti)
               Tombol(
                 'Kembali ke kesiapan tutup buku',
                 onPressed: p.keCek,
@@ -1033,6 +1100,56 @@ class _Rekon extends StatelessWidget {
           ]),
         ],
       ),
+    );
+  }
+
+  Widget _kartuMutasi(
+    BuildContext context,
+    WidgetRef ref,
+    _Papan p,
+    RekonAkun r,
+    BarisMutasi m,
+  ) {
+    final draf = m.cocok.where((t) => !t.isPosted).firstOrNull;
+    final rinci =
+        '${m.baris.date} · sisa belum dicocokkan: ${rp(m.sisa.abs())}';
+    if (draf != null) {
+      return _BelumCocok(
+        jenis:
+            'Mutasi bank · transaksinya masih ${draf.status == TransactionStatus.reviewed ? 'Sudah diperiksa' : 'Draf'}',
+        judul: m.baris.description,
+        jumlah: rp(m.baris.amount),
+        rinci: Text(rinci),
+        tombol: 'Periksa dan bukukan',
+        aksi: () => context.dorongKe(Layar.draf, param: {'id': draf.id}),
+        catatan: '${draf.description} · cocok setelah dibukukan',
+      );
+    }
+    if (m.saran.isNotEmpty) {
+      return _BelumCocok(
+        jenis: 'Mutasi bank · ada transaksi yang cocok',
+        judul: m.baris.description,
+        jumlah: rp(m.baris.amount),
+        rinci: Text(rinci),
+        tombol: 'Cocokkan',
+        aksi: () async =>
+            p.tampilkan(await AksiRekon.cocokkan(ref, r, m, m.saran)),
+        catatan: m.saran
+            .map((t) => '${t.voucher} · ${rp(diAkun(t, r.akun.id))}')
+            .join(' + '),
+      );
+    }
+    final d = drafDariMutasi(m.baris, r.akun.id);
+    return _BelumCocok(
+      jenis: 'Mutasi bank · belum ada transaksinya',
+      judul: m.baris.description,
+      jumlah: rp(m.baris.amount),
+      rinci: Text(rinci),
+      tombol: 'Buat transaksi dari mutasi ini',
+      aksi: () async => p.tampilkan(await AksiRekon.buatTransaksi(ref, r, m)),
+      catatan: d.allocations.first.masterCode == null
+          ? d.description
+          : 'Belanja ${d.allocations.first.masterCode} ${d.description}',
     );
   }
 }
@@ -1080,13 +1197,17 @@ class _BelumCocok extends StatelessWidget {
   }
 }
 
-/// The matched pair after "Buat transaksi dari mutasi ini" (`kait`).
+/// A line matched to the transaction made from it (`kait`).
 class _PasanganCocok extends StatelessWidget {
-  const _PasanganCocok();
+  const _PasanganCocok({required this.akun, required this.mutasi});
+  final String akun;
+  final BarisMutasi mutasi;
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
+    final t = mutasi.cocok.first;
+    final jumlah = rp(mutasi.baris.amount);
     Widget kartu(Widget atas, String judul) => Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
@@ -1101,7 +1222,7 @@ class _PasanganCocok extends StatelessWidget {
             style: TextStyle(fontSize: 13, color: c.tinta3),
             child: atas,
           ),
-          _baris(judul, const Text('−Rp15.000', style: _mono)),
+          _baris(judul, Text(jumlah, style: _mono)),
         ],
       ),
     );
@@ -1116,7 +1237,7 @@ class _PasanganCocok extends StatelessWidget {
               Kerangka.dariKiri(40),
               lama: masuk,
               kurva: PalakatMotion.keluar,
-              child: kartu(const Text('Mutasi bank'), 'BIAYA ADM'),
+              child: kartu(const Text('Mutasi bank'), mutasi.baris.description),
             ),
             Gerak(
               Kerangka.dariKanan(40),
@@ -1128,13 +1249,13 @@ class _PasanganCocok extends StatelessWidget {
                     children: [
                       const TextSpan(text: 'Transaksi · Dibukukan · '),
                       TextSpan(
-                        text: 'BKU-2026-0133',
+                        text: t.voucher,
                         style: _mono.copyWith(fontWeight: FontWeight.w400),
                       ),
                     ],
                   ),
                 ),
-                'Biaya administrasi bank',
+                t.description,
               ),
             ),
           ],
@@ -1165,18 +1286,18 @@ class _PasanganCocok extends StatelessWidget {
 
 // ---------------------------------------------------------------- D. Konfirmasi (+ E, F)
 
-class _Konfirmasi extends StatelessWidget {
+class _Konfirmasi extends ConsumerWidget {
   const _Konfirmasi();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
     final p = _Lingkup.of(context);
-    final jk = belumDipindah(false);
+    final tb = ref.watch(tutupBukuProvider);
     final Widget isi = switch (p.fase) {
       _Fase.proses => const _Proses(key: ValueKey('proses')),
       _Fase.gagal => _Gagal(key: const ValueKey('gagal'), p: p),
-      _Fase.konfirmasi => _isiKonfirmasi(context, c, p, jk),
+      _Fase.konfirmasi => _isiKonfirmasi(context, ref, c, p, tb),
     };
     return PopScope(
       canPop: p.fase != _Fase.proses,
@@ -1186,10 +1307,16 @@ class _Konfirmasi extends StatelessWidget {
 
   Widget _isiKonfirmasi(
     BuildContext context,
+    WidgetRef ref,
     PalakatWarna c,
     _Papan p,
-    bool jk,
+    TutupBuku tb,
   ) {
+    final bulan = tb.periode;
+    if (bulan == null) return const SizedBox.shrink();
+    final nama = namaBulan(bulan);
+    final jk = penutupJabatanKosong(ref);
+    final tahu = untukDiketahuiTutup(tb);
     final pendamping = TextStyle(fontSize: 14, color: c.tinta2);
     final tebal = TextStyle(fontWeight: FontWeight.w700, color: c.tinta);
     final putih = TextStyle(fontSize: 14, color: c.diTinta);
@@ -1208,9 +1335,9 @@ class _Konfirmasi extends StatelessWidget {
                   children: [
                     Semantics(
                       header: true,
-                      child: const Text(
-                        'Tutup buku bulan Oktober 2026?',
-                        style: TextStyle(
+                      child: Text(
+                        'Tutup buku bulan $nama?',
+                        style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.w700,
                           height: 1.2,
@@ -1237,7 +1364,7 @@ class _Konfirmasi extends StatelessWidget {
                         ),
                       ),
                     ),
-                    for (final t in _syarat)
+                    for (final s in tb.syarat)
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 4),
                         child: Row(
@@ -1250,7 +1377,7 @@ class _Konfirmasi extends StatelessWidget {
                             ),
                             Expanded(
                               child: Text(
-                                t,
+                                s.teks,
                                 style: const TextStyle(fontSize: 14),
                               ),
                             ),
@@ -1259,25 +1386,24 @@ class _Konfirmasi extends StatelessWidget {
                       ),
                   ],
                 ),
-                DefaultTextStyle.merge(
-                  style: pendamping,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 4),
-                        child: Text(
-                          'Untuk diketahui (tidak menghalangi tutup buku). Tetap ditampilkan di laporan, dan yang masih tersisa dibawa ke bulan berikutnya:',
-                          style: tebal,
+                if (tahu.isNotEmpty)
+                  DefaultTextStyle.merge(
+                    style: pendamping,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 4),
+                          child: Text(
+                            'Untuk diketahui (tidak menghalangi tutup buku). Tetap ditampilkan di laporan, dan yang masih tersisa dibawa ke bulan berikutnya:',
+                            style: tebal,
+                          ),
                         ),
-                      ),
-                      const Text(
-                        '2 uang muka dengan sisa belum dipertanggungjawabkan; 1 setoran dalam perjalanan (belum tercatat di rekening koran)',
-                      ),
-                    ],
+                        Text(tahu),
+                      ],
+                    ),
                   ),
-                ),
-                const _Cakupan(),
+                _Cakupan(rentang: rentangPeriode(bulan)),
                 Container(
                   padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
@@ -1296,10 +1422,10 @@ class _Konfirmasi extends StatelessWidget {
                           color: c.permukaan,
                         ),
                       ),
-                      for (final t in const [
-                        'Buku bulan Oktober 2026 menjadi final untuk semua pengguna, siapa pun.',
-                        'Transaksi Oktober 2026 tidak dapat diubah, dibalik, atau dikoreksi, bahkan dari bulan-bulan sesudahnya.',
-                        'Laporan resmi Oktober 2026 dibekukan dan tidak akan berubah.',
+                      for (final t in [
+                        'Buku bulan $nama menjadi final untuk semua pengguna, siapa pun.',
+                        'Transaksi $nama tidak dapat diubah, dibalik, atau dikoreksi, bahkan dari bulan-bulan sesudahnya.',
+                        'Laporan resmi $nama dibekukan dan tidak akan berubah.',
                         'Kesalahan atau transaksi terlewat yang ditemukan di kemudian hari hanya dapat dicatat sebagai kejadian setelah tutup buku. Kejadian itu tidak mengubah angka apa pun, tidak menghapus selisih, dan tidak menghilangkan hambatan tutup buku.',
                         'Kesalahan seperti itu dapat menghalangi rekonsiliasi atau tutup buku bulan-bulan sesudahnya. Bulan yang tidak dapat ditutup juga menahan tutup buku semua bulan setelahnya, dan aplikasi ini tidak menyediakan cara untuk memperbaikinya.',
                       ])
@@ -1320,13 +1446,13 @@ class _Konfirmasi extends StatelessWidget {
                       const Text(
                         'Mencocokkan setoran dalam perjalanan dengan rekening koran bulan sesudahnya.',
                       ),
-                      const Text(
-                        'Melampirkan dokumen pendukung yang datang terlambat. Dokumen itu tetap disimpan, tetapi laporan resmi Oktober 2026 tidak berubah.',
+                      Text(
+                        'Melampirkan dokumen pendukung yang datang terlambat. Dokumen itu tetap disimpan, tetapi laporan resmi $nama tidak berubah.',
                       ),
                     ],
                   ),
                 ),
-                if (jk)
+                if (jk != null)
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 14,
@@ -1337,32 +1463,36 @@ class _Konfirmasi extends StatelessWidget {
                       border: Border.all(color: c.tinta, width: 1.5),
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    child: const Text.rich(
+                    child: Text.rich(
                       TextSpan(
                         children: [
-                          TextSpan(text: 'Ditutup oleh '),
+                          const TextSpan(text: 'Ditutup oleh '),
                           TextSpan(
-                            text: 'Yanti Sumual, Operator',
-                            style: TextStyle(fontWeight: FontWeight.w700),
+                            text: jk,
+                            style: const TextStyle(fontWeight: FontWeight.w700),
                           ),
-                          TextSpan(
+                          const TextSpan(
                             text: ', yang menjalankan jabatan kosong Bendahara Jemaat. Nama dan keadaan ini tercatat pada tutup buku.',
                           ),
                         ],
                       ),
-                      style: TextStyle(fontSize: 14),
+                      style: const TextStyle(fontSize: 14),
                     ),
                   ),
-                _Pernyataan(nilai: p.centang, onUbah: p.ubahCentang),
+                _Pernyataan(
+                  teks: pernyataanTutup(bulan),
+                  nilai: p.centang,
+                  onUbah: p.ubahCentang,
+                ),
               ],
             ),
           ),
         ),
         _kaki(context, jarak: 6, [
           TombolTahan(
-            'Tutup buku Oktober 2026',
+            'Tutup buku $nama',
             siap: p.centang,
-            onSelesai: () => p.tutupBuku(belumDipindah(false)),
+            onSelesai: () => p.tutupBuku(ref, bulan, pernyataanTutup(bulan)),
             petunjuk: p.centang
                 ? 'Tekan dan tahan tombol sampai penuh'
                 : 'Centang pernyataan di atas untuk melanjutkan',
@@ -1383,7 +1513,8 @@ class _Konfirmasi extends StatelessWidget {
 /// keeps its drawn inline size; a 44 px high [Tautan] is laid over it
 /// (rules-checklist X03, as for PetaLayar's small links).
 class _Cakupan extends StatelessWidget {
-  const _Cakupan();
+  const _Cakupan({required this.rentang});
+  final String rentang;
 
   static const _tautan = 'Lihat laporan sementara';
 
@@ -1392,16 +1523,17 @@ class _Cakupan extends StatelessWidget {
     final c = context.warna;
     final gaya = DefaultTextStyle.of(context).style
         .merge(const TextStyle(fontSize: 14));
-    const a = 'Laporan resmi mencakup ', b = '1–31 Oktober 2026';
+    const a = 'Laporan resmi mencakup ';
+    final b = rentang;
     // U+2060: Chrome keeps "kas/bank." together; ICU would break after "/".
     const d =
         ' untuk seluruh Jemaat: semua peruntukan dan semua kas/\u2060bank. ';
-    const awal = a.length + b.length + d.length;
+    final awal = a.length + b.length + d.length;
     final span = TextSpan(
       style: gaya,
       children: [
         const TextSpan(text: a),
-        const TextSpan(
+        TextSpan(
           text: b,
           style: TextStyle(fontWeight: FontWeight.w700),
         ),
@@ -1426,7 +1558,7 @@ class _Cakupan extends StatelessWidget {
         )..layout(maxWidth: k.maxWidth);
         final kotak = tp
             .getBoxesForSelection(
-              const TextSelection(
+              TextSelection(
                 baseOffset: awal,
                 extentOffset: awal + _tautan.length,
               ),
@@ -1468,7 +1600,12 @@ class _Cakupan extends StatelessWidget {
 
 /// The statement box: the whole bordered box toggles the checkbox.
 class _Pernyataan extends StatelessWidget {
-  const _Pernyataan({required this.nilai, required this.onUbah});
+  const _Pernyataan({
+    required this.teks,
+    required this.nilai,
+    required this.onUbah,
+  });
+  final String teks;
   final bool nilai;
   final ValueChanged<bool> onUbah;
 
@@ -1511,10 +1648,13 @@ class _Pernyataan extends StatelessWidget {
                     : null,
               ),
             ),
-            const Expanded(
+            Expanded(
               child: Text(
-                'Saya sudah membaca ringkasan dan laporan sementara. Saya mengerti bahwa tutup buku ini bersifat permanen dan transaksi Oktober 2026 tidak dapat dikoreksi lagi.',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                teks,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ],
@@ -1567,13 +1707,6 @@ class _Gagal extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: 14,
           children: [
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: LencanaStatus(
-                'Oktober 2026 · Belum ditutup',
-                bentuk: BentukLencana.garis,
-              ),
-            ),
             Semantics(
               header: true,
               child: const Text(
@@ -1585,8 +1718,14 @@ class _Gagal extends StatelessWidget {
                 ),
               ),
             ),
+            if (p.tolak != null)
+              Penolakan(
+                tindakan: p.tolak!.action,
+                sebab: p.tolak!.because,
+                jalan: const [],
+              ),
             Text(
-              'Bulan Oktober 2026 tetap belum ditutup. Mohon lihat hambatan yang baru muncul.',
+              'Bulan ini tetap belum ditutup. Mohon lihat hambatan yang baru muncul.',
               style: TextStyle(fontSize: 15, color: c.tinta2),
             ),
             Padding(
@@ -1607,48 +1746,30 @@ class _Gagal extends StatelessWidget {
 
 // ---------------------------------------------------------------- G. Ditutup
 
-class _Ditutup extends StatefulWidget {
+class _Ditutup extends ConsumerWidget {
   const _Ditutup();
-  @override
-  State<_Ditutup> createState() => _DitutupState();
-}
-
-class _DitutupState extends State<_Ditutup> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      context
-          .getInheritedWidgetOfExactType<_Lingkup>()
-          ?.notifier
-          ?.masukDitutup();
-    });
-  }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
     final p = _Lingkup.of(context);
-    final jk = belumDipindah(false);
+    final per = _terakhirDitutup(ref.watch(bulanBukuProvider).semua);
+    if (per == null) return const SizedBox.shrink();
+    final nama = namaBulan(per);
+    final oleh = ref.watch(peopleRepositoryProvider).person(per.closedBy ?? '');
     final kecil = TextStyle(fontSize: 13, color: c.diTinta2);
-    Widget unduh(
-      String label, {
-      required Layar ke,
-      required Map<String, String> param,
-    }) => _muncul(
-      kunci: param['bentuk'],
+    Widget unduh(String label, String bentuk) => _muncul(
+      kunci: bentuk,
       Tombol(
         label,
         onPressed: null,
-        ke: ke,
-        param: param,
+        ke: Layar.laporanResmi,
+        param: {'periode': per.id, 'bentuk': bentuk},
         ukuran: UkuranTombol.kecil,
         paddingH: 14,
         lebarPenuh: false,
       ),
     );
-    final xlsGagal = p.xls == _File.gagal;
     return Gerak(
       Kerangka.gelap((w) => w.kertas),
       lama: const Duration(milliseconds: 700),
@@ -1672,10 +1793,10 @@ class _DitutupState extends State<_Ditutup> {
                     children: [
                       Semantics(
                         header: true,
-                        child: const Text(
-                          'Buku bulan Oktober 2026 sudah ditutup.',
+                        child: Text(
+                          'Buku bulan $nama sudah ditutup.',
                           textAlign: TextAlign.center,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.w700,
                             height: 1.25,
@@ -1683,12 +1804,13 @@ class _DitutupState extends State<_Ditutup> {
                         ),
                       ),
                       Text(
-                        'Angka laporan resmi sudah dibekukan; file laporannya sedang disiapkan.',
+                        'Angka laporan resmi sudah dibekukan · ${per.snapshotId}',
                         textAlign: TextAlign.center,
                         style: TextStyle(fontSize: 15, color: c.diTinta2),
                       ),
                       Text(
-                        'Dikonfirmasi oleh ${plk2(jk)} · 16/11/2026 11.05',
+                        'Dikonfirmasi oleh ${oleh?.shortName ?? oleh?.name} · '
+                        '${per.closedAt == null ? '' : tglJam(per.closedAt!)}',
                         textAlign: TextAlign.center,
                         style: kecil,
                       ),
@@ -1714,61 +1836,18 @@ class _DitutupState extends State<_Ditutup> {
                         children: [
                           _BarisFile(
                             judul: 'Laporan resmi · PDF',
-                            status: p.pdf == _File.siap
-                                ? 'Siap diunduh'
-                                : 'Sedang disiapkan',
-                            aksi: p.pdf == _File.siap
-                                ? unduh(
-                                    'Unduh PDF',
-                                    ke: Layar.laporanResmi,
-                                    param: {
-                                      'periode': belumDipindahId,
-                                      'bentuk': 'f01',
-                                    },
-                                  )
-                                : null,
+                            status: 'Siap diunduh',
+                            aksi: unduh('Unduh PDF', 'f01'),
                           ),
                           _BarisFile(
                             judul: 'Laporan resmi · Excel',
                             garisAtas: true,
-                            status: xlsGagal
-                                ? 'File gagal dibuat'
-                                : p.xls == _File.siap
-                                ? 'Siap diunduh'
-                                : 'Sedang disiapkan',
-                            gagal: xlsGagal,
-                            aksi: xlsGagal
-                                ? Tombol(
-                                    'Coba lagi',
-                                    onPressed: p.xlsCoba,
-                                    jenis: JenisTombol.garisBata,
-                                    ukuran: UkuranTombol.kecil,
-                                    paddingH: 14,
-                                    lebarPenuh: false,
-                                  )
-                                : p.xls == _File.siap
-                                ? unduh(
-                                    'Unduh Excel',
-                                    ke: Layar.laporanResmi,
-                                    param: {
-                                      'periode': belumDipindahId,
-                                      'bentuk': 'excel',
-                                    },
-                                  )
-                                : null,
+                            status: 'Siap diunduh',
+                            aksi: unduh('Unduh Excel', 'excel'),
                           ),
                         ],
                       ),
                     ),
-                  ),
-                ),
-                _muncul(
-                  ms: 400,
-                  tunda: 1900,
-                  Text(
-                    'File yang gagal dibuat cukup dibuat lagi dari angka yang sama. Tutup buku tetap berlaku.',
-                    textAlign: TextAlign.center,
-                    style: kecil,
                   ),
                 ),
                 const Spacer(),
@@ -1799,12 +1878,11 @@ class _BarisFile extends StatelessWidget {
     required this.judul,
     required this.status,
     this.aksi,
-    this.gagal = false,
     this.garisAtas = false,
   });
   final String judul, status;
   final Widget? aksi;
-  final bool gagal, garisAtas;
+  final bool garisAtas;
 
   @override
   Widget build(BuildContext context) {
@@ -1832,14 +1910,7 @@ class _BarisFile extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                Text(
-                  status,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: gagal ? c.bata : c.tinta2,
-                    fontWeight: gagal ? FontWeight.w700 : FontWeight.w400,
-                  ),
-                ),
+                Text(status, style: TextStyle(fontSize: 13, color: c.tinta2)),
               ],
             ),
           ),

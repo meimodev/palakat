@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/format.dart';
-import '../../mock/mock.dart';
+import '../../providers/keuangan/beranda.dart';
+import '../../providers/keuangan/laporan.dart';
 import '../../motion/kerangka.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
@@ -16,7 +18,6 @@ import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import 'terbatas_data.dart';
 import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
 
 /// Board state `{ cari }`, shared by the list and the transaction view (the
 /// view itself, `buka`, is the route `/Terbatas/transaksi/:no`).
@@ -55,38 +56,58 @@ class _TerbatasKendaliState extends State<TerbatasKendali> {
   );
 }
 
-class TerbatasScreen extends StatelessWidget {
+/// Terbatas (phone): a Fund-only viewer's Fund (`terbatasProvider`, D27).
+class TerbatasScreen extends ConsumerWidget {
   const TerbatasScreen({super.key, this.anak, this.param = const {}});
   final String? anak;
   final Map<String, String> param;
   @override
-  Widget build(BuildContext context) =>
-      anak == null ? const _Daftar() : _Rinci(no: param['no']);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = ref.watch(terbatasProvider);
+    if (t == null) {
+      return const Padding(
+        padding: EdgeInsets.all(20),
+        child: Text('Tidak berwenang'),
+      );
+    }
+    return anak == null ? _Daftar(t: t) : _Rinci(t: t, no: param['no']);
+  }
 }
 
+/// 'peruntukan Diakonia' of [t].
+String peruntukanTerbatas(Terbatas t) => 'peruntukan ${t.dana.name}';
+
 class _Daftar extends StatelessWidget {
-  const _Daftar();
+  const _Daftar({required this.t});
+  final Terbatas t;
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
     final cari = _Cari.of(context);
-    final rows = saringTerbatas(cari.text, (r) => '${r.no} ${r.ma} ${r.tgl}');
+    final dana = t.dana.name;
+    final rows = saringTerbatas(
+      t.baris,
+      cari.text,
+      (r) => '${r.no} ${r.ma} ${r.tgl}',
+    );
     final isi = <Widget>[
-      const PitaPeran(
+      PitaPeran(
         jenis: JenisPita.peran,
-        judul: 'Akses terbatas: Peruntukan Diakonia',
-        kalimat: 'Anda hanya melihat bagian Diakonia. Bagian lain tidak ditampilkan dan tidak ikut dijumlahkan.',
+        judul: 'Akses terbatas: Peruntukan $dana',
+        kalimat:
+            'Anda hanya melihat bagian $dana. Bagian lain tidak ditampilkan '
+            'dan tidak ikut dijumlahkan.',
       ),
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            terbatasSaldoDiakoniaNovember.$1,
+            'Saldo $dana hari ini',
             style: TextStyle(fontSize: 14, color: c.tinta2),
           ),
           Text(
-            rp(terbatasSaldoDiakoniaNovember.$2),
+            rp(t.saldo),
             style: const TextStyle(
               fontFamily: PalakatText.mono,
               fontSize: 38,
@@ -103,8 +124,8 @@ class _Daftar extends StatelessWidget {
       ),
       IsianTeks(
         controller: cari,
-        labelSemantik: 'Cari transaksi Diakonia',
-        petunjuk: 'Cari di peruntukan Diakonia',
+        labelSemantik: 'Cari transaksi $dana',
+        petunjuk: 'Cari di ${peruntukanTerbatas(t)}',
       ),
       Kartu(
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -114,6 +135,7 @@ class _Daftar extends StatelessWidget {
             for (var i = 0; i < rows.length; i++)
               _BarisDaftar(
                 r: rows[i],
+                dana: dana,
                 pertama: i == 0,
                 onTap: () => GoRouter.of(
                   context,
@@ -123,45 +145,50 @@ class _Daftar extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 18),
                 child: Text(
-                  'Tidak ada transaksi peruntukan Diakonia yang cocok.',
+                  'Tidak ada transaksi ${peruntukanTerbatas(t)} yang cocok.',
                   style: TextStyle(fontSize: 14, color: c.tinta2),
                 ),
               ),
           ],
         ),
       ),
-      Kartu(
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Laporan resmi Oktober 2026',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-                  ),
-                  Text(
-                    'TERBATAS · Peruntukan Diakonia · dibuat khusus untuk akses ini',
-                    style: TextStyle(fontSize: 13, color: c.tinta2),
-                  ),
-                ],
+      if (t.ditutup != null)
+        Kartu(
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Laporan resmi ${namaBulan(t.ditutup!)}',
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Text(
+                      'TERBATAS · Peruntukan $dana · dibuat khusus untuk '
+                      'akses ini',
+                      style: TextStyle(fontSize: 13, color: c.tinta2),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(width: 12),
-            const Tombol(
-              'Unduh PDF',
-              onPressed: null,
-              jenis: JenisTombol.kedua,
-              ukuran: UkuranTombol.kecil,
-              paddingH: 14,
-              lebarPenuh: false,
-              ke: Layar.laporanTerbatas,
-              param: {'periode': belumDipindahId, 'bentuk': 'pdf'},
-            ),
-          ],
+              const SizedBox(width: 12),
+              Tombol(
+                'Unduh PDF',
+                onPressed: null,
+                jenis: JenisTombol.kedua,
+                ukuran: UkuranTombol.kecil,
+                paddingH: 14,
+                lebarPenuh: false,
+                ke: Layar.laporanTerbatas,
+                param: {'periode': t.ditutup!.id, 'bentuk': 'pdf'},
+              ),
+            ],
+          ),
         ),
-      ),
     ];
     return Gerak(
       Kerangka.pudar,
@@ -185,10 +212,12 @@ class _Daftar extends StatelessWidget {
 class _BarisDaftar extends StatelessWidget {
   const _BarisDaftar({
     required this.r,
+    required this.dana,
     required this.pertama,
     required this.onTap,
   });
   final BarisTerbatas r;
+  final String dana;
   final bool pertama;
   final VoidCallback onTap;
 
@@ -239,7 +268,7 @@ class _BarisDaftar extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  'bagian Diakonia',
+                  'bagian $dana',
                   style: TextStyle(fontSize: 13, color: c.tinta3),
                 ),
               ],
@@ -252,12 +281,13 @@ class _BarisDaftar extends StatelessWidget {
 }
 
 class _Rinci extends StatelessWidget {
-  const _Rinci({required this.no});
+  const _Rinci({required this.t, required this.no});
+  final Terbatas t;
   final String? no;
 
   @override
   Widget build(BuildContext context) {
-    final d = dataTerbatas.where((r) => r.no == no).firstOrNull;
+    final d = t.baris.where((r) => r.no == no).firstOrNull;
     if (d == null) {
       // navigation.md 5.4: a `no` that names no transaction goes to the list.
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -299,7 +329,7 @@ class _Rinci extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Bagian peruntukan Diakonia',
+                        'Bagian ${peruntukanTerbatas(t)}',
                         style: TextStyle(fontSize: 14, color: c.tinta2),
                       ),
                       Text(
@@ -323,7 +353,7 @@ class _Rinci extends StatelessWidget {
                       children: [
                         baris('Tanggal transaksi', d.tgl, garis: false),
                         baris('Mata Anggaran', d.maPenuh),
-                        baris('Lingkup', 'Jemaat'),
+                        baris('Lingkup', d.lingkup),
                       ],
                     ),
                   ),

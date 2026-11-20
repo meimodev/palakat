@@ -1,6 +1,11 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../domain/finance/finance.dart';
+import '../../providers/keuangan/laporan.dart';
+import '../lanjut/laporan_tabel.dart';
 
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
@@ -22,95 +27,17 @@ typedef _Lembar = ({
   List<(List<String>, bool)> baris,
 });
 
-const _f03Baris = <(List<String>, bool)>[
-  (['', '', '', '', '', 'Rp3.050.000'], true),
-  (
-    [
-      '04/10/2026',
-      'BKU-2026-0098',
-      '1.3.55.01.00',
-      'Rp950.000',
-      '',
-      'Rp4.000.000',
-    ],
-    false,
-  ),
-  (
-    [
-      '27/10/2026',
-      'BKU-2026-0122',
-      '4.03.04.00',
-      '',
-      'Rp300.000',
-      'Rp3.700.000',
-    ],
-    false,
-  ),
-];
-const _f03Kolom = [
-  'Tanggal',
-  'No. Bukti',
-  'No. MA',
-  'Penerimaan',
-  'Pengeluaran',
-  'Saldo Diakonia',
-];
-const _f03Lebar = <double?>[112, 146, 158, 148, 148, 158];
-const _maKolom = ['No. MA', 'Nama Mata Anggaran', 'Oktober 2026'];
-const _maLebar = <double?>[178, null, 198];
-
-/// Sheet tabs in board order (F filtered to the TERBATAS sheets).
-const Map<String, _Lembar> _lembar = {
-  'F02': (
-    judul: 'Buku Kas Umum',
-    kolom: _f03Kolom,
-    lebar: _f03Lebar,
-    kanan: [3, 4, 5],
-    baris: _f03Baris,
-  ),
-  'F03': (
-    judul: 'Buku Kas Pembantu',
-    kolom: _f03Kolom,
-    lebar: _f03Lebar,
-    kanan: [3, 4, 5],
-    baris: _f03Baris,
-  ),
-  'F05': (
-    judul: 'Realisasi Pendapatan Menurut Mata Anggaran',
-    kolom: _maKolom,
-    lebar: _maLebar,
-    kanan: [2],
-    baris: [
-      (['1.3.55.01.00', 'Persembahan Diakonia', 'Rp950.000'], false),
-      (['', 'Jumlah Pendapatan peruntukan Diakonia', 'Rp950.000'], true),
-    ],
-  ),
-  'F07': (
-    judul: 'Realisasi Belanja Menurut Mata Anggaran',
-    kolom: _maKolom,
-    lebar: _maLebar,
-    kanan: [2],
-    baris: [
-      (['4.03.03.00', 'Diakonia duka', 'Rp0'], false),
-      (['4.03.04.00', 'Diakonia sakit', 'Rp300.000'], false),
-      (['', 'Jumlah Belanja peruntukan Diakonia', 'Rp300.000'], true),
-    ],
-  ),
-  'F12': (
-    judul: 'Daftar Bukti Kas',
-    kolom: [
-      'No. Bukti',
-      'Tanggal',
-      'Bagian Diakonia',
-      'Dokumen pendukung saat tutup buku',
-    ],
-    lebar: [158, 128, 188, null],
-    kanan: [2],
-    baris: [
-      (['BKU-2026-0098', '04/10/2026', 'Rp950.000', 'Terverifikasi'], false),
-      (['BKU-2026-0122', '27/10/2026', '−Rp300.000', 'Terverifikasi'], false),
-    ],
-  ),
+/// The TERBATAS sheets of [l] for the viewer's Fund, read from its
+/// RestrictedReport.
+Map<String, _Lembar> _lembarDari(LaporanBulan l, RestrictedReport r) => {
+  for (final (kode, nama, t) in lembarTerbatas(l, r))
+    kode: (
+      judul: nama,
+      kolom: t.cols,
+      lebar: [for (final w in lebarKolom(t)) w == null ? null : w + 28],
+      kanan: t.kanan,
+      baris: [for (final x in t.rows) (selBaris(x), x.last is int)],
+    ),
 };
 
 final _uang = RegExp(r'^.?Rp');
@@ -120,20 +47,37 @@ final _kode = RegExp(r'^(BKU|OPN|ADJ)-|^\d\.\d');
 String _xl(String v) =>
     v.replaceFirst('−Rp', '-').replaceFirst(RegExp('^Rp'), '');
 
-class WebExcelTerbatasScreen extends StatefulWidget {
+/// Web · the TERBATAS workbook of the route's month (WebExcelTerbatas): one
+/// sheet per TERBATAS form, only the viewer's Fund rows. Opened by "Unduh
+/// Excel"; no file is written (D15).
+class WebExcelTerbatasScreen extends ConsumerStatefulWidget {
   const WebExcelTerbatasScreen({super.key});
 
   @override
-  State<WebExcelTerbatasScreen> createState() => _WebExcelTerbatasState();
+  ConsumerState<WebExcelTerbatasScreen> createState() =>
+      _WebExcelTerbatasState();
 }
 
-class _WebExcelTerbatasState extends State<WebExcelTerbatasScreen> {
+class _WebExcelTerbatasState extends ConsumerState<WebExcelTerbatasScreen> {
   String _pilih = 'F05';
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final pilih = _lembar.containsKey(_pilih) ? _pilih : _lembar.keys.first;
+    final l = laporanRute(context, ref);
+    final t = ref.watch(terbatasProvider);
+    final r = l == null
+        ? null
+        : ref.watch(laporanTerbatasProvider(l.periode.id));
+    if (l == null || t == null || r == null) {
+      return const HalamanWeb(
+        nav: NavSamping(item: navKeuangan, aktif: 5),
+        isi: [Text('Tidak berwenang')],
+      );
+    }
+    final dana = t.dana.name;
+    final lembarAda = _lembarDari(l, r);
+    final pilih = lembarAda.containsKey(_pilih) ? _pilih : lembarAda.keys.first;
     final kuat = TextStyle(fontWeight: FontWeight.w700, color: c.tinta);
 
     return HalamanWeb(
@@ -167,7 +111,7 @@ class _WebExcelTerbatasState extends State<WebExcelTerbatasScreen> {
               ),
             ),
             Text(
-              'File dibuat khusus untuk bagian peruntukan Diakonia. Bukan '
+              'File dibuat khusus untuk bagian peruntukan $dana. Bukan '
               'versi tersembunyi dari file seluruh Jemaat.',
               style: TextStyle(fontSize: 14, color: c.tinta2),
             ),
@@ -196,23 +140,31 @@ class _WebExcelTerbatasState extends State<WebExcelTerbatasScreen> {
                   runSpacing: 6,
                   crossAxisAlignment: WrapCrossAlignment.end,
                   children: [
-                    const Text(
-                      'Paket-Laporan-GMIM_Jemaat-Karunia_2026-\u200B10_TERBATAS-Diakonia.xlsx',
-                      style: TextStyle(
+                    Text(
+                      'Paket-Laporan-GMIM_Jemaat-Karunia_${l.periode.id}'
+                              '_TERBATAS-$dana.xlsx'
+                          .replaceAll('-', '-\u200B'),
+                      style: const TextStyle(
                         fontFamily: PalakatText.mono,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     Text(
-                      'TERBATAS · Akses terbatas: Peruntukan Diakonia · hanya '
-                      'lembar yang punya bagian Diakonia',
+                      'TERBATAS · Akses terbatas: Peruntukan $dana · hanya '
+                      'lembar yang punya bagian $dana',
                       style: TextStyle(fontSize: 13, color: c.tinta3),
                     ),
                   ],
                 ),
               ),
-              _Kisi(lembar: _lembar[pilih]!),
+              _Kisi(
+                lembar: lembarAda[pilih]!,
+                periode: l.periode,
+                kepala:
+                    '${l.resmi ? 'Laporan resmi · ${l.snapshot!.id}' : 'Laporan sementara'}'
+                    ' · TERBATAS · Akses terbatas: Peruntukan $dana',
+              ),
               Container(
                 decoration: BoxDecoration(
                   color: c.kertas,
@@ -222,7 +174,7 @@ class _WebExcelTerbatasState extends State<WebExcelTerbatasScreen> {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      for (final id in _lembar.keys)
+                      for (final id in lembarAda.keys)
                         _Tab(
                           id: id,
                           dipilih: id == pilih,
@@ -336,8 +288,16 @@ class _Tab extends StatelessWidget {
 /// The grid: column letters, rows 1–4 identification, 5 blank, 6 headers,
 /// data from 7. Scrolls sideways inside the window below its min-width.
 class _Kisi extends StatelessWidget {
-  const _Kisi({required this.lembar});
+  const _Kisi({
+    required this.lembar,
+    required this.periode,
+    required this.kepala,
+  });
   final _Lembar lembar;
+  final Period periode;
+
+  /// Row 4: 'Laporan resmi · {ID} · TERBATAS · …'.
+  final String kepala;
 
   @override
   Widget build(BuildContext context) {
@@ -366,17 +326,14 @@ class _Kisi extends StatelessWidget {
             kepala: false,
           ),
           (
-            sel: isi('Periode laporan: 01/10/2026 s.d. 31/10/2026'),
+            sel: isi('Periode laporan: ${periode.start} s.d. ${periode.end}'),
             tebal: false,
             lebar: true,
             data: false,
             kepala: false,
           ),
           (
-            sel: isi(
-              'Laporan resmi · SNP-2026-10-01 · TERBATAS · Akses terbatas: '
-              'Peruntukan Diakonia',
-            ),
+            sel: isi(kepala),
             tebal: false,
             lebar: true,
             data: false,

@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/format.dart';
+import '../../domain/finance/finance.dart';
 import '../../motion/kerangka.dart';
+import '../../providers/actor.dart';
+import '../../providers/keuangan/beranda.dart';
+import '../../providers/keuangan/laporan.dart';
+import '../../providers/repositories_keuangan.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import '../../theme/palakat_tema.dart';
@@ -10,99 +16,24 @@ import '../../widgets/garis_status.dart';
 import '../../widgets/kecil.dart';
 import '../../app/layar.dart';
 
-/// 16 · Daftar Bukti Kas dan celah nomor (spec 06-bukti.md, Bukti).
-class BuktiScreen extends StatefulWidget {
+/// 16 · Daftar Bukti Kas dan celah nomor (spec 06-bukti.md, Bukti): the
+/// chosen month's posted Bukti Kas (F12) and each year's numbers given
+/// without a posted transaction (DP7).
+class BuktiScreen extends ConsumerStatefulWidget {
   const BuktiScreen({super.key});
 
   @override
-  State<BuktiScreen> createState() => _BuktiScreenState();
+  ConsumerState<BuktiScreen> createState() => _BuktiScreenState();
 }
-
-/// One Bukti Kas row of the board's `R` table.
-typedef _Baris = ({
-  String no,
-  String tgl,
-  String ur,
-  String tanda,
-  String asal,
-  int jumlah,
-  String setuju,
-  String dok,
-  bool wajib,
-});
-
-const List<_Baris> _baris = [
-  (
-    no: 'BKU-2026-0147',
-    tgl: '16/11/2026',
-    ur: 'Fotokopi warta jemaat',
-    tanda: '',
-    asal: '',
-    jumlah: -150000,
-    setuju: 'tidak diperlukan (aturan: transaksi rutin)',
-    dok: 'diunggah, belum diverifikasi',
-    wajib: false,
-  ),
-  (
-    no: 'BKU-2026-0146',
-    tgl: '15/11/2026',
-    ur: 'Persembahan Ibadah Minggu',
-    tanda: '',
-    asal: '',
-    jumlah: 3450000,
-    setuju: 'tidak diperlukan (aturan: Pendapatan)',
-    dok: 'terverifikasi (oleh Meiske L.)',
-    wajib: false,
-  ),
-  (
-    no: 'BKU-2026-0143',
-    tgl: '11/11/2026',
-    ur: 'Sewa sound system',
-    tanda: '',
-    asal: '',
-    jumlah: -600000,
-    setuju: 'tidak diperlukan (aturan: transaksi rutin)',
-    dok: 'wajib, belum ada',
-    wajib: true,
-  ),
-  (
-    no: 'BKU-2026-0139',
-    tgl: '09/11/2026',
-    ur: 'Konsumsi rapat majelis',
-    tanda: 'Dibalik oleh No. Bukti BKU-2026-0144',
-    asal: '',
-    jumlah: -750000,
-    setuju: 'tidak diperlukan (aturan: transaksi rutin)',
-    dok: 'terverifikasi (oleh Meiske L.)',
-    wajib: false,
-  ),
-  (
-    no: 'BKU-2026-0137',
-    tgl: '08/11/2026',
-    ur: 'Renovasi pastori, termin 1',
-    tanda: '',
-    asal: 'KW-0412',
-    jumlah: -4500000,
-    setuju: 'sudah dicatat · Pdt. Lidya Rondonuwu, Ketua BPMJ',
-    dok: 'dikecualikan (alasan: kuitansi menyusul, oleh Ketua BPMJ)',
-    wajib: false,
-  ),
-];
-
-/// The three unused numbers of the Biasa series (code, when it was given).
-const _celah = [
-  ('BKU-2026-0111', '14/10/2026 10.20'),
-  ('BKU-2026-0124', '29/10/2026 16.05'),
-  ('BKU-2026-0126', '30/10/2026 09.12'),
-];
 
 const _mono = TextStyle(
   fontFamily: PalakatText.mono,
   fontFeatures: [FontFeature.tabularFigures()],
 );
 
-class _BuktiScreenState extends State<BuktiScreen> {
+class _BuktiScreenState extends ConsumerState<BuktiScreen> {
   String _tab = 'Daftar';
+  String? _bulan;
 
   /// Bumped on every chip press: the board re-renders the view, so the
   /// Celah nomor fade replays and the scroll goes back to the top.
@@ -111,6 +42,7 @@ class _BuktiScreenState extends State<BuktiScreen> {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
+    final bulan = bulanBukti(ref, _bulan);
     return LayarPonsel(
       layarKeuangan: true,
       // CSS splits line-height leading evenly above and below each font;
@@ -122,9 +54,12 @@ class _BuktiScreenState extends State<BuktiScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const KepalaPonsel(
+            KepalaPonsel(
               judul: 'Daftar Bukti Kas',
-              anakJudul: 'November 2026 · Belum ditutup',
+              anakJudul: bulan == null
+                  ? null
+                  : '${namaBulan(bulan)} · '
+                        '${bulan.isClosed ? 'Sudah ditutup' : 'Belum ditutup'}',
               kembaliKe: Layar.pengaturan,
               labelKembali: 'Kembali ke Lainnya',
             ),
@@ -148,7 +83,7 @@ class _BuktiScreenState extends State<BuktiScreen> {
                 key: ValueKey(_versi),
                 padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
                 child: _tab == 'Daftar'
-                    ? _daftar(c)
+                    ? _daftar(c, bulan)
                     : Gerak(
                         Kerangka.pudar,
                         lama: const Duration(milliseconds: 200),
@@ -162,12 +97,20 @@ class _BuktiScreenState extends State<BuktiScreen> {
     );
   }
 
-  Widget _daftar(PalakatWarna c) {
+  Widget _daftar(PalakatWarna c, Period? bulan) {
     final kecil = TextStyle(fontSize: 13, color: c.tinta2);
+    final baris = bulan == null
+        ? const <BarisBukti>[]
+        : ref.watch(buktiBulanProvider(bulan.id));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        for (final r in _baris)
+        PilihBulanBukti(
+          terpilih: bulan,
+          onPilih: (id) => setState(() => _bulan = id),
+        ),
+        const SizedBox(height: 10),
+        for (final r in baris)
           Padding(
             padding: const EdgeInsets.only(bottom: 10),
             child: Kartu(
@@ -236,81 +179,149 @@ class _BuktiScreenState extends State<BuktiScreen> {
             ),
           ),
         Text(
-          'Contoh 5 dari 51. Transaksi yang dibalik tetap ada di daftar.',
+          baris.isEmpty
+              ? 'Belum ada Bukti Kas di bulan ini.'
+              : '${baris.length} Bukti Kas. Transaksi yang dibalik tetap ada '
+                    'di daftar.',
           style: TextStyle(fontSize: 13, color: c.tinta3),
         ),
       ],
     );
   }
 
-  Widget _celahNomor(PalakatWarna c) {
-    const judul = TextStyle(fontSize: 15, fontWeight: FontWeight.w700);
-    final sub = TextStyle(fontSize: 14, color: c.tinta2);
-    Widget seri(String j, String s) => Kartu(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(j, style: judul),
-          Text(s, style: sub),
-        ],
+  Widget _celahNomor(PalakatWarna c) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      for (final w in kartuCelah(ref, c)) ...[w, const SizedBox(height: 10)],
+      Text(
+        'Hanya terlihat oleh yang melihat seluruh Jemaat.',
+        style: TextStyle(fontSize: 13, color: c.tinta3),
       ),
-    );
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Kartu(
-          status: GarisStatus.terpilih,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text.rich(
-                const TextSpan(
-                  text: 'Seri Biasa · ',
-                  children: [
-                    TextSpan(text: 'BKU-2026-0001', style: _mono),
-                    TextSpan(text: ' sampai '),
-                    TextSpan(text: '0151', style: _mono),
-                  ],
-                ),
-                style: judul,
-              ),
-              const SizedBox(height: 4),
-              const Text(
-                '3 nomor tanpa transaksi',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-              ),
-              for (final (kode, waktu) in _celah) ...[
-                const SizedBox(height: 4),
-                Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(
-                        text: kode,
-                        style: _mono.copyWith(color: c.tinta),
-                      ),
-                      TextSpan(
-                        text:
-                            ' · diberikan $waktu, pembukuannya tidak selesai. '
-                            'Nomor ini tidak dipakai ulang.',
-                      ),
-                    ],
-                  ),
-                  style: sub,
-                ),
-              ],
-            ],
-          ),
-        ),
-        const SizedBox(height: 10),
-        seri('Seri OPN Saldo awal pencatatan', 'Tidak ada celah'),
-        const SizedBox(height: 10),
-        seri('Seri ADJ Penyesuaian', 'Belum pernah dipakai'),
-        const SizedBox(height: 10),
-        Text(
-          'Hanya terlihat oleh yang melihat seluruh Jemaat.',
-          style: TextStyle(fontSize: 13, color: c.tinta3),
-        ),
-      ],
+    ],
+  );
+}
+
+/// The month Bukti lists: [id] when chosen, else Laporan's month.
+Period? bulanBukti(WidgetRef ref, String? id) {
+  final semua = ref.watch(bulanBukuProvider).semua;
+  return semua.where((p) => p.id == id).firstOrNull ??
+      ref.watch(laporanBulanProvider)?.periode;
+}
+
+/// Month chips: every month that has started, newest first.
+class PilihBulanBukti extends ConsumerWidget {
+  const PilihBulanBukti({
+    super.key,
+    required this.terpilih,
+    required this.onPilih,
+  });
+  final Period? terpilih;
+  final ValueChanged<String> onPilih;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final hari = ref.watch(hariIniProvider);
+    final bulan = [
+      for (final p in ref.watch(bulanBukuProvider).semua.reversed)
+        if (p.start <= hari) p,
+    ];
+    return ChipPilihan<String>(
+      pilihan: [for (final p in bulan) (nilai: p.id, teks: namaBulan(p))],
+      terpilih: terpilih?.id ?? '',
+      onPilih: onPilih,
+      jarakBaris: 0,
     );
   }
+}
+
+/// The gap cards: one per BKU year with its numbers given without a posted
+/// transaction, then the OPN and ADJ series (DP7, DM F12).
+List<Widget> kartuCelah(WidgetRef ref, PalakatWarna c) {
+  const judul = TextStyle(fontSize: 15, fontWeight: FontWeight.w700);
+  final sub = TextStyle(fontSize: 14, color: c.tinta2);
+  final tx = ref.watch(transactionRepositoryProvider);
+  Widget seri(String j, String s) => Kartu(
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(j, style: judul),
+        Text(s, style: sub),
+      ],
+    ),
+  );
+  final tahun = ref.watch(buktiProvider);
+  final opn = [
+    for (final b in tahun) ...tx.voucherSeries(VoucherSeries.opn, b.tahun),
+  ];
+  final opnCelah = [
+    for (final e in opn)
+      if (e.isGap) e,
+  ];
+  final adj = [
+    for (final b in tahun) ...tx.voucherSeries(VoucherSeries.adj, b.tahun),
+  ];
+  return [
+    for (final b in tahun)
+      Kartu(
+        status: GarisStatus.terpilih,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text.rich(
+              TextSpan(
+                text: 'Seri Biasa · ',
+                children: [
+                  TextSpan(text: b.nomor.first.code, style: _mono),
+                  const TextSpan(text: ' sampai '),
+                  TextSpan(
+                    text: b.nomor.last.number.toString().padLeft(4, '0'),
+                    style: _mono,
+                  ),
+                ],
+              ),
+              style: judul,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              b.celah.isEmpty
+                  ? 'Tidak ada celah'
+                  : '${b.celah.length} nomor tanpa transaksi',
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+            ),
+            for (final e in b.celah) ...[
+              const SizedBox(height: 4),
+              Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(
+                      text: e.code,
+                      style: _mono.copyWith(color: c.tinta),
+                    ),
+                    TextSpan(
+                      text:
+                          '${e.unfinished == null ? '' : ' · diberikan ${tglJam(e.unfinished!.allocatedAt)}'}'
+                          ', pembukuannya tidak selesai. Nomor ini tidak '
+                          'dipakai ulang.',
+                    ),
+                  ],
+                ),
+                style: sub,
+              ),
+            ],
+          ],
+        ),
+      ),
+    seri(
+      'Seri OPN Saldo awal pencatatan',
+      opn.isEmpty
+          ? 'Belum pernah dipakai'
+          : opnCelah.isEmpty
+          ? 'Tidak ada celah'
+          : '${opnCelah.length} nomor tanpa transaksi',
+    ),
+    seri(
+      'Seri ADJ Penyesuaian',
+      adj.isEmpty ? 'Belum pernah dipakai' : '${adj.length} nomor',
+    ),
+  ];
 }

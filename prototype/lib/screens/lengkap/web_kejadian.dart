@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../mock/mock.dart';
+import '../../providers/keuangan/akhir_bulan.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
 import '../../shell/tautan.dart';
@@ -9,19 +10,19 @@ import '../../widgets/garis.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
+import '../../widgets/tombol.dart';
 import 'kejadian_bagian.dart';
 import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
 
 /// Web · Kejadian setelah tutup buku (07-kejadian.md): list and detail side
 /// by side under the standard side nav.
-class WebKejadianScreen extends StatefulWidget {
+class WebKejadianScreen extends ConsumerStatefulWidget {
   const WebKejadianScreen({super.key});
   @override
-  State<WebKejadianScreen> createState() => _WebKejadianScreenState();
+  ConsumerState<WebKejadianScreen> createState() => _WebKejadianScreenState();
 }
 
-class _WebKejadianScreenState extends State<WebKejadianScreen> {
+class _WebKejadianScreenState extends ConsumerState<WebKejadianScreen> {
   final _s = KeadaanKejadian();
 
   @override
@@ -32,28 +33,51 @@ class _WebKejadianScreenState extends State<WebKejadianScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final hambat = belumDipindah<bool>(true);
+    final d = ref.watch(kejadianProvider);
     return ListenableBuilder(
       listenable: _s,
-      builder: (context, _) => HalamanWeb(
-        layarKeuangan: true,
-        nav: const NavSamping(item: navKeuangan, aktif: 4),
-        isi: [
-          _Judul(),
-          if (hambat) const PernyataanHambatan(),
-          BarisLentur(
-            jarak: 24,
-            anak: [
-              Lentur(dasar: 360, child: _Daftar(s: _s)),
-              Lentur(
-                dasar: 520,
-                tumbuh: 999,
-                child: RinciKejadian(s: _s, hambat: hambat),
-              ),
-            ],
-          ),
-        ],
-      ),
+      builder: (context, _) {
+        final b = _s.cur(d);
+        return HalamanWeb(
+          layarKeuangan: true,
+          nav: const NavSamping(item: navKeuangan, aktif: 4),
+          isi: [
+            _Judul(),
+            if (d.hambatan > 0 && d.butir.isNotEmpty) PernyataanHambatan(d: d),
+            BarisLentur(
+              jarak: 24,
+              anak: [
+                Lentur(
+                  dasar: 360,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (d.ditutup != null && !_s.membuka) ...[
+                        Tombol(
+                          'Catat kejadian baru',
+                          jenis: JenisTombol.kedua,
+                          onPressed: _s.buka,
+                        ),
+                        const SizedBox(height: 12),
+                      ],
+                      _Daftar(s: _s, d: d),
+                    ],
+                  ),
+                ),
+                Lentur(
+                  dasar: 520,
+                  tumbuh: 999,
+                  child: _s.membuka
+                      ? FormKejadian(s: _s)
+                      : b == null
+                      ? const SizedBox.shrink()
+                      : RinciKejadian(b: b, d: d),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -93,12 +117,14 @@ class _Judul extends StatelessWidget {
 }
 
 class _Daftar extends StatelessWidget {
-  const _Daftar({required this.s});
+  const _Daftar({required this.s, required this.d});
   final KeadaanKejadian s;
+  final DaftarKejadian d;
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
+    final pilih = s.cur(d)?.kejadian.id;
     return Container(
       decoration: ShapeDecoration(
         color: c.permukaan,
@@ -109,28 +135,28 @@ class _Daftar extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            for (final k in kejadian)
+            for (final b in d.butir)
               Tekan(
-                dipilih: k.no == s.pilih,
-                onTap: () => s.pick(k.no),
+                dipilih: b.kejadian.id == pilih,
+                onTap: () => s.pick(b.kejadian.id),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 18,
                     vertical: 14,
                   ),
                   decoration: BoxDecoration(
-                    color: k.no == s.pilih ? c.lautLembut : c.permukaan,
+                    color: b.kejadian.id == pilih ? c.lautLembut : c.permukaan,
                     border: Border(top: BorderSide(color: c.garis)),
                   ),
                   // `box-shadow: inset 3px 0 0 laut` on the chosen row.
-                  foregroundDecoration: k.no == s.pilih
+                  foregroundDecoration: b.kejadian.id == pilih
                       ? BoxDecoration(
                           border: Border(
                             left: BorderSide(color: c.laut, width: 3),
                           ),
                         )
                       : null,
-                  child: IsiKartuKejadian(k: k, selesai: s.sel(k).isNotEmpty),
+                  child: IsiKartuKejadian(b: b),
                 ),
               ),
           ],

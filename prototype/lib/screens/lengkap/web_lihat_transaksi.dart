@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/format.dart';
+import '../../providers/keuangan/beranda.dart';
+import '../../providers/keuangan/laporan.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
 import '../../shell/tautan.dart';
@@ -13,16 +16,23 @@ import 'lihat_transaksi_rinci.dart';
 import '../../app/layar.dart';
 
 /// Web · Lihat transaksi di balik angka laporan.
-class WebLihatTransaksiScreen extends StatefulWidget {
+class WebLihatTransaksiScreen extends ConsumerStatefulWidget {
   const WebLihatTransaksiScreen({super.key});
 
   @override
-  State<WebLihatTransaksiScreen> createState() =>
+  ConsumerState<WebLihatTransaksiScreen> createState() =>
       _WebLihatTransaksiScreenState();
 }
 
-class _WebLihatTransaksiScreenState extends State<WebLihatTransaksiScreen> {
-  String _pilih = 'atk';
+class _WebLihatTransaksiScreenState
+    extends ConsumerState<WebLihatTransaksiScreen> {
+  String? _pilih;
+
+  List<AngkaLaporan> get _angka => ref.watch(angkaLaporanProvider);
+
+  String get _dipilih => _angka.any((x) => x.id == _pilih)
+      ? _pilih!
+      : _angka.firstOrNull?.id ?? '';
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +82,7 @@ class _WebLihatTransaksiScreenState extends State<WebLihatTransaksiScreen> {
               Lentur(
                 dasar: 440,
                 tumbuh: 999,
-                child: RinciAngkaLaporan(pilih: _pilih, ke: Layar.pilihBulan),
+                child: RinciAngkaLaporan(pilih: _dipilih, ke: Layar.pilihBulan),
               ),
             ],
           ),
@@ -93,7 +103,8 @@ class _WebLihatTransaksiScreenState extends State<WebLihatTransaksiScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
           child: Text(
-            'Angka di laporan Oktober 2026',
+            'Angka di laporan '
+            '${ref.watch(laporanBulanProvider) == null ? '' : namaBulan(ref.watch(laporanBulanProvider)!.periode)}',
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
@@ -101,19 +112,19 @@ class _WebLihatTransaksiScreenState extends State<WebLihatTransaksiScreen> {
             ),
           ),
         ),
-        for (final x in angkaLaporanOktober)
+        for (final x in _angka)
           Tekan(
             onTap: () => setState(() => _pilih = x.id),
-            dipilih: x.id == _pilih,
+            dipilih: x.id == _dipilih,
             child: Container(
               constraints: const BoxConstraints(minHeight: 60),
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
               decoration: BoxDecoration(
-                color: x.id == _pilih ? c.lautLembut : c.permukaan,
+                color: x.id == _dipilih ? c.lautLembut : c.permukaan,
                 border: Border(top: BorderSide(color: c.garis)),
               ),
               // box-shadow: inset 3px 0 0 laut (drawn over, no layout shift).
-              foregroundDecoration: x.id == _pilih
+              foregroundDecoration: x.id == _dipilih
                   ? BoxDecoration(
                       border: Border(left: BorderSide(color: c.laut, width: 3)),
                     )

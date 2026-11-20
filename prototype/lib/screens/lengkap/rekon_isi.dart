@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/format.dart';
-import '../../mock/orang.dart' show plk;
+import '../../domain/core/core.dart';
+import '../../domain/finance/finance.dart';
 import '../../motion/kerangka.dart';
+import '../../providers/core_repositories.dart';
+import '../../providers/keuangan/akhir_bulan.dart';
+import '../../providers/keuangan/beranda.dart';
+import '../../providers/repositories_keuangan.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import '../../theme/palakat_tema.dart';
@@ -15,19 +21,15 @@ import '../../widgets/tahapan.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
 
 /// 30 · Rekonsiliasi: isi rekening koran dan cocok sebagian (spec 09).
-class RekonIsiScreen extends StatefulWidget {
+class RekonIsiScreen extends ConsumerStatefulWidget {
   const RekonIsiScreen({super.key});
   @override
-  State<RekonIsiScreen> createState() => _RekonIsiState();
+  ConsumerState<RekonIsiScreen> createState() => _RekonIsiState();
 }
 
-class _RekonIsiState extends State<RekonIsiScreen> with RekonIsiLogika {
-  @override
-  String get stem => 'RekonIsi';
-
+class _RekonIsiState extends ConsumerState<RekonIsiScreen> with RekonIsiLogika {
   @override
   Widget build(BuildContext context) {
     final b = bagian(context);
@@ -36,9 +38,9 @@ class _RekonIsiState extends State<RekonIsiScreen> with RekonIsiLogika {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const KepalaPonsel(
+          KepalaPonsel(
             judul: 'Rekonsiliasi',
-            anakJudul: 'Bank BNI ··4821 · Oktober 2026',
+            anakJudul: judulAkun,
             kembaliKe: Layar.tutupBuku,
             labelKembali: 'Kembali ke Bulan',
           ),
@@ -76,50 +78,6 @@ Widget kolomRekon(
   ],
 );
 
-/// The board's transactions T: No. Bukti, text, amount.
-const _t = {
-  't1': ('BKU-2026-0118', 'Persembahan syukur', 500000),
-  't2': ('BKU-2026-0121', 'Sumbangan donatur', 500000),
-  't3': ('BKU-2026-0127', 'Pindah antar Kas/Bank: Bank BNI ke Kas', -2000000),
-  't4': ('BKU-2026-0133', 'Biaya administrasi bank', -15000),
-};
-
-typedef _Mutasi = ({
-  String id,
-  String n,
-  String tgl,
-  int jm,
-  List<String> k,
-  List<String> awal,
-});
-
-const List<_Mutasi> _mutasiCsv = [
-  (
-    id: 'l1',
-    n: 'TRF MASUK IBU RUNTU',
-    tgl: '28/10/2026',
-    jm: 1000000,
-    k: ['t1', 't2'],
-    awal: [],
-  ),
-  (
-    id: 'l2',
-    n: 'TARIK TUNAI',
-    tgl: '30/10/2026',
-    jm: -2000000,
-    k: ['t3'],
-    awal: [],
-  ),
-  (
-    id: 'l3',
-    n: 'BIAYA ADM',
-    tgl: '31/10/2026',
-    jm: -15000,
-    k: ['t4'],
-    awal: ['t4'],
-  ),
-];
-
 /// The parts both boards place: RekonIsi stacks them, WebRekonIsi splits
 /// them into two columns.
 typedef BagianRekon = ({
@@ -130,21 +88,16 @@ typedef BagianRekon = ({
   List<Widget> akhir,
 });
 
-/// The logic class shared by RekonIsi and WebRekonIsi: state, derived values,
-/// handlers and the parts. Each screen owns its own instance.
-mixin RekonIsiLogika<W extends StatefulWidget> on State<W> {
-  /// Board stem the tweaks are read from.
-  String get stem;
-
-  bool _csv = false;
-  final List<(String, int)> _tambah = [];
-  final Map<String, List<String>> _m = {};
-  String _st = 'kerja';
-  bool _lagi = false;
-
+/// The logic shared by RekonIsi and WebRekonIsi: the bank statement of the
+/// church bank that still lacks one for the next month to close
+/// (`akunRekeningKoranProvider`), its lines and matches from
+/// ReconciliationRepository, and the parts. Each screen owns its instance.
+mixin RekonIsiLogika<W extends ConsumerStatefulWidget> on ConsumerState<W> {
   final _saldo = TextEditingController();
   final _fu = TextEditingController();
   final _fj = TextEditingController();
+  Refusal? _tolak;
+  String? _akunAwal;
 
   @override
   void dispose() {
@@ -154,22 +107,19 @@ mixin RekonIsiLogika<W extends StatefulWidget> on State<W> {
     super.dispose();
   }
 
-  List<_Mutasi> get _daftar => [
-    if (_csv) ..._mutasiCsv,
-    for (var i = 0; i < _tambah.length; i++)
-      (
-        id: 'x$i',
-        n: _tambah[i].$1,
-        tgl: '31/10/2026',
-        jm: _tambah[i].$2,
-        k: const <String>[],
-        awal: const <String>[],
-      ),
-  ];
+  /// The account chosen when the screen opened (it stays while it works).
+  RekonAkun? get _r {
+    _akunAwal ??= ref.read(akunRekeningKoranProvider);
+    final id = _akunAwal;
+    return id == null ? null : ref.watch(rekonAkunProvider(id));
+  }
 
-  List<String> _pakai(_Mutasi l) => _m[l.id] ?? l.awal;
+  String get judulAkun {
+    final r = _r;
+    return r == null ? '' : '${r.akun.name} · ${namaBulan(r.periode)}';
+  }
 
-  int _sisa(_Mutasi l) => l.jm - _pakai(l).fold(0, (a, k) => a + _t[k]!.$3);
+  int? get _saldoKetik => angkaDari(_saldo.text);
 
   bool get _okF => _fu.text.trim().isNotEmpty && (angkaDari(_fj.text) ?? 0) > 0;
 
@@ -180,45 +130,173 @@ mixin RekonIsiLogika<W extends StatefulWidget> on State<W> {
       ? ''
       : 'Jumlah mutasi belum diisi.';
 
-  void _tambahMutasi() {
+  Future<void> _hasil(Result<Object?>? r) async {
+    if (mounted) setState(() => _tolak = r?.refusal);
+  }
+
+  /// Sets the closing and adds [contoh]'s lines.
+  Future<Result<ReconSession>?> _impor(RekonAkun r, SampleStatement contoh) =>
+      perintah(
+        ref,
+        (a, k) => ref
+            .read(reconciliationRepositoryProvider)
+            .importStatement(
+              a,
+              r.akun.id,
+              r.periode.id,
+              contoh,
+              idempotencyKey: k,
+            ),
+      );
+
+  Future<void> _unggah(RekonAkun r) async {
+    final saldo = _saldoKetik;
+    if (saldo == null) {
+      setState(
+        () => _tolak = const Refusal(
+          action: 'Unggah mutasi',
+          because: 'Saldo rekening koran belum diisi.',
+        ),
+      );
+      return;
+    }
+    await _hasil(await _impor(r, sampelRekeningKoran(r, saldo)));
+  }
+
+  Future<void> _tambahMutasi(RekonAkun r) async {
+    final saldo = _saldoKetik;
     if (!_okF) return;
-    setState(() {
-      _tambah.add((_fu.text.trim(), angkaDari(_fj.text)!));
+    if (saldo == null) {
+      setState(
+        () => _tolak = const Refusal(
+          action: 'Tambah',
+          because: 'Saldo rekening koran belum diisi.',
+        ),
+      );
+      return;
+    }
+    final hasil = await _impor(
+      r,
+      SampleStatement(
+        fileName: '',
+        closing: saldo,
+        lines: [
+          (
+            date: r.periode.end,
+            description: _fu.text.trim(),
+            amount: angkaDari(_fj.text)!,
+          ),
+        ],
+      ),
+    );
+    if (hasil?.isOk ?? false) {
       _fu.clear();
       _fj.clear();
-    });
+    }
+    await _hasil(hasil);
+  }
+
+  Future<void> _cocokkan(RekonAkun r, BarisMutasi m, Transaction t) async =>
+      _hasil(
+        await perintah(
+          ref,
+          (a, k) => ref
+              .read(reconciliationRepositoryProvider)
+              .match(
+                a,
+                r.sesi!.id,
+                [m.baris.id],
+                [
+                  for (final x in m.cocok)
+                    if (x.isPosted) x.id,
+                  t.id,
+                ],
+                expectedRevision: r.sesi!.revision,
+                idempotencyKey: k,
+              ),
+        ),
+      );
+
+  Future<void> _lepaskan(RekonAkun r, BarisMutasi m) async => _hasil(
+    await perintah(
+      ref,
+      (a, k) => ref
+          .read(reconciliationRepositoryProvider)
+          .match(
+            a,
+            r.sesi!.id,
+            [m.baris.id],
+            const [],
+            expectedRevision: r.sesi!.revision,
+            idempotencyKey: k,
+          ),
+    ),
+  );
+
+  /// "Pastikan rekonsiliasi" (or, with the second checker, "Tandai sudah
+  /// diperiksa"): the typed closing first when it changed.
+  Future<void> _pastikan(RekonAkun r) async {
+    final saldo = _saldoKetik;
+    var x = r;
+    if (saldo != null && saldo != r.amati) {
+      final h = await _impor(
+        r,
+        SampleStatement(fileName: '', closing: saldo, lines: const []),
+      );
+      if (h == null || !h.isOk) return _hasil(h);
+      x = ref.read(rekonAkunProvider(r.akun.id))!;
+    }
+    final tolak = await AksiRekon.pastikan(ref, x);
+    if (mounted) setState(() => _tolak = tolak);
   }
 
   BagianRekon bagian(BuildContext context) {
     final c = context.warna;
-    final wajib = belumDipindah<bool>(false);
-    final berubah = belumDipindah<bool>(false);
-    final jk = belumDipindah(false);
-    final kerja = _st == 'kerja';
-
-    final daftar = _daftar;
-    final sisaTotal = daftar.fold(0, (a, l) => a + _sisa(l).abs());
-    final semua = daftar.isNotEmpty && daftar.every((l) => _sisa(l) == 0);
+    final r = _r;
+    const t14 = TextStyle(fontSize: 14);
+    if (r == null) {
+      final kosong = Text(
+        'Tidak ada rekening bank yang perlu diisi rekening korannya.',
+        style: t14.copyWith(color: c.tinta2),
+      );
+      return (
+        isian: kosong,
+        daftar: const SizedBox.shrink(),
+        tahap: const SizedBox.shrink(),
+        sisa: const SizedBox.shrink(),
+        akhir: const [],
+      );
+    }
+    if (_saldo.text.isEmpty && r.amati != null) {
+      _saldo.text = titik('${r.amati}');
+    }
+    final s = r.sesi;
+    final pasti = r.dipastikan;
+    final basi =
+        pasti &&
+        ref
+            .watch(periodRepositoryProvider)
+            .blockers(r.periode.id)
+            .any(
+              (b) =>
+                  b.kind == BlockerKind.notReconciled &&
+                  b.accountId == r.akun.id,
+            );
+    final kerja = (!pasti && !r.diperiksa) || basi;
+    final daftar = r.mutasi;
+    final sisaTotal = daftar.fold(0, (a, m) => a + m.sisa.abs());
     final okSaldo = _saldo.text.isNotEmpty;
-    final siap = semua && okSaldo;
-    final invalid = _st == 'pasti' && berubah && !_lagi;
-    final urut = wajib
-        ? ['Sedang dikerjakan', 'Sudah diperiksa', 'Sudah dipastikan']
-        : ['Sedang dikerjakan', 'Sudah dipastikan'];
-    final ke = kerja ? 0 : (_st == 'periksa' ? 1 : urut.length - 1);
-    final aksiTeks = kerja
-        ? (wajib ? 'Tandai sudah diperiksa' : 'Pastikan rekonsiliasi')
-        : (_st == 'periksa' ? 'Pastikan rekonsiliasi' : '');
+    final siap = okSaldo && daftar.isNotEmpty && r.belumCocok.isEmpty;
     final alasan = !okSaldo
         ? 'Saldo rekening koran belum diisi.'
         : daftar.isEmpty
         ? 'Belum ada mutasi bank.'
-        : !semua
+        : r.belumCocok.isNotEmpty
         ? 'Masih ada mutasi bank yang belum cocok seluruhnya.'
-        : _st == 'periksa'
-        ? 'Sudah diperiksa oleh Pnt. Jefry Wowor. Bendahara memastikan.'
-        : 'Semua mutasi bank cocok dan selisih belum dijelaskan Rp0.';
-    const t14 = TextStyle(fontSize: 14);
+        : r.alasanDiperiksa ??
+              'Semua mutasi bank cocok dan selisih belum dijelaskan Rp0.';
+    final file = s?.statementFile;
+    final cocok = daftar.where((m) => m.lunas).length;
 
     final isian = Kartu(
       padding: const EdgeInsets.all(16),
@@ -234,7 +312,7 @@ mixin RekonIsiLogika<W extends StatefulWidget> on State<W> {
             const SizedBox(height: 4),
             Text(
               okSaldo
-                  ? 'Saldo rekening koran per 31/10/2026'
+                  ? 'Saldo rekening koran per ${r.periode.end}'
                   : 'Rekening koran belum diisi. Kosong bukan Rp0.',
               style: TextStyle(
                 fontSize: 13,
@@ -244,14 +322,14 @@ mixin RekonIsiLogika<W extends StatefulWidget> on State<W> {
             ),
           ],
         ),
-        if (!_csv && kerja)
+        if (file == null && kerja)
           Tombol(
             'Unggah mutasi dari file CSV',
-            onPressed: () => setState(() => _csv = true),
+            onPressed: () => _unggah(r),
             jenis: JenisTombol.kedua,
             ukuran: UkuranTombol.sedang,
           ),
-        if (_csv)
+        if (file != null)
           Gerak(
             Kerangka.muncul,
             lama: const Duration(milliseconds: 300),
@@ -259,19 +337,28 @@ mixin RekonIsiLogika<W extends StatefulWidget> on State<W> {
               TextSpan(
                 children: [
                   TextSpan(
-                    text: 'mutasi-bni-okt.csv',
+                    text: file,
                     style: TextStyle(
                       fontWeight: FontWeight.w700,
                       color: c.tinta,
                     ),
                   ),
-                  const TextSpan(
-                    text: ' · 3 mutasi dibaca. Belum ada yang dicocokkan.',
+                  TextSpan(
+                    text:
+                        ' · ${daftar.length} mutasi dibaca. '
+                        '${cocok == 0 ? 'Belum ada yang dicocokkan.' : '$cocok sudah cocok.'}',
                   ),
                 ],
               ),
               style: t14.copyWith(color: c.tinta2),
             ),
+          ),
+        if (_tolak != null)
+          Penolakan(
+            tindakan: _tolak!.action,
+            sebab: _tolak!.because,
+            jalan: const [],
+            ukuranTeks: 14,
           ),
         if (kerja)
           Container(
@@ -315,7 +402,7 @@ mixin RekonIsiLogika<W extends StatefulWidget> on State<W> {
                   ),
                   const SizedBox(width: 8),
                   TekanAria(
-                    onTap: _tambahMutasi,
+                    onTap: () => _tambahMutasi(r),
                     aktif: _okF,
                     petunjuk: _okF ? null : _alasanF,
                     radius: 12,
@@ -351,18 +438,18 @@ mixin RekonIsiLogika<W extends StatefulWidget> on State<W> {
         : Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              for (final l in daftar)
+              for (final m in daftar)
                 Padding(
-                  key: ValueKey(l.id),
+                  key: ValueKey(m.baris.id),
                   padding: const EdgeInsets.only(bottom: 12),
-                  child: _kartuMutasi(c, l, kerja),
+                  child: _kartuMutasi(c, r, m, kerja),
                 ),
             ],
           );
 
     final tahap = Tahapan(
-      langkah: urut,
-      selesai: invalid ? urut.length - 1 : ke + 1,
+      langkah: r.tahapan,
+      selesai: basi ? r.tahapan.length - 1 : r.tahapSelesai,
     );
 
     final sisa = Container(
@@ -395,8 +482,11 @@ mixin RekonIsiLogika<W extends StatefulWidget> on State<W> {
     );
 
     const muncul = Duration(milliseconds: 300);
+    final oleh = ref
+        .watch(peopleRepositoryProvider)
+        .person(s?.confirmedBy ?? '');
     final akhir = <Widget>[
-      if (invalid)
+      if (basi)
         Gerak(
           Kerangka.muncul,
           key: const ValueKey('invalid'),
@@ -410,12 +500,12 @@ mixin RekonIsiLogika<W extends StatefulWidget> on State<W> {
                   style: TextStyle(fontWeight: FontWeight.w700, color: c.bata),
                 ),
                 Text(
-                  'BKU-2026-0127 dibalik setelah rekonsiliasi dipastikan. Pencocokan tetap tersimpan; hanya kepastiannya yang tidak berlaku lagi, dan ini menjadi hambatan tutup buku.',
+                  'Buku ${namaBulan(r.periode)} berubah setelah rekonsiliasi dipastikan. Pencocokan tetap tersimpan; hanya kepastiannya yang tidak berlaku lagi, dan ini menjadi hambatan tutup buku.',
                   style: t14.copyWith(color: c.tinta2),
                 ),
                 Tombol(
                   'Pastikan lagi',
-                  onPressed: () => setState(() => _lagi = true),
+                  onPressed: () => _pastikan(r),
                   ukuran: UkuranTombol.ringkas,
                   lebarPenuh: false,
                 ),
@@ -425,7 +515,7 @@ mixin RekonIsiLogika<W extends StatefulWidget> on State<W> {
             ),
           ),
         ),
-      if (_st == 'pasti' && !invalid)
+      if (pasti && !basi)
         Gerak(
           Kerangka.muncul,
           key: const ValueKey('pasti'),
@@ -437,22 +527,24 @@ mixin RekonIsiLogika<W extends StatefulWidget> on State<W> {
               borderRadius: BorderRadius.circular(14),
             ),
             child: Text(
-              'Sudah dipastikan oleh ${plk(jk)}, 16/11/2026. Perubahan pada buku Oktober membuatnya perlu dipastikan lagi.',
+              'Sudah dipastikan oleh ${oleh?.shortName ?? oleh?.name}, '
+              '${s?.confirmedAt == null ? '' : tgl(s!.confirmedAt!)}. '
+              'Perubahan pada buku ${namaBulan(r.periode)} membuatnya perlu '
+              'dipastikan lagi.',
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
         ),
-      if (aksiTeks.isNotEmpty) ...[
+      if (!pasti) ...[
         Text(alasan, style: t14.copyWith(color: c.tinta2)),
         TekanAria(
           onTap: () {
-            if (!siap) return;
-            setState(() => _st = kerja && wajib ? 'periksa' : 'pasti');
+            if (siap) _pastikan(r);
           },
           aktif: siap,
           radius: 14,
           child: RupaTombol(
-            label: aksiTeks,
+            label: r.tombolPastikan,
             isi: siap ? c.laut : c.garis,
             warnaTeks: siap ? c.diLaut : c.tinta3,
             radius: 14,
@@ -472,18 +564,16 @@ mixin RekonIsiLogika<W extends StatefulWidget> on State<W> {
     );
   }
 
-  Widget _kartuMutasi(PalakatWarna c, _Mutasi l, bool kerja) {
-    final p = _pakai(l);
-    final sisa = _sisa(l);
+  Widget _kartuMutasi(PalakatWarna c, RekonAkun r, BarisMutasi m, bool kerja) {
+    final p = m.cocok;
+    final sisa = m.sisa;
     final cocok = sisa == 0;
     final (lencana, isi, teks, garis) = cocok
         ? ('Cocok', c.laut, c.diLaut, c.laut)
         : p.isNotEmpty
         ? ('Sebagian cocok', c.permukaan, c.tinta, c.tinta)
         : ('Belum cocok', c.permukaan, c.tinta2, c.tinta3);
-    final calon = kerja
-        ? l.k.where((k) => !p.contains(k)).toList()
-        : const <String>[];
+    final calon = kerja ? m.calon : const <Transaction>[];
     const t13 = TextStyle(fontSize: 13);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -512,7 +602,7 @@ mixin RekonIsiLogika<W extends StatefulWidget> on State<W> {
             ),
             const SizedBox(width: 16),
             Text(
-              rp(l.jm),
+              rp(m.baris.amount),
               style: const TextStyle(
                 fontFamily: PalakatText.mono,
                 fontWeight: FontWeight.w500,
@@ -523,9 +613,9 @@ mixin RekonIsiLogika<W extends StatefulWidget> on State<W> {
         Text.rich(
           TextSpan(
             children: [
-              TextSpan(text: '${l.n} '),
+              TextSpan(text: '${m.baris.description} '),
               TextSpan(
-                text: '· ${l.tgl}',
+                text: '· ${m.baris.date}',
                 style: t13.copyWith(
                   color: c.tinta3,
                   fontWeight: FontWeight.w400,
@@ -540,13 +630,13 @@ mixin RekonIsiLogika<W extends StatefulWidget> on State<W> {
             'sisa belum dicocokkan: ${rp(sisa.abs())}',
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
           ),
-        for (final k in p)
+        for (final t in p)
           Gerak(
             Kerangka.muncul,
-            key: ValueKey(k),
+            key: ValueKey(t.id),
             lama: const Duration(milliseconds: 300),
             child: Text(
-              '↔ ${_t[k]!.$1} · ${_t[k]!.$2} · ${rp(_t[k]!.$3)}',
+              '↔ ${t.voucher ?? 'Draf'} · ${t.description} · ${rp(diAkun(t, r.akun.id) == 0 ? signedAmount(t) : diAkun(t, r.akun.id))}',
               style: t13.copyWith(
                 fontFamily: PalakatText.mono,
                 color: c.tinta2,
@@ -557,11 +647,11 @@ mixin RekonIsiLogika<W extends StatefulWidget> on State<W> {
         Wrap(
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            for (final k in calon)
+            for (final t in calon)
               Padding(
                 padding: const EdgeInsets.only(top: 4, right: 8),
                 child: Tekan(
-                  onTap: () => setState(() => _m[l.id] = [...p, k]),
+                  onTap: () => _cocokkan(r, m, t),
                   radius: 10,
                   child: Container(
                     constraints: const BoxConstraints(minHeight: 44),
@@ -573,7 +663,9 @@ mixin RekonIsiLogika<W extends StatefulWidget> on State<W> {
                     child: Center(
                       widthFactor: 1,
                       heightFactor: 1,
-                      child: _IsiCocokkan('${_t[k]!.$1} · ${rp(_t[k]!.$3)}'),
+                      child: _IsiCocokkan(
+                        '${t.voucher} · ${rp(diAkun(t, r.akun.id))}',
+                      ),
                     ),
                   ),
                 ),
@@ -582,7 +674,7 @@ mixin RekonIsiLogika<W extends StatefulWidget> on State<W> {
               Padding(
                 padding: const EdgeInsets.only(top: 4),
                 child: Tekan(
-                  onTap: () => setState(() => _m[l.id] = []),
+                  onTap: () => _lepaskan(r, m),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     child: Center(
@@ -602,7 +694,7 @@ mixin RekonIsiLogika<W extends StatefulWidget> on State<W> {
               ),
           ],
         ),
-        if (l.k.isEmpty)
+        if (p.isEmpty && m.calon.isEmpty)
           Text(
             'Belum ada transaksinya. Buat transaksi dari mutasi ini, atau periksa lagi rekening korannya.',
             style: TextStyle(fontSize: 14, color: c.tinta2),

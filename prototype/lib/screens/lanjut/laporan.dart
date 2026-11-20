@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../motion/kerangka.dart';
+import '../../providers/keuangan/akhir_bulan.dart';
+import '../../providers/keuangan/beranda.dart';
+import '../../providers/keuangan/laporan.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import '../../shell/tautan.dart';
@@ -12,7 +16,6 @@ import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
 import 'laporan_tabel.dart';
 import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
 
 /// Owns LayarPonsel, so the jabatanKosong line stays put while the detail
 /// slides in (navigation.md 2.1). The board state `buka` is the route.
@@ -34,36 +37,39 @@ class _LaporanKendaliState extends State<LaporanKendali> {
       LayarPonsel(layarKeuangan: true, child: widget.child);
 }
 
-class LaporanScreen extends StatelessWidget {
+/// Laporan (phone): the report of `laporanBulanProvider`, provisional
+/// before the close and official after it.
+class LaporanScreen extends ConsumerWidget {
   const LaporanScreen({super.key, this.anak, this.param = const {}});
   final String? anak;
   final Map<String, String> param;
 
   @override
-  Widget build(BuildContext context) {
-    final resmi = belumDipindah<String>('resmi') == 'resmi';
-    return anak == null
-        ? _Daftar(resmi: resmi)
-        : _Rinci(id: param['f'], resmi: resmi);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = ref.watch(laporanBulanProvider);
+    if (l == null) return const SizedBox.shrink();
+    return anak == null ? _Daftar(l: l) : _Rinci(id: param['f'], l: l);
   }
 }
 
 class _Daftar extends StatelessWidget {
-  const _Daftar({required this.resmi});
-  final bool resmi;
+  const _Daftar({required this.l});
+  final LaporanBulan l;
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
+    final resmi = l.resmi;
+    final bulan = namaBulan(l.periode);
     return Gerak(
       Kerangka.pudar,
       lama: const Duration(milliseconds: 200),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const KepalaPonsel(
+          KepalaPonsel(
             judul: 'Laporan',
-            anakJudul: 'Oktober 2026 · Paket Laporan Bulanan GMIM',
+            anakJudul: '$bulan · Paket Laporan Bulanan GMIM',
             kembaliKe: Layar.pengaturan,
             labelKembali: 'Kembali ke Lainnya',
           ),
@@ -91,35 +97,29 @@ class _Daftar extends StatelessWidget {
                   ),
                   const SizedBox(height: 14),
                   if (resmi) ...[
-                    const PitaLaporan.resmi(
-                      dibekukan: '16/11/2026 11.05',
-                      idSalinan: 'SNP-2026-10-01',
+                    PitaLaporan.resmi(
+                      dibekukan: dibekukan(l.snapshot!),
+                      idSalinan: l.snapshot!.id,
                     ),
                     const SizedBox(height: 14),
-                    const Row(
+                    Row(
                       children: [
                         Expanded(
                           child: Tombol(
                             'Unduh PDF',
                             onPressed: null,
                             ke: Layar.laporanResmi,
-                            param: {
-                              'periode': belumDipindahId,
-                              'bentuk': 'f01',
-                            },
+                            param: {'periode': l.periode.id, 'bentuk': 'f01'},
                             ukuran: UkuranTombol.sedang,
                           ),
                         ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: Tombol(
                             'Unduh Excel',
                             onPressed: null,
                             ke: Layar.laporanResmi,
-                            param: {
-                              'periode': belumDipindahId,
-                              'bentuk': 'excel',
-                            },
+                            param: {'periode': l.periode.id, 'bentuk': 'excel'},
                             jenis: JenisTombol.kedua,
                             ukuran: UkuranTombol.sedang,
                           ),
@@ -127,8 +127,11 @@ class _Daftar extends StatelessWidget {
                       ],
                     ),
                   ] else
-                    const PitaLaporan.sementara(
-                      kalimat: 'Bukan laporan resmi. Angka masih dapat berubah sampai Oktober 2026 ditutup; file resmi dibuat setelah tutup buku.',
+                    PitaLaporan.sementara(
+                      kalimat:
+                          'Bukan laporan resmi. Angka masih dapat berubah '
+                          'sampai $bulan ditutup; file resmi dibuat setelah '
+                          'tutup buku.',
                     ),
                   const SizedBox(height: 14),
                   Container(
@@ -245,18 +248,19 @@ List<_Kartu> _kartu(LaporanTabel l) => [
 ];
 
 class _Rinci extends StatelessWidget {
-  const _Rinci({required this.id, required this.resmi});
+  const _Rinci({required this.id, required this.l});
   final String? id;
-  final bool resmi;
+  final LaporanBulan l;
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
+    final resmi = l.resmi;
     final p = laporanDaftar.firstWhere(
       (f) => f.$1 == id,
       orElse: () => laporanDaftar.first,
     );
-    final l = laporanTabel[p.$1]!;
+    final tabel = tabelLaporan(l, formLaporan(p.$1));
     final kecil3 = TextStyle(fontSize: 13, color: c.tinta3);
     return ColoredBox(
       color: c.permukaan,
@@ -315,18 +319,19 @@ class _Rinci extends StatelessWidget {
                             height: 1.25,
                           ),
                         ),
-                        const Text(
-                          'Jemaat Karunia · Periode laporan 1–31 Oktober 2026',
-                          style: TextStyle(fontSize: 14),
+                        Text(
+                          'Jemaat Karunia · Periode laporan '
+                          '${rentangPeriode(l.periode)}',
+                          style: const TextStyle(fontSize: 14),
                         ),
-                        Text(l.sub, style: kecil3),
+                        Text(tabel.sub, style: kecil3),
                       ],
                     ),
                   ),
                   const SizedBox(height: 12),
-                  for (final k in _kartu(l)) _KartuLaporan(k),
+                  for (final k in _kartu(tabel)) _KartuLaporan(k),
                   const SizedBox(height: 12),
-                  Text(l.kaki, style: kecil3),
+                  Text(tabel.kaki, style: kecil3),
                   const SizedBox(height: 12),
                   Text(
                     'Di ponsel tiap baris laporan ditumpuk; kolom dan angkanya sama dengan PDF dan Excel.',

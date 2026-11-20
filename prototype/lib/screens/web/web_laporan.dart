@@ -1,6 +1,14 @@
 import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../core/format.dart';
+import '../../domain/finance/finance.dart';
+import '../../providers/keuangan/akhir_bulan.dart';
+import '../../providers/keuangan/beranda.dart';
+import '../../providers/keuangan/laporan.dart';
+import '../lanjut/laporan_tabel.dart';
 
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
@@ -12,55 +20,66 @@ import '../../widgets/pita_laporan.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
 import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
 
-/// F01 lines of WebLaporan.dc.html (`B`): label, value, note, total, link.
-const _baris = [
-  ('Saldo awal Kas/Bank', 'Rp36.250.000', '', true, false),
-  ('Pendapatan ekonomi', 'Rp14.820.000', '', false, true),
-  ('Belanja ekonomi', '−Rp11.455.000', '', false, true),
-  ('Dana Transit masuk', 'Rp2.400.000', 'titipan masuk', false, true),
-  ('Dana Transit keluar', '−Rp2.400.000', 'titipan disalurkan', false, true),
-  ('Uang Muka diberikan', '−Rp1.500.000', '', false, true),
-  ('Pengembalian sisa uang muka', 'Rp350.000', '', false, true),
-  ('Saldo akhir Kas/Bank', 'Rp38.465.000', '', true, false),
+/// F01 lines (`B`): label, value, note, total, link to the transactions.
+List<(String, String, String, bool, bool)> _baris(LaporanBulan l) => [
+  for (final r in tabelLaporan(l, ReportForm.f01).rows)
+    (
+      r[0] as String,
+      r[1] as String,
+      switch (r[0]) {
+        'Dana Transit masuk' => 'titipan masuk',
+        'Dana Transit keluar' => 'titipan disalurkan',
+        _ => '',
+      },
+      r.last is int,
+      r.last is! int,
+    ),
 ];
 
-const _posisi = [
-  ['Kas', 'Rp8.750.000', 'Rp8.750.000', '', 'Rp0'],
-  ['Bank BNI ··4821', 'Rp24.600.000', '', 'Rp24.100.000', 'Rp0'],
-  ['Bank SulutGo ··1107', 'Rp5.115.000', '', 'Rp5.115.000', 'Rp0'],
-];
-
-class WebLaporanScreen extends StatelessWidget {
+/// WebLaporan: F01 of `laporanBulanProvider` on paper, provisional before
+/// the close and official after it.
+class WebLaporanScreen extends ConsumerWidget {
   const WebLaporanScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
-    final resmi = belumDipindah<String>('sementara') == 'resmi';
+    final l = ref.watch(laporanBulanProvider);
+    if (l == null) {
+      return const HalamanWeb(
+        nav: NavSamping(item: navKeuangan, aktif: 5),
+        layarKeuangan: true,
+        isi: [Text('Belum ada bulan untuk dilaporkan.')],
+      );
+    }
+    final resmi = l.resmi;
+    final bulan = namaBulan(l.periode);
+    final f = l.format;
     return HalamanWeb(
       nav: const NavSamping(item: navKeuangan, aktif: 5),
       jarak: 18,
       layarKeuangan: true,
       isi: [
-        _BarisJudul(resmi: resmi),
+        _BarisJudul(l: l),
         if (resmi)
-          const PitaLaporan.resmi(
-            dibekukan: '16/11/2026 11.05',
-            idSalinan: 'SNP-2026-10-01',
-            versi: '2026.1',
+          PitaLaporan.resmi(
+            dibekukan: dibekukan(l.snapshot!),
+            idSalinan: l.snapshot!.id,
+            versi: l.data(ReportForm.f05).totals['versionCode'] as String?,
             sebaris: true,
           )
         else
-          const PitaLaporan.sementara(
-            kalimat: 'Bukan laporan resmi. Angka masih dapat berubah sampai Oktober 2026 ditutup; file resmi dibuat setelah tutup buku.',
+          PitaLaporan.sementara(
+            kalimat:
+                'Bukan laporan resmi. Angka masih dapat berubah sampai '
+                '$bulan ditutup; file resmi dibuat setelah tutup buku.',
             sebaris: true,
           ),
         BarisLentur(
           jarak: 24,
           anak: [
-            Lentur(dasar: 560, tumbuh: 999, child: _Kertas(resmi: resmi)),
+            Lentur(dasar: 560, tumbuh: 999, child: _Kertas(l: l)),
             Lentur(
               dasar: 280,
               child: Column(
@@ -73,51 +92,57 @@ class WebLaporanScreen extends StatelessWidget {
                         'Format laporan',
                         style: TextStyle(fontSize: 13, color: c.tinta2),
                       ),
-                      const Text(
-                        'Bawaan Palakat · v1',
-                        style: TextStyle(fontWeight: FontWeight.w700),
+                      Text(
+                        f?.name ?? 'Bawaan Palakat',
+                        style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
-                      const Padding(
-                        padding: EdgeInsets.only(top: 6),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 6),
                         child: Text(
-                          'Persetujuan format: sudah dicatat',
-                          style: TextStyle(
+                          f == null
+                              ? 'Persetujuan format: belum dicatat'
+                              : 'Persetujuan format: sudah dicatat',
+                          style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
-                      Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(
-                              text: 'Pemberi persetujuan:',
-                              style: TextStyle(color: c.tinta2),
-                            ),
-                            const TextSpan(
-                              text: ' [NAMA], Pimpinan Jemaat yang berwenang · 01/11/2026',
-                            ),
-                          ],
+                      if (f != null)
+                        Text.rich(
+                          TextSpan(
+                            children: [
+                              TextSpan(
+                                text: 'Pemberi persetujuan:',
+                                style: TextStyle(color: c.tinta2),
+                              ),
+                              const TextSpan(
+                                text: ' [NAMA], Pimpinan Jemaat yang berwenang',
+                              ),
+                            ],
+                          ),
+                          style: const TextStyle(fontSize: 14),
                         ),
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            GarisLurus(
-                              warna: c.garisTegas,
-                              gaya: GayaGaris.putus,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Dicatat oleh Meiske L., 02/11/2026 09.10. Persetujuan diberikan di luar aplikasi.',
-                              style: TextStyle(fontSize: 13, color: c.tinta3),
-                            ),
-                          ],
+                      if (f != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              GarisLurus(
+                                warna: c.garisTegas,
+                                gaya: GayaGaris.putus,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Dicatat oleh ${l.pencatatFormat}, '
+                                '${tglJam(f.acceptedAt!)}. Persetujuan diberikan '
+                                'di luar aplikasi.',
+                                style: TextStyle(fontSize: 13, color: c.tinta3),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
                     ],
                   ),
                   const SizedBox(height: 14),
@@ -167,8 +192,8 @@ class WebLaporanScreen extends StatelessWidget {
 
 /// h1 `flex: 1 1 260px` and, when resmi, the two download links, wrapping.
 class _BarisJudul extends StatelessWidget {
-  const _BarisJudul({required this.resmi});
-  final bool resmi;
+  const _BarisJudul({required this.l});
+  final LaporanBulan l;
 
   static double _lebar(BuildContext context, String teks, double garis) {
     final tp = TextPainter(
@@ -185,6 +210,7 @@ class _BarisJudul extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
+    final resmi = l.resmi;
     final judul = Semantics(
       header: true,
       child: Text.rich(
@@ -192,7 +218,7 @@ class _BarisJudul extends StatelessWidget {
           children: [
             const TextSpan(text: 'Laporan '),
             TextSpan(
-              text: '· Oktober 2026',
+              text: '· ${namaBulan(l.periode)}',
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w500,
@@ -213,11 +239,11 @@ class _BarisJudul extends StatelessWidget {
         Lentur(
           dasar: _lebar(context, 'Unduh PDF', 0),
           tumbuh: 0,
-          child: const Tombol(
+          child: Tombol(
             'Unduh PDF',
             onPressed: null,
             ke: Layar.laporanResmi,
-            param: {'periode': belumDipindahId, 'bentuk': 'f01'},
+            param: {'periode': l.periode.id, 'bentuk': 'f01'},
             ukuran: UkuranTombol.kecil,
             paddingH: 18,
           ),
@@ -225,11 +251,11 @@ class _BarisJudul extends StatelessWidget {
         Lentur(
           dasar: _lebar(context, 'Unduh Excel', 3),
           tumbuh: 0,
-          child: const Tombol(
+          child: Tombol(
             'Unduh Excel',
             onPressed: null,
             ke: Layar.laporanResmi,
-            param: {'periode': belumDipindahId, 'bentuk': 'excel'},
+            param: {'periode': l.periode.id, 'bentuk': 'excel'},
             jenis: JenisTombol.kedua,
             ukuran: UkuranTombol.kecil,
             paddingH: 18,
@@ -241,12 +267,14 @@ class _BarisJudul extends StatelessWidget {
 }
 
 class _Kertas extends StatelessWidget {
-  const _Kertas({required this.resmi});
-  final bool resmi;
+  const _Kertas({required this.l});
+  final LaporanBulan l;
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
+    final resmi = l.resmi;
+    final posisi = tabelLaporan(l, ReportForm.f10);
     final pad = context.jepit(20, 4, 48);
     final kecil3 = TextStyle(fontSize: 13, color: c.tinta3);
     return Container(
@@ -287,8 +315,9 @@ class _Kertas extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 2),
-                const Text(
-                  'Jemaat Karunia · Periode laporan 1–31 Oktober 2026',
+                Text(
+                  'Jemaat Karunia · Periode laporan '
+                  '${rentangPeriode(l.periode)}',
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -302,29 +331,26 @@ class _Kertas extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              for (final (i, b) in _baris.indexed)
+              for (final (i, b) in _baris(l).indexed)
                 _BarisF01(b, pertama: i == 0),
             ],
           ),
           const SizedBox(height: 22),
-          const Text(
-            'Posisi Kas & Bank per 31 Oktober 2026',
-            style: TextStyle(fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: 8),
-          const _TabelPosisi(),
-          const SizedBox(height: 8),
           Text(
-            'Bank BNI ··4821: setoran dalam perjalanan Rp500.000, dibawa ke November 2026. Hasil hitung kas dan saldo rekening koran tidak dijumlahkan.',
-            style: kecil3,
+            'Posisi Kas & Bank per ${tglPanjang(l.periode.end.awal)}',
+            style: const TextStyle(fontWeight: FontWeight.w700),
           ),
+          const SizedBox(height: 8),
+          _TabelPosisi(posisi.rows.map((r) => r.cast<String>()).toList()),
+          const SizedBox(height: 8),
+          Text(posisi.kaki, style: kecil3),
           const SizedBox(height: 22 + 8),
           KisiOtomatis(
             minLebar: 200,
             jarak: 24,
             anak: [
-              for (final (jabatan, nama) in const [
-                ('Bendahara', 'Meiske Lumentut'),
+              for (final (jabatan, nama) in [
+                ('Bendahara', l.penutup ?? '[NAMA]'),
                 ('Ketua BPMJ', '[NAMA DARI PENGATURAN]'),
               ])
                 Column(
@@ -486,7 +512,8 @@ class _BarisF01 extends StatelessWidget {
 
 /// `table` min-width 600, width 100%, scrolling sideways inside the paper.
 class _TabelPosisi extends StatelessWidget {
-  const _TabelPosisi();
+  const _TabelPosisi(this._posisi);
+  final List<List<String>> _posisi;
 
   static const _kepala = [
     'Kas/Bank',

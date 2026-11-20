@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
@@ -11,18 +12,16 @@ import '../../app/layar.dart';
 
 /// Web · Hambatan dari unit (spec 21): SelesaikanUnit on the laptop, with
 /// the platform side nav ("Keuangan" active).
-class WebSelesaikanUnitScreen extends StatefulWidget {
+class WebSelesaikanUnitScreen extends ConsumerStatefulWidget {
   const WebSelesaikanUnitScreen({super.key});
 
   @override
-  State<WebSelesaikanUnitScreen> createState() => _WebSelesaikanUnitState();
+  ConsumerState<WebSelesaikanUnitScreen> createState() =>
+      _WebSelesaikanUnitState();
 }
 
-class _WebSelesaikanUnitState extends State<WebSelesaikanUnitScreen>
+class _WebSelesaikanUnitState extends ConsumerState<WebSelesaikanUnitScreen>
     with KeadaanSelesaikan {
-  @override
-  String get stem => 'WebSelesaikanUnit';
-
   @override
   Widget build(BuildContext context) {
     final c = context.warna;

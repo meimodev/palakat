@@ -1,11 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/format.dart';
+import '../../domain/core/core.dart';
+import '../../domain/finance/finance.dart';
 import '../../motion/kerangka.dart';
+import '../../providers/actor.dart';
+import '../../providers/core_repositories.dart';
+import '../../providers/keuangan/akhir_bulan.dart';
+import '../../providers/keuangan/laporan.dart';
+import '../../providers/repositories_keuangan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/chip_pilihan.dart';
 import '../../widgets/garis.dart';
 import '../../widgets/garis_status.dart';
 import '../../widgets/kecil.dart';
+import '../../widgets/penolakan.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
 import '../../app/layar.dart';
@@ -13,7 +23,8 @@ import '../../app/layar.dart';
 /// Parts shared by FormatLaporan and WebFormatLaporan (the boards draw the
 /// same form, record and cards; only the shell and two link targets differ).
 
-/// The board state `{ st, nama, jabatan, cara }`, owned by the screen.
+/// The form state `{ nama, jabatan, cara }`, owned by the screen; whether
+/// the format is accepted is ReportRepository's (RD03, DP11).
 class DataFormatLaporan {
   final nama = TextEditingController();
   static const jabatanAwal = 'Ketua BPMJ';
@@ -23,7 +34,10 @@ class DataFormatLaporan {
   /// the field through this node, as `<label for="en">` does.
   final fokusNama = FocusNode();
   String cara = 'notulen rapat';
-  bool ada = false;
+
+  /// Recorded in this visit: the approver typed in the form is shown.
+  bool dicatat = false;
+  Refusal? tolak;
 
   void dispose() {
     nama.dispose();
@@ -38,12 +52,16 @@ const _wajib = 'Pemberi persetujuan · wajib';
 /// `sc-if` blocks (gap is the parent column's).
 List<Widget> bagianPersetujuan(
   BuildContext context,
+  WidgetRef ref,
   DataFormatLaporan d,
   void Function(VoidCallback) ubah,
 ) {
   final c = context.warna;
   final kecil = TextStyle(fontSize: 14, color: c.tinta2);
-  if (d.ada) {
+  final semua = ref.watch(reportRepositoryProvider).templates();
+  final t = semua.where((t) => t.accepted).firstOrNull;
+  if (t != null) {
+    final oleh = ref.watch(peopleRepositoryProvider).person(t.acceptedBy!);
     return [
       Gerak(
         Kerangka.muncul,
@@ -59,33 +77,40 @@ List<Widget> bagianPersetujuan(
                 'Persetujuan format: sudah dicatat',
                 style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
               ),
-              const SizedBox(height: 4),
-              Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(
-                      text: 'Pemberi persetujuan:',
-                      style: TextStyle(color: c.tinta2),
-                    ),
-                    const TextSpan(text: ' '),
-                    TextSpan(
-                      text: d.nama.text,
-                      style: const TextStyle(fontWeight: FontWeight.w700),
-                    ),
-                    TextSpan(text: ', ${d.jabatan.text}'),
-                  ],
+              if (d.dicatat) ...[
+                const SizedBox(height: 4),
+                Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: 'Pemberi persetujuan:',
+                        style: TextStyle(color: c.tinta2),
+                      ),
+                      const TextSpan(text: ' '),
+                      TextSpan(
+                        text: d.nama.text,
+                        style: const TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                      TextSpan(text: ', ${d.jabatan.text}'),
+                    ],
+                  ),
+                  style: const TextStyle(fontSize: 15),
                 ),
-                style: const TextStyle(fontSize: 15),
-              ),
+              ],
               const SizedBox(height: 4),
-              Text('03/10/2026 · cara: ${d.cara}', style: kecil),
+              Text(
+                '${t.name} · ${tgl(t.acceptedAt!)}'
+                '${d.dicatat ? ' · cara: ${d.cara}' : ''}',
+                style: kecil,
+              ),
               const SizedBox(height: 4 + 8),
               GarisLurus(warna: c.garisTegas, gaya: GayaGaris.putus),
               const SizedBox(height: 8),
               Text(
-                'Dicatat oleh Meiske L., 03/10/2026 11.40. Persetujuan '
-                'diberikan di luar aplikasi. Catatan yang keliru digantikan '
-                'catatan baru, tidak diubah.',
+                'Dicatat oleh ${oleh?.shortName ?? oleh?.name}, '
+                '${tglJam(t.acceptedAt!)}. Persetujuan diberikan di luar '
+                'aplikasi. Catatan yang keliru digantikan catatan baru, tidak '
+                'diubah.',
                 style: TextStyle(fontSize: 13, color: c.tinta3),
               ),
             ],
@@ -187,9 +212,9 @@ List<Widget> bagianPersetujuan(
         children: [
           Expanded(child: Text('Tanggal persetujuan', style: kecil)),
           const SizedBox(width: 16),
-          const Text(
-            '3 Oktober 2026',
-            style: TextStyle(fontWeight: FontWeight.w600),
+          Text(
+            tglPanjang(ref.watch(hariIniProvider).awal),
+            style: const TextStyle(fontWeight: FontWeight.w600),
           ),
         ],
       ),
@@ -206,15 +231,46 @@ List<Widget> bagianPersetujuan(
       warnaSiap: JenisTombol.utama,
       teksBelumRedup: true,
       paddingH: 20,
-      onPressed: () => ubah(() => d.ada = true),
+      onPressed: () async {
+        final p = semua.firstOrNull;
+        if (p == null) return;
+        final r = await perintah(
+          ref,
+          (a, k) => ref
+              .read(reportRepositoryProvider)
+              .acceptTemplate(
+                a,
+                p.id,
+                expectedRevision: p.revision,
+                idempotencyKey: k,
+              ),
+        );
+        ubah(() {
+          d.tolak = r?.refusal;
+          d.dicatat = r is Ok<ReportTemplate>;
+        });
+      },
     ),
+    if (d.tolak != null)
+      Penolakan(
+        tindakan: d.tolak!.action,
+        sebab: d.tolak!.because,
+        jalan: const [],
+        ukuranTeks: 14,
+      ),
   ];
 }
 
 /// Cards g, h, i. [tautan] are the two link-buttons of card g, built by the
 /// screen (their targets differ per board).
-List<Widget> kartuFormat(BuildContext context, List<Widget> tautan) {
+List<Widget> kartuFormat(
+  BuildContext context,
+  WidgetRef ref,
+  List<Widget> tautan,
+) {
   final c = context.warna;
+  final format = ref.watch(reportRepositoryProvider).templates().firstOrNull;
+  final bendahara = ref.watch(namaBendaharaProvider);
   final kecil = TextStyle(fontSize: 14, color: c.tinta2);
   final catatan = TextStyle(fontSize: 13, color: c.tinta3);
   Widget kartu(double jarak, List<Widget> anak) => Kartu(
@@ -233,9 +289,9 @@ List<Widget> kartuFormat(BuildContext context, List<Widget> tautan) {
   return [
     kartu(6, [
       Text('Format laporan', style: kecil),
-      const Text(
-        'Bawaan Palakat · v1',
-        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+      Text(
+        format?.name ?? 'Bawaan Palakat',
+        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
       ),
       Text(
         'Empat belas laporan, F01 sampai F14. Format ini buatan aplikasi dan '
@@ -275,7 +331,7 @@ List<Widget> kartuFormat(BuildContext context, List<Widget> tautan) {
     ]),
     kartu(4, [
       const Text('Penanda tangan, dari pengaturan', style: tebal),
-      Text('Bendahara · Meiske Lumentut', style: kecil),
+      Text('Bendahara · ${bendahara ?? 'belum ada'}', style: kecil),
       Text('Ketua BPMJ · [NAMA DARI PENGATURAN]', style: kecil),
       Padding(
         padding: const EdgeInsets.only(top: 4),

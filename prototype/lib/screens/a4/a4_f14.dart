@@ -1,138 +1,124 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../shell/halaman_a4.dart';
+import '../../core/format.dart';
+import '../../domain/finance/finance.dart';
+import '../../providers/repositories_keuangan.dart';
 import '../../theme/palakat_tema.dart';
+import '../lanjut/laporan_tabel.dart';
 import 'a4_f14_tabel.dart';
+import 'a4_laporan.dart';
 
-/// A4 · F14 Lampiran, halaman 2 dari 3. Static printed page.
-class A4F14Screen extends StatelessWidget {
+/// A4 · F14 Lampiran Laporan Bulanan of the route's month: the eight
+/// attachments of the F14 dataset, each listing its transactions or cases,
+/// "Nihil" when empty, paginated.
+class A4F14Screen extends ConsumerWidget {
   const A4F14Screen({super.key});
 
-  static const _k5 = <double?>[120, null, 120];
-  static const _k6 = <double?>[120, 100, null, 120];
+  static const _k = <double?>[120, 100, null, 120];
 
   @override
-  Widget build(BuildContext context) => HalamanA4(
-    ukuran: const Size(794, 1123),
-    kode: 'F14 · LAPORAN RESMI',
-    judul: 'LAMPIRAN LAPORAN BULANAN',
-    subjudul: 'Jemaat Karunia · Periode laporan 1–31 Oktober 2026',
-    kanan: const [
-      'ID SNP-2026-10-01',
-      'Dibekukan 16/11/2026 11.05',
-      'Versi Mata Anggaran 2026.1',
-    ],
-    kakiKanan: 'F14 · halaman 2 dari 3',
-    isi: [
-      const BagianA4(
-        anak: [JudulA4('4 · Penggantian Biaya', atas: 0), _Nihil()],
-      ),
-      BagianA4(
-        anak: [
-          const JudulA4('5 · Pengecualian Dokumen Pendukung'),
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = laporanRute(context, ref);
+    if (l == null) return const SizedBox.shrink();
+    final tx = ref.watch(transactionRepositoryProvider);
+    final kasus = ref.watch(caseRepositoryProvider);
+    final blok = <BlokA4>[];
+    for (final r in l.data(ReportForm.f14).rows) {
+      final n = r['n'] as int;
+      final items = (r['items'] as List).cast<String>();
+      final (judul, _) = lampiranF14[n - 1];
+      final baris = <Widget>[
+        JudulA4('$n · $judul', atas: blok.isEmpty ? 0 : 6),
+      ];
+      if (n == 8) {
+        baris.add(
+          Text(
+            '${r['count']} dari 8 syarat tutup buku terpenuhi.'
+            '${items.isEmpty ? '' : ' Belum terpenuhi: ${items.length}.'}',
+          ),
+        );
+      } else if (items.isEmpty) {
+        baris.add(const _Nihil());
+      } else if (n == 1) {
+        baris.add(
           const BarisA4(
             jenis: JenisBarisA4.kepala,
-            kolom: _k5,
-            kanan: {2},
-            sel: [
-              'No. Bukti',
-              'Uraian, alasan dan pemberi pengecualian',
-              'Jumlah',
-            ],
+            kolom: <double?>[null, 160],
+            kanan: {1},
+            sel: ['Uang Muka', 'Sisa'],
           ),
-          Builder(
-            builder: (context) => BarisA4(
-              kolom: _k5,
-              kanan: const {2},
-              mono: const {0, 2},
-              sel: [
-                'BKU-2026-0116',
-                Text.rich(
-                  TextSpan(
-                    children: [
-                      const TextSpan(text: 'Pemeliharaan atap gedung\n'),
-                      TextSpan(
-                        text: 'Alasan: kuitansi menyusul · Pemberi pengecualian: Ketua BPMJ · dicatat 22/10/2026',
-                        style: TextStyle(color: context.warna.tinta2),
-                      ),
-                    ],
-                  ),
-                ),
-                '−Rp5.500.000',
-              ],
+        );
+        for (final id in items) {
+          final k = kasus.caseById(id);
+          baris.add(
+            BarisA4(
+              kolom: const <double?>[null, 160],
+              kanan: const {1},
+              mono: const {1},
+              sel: [k?.kase.title ?? id, k == null ? '' : rp(k.outstanding)],
             ),
-          ),
-          const _Keterangan(
-            'Status dicetak seperti saat tutup buku. Dokumen susulan tidak mengubah halaman ini.',
-          ),
-        ],
-      ),
-      BagianA4(
-        anak: [
-          const JudulA4('6 · Pembalikan dan Koreksi'),
+          );
+        }
+      } else {
+        baris.add(
           const BarisA4(
             jenis: JenisBarisA4.kepala,
-            kolom: _k6,
+            kolom: _k,
             kanan: {3},
-            sel: ['No. Bukti', 'Tanggal', 'Uraian', 'Pengeluaran'],
+            sel: ['No. Bukti', 'Tanggal', 'Uraian', 'Jumlah'],
           ),
-          Builder(
-            builder: (context) => BarisA4(
-              kolom: _k6,
+        );
+        for (final id in items) {
+          final t = tx.get(id);
+          baris.add(
+            BarisA4(
+              kolom: _k,
               kanan: const {3},
               mono: const {0, 3},
               sel: [
-                'BKU-2026-0105',
-                '09/10/2026',
-                Text.rich(
-                  TextSpan(
-                    children: [
-                      const TextSpan(
-                        text: 'Konsumsi rapat majelis · No. MA 5.02.01.00 ',
-                      ),
-                      tagCetak(context, 'Dibalik'),
-                    ],
-                  ),
-                ),
-                'Rp750.000',
+                t?.voucher ?? '',
+                t == null ? '' : '${t.effectiveDate}',
+                t?.description ?? id,
+                t == null ? '' : rp(signedAmount(t)),
               ],
             ),
-          ),
-          const BarisA4(
-            kolom: _k6,
-            kanan: {3},
-            mono: {0, 3},
-            sel: [
-              'BKU-2026-0109',
-              '12/10/2026',
-              'Pembalikan BKU-2026-0105 · alasan: Mata Anggaran keliru',
-              '−Rp750.000',
-            ],
-          ),
-          const BarisA4(
-            kolom: _k6,
-            kanan: {3},
-            mono: {0, 3},
-            sel: [
-              'BKU-2026-0110',
-              '12/10/2026',
-              'Transaksi koreksi · Konsumsi rapat majelis · No. MA 5.04.01.00',
-              'Rp750.000',
-            ],
-          ),
-        ],
-      ),
-      const BagianA4(
+          );
+        }
+        if (n == 5) {
+          baris.add(
+            const _Keterangan(
+              'Status dicetak seperti saat tutup buku. Dokumen susulan tidak '
+              'mengubah halaman ini.',
+            ),
+          );
+        }
+      }
+      blok.add((
+        berat: 2 + (n == 8 || items.isEmpty ? 1 : items.length),
+        isi: BagianA4(anak: baris),
+      ));
+    }
+    blok.add((
+      berat: 1,
+      isi: const BagianA4(
         anak: [
-          JudulA4('7 · Saldo Awal Pencatatan'),
-          _Nihil(),
           _Keterangan(
             'Lampiran tanpa isi dicetak sebagai “Nihil”, bukan halaman kosong.',
           ),
         ],
       ),
-    ],
-  );
+    ));
+    return HalamanA4Bertingkat(
+      ukuran: const Size(794, 1123),
+      form: 'F14',
+      kode: kodeA4(l, 'F14'),
+      judul: 'LAMPIRAN LAPORAN BULANAN',
+      subjudul: subjudulA4(l),
+      kanan: kananA4(l),
+      halaman: bagiHalaman(blok, 30),
+    );
+  }
 }
 
 /// An empty attachment: 1 `tinta` border, square corners, padding 10 14, 600.

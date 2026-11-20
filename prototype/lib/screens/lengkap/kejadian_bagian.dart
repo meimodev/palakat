@@ -1,67 +1,120 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../mock/mock.dart';
+import '../../app/layar.dart';
+import '../../core/format.dart';
+import '../../domain/core/core.dart';
+import '../../domain/finance/finance.dart';
 import '../../motion/kerangka.dart';
+import '../../providers/actor.dart';
+import '../../providers/keuangan/akhir_bulan.dart';
+import '../../providers/keuangan/beranda.dart';
+import '../../providers/repositories_keuangan.dart';
 import '../../theme/palakat_tema.dart';
+import '../../widgets/chip_pilihan.dart';
 import '../../widgets/garis_status.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/penolakan.dart';
-import '../../widgets/tombol_bersyarat.dart';
+import '../../widgets/tombol.dart';
 
-/// Parts shared by Kejadian and WebKejadian (07-kejadian.md): the board state,
-/// the badge, the blocker statement, a card's lines and the detail regions a–e.
+/// Parts shared by Kejadian and WebKejadian (07-kejadian.md): the view
+/// state, the badge, the blocker statement, a card's lines, the detail and
+/// the "Catat kejadian" form. Incidents come from PeriodRepository
+/// (`kejadianProvider`); recording one never changes the closed month.
 
-// Board figures the mock lacks for K-2026-02 (its `eskalasi` and `beres`).
-const _belum = 'Penyelesaian keuangan belum diisi.';
-const _eskalasi = {'K-2026-02': 'Tidak perlu eskalasi.'};
-const _beres = {
-  'K-2026-02': 'Tidak ada penyelesaian keuangan; kuitansi dilampirkan sebagai dokumen susulan.',
-};
-
-/// The board's `state = { buka, pilih, selesai, isi }`; `buka` is the route
-/// on the phone and unused on web. `isi` is the text field's controller.
+/// The view state: the chosen incident, the open form and its fields.
 class KeadaanKejadian extends ChangeNotifier {
-  KeadaanKejadian() {
-    isi.addListener(notifyListeners);
-  }
+  String? pilih;
+  bool membuka = false, masuk = true;
+  Refusal? tolak;
+  final judul = TextEditingController(),
+      fakta = TextEditingController(),
+      dampak = TextEditingController(),
+      pj = TextEditingController(),
+      jumlah = TextEditingController();
 
-  String pilih = kejadian.first.no;
-  final Map<String, String> selesai = {};
-  final isi = TextEditingController();
+  /// The chosen incident, else the newest.
+  ButirKejadian? cur(DaftarKejadian d) =>
+      d.butir.where((b) => b.kejadian.id == pilih).firstOrNull ??
+      d.butir.firstOrNull;
 
-  Kejadian get cur => kejadian.firstWhere((k) => k.no == pilih);
-
-  /// `k.beres || s.selesai[k.id] || ''`.
-  String sel(Kejadian k) => _beres[k.no] ?? selesai[k.no] ?? '';
-
-  bool get ok => isi.text.trim().isNotEmpty;
-
-  /// `pick`: `pilih = id`, `isi = ''`.
-  void pick(String no) {
-    pilih = no;
-    isi.clear();
+  void pick(String id) {
+    pilih = id;
+    membuka = false;
     notifyListeners();
   }
 
-  /// `simpan`: only when `isi.trim()` is not empty.
-  void simpan() {
-    if (!ok) return;
-    selesai[pilih] = isi.text.trim();
-    isi.clear();
+  void buka() {
+    membuka = true;
+    tolak = null;
     notifyListeners();
   }
 
-  void ulang() {
-    pilih = kejadian.first.no;
-    selesai.clear();
-    isi.clear();
+  void tutup() {
+    membuka = false;
     notifyListeners();
+  }
+
+  void arah(bool m) {
+    masuk = m;
+    notifyListeners();
+  }
+
+  /// "Catat kejadian": PeriodRepository.recordIncident on the last closed
+  /// month, with the settlement as a draft in the open month when an amount
+  /// is given. Returns the new incident's id.
+  Future<String?> catat(WidgetRef ref, DaftarKejadian d) async {
+    final p = d.ditutup;
+    if (p == null) return null;
+    final n = int.tryParse(jumlah.text.replaceAll(RegExp(r'\D'), '')) ?? 0;
+    final kas = ref
+        .read(accountRepositoryProvider)
+        .accounts()
+        .where((a) => a.type == AccountType.cash && a.operatedByScopeId == null)
+        .firstOrNull;
+    final r = await perintah(
+      ref,
+      (a, k) => ref
+          .read(periodRepositoryProvider)
+          .recordIncident(
+            a,
+            p.id,
+            IncidentExplanation(
+              title: judul.text.trim(),
+              facts: fakta.text.trim(),
+              impact: dampak.text.trim(),
+              responsible: pj.text.trim(),
+            ),
+            n == 0 || kas == null
+                ? null
+                : drafPenyelesaian(
+                    akunId: kas.id,
+                    jumlah: masuk ? n : -n,
+                    judul: judul.text.trim(),
+                    hari: ref.read(hariIniProvider),
+                  ),
+            idempotencyKey: k,
+          ),
+    );
+    tolak = r?.refusal;
+    if (r is Ok<CloseIncident>) {
+      pilih = r.value.id;
+      membuka = false;
+      for (final c in [judul, fakta, dampak, pj, jumlah]) {
+        c.clear();
+      }
+    }
+    notifyListeners();
+    return r is Ok<CloseIncident> ? r.value.id : null;
   }
 
   @override
   void dispose() {
-    isi.dispose();
+    for (final c in [judul, fakta, dampak, pj, jumlah]) {
+      c.dispose();
+    }
     super.dispose();
   }
 }
@@ -97,14 +150,17 @@ class KolomCelah extends StatelessWidget {
   );
 }
 
-/// The dark "Oktober 2026 tidak dapat ditutup" statement (ditutup).
+/// The dark statement: the next month still has blockers, and an incident
+/// does not clear them.
 class PernyataanHambatan extends StatelessWidget {
-  const PernyataanHambatan({super.key});
+  const PernyataanHambatan({super.key, required this.d});
+  final DaftarKejadian d;
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
     final kecil = TextStyle(fontSize: 14, color: c.diTinta);
+    final b = d.berikut!;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -115,7 +171,7 @@ class PernyataanHambatan extends StatelessWidget {
         celah: 6,
         anak: [
           Text(
-            'Oktober 2026 tidak dapat ditutup',
+            '${namaBulan(b)} belum dapat ditutup',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -123,26 +179,9 @@ class PernyataanHambatan extends StatelessWidget {
             ),
           ),
           Text(
-            'Kas punya selisih belum dijelaskan Rp85.000 yang berasal dari '
-            'kejadian K-2026-01 di September 2026. November 2026 dan bulan '
-            'sesudahnya ikut tertahan.',
-            style: kecil,
-          ),
-          Text.rich(
-            TextSpan(
-              children: [
-                const TextSpan(
-                  text: 'Aplikasi ini tidak menyediakan cara untuk memperbaikinya. ',
-                ),
-                TextSpan(
-                  text: 'Yang perlu memutuskan: BPMJ Jemaat Karunia.',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    color: c.permukaan,
-                  ),
-                ),
-              ],
-            ),
+            'Masih ada ${d.hambatan} hambatan tutup buku. Kejadian tidak '
+            'menghilangkan hambatan; hambatan diselesaikan di Bulan dan tutup '
+            'buku.',
             style: kecil,
           ),
         ],
@@ -153,9 +192,8 @@ class PernyataanHambatan extends StatelessWidget {
 
 /// A card's three lines: code + badge, title 15/600, period.
 class IsiKartuKejadian extends StatelessWidget {
-  const IsiKartuKejadian({super.key, required this.k, required this.selesai});
-  final Kejadian k;
-  final bool selesai;
+  const IsiKartuKejadian({super.key, required this.b});
+  final ButirKejadian b;
 
   @override
   Widget build(BuildContext context) {
@@ -167,7 +205,7 @@ class IsiKartuKejadian extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                k.no,
+                b.kejadian.code,
                 style: TextStyle(
                   fontFamily: PalakatText.mono,
                   fontSize: 13,
@@ -176,15 +214,15 @@ class IsiKartuKejadian extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 16),
-            LencanaKejadian(selesai),
+            LencanaKejadian(b.selesai),
           ],
         ),
         Text(
-          k.judul,
+          b.kejadian.explanation.title,
           style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
         ),
         Text(
-          '${k.periode} · Sudah ditutup',
+          '${namaBulan(b.periode)} · Sudah ditutup',
           style: TextStyle(fontSize: 13, color: c.tinta3),
         ),
       ],
@@ -194,25 +232,23 @@ class IsiKartuKejadian extends StatelessWidget {
 
 /// Detail regions a–e of the chosen Kejadian, column gap 16.
 class RinciKejadian extends StatelessWidget {
-  const RinciKejadian({super.key, required this.s, required this.hambat});
-  final KeadaanKejadian s;
-
-  /// Tweak `menghambatBulanBerikutnya`.
-  final bool hambat;
+  const RinciKejadian({super.key, required this.b, required this.d});
+  final ButirKejadian b;
+  final DaftarKejadian d;
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final d = s.cur;
-    final sel = s.sel(d);
-    final done = sel.isNotEmpty;
+    final e = b.kejadian.explanation;
+    final done = b.selesai;
+    final draf = b.draf;
     const judul15 = TextStyle(fontSize: 15, fontWeight: FontWeight.w700);
     final rinci = [
-      ('Periode', '${d.periode} · Sudah ditutup'),
-      ('Transaksi', d.transaksi),
-      ('Dampak pada rekonsiliasi', d.dampak),
-      ('Penanggung jawab', d.penanggungJawab),
-      ('Hasil eskalasi', d.eskalasi ?? _eskalasi[d.no] ?? ''),
+      ('Periode', '${namaBulan(b.periode)} · Sudah ditutup'),
+      ('Transaksi', b.transaksi.isEmpty ? kosong : b.transaksi.join(', ')),
+      ('Dampak pada rekonsiliasi', e.impact),
+      ('Penanggung jawab', e.responsible),
+      ('Hasil eskalasi', e.escalation ?? 'Tidak perlu eskalasi.'),
     ];
     return KolomCelah(
       celah: 16,
@@ -226,7 +262,7 @@ class RinciKejadian extends StatelessWidget {
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 Text(
-                  d.no,
+                  b.kejadian.code,
                   style: TextStyle(
                     fontFamily: PalakatText.mono,
                     fontSize: 13,
@@ -237,7 +273,7 @@ class RinciKejadian extends StatelessWidget {
               ],
             ),
             Text(
-              d.judul,
+              e.title,
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
             ),
           ],
@@ -259,7 +295,7 @@ class RinciKejadian extends StatelessWidget {
           celah: 4,
           anak: [
             const Text('Penjelasan', style: judul15),
-            Text(d.penjelasan, style: const TextStyle(fontSize: 15)),
+            Text(e.facts, style: const TextStyle(fontSize: 15)),
           ],
         ),
         Kartu(
@@ -327,63 +363,167 @@ class RinciKejadian extends StatelessWidget {
               ),
               style: judul15,
             ),
-            if (done) ...[
-              // Keyed by the resolved state only: switching between two
-              // resolved Kejadian keeps it mounted (motion.md rule 3).
+            if (done)
+              // Keyed by the resolved state only (motion.md rule 3).
               Gerak(
                 Kerangka.muncul,
                 lama: const Duration(milliseconds: 300),
-                child: Text(sel, style: const TextStyle(fontSize: 15)),
-              ),
+                child: Text(
+                  draf == null
+                      ? b.kejadian.narrativeResolution!
+                      : '${draf.description} · '
+                            '${rp(draf.allocations.fold(0, (n, x) => n + x.amount))} · '
+                            '${draf.isPosted ? draf.voucher : 'Draf, belum dibukukan'}',
+                  style: const TextStyle(fontSize: 15),
+                ),
+              )
+            else
               Text(
-                'Angka dan laporan resmi ${d.periode} tidak berubah.',
-                style: TextStyle(fontSize: 13, color: c.tinta3),
+                'Penyelesaian keuangan belum diisi.',
+                style: TextStyle(fontSize: 15, color: c.tinta3),
               ),
-              if (hambat && d.no == kejadian.first.no)
-                const Text(
-                  'Hambatan tutup buku Oktober 2026 tetap ada.',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-                ),
-            ] else ...[
-              IsianTeks(
-                controller: s.isi,
-                labelSemantik: 'Penyelesaian keuangan',
-                petunjuk: 'Apa yang diputuskan dan dilakukan, setelah ada keputusan Jemaat',
-                baris: 2,
-                minTinggi: 0,
-                // The M3 bodyLarge letterSpacing .5 leaks into TextField.
-                gaya: const TextStyle(letterSpacing: 0),
-              ),
-              // Rule A02: the sentence the board lacks, once typed into. It
-              // is drawn here, not by TombolBersyarat, so the hugged button
-              // keeps its width (IntrinsicWidth would widen it to the line).
-              if (s.isi.text.isNotEmpty && !s.ok)
-                const Penolakan(
-                  tindakan: 'Catat penyelesaian keuangan',
-                  sebab: _belum,
-                  jalan: [],
-                  ukuranTeks: 14,
-                ),
+            if (draf != null && !draf.isPosted)
               Align(
                 alignment: Alignment.centerLeft,
-                child: IntrinsicWidth(
-                  child: TombolBersyarat(
-                    label: 'Catat penyelesaian keuangan',
-                    tindakan: 'Catat penyelesaian keuangan',
-                    alasan: s.ok ? '' : _belum,
-                    periksa: () => s.ok ? '' : _belum,
-                    onPressed: s.simpan,
-                    sudahMulai: false,
-                    teksBelumRedup: true,
-                    tinggi: 46,
-                    radius: 12,
-                    paddingH: 20,
-                  ),
+                child: Tombol(
+                  'Periksa dan bukukan',
+                  lebarPenuh: false,
+                  ukuran: UkuranTombol.sedang,
+                  jenis: JenisTombol.kedua,
+                  ke: Layar.draf,
+                  param: {'id': draf.id},
+                  onPressed: null,
                 ),
               ),
-            ],
+            Text(
+              'Angka dan laporan resmi ${namaBulan(b.periode)} tidak berubah.',
+              style: TextStyle(fontSize: 13, color: c.tinta3),
+            ),
+            if (d.hambatan > 0 && d.berikut != null)
+              Text(
+                'Hambatan tutup buku ${namaBulan(d.berikut!)} tetap ada.',
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
           ],
         ),
+      ],
+    );
+  }
+}
+
+/// "Catat kejadian": the finding in the last closed month, recorded as it
+/// is; the settlement, when given, becomes a draft in the open month.
+class FormKejadian extends ConsumerWidget {
+  const FormKejadian({super.key, required this.s, this.onCatat});
+  final KeadaanKejadian s;
+
+  /// After a recorded incident (the phone opens its detail).
+  final VoidCallback? onCatat;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.warna;
+    final d = ref.watch(kejadianProvider);
+    final p = d.ditutup;
+    if (p == null) {
+      return Text(
+        'Belum ada bulan yang ditutup. Kejadian dicatat untuk bulan yang '
+        'sudah ditutup.',
+        style: TextStyle(fontSize: 14, color: c.tinta2),
+      );
+    }
+    return KolomCelah(
+      celah: 14,
+      anak: [
+        Semantics(
+          header: true,
+          child: const Text(
+            'Kejadian baru',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: GarisStatus.ditutup.gaya(c).isi,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Text(
+            'Kejadian setelah tutup buku hanya mencatat. Kejadian tidak '
+            'mengubah angka ${namaBulan(p)}, tidak menghapus selisih, dan '
+            'tidak menghilangkan hambatan tutup buku.',
+            style: TextStyle(fontSize: 14, color: c.permukaan),
+          ),
+        ),
+        Text(
+          'Periode: ${namaBulan(p)} · Sudah ditutup',
+          style: TextStyle(fontSize: 14, color: c.tinta2),
+        ),
+        IsianTeks(controller: s.judul, label: 'Judul', jarakLabel: 6),
+        IsianTeks(
+          controller: s.fakta,
+          label: 'Penjelasan',
+          petunjuk: 'Apa yang ditemukan, apa adanya',
+          jarakLabel: 6,
+          baris: 3,
+        ),
+        IsianTeks(
+          controller: s.dampak,
+          label: 'Dampak pada rekonsiliasi',
+          petunjuk: 'Misalnya: tidak ada',
+          jarakLabel: 6,
+        ),
+        IsianTeks(
+          controller: s.pj,
+          label: 'Penanggung jawab',
+          petunjuk: 'Nama dan jabatan',
+          jarakLabel: 6,
+        ),
+        Text(
+          'Penyelesaian keuangan · bila ada, menjadi draf di bulan berjalan',
+          style: TextStyle(fontSize: 14, color: c.tinta2),
+        ),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            ChipSatu(
+              teks: 'Uang masuk ke Kas',
+              dipilih: s.masuk,
+              onTap: () => s.arah(true),
+            ),
+            ChipSatu(
+              teks: 'Uang keluar dari Kas',
+              dipilih: !s.masuk,
+              onTap: () => s.arah(false),
+            ),
+          ],
+        ),
+        IsianTeks(
+          controller: s.jumlah,
+          label: 'Jumlah penyelesaian',
+          petunjuk: 'Kosongkan bila tidak ada',
+          keyboardType: TextInputType.number,
+          formatters: [FilteringTextInputFormatter.digitsOnly],
+          jarakLabel: 6,
+        ),
+        if (s.tolak != null)
+          Penolakan(
+            tindakan: s.tolak!.action,
+            sebab: s.tolak!.because,
+            jalan: const [],
+            ukuranTeks: 14,
+          ),
+        Tombol(
+          'Catat kejadian',
+          onPressed: () async {
+            if (await s.catat(ref, d) != null) onCatat?.call();
+          },
+        ),
+        Tombol('Batal', jenis: JenisTombol.teks, onPressed: s.tutup),
       ],
     );
   }

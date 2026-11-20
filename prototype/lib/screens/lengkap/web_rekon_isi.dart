@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
@@ -10,16 +11,14 @@ import 'rekon_isi.dart';
 import '../../app/layar.dart';
 
 /// Web · Rekonsiliasi: isi rekening koran dan cocok sebagian (spec 09).
-class WebRekonIsiScreen extends StatefulWidget {
+class WebRekonIsiScreen extends ConsumerStatefulWidget {
   const WebRekonIsiScreen({super.key});
   @override
-  State<WebRekonIsiScreen> createState() => _WebRekonIsiState();
+  ConsumerState<WebRekonIsiScreen> createState() => _WebRekonIsiState();
 }
 
-class _WebRekonIsiState extends State<WebRekonIsiScreen> with RekonIsiLogika {
-  @override
-  String get stem => 'WebRekonIsi';
-
+class _WebRekonIsiState extends ConsumerState<WebRekonIsiScreen>
+    with RekonIsiLogika {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
@@ -54,7 +53,7 @@ class _WebRekonIsiState extends State<WebRekonIsiScreen> with RekonIsiLogika {
                   children: [
                     const TextSpan(text: 'Isi rekening koran '),
                     TextSpan(
-                      text: '· Bank BNI ··4821 · Oktober 2026',
+                      text: '· $judulAkun',
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w500,

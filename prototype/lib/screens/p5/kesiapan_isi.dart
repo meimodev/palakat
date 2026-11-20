@@ -1,34 +1,42 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/format.dart';
+import '../../domain/core/core.dart';
+import '../../domain/finance/finance.dart';
 import '../../motion/kerangka.dart';
+import '../../providers/actor.dart';
+import '../../providers/core_repositories.dart';
+import '../../providers/keuangan/akhir_bulan.dart';
+import '../../providers/keuangan/beranda.dart';
+import '../../providers/repositories_keuangan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis_status.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
+import '../../widgets/penolakan.dart';
 import '../../widgets/tombol.dart';
-import '../../app/belum_dipindah.dart';
-
-/// Board `F`: id, peruntukan, person (Umum Jemaat carries its statement date).
-const _peruntukan = [
-  ('umum', 'Umum Jemaat', 'Pnt. Jefry Wowor · 02/11/2026'),
-  ('diak', 'Diakonia', 'Dkn. Olga Tamba'),
-  ('bang', 'Pembangunan', 'Sdr. Rivo Mandagi'),
-];
 
 const _muncul = Duration(milliseconds: 300);
 
-/// The board state and handlers shared by Kesiapan and WebKesiapan.
-mixin KesiapanLogika<T extends StatefulWidget> on State<T> {
-  /// Board stem, for the `masukSebagai` tweak.
-  String get stem;
+/// '{nama}, {jabatan}' of the signed-in actor, for "masuk sebagai".
+String siapaSaya(WidgetRef ref) {
+  final a = ref.watch(actorProvider);
+  if (a == null) return '';
+  final g = ref
+      .watch(canProvider)
+      .grantsOf(a.personId, at: ref.watch(hariIniProvider));
+  final saya = g.where((x) => x.toActor() == a).firstOrNull ?? g.firstOrNull;
+  final nama = ref.watch(peopleRepositoryProvider).person(a.personId)?.name;
+  return saya == null ? '$nama' : '$nama, ${saya.title}';
+}
 
-  final Map<String, String> _f = {
-    'umum': 'ada',
-    'diak': 'lagi',
-    'bang': 'belum',
-  };
-  final Map<String, String> _als = {};
+/// The readiness rows of the next month to close (RD12, DP37), shared by
+/// Kesiapan and WebKesiapan: the preparer states readiness ("Nyatakan
+/// siap"), the Bendahara waives one with a reason ("Bebaskan").
+mixin KesiapanLogika<T extends ConsumerStatefulWidget> on ConsumerState<T> {
   String? _form;
+  Refusal? _tolak;
   final _alasan = TextEditingController();
   final _fokus = FocusNode();
 
@@ -39,20 +47,68 @@ mixin KesiapanLogika<T extends StatefulWidget> on State<T> {
     super.dispose();
   }
 
-  /// Reads the tweak. A switch keeps all state, the open form included, as
-  /// on the board (CONVENTIONS: board parity over the spec's recommendation).
-  bool bendahara(BuildContext context) =>
-      belumDipindah<String>('Bendahara') == 'Bendahara';
+  /// The signed-in person may waive (the church Bendahara, DL33).
+  bool bendahara(BuildContext context) {
+    final a = ref.watch(actorProvider);
+    return a != null &&
+        ref
+                .watch(canProvider)
+                .grantFor(
+                  a,
+                  Capability.financeClearUnitBlocker,
+                  ScopeRef.jemaat,
+                  at: ref.watch(hariIniProvider),
+                ) !=
+            null;
+  }
+
+  Period? get bulan => ref.watch(bulanBukuProvider).berikutDitutup;
+  String get namaBulanIni => bulan == null ? '' : namaBulan(bulan!);
+  List<BarisKesiapan> get _baris => ref.watch(kesiapanProvider);
 
   bool get _ok => _alasan.text.trim().isNotEmpty;
-  bool _perlu(String id) => _f[id] == 'lagi' || _f[id] == 'belum';
-  int get _kurang => _peruntukan.where((x) => _perlu(x.$1)).length;
+  bool _perlu(BarisKesiapan b) =>
+      b.lihat.state == ReadinessState.missing ||
+      b.lihat.state == ReadinessState.invalidated;
+  int get _kurang => _baris.where(_perlu).length;
 
-  void _set(String id, String v) => setState(() {
-    _f[id] = v;
-    _form = null;
-    _alasan.clear();
-  });
+  Future<void> _nyatakan(BarisKesiapan b) async {
+    final p = bulan;
+    if (p == null) return;
+    final r = await perintah(
+      ref,
+      (a, k) => ref
+          .read(periodRepositoryProvider)
+          .attest(a, b.dana.id, p.id, idempotencyKey: k),
+    );
+    if (mounted) setState(() => _tolak = r?.refusal);
+  }
+
+  Future<void> _bebaskan(BarisKesiapan b) async {
+    final p = bulan;
+    if (p == null || !_ok) return;
+    final r = await perintah(
+      ref,
+      (a, k) => ref
+          .read(periodRepositoryProvider)
+          .waive(
+            a,
+            b.dana.id,
+            p.id,
+            reason: _alasan.text.trim(),
+            expectedRevision: p.revision,
+            idempotencyKey: k,
+          ),
+    );
+    if (!mounted) return;
+    setState(() {
+      _tolak = r?.refusal;
+      if (r?.isOk ?? false) {
+        _form = null;
+        _alasan.clear();
+      }
+    });
+  }
 
   /// Hambatan card, or the done card with `muncul` (Bendahara only).
   Widget kartuKeadaan(BuildContext context) {
@@ -63,9 +119,9 @@ mixin KesiapanLogika<T extends StatefulWidget> on State<T> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Hambatan tutup buku Oktober 2026',
-              style: TextStyle(fontWeight: FontWeight.w700),
+            Text(
+              'Hambatan tutup buku $namaBulanIni',
+              style: const TextStyle(fontWeight: FontWeight.w700),
             ),
             Text(
               '$_kurang peruntukan belum punya pernyataan kesiapan yang berlaku. Minta bendahara unitnya menyatakan siap, atau bebaskan dengan alasan.',
@@ -75,7 +131,9 @@ mixin KesiapanLogika<T extends StatefulWidget> on State<T> {
         ),
       );
     }
-    final bebasN = _peruntukan.where((x) => _f[x.$1] == 'bebas').length;
+    final bebasN = _baris
+        .where((x) => x.lihat.state == ReadinessState.waived)
+        .length;
     return Gerak(
       Kerangka.muncul,
       lama: _muncul,
@@ -92,39 +150,70 @@ mixin KesiapanLogika<T extends StatefulWidget> on State<T> {
   }
 
   /// Unit treasurer intro line.
-  Widget introPenyiap(BuildContext context) => Text(
-    'Anda menyatakan bahwa catatan peruntukan Diakonia untuk Oktober 2026 sudah lengkap menurut Anda. Ini bukan persetujuan dan tidak menutup buku; tutup buku tetap dilakukan Bendahara.',
-    style: TextStyle(fontSize: 14, color: context.warna.tinta2),
-  );
+  Widget introPenyiap(BuildContext context) {
+    final milik = [
+      for (final b in _baris)
+        if (b.milikSaya) b.dana.name,
+    ];
+    return Text(
+      milik.isEmpty
+          ? 'Tidak ada peruntukan yang Anda siapkan untuk $namaBulanIni.'
+          : 'Anda menyatakan bahwa catatan peruntukan ${milik.join(' dan ')} untuk $namaBulanIni sudah lengkap menurut Anda. Ini bukan persetujuan dan tidak menutup buku; tutup buku tetap dilakukan Bendahara.',
+      style: TextStyle(fontSize: 14, color: context.warna.tinta2),
+    );
+  }
 
   /// The row list: each card has margin-bottom 12.
   Widget daftarBaris(BuildContext context, bool bend) => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      for (final x in _peruntukan)
-        if (bend || x.$1 == 'diak') ...[
-          _baris(context, bend, x),
+      if (_tolak != null) ...[
+        Penolakan(
+          tindakan: _tolak!.action,
+          sebab: _tolak!.because,
+          jalan: const [],
+          ukuranTeks: 14,
+        ),
+        const SizedBox(height: 12),
+      ],
+      for (final x in _baris)
+        if (bend || x.milikSaya) ...[
+          _barisKartu(context, bend, x),
           const SizedBox(height: 12),
         ],
     ],
   );
 
-  Widget _baris(BuildContext context, bool bend, (String, String, String) x) {
+  String _nama(String? id) {
+    final o = ref.watch(peopleRepositoryProvider).person(id ?? '');
+    return o?.shortName ?? o?.name ?? '';
+  }
+
+  Widget _barisKartu(BuildContext context, bool bend, BarisKesiapan b) {
     final c = context.warna;
-    final (id, nama, orang) = x;
-    final st = _f[id]!;
-    final perlu = _perlu(id);
-    final (label, bentuk) = switch (st) {
-      'ada' => ('Sudah dinyatakan siap', BentukLencana.laut),
-      'lagi' => ('Perlu dinyatakan lagi', BentukLencana.bata),
-      'belum' => ('Pernyataan kesiapan belum ada', BentukLencana.bata),
-      _ => ('Dibebaskan', BentukLencana.peran),
+    final id = b.dana.id;
+    final at = b.lihat.attestation;
+    final perlu = _perlu(b);
+    final (label, bentuk) = switch (b.lihat.state) {
+      ReadinessState.current => ('Sudah dinyatakan siap', BentukLencana.laut),
+      ReadinessState.invalidated => (
+        'Perlu dinyatakan lagi',
+        BentukLencana.bata,
+      ),
+      ReadinessState.missing => (
+        'Pernyataan kesiapan belum ada',
+        BentukLencana.bata,
+      ),
+      ReadinessState.waived => ('Dibebaskan', BentukLencana.peran),
     };
-    final cat = switch (st) {
-      'ada' => 'Oleh ${id == 'umum' ? orang : '$orang · 16/11/2026'}',
-      'lagi' => 'Dinyatakan 01/11/2026, lalu ada transaksi Oktober yang berubah. Pernyataan lama tidak berlaku lagi.',
-      'belum' => 'Bendahara unit: $orang',
-      _ => 'Oleh Bendahara · alasan: ${_als[id] ?? ''}',
+    final cat = switch (b.lihat.state) {
+      ReadinessState.current =>
+        'Oleh ${b.penyiap} · ${tglJam(at!.attestedAt!)}',
+      ReadinessState.invalidated =>
+        'Dinyatakan ${tgl(at!.attestedAt!)}, lalu ada transaksi $namaBulanIni yang berubah. Pernyataan lama tidak berlaku lagi.',
+      ReadinessState.missing => 'Bendahara unit: ${b.penyiap}',
+      ReadinessState.waived =>
+        'Oleh ${_nama(at!.waivedBy)} · alasan: ${at.waiverReason ?? ''}',
     };
     return Kartu(
       child: Column(
@@ -137,7 +226,7 @@ mixin KesiapanLogika<T extends StatefulWidget> on State<T> {
             runSpacing: 8,
             children: [
               Text(
-                'Peruntukan $nama',
+                'Peruntukan ${b.dana.name}',
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -148,7 +237,7 @@ mixin KesiapanLogika<T extends StatefulWidget> on State<T> {
           ),
           const SizedBox(height: 8),
           Text(cat, style: TextStyle(fontSize: 14, color: c.tinta2)),
-          if (bend && perlu && _form != id) ...[
+          if (bend && perlu && _form != id && !b.milikSaya) ...[
             const SizedBox(height: 8),
             Align(
               alignment: Alignment.centerLeft,
@@ -160,12 +249,13 @@ mixin KesiapanLogika<T extends StatefulWidget> on State<T> {
                 lebarPenuh: false,
                 onPressed: () => setState(() {
                   _form = id;
+                  _tolak = null;
                   _alasan.clear();
                 }),
               ),
             ),
           ],
-          if (!bend && perlu) ...[
+          if (b.milikSaya && perlu) ...[
             const SizedBox(height: 8),
             Align(
               alignment: Alignment.centerLeft,
@@ -173,7 +263,7 @@ mixin KesiapanLogika<T extends StatefulWidget> on State<T> {
                 'Nyatakan siap',
                 paddingH: 18,
                 lebarPenuh: false,
-                onPressed: () => _set(id, 'ada'),
+                onPressed: () => _nyatakan(b),
               ),
             ),
           ],
@@ -183,7 +273,7 @@ mixin KesiapanLogika<T extends StatefulWidget> on State<T> {
               Kerangka.muncul,
               key: ValueKey('form-$id'),
               lama: _muncul,
-              child: _formBebas(context, id),
+              child: _formBebas(context, b),
             ),
           ],
         ],
@@ -191,7 +281,7 @@ mixin KesiapanLogika<T extends StatefulWidget> on State<T> {
     );
   }
 
-  Widget _formBebas(BuildContext context, String id) {
+  Widget _formBebas(BuildContext context, BarisKesiapan b) {
     final c = context.warna;
     final ok = _ok;
     return Container(
@@ -242,11 +332,7 @@ mixin KesiapanLogika<T extends StatefulWidget> on State<T> {
                 ukuran: UkuranTombol.ringkas,
                 lebarPenuh: false,
                 nonaktif: !ok,
-                onPressed: () {
-                  if (!_ok) return;
-                  _als[id] = _alasan.text.trim();
-                  _set(id, 'bebas');
-                },
+                onPressed: () => _bebaskan(b),
               ),
               Tombol(
                 'Kembali',
@@ -262,8 +348,3 @@ mixin KesiapanLogika<T extends StatefulWidget> on State<T> {
     );
   }
 }
-
-/// `siapa` of the subtitle.
-String siapaKesiapan(bool bend) => bend
-    ? 'Meiske L., Bendahara'
-    : 'Dkn. Olga Tamba, Bendahara Komisi Diakonia';

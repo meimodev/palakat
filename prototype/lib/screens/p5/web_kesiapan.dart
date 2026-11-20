@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
@@ -10,17 +11,14 @@ import 'kesiapan_isi.dart';
 import '../../app/layar.dart';
 
 /// Web · Pernyataan kesiapan per peruntukan.
-class WebKesiapanScreen extends StatefulWidget {
+class WebKesiapanScreen extends ConsumerStatefulWidget {
   const WebKesiapanScreen({super.key});
   @override
-  State<WebKesiapanScreen> createState() => _WebKesiapanScreenState();
+  ConsumerState<WebKesiapanScreen> createState() => _WebKesiapanScreenState();
 }
 
-class _WebKesiapanScreenState extends State<WebKesiapanScreen>
+class _WebKesiapanScreenState extends ConsumerState<WebKesiapanScreen>
     with KesiapanLogika<WebKesiapanScreen> {
-  @override
-  String get stem => 'WebKesiapan';
-
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
@@ -57,7 +55,7 @@ class _WebKesiapanScreenState extends State<WebKesiapanScreen>
                     children: [
                       const TextSpan(text: 'Pernyataan kesiapan '),
                       TextSpan(
-                        text: '· Oktober 2026',
+                        text: '· $namaBulanIni',
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w500,
@@ -82,7 +80,7 @@ class _WebKesiapanScreenState extends State<WebKesiapanScreen>
               ),
             ),
             Text(
-              'Masuk sebagai ${siapaKesiapan(bend)}. Berlaku setelah Jemaat punya bendahara unit (Putaran 5).',
+              'Masuk sebagai ${siapaSaya(ref)}.',
               style: TextStyle(fontSize: 14, color: c.tinta2),
             ),
           ],

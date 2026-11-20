@@ -1,6 +1,18 @@
-// Board data of Laporan.dc.html (rv0 `F` and `LAP`), verbatim; `tpl` and
-// `mono` are not used on the phone (03-webrekonsiliasi.md, Laporan).
+// The report pack forms as tables (Laporan.dc.html `F` and `LAP`), built
+// from report datasets (README 7.1 rule 5): the phone's stacked cards, the
+// web paper, the A4 views and the Excel sheets all print these.
 
+import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../core/format.dart';
+import '../../domain/finance/finance.dart';
+import '../../providers/keuangan/beranda.dart';
+import '../../providers/keuangan/laporan.dart';
+
+/// One printed table: subtitle, columns, right-aligned column indices, rows
+/// (a trailing `1` marks a bold total row) and the footnote.
 typedef LaporanTabel = ({
   String sub,
   List<String> cols,
@@ -26,891 +38,542 @@ const laporanDaftar = [
   ('F14', 'Lampiran Laporan Bulanan'),
 ];
 
-const Map<String, LaporanTabel> laporanTabel = {
-  'F01': (
-    sub: 'Ringkasan bulan',
-    cols: ['Baris', 'Oktober 2026'],
-    kanan: [1],
-    rows: [
-      ['Saldo awal Kas/Bank', 'Rp36.250.000', 1],
-      ['Pendapatan ekonomi', 'Rp14.820.000'],
-      ['Belanja ekonomi', '−Rp11.455.000'],
-      ['Dana Transit masuk', 'Rp2.400.000'],
-      ['Dana Transit keluar', '−Rp2.400.000'],
-      ['Uang Muka diberikan', '−Rp1.500.000'],
-      ['Pengembalian sisa uang muka', 'Rp350.000'],
-      ['Saldo akhir Kas/Bank', 'Rp38.465.000', 1],
-    ],
-    kaki: 'Nama baris uang muka mengikuti format laporan yang disetujui 03/10/2026.',
-  ),
-  'F02': (
-    sub: 'Semua Kas/Bank',
-    cols: [
-      'Tanggal',
-      'No. Bukti',
-      'No. MA',
-      'Uraian',
-      'Kas/Bank',
-      'Penerimaan',
-      'Pengeluaran',
-      'Saldo semua Kas/Bank',
-    ],
-    kanan: [5, 6, 7],
-    rows: [
-      ['', '', '', 'Saldo awal Kas/Bank', '', '', '', 'Rp36.250.000', 1],
-      [
-        '04/10/2026',
-        'BKU-2026-0098',
-        '1.3.53.07.00; 1.3.55.01.00',
-        'Persembahan Ibadah Minggu dan Diakonia',
-        'Kas; Bank BNI ··4821',
-        'Rp4.150.000',
-        '',
-        'Rp40.400.000',
-      ],
-      [
-        '04/10/2026',
-        'BKU-2026-0099',
-        '2.1.01.02.00',
-        'Titipan untuk: Sinode · Sentralisasi',
-        'Kas',
-        'Rp600.000',
-        '',
-        'Rp41.000.000',
-      ],
-      [
-        '05/10/2026',
-        'BKU-2026-0100',
-        '5.07.01.00',
-        'Honorarium pelayan',
-        'Bank BNI ··4821',
-        '',
-        'Rp1.820.000',
-        'Rp39.180.000',
-      ],
-      [
-        '06/10/2026',
-        'BKU-2026-0101',
-        '5.01.02.00; 5.02.01.00',
-        'Toko Sinar: listrik dan alat tulis, satu pembayaran',
-        'Bank BNI ··4821',
-        '',
-        'Rp1.250.000',
-        'Rp37.930.000',
-      ],
-      [
-        '06/10/2026',
-        'BKU-2026-0102',
-        '',
-        'Setoran ke bank: ke Bank BNI ··4821',
-        'Kas ke Bank BNI',
-        'Rp5.000.000',
-        'Rp5.000.000',
-        'Rp37.930.000',
-      ],
-      [
-        '07/10/2026',
-        'BKU-2026-0103',
-        '',
-        'Uang Muka diberikan · Pnt. Jefry Wowor',
-        'Kas',
-        '',
-        'Rp400.000',
-        'Rp37.530.000',
-      ],
-      [
-        '08/10/2026',
-        'BKU-2026-0104',
-        '',
-        'Setoran ke bank: ke Bank SulutGo ··1107',
-        'Kas ke Bank SulutGo',
-        'Rp1.500.000',
-        'Rp1.500.000',
-        'Rp37.530.000',
-      ],
-      [
-        '09/10/2026',
-        'BKU-2026-0105',
-        '5.02.01.00',
-        'Konsumsi rapat majelis · Dibalik oleh BKU-2026-\u200B0109',
-        'Kas',
-        '',
-        'Rp750.000',
-        'Rp36.780.000',
-      ],
-      [
-        '10/10/2026',
-        'BKU-2026-0106',
-        '',
-        'Pengembalian sisa uang muka · Panitia HUT Jemaat',
-        'Kas',
-        'Rp350.000',
-        '',
-        'Rp37.130.000',
-      ],
-      [
-        '11/10/2026',
-        'BKU-2026-0107',
-        '1.3.53.07.00',
-        'Persembahan Ibadah Minggu',
-        'Kas',
-        'Rp2.650.000',
-        '',
-        'Rp39.780.000',
-      ],
-      [
-        '11/10/2026',
-        'BKU-2026-0108',
-        '2.1.01.02.00',
-        'Titipan untuk: Sinode · Sentralisasi',
-        'Kas',
-        'Rp600.000',
-        '',
-        'Rp40.380.000',
-      ],
-      [
-        '12/10/2026',
-        'BKU-2026-0109',
-        '5.02.01.00',
-        'Pembalikan BKU-2026-0105',
-        'Kas',
-        '',
-        '−Rp750.000',
-        'Rp41.130.000',
-      ],
-      [
-        '12/10/2026',
-        'BKU-2026-0110',
-        '5.04.01.00',
-        'Konsumsi rapat majelis · Koreksi dari BKU-2026-0105',
-        'Kas',
-        '',
-        'Rp750.000',
-        'Rp40.380.000',
-      ],
-      [
-        '18/10/2026',
-        'BKU-2026-0114',
-        '1.3.53.07.00',
-        'Persembahan Ibadah Minggu',
-        'Kas',
-        'Rp2.400.000',
-        '',
-        'Rp42.780.000',
-      ],
-      [
-        '18/10/2026',
-        'BKU-2026-0115',
-        '1.4.10.02.00',
-        'Sumbangan donatur',
-        'Bank BNI ··4821',
-        'Rp700.000',
-        '',
-        'Rp43.480.000',
-      ],
-      [
-        '18/10/2026',
-        'BKU-2026-0117',
-        '2.1.01.02.00',
-        'Titipan untuk: Sinode · Sentralisasi',
-        'Kas',
-        'Rp600.000',
-        '',
-        'Rp44.080.000',
-      ],
-      [
-        '20/10/2026',
-        'BKU-2026-0112',
-        '',
-        'Uang Muka diberikan · Sdri. Natalia Rumengan',
-        'Kas',
-        '',
-        'Rp800.000',
-        'Rp43.280.000',
-      ],
-      [
-        '20/10/2026',
-        'BKU-2026-0113',
-        '1.3.53.09.00',
-        'Persembahan syukur',
-        'Kas',
-        'Rp1.220.000',
-        '',
-        'Rp44.500.000',
-      ],
-      [
-        '22/10/2026',
-        'BKU-2026-0116',
-        '5.08.02.00',
-        'Pemeliharaan atap gedung',
-        'Bank BNI ··4821',
-        '',
-        'Rp5.500.000',
-        'Rp39.000.000',
-      ],
-      [
-        '25/10/2026',
-        'BKU-2026-0119',
-        '',
-        'Uang Muka diberikan · Ibu Selvie Kalalo',
-        'Kas',
-        '',
-        'Rp300.000',
-        'Rp38.700.000',
-      ],
-      [
-        '25/10/2026',
-        'BKU-2026-0123',
-        '1.3.53.07.00',
-        'Persembahan Ibadah Minggu',
-        'Kas',
-        'Rp2.700.000',
-        '',
-        'Rp41.400.000',
-      ],
-      [
-        '25/10/2026',
-        'BKU-2026-0125',
-        '2.1.01.02.00',
-        'Titipan untuk: Sinode · Sentralisasi',
-        'Kas',
-        'Rp600.000',
-        '',
-        'Rp42.000.000',
-      ],
-      [
-        '26/10/2026',
-        'BKU-2026-0120',
-        '5.07.01.00',
-        'Honorarium pelayan',
-        'Bank BNI ··4821',
-        '',
-        'Rp1.820.000',
-        'Rp40.180.000',
-      ],
-      [
-        '26/10/2026',
-        'BKU-2026-0130',
-        '',
-        'Setoran ke bank: ke Bank BNI ··4821',
-        'Kas ke Bank BNI',
-        'Rp2.690.000',
-        'Rp2.690.000',
-        'Rp40.180.000',
-      ],
-      [
-        '27/10/2026',
-        'BKU-2026-0118',
-        '1.3.53.09.00',
-        'Persembahan syukur',
-        'Bank BNI ··4821',
-        'Rp500.000',
-        '',
-        'Rp40.680.000',
-      ],
-      [
-        '27/10/2026',
-        'BKU-2026-0122',
-        '4.03.04.00',
-        'Diakonia sakit',
-        'Kas',
-        '',
-        'Rp300.000',
-        'Rp40.380.000',
-      ],
-      [
-        '28/10/2026',
-        'BKU-2026-0121',
-        '1.4.10.02.00',
-        'Sumbangan donatur',
-        'Bank BNI ··4821',
-        'Rp500.000',
-        '',
-        'Rp40.880.000',
-      ],
-      [
-        '30/10/2026',
-        'BKU-2026-0127',
-        '',
-        'Pindah antar Kas/Bank: Bank BNI ke Kas',
-        'Bank BNI ke Kas',
-        'Rp2.000.000',
-        'Rp2.000.000',
-        'Rp40.880.000',
-      ],
-      [
-        '30/10/2026',
-        'BKU-2026-0128',
-        '2.1.01.02.00',
-        'Penyaluran · Titipan untuk: Sinode',
-        'Bank BNI ··4821',
-        '',
-        'Rp2.400.000',
-        'Rp38.480.000',
-      ],
-      [
-        '31/10/2026',
-        'BKU-2026-0131',
-        '',
-        'Setoran ke bank: ke Bank BNI ··4821',
-        'Kas ke Bank BNI',
-        'Rp500.000',
-        'Rp500.000',
-        'Rp38.480.000',
-      ],
-      [
-        '31/10/2026',
-        'BKU-2026-0133',
-        '5.03.03.00',
-        'Biaya administrasi bank',
-        'Bank BNI ··4821',
-        '',
-        'Rp15.000',
-        'Rp38.465.000',
-      ],
-      [
-        '',
-        '',
-        '',
-        'Jumlah dan saldo akhir Kas/Bank',
-        '',
-        'Rp29.260.000',
-        'Rp27.045.000',
-        'Rp38.465.000',
-        1,
-      ],
-    ],
-    kaki: '31 baris. Nomor yang tidak tampil bukan arus kas/bank Oktober 2026; lihat F12.',
-  ),
-  'F03': (
-    sub: 'Buku per Kas/Bank · Kas',
-    cols: [
-      'Tanggal',
-      'No. Bukti',
-      'Uraian',
-      'Penerimaan',
-      'Pengeluaran',
-      'Saldo Kas',
-    ],
-    kanan: [3, 4, 5],
-    rows: [
-      ['', '', 'Saldo awal Kas', '', '', 'Rp4.070.000', 1],
-      [
-        '04/10/2026',
-        'BKU-2026-0098',
-        'Persembahan Ibadah Minggu dan Diakonia',
-        'Rp3.200.000',
-        '',
-        'Rp7.270.000',
-      ],
-      [
-        '04/10/2026',
-        'BKU-2026-0099',
-        'Titipan untuk: Sinode · Sentralisasi',
-        'Rp600.000',
-        '',
-        'Rp7.870.000',
-      ],
-      [
-        '06/10/2026',
-        'BKU-2026-0102',
-        'Setoran ke bank: ke Bank BNI ··4821',
-        '',
-        'Rp5.000.000',
-        'Rp2.870.000',
-      ],
-      [
-        '07/10/2026',
-        'BKU-2026-0103',
-        'Uang Muka diberikan · Pnt. Jefry Wowor',
-        '',
-        'Rp400.000',
-        'Rp2.470.000',
-      ],
-      [
-        '08/10/2026',
-        'BKU-2026-0104',
-        'Setoran ke bank: ke Bank SulutGo ··1107',
-        '',
-        'Rp1.500.000',
-        'Rp970.000',
-      ],
-      [
-        '09/10/2026',
-        'BKU-2026-0105',
-        'Konsumsi rapat majelis · Dibalik oleh BKU-2026-\u200B0109',
-        '',
-        'Rp750.000',
-        'Rp220.000',
-      ],
-      [
-        '10/10/2026',
-        'BKU-2026-0106',
-        'Pengembalian sisa uang muka · Panitia HUT Jemaat',
-        'Rp350.000',
-        '',
-        'Rp570.000',
-      ],
-      [
-        '11/10/2026',
-        'BKU-2026-0107',
-        'Persembahan Ibadah Minggu',
-        'Rp2.650.000',
-        '',
-        'Rp3.220.000',
-      ],
-      [
-        '11/10/2026',
-        'BKU-2026-0108',
-        'Titipan untuk: Sinode · Sentralisasi',
-        'Rp600.000',
-        '',
-        'Rp3.820.000',
-      ],
-      [
-        '12/10/2026',
-        'BKU-2026-0109',
-        'Pembalikan BKU-2026-0105',
-        '',
-        '−Rp750.000',
-        'Rp4.570.000',
-      ],
-      [
-        '12/10/2026',
-        'BKU-2026-0110',
-        'Konsumsi rapat majelis · Koreksi dari BKU-2026-0105',
-        '',
-        'Rp750.000',
-        'Rp3.820.000',
-      ],
-      [
-        '18/10/2026',
-        'BKU-2026-0114',
-        'Persembahan Ibadah Minggu',
-        'Rp2.400.000',
-        '',
-        'Rp6.220.000',
-      ],
-      [
-        '18/10/2026',
-        'BKU-2026-0117',
-        'Titipan untuk: Sinode · Sentralisasi',
-        'Rp600.000',
-        '',
-        'Rp6.820.000',
-      ],
-      [
-        '20/10/2026',
-        'BKU-2026-0112',
-        'Uang Muka diberikan · Sdri. Natalia Rumengan',
-        '',
-        'Rp800.000',
-        'Rp6.020.000',
-      ],
-      [
-        '20/10/2026',
-        'BKU-2026-0113',
-        'Persembahan syukur',
-        'Rp1.220.000',
-        '',
-        'Rp7.240.000',
-      ],
-      [
-        '25/10/2026',
-        'BKU-2026-0119',
-        'Uang Muka diberikan · Ibu Selvie Kalalo',
-        '',
-        'Rp300.000',
-        'Rp6.940.000',
-      ],
-      [
-        '25/10/2026',
-        'BKU-2026-0123',
-        'Persembahan Ibadah Minggu',
-        'Rp2.700.000',
-        '',
-        'Rp9.640.000',
-      ],
-      [
-        '25/10/2026',
-        'BKU-2026-0125',
-        'Titipan untuk: Sinode · Sentralisasi',
-        'Rp600.000',
-        '',
-        'Rp10.240.000',
-      ],
-      [
-        '26/10/2026',
-        'BKU-2026-0130',
-        'Setoran ke bank: ke Bank BNI ··4821',
-        '',
-        'Rp2.690.000',
-        'Rp7.550.000',
-      ],
-      [
-        '27/10/2026',
-        'BKU-2026-0122',
-        'Diakonia sakit',
-        '',
-        'Rp300.000',
-        'Rp7.250.000',
-      ],
-      [
-        '30/10/2026',
-        'BKU-2026-0127',
-        'Pindah antar Kas/Bank: Bank BNI ke Kas',
-        'Rp2.000.000',
-        '',
-        'Rp9.250.000',
-      ],
-      [
-        '31/10/2026',
-        'BKU-2026-0131',
-        'Setoran ke bank: ke Bank BNI ··4821',
-        '',
-        'Rp500.000',
-        'Rp8.750.000',
-      ],
-    ],
-    kaki: '22 baris Kas · Saldo akhir Kas Rp8.750.000. Buku pembantu juga dibuat per peruntukan, per Lingkup, per Uang Muka dan per Titipan untuk.',
-  ),
-  'F04': (
-    sub: 'Versi Mata Anggaran 2026.1',
-    cols: ['No. MA', 'Nama Mata Anggaran', 'Jenis baris', 'Boleh untuk'],
-    kanan: [],
-    rows: [
-      [
-        '1.3.53.00.00',
-        'PERSEMBAHAN',
-        'Judul kelompok, tidak dapat dibukukan',
-        '',
-        1,
-      ],
-      [
-        '1.3.53.07.00',
-        'Persembahan Ibadah Minggu',
-        'Dapat dibukukan',
-        'Milik sendiri',
-      ],
-      [
-        '1.3.53.09.00',
-        'Persembahan syukur',
-        'Dapat dibukukan',
-        'Milik sendiri',
-      ],
-      [
-        '1.3.55.01.00',
-        'Persembahan Diakonia',
-        'Dapat dibukukan',
-        'Milik sendiri',
-      ],
-      [
-        '1.4.10.00.00',
-        'SUMBANGAN',
-        'Judul kelompok, tidak dapat dibukukan',
-        '',
-        1,
-      ],
-      ['1.4.10.02.00', 'Sumbangan donatur', 'Dapat dibukukan', 'Keduanya'],
-    ],
-    kaki: 'Contoh 6 dari 131 baris, sesuai urutan sumber. Nomor dan nama dicetak persis seperti tersimpan.',
-  ),
-  'F05': (
-    sub: 'Pendapatan menurut Mata Anggaran',
-    cols: ['No. MA', 'Nama Mata Anggaran', 'Oktober 2026'],
-    kanan: [2],
-    rows: [
-      ['1.3.53.00.00', 'PERSEMBAHAN', 'Rp13.620.000', 1],
-      ['1.3.53.07.00', 'Persembahan Ibadah Minggu', 'Rp10.950.000'],
-      ['1.3.53.09.00', 'Persembahan syukur', 'Rp1.720.000'],
-      ['1.3.55.01.00', 'Persembahan Diakonia', 'Rp950.000'],
-      ['1.4.10.00.00', 'SUMBANGAN', 'Rp1.200.000', 1],
-      ['1.4.10.02.00', 'Sumbangan donatur', 'Rp1.200.000'],
-      ['1.4.10.03.00', 'Sumbangan natura', 'Rp0'],
-      ['', 'Jumlah Pendapatan', 'Rp14.820.000', 1],
-    ],
-    kaki: 'Contoh 7 dari 131 baris. Baris tanpa transaksi tetap dicetak sebagai Rp0. Tidak ada kolom anggaran, selisih atau persentase.',
-  ),
-  'F06': (
-    sub: 'Versi Mata Anggaran 2026.1',
-    cols: ['No. MA', 'Nama Mata Anggaran', 'Jenis baris', 'Boleh untuk'],
-    kanan: [],
-    rows: [
-      [
-        '5.00.00.00',
-        'BELANJA OPERASIONAL',
-        'Judul kelompok, tidak dapat dibukukan',
-        '',
-        1,
-      ],
-      [
-        '5.01.02.00',
-        'Listrik, air dan telepon',
-        'Dapat dibukukan',
-        'Milik sendiri',
-      ],
-      [
-        '5.02.01.00',
-        'Alat tulis dan fotokopi',
-        'Dapat dibukukan',
-        'Milik sendiri',
-      ],
-      [
-        '5.03.03.00',
-        'Biaya administrasi bank',
-        'Dapat dibukukan',
-        'Milik sendiri',
-      ],
-      [
-        '4.00.00.00',
-        'BELANJA PELAYANAN',
-        'Judul kelompok, tidak dapat dibukukan',
-        '',
-        1,
-      ],
-      ['4.03.03.00', 'Diakonia duka', 'Dapat dibukukan', 'Milik sendiri'],
-    ],
-    kaki: 'Contoh 6 dari 158 baris, sesuai urutan sumber.',
-  ),
-  'F07': (
-    sub: 'Belanja menurut Mata Anggaran',
-    cols: ['No. MA', 'Nama Mata Anggaran', 'Oktober 2026'],
-    kanan: [2],
-    rows: [
-      ['5.00.00.00', 'BELANJA OPERASIONAL', 'Rp11.155.000', 1],
-      ['5.01.02.00', 'Listrik, air dan telepon', 'Rp1.000.000'],
-      ['5.02.01.00', 'Alat tulis dan fotokopi', 'Rp250.000'],
-      ['5.03.03.00', 'Biaya administrasi bank', 'Rp15.000'],
-      ['5.04.01.00', 'Konsumsi rapat', 'Rp750.000'],
-      ['5.05.02.00', 'Sewa peralatan', 'Rp0'],
-      ['5.07.01.00', 'Honorarium pelayan', 'Rp3.640.000'],
-      ['5.08.02.00', 'Pemeliharaan gedung', 'Rp5.500.000'],
-      ['4.00.00.00', 'BELANJA PELAYANAN', 'Rp300.000', 1],
-      ['4.03.04.00', 'Diakonia sakit', 'Rp300.000'],
-      ['', 'Jumlah Belanja', 'Rp11.455.000', 1],
-    ],
-    kaki: 'Contoh 9 dari 158 baris. Alat tulis dan fotokopi sudah memuat pembalikan BKU-2026-0109; koreksinya masuk ke Konsumsi rapat. Tidak ada kolom anggaran.',
-  ),
-  'F08': (
-    sub: 'Penerimaan buku per Kas/Bank',
-    cols: [
-      'Kas/Bank',
-      'Pendapatan',
-      'Titipan masuk',
-      'Pengembalian sisa uang muka',
-      'Pindah masuk',
-      'Jumlah penerimaan',
-    ],
-    kanan: [1, 2, 3, 4, 5],
-    rows: [
-      [
-        'Kas',
-        'Rp12.170.000',
-        'Rp2.400.000',
-        'Rp350.000',
-        'Rp2.000.000',
-        'Rp16.920.000',
-      ],
-      [
-        'Bank BNI ··4821',
-        'Rp2.650.000',
-        'Rp0',
-        'Rp0',
-        'Rp8.190.000',
-        'Rp10.840.000',
-      ],
-      [
-        'Bank SulutGo ··1107',
-        'Rp0',
-        'Rp0',
-        'Rp0',
-        'Rp1.500.000',
-        'Rp1.500.000',
-      ],
-      [
-        'Jumlah',
-        'Rp14.820.000',
-        'Rp2.400.000',
-        'Rp350.000',
-        'Rp11.690.000',
-        'Rp29.260.000',
-        1,
-      ],
-    ],
-    kaki: 'Penerimaan bukan Pendapatan: kolom Pindah masuk, Titipan masuk dan Pengembalian sisa uang muka tidak pernah dijumlahkan ke Pendapatan.',
-  ),
-  'F09': (
-    sub: 'Pengeluaran buku per Kas/Bank',
-    cols: [
-      'Kas/Bank',
-      'Belanja',
-      'Titipan disalurkan',
-      'Uang Muka diberikan',
-      'Pindah keluar',
-      'Jumlah pengeluaran',
-    ],
-    kanan: [1, 2, 3, 4, 5],
-    rows: [
-      [
-        'Kas',
-        'Rp1.050.000',
-        'Rp0',
-        'Rp1.500.000',
-        'Rp9.690.000',
-        'Rp12.240.000',
-      ],
-      [
-        'Bank BNI ··4821',
-        'Rp10.405.000',
-        'Rp2.400.000',
-        'Rp0',
-        'Rp2.000.000',
-        'Rp14.805.000',
-      ],
-      ['Bank SulutGo ··1107', 'Rp0', 'Rp0', 'Rp0', 'Rp0', 'Rp0'],
-      [
-        'Jumlah',
-        'Rp11.455.000',
-        'Rp2.400.000',
-        'Rp1.500.000',
-        'Rp11.690.000',
-        'Rp27.045.000',
-        1,
-      ],
-    ],
-    kaki: 'Belanja dari pertanggungjawaban uang muka dicetak di baris tersendiri dan tidak mengurangi Kas/Bank lagi: Rp0 pada Oktober 2026.',
-  ),
-  'F10': (
-    sub: 'Per 31 Oktober 2026',
-    cols: [
-      'Kas/Bank',
-      'Saldo buku',
-      'Hasil hitung kas',
-      'Saldo rekening koran',
-      'Selisih belum dijelaskan',
-    ],
-    kanan: [1, 2, 3, 4],
-    rows: [
-      ['Kas', 'Rp8.750.000', 'Rp8.750.000', '', 'Rp0'],
-      ['Bank BNI ··4821', 'Rp24.600.000', '', 'Rp24.100.000', 'Rp0'],
-      ['Bank SulutGo ··1107', 'Rp5.115.000', '', 'Rp5.115.000', 'Rp0'],
-    ],
-    kaki: 'Hasil hitung kas dan saldo rekening koran berada di kolom terpisah dan tidak dijumlahkan. Bank BNI: setoran dalam perjalanan Rp500.000 dijelaskan di F11.',
-  ),
-  'F11': (
-    sub: 'Per Kas/Bank',
-    cols: ['Baris', 'Kas', 'Bank BNI ··4821', 'Bank SulutGo ··1107'],
-    kanan: [1, 2, 3],
-    rows: [
-      [
-        'Hasil hitung kas / Saldo rekening koran',
-        'Rp8.750.000',
-        'Rp24.100.000',
-        'Rp5.115.000',
-      ],
-      ['Setoran dalam perjalanan', 'Rp0', 'Rp500.000', 'Rp0'],
-      ['Pembayaran dalam perjalanan', 'Rp0', 'Rp0', 'Rp0'],
-      ['Saldo pembanding', 'Rp8.750.000', 'Rp24.600.000', 'Rp5.115.000', 1],
-      ['Saldo buku', 'Rp8.750.000', 'Rp24.600.000', 'Rp5.115.000', 1],
-      ['Selisih belum dijelaskan', 'Rp0', 'Rp0', 'Rp0', 1],
-      ['Mutasi bank cocok / belum cocok', '', '13 / 0', '1 / 0'],
-      ['Status', 'Sudah dipastikan', 'Sudah dipastikan', 'Sudah dipastikan'],
-    ],
-    kaki: 'Item dalam perjalanan dibawa ke November 2026 dan dicetak lagi di laporan bulan itu sampai cocok.',
-  ),
-  'F12': (
-    sub: 'No. Bukti Oktober 2026',
-    cols: [
-      'No. Bukti',
-      'Tanggal',
-      'Uraian',
-      'Jumlah (Rp)',
-      'Persetujuan',
-      'Dokumen pendukung saat tutup buku',
-    ],
-    kanan: [3],
-    rows: [
-      [
-        'BKU-2026-0098',
-        '04/10/2026',
-        'Persembahan Ibadah Minggu dan Diakonia',
-        'Rp4.150.000',
-        'Tidak diperlukan',
-        'Terverifikasi',
-      ],
-      [
-        'BKU-2026-0101',
-        '06/10/2026',
-        'Toko Sinar: listrik dan alat tulis',
-        '−Rp1.250.000',
-        'Tidak diperlukan',
-        'Terverifikasi',
-      ],
-      [
-        'BKU-2026-0105',
-        '09/10/2026',
-        'Konsumsi rapat majelis · Dibalik oleh BKU-2026-\u200B0109',
-        '−Rp750.000',
-        'Tidak diperlukan',
-        'Terverifikasi',
-      ],
-      [
-        'BKU-2026-0109',
-        '12/10/2026',
-        'Pembalikan BKU-2026-0105',
-        'Rp750.000',
-        'Tidak diperlukan',
-        'Tidak diperlukan',
-      ],
-      [
-        'BKU-2026-0116',
-        '22/10/2026',
-        'Pemeliharaan atap gedung',
-        '−Rp5.500.000',
-        'Sudah dicatat · Ketua BPMJ',
-        'Dikecualikan · kuitansi menyusul',
-      ],
-    ],
-    kaki: 'Contoh 5 dari 33 baris. Kolom dokumen pendukung mencetak status saat tutup buku; dokumen susulan tidak mengubah halaman ini.',
-  ),
-  'F13': (
-    sub: 'Titipan per pihak, lalu Sentralisasi dari uang milik sendiri',
-    cols: [
-      'Titipan untuk',
-      'Sisa awal',
-      'Terkumpul',
-      'Disalurkan',
-      'Sisa belum disalurkan',
-    ],
-    kanan: [1, 2, 3, 4],
-    rows: [
-      ['Sinode', 'Rp0', 'Rp2.400.000', 'Rp2.400.000', 'Rp0'],
-      ['Wilayah', 'Rp0', 'Rp0', 'Rp0', 'Rp0'],
-      ['Jumlah titipan', 'Rp0', 'Rp2.400.000', 'Rp2.400.000', 'Rp0', 1],
-      [
-        'Sentralisasi dari uang milik sendiri (Belanja, bukan titipan)',
-        '',
-        '',
-        'Rp0',
-        '',
-      ],
-    ],
-    kaki: 'Judul “Sentralisasi / Penyaluran” menggantikan judul sumber “Sentralisasi / Settlement”.',
-  ),
-  'F14': (
-    sub: 'Delapan lampiran',
-    cols: ['', 'Lampiran', 'Isi pada Oktober 2026'],
-    kanan: [],
-    rows: [
-      ['1', 'Uang Muka', '3 kasus'],
-      ['2', 'Rincian Pertanggungjawaban Uang Muka', 'Nihil'],
-      ['3', 'Penghitungan Persembahan', '4 ibadah'],
-      ['4', 'Penggantian Biaya', 'Nihil'],
-      ['5', 'Pengecualian Dokumen Pendukung', '1 dokumen'],
-      ['6', 'Pembalikan dan Koreksi', '1 rangkaian'],
-      ['7', 'Saldo Awal Pencatatan', 'Nihil'],
-      ['8', 'Hasil Pengecekan Otomatis', '8 syarat terpenuhi'],
-    ],
-    kaki: 'Lampiran tanpa isi dicetak sebagai “Nihil”, bukan halaman kosong.',
-  ),
+/// The F14 attachments, in order.
+const lampiranF14 = [
+  ('Uang Muka', 'kasus'),
+  ('Rincian Pertanggungjawaban Uang Muka', 'transaksi'),
+  ('Penghitungan Persembahan', 'ibadah'),
+  ('Penggantian Biaya', 'transaksi'),
+  ('Pengecualian Dokumen Pendukung', 'dokumen'),
+  ('Pembalikan dan Koreksi', 'rangkaian'),
+  ('Saldo Awal Pencatatan', 'transaksi'),
+  ('Hasil Pengecekan Otomatis', 'syarat terpenuhi'),
+];
+
+ReportForm formLaporan(String id) =>
+    ReportForm.values.firstWhere((f) => f.name == id.toLowerCase());
+
+String _rp(Object? n) => n == null ? '' : rp(n as int);
+
+/// The chain tags of an F02/F03 row (A4F02a, A4F02b, WebPaketLaporan):
+/// "Dibalik oleh BKU-…" on the original, "Koreksi dari BKU-…" on the
+/// correction.
+List<String> tandaRantai(Map<String, Object?> r) => [
+  if (r['reversedBy'] case final String v) 'Dibalik oleh $v',
+  if (r['correctionOf'] case final String v) 'Koreksi dari $v',
+];
+
+/// The Uraian cell of an F02/F03 row with its chain tags.
+String uraianBku(Map<String, Object?> r) =>
+    ['${r['description']}', ...tandaRantai(r)].join(' · ');
+String _neg(Object? n) => n == null || n == 0 ? 'Rp0' : rp(-(n as int));
+
+const _efek = {
+  'owned': 'Milik sendiri',
+  'custody': 'Titipan',
+  'both': 'Milik sendiri atau titipan',
 };
+
+const _bukti = {
+  'notRequired': 'Tidak diperlukan',
+  'requiredMissing': 'Belum ada',
+  'uploaded': 'Diunggah, belum diverifikasi',
+  'verified': 'Terverifikasi',
+  'exceptionAccepted': 'Dikecualikan',
+};
+
+const _setuju = {
+  'notRequired': 'Tidak diperlukan',
+  'recorded': 'Sudah dicatat',
+  'missing': 'Belum dicatat',
+};
+
+const _status = {
+  'open': 'Sedang dikerjakan',
+  'reviewed': 'Sudah diperiksa',
+  'confirmed': 'Sudah dipastikan',
+};
+
+/// [form] of [l] as a table.
+LaporanTabel tabelLaporan(
+  LaporanBulan l,
+  ReportForm form, {
+  ReportDataset? data,
+}) {
+  final d = data ?? l.data(form);
+  final p = l.periode;
+  final bulan = namaBulan(p);
+  final t = d.totals;
+  switch (form) {
+    case ReportForm.f01:
+      return (
+        sub: 'Ringkasan bulan',
+        cols: ['Baris', bulan],
+        kanan: [1],
+        rows: [
+          ['Saldo awal Kas/Bank', _rp(t['opening']), 1],
+          ['Pendapatan ekonomi', _rp(t['income'])],
+          ['Belanja ekonomi', _neg(t['expense'])],
+          if (t['expenseFromAdvance'] != 0)
+            [
+              'Belanja dari pertanggungjawaban uang muka',
+              _neg(t['expenseFromAdvance']),
+            ],
+          ['Dana Transit masuk', _rp(t['transitIn'])],
+          ['Dana Transit keluar', _neg(t['transitOut'])],
+          ['Uang Muka diberikan', _neg(t['advanceIssued'])],
+          ['Pengembalian sisa uang muka', _rp(t['advanceReturned'])],
+          ['Saldo akhir Kas/Bank', _rp(t['closing']), 1],
+        ],
+        kaki: l.format?.acceptedAt == null
+            ? 'Format laporan bawaan aplikasi.'
+            : 'Nama baris uang muka mengikuti format laporan yang disetujui '
+                  '${tgl(l.format!.acceptedAt!)}.',
+      );
+    case ReportForm.f02:
+      return (
+        sub: 'Semua Kas/Bank',
+        cols: [
+          'Tanggal',
+          'No. Bukti',
+          'No. MA',
+          'Uraian',
+          'Kas/Bank',
+          'Penerimaan',
+          'Pengeluaran',
+          'Saldo semua Kas/Bank',
+        ],
+        kanan: [5, 6, 7],
+        rows: [
+          ['', '', '', 'Saldo awal Kas/Bank', '', '', '', _rp(t['opening']), 1],
+          for (final r in d.rows)
+            [
+              '${r['date']}',
+              '${r['voucher'] ?? ''}',
+              (r['codes'] as List).join('; '),
+              uraianBku(r),
+              (r['accountIds'] as List)
+                  .map((a) => l.akun(a as String))
+                  .join('; '),
+              r['in'] == 0 ? '' : _rp(r['in']),
+              r['out'] == 0 ? '' : _rp(r['out']),
+              _rp(r['balance']),
+            ],
+          [
+            '',
+            '',
+            '',
+            'Saldo akhir Kas/Bank',
+            '',
+            _rp(t['in']),
+            _rp(t['out']),
+            _rp(t['closing']),
+            1,
+          ],
+        ],
+        kaki:
+            '${d.rows.length} baris. Nomor yang tidak tampil bukan arus '
+            'kas/bank $bulan; lihat F12.',
+      );
+    case ReportForm.f03:
+      final akun = <String>[];
+      for (final r in d.rows) {
+        final a = r['accountId'] as String;
+        if (!akun.contains(a)) akun.add(a);
+      }
+      for (final k in t.keys) {
+        final a = k.split(':').last;
+        if (k.startsWith('opening:') && !akun.contains(a)) akun.add(a);
+      }
+      return (
+        sub: 'Buku per Kas/Bank',
+        cols: [
+          'Tanggal',
+          'No. Bukti',
+          'Uraian',
+          'Penerimaan',
+          'Pengeluaran',
+          'Saldo',
+        ],
+        kanan: [3, 4, 5],
+        rows: [
+          for (final a in akun) ...[
+            [
+              '',
+              '',
+              'Saldo awal ${l.akun(a)}',
+              '',
+              '',
+              _rp(t['opening:$a'] ?? 0),
+              1,
+            ],
+            for (final r in d.rows)
+              if (r['accountId'] == a)
+                [
+                  '${r['date']}',
+                  '${r['voucher'] ?? ''}',
+                  uraianBku(r),
+                  r['in'] == 0 ? '' : _rp(r['in']),
+                  r['out'] == 0 ? '' : _rp(r['out']),
+                  _rp(r['balance']),
+                ],
+            [
+              '',
+              '',
+              'Saldo akhir ${l.akun(a)}',
+              '',
+              '',
+              _rp(t['closing:$a'] ?? 0),
+              1,
+            ],
+          ],
+        ],
+        kaki:
+            'Buku pembantu juga dibuat per peruntukan, per Lingkup, per Uang '
+            'Muka dan per Titipan untuk.',
+      );
+    case ReportForm.f04 || ReportForm.f06:
+      return (
+        sub: 'Versi Mata Anggaran ${t['versionCode'] ?? ''}',
+        cols: ['No. MA', 'Nama Mata Anggaran', 'Jenis baris', 'Boleh untuk'],
+        kanan: [],
+        rows: [
+          for (final r in d.rows)
+            [
+              '${r['code']}',
+              '${r['name']}',
+              r['postable'] == true
+                  ? 'Dapat dibukukan'
+                  : 'Judul kelompok, tidak dapat dibukukan',
+              r['postable'] == true ? _efek[r['allowedEffect']] ?? '' : '',
+              if (r['postable'] != true) 1,
+            ],
+        ],
+        kaki: '${d.rows.length} baris, sesuai urutan sumber.',
+      );
+    case ReportForm.f05 || ReportForm.f07:
+      return (
+        sub: form == ReportForm.f05
+            ? 'Pendapatan menurut Mata Anggaran'
+            : 'Belanja menurut Mata Anggaran',
+        cols: ['No. MA', 'Nama Mata Anggaran', bulan],
+        kanan: [2],
+        rows: [
+          for (final r in d.rows)
+            [
+              '${r['code']}',
+              '${r['name']}',
+              _rp(r['amount']),
+              if (r['postable'] != true) 1,
+            ],
+          ['', 'Jumlah', _rp(t['total']), 1],
+        ],
+        kaki:
+            'Baris tanpa transaksi tetap dicetak sebagai Rp0. Tidak ada kolom '
+            'anggaran, selisih atau persentase.',
+      );
+    case ReportForm.f08 || ReportForm.f09:
+      final masuk = form == ReportForm.f08;
+      final kolom = masuk
+          ? [
+              ('income', 'Pendapatan'),
+              ('transitIn', 'Titipan masuk'),
+              ('advanceReturn', 'Pengembalian sisa uang muka'),
+              ('transferIn', 'Pindah masuk'),
+              ('other', 'Lainnya'),
+              ('total', 'Jumlah penerimaan'),
+            ]
+          : [
+              ('expense', 'Belanja'),
+              ('transitOut', 'Titipan disalurkan'),
+              ('advanceIssued', 'Uang Muka diberikan'),
+              ('transferOut', 'Pindah keluar'),
+              ('other', 'Lainnya'),
+              ('total', 'Jumlah pengeluaran'),
+            ];
+      final pakai = [
+        for (final k in kolom)
+          if (k.$1 != 'other' || t['other'] != 0) k,
+      ];
+      return (
+        sub: masuk
+            ? 'Penerimaan buku per Kas/Bank'
+            : 'Pengeluaran buku per Kas/Bank',
+        cols: ['Kas/Bank', for (final k in pakai) k.$2],
+        kanan: [for (var i = 1; i <= pakai.length; i++) i],
+        rows: [
+          for (final r in d.rows)
+            [
+              l.akun(r['accountId'] as String?),
+              for (final k in pakai) _rp(r[k.$1]),
+            ],
+          ['Jumlah', for (final k in pakai) _rp(t[k.$1]), 1],
+        ],
+        kaki: masuk
+            ? 'Penerimaan bukan Pendapatan: kolom Pindah masuk, Titipan masuk '
+                  'dan Pengembalian sisa uang muka tidak pernah dijumlahkan ke '
+                  'Pendapatan.'
+            : 'Belanja dari pertanggungjawaban uang muka dicetak di baris '
+                  'tersendiri dan tidak mengurangi Kas/Bank lagi.',
+      );
+    case ReportForm.f10:
+      return (
+        sub: 'Per ${p.end}',
+        cols: [
+          'Kas/Bank',
+          'Saldo buku',
+          'Hasil hitung kas',
+          'Saldo rekening koran',
+          'Selisih belum dijelaskan',
+        ],
+        kanan: [1, 2, 3, 4],
+        rows: [
+          for (final r in d.rows)
+            [
+              l.akun(r['accountId'] as String?),
+              _rp(r['book']),
+              _rp(r['cashCount']),
+              _rp(r['statement']),
+              _rp(r['difference']),
+            ],
+        ],
+        kaki:
+            'Hasil hitung kas dan saldo rekening koran berada di kolom '
+            'terpisah dan tidak dijumlahkan. Item dalam perjalanan dijelaskan '
+            'di F11.',
+      );
+    case ReportForm.f11:
+      List<Object> baris(
+        String judul,
+        String Function(Map<String, Object?>) f, [
+        bool tebal = false,
+      ]) => [judul, for (final r in d.rows) f(r), if (tebal) 1];
+      return (
+        sub: 'Per Kas/Bank',
+        cols: [
+          'Baris',
+          for (final r in d.rows) l.akun(r['accountId'] as String?),
+        ],
+        kanan: [for (var i = 1; i <= d.rows.length; i++) i],
+        rows: [
+          baris(
+            'Hasil hitung kas / Saldo rekening koran',
+            (r) => _rp(r['observed']),
+          ),
+          baris('Setoran dalam perjalanan', (r) => _rp(r['depositsInTransit'])),
+          baris(
+            'Pembayaran dalam perjalanan',
+            (r) => _rp(r['paymentsInTransit']),
+          ),
+          baris('Saldo pembanding', (r) => _rp(r['comparison']), true),
+          baris('Saldo buku', (r) => _rp(r['book']), true),
+          baris('Selisih belum dijelaskan', (r) => _rp(r['difference']), true),
+          baris(
+            'Mutasi bank cocok / belum cocok',
+            (r) => r['matched'] == 0 && r['unmatched'] == 0
+                ? ''
+                : '${r['matched']} / ${r['unmatched']}',
+          ),
+          baris('Status', (r) => _status[r['status']] ?? 'Belum dimulai'),
+        ],
+        kaki:
+            'Item dalam perjalanan dibawa ke ${bulanSesudahnya(p)} dan dicetak '
+            'lagi di laporan bulan itu sampai cocok.',
+      );
+    case ReportForm.f12:
+      return (
+        sub: 'No. Bukti $bulan',
+        cols: [
+          'No. Bukti',
+          'Tanggal',
+          'Uraian',
+          'Jumlah (Rp)',
+          'Persetujuan',
+          'Dokumen pendukung saat tutup buku',
+        ],
+        kanan: [3],
+        rows: [
+          for (final r in d.rows)
+            switch (r['kind']) {
+              'posted' => [
+                '${r['voucher']}',
+                '${r['date']}',
+                '${r['description']}',
+                _rp(r['amount']),
+                _setuju[r['approval']] ?? '',
+                _bukti[r['evidence']] ?? '',
+              ],
+              'unfinished' => [
+                '${r['voucher']}',
+                '${r['date']}',
+                'Nomor diberikan, pembukuannya tidak selesai'
+                    '${r['note'] == null ? '' : ' · ${r['note']}'}',
+                '',
+                '',
+                '',
+              ],
+              _ => [
+                'Draf',
+                '${r['date']}',
+                '${r['description']}',
+                _rp(r['amount']),
+                '',
+                '',
+              ],
+            },
+        ],
+        kaki:
+            '${d.rows.length} baris. Kolom dokumen pendukung mencetak status '
+            'saat tutup buku; dokumen susulan tidak mengubah halaman ini.',
+      );
+    case ReportForm.f13:
+      return (
+        sub: 'Titipan per pihak, lalu Sentralisasi dari uang milik sendiri',
+        cols: [
+          'Titipan untuk',
+          'Sisa awal',
+          'Terkumpul',
+          'Disalurkan',
+          'Sisa belum disalurkan',
+        ],
+        kanan: [1, 2, 3, 4],
+        rows: [
+          for (final r in d.rows)
+            [
+              '${r['title']}',
+              _rp(r['opening']),
+              _rp(r['collected']),
+              _rp(r['remitted']),
+              _rp(r['closing']),
+            ],
+          [
+            'Jumlah titipan',
+            _rp(t['opening'] ?? 0),
+            _rp(t['collected'] ?? 0),
+            _rp(t['remitted'] ?? 0),
+            _rp(t['closing'] ?? 0),
+            1,
+          ],
+          [
+            'Sentralisasi dari uang milik sendiri (Belanja, bukan titipan)',
+            '',
+            '',
+            _rp(t['ownCentralization'] ?? 0),
+            '',
+          ],
+        ],
+        kaki:
+            'Judul “Sentralisasi / Penyaluran” menggantikan judul sumber '
+            '“Sentralisasi / Settlement”.',
+      );
+    case ReportForm.f14:
+      return (
+        sub: 'Delapan lampiran',
+        cols: ['', 'Lampiran', 'Isi pada $bulan'],
+        kanan: [],
+        rows: [
+          for (final r in d.rows)
+            () {
+              final n = r['n'] as int, jml = r['count'] as int;
+              final (judul, satuan) = lampiranF14[n - 1];
+              return <Object>['$n', judul, jml == 0 ? 'Nihil' : '$jml $satuan'];
+            }(),
+        ],
+        kaki:
+            'Lampiran tanpa isi dicetak sebagai “Nihil”, bukan halaman kosong.',
+      );
+  }
+}
+
+const kolomMono = {'No. Bukti', 'No. MA', 'Tanggal'};
+
+/// Grid widths for [t]: the widest text column flexes (null), figures get
+/// 120 px, codes and dates their board widths.
+List<double?> lebarKolom(LaporanTabel t) {
+  final lebar = [for (final _ in t.cols) 0];
+  for (final r in t.rows) {
+    for (var i = 0; i < t.cols.length && i < r.length; i++) {
+      if (r[i] is String && (r[i] as String).length > lebar[i]) {
+        lebar[i] = (r[i] as String).length;
+      }
+    }
+  }
+  var lentur = -1;
+  for (var i = 0; i < t.cols.length; i++) {
+    if (!t.kanan.contains(i) &&
+        !kolomMono.contains(t.cols[i]) &&
+        (lentur < 0 || lebar[i] > lebar[lentur])) {
+      lentur = i;
+    }
+  }
+  return [
+    for (var i = 0; i < t.cols.length; i++)
+      i == lentur
+          ? null
+          : t.kanan.contains(i)
+          ? 120
+          : t.cols[i] == 'No. Bukti'
+          ? 118
+          : t.cols[i] == 'Tanggal'
+          ? 84
+          : 104,
+  ];
+}
+
+/// [r]'s cells, without the bold marker.
+List<String> selBaris(List<Object> r) => [
+  for (final v in r)
+    if (v is String) v,
+];
+
+/// '{Bulan} {tahun}' after [p].
+String bulanSesudahnya(Period p) =>
+    bulanTahun(p.month == 12 ? p.year + 1 : p.year, p.month % 12 + 1);
+
+/// The report of the route's `:periode` (`laporanResmi`, `laporanTerbatas`),
+/// else `laporanBulanProvider`'s.
+LaporanBulan? laporanRute(BuildContext context, WidgetRef ref) {
+  final id = GoRouterState.of(context).pathParameters['periode'];
+  return (id == null ? null : ref.watch(laporanPeriodeProvider(id))) ??
+      ref.watch(laporanBulanProvider);
+}
+
+/// '{Bulan} {tahun}' of [l].
+String namaBulanLaporan(LaporanBulan l) => namaBulan(l.periode);
+
+/// The TERBATAS sheets of [r] (F02, F03, F05, F07, F12): only the Fund's
+/// rows; Mata Anggaran rows without an amount and allocated numbers are not
+/// printed.
+List<(String, String, LaporanTabel)> lembarTerbatas(
+  LaporanBulan l,
+  RestrictedReport r,
+) => [
+  for (final (kode, nama) in laporanDaftar)
+    if (r.datasets[formLaporan(kode)] case final d?)
+      (
+        kode,
+        nama,
+        tabelLaporan(
+          l,
+          d.form,
+          data: switch (d.form) {
+            ReportForm.f05 || ReportForm.f07 => ReportDataset(
+              form: d.form,
+              rows: [
+                for (final x in d.rows)
+                  if (x['postable'] == true && x['amount'] != 0) x,
+              ],
+              totals: d.totals,
+            ),
+            ReportForm.f12 => ReportDataset(
+              form: d.form,
+              rows: [
+                for (final x in d.rows)
+                  if (x['kind'] == 'posted') x,
+              ],
+            ),
+            _ => d,
+          },
+        ),
+      ),
+];

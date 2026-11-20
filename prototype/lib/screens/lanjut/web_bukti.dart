@@ -1,122 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/format.dart';
+import '../../domain/finance/finance.dart';
+import '../../providers/keuangan/beranda.dart';
+import '../../providers/keuangan/laporan.dart';
+import '../../providers/repositories_keuangan.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/chip_pilihan.dart';
 import '../../widgets/garis.dart';
-import '../../widgets/garis_status.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import '../../app/layar.dart';
+import 'bukti.dart';
 
-/// Web · Daftar Bukti Kas dan celah nomor (spec 06-bukti.md, WebBukti).
-class WebBuktiScreen extends StatefulWidget {
+/// Web · Daftar Bukti Kas dan celah nomor (spec 06-bukti.md, WebBukti):
+/// the chosen month's posted Bukti Kas (F12), the gap cards (DP7) and the
+/// unofficial to-do list, all computed.
+class WebBuktiScreen extends ConsumerStatefulWidget {
   const WebBuktiScreen({super.key});
 
   @override
-  State<WebBuktiScreen> createState() => _WebBuktiScreenState();
+  ConsumerState<WebBuktiScreen> createState() => _WebBuktiScreenState();
 }
-
-/// One row of the board's `R` table.
-typedef _Baris = ({
-  String no,
-  String asal,
-  String tgl,
-  String ur,
-  String tanda,
-  int jumlah,
-  String setuju,
-  String dok,
-  bool wajib,
-});
-
-const List<_Baris> _baris = [
-  (
-    no: 'BKU-2026-0147',
-    asal: '—',
-    tgl: '16/11/2026',
-    ur: 'Fotokopi warta jemaat',
-    tanda: '',
-    jumlah: -150000,
-    setuju: 'Tidak diperlukan (aturan: transaksi rutin)',
-    dok: 'Diunggah, belum diverifikasi',
-    wajib: false,
-  ),
-  (
-    no: 'BKU-2026-0146',
-    asal: '—',
-    tgl: '15/11/2026',
-    ur: 'Persembahan Ibadah Minggu',
-    tanda: '',
-    jumlah: 3450000,
-    setuju: 'Tidak diperlukan (aturan: Pendapatan)',
-    dok: 'Terverifikasi (oleh Meiske L.)',
-    wajib: false,
-  ),
-  (
-    no: 'BKU-2026-0144',
-    asal: '—',
-    tgl: '12/11/2026',
-    ur: 'Pembalikan BKU-\u200B2026-\u200B0139', // Chrome breaks after its hyphens
-    tanda: 'Pembalikan',
-    jumlah: 750000,
-    setuju: 'Tidak diperlukan (aturan: pembalikan)',
-    dok: 'Tidak diperlukan (aturan: pembalikan)',
-    wajib: false,
-  ),
-  (
-    no: 'BKU-2026-0143',
-    asal: '—',
-    tgl: '11/11/2026',
-    ur: 'Sewa sound system',
-    tanda: '',
-    jumlah: -600000,
-    setuju: 'Tidak diperlukan (aturan: transaksi rutin)',
-    dok: 'Wajib, belum ada',
-    wajib: true,
-  ),
-  (
-    no: 'BKU-2026-0139',
-    asal: '—',
-    tgl: '09/11/2026',
-    ur: 'Konsumsi rapat majelis',
-    tanda: 'Dibalik oleh BKU-2026-0144',
-    jumlah: -750000,
-    setuju: 'Tidak diperlukan (aturan: transaksi rutin)',
-    dok: 'Terverifikasi (oleh Meiske L.)',
-    wajib: false,
-  ),
-  (
-    no: 'BKU-2026-0137',
-    asal: 'KW-0412',
-    tgl: '08/11/2026',
-    ur: 'Renovasi pastori, termin 1',
-    tanda: '',
-    jumlah: -4500000,
-    setuju: 'Sudah dicatat · Pdt. Lidya Rondonuwu, Ketua BPMJ',
-    dok: 'Dikecualikan (alasan: kuitansi menyusul, oleh Ketua BPMJ)',
-    wajib: false,
-  ),
-];
-
-const _celah = [
-  ('BKU-2026-0111', '14/10/2026 10.20'),
-  ('BKU-2026-0124', '29/10/2026 16.05'),
-  ('BKU-2026-0126', '30/10/2026 09.12'),
-];
-
-const _tindak = [
-  (
-    '1 dokumen pendukung wajib, belum ada',
-    'BKU-2026-0143 · Sewa sound system · Rp600.000',
-  ),
-  ('2 draf belum dibukukan', 'Belum masuk saldo · Rp800.000'),
-  ('1 Mata Anggaran belum dipilih', 'Draf · Honor pemusik'),
-];
 
 const _tabs = ['Daftar Bukti Kas', 'Celah nomor', 'Daftar perlu tindakan'];
 
@@ -145,8 +55,9 @@ Widget _tautanSebaris({
   );
 }
 
-class _WebBuktiScreenState extends State<WebBuktiScreen> {
+class _WebBuktiScreenState extends ConsumerState<WebBuktiScreen> {
   String _tab = _tabs.first;
+  String? _bulan;
 
   /// Width of "Lihat transaksi" at 14/700: the link's flex basis.
   double _lebarLihat(BuildContext context) {
@@ -171,6 +82,11 @@ class _WebBuktiScreenState extends State<WebBuktiScreen> {
   Widget build(BuildContext context) {
     final c = context.warna;
     final keterangan = TextStyle(fontSize: 13, color: c.tinta3);
+    final bulan = bulanBukti(ref, _bulan);
+    final baris = bulan == null
+        ? const <BarisBukti>[]
+        : ref.watch(buktiBulanProvider(bulan.id));
+    final tindak = _tindak(baris);
     return HalamanWeb(
       layarKeuangan: true,
       nav: const NavSamping(item: navKeuangan, aktif: 5),
@@ -194,7 +110,10 @@ class _WebBuktiScreenState extends State<WebBuktiScreen> {
                     text: 'Daftar Bukti Kas ',
                     children: [
                       TextSpan(
-                        text: '· November 2026 · Belum ditutup',
+                        text: bulan == null
+                            ? ''
+                            : '· ${namaBulan(bulan)} · '
+                                  '${bulan.isClosed ? 'Sudah ditutup' : 'Belum ditutup'}',
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w500,
@@ -243,9 +162,13 @@ class _WebBuktiScreenState extends State<WebBuktiScreen> {
             ),
           ),
           if (_tab == _tabs[0]) ...[
-            _tabel(c),
+            PilihBulanBukti(
+              terpilih: bulan,
+              onPilih: (id) => setState(() => _bulan = id),
+            ),
+            _tabel(c, baris),
             Text(
-              'Contoh 6 dari 51 baris. No. Bukti dibuat aplikasi; nomor dari '
+              '${baris.length} baris. No. Bukti dibuat aplikasi; nomor dari '
               'catatan lama tampil terpisah sebagai No. bukti asal. Transaksi '
               'yang dibalik tetap ada di daftar.',
               style: keterangan,
@@ -285,7 +208,15 @@ class _WebBuktiScreenState extends State<WebBuktiScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  for (var i = 0; i < _tindak.length; i++)
+                  if (tindak.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      child: Text(
+                        'Tidak ada yang perlu ditindaklanjuti.',
+                        style: keterangan,
+                      ),
+                    ),
+                  for (var i = 0; i < tindak.length; i++)
                     Container(
                       // CSS content-box: min-height 56 plus padding 8 8.
                       constraints: const BoxConstraints(minHeight: 72),
@@ -307,12 +238,12 @@ class _WebBuktiScreenState extends State<WebBuktiScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  _tindak[i].$1,
+                                  tindak[i].$1,
                                   style: const TextStyle(
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                                Text(_tindak[i].$2, style: keterangan),
+                                Text(tindak[i].$2, style: keterangan),
                               ],
                             ),
                           ),
@@ -356,7 +287,46 @@ class _WebBuktiScreenState extends State<WebBuktiScreen> {
     );
   }
 
-  Widget _tabel(PalakatWarna c) {
+  /// The unofficial to-do lines: required documents missing, drafts not
+  /// booked, drafts without a Mata Anggaran.
+  List<(String, String)> _tindak(List<BarisBukti> baris) {
+    final wajib = [
+      for (final r in baris)
+        if (r.wajib) r,
+    ];
+    final draf = ref.watch(transactionRepositoryProvider).drafts();
+    final tanpaMa = [
+      for (final t in draf)
+        if (t.allocations.any(
+          (a) =>
+              a.masterCode == null &&
+              (t.type == TransactionType.income ||
+                  t.type == TransactionType.expense),
+        ))
+          t,
+    ];
+    return [
+      if (wajib.isNotEmpty)
+        (
+          '${wajib.length} dokumen pendukung wajib, belum ada',
+          wajib
+              .map((r) => '${r.no} · ${r.ur} · ${rp(r.jumlah.abs())}')
+              .join('; '),
+        ),
+      if (draf.isNotEmpty)
+        (
+          '${draf.length} draf belum dibukukan',
+          'Belum masuk saldo · ${rp(draf.fold(0, (n, t) => n + t.total))}',
+        ),
+      if (tanpaMa.isNotEmpty)
+        (
+          '${tanpaMa.length} Mata Anggaran belum dipilih',
+          tanpaMa.map((t) => 'Draf · ${t.description}').join('; '),
+        ),
+    ];
+  }
+
+  Widget _tabel(PalakatWarna c, List<BarisBukti> rows) {
     final kecil = TextStyle(fontSize: 13, color: c.tinta2);
     Widget baris(List<Widget> sel, {bool garis = false, bool kepala = false}) {
       final lebar = <double?>[130, 110, 92, null, 130, null, null];
@@ -405,7 +375,7 @@ class _WebBuktiScreenState extends State<WebBuktiScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         kepala,
-        for (final r in _baris)
+        for (final r in rows)
           DefaultTextStyle.merge(
             style: const TextStyle(fontSize: 14),
             child: baris(garis: true, [
@@ -463,75 +433,7 @@ class _WebBuktiScreenState extends State<WebBuktiScreen> {
     );
   }
 
-  Widget _celahNomor(PalakatWarna c) {
-    const judul = TextStyle(fontWeight: FontWeight.w700);
-    final sub = TextStyle(fontSize: 14, color: c.tinta2);
-    Widget kartu(List<Widget> anak, {bool terpilih = false}) => Kartu(
-      status: terpilih ? GarisStatus.terpilih : GarisStatus.dibukukan,
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          for (var i = 0; i < anak.length; i++) ...[
-            if (i > 0) const SizedBox(height: 6),
-            anak[i],
-          ],
-        ],
-      ),
-    );
-    return _Kisi(
-      anak: [
-        kartu(terpilih: true, [
-          const Text.rich(
-            TextSpan(
-              text: 'Seri Biasa · ',
-              children: [
-                TextSpan(text: 'BKU-2026-0001', style: _mono),
-                TextSpan(text: ' sampai '),
-                TextSpan(text: '0151', style: _mono),
-              ],
-            ),
-            style: judul,
-          ),
-          const Text(
-            '3 nomor tanpa transaksi',
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-          ),
-          for (final (kode, waktu) in _celah)
-            Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(
-                    text: kode,
-                    style: _mono.copyWith(color: c.tinta),
-                  ),
-                  TextSpan(
-                    text:
-                        ' · diberikan $waktu, pembukuannya tidak selesai. '
-                        'Nomor ini tidak dipakai ulang.',
-                  ),
-                ],
-              ),
-              style: sub,
-            ),
-        ]),
-        kartu([
-          const Text.rich(
-            TextSpan(
-              text: 'Seri OPN Saldo awal pencatatan · ',
-              children: [TextSpan(text: 'OPN-2026-0001', style: _mono)],
-            ),
-            style: judul,
-          ),
-          Text('Tidak ada celah', style: sub),
-        ]),
-        kartu([
-          const Text('Seri ADJ Penyesuaian', style: judul),
-          Text('Belum pernah dipakai', style: sub),
-        ]),
-      ],
-    );
-  }
+  Widget _celahNomor(PalakatWarna c) => _Kisi(anak: kartuCelah(ref, c));
 }
 
 /// `grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));

@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/format.dart';
+import '../../domain/finance/finance.dart';
 import '../../motion/kerangka.dart';
+import '../../providers/actor.dart';
+import '../../providers/keuangan/akhir_bulan.dart';
+import '../../providers/repositories_keuangan.dart';
+import '../../providers/keuangan/beranda.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import '../../shell/tautan.dart';
@@ -11,64 +17,83 @@ import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tombol.dart';
 import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
 
-/// One suggestion of the board's `U` list.
-typedef _Usul = ({
-  String id,
-  String label,
-  String t,
-  bool ragu,
-  String pakaiTeks,
-  String cat,
-  String jadi,
-});
+typedef _Usul = UsulAi;
 
-const List<_Usul> _usul = [
-  (
-    id: 'cocok',
-    label: 'Usulan AI · pencocokan',
-    t:
-        'Mutasi bank “TARIK TUNAI −Rp2.000.000” (30/10) kemungkinan cocok '
-        'dengan BKU-2026-0127 Pindah antar Kas/Bank: Bank BNI ke Kas.',
-    ragu: false,
-    pakaiTeks: 'Buka untuk dicocokkan',
-    cat: 'Belum mencocokkan apa pun.',
-    jadi:
-        'Dibuka di rekonsiliasi. Mutasi baru cocok setelah Anda menekan '
-        'Cocokkan di sana.',
-  ),
-  (
-    id: 'ganda',
-    label: 'Usulan AI · mungkin perlu dicek',
-    t:
-        'BKU-2026-0101 dan draf “Toko Sinar okt” sama-sama Rp1.250.000 ke '
-        'Toko Sinar pada 06/10/2026. Bisa jadi tercatat dua kali, bisa juga '
-        'dua tagihan.',
-    ragu: true,
-    pakaiTeks: 'Lihat keduanya',
-    cat: 'Hanya informasi.',
-    jadi: 'Kedua transaksi dibuka berdampingan. Tidak ada yang diubah.',
-  ),
-];
+/// The month-end proposals of AIBulan and WebAI as AiRepository records
+/// (README 3.7, 4.2): each text the panel shows is asked once for the month
+/// (AiKind.monthEnd, its cost added to the budget), keyed by the month and
+/// the text, so a revisit reads the same proposal and its "Pakai" or
+/// "Abaikan" back instead of asking again.
+mixin UsulanAiBulan<W extends ConsumerStatefulWidget> on ConsumerState<W> {
+  final _usulan = <String, AiProposal>{};
+  final _diminta = <String>{};
+
+  /// The READY proposal behind [teks] of [ai]'s month, or null while it is
+  /// asked (or refused: no right to ask, or the budget is used up).
+  AiProposal? usulan(AiBulan ai, String teks) {
+    final kunci = 'ai-bulan|${ai.periode?.id}|$teks';
+    if (_diminta.add(kunci)) {
+      // Asked after the frame: a command never runs during build.
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        final a = ref.read(actorProvider);
+        if (!mounted || a == null) return;
+        final r = await ref
+            .read(aiRepositoryProvider)
+            .propose(
+              a,
+              AiKind.monthEnd,
+              AiInput(text: teks),
+              idempotencyKey: kunci,
+            );
+        if (mounted && r.isOk) setState(() => _usulan[kunci] = r.value);
+      });
+    }
+    final p = _usulan[kunci];
+    return p == null || p.status == AiProposalStatus.pending ? null : p;
+  }
+
+  /// "Pakai" (accepted) or "Abaikan" (rejected); "Buka untuk dicocokkan"
+  /// then opens the reconciliation it names.
+  Future<void> putuskan(UsulAi u, AiProposal p, AiDisposition d) async {
+    final r = await perintah(
+      ref,
+      (a, k) => ref
+          .read(aiRepositoryProvider)
+          .dispose(a, p.id, d, expectedRevision: p.revision, idempotencyKey: k),
+    );
+    if (!mounted) return;
+    setState(() {});
+    if ((r?.isOk ?? false) && d == AiDisposition.accepted && u.id == 'cocok') {
+      context.gantiKe(Layar.tutupBuku, anak: 'rekonsiliasi');
+    }
+  }
+}
 
 /// 36 · Bantuan AI akhir bulan (spec 10-aifoto.md, AIBulan).
-class AIBulanScreen extends StatefulWidget {
+class AIBulanScreen extends ConsumerStatefulWidget {
   const AIBulanScreen({super.key});
 
   @override
-  State<AIBulanScreen> createState() => _AIBulanScreenState();
+  ConsumerState<AIBulanScreen> createState() => _AIBulanScreenState();
 }
 
-class _AIBulanScreenState extends State<AIBulanScreen> {
-  /// `state.u`: id → 'pakai' | 'abai'. Survives `biayaAI` changes.
-  final Map<String, String> _u = {};
-
+class _AIBulanScreenState extends ConsumerState<AIBulanScreen>
+    with UsulanAiBulan {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final pct = int.parse(belumDipindah<String>('75%').replaceAll('%', ''));
-    final mati = pct >= 100;
+    final ai = ref.watch(aiBulanProvider);
+    final pct = ai.budget.percent;
+    final mati = ai.budget.usedUp;
+    final berjalan = ref.watch(bulanBukuProvider).berjalan;
+    final ringkasan = ai.ringkasan == null || usulan(ai, ai.ringkasan!) == null
+        ? null
+        : ai.ringkasan;
+    final usul = [
+      for (final u in ai.usul)
+        if (usulan(ai, u.t) case final p?) (u, p),
+    ];
     final biayaCat = mati
         ? 'Batas tercapai.'
         : pct >= 90
@@ -81,8 +106,8 @@ class _AIBulanScreenState extends State<AIBulanScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Batas biaya AI per bulan · ${rp((150000 * pct / 100).round())} '
-          'dari Rp150.000',
+          'Batas biaya AI per bulan · ${rp(ai.budget.spent)} '
+          'dari ${rp(ai.budget.cap)}',
           style: const TextStyle(fontSize: 13),
         ),
         const SizedBox(height: 6),
@@ -130,27 +155,31 @@ class _AIBulanScreenState extends State<AIBulanScreen> {
           ),
           biaya,
           if (!mati) ...[
-            _KartuAI(
-              label: 'Usulan AI · ringkasan',
-              jarak: 6,
-              anak: [
-                Text(
-                  'Selisih Rp515.000 di Bank BNI tampaknya terdiri dari satu '
-                  'setoran Rp500.000 yang belum muncul di rekening koran dan '
-                  'satu biaya administrasi Rp15.000 yang belum dicatat.',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontStyle: FontStyle.italic,
-                    color: c.lautTua,
+            if (ringkasan != null)
+              _KartuAI(
+                label: 'Usulan AI · ringkasan',
+                jarak: 6,
+                anak: [
+                  Text(
+                    ringkasan,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontStyle: FontStyle.italic,
+                      color: c.lautTua,
+                    ),
                   ),
-                ),
-                Text(
-                  'Angka resmi tetap yang ada di halaman rekonsiliasi.',
-                  style: TextStyle(fontSize: 13, color: c.tinta3),
-                ),
-              ],
-            ),
-            for (final u in _usul) _kartuUsul(u),
+                  Text(
+                    'Angka resmi tetap yang ada di halaman rekonsiliasi.',
+                    style: TextStyle(fontSize: 13, color: c.tinta3),
+                  ),
+                ],
+              ),
+            for (final (u, p) in usul) _kartuUsul(u, p),
+            if (ringkasan == null && usul.isEmpty)
+              Text(
+                'Tidak ada usulan untuk bulan ini.',
+                style: TextStyle(fontSize: 14, color: c.tinta2),
+              ),
           ],
           if (mati)
             Container(
@@ -163,7 +192,9 @@ class _AIBulanScreenState extends State<AIBulanScreen> {
                 TextSpan(
                   children: [
                     TextSpan(
-                      text: 'Bantuan AI berhenti sampai Desember 2026.',
+                      text:
+                          'Bantuan AI berhenti sampai '
+                          '${berjalan == null ? 'bulan depan' : bulanSesudah(berjalan)}.',
                       style: TextStyle(
                         fontWeight: FontWeight.w700,
                         color: c.tinta,
@@ -192,9 +223,11 @@ class _AIBulanScreenState extends State<AIBulanScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const KepalaPonsel(
+          KepalaPonsel(
             judul: 'Bantuan AI',
-            anakJudul: 'Persiapan tutup buku Oktober 2026',
+            anakJudul: ai.periode == null
+                ? null
+                : 'Persiapan tutup buku ${namaBulan(ai.periode!)}',
             kembaliKe: Layar.tutupBuku,
             labelKembali: 'Kembali ke Bulan',
           ),
@@ -223,10 +256,9 @@ class _AIBulanScreenState extends State<AIBulanScreen> {
     );
   }
 
-  Widget _kartuUsul(_Usul u) {
+  Widget _kartuUsul(_Usul u, AiProposal p) {
     final c = context.warna;
-    final v = _u[u.id];
-    void set(String nilai) => setState(() => _u[u.id] = nilai);
+    final v = p.disposition;
     return _KartuAI(
       label: u.label,
       jarak: 8,
@@ -250,7 +282,7 @@ class _AIBulanScreenState extends State<AIBulanScreen> {
               Expanded(
                 child: Tombol(
                   u.pakaiTeks,
-                  onPressed: () => set('pakai'),
+                  onPressed: () => putuskan(u, p, AiDisposition.accepted),
                   ukuran: UkuranTombol.mini,
                   ukuranTeks: 14,
                 ),
@@ -258,7 +290,7 @@ class _AIBulanScreenState extends State<AIBulanScreen> {
               const SizedBox(width: 8),
               Tombol(
                 'Abaikan',
-                onPressed: () => set('abai'),
+                onPressed: () => putuskan(u, p, AiDisposition.rejected),
                 jenis: JenisTombol.kedua,
                 ukuran: UkuranTombol.mini,
                 ukuranTeks: 14,
@@ -277,7 +309,9 @@ class _AIBulanScreenState extends State<AIBulanScreen> {
               container: true,
               liveRegion: true,
               child: Text(
-                v == 'pakai' ? u.jadi : 'Diabaikan. Tidak perlu alasan.',
+                v == AiDisposition.rejected
+                    ? 'Diabaikan. Tidak perlu alasan.'
+                    : u.jadi,
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,

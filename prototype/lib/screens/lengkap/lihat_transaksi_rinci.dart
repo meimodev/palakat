@@ -1,7 +1,10 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/format.dart';
 import '../../motion/kerangka.dart';
+import '../../providers/keuangan/beranda.dart';
+import '../../providers/keuangan/laporan.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis_status.dart';
@@ -10,131 +13,31 @@ import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../app/layar.dart';
 
-/// One booked transaction behind a report figure.
-typedef BarisLaporan = ({String no, String tgl, String ur, String cat, int jm});
-
-/// One figure of the October 2026 report (the boards' `D` array), shared by
-/// LihatTransaksi and WebLihatTransaksi.
-typedef AngkaLaporan = ({
-  String id,
-  String pendek,
-  String lap,
-  String n,
-  List<BarisLaporan> rows,
-  int total,
-});
-
-const List<AngkaLaporan> angkaLaporanOktober = [
-  (
-    id: 'hon',
-    pendek: 'Honorarium pelayan',
-    lap: 'F07 · Realisasi Belanja Menurut Mata Anggaran',
-    n: 'Belanja 5.07.01.00 Honorarium pelayan',
-    rows: [
-      (
-        no: 'BKU-2026-0100',
-        tgl: '05/10/2026',
-        ur: 'Honorarium pelayan',
-        cat: '',
-        jm: 1820000,
-      ),
-      (
-        no: 'BKU-2026-0120',
-        tgl: '26/10/2026',
-        ur: 'Honorarium pelayan',
-        cat: '',
-        jm: 1820000,
-      ),
-    ],
-    total: 3640000,
-  ),
-  (
-    id: 'atk',
-    pendek: 'Alat tulis dan fotokopi',
-    lap: 'F07 · Realisasi Belanja Menurut Mata Anggaran',
-    n: 'Belanja 5.02.01.00 Alat tulis dan fotokopi',
-    rows: [
-      (
-        no: 'BKU-2026-0101',
-        tgl: '06/10/2026',
-        ur: 'Toko Sinar: listrik dan alat tulis',
-        cat: 'Bagian dari pembayaran Rp1.250.000',
-        jm: 250000,
-      ),
-      (
-        no: 'BKU-2026-0105',
-        tgl: '09/10/2026',
-        ur: 'Konsumsi rapat majelis',
-        cat: 'Dibalik oleh BKU-2026-0109',
-        jm: 750000,
-      ),
-      (
-        no: 'BKU-2026-0109',
-        tgl: '12/10/2026',
-        ur: 'Pembalikan BKU-2026-0105',
-        cat: 'Pembalikan',
-        jm: -750000,
-      ),
-    ],
-    total: 250000,
-  ),
-  (
-    id: 'pim',
-    pendek: 'Persembahan Ibadah Minggu',
-    lap: 'F05 · Realisasi Pendapatan Menurut Mata Anggaran',
-    n: 'Pendapatan 1.3.53.07.00 Persembahan Ibadah Minggu',
-    rows: [
-      (
-        no: 'BKU-2026-0098',
-        tgl: '04/10/2026',
-        ur: 'Persembahan Ibadah Minggu dan Diakonia',
-        cat: 'Bagian dari penerimaan Rp4.150.000',
-        jm: 3200000,
-      ),
-      (
-        no: 'BKU-2026-0107',
-        tgl: '11/10/2026',
-        ur: 'Persembahan Ibadah Minggu',
-        cat: '',
-        jm: 2650000,
-      ),
-      (
-        no: 'BKU-2026-0114',
-        tgl: '18/10/2026',
-        ur: 'Persembahan Ibadah Minggu',
-        cat: '',
-        jm: 2400000,
-      ),
-      (
-        no: 'BKU-2026-0123',
-        tgl: '25/10/2026',
-        ur: 'Persembahan Ibadah Minggu',
-        cat: '',
-        jm: 2700000,
-      ),
-    ],
-    total: 10950000,
-  ),
-];
-
-AngkaLaporan angkaLaporan(String id) =>
-    angkaLaporanOktober.firstWhere((x) => x.id == id);
-
 /// The figure's detail (both boards): heading, the transactions card, the
 /// "sum equals report" line, the note and the link to [ke]. Sizes the boards
 /// leave to inheritance (16 phone, 15 web) come from DefaultTextStyle.
-class RinciAngkaLaporan extends StatelessWidget {
+class RinciAngkaLaporan extends ConsumerWidget {
   const RinciAngkaLaporan({super.key, required this.pilih, required this.ke});
 
-  final String pilih;
+  /// The Mata Anggaran code of the figure; the first figure when unknown.
+  final String? pilih;
 
-  /// The board stem of "Buka Transaksi Oktober 2026".
+  /// The board stem of "Buka Transaksi {bulan}".
   final Layar ke;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
-    final d = angkaLaporan(pilih);
+    final l = ref.watch(laporanBulanProvider);
+    final semua = ref.watch(angkaLaporanProvider);
+    if (l == null || semua.isEmpty) {
+      return Text(
+        'Belum ada angka laporan dari transaksi yang dibukukan.',
+        style: TextStyle(color: c.tinta2),
+      );
+    }
+    final d = semua.where((x) => x.id == pilih).firstOrNull ?? semua.first;
+    final bulan = namaBulan(l.periode);
     final jumlah = d.rows.fold(0, (s, r) => s + r.jm);
     final mono = TextStyle(fontFamily: PalakatText.mono);
     final anak = <Widget>[
@@ -142,7 +45,8 @@ class RinciAngkaLaporan extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '${d.lap} · Oktober 2026 · Laporan resmi',
+            '${d.lap} · $bulan · '
+            '${l.resmi ? 'Laporan resmi' : 'Laporan sementara'}',
             style: TextStyle(fontSize: 13, color: c.tinta3),
           ),
           Text(d.n, style: const TextStyle(fontWeight: FontWeight.w700)),
@@ -165,7 +69,7 @@ class RinciAngkaLaporan extends StatelessWidget {
             for (var i = 0; i < d.rows.length; i++)
               Gerak(
                 Kerangka.muncul,
-                key: ValueKey('$pilih-$i'),
+                key: ValueKey('${d.id}-$i'),
                 lama: const Duration(milliseconds: 300),
                 child: _Baris(d.rows[i], pertama: i == 0),
               ),
@@ -193,13 +97,10 @@ class RinciAngkaLaporan extends StatelessWidget {
       ),
       Tautan(
         ke: ke,
-        child: const Align(
+        child: Align(
           alignment: Alignment.centerLeft,
           heightFactor: 1,
-          child: TautanTeks(
-            'Buka Transaksi Oktober 2026',
-            berat: FontWeight.w700,
-          ),
+          child: TautanTeks('Buka Transaksi $bulan', berat: FontWeight.w700),
         ),
       ),
     ];

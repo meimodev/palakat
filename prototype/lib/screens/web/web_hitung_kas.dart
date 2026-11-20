@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/format.dart';
-import '../../mock/mock.dart';
+import '../../core/tanggal.dart';
+import '../../domain/core/core.dart';
+import '../../domain/finance/finance.dart';
+import '../../providers/clock.dart';
+import '../../providers/keuangan/akhir_bulan.dart';
+import '../../providers/keuangan/beranda.dart';
+import '../../providers/repositories_keuangan.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
 import '../../shell/tautan.dart';
@@ -10,12 +17,16 @@ import '../../theme/palakat_tema.dart';
 import '../../widgets/chip_pilihan.dart';
 import '../../widgets/garis.dart';
 import '../../widgets/kecil.dart';
+import '../../widgets/penolakan.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import '../../app/layar.dart';
 
 const _mono = TextStyle(fontFamily: PalakatText.mono);
+
+/// The denominations counted (mock-data 2.12).
+const _pecahan = [100000, 50000, 20000, 10000, 5000, 2000, 1000];
 
 /// `<span>`/`<a>` chips are content-box: min-height 44 plus two 1.5 lines.
 Widget _isiKotak(Widget chip) => ConstrainedBox(
@@ -49,17 +60,47 @@ class _FormatLembar extends TextInputFormatter {
   }
 }
 
-class WebHitungKasScreen extends StatefulWidget {
+/// Web · Hitung kas: the church cash account of the month to close
+/// (`hitungKasProvider`), saved through ReconciliationRepository
+/// .recordCashCount. A count equal to the book confirms the cash
+/// reconciliation.
+class WebHitungKasScreen extends ConsumerStatefulWidget {
   const WebHitungKasScreen({super.key});
   @override
-  State<WebHitungKasScreen> createState() => _WebHitungKasScreenState();
+  ConsumerState<WebHitungKasScreen> createState() => _WebHitungKasScreenState();
 }
 
-class _WebHitungKasScreenState extends State<WebHitungKasScreen> {
-  static const _awal = ['80', '5', '5', '1', '2', '', ''];
-  final _sel = [for (final v in _awal) TextEditingController(text: v)];
-  bool _nol = false, _tersimpan = false;
+class _WebHitungKasScreenState extends ConsumerState<WebHitungKasScreen> {
+  final _sel = [for (final _ in _pecahan) TextEditingController()];
+  bool _nol = false;
+  CashCount? _simpan;
+  Refusal? _tolak;
   final _petugas = <String>[];
+
+  bool get _tersimpan => _simpan != null;
+
+  Future<void> _simpanHitung(String akunId) async {
+    final r = await perintah(
+      ref,
+      (a, k) => ref
+          .read(reconciliationRepositoryProvider)
+          .recordCashCount(
+            a,
+            akunId,
+            {
+              for (var i = 0; i < 7; i++)
+                _pecahan[i]: int.tryParse(_sel[i].text) ?? 0,
+            },
+            [..._petugas],
+            idempotencyKey: k,
+          ),
+    );
+    if (!mounted) return;
+    setState(() {
+      _tolak = r?.refusal;
+      if (r is Ok<CashCount>) _simpan = r.value;
+    });
+  }
 
   @override
   void dispose() {
@@ -73,7 +114,7 @@ class _WebHitungKasScreenState extends State<WebHitungKasScreen> {
     var t = 0;
     for (var i = 0; i < 7; i++) {
       final d = _sel[i].text;
-      t += (d.isEmpty ? 0 : int.parse(d)) * HitungKas.pecahan[i];
+      t += (d.isEmpty ? 0 : int.parse(d)) * _pecahan[i];
     }
     return t;
   }
@@ -86,23 +127,37 @@ class _WebHitungKasScreenState extends State<WebHitungKasScreen> {
       s.clear();
     }
     _nol = true;
-    _tersimpan = false;
+    _simpan = null;
   });
 
   void _pilih(String o) => setState(() {
     _petugas.contains(o) ? _petugas.remove(o) : _petugas.add(o);
-    _tersimpan = false;
+    _simpan = null;
   });
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final total = _total, dihitung = _dihitung, bisa = _bisa;
-    final selisih = hitungKasSaldoBuku - total;
+    final d = ref.watch(hitungKasProvider);
+    final sekarang = ref.watch(clockProvider).now();
+    final petugasPilihan = ref.watch(petugasHitungProvider);
+    final saldoBuku = d?.buku ?? 0;
+    final total = _total, dihitung = _dihitung, bisa = _bisa && d != null;
+    final selisih = saldoBuku - total;
+    final bulan = d == null ? '' : namaBulan(d.periode);
+    final saat = d == null
+        ? ''
+        : d.periode.end < Tanggal.dari(sekarang)
+        ? '${d.akun.name} · akhir $bulan'
+        : '${d.akun.name} · ${tglPanjang(sekarang)} · ${jam(sekarang)}';
+    final bank = [
+      for (final a in ref.watch(accountRepositoryProvider).accounts())
+        if (a.type == AccountType.bank && a.operatedByScopeId == null) a,
+    ];
     final hasil = dihitung ? rp(total) : kosong;
     final warnaHasil = dihitung ? c.tinta : c.tinta3;
     final pesan = _tersimpan
-        ? 'Hitung kas tersimpan · dihitung oleh ${_petugas.join(' dan ')}'
+        ? 'Hitung kas tersimpan'
         : !dihitung
         ? 'Isi hasil hitung, atau catat Rp0 bila kas memang kosong.'
         : _petugas.isEmpty
@@ -167,7 +222,7 @@ class _WebHitungKasScreenState extends State<WebHitungKasScreen> {
             const SizedBox(width: 16),
             Flexible(
               child: Text(
-                '16 November 2026 · 11.30',
+                saat,
                 style: TextStyle(fontSize: 14, color: c.tinta2),
               ),
             ),
@@ -201,11 +256,11 @@ class _WebHitungKasScreenState extends State<WebHitungKasScreen> {
                     border: Border(top: BorderSide(color: c.garis)),
                   ),
                   child: _BarisPecahan(
-                    pecahan: HitungKas.pecahan[i],
+                    pecahan: _pecahan[i],
                     controller: _sel[i],
                     onInput: () => setState(() {
                       _nol = false;
-                      _tersimpan = false;
+                      _simpan = null;
                     }),
                     grid: grid,
                   ),
@@ -254,7 +309,7 @@ class _WebHitungKasScreenState extends State<WebHitungKasScreen> {
                         ? 'Dihitung: Rp0. Nol dicatat sebagai hasil hitung, '
                               'bukan sebagai belum dihitung.'
                         : 'Sel kosong berarti pecahan itu tidak ada.')
-                  : hitungKasKosongTeks,
+                  : 'Belum dihitung. Kosong bukan Rp0.',
               style: TextStyle(fontSize: 13, color: c.tinta3),
             );
             final label = TextPainter(
@@ -302,7 +357,7 @@ class _WebHitungKasScreenState extends State<WebHitungKasScreen> {
               barisAside(
                 'Saldo buku',
                 Text(
-                  rp(hitungKasSaldoBuku),
+                  rp(saldoBuku),
                   style: _mono.copyWith(fontWeight: FontWeight.w500),
                 ),
               ),
@@ -404,7 +459,7 @@ class _WebHitungKasScreenState extends State<WebHitungKasScreen> {
               spacing: 8,
               runSpacing: 8,
               children: [
-                for (final o in hitungKasPetugas)
+                for (final o in petugasPilihan)
                   ChipSatu(
                     teks: o,
                     dipilih: _petugas.contains(o),
@@ -438,7 +493,7 @@ class _WebHitungKasScreenState extends State<WebHitungKasScreen> {
         TekanAria(
           // TombolBersyarat: re-checks the latest input on press.
           onTap: () {
-            if (_bisa) setState(() => _tersimpan = true);
+            if (_bisa && d != null) _simpanHitung(d.akun.id);
           },
           aktif: bisa,
           petunjuk: bisa ? null : pesan,
@@ -465,6 +520,20 @@ class _WebHitungKasScreenState extends State<WebHitungKasScreen> {
             ),
           ),
         ),
+        if (_simpan != null)
+          Text(
+            'Dihitung oleh ${_simpan!.counters.join(' dan ')} · '
+            '${tglJam(_simpan!.countedAt)}',
+            style: TextStyle(fontSize: 14, color: c.tinta2),
+          ),
+        if (_tolak != null) ...[
+          const SizedBox(height: 8),
+          Penolakan(
+            tindakan: _tolak!.action,
+            sebab: _tolak!.because,
+            jalan: const [],
+          ),
+        ],
       ],
     );
 
@@ -481,7 +550,7 @@ class _WebHitungKasScreenState extends State<WebHitungKasScreen> {
                 text: 'Rekonsiliasi ',
                 children: [
                   TextSpan(
-                    text: '· November 2026',
+                    text: '· $bulan',
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w500,
@@ -501,16 +570,15 @@ class _WebHitungKasScreenState extends State<WebHitungKasScreen> {
                 // aria-current="page"
                 selected: true,
                 child: _isiKotak(
-                  const ChipSatu(
-                    teks: 'Kas · hitung kas',
+                  ChipSatu(
+                    teks: '${d?.akun.name ?? 'Kas'} · hitung kas',
                     dipilih: true,
                     onTap: null,
                     padding: 16,
                   ),
                 ),
               ),
-              chipBank('Bank BNI ··4821'),
-              chipBank('Bank SulutGo ··1107'),
+              for (final a in bank) chipBank(a.name),
             ],
           ),
           BarisLentur(

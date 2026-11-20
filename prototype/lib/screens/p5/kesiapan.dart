@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
@@ -7,17 +8,14 @@ import 'kesiapan_isi.dart';
 import '../../app/layar.dart';
 
 /// 101 · Pernyataan kesiapan per peruntukan (phone).
-class KesiapanScreen extends StatefulWidget {
+class KesiapanScreen extends ConsumerStatefulWidget {
   const KesiapanScreen({super.key});
   @override
-  State<KesiapanScreen> createState() => _KesiapanScreenState();
+  ConsumerState<KesiapanScreen> createState() => _KesiapanScreenState();
 }
 
-class _KesiapanScreenState extends State<KesiapanScreen>
+class _KesiapanScreenState extends ConsumerState<KesiapanScreen>
     with KesiapanLogika<KesiapanScreen> {
-  @override
-  String get stem => 'Kesiapan';
-
   @override
   Widget build(BuildContext context) {
     final bend = bendahara(context);
@@ -25,7 +23,7 @@ class _KesiapanScreenState extends State<KesiapanScreen>
       if (bend) kartuKeadaan(context) else introPenyiap(context),
       daftarBaris(context, bend),
       Text(
-        'Berlaku setelah Jemaat punya bendahara unit (Putaran 5). Perubahan pada transaksi bulan itu membuat pernyataan perlu dinyatakan lagi.',
+        'Perubahan pada transaksi bulan itu membuat pernyataan perlu dinyatakan lagi.',
         style: TextStyle(fontSize: 13, color: context.warna.tinta3),
       ),
     ];
@@ -35,7 +33,7 @@ class _KesiapanScreenState extends State<KesiapanScreen>
         children: [
           KepalaPonsel(
             judul: 'Pernyataan kesiapan',
-            anakJudul: 'Oktober 2026 · masuk sebagai ${siapaKesiapan(bend)}',
+            anakJudul: '$namaBulanIni · masuk sebagai ${siapaSaya(ref)}',
             kembaliKe: Layar.tutupBuku,
             labelKembali: 'Kembali ke Bulan',
           ),
