@@ -119,6 +119,7 @@ class _WebJabatanKosongState extends State<WebJabatanKosongScreen> {
   }
 
   static const _banner = PitaJabatanKosong.web(
+    siaran: false,
     padding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
   );
 

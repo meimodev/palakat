@@ -110,7 +110,7 @@ class _AlurAnggotaState extends State<AlurAnggotaScreen> {
   ) => ChipPilihan<String>(
     label: label,
     jarakLabel: 6,
-    jarakBaris: 0,
+    jarakBawah: 0,
     pilihan: [for (final n in a) (nilai: n, teks: n)],
     terpilih: nilai,
     onPilih: (n) => setState(() {

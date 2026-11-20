@@ -19,6 +19,7 @@ class ChipPilihan<T> extends StatelessWidget {
     this.padding = 14,
     this.jarakLabel = 8,
     this.jarakBaris = 8,
+    this.jarakBawah,
   });
 
   /// 'Diambil dari peruntukan'; null for list filters without a label.
@@ -39,11 +40,15 @@ class ChipPilihan<T> extends StatelessWidget {
   /// Each chip's bottom margin (CSS): 8 in forms, 0 in filter rows.
   final double jarakBaris;
 
+  /// Space under the chips when it differs from [jarakBaris]: 0 for the flow
+  /// boards' `flex-wrap: wrap; gap: 8px` group (gap 8 between lines, none under).
+  final double? jarakBawah;
+
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
     final chips = Padding(
-      padding: EdgeInsets.only(bottom: jarakBaris),
+      padding: EdgeInsets.only(bottom: jarakBawah ?? jarakBaris),
       child: Wrap(
         spacing: 8,
         runSpacing: jarakBaris,

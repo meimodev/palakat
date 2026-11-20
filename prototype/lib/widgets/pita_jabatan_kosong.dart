@@ -10,6 +10,7 @@ class PitaJabatanKosong extends StatelessWidget {
   /// 10 24 8, 13 px, line height 1.3, centred, no radius.
   const PitaJabatanKosong.ponsel({super.key, this.jabatan = 'Bendahara Jemaat'})
     : _web = false,
+      siaran = true,
       sejak = null,
       operator = null,
       padding = const EdgeInsets.fromLTRB(24, 10, 24, 8);
@@ -23,12 +24,17 @@ class PitaJabatanKosong extends StatelessWidget {
     this.sejak = '16/11/2026 08.15',
     this.operator = 'Yanti Sumual',
     this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    this.siaran = true,
   }) : _web = true;
 
   final bool _web;
   final String jabatan;
   final String? sejak, operator;
   final EdgeInsetsGeometry padding;
+
+  /// false where the board gives the banner no role (JabatanKosong,
+  /// WebJabatanKosong, WebAlurJabatanKosong: plain text, not a live region).
+  final bool siaran;
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +75,7 @@ class PitaJabatanKosong extends StatelessWidget {
           );
     return Semantics(
       container: true,
-      liveRegion: true,
+      liveRegion: siaran,
       child: Container(
         width: double.infinity,
         padding: padding,

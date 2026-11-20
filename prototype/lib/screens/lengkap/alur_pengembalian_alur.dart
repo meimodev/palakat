@@ -257,7 +257,7 @@ class _AlurPengembalianAlurState extends State<AlurPengembalianAlur> {
         label: _kasLabel,
         jarakLabel: 6,
         // The board's chip row has gap 8 and no margin under it.
-        jarakBaris: 0,
+        jarakBawah: 0,
         pilihan: [for (final k in _kasPilihan) (nilai: k, teks: k)],
         terpilih: _kas.isEmpty ? null : _kas,
         onPilih: (k) => setState(() => _kas = k),

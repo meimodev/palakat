@@ -84,7 +84,7 @@ class _AlurPanitiaBaruState extends State<AlurPanitiaBaruScreen> {
   ) => ChipPilihan<String>(
     label: label,
     jarakLabel: 6,
-    jarakBaris: 0,
+    jarakBawah: 0,
     // Flutter sets "SK BPMJ No. 15/2026" + "Belum ada dokumen" 350.1 wide
     // (Chrome under 350); 0.05 less padding keeps the board's single line.
     padding: 13.95,

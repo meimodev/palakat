@@ -179,7 +179,7 @@ class _AlurIbadahScreenState extends State<AlurIbadahScreen> {
         ChipPilihan<String>(
           label: 'Ibadah',
           jarakLabel: 6,
-          jarakBaris: 0,
+          jarakBawah: 0,
           pilihan: const [
             (nilai: _kolom, teks: _kolom),
             (nilai: _seluruh, teks: _seluruh),
