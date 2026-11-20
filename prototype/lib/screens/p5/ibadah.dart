@@ -112,6 +112,7 @@ class _IbadahScreenState extends State<IbadahScreen> {
             'juga menugaskan petugas penghitung kehadiran.',
       ),
       const BarisTombol(
+        tautan: {0: 35},
         anak: [
           // An `<a>` is content-box: min-height 48 plus the 1.5 line twice.
           SizedBox(
@@ -136,6 +137,7 @@ class _IbadahScreenState extends State<IbadahScreen> {
         keterangan: 'Jumlah kehadiran sedang dihitung.',
       ),
       const BarisTombol(
+        tautan: {0: 35},
         anak: [
           // An `<a>` is content-box: min-height 48 plus the 1.5 line twice.
           SizedBox(

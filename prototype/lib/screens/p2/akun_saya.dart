@@ -503,6 +503,7 @@ class _AkunSayaScreenState extends State<AkunSayaScreen> {
       ),
     ]),
     BarisTombol(
+      tautan: const {0: 32},
       anak: [
         const Tombol(
           'Keluar',

@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
@@ -78,9 +80,14 @@ class IsianAlur extends StatelessWidget {
 /// max-width: 340px`; buttons on one line take the tallest one's height
 /// (CSS `align-items: stretch`). Children must not hold a LayoutBuilder.
 class BarisTombol extends StatelessWidget {
-  const BarisTombol({super.key, required this.anak});
+  const BarisTombol({super.key, required this.anak, this.tautan = const {}});
 
   final List<Widget> anak;
+
+  /// Children the board draws as an `<a>` link-button, by index, mapped to
+  /// their padding plus border (32 ink, 35 outline): `<a>` is content-box, so
+  /// its basis and max width grow by that much (182 / 372 for ink).
+  final Map<int, double> tautan;
 
   static const _jarak = 8.0;
 
@@ -88,7 +95,12 @@ class BarisTombol extends StatelessWidget {
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, ruang) {
       final lentur = [
-        for (final a in anak) Lentur(dasar: 150, maks: 340, child: a),
+        for (final (i, a) in anak.indexed)
+          Lentur(
+            dasar: 150 + (tautan[i] ?? 0),
+            maks: 340 + (tautan[i] ?? 0),
+            child: a,
+          ),
       ];
       final semua = BarisLentur.lebar(lentur, _jarak, ruang.maxWidth);
       var i = 0;
@@ -137,7 +149,10 @@ class KepalaKartu extends StatelessWidget {
 }
 
 /// Info row (key–value): space-between, gap 16, 14 px; label `tinta2`, value
-/// right-aligned [berat] `tinta` ([mono] for money and phone numbers).
+/// right-aligned [berat] `tinta` ([mono] for money and phone numbers). When
+/// both do not fit on one line they shrink like the board's CSS spans (`flex:
+/// 0 1 auto`): in proportion to their one-line widths, neither below its
+/// longest word, so a long label wraps beside the value.
 class BarisInfo extends StatelessWidget {
   const BarisInfo(
     this.label,
@@ -155,25 +170,65 @@ class BarisInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
+    final gayaLabel = TextStyle(color: c.tinta2);
+    final gayaNilai = TextStyle(
+      color: c.tinta,
+      fontWeight: berat,
+      fontFamily: mono ? PalakatText.mono : null,
+    );
     return DefaultTextStyle.merge(
       style: const TextStyle(fontSize: 14),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label, style: TextStyle(color: c.tinta2)),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Text(
-              nilai,
-              textAlign: TextAlign.right,
-              style: TextStyle(
-                color: c.tinta,
-                fontWeight: berat,
-                fontFamily: mono ? PalakatText.mono : null,
+      child: LayoutBuilder(
+        builder: (context, ruang) {
+          final dasar = DefaultTextStyle.of(context).style;
+          final skala = MediaQuery.textScalerOf(context);
+          double lebar(String t, TextStyle g) {
+            final p = TextPainter(
+              text: TextSpan(text: t, style: dasar.merge(g)),
+              textDirection: TextDirection.ltr,
+              textScaler: skala,
+            )..layout();
+            final w = p.width;
+            p.dispose();
+            return w;
+          }
+
+          double kata(String t, TextStyle g) =>
+              t.split(' ').map((k) => lebar(k, g)).reduce(math.max);
+          final wl = lebar(label, gayaLabel), wn = lebar(nilai, gayaNilai);
+          final ada = ruang.maxWidth - 16;
+          final lebih = wl + wn - ada;
+          final teksLabel = Text(label, style: gayaLabel);
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (lebih <= 0)
+                teksLabel
+              else
+                SizedBox(
+                  width: math.min(
+                    ada,
+                    math.max(
+                      kata(label, gayaLabel),
+                      math.min(
+                        wl - lebih * wl / (wl + wn),
+                        ada - kata(nilai, gayaNilai),
+                      ),
+                    ),
+                  ),
+                  child: teksLabel,
+                ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  nilai,
+                  textAlign: TextAlign.right,
+                  style: gayaNilai,
+                ),
               ),
-            ),
-          ),
-        ],
+            ],
+          );
+        },
       ),
     );
   }

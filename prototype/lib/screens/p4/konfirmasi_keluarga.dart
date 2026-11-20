@@ -98,6 +98,7 @@ class _State extends State<KonfirmasiKeluargaScreen> {
           style: TextStyle(fontSize: 13, color: c.tinta3),
         ),
         BarisTombol(
+          tautan: const {1: 35},
           anak: [
             verifikasi,
             const _TombolTautan(
@@ -145,6 +146,7 @@ class _State extends State<KonfirmasiKeluargaScreen> {
               'nama yang dipilih.',
         ),
         const BarisTombol(
+          tautan: {0: 35},
           anak: [
             _TombolTautan(
               'Buka data keluarga',

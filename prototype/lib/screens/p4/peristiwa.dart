@@ -126,6 +126,7 @@ class _PeristiwaScreenState extends State<PeristiwaScreen> {
           ),
         ]),
         BarisTombol(
+          tautan: const {0: 35},
           anak: [
             // An `<a>` is content-box: min-height 48 plus its 1.5 line.
             ConstrainedBox(

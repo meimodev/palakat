@@ -73,6 +73,7 @@ List<Widget> _isi(String k, ValueChanged<String> pilih) => switch (k) {
       redup: true,
     ),
     const BarisTombol(
+      tautan: {0: 35},
       anak: [
         // An `<a>` on the board: content-box, min-height 48 plus the 1.5 lines.
         SizedBox(
