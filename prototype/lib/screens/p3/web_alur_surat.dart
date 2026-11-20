@@ -28,11 +28,11 @@ class WebAlurSuratScreen extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // The inline 14 px link keeps its line height; the 44 target
-            // overhangs it, as the board's `<a>` takes no extra room.
+            // Inline 14/1.45 link (20.3 high) inside a 44 px target; the line
+            // box keeps the 15/1.45 strut (21.75), so 1.45 more below the text.
             const MarginNegatif(
               atas: 11.85,
-              bawah: 11.85,
+              bawah: 10.4,
               child: Tautan(
                 ke: 'WebPermohonanSurat',
                 cara: Cara.naik,
