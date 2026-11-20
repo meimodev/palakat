@@ -135,19 +135,6 @@ class MemoryRoleRepository implements RoleRepository {
     }
   }
 
-  void _revokeGrantsOf(String assignmentId, String by, String reason) {
-    for (final g in ctx.inti.authorityGrants) {
-      if (g.assignmentId == assignmentId && g.status != GrantStatus.revoked) {
-        g
-          ..status = GrantStatus.revoked
-          ..revokedBy = by
-          ..revokedAt = ctx.now
-          ..reason = reason
-          ..revision += 1;
-      }
-    }
-  }
-
   /// [baru] takes the post from [baru.start]: the previous holder's term and
   /// any cover end, and sessions acting in the old assignment end.
   void _takeOver(Post post, Assignment baru, {required String by}) {
@@ -155,9 +142,13 @@ class MemoryRoleRepository implements RoleRepository {
     final lama = _holder(post, t);
     if (lama != null && lama.id != baru.id) {
       _endTerm(lama, baru.start);
+      ctx.endDelegationsFrom(
+        lama.id,
+        through: baru.start <= t ? null : baru.start.tambahHari(-1),
+      );
       lama.endReason = 'Digantikan ${ctx.personName(baru.personId)}';
       if (!lama.inForce(t)) {
-        _revokeGrantsOf(lama.id, by, lama.endReason!);
+        ctx.revokeGrantsOf(lama.id, by, lama.endReason!);
         ctx.endSessionsActingIn(lama.id);
       }
       ctx.notify(
@@ -420,10 +411,12 @@ class MemoryRoleRepository implements RoleRepository {
         ..end = end
         ..endedAt = ctx.now
         ..status = AssignmentStatus.ended;
-      _revokeGrantsOf(a.id, actor.personId, reason.trim());
+      ctx.revokeGrantsOf(a.id, actor.personId, reason.trim());
       ctx.endSessionsActingIn(a.id);
+      ctx.endDelegationsFrom(a.id);
     } else {
       a.end = end;
+      ctx.endDelegationsFrom(a.id, through: end);
     }
     a
       ..endReason = reason.trim()
@@ -588,6 +581,51 @@ class MemoryRoleRepository implements RoleRepository {
   });
 
   @override
+  Future<Result<Delegation>> endDelegation(
+    Actor actor,
+    String delegationId, {
+    required int expectedRevision,
+    required String idempotencyKey,
+  }) => ctx.command(idempotencyKey, () {
+    const aksi = 'Akhiri pelimpahan';
+    final g = ctx.grant(actor, Capability.delegate, ScopeRef.anywhere);
+    if (g == null) {
+      return ctx.refuse(actor, Capability.delegate, ScopeRef.anywhere);
+    }
+    final d = ctx.inti.delegations
+        .where((x) => x.id == delegationId)
+        .firstOrNull;
+    if (d == null) return ctx.no(aksi, 'Pelimpahan tidak ditemukan.');
+    final basi = ctx.stale<Delegation>(d.revision, expectedRevision, aksi);
+    if (basi != null) return basi;
+    if (d.fromPersonId != actor.personId) {
+      return ctx.no(aksi, 'Hanya pemberi pelimpahan yang dapat mengakhirinya.');
+    }
+    if (!d.inForce(ctx.today)) {
+      return ctx.no(aksi, 'Pelimpahan ini sudah berakhir.');
+    }
+    d
+      ..end = ctx.today
+      ..endedAt = ctx.now
+      ..revision += 1;
+    ctx.audit(
+      g,
+      action: 'role.delegate.end',
+      summary:
+          'Mengakhiri pelimpahan "${d.task.label}" kepada '
+          '${ctx.personName(d.toPersonId)}',
+      ref: RecordRef('delegation', d.id),
+    );
+    ctx.notify(
+      d.toPersonId,
+      title: 'Pelimpahan berakhir: ${d.task.label}',
+      body: 'Diakhiri ${ctx.personName(actor.personId)}',
+      ref: RecordRef('delegation', d.id),
+    );
+    return Ok(d);
+  });
+
+  @override
   Future<Result<AuthorityGrant>> revokeGrant(
     Actor actor,
     String grantId, {
@@ -612,8 +650,9 @@ class MemoryRoleRepository implements RoleRepository {
       return ctx.no(aksi, 'Wewenang ini sudah dicabut.');
     }
     if (reason.trim().isEmpty) return ctx.no(aksi, 'Alasan belum diisi.');
-    _revokeGrantsOf(w.assignmentId, actor.personId, reason.trim());
+    ctx.revokeGrantsOf(w.assignmentId, actor.personId, reason.trim());
     ctx.endSessionsActingIn(w.assignmentId);
+    ctx.endDelegationsFrom(w.assignmentId);
     final a = ctx.inti.assignment(w.assignmentId);
     if (a != null) ctx.inti.post(a.postId)?.revision += 1;
     ctx.audit(

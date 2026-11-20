@@ -2,13 +2,17 @@
 // from real open items; finishing the item removes the row; no web home row
 // links a phone-only screen.
 
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:palakat_prototype/app/layar.dart';
 import 'package:palakat_prototype/app/router.dart';
 import 'package:palakat_prototype/core/format.dart';
 import 'package:palakat_prototype/core/tanggal.dart';
 import 'package:palakat_prototype/domain/secretariat/secretariat.dart';
+import 'package:palakat_prototype/providers/actor.dart';
 import 'package:palakat_prototype/providers/home_rows.dart';
+import 'package:palakat_prototype/providers/repositories_sekretariat.dart';
+import 'package:palakat_prototype/widgets/kecil.dart';
 
 import 'harness.dart';
 
@@ -80,6 +84,28 @@ void main() {
         await keBeranda();
         expect(find.text('2 permohonan surat'), findsOneWidget);
 
+        // The request Yanti recorded at the office: not issued, so it
+        // leaves her home (checked below).
+        await tekan(tester, '2 permohonan surat');
+        final kantor = find
+            .ancestor(
+              of: find.textContaining('Dicatat Operator di kantor'),
+              matching: find.byType(Kartu),
+            )
+            .first;
+        final buka = find.descendant(
+          of: kantor,
+          matching: find.text('Buka permohonan'),
+        );
+        await tester.ensureVisible(buka);
+        await tester.tap(buka);
+        await tester.pumpAndSettle();
+        await tekan(tester, 'Tidak diterbitkan');
+        await isi(tester, 'Alasan · wajib', 'Keluarga belum datang ke kantor');
+        await tekan(tester, 'Catat tidak diterbitkan');
+        await keBeranda();
+        expect(find.text('1 permohonan surat'), findsOneWidget);
+
         await tekan(tester, '2 pengumuman masih Draf');
         await tekan(tester, 'Pendaftaran katekisasi sidi 2027');
         await tekan(tester, 'Terbitkan');
@@ -101,6 +127,32 @@ void main() {
         await masukSebagai(tester, Persona.novita);
         expect(find.text('Permohonan surat keterangan'), findsNothing);
         expect(find.text('Warta Jemaat edisi $edisi'), findsOneWidget);
+        await keluar(tester);
+
+        // Yanti's office request has left her home.
+        await masukSebagai(tester, Persona.yanti);
+        expect(find.textContaining('dicatat di kantor'), findsNothing);
+        await keluar(tester);
+
+        // The announcements ending first: once that day has passed they are
+        // archived, and their row leaves the Sekretaris's home.
+        await masukSebagai(tester, Persona.olvie);
+        final hari = c.read(hariIniProvider);
+        final akhir = [
+          for (final a in c.read(announcementRepositoryProvider).list())
+            if (a.statusAt(hari) == AnnouncementStatus.published &&
+                a.endsOn != null)
+              a.endsOn!,
+        ]..sort();
+        final berakhir = tester
+            .widget<Text>(find.textContaining('pengumuman berakhir pada'))
+            .data!;
+        expect(berakhir, endsWith(tgl(akhir.first.awal)));
+        await majukanJam(
+          tester,
+          akhir.first.awal.difference(hari.awal) + const Duration(days: 1),
+        );
+        expect(find.text(berakhir), findsNothing);
       });
     }
   });

@@ -12,6 +12,10 @@ abstract interface class VerificationRepository {
   /// One item, any status (not in README 4.4; the item screens).
   VerificationItem? item(String id);
 
+  /// The open items still to verify in Kolom [scopeId], oldest first (not in
+  /// README 4.4; AlurJabatanKosong).
+  List<VerificationItem> pending(String scopeId);
+
   /// The confirmations of household [householdId], oldest first (not in
   /// README 4.4; KonfirmasiKeluarga).
   List<VerificationItem> forHousehold(String householdId);

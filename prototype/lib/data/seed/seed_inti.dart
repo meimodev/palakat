@@ -138,6 +138,8 @@ void seedInti(SeedStore store, Jangkar a) {
   for (final e in penatuaLain.entries) {
     orang('penatua-kolom-${e.key}-orang', e.value);
   }
+  // Syamas Kolom 2: the Sumual change goes to her (AlurJabatanKosong).
+  orang('syamas-kolom-2-orang', 'Sym. Ruth Lengkong', jk: Sex.female);
 
   t.personaIds.addAll(const [
     'meiske',
@@ -161,7 +163,8 @@ void seedInti(SeedStore store, Jangkar a) {
     ('wilayah', 'Wilayah', null),
     ('ibu-runtu', 'Ibu Runtu', null),
     ('kel-wenas-lasut', 'Kel. Wenas-Lasut', null),
-    ('kel-mamahit', 'Kel. Mamahit', null),
+    // Its head, Robby Mamahit, is seeded with the Kolom 4 families (M8).
+    ('kel-mamahit', 'Kel. Mamahit', 'mamahit-1'),
     ('novita', 'Novita Wenas', 'novita'),
     ('selvie', 'Ibu Selvie Kalalo', 'selvie'),
     ('rivo', 'Sdr. Rivo Mandagi', 'rivo'),
@@ -231,6 +234,7 @@ void seedInti(SeedStore store, Jangkar a) {
     'Ketua Komisi Diakonia',
   );
   jabatan('syamas-kolom-7', Role.syamasKolom, 'kolom-7', 'Syamas Kolom 7');
+  jabatan('syamas-kolom-2', Role.syamasKolom, 'kolom-2', 'Syamas Kolom 2');
   jabatan('syamas-kolom-3', Role.syamasKolom, 'kolom-3', 'Syamas Kolom 3');
   jabatan(
     'bendahara-kolom-7',
@@ -318,6 +322,7 @@ void seedInti(SeedStore store, Jangkar a) {
     tugas('penatua-kolom-$k', 'penatua-kolom-$k-orang', awalTahun);
   }
   tugas('syamas-kolom-7', 'greis', awalTahun);
+  tugas('syamas-kolom-2', 'syamas-kolom-2-orang', awalTahun);
   tugas('bendahara-kolom-7', 'deasy', awalTahun);
   tugas('bendahara-komisi-diakonia', 'olga', awalTahun);
   tugas('akses-terbatas-diakonia', 'olga', mulaiCatat);

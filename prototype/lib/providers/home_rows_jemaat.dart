@@ -33,7 +33,7 @@ List<HomeRow> barisJemaat(Ref ref, Actor actor) {
   final verif = hak(Capability.membershipVerify)
       .where((g) => g.scopeId != ScopeRef.jemaatId)
       .toList();
-  if (ref.watch(penjagaProvider(Layar.verifikasi)) == null) {
+  {
     final antre = [
       for (final e in ref.watch(verificationRepositoryProvider).queue(actor))
         if (e.blocked == null) e.item,
@@ -55,23 +55,36 @@ List<HomeRow> barisJemaat(Ref ref, Actor actor) {
               .grantsOf(actor.personId, at: hari)
               .where((x) => x.kind == GrantKind.assignment)
               .firstOrNull;
+      // A vacancy cover opens the post's own screen (BerandaJabatan,
+      // WebBerandaJabatan), which holds its queue on both layouts.
       final kosong = g?.kind == GrantKind.cover;
-      baris.add(
-        HomeRow(
-          kelompok: KelompokBaris.tindak,
-          judul: kosong
-              ? '${antre.length} data ${nama.kolom(g!.scopeId)} menunggu '
-                    'verifikasi'
-              : '${antre.length} data menunggu verifikasi',
-          sub: [
-            ?(g == null ? null : 'Sebagai ${g.title}'),
-            ...rincian,
-          ].join(' · '),
-          label: kosong ? 'Jabatan kosong' : 'Diajukan',
-          gaya: kosong ? GayaLabel.bata : GayaLabel.garis,
-          ke: Layar.verifikasi,
-        ),
-      );
+      final ke = kosong ? Layar.jabatanKosong : Layar.verifikasi;
+      if (ref.watch(penjagaProvider(ke)) == null) {
+        final sejak = kosong
+            ? ref.watch(jalanJabatanProvider(g!.postId!)).sejak
+            : null;
+        baris.add(
+          HomeRow(
+            kelompok: KelompokBaris.tindak,
+            judul: kosong
+                ? '${antre.length} data ${nama.kolom(g!.scopeId)} menunggu '
+                      'verifikasi'
+                : '${antre.length} data menunggu verifikasi',
+            sub: kosong
+                ? [
+                    'Menjalankan jabatan kosong ${g!.title}',
+                    ?(sejak == null ? null : 'sejak ${tgl(sejak)}'),
+                  ].join(' ')
+                : [
+                    ?(g == null ? null : 'Sebagai ${g.title}'),
+                    ...rincian,
+                  ].join(' · '),
+            label: kosong ? 'Jabatan kosong' : 'Diajukan',
+            gaya: kosong ? GayaLabel.bata : GayaLabel.garis,
+            ke: ke,
+          ),
+        );
+      }
     }
   }
 

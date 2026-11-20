@@ -108,7 +108,37 @@ void main() {
           await ke(Layar.warta);
           expect(find.text('Edisi $edisi'), findsOneWidget);
           expect(find.text('Susun edisi $edisi'), findsNothing);
-          expect(find.text('Diterbitkan'), findsWidgets);
+          // The nearest enclosing row or card of the edition carries the
+          // badge, and no other edition's.
+          final baris = find
+              .ancestor(
+                of: find.text('Edisi $edisi'),
+                matching: find.byWidgetPredicate((_) => true),
+              )
+              .evaluate()
+              .firstWhere(
+                (e) => find
+                    .descendant(
+                      of: find.byElementPredicate((x) => x == e),
+                      matching: find.text('Diterbitkan'),
+                    )
+                    .evaluate()
+                    .isNotEmpty,
+              );
+          expect(
+            find.descendant(
+              of: find.byElementPredicate((x) => x == baris),
+              matching: find.textContaining('Edisi '),
+            ),
+            findsOneWidget,
+          );
+          // Only the coming edition's own Sunday is after today.
+          tidakAdaTanggalNanti(
+            tester,
+            Tanggal.dari(saat),
+            'WartaArsip',
+            kecuali: {edisi},
+          );
         });
       }
     }

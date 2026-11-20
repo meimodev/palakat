@@ -5,13 +5,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/layar.dart';
 import '../../core/format.dart';
 import '../../core/tanggal.dart';
-import '../../data/repositories/recovery_repository.dart';
 import '../../domain/core/core.dart';
 import '../../providers/actor.dart';
 import '../../providers/core_repositories.dart';
-import '../../providers/pemulihan.dart';
+import '../../providers/jemaat/jemaat.dart';
+import '../../providers/layout.dart';
+import '../../providers/repositories_jemaat.dart';
 import '../../providers/revision.dart';
+import '../../domain/membership/membership.dart';
 import '../../shell/kepala_ponsel.dart';
+import '../../shell/tautan.dart';
 import '../../shell/layar_ponsel.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
@@ -130,20 +133,37 @@ class _IsiCariOrangState extends ConsumerState<IsiCariOrang> {
 
   List<Widget> _isiCari() {
     final q = _cari.text.trim();
-    final hasil = q.isEmpty
-        ? const <Person>[]
-        : ref.watch(peopleRepositoryProvider).search(q);
     final can = ref.watch(canProvider);
     final hari = ref.watch(hariIniProvider);
+    final aktor = ref.watch(actorProvider);
+    final jemaat = ref.watch(memberRepositoryProvider);
+    final dataAktif = can.moduleActive(Module.membership);
+    // A Penatua Kolom sees only their Kolom; the Operator sees everything.
+    bool lihat(String kolom) =>
+        aktor != null &&
+        can.can(aktor, Capability.membershipView, ScopeRef(kolom), at: hari);
+    final hasil = <Widget>[
+      if (q.isNotEmpty)
+        for (final o in ref.watch(peopleRepositoryProvider).search(q))
+          if (dataAktif ? jemaat.member(o.id) : null case final m?) ...[
+            if (lihat(m.kolomId)) _anggota(m),
+          ] else if (_boleh(Capability.viewPeople, ScopeRef.jemaat))
+            _hasil(o, can, hari),
+      if (q.isNotEmpty && dataAktif)
+        for (final h in jemaat.households())
+          if (h.name.toLowerCase().contains(q.toLowerCase()) &&
+              lihat(h.kolomId))
+            _keluarga(h),
+    ];
     return [
       IsianAlur(
         label: 'Cari nama, keluarga atau Kolom',
         controller: _cari,
         onChanged: (_) => setState(() {}),
       ),
-      if (q.isNotEmpty && hasil.isNotEmpty) ...[
+      if (hasil.isNotEmpty) ...[
         Baris2('${hasil.length} hasil untuk “$q”'),
-        for (final o in hasil) _hasil(o, can, hari),
+        ...hasil,
       ],
       if (q.isNotEmpty && hasil.isEmpty)
         KotakKosong(
@@ -175,6 +195,74 @@ class _IsiCariOrangState extends ConsumerState<IsiCariOrang> {
     ),
   );
 
+  /// A member row: an unconfirmed family opens KonfirmasiKeluarga for whoever
+  /// may confirm it, everything else DataAnggota (screens/15 Links out).
+  Widget _anggota(Member m) {
+    final h = m.household;
+    final konfirmasi =
+        h != null &&
+        h.status != HouseholdStatus.active &&
+        Layar.konfirmasiKeluarga.adaUntuk(ref.read(layoutProvider)) &&
+        ref.read(penjagaProvider(Layar.konfirmasiKeluarga)) == null;
+    final (label, bentuk) = h == null || h.status == HouseholdStatus.active
+        ? ('Aktif', BentukLencana.laut)
+        : (h.status.label, BentukLencana.draf);
+    return _baris(
+      m.person.name,
+      [
+        'Data jemaat',
+        if (h != null) 'Keluarga ${h.name}',
+        _unit(m.kolomId),
+      ].join(' · '),
+      LencanaStatus(label, bentuk: bentuk),
+      () {
+        if (konfirmasi) {
+          ref.read(keluargaDipilihProvider.notifier).pilih(h.id);
+          context.dorongKe(Layar.konfirmasiKeluarga);
+        } else {
+          ref.read(anggotaDipilihProvider.notifier).pilih(m.person.id);
+          context.dorongKe(Layar.dataAnggota);
+        }
+      },
+    );
+  }
+
+  Widget _keluarga(Household h) => _baris(
+    'Keluarga ${h.name}',
+    'Data jemaat · ${h.memberIds.length} orang · ${_unit(h.kolomId)}',
+    null,
+    () {
+      ref
+          .read(anggotaDipilihProvider.notifier)
+          .pilih(h.representativeId ?? h.memberIds.first);
+      context.dorongKe(Layar.dataAnggota);
+    },
+  );
+
+  Widget _baris(String nama, String konteks, Widget? lencana, VoidCallback k) =>
+      Tekan(
+        onTap: k,
+        child: Kartu(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              Expanded(
+                child: susun([
+                  Text(
+                    nama,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  Catatan(konteks),
+                ], jarak: 2),
+              ),
+              if (lencana != null) ...[const SizedBox(width: 12), lencana],
+            ],
+          ),
+        ),
+      );
+
+  /// A person outside Data jemaat (a post holder only), for whoever sees
+  /// the whole Jemaat.
   Widget _hasil(Person o, Can can, Tanggal hari) {
     final jabatan = [
       for (final g in can.grantsOf(o.id, at: hari))
@@ -192,11 +280,7 @@ class _IsiCariOrangState extends ConsumerState<IsiCariOrang> {
           Expanded(
             child: susun([
               Text(o.name, style: const TextStyle(fontWeight: FontWeight.w600)),
-              Catatan(
-                jabatan.isEmpty
-                    ? 'Data jemaat · Anggota jemaat'
-                    : 'Data jemaat · ${jabatan.join(' · ')}',
-              ),
+              Catatan(jabatan.isEmpty ? 'Anggota jemaat' : jabatan.join(' · ')),
             ], jarak: 2),
           ),
           const SizedBox(width: 12),

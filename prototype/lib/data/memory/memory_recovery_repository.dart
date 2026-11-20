@@ -3,33 +3,18 @@ import '../../domain/core/core.dart';
 import '../repositories/recovery_repository.dart';
 import 'memory_context.dart';
 
-/// Account recovery in memory (P4). The recoveries live in this object, which
-/// its provider builds once per launch (D6).
-// ponytail: the table belongs in TabelInti (shared); move it there at the
-// merge (M6 request R1).
+/// Account recovery in memory (P4), on the core table `recoveries`.
 class MemoryRecoveryRepository implements RecoveryRepository {
   MemoryRecoveryRepository(this.ctx);
   final MemoryContext ctx;
-  final _rows = <AccountRecovery>[];
-
-  // ponytail: the member's Kolom comes from Data jemaat (M8); until the merge
-  // resolves it through MemberRepository (request R2), the seeded members'
-  // Kolom (mock-data 2.2) are listed here.
-  static const _kolom = {
-    'novita': 'kolom-7',
-    'agustina': 'kolom-7',
-    'gabriel': 'kolom-7',
-    'ferry': 'kolom-7',
-    'yohanisR': 'kolom-2',
-    'kevin': 'kolom-2',
-    'gabriela': 'kolom-2',
-  };
+  List<AccountRecovery> get _rows => ctx.inti.recoveries;
 
   @override
   List<AccountRecovery> recoveries() => _rows.reversed.toList();
 
   @override
-  String? confirmingScope(String personId) => _kolom[personId];
+  String? confirmingScope(String personId) =>
+      ctx.store.jemaat.profiles[personId]?.kolomAt(ctx.today);
 
   @override
   Future<Result<AccountRecovery>> request(

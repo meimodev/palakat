@@ -285,8 +285,23 @@ class PenggunaSesi extends ConsumerWidget {
     final p = ref.watch(sessionProvider)?.persona;
     if (p == null) return const PenggunaNav(biasa: 'Belum masuk');
     final k = p.kaki;
-    return k == null
-        ? PenggunaNav(tebal: p.nama, biasa: ' · ${p.jabatan}')
-        : PenggunaNav(tebal: k.$1, biasa: k.$2, baris2: k.$3);
+    if (k == null) return PenggunaNav(tebal: p.nama, biasa: ' · ${p.jabatan}');
+    // The persona's post line while they act in that post; otherwise what
+    // they act as now (another post, or a member after the term ended).
+    final a = ref.watch(actorProvider);
+    final sebagai = a == null
+        ? null
+        : ref
+              .watch(canProvider)
+              .grantsOf(a.personId, at: ref.watch(hariIniProvider))
+              .where((g) => g.toActor() == a)
+              .firstOrNull
+              ?.title;
+    if (k.$2.startsWith(' · ') &&
+        sebagai != null &&
+        !p.jabatan.startsWith(sebagai)) {
+      return PenggunaNav(tebal: k.$1 ?? p.nama, biasa: ' · $sebagai');
+    }
+    return PenggunaNav(tebal: k.$1, biasa: k.$2, baris2: k.$3);
   }
 }

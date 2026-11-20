@@ -124,6 +124,7 @@ void main() {
           await tester.pumpAndSettle();
           await tester.tap(find.text('Belanja').last);
           await tester.pumpAndSettle();
+          expect(find.byType(PitaJabatanKosong), findsOneWidget);
         } else {
           await buka(Layar.catat);
         }
@@ -162,7 +163,9 @@ void main() {
         if (ponsel) {
           await buka(Layar.keuangan);
           await tekan(tester, 'Transaksi');
+          expect(find.byType(PitaJabatanKosong), findsOneWidget);
           await tekan(tester, _uraian);
+          expect(find.byType(PitaJabatanKosong), findsOneWidget);
           await tekan(tester, 'Periksa dan bukukan');
           await tekan(tester, 'Bukukan');
           await tester.pump(const Duration(seconds: 2));
@@ -184,13 +187,10 @@ void main() {
             .read(routerProvider)
             .go(Layar.transaksiRinci.lokasi(param: {'id': d.id}));
         await tester.pumpAndSettle();
-        // ponytail: WebTransaksi's panel names the person only (shared
-        // rinci_transaksi.dart; request R4 in build/notes/M6.md).
-        expect(
-          _memuat(ponsel ? _oleh : 'Dibukukan oleh Yanti'),
-          findsWidgets,
-          reason: 'detail',
-        );
+        expect(_memuat(_oleh), findsWidgets, reason: 'detail');
+        if (!ponsel) {
+          expect(_memuat('Dibukukan oleh $_oleh'), findsWidgets);
+        }
         await buka(Layar.pengaturan, anak: ponsel ? 'riwayat' : null);
         expect(_memuat(_oleh), findsWidgets, reason: 'Riwayat');
         await keluar(tester);

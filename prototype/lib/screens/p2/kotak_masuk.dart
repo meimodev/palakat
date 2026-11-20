@@ -3,10 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/layar.dart';
 import '../../domain/core/core.dart';
+import '../../domain/membership/membership.dart';
 import '../../providers/actor.dart';
 import '../../providers/clock.dart';
 import '../../providers/core_repositories.dart';
+import '../../providers/jemaat/jemaat.dart';
 import '../../providers/layout.dart';
+import '../../providers/repositories_jemaat.dart';
 import '../../providers/revision.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
@@ -73,11 +76,51 @@ Future<void> bukaKabar(
           idempotencyKey: kunciBaru(a.personId, ref.read(clockProvider)),
         );
   }
-  final ke = _tujuan[n.ref?.kind];
-  if (ke == null || !context.mounted) return;
+  if (!context.mounted) return;
+  final r = n.ref;
+  final (ke, param, pilih) = switch (r?.kind) {
+    'letter' => (Layar.surat, const <String, String>{}, null),
+    'announcement' => (Layar.pengumuman, const <String, String>{}, null),
+    'document' => (Layar.dokumenGereja, const <String, String>{}, null),
+    'warta' => (
+      ref.read(penjagaProvider(Layar.wartaEdisi)) == null
+          ? Layar.wartaEdisi
+          : Layar.wartaPdf,
+      {'edisi': r!.id},
+      null,
+    ),
+    'membership_item' => _tujuanJemaat(ref, r!.id),
+    final k => (_tujuan[k], const <String, String>{}, null),
+  };
+  if (ke == null) return;
   if (!ke.adaUntuk(ref.read(layoutProvider))) return;
   if (ref.read(penjagaProvider(ke)) != null) return;
-  context.dorongKe(ke);
+  pilih?.call();
+  context.dorongKe(ke, param: param);
+}
+
+/// A membership item opens its own screen; the selection is set only when
+/// the screen is opened.
+(Layar?, Map<String, String>, VoidCallback?) _tujuanJemaat(
+  WidgetRef ref,
+  String id,
+) {
+  final i = ref.read(verificationRepositoryProvider).item(id);
+  return switch (i?.kind) {
+    null => (null, const {}, null),
+    ItemKind.application => (Layar.permohonanAnggota, {'id': id}, null),
+    ItemKind.lifeEvent => (
+      Layar.peristiwa,
+      const {},
+      () => ref.read(peristiwaDipilihProvider.notifier).pilih(id),
+    ),
+    ItemKind.household => (
+      Layar.konfirmasiKeluarga,
+      const {},
+      () => ref.read(keluargaDipilihProvider.notifier).pilih(i!.householdId),
+    ),
+    ItemKind.dataChange => (Layar.verifikasi, const {}, null),
+  };
 }
 
 /// 51 · Pemberitahuan (spec 14-berandajabatan.md, KotakMasuk): the one

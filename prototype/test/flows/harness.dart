@@ -207,12 +207,18 @@ const _namaBulan = [
 
 /// Every date the screen shows (dd/mm/yyyy or "d Bulan yyyy") is not after
 /// [hari].
-void tidakAdaTanggalNanti(WidgetTester tester, Tanggal hari, String di) {
+void tidakAdaTanggalNanti(
+  WidgetTester tester,
+  Tanggal hari,
+  String di, {
+  Set<String> kecuali = const {},
+}) {
   final angka = RegExp(r'\b(\d{2})/(\d{2})/(\d{4})\b');
   final kata = RegExp('\\b(\\d{1,2}) (${_namaBulan.join('|')}) (\\d{4})\\b');
   for (final w in tester.widgetList<RichText>(find.byType(RichText))) {
     final s = w.text.toPlainText();
     for (final m in angka.allMatches(s)) {
+      if (kecuali.contains(m[0])) continue;
       final t = Tanggal(int.parse(m[3]!), int.parse(m[2]!), int.parse(m[1]!));
       expect(t <= hari, isTrue, reason: '$di: "$s" setelah $hari');
     }

@@ -263,6 +263,7 @@ const roleCapabilities = <Role, Set<Capability>>{
     Capability.membershipImport,
     Capability.membershipRecordPaper,
     Capability.membershipConfirmHousehold,
+    Capability.membershipVerify,
     Capability.servicesDraft,
   },
   Role.bendaharaJemaat: {
@@ -325,6 +326,7 @@ const roleCapabilities = <Role, Set<Capability>>{
     Capability.requestsApprove,
   },
   Role.syamasKolom: {
+    Capability.membershipVerify,
     Capability.servicesDraft,
     Capability.servicesApprove,
     Capability.attendanceAssignCounter,
@@ -494,6 +496,17 @@ class Can {
     }
     for (final d in facts.delegations) {
       if (d.toPersonId != personId || !d.inForce(at)) continue;
+      // A delegation acts for a post holder: only while that post is held.
+      if (d.fromAssignmentId case final id?) {
+        final asal = facts.assignments.where((a) => a.id == id).firstOrNull;
+        final post = asal == null ? null : facts.post(asal.postId);
+        if (asal == null ||
+            post == null ||
+            !asal.inForce(at) ||
+            (post.role.needsAuthority && !_authorized(asal.id, at))) {
+          continue;
+        }
+      }
       final dari = facts.person(d.fromPersonId);
       hasil.add(
         Grant(

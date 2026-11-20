@@ -78,6 +78,10 @@ void main() {
     expect(verifikasi.item(lama.id)!.replacedBy, baru.id);
     expect(find.text('Baptisan · Gabriel Wenas'), findsOneWidget);
     expect(baptis(), isFalse);
+    // Resubmitted: the returned row leaves her home.
+    c.read(routerProvider).go(Layar.beranda.lokasi());
+    await tester.pumpAndSettle();
+    expect(find.text('Baptisan · Gabriel Wenas dikembalikan'), findsNothing);
     await keluar(tester);
 
     // Hendrik verifies it from his queue.

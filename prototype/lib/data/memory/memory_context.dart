@@ -177,6 +177,47 @@ class MemoryContext {
     ),
   );
 
+  /// Revokes the authority grants of [assignmentId] (its term ended or
+  /// its authority was withdrawn).
+  void revokeGrantsOf(String assignmentId, String by, String reason) {
+    for (final g in inti.authorityGrants) {
+      if (g.assignmentId == assignmentId && g.status != GrantStatus.revoked) {
+        g
+          ..status = GrantStatus.revoked
+          ..revokedBy = by
+          ..revokedAt = now
+          ..reason = reason
+          ..revision += 1;
+      }
+    }
+  }
+
+  /// Delegations made from [assignmentId] act for its holder, so they end
+  /// with it: now, or on [through] when the term ends later. The delegate is
+  /// told.
+  void endDelegationsFrom(String assignmentId, {Tanggal? through}) {
+    final t = today;
+    for (final d in inti.delegations) {
+      if (d.fromAssignmentId != assignmentId) continue;
+      if (through == null) {
+        if (!d.inForce(t)) continue;
+        d
+          ..end = t
+          ..endedAt = now;
+      } else {
+        if (d.end != null && d.end! <= through) continue;
+        d.end = through;
+      }
+      d.revision += 1;
+      notify(
+        d.toPersonId,
+        title: 'Pelimpahan berakhir: ${d.task.label}',
+        body: 'Masa jabatan ${personName(d.fromPersonId)} berakhir',
+        ref: RecordRef('delegation', d.id),
+      );
+    }
+  }
+
   /// Ends every open session acting in [assignmentId] (README 3.6): the
   /// router then shows `/sesi-berakhir`.
   void endSessionsActingIn(String assignmentId) {

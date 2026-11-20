@@ -178,7 +178,7 @@ class MemoryConsentRepository implements ConsentRepository {
       aksi,
     );
     if (basi != null) return basi;
-    _hapus(id);
+    _hapus(id, g);
     r
       ..personId = null
       ..executedBy = actor.personId
@@ -196,7 +196,7 @@ class MemoryConsentRepository implements ConsentRepository {
 
   /// DL13's delete list; the keep list (finance names, published Warta and
   /// documents, audit lines, this record) is left as it is.
-  void _hapus(String id) {
+  void _hapus(String id, Grant g) {
     final t = j.t;
     final inti = j.ctx.inti;
     final h = t.householdOf(id);
@@ -219,15 +219,51 @@ class MemoryConsentRepository implements ConsentRepository {
           ..revision += 1;
       }
     }
-    // Posts the member held become vacant (DL12).
-    for (final a in inti.assignments) {
-      if (a.personId == id && a.inForce(j.today)) {
-        a
-          ..end = j.today
-          ..endedAt = j.ctx.now
-          ..status = AssignmentStatus.ended
-          ..endReason = 'Data anggota dihapus atas permintaannya'
-          ..revision += 1;
+    // Posts the member held become vacant (DL12), as RoleRepository.endTerm
+    // ends a term: authority, sessions acting in it and delegations made
+    // from it end; the Operators are told the post is vacant.
+    const sebab = 'Data anggota dihapus atas permintaannya';
+    final hari = j.today;
+    for (final a in inti.assignments.where((a) => a.personId == id).toList()) {
+      if (!a.inForce(hari)) continue;
+      a
+        ..end = hari
+        ..endedAt = j.ctx.now
+        ..status = AssignmentStatus.ended
+        ..endReason = sebab
+        ..revision += 1;
+      j.ctx
+        ..revokeGrantsOf(a.id, g.personId, sebab)
+        ..endSessionsActingIn(a.id)
+        ..endDelegationsFrom(a.id);
+      final post = inti.post(a.postId);
+      if (post == null) continue;
+      post.revision += 1;
+      j.ctx.audit(
+        g,
+        action: 'role.end_term',
+        summary:
+            'Mengakhiri masa jabatan ${j.ctx.personName(id)} sebagai '
+            '${post.title}',
+        reason: sebab,
+        ref: RecordRef('assignment', a.id),
+      );
+      final terisi =
+          inti.assignments.any((x) => x.postId == post.id && x.inForce(hari)) ||
+          inti.covers.any((c) => c.postId == post.id && c.inForce(hari));
+      if (terisi) continue;
+      for (final p in j.ctx.can.whoCan(
+        Capability.coverVacancy,
+        ScopeRef.jemaat,
+        at: hari,
+      )) {
+        j.ctx.notify(
+          p.id,
+          title: 'Jabatan ${post.title} kosong',
+          body: 'Operator dapat menjalankan jabatan kosong',
+          type: NotificationType.action,
+          ref: RecordRef('post', post.id),
+        );
       }
     }
     inti.person(id)

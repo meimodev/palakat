@@ -4,12 +4,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/layar.dart';
 import '../../core/format.dart';
 import '../../domain/core/core.dart';
+import '../../domain/membership/membership.dart';
 import '../../providers/actor.dart';
 import '../../providers/core_repositories.dart';
+import '../../providers/jemaat/jemaat.dart';
 import '../../providers/keuangan/beranda.dart';
+import '../../providers/layout.dart';
+import '../../providers/repositories_jemaat.dart';
 import '../../providers/revision.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
+import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
 import '../../widgets/garis_status.dart';
@@ -70,6 +75,9 @@ class _IsiJabatanKosongState extends ConsumerState<IsiJabatanKosong> {
   String? _postId;
   String _pesan = '';
   Refusal? _tolak;
+
+  /// A refused "Verifikasi data", by item.
+  final _tolakAntre = <String, Refusal>{};
 
   @override
   void dispose() {
@@ -181,6 +189,7 @@ class _IsiJabatanKosongState extends ConsumerState<IsiJabatanKosong> {
             ),
           ),
         ),
+      for (final (p, _) in terisi) ..._antrean(p, terisi: true),
       if (kosong.isEmpty)
         const KotakKosong(
           'Tidak ada jabatan kosong',
@@ -245,7 +254,117 @@ class _IsiJabatanKosongState extends ConsumerState<IsiJabatanKosong> {
         ], jarak: 6),
       ),
       if (milikSaya && p.post.role == Role.bendaharaJemaat) ..._keuangan(),
+      if (milikSaya) ..._antrean(p),
     ];
+  }
+
+  /// AlurJabatanKosong: the covered Penatua post's open verification items.
+  /// The Operator's own family goes to the Syamas of the Kolom; once the
+  /// post is filled, the items show why the Operator no longer verifies.
+  List<Widget> _antrean(PostView p, {bool terisi = false}) {
+    final actor = ref.watch(actorProvider);
+    final can = ref.watch(canProvider);
+    if (actor == null ||
+        p.post.role != Role.penatuaKolom ||
+        !can.moduleActive(Module.membership)) {
+      return const [];
+    }
+    final v = ref.watch(verificationRepositoryProvider);
+    final nama = ref.watch(namaJemaatProvider);
+    final hari = ref.watch(hariIniProvider);
+    final unit =
+        ref.read(orgRepositoryProvider).scope(p.post.scopeId)?.name ?? '';
+    final milik = {for (final e in v.queue(actor)) e.item.id: e};
+    final item = [
+      for (final i in v.pending(p.post.scopeId))
+        if (terisi || milik.containsKey(i.id)) i,
+    ];
+    if (item.isEmpty) return const [];
+    String? sebab(VerificationItem i) {
+      if (terisi) return 'Anda tidak lagi menjalankan jabatan ${p.post.title}.';
+      final e = milik[i.id]!;
+      if (e.blocked == null) return null;
+      final ke = e.forwardedTo;
+      final pos = ke == null
+          ? null
+          : can
+                    .grantsFor(
+                      ke,
+                      Capability.membershipVerify,
+                      ScopeRef(p.post.scopeId),
+                      at: hari,
+                    )
+                    .firstOrNull
+                    ?.title ??
+                _nama(ke);
+      return pos == null ? e.blocked : '${e.blocked} Diteruskan kepada $pos.';
+    }
+
+    final judul = Semantics(
+      header: true,
+      child: Text(
+        'Menunggu verifikasi · $unit',
+        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+      ),
+    );
+    // On the phone the heading opens the same queue in AntreanVerifikasi
+    // (phone only), where each item's own screen opens (DP19, DP36).
+    final antrean =
+        !terisi &&
+        Layar.verifikasi.adaUntuk(ref.watch(layoutProvider)) &&
+        ref.watch(penjagaProvider(Layar.verifikasi)) == null;
+    return [
+      if (antrean) Tautan(ke: Layar.verifikasi, child: judul) else judul,
+      for (final i in item)
+        Kartu(
+          child: susun([
+            KepalaKartu(
+              judul: nama.judul(i),
+              ujung: const LencanaStatus(
+                'Diajukan',
+                bentuk: BentukLencana.garis,
+              ),
+            ),
+            Baris2('Diajukan ${tgl(i.submittedAt)}'),
+            if (_tolakAntre[i.id] ?? _tolakDari(sebab(i)) case final t?)
+              Penolakan(tindakan: t.action, sebab: t.because, jalan: const [])
+            else
+              BarisTombol(
+                anak: [
+                  Tombol(
+                    'Verifikasi data',
+                    jenis: JenisTombol.kedua,
+                    onPressed: () => _verifikasi(i, nama.judul(i)),
+                  ),
+                ],
+              ),
+          ], jarak: 6),
+        ),
+    ];
+  }
+
+  Refusal? _tolakDari(String? sebab) =>
+      sebab == null ? null : Refusal(action: 'Verifikasi data', because: sebab);
+
+  Future<void> _verifikasi(VerificationItem i, String judul) async {
+    final actor = ref.read(actorProvider);
+    if (actor == null) return;
+    final r = await ref
+        .read(verificationRepositoryProvider)
+        .verify(
+          actor,
+          i.id,
+          expectedRevision: i.revision,
+          idempotencyKey: kunciInti(ref),
+        );
+    if (!mounted) return;
+    setState(() {
+      if (r.refusal case final t?) {
+        _tolakAntre[i.id] = t;
+      } else {
+        _pesan = '$judul diverifikasi.';
+      }
+    });
   }
 
   /// The "Pita di setiap layar" cards while running the Bendahara post.

@@ -102,6 +102,25 @@ class _PelimpahanScreenState extends ConsumerState<PelimpahanScreen> {
     });
   }
 
+  Future<void> _akhiri(Delegation d) async {
+    final actor = ref.read(actorProvider);
+    if (actor == null) return;
+    final r = await ref
+        .read(roleRepositoryProvider)
+        .endDelegation(
+          actor,
+          d.id,
+          expectedRevision: d.revision,
+          idempotencyKey: kunciInti(ref),
+        );
+    if (!mounted) return;
+    setState(() {
+      _pesan = r.refusal == null
+          ? '${d.task.label} kembali hanya kepada ${_nama(actor.personId)}.'
+          : '${r.refusal!.action}: ${r.refusal!.because}';
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     ref.watch(revisionProvider);
@@ -202,7 +221,9 @@ class _PelimpahanScreenState extends ConsumerState<PelimpahanScreen> {
         : belum
         ? const LencanaStatus('Terjadwal', bentuk: BentukLencana.garis)
         : const LencanaModul.jabatan(KeadaanJabatan.berakhir);
-    final catatan = !aktif && !belum
+    final catatan = d.endedAt != null && !aktif
+        ? 'Diakhiri ${d.end} oleh ${_nama(d.fromPersonId)}'
+        : !aktif && !belum
         ? 'Berakhir sendiri pada tanggalnya.'
         : d.fromPersonId == actor.personId
         ? 'Dilimpahkan oleh ${_nama(d.fromPersonId)}. Berlaku sampai ${d.end} '
@@ -214,6 +235,17 @@ class _PelimpahanScreenState extends ConsumerState<PelimpahanScreen> {
         KepalaKartu(judul: '$pos → ${_nama(d.toPersonId)}', ujung: lencana),
         Baris2('${d.task.label} · ${d.start} sampai ${d.end}'),
         Catatan(catatan),
+        if (aktif && d.fromPersonId == actor.personId)
+          BarisTombol(
+            anak: [
+              Tombol(
+                'Akhiri sekarang',
+                jenis: JenisTombol.kedua,
+                ukuran: UkuranTombol.kecil,
+                onPressed: () => _akhiri(d),
+              ),
+            ],
+          ),
       ], jarak: 6),
     );
   }

@@ -6,10 +6,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:palakat_prototype/app/layar.dart';
 import 'package:palakat_prototype/app/router.dart';
-import 'package:palakat_prototype/data/repositories/recovery_repository.dart';
+import 'package:palakat_prototype/domain/core/core.dart';
 import 'package:palakat_prototype/providers/actor.dart';
 import 'package:palakat_prototype/providers/core_repositories.dart';
-import 'package:palakat_prototype/providers/pemulihan.dart';
 
 import 'harness.dart';
 
@@ -20,6 +19,7 @@ void main() {
     for (final tata in [Tata.ponsel, Tata.web]) {
       testWidgets(tata.name, (tester) async {
         final c = await bukaAplikasi(tester, tata: tata);
+        final ponsel = tata == Tata.ponsel;
         final pulih = c.read(recoveryRepositoryProvider);
         final hari = c.read(hariIniProvider);
         Future<void> cariOrang() async {
@@ -27,9 +27,23 @@ void main() {
           await tester.pumpAndSettle();
         }
 
-        // Yanti asks.
+        // Yanti searches Data jemaat: the Operator sees every Kolom.
         await masukSebagai(tester, Persona.yanti);
         await cariOrang();
+        await isi(tester, 'Cari nama, keluarga atau Kolom', 'Wenas');
+        expect(
+          find.text('Data jemaat · Keluarga Wenas-Lasut · Kolom 7'),
+          findsNWidgets(3),
+        );
+        expect(find.text('Data jemaat · 4 orang · Kolom 7'), findsOneWidget);
+        await tekan(tester, 'Ferry Wenas');
+        expect(
+          c.read(routerProvider).state.uri.path,
+          (ponsel ? Layar.konfirmasiKeluarga : Layar.dataAnggota).lokasi(),
+        );
+        await cariOrang();
+
+        // Yanti asks.
         await tekan(tester, 'Orangnya kehilangan nomor ponsel? Pulihkan akun');
         await isi(tester, 'Nama orangnya', 'Nov');
         expect(
@@ -98,6 +112,12 @@ void main() {
           jejakTerakhir(c, 'core.recovery.confirm').personName,
           'Pnt. Hendrik Rumagit',
         );
+        // A Penatua Kolom finds only his own Kolom.
+        await cariOrang();
+        await isi(tester, 'Cari nama, keluarga atau Kolom', 'Rompas');
+        expect(find.text('Tidak ada hasil untuk “Rompas”'), findsOneWidget);
+        await isi(tester, 'Cari nama, keluarga atau Kolom', 'Wenas');
+        expect(find.text('Novita Wenas'), findsOneWidget);
         await keluar(tester);
 
         // Yanti sees the completed status.

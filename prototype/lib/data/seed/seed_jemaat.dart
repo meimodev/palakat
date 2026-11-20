@@ -90,6 +90,7 @@ void seedJemaat(SeedStore store, Jangkar a) {
   profil('yanti', 2, nikah: m, lahir: a.geser(1981, 6, 9));
   keluarga('sumual', 'Sumual', 2, ['yanti']);
   profil('yohanisR', 2, nikah: m);
+  profil('syamas-kolom-2-orang', 2, nikah: m);
   profil('altje', 2, nikah: m, lahir: a.geser(1952, 8, 30));
   profil('gabriela', 2, nikah: n, lahir: a.geser(2010, 6, 15));
   // Altje's term and the Rompas family's death are unrelated (DP19).

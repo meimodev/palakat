@@ -298,7 +298,9 @@ class _IsiWartaEditorState extends ConsumerState<IsiWartaEditor> {
           'Sekretaris Jemaat memilih dari pengumuman yang Diterbitkan',
         ),
         for (final u in umum) _barisUmum(e, u, draf),
-        if (draf) _teksAwal('Tulis pengumuman', () => _ke(_V.umum)),
+        // Links to a module that is off render nothing (D21).
+        if (draf && ref.watch(canProvider).moduleActive(Module.announcements))
+          _teksAwal('Tulis pengumuman', () => _ke(_V.umum)),
       ]),
       if (e.services != null)
         _kartu([

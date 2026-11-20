@@ -77,16 +77,30 @@ class MemoryJemaat {
         Role.operator,
       }.contains(ctx.inti.post(g.postId ?? '')?.role);
 
-  List<Grant> _verifyGrants(String personId, String scopeId) =>
-      ctx.can.grantsFor(
-        personId,
-        Capability.membershipVerify,
-        ScopeRef(scopeId),
-        at: today,
+  /// A delegation acts for its delegator, so it does not verify the
+  /// delegator's own family (no self-verification by proxy).
+  bool _forSelf(Grant g, VerificationItem i) =>
+      g.kind == GrantKind.delegation &&
+      ctx.inti.delegations.any(
+        (d) => d.id == g.delegationId && selfFor(d.fromPersonId, i),
       );
 
-  bool _verifyGrant(String personId, String scopeId) =>
-      _verifyGrants(personId, scopeId).any((g) => !_fallback(g));
+  List<Grant> _verifyGrants(
+    String personId,
+    String scopeId,
+    VerificationItem i,
+  ) => [
+    for (final g in ctx.can.grantsFor(
+      personId,
+      Capability.membershipVerify,
+      ScopeRef(scopeId),
+      at: today,
+    ))
+      if (!_forSelf(g, i)) g,
+  ];
+
+  bool _verifyGrant(String personId, String scopeId, VerificationItem i) =>
+      _verifyGrants(personId, scopeId, i).any((g) => !_fallback(g));
 
   /// The Syamas post holders of [scopeId] in force today.
   List<String> _syamas(String scopeId) => [
@@ -126,9 +140,9 @@ class MemoryJemaat {
   bool canVerifyIn(String personId, VerificationItem i, String scopeId) {
     if (!ctx.can.moduleActive(Module.membership)) return false;
     if (selfFor(personId, i)) return false;
-    if (_verifyGrant(personId, scopeId)) return true;
+    if (_verifyGrant(personId, scopeId, i)) return true;
     final lain = _calon().where((p) => !selfFor(p, i));
-    if (lain.any((p) => _verifyGrant(p, scopeId))) return false;
+    if (lain.any((p) => _verifyGrant(p, scopeId, i))) return false;
     final syamas = _syamas(scopeId).where((p) => !selfFor(p, i)).toList();
     if (syamas.isNotEmpty) return syamas.contains(personId);
     return _operator().where((p) => !selfFor(p, i)).contains(personId);
@@ -149,7 +163,7 @@ class MemoryJemaat {
     if (selfFor(personId, i)) return 'ini data keluarga Anda sendiri.';
     if (!canVerify(personId, i)) {
       final sudah = i.verifiedScopes.where(
-        (s) => canVerifyIn(personId, i, s) || _verifyGrant(personId, s),
+        (s) => canVerifyIn(personId, i, s) || _verifyGrant(personId, s, i),
       );
       if (sudah.isNotEmpty) {
         return 'data ${scopeName(sudah.first)} sudah diverifikasi; menunggu '
@@ -170,9 +184,14 @@ class MemoryJemaat {
   /// post, cover or delegation before a Syamas or Operator fallback.
   Grant grantFor(Actor actor, VerificationItem i) {
     for (final s in scopesFor(actor.personId, i)) {
-      final g = ctx.grant(actor, Capability.membershipVerify, ScopeRef(s));
+      final dipakai = ctx.grant(
+        actor,
+        Capability.membershipVerify,
+        ScopeRef(s),
+      );
+      final g = dipakai == null || _forSelf(dipakai, i) ? null : dipakai;
       if (g != null && !_fallback(g)) return g;
-      final semua = _verifyGrants(actor.personId, s);
+      final semua = _verifyGrants(actor.personId, s, i);
       final utama = semua.where((x) => !_fallback(x)).firstOrNull;
       if (utama != null) return utama;
       if (g != null) return g;

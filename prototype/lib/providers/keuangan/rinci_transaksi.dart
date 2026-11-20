@@ -7,7 +7,7 @@ import '../core_repositories.dart';
 import '../repositories_keuangan.dart';
 import '../revision.dart';
 import 'beranda.dart';
-import '../../domain/core/core.dart' show ScopeRef;
+import '../../domain/core/core.dart' show AuditFilter, RecordRef, ScopeRef;
 import 'transaksi.dart';
 
 /// One fact of the detail panel: key, value, value in `bata`.
@@ -400,14 +400,25 @@ final rincianTransaksiProvider = Provider.family<RincianTransaksi?, String>((
   }
 
   // ---- Riwayat ----
+  // The audit actor line names the post run (cover, delegation); seeded rows
+  // without an audit line fall back to the name.
+  final jejak = ref
+      .watch(auditRepositoryProvider)
+      .list(AuditFilter(ref: RecordRef('transaction', t.id)));
+  String oleh(String action, String? id) =>
+      jejak.where((a) => a.action == action).firstOrNull?.actorLine ?? nama(id);
   final riwayat = [
     if (t.cancelledAt != null)
-      '${tglJam(t.cancelledAt!)} · Dibatalkan oleh ${nama(t.cancelledBy)}',
+      '${tglJam(t.cancelledAt!)} · Dibatalkan oleh '
+          '${oleh('finance.txn.cancel', t.cancelledBy)}',
     if (t.finalizedAt != null)
-      '${tglJam(t.finalizedAt!)} · Dibukukan oleh ${nama(t.finalizedBy)}',
+      '${tglJam(t.finalizedAt!)} · Dibukukan oleh '
+          '${oleh('finance.txn.finalize', t.finalizedBy)}',
     if (t.reviewedAt != null && t.reviewedBy != t.finalizedBy)
-      '${tglJam(t.reviewedAt!)} · Diperiksa oleh ${nama(t.reviewedBy)}',
-    '${tgl(t.createdAt)} · Draf dicatat oleh ${nama(t.createdBy)}',
+      '${tglJam(t.reviewedAt!)} · Diperiksa oleh '
+          '${oleh('finance.txn.review', t.reviewedBy)}',
+    '${tgl(t.createdAt)} · Draf dicatat oleh '
+        '${oleh('finance.txn.draft', t.createdBy)}',
   ];
 
   return RincianTransaksi(

@@ -35,6 +35,7 @@ class TabelInti implements AuthorityFacts {
   String? currentSessionId;
   final List<Device> devices = [];
   final List<FileRecord> files = [];
+  final List<AccountRecovery> recoveries = [];
 
   void addPerson(Person p) => peopleById[p.id] = p;
 

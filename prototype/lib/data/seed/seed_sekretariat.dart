@@ -30,9 +30,8 @@ void seedSekretariat(SeedStore store, Jangkar a) {
     t.households[id] = rumah;
     t.memberScopes[id] = kolom;
   }
-  // ponytail: Keluarga Lasut (Kolom 4 → Kolom 7 from M+1) has no person in
-  // the core seed, so its Atestasi is filed under the household; nobody is
-  // notified of the decision until seed_inti gains its head (request R4).
+  // Keluarga Lasut (Kolom 4 → Kolom 7 from M+1): the Atestasi is filed
+  // under its head, Johny Lasut (seed_jemaat).
   t.households[_lasut] = 'Lasut · Kolom 4';
   t.memberScopes[_lasut] = 'kolom-4';
 
@@ -221,7 +220,7 @@ void seedSekretariat(SeedStore store, Jangkar a) {
         WartaEvent(
           label: 'Sampul syukur',
           name: 'Kel. Mamahit — Kolom 4',
-          personId: 'kel-mamahit',
+          personId: 'mamahit-1',
           anonymousAs: 'Tanpa nama, Kolom 4',
         ),
       ],
@@ -336,7 +335,7 @@ void seedSekretariat(SeedStore store, Jangkar a) {
 }
 
 /// The household the Keluarga Lasut Atestasi is filed under.
-const _lasut = 'keluarga-lasut';
+const _lasut = 'lasut-1';
 
 /// The edition id, as `MemoryWartaRepository.idFor`: 'warta-yyyy-mm-dd'.
 String _id(Tanggal t) =>

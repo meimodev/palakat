@@ -11,6 +11,7 @@ import 'package:palakat_prototype/domain/secretariat/secretariat.dart';
 import 'package:palakat_prototype/providers/actor.dart';
 import 'package:palakat_prototype/providers/core_repositories.dart';
 import 'package:palakat_prototype/providers/repositories_sekretariat.dart';
+import 'package:palakat_prototype/widgets/kecil.dart';
 
 import 'harness.dart';
 
@@ -115,18 +116,48 @@ void main() {
         await keluar(tester);
 
         // With Data jemaat off, the Sekretaris types the member's details.
+        // Lidya switches it off in Modul (phone only); the web run, which has
+        // no Modul screen, records the same change through the repository.
         await masukSebagai(tester, Persona.lidya);
         final ws = c.read(workspaceRepositoryProvider);
-        final m = ws.modules().firstWhere((x) => x.module == Module.membership);
-        final mati = await ws.setModuleStatus(
-          c.read(actorProvider)!,
-          Module.membership,
-          ModuleStatus.off,
-          reason: 'Belum dipakai',
-          expectedRevision: m.revision,
-          idempotencyKey: 'p8-data-jemaat-mati',
-        );
-        expect(mati, isA<Ok<ModuleState>>());
+        if (tata == Tata.ponsel) {
+          c.read(routerProvider).go(Layar.modul.lokasi());
+          await tester.pumpAndSettle();
+          final tombol = find.descendant(
+            of: find.ancestor(
+              of: find.text('Data jemaat'),
+              matching: find.byType(Kartu),
+            ),
+            matching: find.text('Nonaktifkan modul'),
+          );
+          await tester.ensureVisible(tombol);
+          await tester.tap(tombol);
+          await tester.pumpAndSettle();
+          await isi(tester, 'Alasan · wajib', 'Belum dipakai');
+          await tester.ensureVisible(find.text('Nonaktifkan modul').last);
+          await tester.tap(find.text('Nonaktifkan modul').last);
+          await tester.pumpAndSettle();
+          expect(
+            ws
+                .modules()
+                .firstWhere((x) => x.module == Module.membership)
+                .status,
+            ModuleStatus.readOnly,
+          );
+        } else {
+          final m = ws.modules().firstWhere(
+            (x) => x.module == Module.membership,
+          );
+          final mati = await ws.setModuleStatus(
+            c.read(actorProvider)!,
+            Module.membership,
+            ModuleStatus.off,
+            reason: 'Belum dipakai',
+            expectedRevision: m.revision,
+            idempotencyKey: 'p8-data-jemaat-mati',
+          );
+          expect(mati, isA<Ok<ModuleState>>());
+        }
         await keluar(tester);
         await masukSebagai(tester, Persona.olvie);
         await keSurat();

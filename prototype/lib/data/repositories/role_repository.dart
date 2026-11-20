@@ -77,6 +77,14 @@ abstract interface class RoleRepository {
     required String idempotencyKey,
   });
 
+  /// The delegator ends a delegation in force today ("Akhiri sekarang").
+  Future<Result<Delegation>> endDelegation(
+    Actor actor,
+    String delegationId, {
+    required int expectedRevision,
+    required String idempotencyKey,
+  });
+
   /// Revokes an authority grant; sessions acting in its assignment end.
   Future<Result<AuthorityGrant>> revokeGrant(
     Actor actor,

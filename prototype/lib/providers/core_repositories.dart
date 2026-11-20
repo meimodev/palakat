@@ -7,6 +7,7 @@ import '../data/memory/memory_file_repository.dart';
 import '../data/memory/memory_notification_repository.dart';
 import '../data/memory/memory_org_repository.dart';
 import '../data/memory/memory_people_repository.dart';
+import '../data/memory/memory_recovery_repository.dart';
 import '../data/memory/memory_role_repository.dart';
 import '../data/memory/memory_session_repository.dart';
 import '../data/memory/memory_workspace_repository.dart';
@@ -16,6 +17,7 @@ import '../data/repositories/file_repository.dart';
 import '../data/repositories/notification_repository.dart';
 import '../data/repositories/org_repository.dart';
 import '../data/repositories/people_repository.dart';
+import '../data/repositories/recovery_repository.dart';
 import '../data/repositories/role_repository.dart';
 import '../data/repositories/session_repository.dart';
 import '../data/repositories/workspace_repository.dart';
@@ -72,4 +74,9 @@ final fileRepositoryProvider = Provider<FileRepository>(
 
 final exportRepositoryProvider = Provider<ExportRepository>(
   (ref) => MemoryExportRepository(ref.watch(memoryContextProvider)),
+);
+
+/// Account recovery (P4; core.recover_account, core.confirm_recovery).
+final recoveryRepositoryProvider = Provider<RecoveryRepository>(
+  (ref) => MemoryRecoveryRepository(ref.watch(memoryContextProvider)),
 );

@@ -7,16 +7,20 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:palakat_prototype/app/layar.dart';
 import 'package:palakat_prototype/app/router.dart';
-import 'package:palakat_prototype/core/tanggal.dart';
+import 'package:palakat_prototype/core/format.dart';
 import 'package:palakat_prototype/domain/core/core.dart';
 import 'package:palakat_prototype/domain/membership/membership.dart';
-import 'package:palakat_prototype/providers/actor.dart';
+import 'package:palakat_prototype/providers/core_repositories.dart';
 import 'package:palakat_prototype/providers/home_rows.dart';
 import 'package:palakat_prototype/providers/repositories_jemaat.dart';
 
 import 'harness.dart';
 
-bool _jemaat(HomeRow r) => r.ke.modulLayar == ModulLayar.dataJemaat;
+/// A Data jemaat row; the queue row of a covered Penatua post opens
+/// JabatanKosong instead.
+bool _jemaat(HomeRow r) =>
+    r.ke.modulLayar == ModulLayar.dataJemaat ||
+    r.judul.endsWith('menunggu verifikasi');
 
 const _buku = 'Buku anggota Kolom 7 · 2019–2026';
 
@@ -35,7 +39,7 @@ void main() {
         // Each persona's rows, as the layout allows.
         final harap = <Persona, List<String>>{
           Persona.yanti: [
-            if (ponsel) '3 data Kolom 2 menunggu verifikasi',
+            '3 data Kolom 2 menunggu verifikasi',
             '$_buku belum diimpor',
             'Buku anggota: 318 baris sudah diimpor',
           ],
@@ -67,8 +71,8 @@ void main() {
         }
 
         if (ponsel) {
-          // Greis verifies the Rumagit change through Hendrik's delegation:
-          // her row counts one fewer.
+          // Greis verifies Hendrik's family's change as Syamas Kolom 7 (not
+          // through his delegation): her row counts one fewer.
           await masukSebagai(tester, Persona.greis);
           await tekan(tester, '2 data menunggu verifikasi');
           await tekan(tester, 'Perubahan data · Keluarga Rumagit');
@@ -82,21 +86,25 @@ void main() {
           );
           final j = jejakTerakhir(c, 'membership.verify');
           expect(j.personName, 'Sym. Greis Mamahit');
-          expect(j.via, const ViaDelegation('pelimpahan-hendrik-greis'));
+          expect(j.via, Via.direct);
           await keBeranda();
           expect(find.text('1 data menunggu verifikasi'), findsOneWidget);
 
-          // The Lasut move needs both Kolom: Kolom 7's verification leaves it
-          // waiting for the Penatua of Kolom 4, and off Greis's home.
+          // The Lasut move needs both Kolom: Greis verifies Kolom 7's part
+          // through the delegation in Peristiwa; it waits for the Penatua of
+          // Kolom 4, and leaves Greis's home.
+          await tekan(tester, '1 data menunggu verifikasi');
+          await tester.tap(find.textContaining('Keluarga Lasut').first);
+          await tester.pumpAndSettle();
+          await tester.ensureVisible(find.text('Verifikasi data').last);
+          await tester.tap(find.text('Verifikasi data').last);
+          await tester.pumpAndSettle();
+          expect(
+            jejakTerakhir(c, 'membership.verify').via,
+            const ViaDelegation('pelimpahan-hendrik-greis'),
+          );
           final verif = c.read(verificationRepositoryProvider);
           final pindah = verif.item('peristiwa-pindah-lasut')!;
-          final r = await verif.verify(
-            c.read(actorProvider)!,
-            pindah.id,
-            expectedRevision: pindah.revision,
-            idempotencyKey: 'p1-pindah-7',
-          );
-          expect(r.isOk, isTrue, reason: '${r.refusal}');
           expect(pindah.open, isTrue);
           expect(verif.verifiers(pindah.id), ['penatua-kolom-4-orang']);
           await keBeranda();
@@ -105,53 +113,29 @@ void main() {
           return;
         }
 
-        // Web: the Operator's book rows follow the import.
+        // Web: the Operator's book rows follow the import, done in
+        // WebImporBuku and WebDataGanda.
         await masukSebagai(tester, Persona.yanti);
-        final a = c.read(actorProvider)!;
         final impor = c.read(memberImportRepositoryProvider);
         ImportBatch buku() =>
             impor.batches().firstWhere((b) => b.source == _buku);
-        var k = 0;
-        String kunci() => 'p1-jemaat-${k++}';
-        expect(
-          (await impor.check(
-            a,
-            buku().id,
-            expectedRevision: buku().revision,
-            idempotencyKey: kunci(),
-          )).isOk,
-          isTrue,
-        );
+        final lahir = c
+            .read(peopleRepositoryProvider)
+            .person('agustina')!
+            .birthDate!;
+        await tekan(tester, '$_buku belum diimpor');
+        await tekan(tester, 'Jalankan pengecekan');
         await keBeranda();
-        expect(find.text('1 kemungkinan data ganda'), findsOneWidget);
-        final ganda = impor.duplicates().single;
-        await impor.resolveDuplicate(
-          a,
-          ganda.id,
-          DuplicateDecision.merge,
-          reason: 'Gabungkan',
-          expectedRevision: ganda.revision,
-          idempotencyKey: kunci(),
-        );
-        final agustina = buku().rows.firstWhere((r) => r.yearMissing);
-        await impor.completeRow(
-          a,
-          buku().id,
-          agustina.id,
-          const Tanggal(1974, 12, 12),
-          expectedRevision: buku().revision,
-          idempotencyKey: kunci(),
-        );
-        final hasil = await impor.commit(
-          a,
-          buku().id,
-          expectedRevision: buku().revision,
-          idempotencyKey: kunci(),
-        );
-        expect(hasil.isOk, isTrue, reason: '${hasil.refusal}');
+        await tekan(tester, '1 kemungkinan data ganda');
+        await tekan(tester, 'Bukan orang yang sama');
+        await keBeranda();
+        expect(find.text('1 kemungkinan data ganda'), findsNothing);
+        await tekan(tester, '$_buku belum diimpor');
+        await isi(tester, 'Tanggal lahir', tgl(lahir.awal));
+        await tekan(tester, 'Impor 27 baris');
+        expect(buku().status, ImportStatus.imported);
         await keBeranda();
         expect(find.text('$_buku belum diimpor'), findsNothing);
-        expect(find.text('1 kemungkinan data ganda'), findsNothing);
         expect(
           find.text('Buku anggota: ${318 + 28} baris sudah diimpor'),
           findsOneWidget,

@@ -44,6 +44,12 @@ class MemoryVerificationRepository implements VerificationRepository {
   VerificationItem? item(String id) => j.t.item(id);
 
   @override
+  List<VerificationItem> pending(String scopeId) => [
+    for (final i in j.t.items)
+      if (i.open && j.pendingScopes(i).contains(scopeId)) i,
+  ];
+
+  @override
   List<VerificationItem> forHousehold(String householdId) => [
     for (final i in j.t.items)
       if (i.kind == ItemKind.household && i.householdId == householdId) i,

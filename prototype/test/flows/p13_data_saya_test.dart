@@ -8,6 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:palakat_prototype/app/layar.dart';
 import 'package:palakat_prototype/app/router.dart';
 import 'package:palakat_prototype/domain/membership/membership.dart';
+import 'package:palakat_prototype/providers/actor.dart';
 import 'package:palakat_prototype/providers/core_repositories.dart';
 import 'package:palakat_prototype/providers/repositories_jemaat.dart';
 import 'package:palakat_prototype/providers/repositories_keuangan.dart';
@@ -96,5 +97,43 @@ void main() {
     // Read with no one signed in: a member sees no ledger rows.
     final sampul = c.read(transactionRepositoryProvider).get('bku-0132')!;
     expect(sampul.allocations.first.partyId, 'party-novita');
+  });
+
+  testWidgets('P13 data saya · pemegang jabatan', (tester) async {
+    final c = await bukaAplikasi(tester);
+    final peran = c.read(roleRepositoryProvider);
+    await masukSebagai(tester, Persona.hendrik);
+    await tekan(tester, 'Sebagai Penatua Kolom 7');
+    c.read(routerProvider).push(Layar.cabutIzin.lokasi());
+    await tester.pumpAndSettle();
+    await tekan(tester, 'Lanjutkan');
+    await tekan(
+      tester,
+      'Saya mengerti data saya akan dihapus dan tidak dapat dikembalikan. '
+      'Untuk menjadi anggota lagi saya harus mengajukan permohonan baru.',
+    );
+    await _tekanAkhir(tester, 'Cabut izin dan hapus data saya');
+
+    // His post ends as RoleRepository.endTerm ends it: the session acting
+    // in it ends, the delegation made from it ends, and Operators are told.
+    expect(_atas(c), Layar.sesiBerakhir.lokasi());
+    final pos = peran.posts().firstWhere((p) => p.post.id == 'penatua-kolom-7');
+    expect(pos.vacant, isTrue);
+    final hari = c.read(hariIniProvider);
+    expect(
+      peran
+          .delegations()
+          .firstWhere((d) => d.id == 'pelimpahan-hendrik-greis')
+          .inForce(hari),
+      isFalse,
+    );
+    expect(jejakTerakhir(c, 'role.end_term').personId, 'hendrik');
+    expect(
+      c
+          .read(notificationRepositoryProvider)
+          .inbox('yanti')
+          .where((n) => n.title == 'Jabatan Penatua Kolom 7 kosong'),
+      hasLength(1),
+    );
   });
 }

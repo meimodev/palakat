@@ -41,10 +41,14 @@ void main() {
         // "Akhiri sesi" removes the other device.
         await masukSebagai(tester, Persona.meiske);
         await buka(Layar.bendahara, anak: ponsel ? null : 'serah');
-        final n = sesi.devices('meiske').length;
+        final sebelum = sesi.devices('meiske');
+        final n = sebelum.length;
         expect(n, greaterThan(0));
         await tekan(tester, 'Akhiri sesi');
         expect(sesi.devices('meiske'), hasLength(n - 1));
+        final ids = {for (final d in sesi.devices('meiske')) d.id};
+        final hilang = sebelum.firstWhere((d) => !ids.contains(d.id));
+        expect(find.textContaining(hilang.name), findsNothing);
 
         // Meiske prepares the handover.
         if (ponsel) await buka(Layar.bendahara, anak: 'serah');
@@ -94,12 +98,28 @@ void main() {
         await masukSebagai(tester, Persona.meiske);
         expect(c.read(actorProvider)!.assignmentId, isNull);
         expect(
-          c.read(homeRowsProvider).where((r) => r.ke.modulLayar.modul != null),
+          c
+              .read(homeRowsProvider)
+              .where(
+                (r) => const [
+                  Module.finance,
+                  Module.unitFinance,
+                  Module.inAppApprovals,
+                ].contains(r.ke.modulLayar.modul),
+              ),
           isEmpty,
         );
         expect(find.textContaining('belum dibukukan'), findsNothing);
         expect(c.read(penjagaProvider(Layar.keuangan)), Penjaga.tidakBerwenang);
         expect(c.read(sessionProvider)!.berakhir, isFalse);
+        if (!ponsel) {
+          // The web footer follows her role: a member now.
+          expect(find.text('Wewenang Bendahara aktif'), findsNothing);
+          expect(
+            find.textContaining(' · Anggota jemaat', findRichText: true),
+            findsWidgets,
+          );
+        }
         await keluar(tester);
 
         // Lidya sees Yohanis "aktif sejak {today}" and Meiske's ended term.

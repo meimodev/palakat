@@ -20,10 +20,13 @@ const _tunggu = 'Penugasan Bendahara Jemaat menunggu verifikasi wewenang';
 const _kosong = 'Jabatan Sekretaris Jemaat kosong';
 const _pulih = 'Pemulihan akun · Novita Wenas';
 
-/// The rows of the Inti screens (C1).
+/// The rows of the Inti screens (C1); a covered Penatua post's Data jemaat
+/// queue row also opens JabatanKosong, but belongs to P1 jemaat.
 List<String> _barisInti(ProviderContainer c) => [
   for (final r in c.read(homeRowsProvider))
-    if (r.ke.modulLayar == Layar.penugasan.modulLayar) r.judul,
+    if (r.ke.modulLayar == Layar.penugasan.modulLayar &&
+        !r.judul.endsWith('menunggu verifikasi'))
+      r.judul,
 ];
 
 /// Taps [teks] inside the card that shows [judul].
