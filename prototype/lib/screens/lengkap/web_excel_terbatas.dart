@@ -198,7 +198,7 @@ class _WebExcelTerbatasState extends State<WebExcelTerbatasScreen> {
                   crossAxisAlignment: WrapCrossAlignment.end,
                   children: [
                     const Text(
-                      'Paket-Laporan-GMIM_Jemaat-Karunia_2026-10_TERBATAS-Diakonia.xlsx',
+                      'Paket-Laporan-GMIM_Jemaat-Karunia_2026-\u200B10_TERBATAS-Diakonia.xlsx',
                       style: TextStyle(
                         fontFamily: PalakatText.mono,
                         fontSize: 14,

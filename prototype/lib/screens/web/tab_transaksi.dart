@@ -305,7 +305,12 @@ class _TabTransaksiScreenState extends State<TabTransaksiScreen> {
   }
 
   Widget _tabel(PalakatWarna c, List<_Baris> data) {
-    Widget kisi(List<Widget> sel) => Row(
+    // Rows centre their cells (`align-items: center`); the header grid
+    // stretches them, so its labels sit at the top.
+    Widget kisi(List<Widget> sel, {bool atas = false}) => Row(
+      crossAxisAlignment: atas
+          ? CrossAxisAlignment.start
+          : CrossAxisAlignment.center,
       children: [
         SizedBox(width: 104, child: sel[0]),
         const SizedBox(width: 12),
@@ -359,7 +364,10 @@ class _TabTransaksiScreenState extends State<TabTransaksiScreen> {
                       TextSpan(
                         children: [
                           TextSpan(
-                            text: r.no.isEmpty ? '—' : r.no,
+                            // Chrome breaks after these hyphens; ICU does not.
+                            text: r.no.isEmpty
+                                ? '—'
+                                : r.no.replaceAll('-', '-​'),
                             style: const TextStyle(
                               fontFamily: PalakatText.mono,
                             ),
@@ -372,7 +380,7 @@ class _TabTransaksiScreenState extends State<TabTransaksiScreen> {
                     ),
                     if (r.cat.isNotEmpty)
                       Text(
-                        r.cat,
+                        r.cat.replaceAll('-', '-​'),
                         style: TextStyle(fontSize: 13, color: c.tinta3),
                       ),
                   ],
@@ -422,10 +430,11 @@ class _TabTransaksiScreenState extends State<TabTransaksiScreen> {
                         fontWeight: FontWeight.w600,
                         color: c.tinta2,
                       ),
-                      child: kisi(const [
+                      child: kisi(atas: true, const [
                         Text('Status'),
                         Text('Tanggal'),
-                        Text('Uraian · No. Bukti · Kas/Bank'),
+                        // Chrome keeps "Kas/Bank" whole; ICU breaks after /.
+                        Text('Uraian · No. Bukti · Kas/⁠Bank'),
                         Text('Jumlah (Rp)', textAlign: TextAlign.right),
                       ]),
                     ),

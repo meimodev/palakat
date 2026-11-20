@@ -355,34 +355,42 @@ class _Kendali extends StatelessWidget {
     );
     Widget groep(List<Widget> c) =>
         Row(mainAxisSize: MainAxisSize.min, spacing: 8, children: c);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
-      // The 16 px spacer is a CSS flex item that shrinks (to 12 at 390 wide);
-      // the rest never shrinks. Narrower than that, the zoom pair wraps under
-      // the pager: the buttons keep their 44 px targets.
-      child: LayoutBuilder(
-        builder: (context, k) => DefaultTextStyle.merge(
-          style: const TextStyle(
-            leadingDistribution: TextLeadingDistribution.even,
-          ),
-          child: Wrap(
-            alignment: WrapAlignment.center,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            // gap 8 + spacer + gap 8; 346 = everything else.
-            spacing: 16 + (k.maxWidth - 346).clamp(0, 16),
-            runSpacing: 8,
-            children: [
-              groep([
-                tombol('‹', 'Halaman sebelumnya', prev),
-                label('${hal + 1} dari 2', 70),
-                tombol('›', 'Halaman berikutnya', next),
-              ]),
-              groep([
-                tombol('−', 'Perkecil', kecil),
-                label('${(zoom * 100).round()}%', 52, mono: true),
-                tombol('+', 'Perbesar', besar),
-              ]),
-            ],
+    // The 16 px spacer is a CSS flex item that shrinks (to 12 at 390 wide);
+    // the rest never shrinks. Narrower than that, the board's row overflows
+    // its 16 px padding, centred: the padding gives way while the row still
+    // fits the viewer. Narrower still, the zoom pair wraps under the pager:
+    // the buttons keep their 44 px targets.
+    return LayoutBuilder(
+      builder: (context, luar) => Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: luar.maxWidth < 346
+              ? 16
+              : ((luar.maxWidth - 346) / 2).clamp(0, 16),
+        ).copyWith(top: 10, bottom: 14),
+        child: LayoutBuilder(
+          builder: (context, k) => DefaultTextStyle.merge(
+            style: const TextStyle(
+              leadingDistribution: TextLeadingDistribution.even,
+            ),
+            child: Wrap(
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              // gap 8 + spacer + gap 8; 346 = everything else.
+              spacing: 16 + (k.maxWidth - 346).clamp(0, 16),
+              runSpacing: 8,
+              children: [
+                groep([
+                  tombol('‹', 'Halaman sebelumnya', prev),
+                  label('${hal + 1} dari 2', 70),
+                  tombol('›', 'Halaman berikutnya', next),
+                ]),
+                groep([
+                  tombol('−', 'Perkecil', kecil),
+                  label('${(zoom * 100).round()}%', 52, mono: true),
+                  tombol('+', 'Perbesar', besar),
+                ]),
+              ],
+            ),
           ),
         ),
       ),

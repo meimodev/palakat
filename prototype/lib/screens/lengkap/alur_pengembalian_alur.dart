@@ -97,7 +97,7 @@ class _AlurPengembalianAlurState extends State<AlurPengembalianAlur> {
       : _n > _x.jumlah
       ? 'jumlah melebihi $_jenis asalnya (${rp(_x.jumlah)}).'
       : _kas.isEmpty
-      ? 'Kas/Bank belum dipilih.'
+      ? 'Kas/\u2060Bank belum dipilih.' // Chrome keeps it whole.
       : _alasan.text.trim().isEmpty
       ? 'alasan belum diisi.'
       : '';

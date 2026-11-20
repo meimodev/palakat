@@ -27,6 +27,7 @@ class _WebKeluarScreenState extends State<WebKeluarScreen> {
   Widget build(BuildContext context) {
     final c = context.warna;
     return HalamanWeb(
+      tengah: _st == 'keluar',
       nav: const NavSamping(
         item: navKeuangan,
         aktif: 6,
@@ -137,28 +138,23 @@ class _WebKeluarScreenState extends State<WebKeluarScreen> {
     ),
   ];
 
-  // `flex: 1` centring box in a main column at least the window high
-  // (padding 28 + 40); below 860 the top nav bar (about 61 px) comes first.
+  // The board's `flex: 1` centring box; HalamanWeb.tengah centres it in
+  // `main`.
   Widget _sudahKeluar(BuildContext context) {
     final c = context.warna;
-    final tinggi =
-        MediaQuery.sizeOf(context).height - 68 - (navSempit(context) ? 61 : 0);
-    return ConstrainedBox(
-      constraints: BoxConstraints(minHeight: tinggi < 0 ? 0 : tinggi),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 40),
-        child: Center(
-          child: Container(
-            width: double.infinity,
-            constraints: const BoxConstraints(maxWidth: 440),
-            padding: EdgeInsets.all(context.jepit(24, 4, 40)),
-            decoration: BoxDecoration(
-              color: c.permukaan,
-              border: Border.all(color: c.garis),
-              borderRadius: BorderRadius.circular(18),
-            ),
-            child: const IsiSudahKeluar(ke: 'WebMasuk'),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 40),
+      child: Center(
+        child: Container(
+          width: double.infinity,
+          constraints: const BoxConstraints(maxWidth: 440),
+          padding: EdgeInsets.all(context.jepit(24, 4, 40)),
+          decoration: BoxDecoration(
+            color: c.permukaan,
+            border: Border.all(color: c.garis),
+            borderRadius: BorderRadius.circular(18),
           ),
+          child: const IsiSudahKeluar(ke: 'WebMasuk'),
         ),
       ),
     );
