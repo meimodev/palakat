@@ -1,4 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../domain/collaboration/collaboration.dart';
+import '../../domain/core/core.dart';
+import '../../providers/keuangan/akhir_bulan.dart' show perintah;
+import '../../providers/repositories_kolaborasi.dart';
+import '../../providers/revision.dart';
+import '../p3/sekretariat_bersama.dart' show riwayatSek, penolakanSek;
 
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
@@ -11,47 +19,75 @@ import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
 import '../../app/layar.dart';
 
-/// Unit type → its two approver posts, in board order.
+/// Unit type → its row name, in board order (ApproverTable.unitTypes).
 const _p = {
-  'Kolom': ['Penatua Kolom', 'Ketua Jemaat'],
-  'BIPRA': ['Ketua BIPRA', 'Ketua Jemaat'],
-  'Komisi': ['Ketua Komisi', 'Ketua Jemaat'],
-  'Panitia': ['Ketua Panitia', 'Ketua Jemaat'],
+  ScopeType.kolom: 'Kolom',
+  ScopeType.bipra: 'BIPRA',
+  ScopeType.komisi: 'Komisi',
+  ScopeType.panitia: 'Panitia',
 };
 
-/// 98 · Alur · Pemberi persetujuan: the approver table (23-alurunit.md).
-class PemberiPersetujuanScreen extends StatefulWidget {
+/// 98 · Alur · Pemberi persetujuan: the approver table (23-alurunit.md,
+/// DL29), saved through ApproverTableRepository one row per call.
+class PemberiPersetujuanScreen extends ConsumerStatefulWidget {
   const PemberiPersetujuanScreen({super.key});
 
   @override
-  State<PemberiPersetujuanScreen> createState() =>
+  ConsumerState<PemberiPersetujuanScreen> createState() =>
       _PemberiPersetujuanScreenState();
 }
 
-class _PemberiPersetujuanScreenState extends State<PemberiPersetujuanScreen> {
-  final _t = <String, String>{};
+class _PemberiPersetujuanScreenState
+    extends ConsumerState<PemberiPersetujuanScreen> {
+  /// The choices on screen; starts from the saved table.
+  late final _t = Map.of(
+    ref.read(approverTableRepositoryProvider).table().rows,
+  );
   var _simpan = false;
   var _pesan = '';
-  final _riw = <String>[];
+  Refusal? _tolak;
 
   List<String> get _kosong => [
-    for (final k in _p.keys)
-      if (_t[k] == null) k,
+    for (final MapEntry(key: k, value: n) in _p.entries)
+      if (_t[k] == null) n,
   ];
 
-  void _simpanTabel() => setState(() {
-    _simpan = true;
-    _pesan = 'Tabel pemberi persetujuan disimpan.';
-    final isi = [for (final k in _p.keys) '$k → ${_t[k]}'].join('; ');
-    _riw.insert(
-      0,
-      '16/11/2026 · Tabel pemberi persetujuan disimpan: $isi · Pdt. Lidya Rondonuwu',
-    );
-  });
+  Future<void> _simpanTabel() async {
+    final repo = ref.read(approverTableRepositoryProvider);
+    for (final k in _p.keys) {
+      final t = repo.table();
+      final r = await perintah(
+        ref,
+        (a, kunci) => repo.set(
+          a,
+          k,
+          _t[k]!,
+          t.threshold,
+          expectedRevision: t.revision,
+          idempotencyKey: kunci,
+        ),
+      );
+      if (!mounted) return;
+      if (r?.refusal != null) {
+        setState(() => _tolak = r!.refusal);
+        return;
+      }
+    }
+    setState(() {
+      _simpan = true;
+      _tolak = null;
+      _pesan = 'Tabel pemberi persetujuan disimpan.';
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(revisionProvider);
     final c = context.warna;
+    final riw = riwayatSek(
+      ref,
+      const AuditFilter(actionPrefix: 'requests.set_table'),
+    );
     final kosong = _kosong;
     final alasan = kosong.isEmpty
         ? ''
@@ -63,7 +99,7 @@ class _PemberiPersetujuanScreenState extends State<PemberiPersetujuanScreen> {
         'Diisi sekali oleh Pimpinan Jemaat yang berwenang. Berlaku untuk Permintaan dana dan persetujuan lain di aplikasi.',
         style: TextStyle(fontSize: 14, color: c.tinta2),
       ),
-      for (final MapEntry(key: k, value: pil) in _p.entries)
+      for (final MapEntry(key: k, value: n) in _p.entries)
         Kartu(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Column(
@@ -71,7 +107,7 @@ class _PemberiPersetujuanScreenState extends State<PemberiPersetujuanScreen> {
             spacing: 8,
             children: [
               Text(
-                'Permintaan dari $k',
+                'Permintaan dari $n',
                 style: const TextStyle(fontWeight: FontWeight.w700),
               ),
               // The board's pills sit in a flex row with `gap: 8px` both ways,
@@ -80,12 +116,13 @@ class _PemberiPersetujuanScreenState extends State<PemberiPersetujuanScreen> {
                 spacing: 8,
                 runSpacing: 8,
                 children: [
-                  for (final n in pil)
+                  for (final p in ApproverChoice.values)
                     ChipSatu(
-                      teks: n,
-                      dipilih: _t[k] == n,
+                      teks: p.labelFor(k),
+                      dipilih: _t[k] == p,
                       onTap: () => setState(() {
-                        _t[k] = n;
+                        _t[k] = p;
+                        _tolak = null;
                         _simpan = false;
                         _pesan = '';
                       }),
@@ -100,7 +137,9 @@ class _PemberiPersetujuanScreenState extends State<PemberiPersetujuanScreen> {
         style: TextStyle(fontSize: 13, color: c.tinta3),
       ),
       // The line shows only while one to three rows are unchosen.
-      if (alasan.isNotEmpty && kosong.length < 4)
+      if (_tolak case final r?)
+        penolakanSek(r)
+      else if (alasan.isNotEmpty && kosong.length < 4)
         Penolakan(
           tindakan: 'Simpan tabel',
           sebab: alasan,
@@ -130,7 +169,7 @@ class _PemberiPersetujuanScreenState extends State<PemberiPersetujuanScreen> {
             ke: Layar.modul,
           ),
         ),
-      if (_riw.isNotEmpty) RiwayatAlur(baris: _riw),
+      if (riw.isNotEmpty) RiwayatAlur(baris: riw),
     ];
 
     return LayarPonsel(

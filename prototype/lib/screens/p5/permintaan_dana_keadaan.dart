@@ -3,77 +3,24 @@ import 'dart:math' as math;
 import 'package:flutter/rendering.dart' show OverflowBoxFit;
 import 'package:flutter/widgets.dart';
 
-import '../../shell/kepala_ponsel.dart';
-import '../../shell/layar_ponsel.dart';
+import '../../domain/core/core.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
 import '../../widgets/garis_status.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
-import '../../app/belum_dipindah.dart';
+import '../../widgets/penolakan.dart';
 
-/// The `keadaan` phone frame of spec 22 (PermintaanDana, Panitia): header
-/// with back, a scroll column (padding 8 20 20, gap 16) showing `k ?? keadaan`.
-/// An in-board pick sets `k`; a panel change of `keadaan` drops it.
-class PapanKeadaan extends StatefulWidget {
-  const PapanKeadaan({
-    super.key,
-    required this.stem,
-    required this.opsi,
-    required this.kepala,
-    required this.isi,
-  });
-
-  final String stem;
-  final List<String> opsi;
-
-  /// The board's `KepalaPonsel` (its `kembaliKe` literal stays in the board file).
-  final KepalaPonsel kepala;
-
-  /// The gap-16 column's items for view [k]; [pilih] is the board's `go<i>`.
-  final List<Widget> Function(String k, ValueChanged<String> pilih) isi;
-
-  @override
-  State<PapanKeadaan> createState() => _PapanKeadaanState();
-}
-
-class _PapanKeadaanState extends State<PapanKeadaan> {
-  String? _k;
-
-  /// The panel value last seen; any change of it drops `_k`.
-  String? _panel;
-
-  @override
-  Widget build(BuildContext context) {
-    final panel = belumDipindah<String>('Menunggu persetujuan');
-    if (panel != _panel) {
-      _panel = panel;
-      _k = null;
-    }
-    final v = _k ?? panel;
-    final k = widget.opsi.contains(v) ? v : widget.opsi.first;
-    return LayarPonsel(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          widget.kepala,
-          Expanded(
-            // Keyed by view: every view change starts at the top.
-            child: SingleChildScrollView(
-              key: ValueKey(k),
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: 16,
-                children: widget.isi(k, (o) => setState(() => _k = o)),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+/// A command's refusal as the boards draw it: "Tidak dapat dilakukan:
+/// {action}." then the reason and who can act.
+Widget penolakanDari(Refusal r) => Penolakan(
+  tindakan: r.action,
+  sebab: r.whoCanAct == null
+      ? r.because
+      : '${r.because} Yang perlu bertindak: ${r.whoCanAct}.',
+  jalan: const [],
+  ukuranTeks: 14,
+);
 
 /// Fact card: `Kartu` (dibukukan), content in a column with gap 6.
 class KartuFakta extends StatelessWidget {

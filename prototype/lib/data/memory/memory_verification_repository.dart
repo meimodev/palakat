@@ -50,6 +50,15 @@ class MemoryVerificationRepository implements VerificationRepository {
   ];
 
   @override
+  List<VerificationItem> verifiedEvents({String? scopeId}) => [
+    for (final i in j.t.items)
+      if (i.kind == ItemKind.lifeEvent &&
+          i.status == ItemStatus.verified &&
+          (scopeId == null || i.scopeId == scopeId))
+        i,
+  ];
+
+  @override
   List<VerificationItem> forHousehold(String householdId) => [
     for (final i in j.t.items)
       if (i.kind == ItemKind.household && i.householdId == householdId) i,

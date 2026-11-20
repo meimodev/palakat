@@ -1,5 +1,6 @@
 import '../../core/format.dart';
 import '../../core/tanggal.dart';
+import '../../domain/collaboration/collaboration.dart';
 import '../../domain/core/core.dart';
 import '../../domain/finance/finance.dart';
 import '../repositories/master_repository.dart';
@@ -357,6 +358,31 @@ class MemoryTransactionRepository implements TransactionRepository {
     );
   }
 
+  /// A Panitia from Penutupan keuangan on books no ordinary transaction on
+  /// its Fund (AlurPanitia); settling advances and moving its leftover out
+  /// still book.
+  String? _panitiaClosing(TransactionType type, List<Allocation> allocations) {
+    final keluar = const {
+      TransactionType.advanceSpending,
+      TransactionType.advanceReturn,
+      TransactionType.fundTransfer,
+    }.contains(type);
+    for (final p in f.ctx.store.kolaborasi.panitia) {
+      if (p.fundId == null ||
+          p.stage.index < PanitiaStage.financialClosing.index) {
+        continue;
+      }
+      if (allocations.any(
+        (a) => a.toFundId == p.fundId || (a.fundId == p.fundId && !keluar),
+      )) {
+        return p.stage == PanitiaStage.financialClosing
+            ? '${p.name} sedang dalam Penutupan keuangan.'
+            : '${p.name} sudah ${p.stage.label.toLowerCase()}.';
+      }
+    }
+    return null;
+  }
+
   Refused<T>? _missing<T>(String aksi, Transaction? t) =>
       t == null ? f.ctx.no<T>(aksi, 'Transaksi tidak ditemukan.') : null;
 
@@ -404,6 +430,8 @@ class MemoryTransactionRepository implements TransactionRepository {
         '$tutup Pilih tanggal di bulan yang belum ditutup.',
       );
     }
+    final panitia = _panitiaClosing(draft.type, draft.allocations);
+    if (panitia != null) return f.ctx.no(aksi, panitia);
     final t = Transaction(
       id: f.ctx.store.newId('txn'),
       type: draft.type,
@@ -699,6 +727,10 @@ class MemoryTransactionRepository implements TransactionRepository {
         ),
       );
     }
+    final panitia = t.reversalOf == null && t.correctionOf == null
+        ? _panitiaClosing(t.type, t.allocations)
+        : null;
+    if (panitia != null) return (null, f.ctx.no(aksi, panitia));
     for (final asal in {t.reversalOf, t.correctionOf}) {
       final o = f.k.transaction(asal);
       if (o != null && f.closedReason(o.effectiveDate) != null) {

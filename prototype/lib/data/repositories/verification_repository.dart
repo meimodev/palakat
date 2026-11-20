@@ -20,6 +20,10 @@ abstract interface class VerificationRepository {
   /// README 4.4; KonfirmasiKeluarga).
   List<VerificationItem> forHousehold(String householdId);
 
+  /// Verified life events, of Kolom [scopeId] when given (not in README
+  /// 4.4; LaporanLintas).
+  List<VerificationItem> verifiedEvents({String? scopeId});
+
   /// The people [itemId] is routed to today (not in README 4.4).
   List<String> verifiers(String itemId);
 

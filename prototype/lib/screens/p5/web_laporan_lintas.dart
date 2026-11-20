@@ -8,17 +8,15 @@ import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import 'laporan_lintas.dart';
 import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
 
-/// Web · Laporan (spec 22): LaporanLintas on the laptop, seen as the Ketua
-/// Jemaat. Platform side nav with "Beranda" active, as drawn.
+/// Web · Laporan (spec 22): LaporanLintas on the laptop, the same computed
+/// reach. Platform side nav with "Beranda" active, as drawn.
 class WebLaporanLintasScreen extends StatelessWidget {
   const WebLaporanLintasScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final keadaan = belumDipindah<String>('Seluruh Jemaat');
     return HalamanWeb(
       nav: const NavSamping(item: navPlatform, aktif: 0),
       isi: [
@@ -57,7 +55,7 @@ class WebLaporanLintasScreen extends StatelessWidget {
           alignment: Alignment.centerLeft,
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 880),
-            child: IsiLaporanLintas(keadaan: keadaan),
+            child: const IsiLaporanLintas(),
           ),
         ),
       ],

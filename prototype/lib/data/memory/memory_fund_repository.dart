@@ -37,6 +37,13 @@ class MemoryFundRepository implements FundRepository {
   }
 
   @override
+  int ownedBalance(String? ownerScopeId) => [
+    for (final x in f.k.funds)
+      if (ownerScopeId == null || x.ownerScopeId == ownerScopeId)
+        f.k.fundBalance(x.id, at: f.today),
+  ].fold(0, (a, b) => a + b);
+
+  @override
   Future<Result<Fund>> add(
     Actor actor,
     FundDraft draft,

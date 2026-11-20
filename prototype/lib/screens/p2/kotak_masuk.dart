@@ -54,6 +54,9 @@ const _tujuan = {
   'post': Layar.jabatanKosong,
   'assignment': Layar.penugasan,
   'delegation': Layar.pelimpahan,
+  'fund_request': Layar.permintaanDana,
+  'service': Layar.ibadah,
+  'panitia': Layar.panitia,
 };
 
 /// Opening a row marks it read (`markRead`), then pushes its record's screen
@@ -90,6 +93,7 @@ Future<void> bukaKabar(
       null,
     ),
     'membership_item' => _tujuanJemaat(ref, r!.id),
+    'attendance' => (Layar.kehadiran, {'ibadah': r!.id}, null),
     final k => (_tujuan[k], const <String, String>{}, null),
   };
   if (ke == null) return;

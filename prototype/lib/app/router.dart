@@ -585,7 +585,11 @@ List<RouteBase> _ponsel() => [
   ),
   _r(Layar.panitia, (_) => const PanitiaScreen(), ponsel: true),
   _r(Layar.ibadah, (_) => const IbadahScreen(), ponsel: true),
-  _r(Layar.kehadiran, (_) => const KehadiranScreen(), ponsel: true),
+  _r(
+    Layar.kehadiran,
+    (s) => KehadiranScreen(ibadahId: s.pathParameters['ibadah'] ?? ''),
+    ponsel: true,
+  ),
   _r(Layar.laporanLintas, (_) => const LaporanLintasScreen(), ponsel: true),
   _r(
     Layar.persembahanBernama,
