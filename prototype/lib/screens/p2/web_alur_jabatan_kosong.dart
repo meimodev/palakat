@@ -360,6 +360,7 @@ class _WebAlurJabatanKosongScreenState
       KotakCentang(
         nilai: _paham,
         onUbah: (v) => setState(() => _paham = v),
+        jarakAtas: 2,
         label: const Text(
           'Saya mengerti setiap tindakan saya tercatat sebagai dijalankan oleh '
           'Operator, dan jabatan ini kembali kepada pemegangnya begitu '
