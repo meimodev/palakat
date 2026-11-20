@@ -1,7 +1,7 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:go_router/go_router.dart';
 
 import '../boards.dart';
@@ -57,17 +57,13 @@ class _BingkaiPerangkatState extends State<BingkaiPerangkat> {
     super.dispose();
   }
 
-  // The delegate can notify while the Router builds (first route): rebuild after that frame.
-  void _rute() {
-    if (SchedulerBinding.instance.schedulerPhase ==
-        SchedulerPhase.persistentCallbacks) {
-      SchedulerBinding.instance.addPostFrameCallback((_) {
-        if (mounted) setState(() {});
-      });
-    } else {
-      setState(() {});
-    }
-  }
+  // The delegate can notify while the Router is being built: during a frame,
+  // or (Android, restoring the first route) in the first build outside any
+  // frame, where the scheduler still reports idle. A microtask runs as soon as
+  // that synchronous build is over, before the next frame.
+  void _rute() => scheduleMicrotask(() {
+    if (mounted) setState(() {});
+  });
 
   @override
   Widget build(BuildContext context) {
