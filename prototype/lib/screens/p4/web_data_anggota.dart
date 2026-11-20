@@ -53,8 +53,10 @@ class _WebDataAnggotaScreenState extends State<WebDataAnggotaScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const MarginNegatif(
-              atas: 12,
-              bawah: 12,
+              // The 14 px <a> sits on the div's 15 × 1.45 strut: a 21.75 line
+              // box with the text 1.1 down; the 44 target overhangs it.
+              atas: 10.75,
+              bawah: 11.5,
               child: Tautan(
                 ke: 'WebBerandaJabatan',
                 cara: Cara.naik,
