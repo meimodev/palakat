@@ -344,8 +344,8 @@ class _WebAlurWartaScreenState extends State<WebAlurWartaScreen> {
       ]),
       _kartu([
         _kepala(c, 'Ringkasan keuangan', 'dari bulan yang Sudah ditutup'),
-        const _Info('Pendapatan Oktober 2026', 'Rp14.820.000', mono: true),
-        const _Info('Belanja Oktober 2026', 'Rp11.455.000', mono: true),
+        const BarisInfo('Pendapatan Oktober 2026', 'Rp14.820.000', mono: true),
+        const BarisInfo('Belanja Oktober 2026', 'Rp11.455.000', mono: true),
       ]),
     ];
     final keDraf = _teksBtn(
@@ -537,9 +537,9 @@ class _WebAlurWartaScreenState extends State<WebAlurWartaScreen> {
     _duaKolom(
       [
         _kartu([
-          const _Info('Edisi', 'Warta Jemaat 22/11/2026'),
-          const _Info('Pilihan anggota', 'Tanpa nama'),
-          const _Info('Akan diterbitkan sebagai', 'Kel. Mamahit — Kolom 4'),
+          const BarisInfo('Edisi', 'Warta Jemaat 22/11/2026'),
+          const BarisInfo('Pilihan anggota', 'Tanpa nama'),
+          const BarisInfo('Akan diterbitkan sebagai', 'Kel. Mamahit — Kolom 4'),
           Text(
             'Tampilan nama pilihan anggota wajib diikuti. Pengecualian hanya untuk keperluan resmi, tata kelola, hukum atau pertanggungjawaban.',
             style: TextStyle(fontSize: 13, color: c.tinta3),
@@ -682,44 +682,6 @@ class _BarisUmum extends StatelessWidget {
             children: [teks, const SizedBox(height: 6), chip],
           );
         },
-      ),
-    );
-  }
-}
-
-/// KitAlur's info row, but the label may shrink and wrap as the board's
-/// `flex: 0 1 auto` span does (`BarisInfo` keeps it rigid and overflows).
-class _Info extends StatelessWidget {
-  const _Info(this.label, this.nilai, {this.mono = false});
-
-  final String label, nilai;
-  final bool mono;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.warna;
-    return DefaultTextStyle.merge(
-      style: const TextStyle(fontSize: 14),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Flexible(
-            child: Text(label, style: TextStyle(color: c.tinta2)),
-          ),
-          const SizedBox(width: 16),
-          Flexible(
-            child: Text(
-              nilai,
-              textAlign: TextAlign.right,
-              style: TextStyle(
-                color: c.tinta,
-                fontWeight: FontWeight.w600,
-                fontFamily: mono ? PalakatText.mono : null,
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
