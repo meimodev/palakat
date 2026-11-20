@@ -322,11 +322,19 @@ class _PersetujuanScreenState extends State<PersetujuanScreen> {
                 ),
                 if (_ganti) ...[
                   const SizedBox(height: 10),
-                  IsianAlasan(
-                    controller: _alasan,
-                    onChanged: (_) => setState(() {}),
-                    label: 'Alasan mengganti',
-                    contoh: 'Contoh: nama pemberi persetujuan keliru',
+                  // The board's textarea is inline-block inside a div: the
+                  // line's half-leading and descent (Plus Jakarta Sans
+                  // descent 0.222 em, content 1.26 em) sit under it.
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      bottom: 16 * (1.4 - 1.26) / 2 + 16 * 0.222,
+                    ),
+                    child: IsianAlasan(
+                      controller: _alasan,
+                      onChanged: (_) => setState(() {}),
+                      label: 'Alasan mengganti',
+                      contoh: 'Contoh: nama pemberi persetujuan keliru',
+                    ),
                   ),
                 ],
                 const SizedBox(height: 10),

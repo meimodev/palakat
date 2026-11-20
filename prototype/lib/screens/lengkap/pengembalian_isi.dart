@@ -1,7 +1,11 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter/rendering.dart' show OverflowBoxFit;
 
 import '../../mock/format.dart';
+import '../../shell/tautan.dart';
 import '../../motion/kerangka.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis.dart';
@@ -100,42 +104,85 @@ class KeadaanPengembalian extends ChangeNotifier {
 }
 
 /// Rule note, line language draf; [tautan] is the screen's "Coba alurnya
-/// sampai dibukukan" link, set inline at the end.
-class CatatanAturan extends StatelessWidget {
+/// sampai dibukukan" link, run inline at the end as a tappable span so it
+/// wraps word by word as the board's `<a>` does. The note takes keyboard
+/// focus and opens the link on Enter.
+// ponytail: the span is shorter than 44 px, as in Pemulihan's inline link.
+class CatatanAturan extends StatefulWidget {
   const CatatanAturan({super.key, required this.c, required this.tautan});
   final JenisPengembalian c;
-  final Widget tautan;
+  final Tautan tautan;
+
+  @override
+  State<CatatanAturan> createState() => _CatatanAturanState();
+}
+
+class _CatatanAturanState extends State<CatatanAturan> {
+  late final _ketuk = TapGestureRecognizer()..onTap = _buka;
+  bool _sorot = false, _fokus = false;
+
+  void _buka() => widget.tautan.buka(GoRouter.of(context));
+
+  @override
+  void dispose() {
+    _ketuk.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final w = context.warna;
-    final tinggi = 14 * (DefaultTextStyle.of(context).style.height ?? 1.4);
+    final c = widget.c;
+    final warna = _sorot ? w.lautTua : w.laut;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: ShapeDecoration(
         shape: GarisBorder.putus(w.putus, radius: 14),
       ),
-      child: Text.rich(
-        TextSpan(
-          children: [
+      child: FocusableActionDetector(
+        shortcuts: const {
+          SingleActivator(LogicalKeyboardKey.enter): ActivateIntent(),
+        },
+        actions: {
+          ActivateIntent: CallbackAction<ActivateIntent>(
+            onInvoke: (_) => _buka(),
+          ),
+        },
+        onShowFocusHighlight: (v) => setState(() => _fokus = v),
+        child: CincinFokus(
+          tampil: _fokus,
+          radius: 4,
+          child: Text.rich(
             TextSpan(
-              text: c.atJ,
-              style: TextStyle(fontWeight: FontWeight.w700, color: w.tinta),
+              children: [
+                TextSpan(
+                  text: c.atJ,
+                  style: TextStyle(fontWeight: FontWeight.w700, color: w.tinta),
+                ),
+                const TextSpan(text: ' '),
+                TextSpan(
+                  text: '${c.atT} Bulan yang sudah ditutup tidak dibuka lagi.',
+                  style: TextStyle(color: w.tinta2),
+                ),
+                const TextSpan(text: ' '),
+                TextSpan(
+                  text: 'Coba alurnya sampai dibukukan',
+                  recognizer: _ketuk,
+                  mouseCursor: SystemMouseCursors.click,
+                  onEnter: (_) => setState(() => _sorot = true),
+                  onExit: (_) => setState(() => _sorot = false),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: warna,
+                    decoration: TextDecoration.underline,
+                    decorationColor: warna,
+                  ),
+                ),
+              ],
             ),
-            const TextSpan(text: ' '),
-            TextSpan(
-              text: '${c.atT} Bulan yang sudah ditutup tidak dibuka lagi.',
-              style: TextStyle(color: w.tinta2),
-            ),
-            const TextSpan(text: ' '),
-            WidgetSpan(
-              alignment: PlaceholderAlignment.baseline,
-              baseline: TextBaseline.alphabetic,
-              child: TautanSebaris(tinggi: tinggi, child: tautan),
-            ),
-          ],
+            style: const TextStyle(fontSize: 14),
+          ),
         ),
-        style: const TextStyle(fontSize: 14),
       ),
     );
   }
