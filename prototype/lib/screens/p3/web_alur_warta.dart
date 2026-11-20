@@ -190,13 +190,18 @@ class _WebAlurWartaScreenState extends State<WebAlurWartaScreen> {
           key: _atas,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Inline link: the 44 target hangs below the 14/1.45 line.
+            // The 44 target (child drawn at its top) overhangs the line,
+            // which the div's 15 px strut makes 21.75 tall (not 14 × 1.45);
+            // the 14 px text sits 1.1 down on that strut's baseline.
             MarginNegatif(
-              bawah: 44 - 14 * 1.45,
+              bawah: 44 - 21.75,
               child: Tautan(
                 ke: 'WebWartaArsip',
                 cara: Cara.naik,
-                child: const TautanTeks('Warta Jemaat', ukuran: 14),
+                child: const Padding(
+                  padding: EdgeInsets.only(top: 1.1),
+                  child: TautanTeks('Warta Jemaat', ukuran: 14),
+                ),
               ),
             ),
             const SizedBox(height: 2),
