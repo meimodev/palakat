@@ -40,10 +40,10 @@ class _WebAlurUnitScreenState extends State<WebAlurUnitScreen>
               key: kunciAtas,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Inline link: a 44 target that keeps the line's height.
+                // A 44 px target drawn as the board's line box (15 × 1.45).
                 MarginNegatif(
-                  atas: 12,
-                  bawah: 12,
+                  atas: 11.125,
+                  bawah: 11.125,
                   child: Tautan(
                     ke: 'WebBeranda',
                     cara: Cara.naik,

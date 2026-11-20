@@ -349,6 +349,13 @@ class _BarisAngka extends StatelessWidget {
       Text(
         nilai,
         textAlign: TextAlign.right,
+        // The board's mono span sits inline on a sans line box (20.6 tall).
+        strutStyle: const StrutStyle(
+          fontFamily: PalakatText.sans,
+          fontSize: 14,
+          height: 1.4,
+          leadingDistribution: TextLeadingDistribution.even,
+        ),
         style: const TextStyle(
           fontSize: 14,
           fontFamily: PalakatText.mono,
