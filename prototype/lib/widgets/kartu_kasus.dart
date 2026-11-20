@@ -101,11 +101,17 @@ class KartuKasus extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           BatangPembagian(
-            total: awal,
+            // The boards draw Math.round(pct)%, not the exact fraction.
+            total: 100,
             tinggi: 8,
             // No animation in the list (the 14-high detail bar animates).
             durasi: Duration.zero,
-            bagian: [BagianBatang(dipertanggungjawabkan, c.tinta)],
+            bagian: [
+              BagianBatang(
+                awal == 0 ? 0 : (dipertanggungjawabkan * 100 / awal).round(),
+                c.tinta,
+              ),
+            ],
           ),
           const SizedBox(height: 6),
           Text(

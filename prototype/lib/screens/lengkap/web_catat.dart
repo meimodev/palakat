@@ -277,6 +277,7 @@ class _WebCatatScreenState extends State<WebCatatScreen> {
       controller: _jmC,
       hanyaBaca: _posted,
       ukuran: UkuranJumlah.lebar,
+      maks: 12,
       lebarMaks: 420,
       onChanged: (v) => _ubah(() => _jm = hanyaAngka(v, max: 12)),
     );

@@ -28,6 +28,7 @@ class IsianJumlah extends StatefulWidget {
     this.ukuranRp,
     this.ukuranAngka,
     this.focusNode,
+    this.maks = 11,
   });
 
   /// 'Jumlah (Rp)'.
@@ -53,6 +54,9 @@ class IsianJumlah extends StatefulWidget {
   /// Board overrides: "Rp" 16 on WebPersembahan, figure 18 on Persembahan.
   final double? ukuranRp, ukuranAngka;
   final FocusNode? focusNode;
+
+  /// Most digits kept: 12 where the board slices to 12 (Main, Catat).
+  final int maks;
 
   @override
   State<IsianJumlah> createState() => _IsianJumlahState();
@@ -108,27 +112,41 @@ class _IsianJumlahState extends State<IsianJumlah> {
       letterSpacing: jarakHuruf,
       color: w.warnaAngka,
     );
+    // The board's input is 44 high with its line centred; a collapsed
+    // InputDecorator ignores minHeight, so the box and centring are outside.
     final field = CincinFokus(
       tampil: _fokus.hasFocus,
-      child: Material(
-        type: MaterialType.transparency,
-        child: TextField(
-          controller: w.controller,
-          focusNode: _fokus,
-          onChanged: w.onChanged,
-          readOnly: w.hanyaBaca,
-          keyboardType: TextInputType.number,
-          inputFormatters: [RupiahInputFormatter(sisakanNol: w.sisakanNol)],
-          textAlign: baris ? TextAlign.right : TextAlign.start,
-          textAlignVertical: TextAlignVertical.center,
-          style: gayaAngka,
-          cursorColor: c.laut,
-          decoration: InputDecoration(
-            isCollapsed: true,
-            border: InputBorder.none,
-            constraints: const BoxConstraints(minHeight: 44),
-            hintText: w.petunjuk,
-            hintStyle: gayaAngka.copyWith(color: c.tinta3),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: _fokus.requestFocus,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 44),
+          child: Align(
+            alignment: baris ? Alignment.centerRight : Alignment.centerLeft,
+            heightFactor: 1,
+            child: Material(
+              type: MaterialType.transparency,
+              child: TextField(
+                controller: w.controller,
+                focusNode: _fokus,
+                onChanged: w.onChanged,
+                readOnly: w.hanyaBaca,
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  RupiahInputFormatter(sisakanNol: w.sisakanNol, maks: w.maks),
+                ],
+                textAlign: baris ? TextAlign.right : TextAlign.start,
+                textAlignVertical: TextAlignVertical.center,
+                style: gayaAngka,
+                cursorColor: c.laut,
+                decoration: InputDecoration(
+                  isCollapsed: true,
+                  border: InputBorder.none,
+                  hintText: w.petunjuk,
+                  hintStyle: gayaAngka.copyWith(color: c.tinta3),
+                ),
+              ),
+            ),
           ),
         ),
       ),
