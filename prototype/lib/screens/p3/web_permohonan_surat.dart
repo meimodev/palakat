@@ -85,15 +85,21 @@ class _WebPermohonanSuratScreenState extends State<WebPermohonanSuratScreen>
           key: kunciAtas,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Inline breadcrumb in the 15 px page text (a 22 px line box):
+            // the 44 px target overhangs it by 11 above and below.
             const MarginNegatif(
-              atas: 12,
-              bawah: 12,
+              atas: 11,
+              bawah: 11,
               child: Tautan(
                 ke: 'WebDokumenGereja',
                 cara: Cara.naik,
-                child: Center(
-                  widthFactor: 1,
-                  child: TautanTeks('Dokumen gereja', ukuran: 14),
+                child: SizedBox(
+                  height: 44,
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    widthFactor: 1,
+                    child: TautanTeks('Dokumen gereja', ukuran: 14),
+                  ),
                 ),
               ),
             ),

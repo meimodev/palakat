@@ -37,13 +37,22 @@ class _WebWartaEditorScreenState extends State<WebWartaEditorScreen>
           key: kunciIsi,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // The 44 px target reaches past the 20 px inline link line.
+            // Inline breadcrumb in the 15 px page text (a 22 px line box):
+            // the 44 px target overhangs it by 11 above and below.
             const MarginNegatif(
-              bawah: 24,
+              atas: 11,
+              bawah: 11,
               child: Tautan(
                 ke: 'WebWartaArsip',
                 cara: Cara.naik,
-                child: TautanTeks('Warta Jemaat', ukuran: 14),
+                child: SizedBox(
+                  height: 44,
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    widthFactor: 1,
+                    child: TautanTeks('Warta Jemaat', ukuran: 14),
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 2),

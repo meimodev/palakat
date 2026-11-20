@@ -64,18 +64,21 @@ class _WebPengumumanScreenState extends State<WebPengumumanScreen>
           key: kunciAtas,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // The 44 px target overhangs the line box (the div's 15 px strut).
-            MarginNegatif(
-              atas: (44 - 15 * 1.45) / 2,
-              bawah: (44 - 15 * 1.45) / 2,
+            // Inline breadcrumb in the 15 px page text (a 22 px line box):
+            // the 44 px target overhangs it by 11 above and below.
+            const MarginNegatif(
+              atas: 11,
+              bawah: 11,
               child: Tautan(
                 ke: 'WebBerandaJabatan',
                 cara: Cara.naik,
-                child: const Align(
-                  alignment: Alignment.centerLeft,
-                  widthFactor: 1,
-                  heightFactor: 1,
-                  child: TautanTeks('Beranda', ukuran: 14),
+                child: SizedBox(
+                  height: 44,
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    widthFactor: 1,
+                    child: TautanTeks('Beranda', ukuran: 14),
+                  ),
                 ),
               ),
             ),
