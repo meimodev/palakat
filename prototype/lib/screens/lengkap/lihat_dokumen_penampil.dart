@@ -182,7 +182,8 @@ class _Kertas extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.warna;
+    // The receipt paper stays light in the Gelap theme, so its ink does too.
+    final c = PalakatWarna.terang;
     final putus = Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: GarisLurus(warna: c.tinta3, gaya: GayaGaris.putus),

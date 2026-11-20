@@ -39,10 +39,11 @@ class _WebLihatTransaksiScreenState extends State<WebLihatTransaksiScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Inline link: the 44 px target overhangs the 20 px line.
+              // An inline 14 px link on a 15 / 1.45 line: the 44 px target
+              // overhangs.
               const MarginNegatif(
-                atas: 12,
-                bawah: 12,
+                atas: (44 - 15 * 1.45) / 2,
+                bawah: (44 - 15 * 1.45) / 2,
                 child: Tautan(
                   ke: 'WebPaketLaporan',
                   cara: Cara.naik,

@@ -194,15 +194,16 @@ class _Judul extends StatelessWidget {
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      // 14 × 1.45 ≈ 20 px drawn; the 44 px target overhangs by 12 each side.
+      // An inline 14 px link on a 15 / 1.45 line: the 44 px target overhangs.
       MarginNegatif(
-        atas: 12,
-        bawah: 12,
+        atas: (44 - 15 * 1.45) / 2,
+        bawah: (44 - 15 * 1.45) / 2,
         child: Tautan(
           ke: 'WebTransaksi',
           cara: Cara.naik,
-          child: const Padding(
-            padding: EdgeInsets.symmetric(vertical: 12),
+          child: const Align(
+            widthFactor: 1,
+            heightFactor: 1,
             child: TautanTeks('Transaksi', ukuran: 14),
           ),
         ),
@@ -440,10 +441,13 @@ class _SesiBerakhir extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    // `flex: 1` of a 100vh main: window height less main's 28 + 40 padding
-    // (and the collapsed nav bar below 860).
-    final tinggi =
-        MediaQuery.sizeOf(context).height - 68 - (navSempit(context) ? 61 : 0);
+    // `flex: 1` of a 100vh main: window height less main's 28 + 40 padding.
+    // Below 860 nav and main are separate wrapped lines that share the spare
+    // height; the shared narrow page gives the nav its half and keeps main at
+    // its content height, so the box does not grow there.
+    final tinggi = navSempit(context)
+        ? 0.0
+        : MediaQuery.sizeOf(context).height - 68;
     final tebal = TextStyle(fontWeight: FontWeight.w700, color: c.tinta);
     return ConstrainedBox(
       constraints: BoxConstraints(minHeight: tinggi < 0 ? 0 : tinggi),

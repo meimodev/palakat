@@ -24,17 +24,17 @@ class _WebLihatDokumenScreenState extends State<WebLihatDokumenScreen>
     final judul = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // The 44-high target overlaps the lines around it, as the inline <a>.
+        // An inline 14 px link on a 15 / 1.45 line: the 44 px target overhangs.
         MarginNegatif(
-          atas: 12,
-          bawah: 12,
+          atas: (44 - 15 * 1.45) / 2,
+          bawah: (44 - 15 * 1.45) / 2,
           child: Tautan(
             ke: 'WebDokumen',
             cara: Cara.naik,
-            child: Container(
-              constraints: const BoxConstraints(minHeight: 44),
-              alignment: Alignment.centerLeft,
-              child: const TautanTeks('Dokumen pendukung', ukuran: 14),
+            child: const Align(
+              widthFactor: 1,
+              heightFactor: 1,
+              child: TautanTeks('Dokumen pendukung', ukuran: 14),
             ),
           ),
         ),
