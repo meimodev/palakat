@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../shell/halaman_lembar.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
-import '../../widgets/tekan.dart';
 
 /// Cakupan keadaan (spec 08-cari.md): a fixed 1400 × 1660 sheet, every state
 /// per finance object with links to the boards that draw it.
@@ -167,14 +165,10 @@ class _TautanState extends State<_Tautan> {
     return MouseRegion(
       onEnter: (_) => setState(() => _sorot = true),
       onExit: (_) => setState(() => _sorot = false),
-      child: Tekan(
-        onTap: () => Tautan(
-          ke: widget.ke,
-          child: const SizedBox(),
-        ).buka(GoRouter.of(context)),
+      child: Tautan(
+        ke: widget.ke,
         minLebar: 0,
         minTinggi: 0,
-        peran: PeranTekan.tautan,
         child: Text(
           widget.n,
           style: TextStyle(
