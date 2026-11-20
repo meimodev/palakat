@@ -42,52 +42,41 @@ class KotakMasukScreen extends StatelessWidget {
     final ada = keadaan != 'Semua sudah selesai';
 
     return LayarPonsel(
-      child: ledingCss(
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const KepalaPonsel(
-              judul: 'Pemberitahuan',
-              anakJudul: 'Satu kotak untuk semua modul yang aktif',
-              kembaliKe: 'BerandaJabatan',
-              labelKembali: 'Kembali ke Beranda',
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                // A new view starts at the top.
-                key: ValueKey(keadaan),
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  spacing: 16,
-                  children: [
-                    if (ada) ...[
-                      const JudulKotak('Perlu tindakan'),
-                      ...tindak,
-                      const JudulKotak('Untuk diketahui'),
-                      ...tahu,
-                    ] else
-                      const KotakKosong(),
-                    const CatatanKotakMasuk(),
-                  ],
-                ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const KepalaPonsel(
+            judul: 'Pemberitahuan',
+            anakJudul: 'Satu kotak untuk semua modul yang aktif',
+            kembaliKe: 'BerandaJabatan',
+            labelKembali: 'Kembali ke Beranda',
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              // A new view starts at the top.
+              key: ValueKey(keadaan),
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: 16,
+                children: [
+                  if (ada) ...[
+                    const JudulKotak('Perlu tindakan'),
+                    ...tindak,
+                    const JudulKotak('Untuk diketahui'),
+                    ...tahu,
+                  ] else
+                    const KotakKosong(),
+                  const CatatanKotakMasuk(),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
-
-/// CSS splits a line's leading evenly above and below the glyphs; Flutter
-/// defaults to proportional, which sets text 1 to 2 px off the board.
-/// ponytail: belongs in the LayarPonsel/HalamanWeb DefaultTextStyle; drop
-/// this once the shell sets it.
-Widget ledingCss(Widget child) => DefaultTextStyle.merge(
-  style: const TextStyle(leadingDistribution: TextLeadingDistribution.even),
-  child: child,
-);
 
 /// Row card: `permukaan`, 1 px `garis`, radius 14, padding 12 16, min height
 /// 44 (content box), gap 12; title 600, subtitle 13 `tinta3`, badge, chevron.
