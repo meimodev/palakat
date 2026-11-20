@@ -249,7 +249,8 @@ class _WebPersetujuanScreenState extends State<WebPersetujuanScreen> {
               ),
               Text(
                 'Persetujuan dicatat untuk Rp2.500.000. Perubahan pada jumlah, '
-                'pihak yang dibayar, Kas/Bank, peruntukan, Mata Anggaran, '
+                // Word joiner: Chrome does not break after this slash.
+                'pihak yang dibayar, Kas/⁠Bank, peruntukan, Mata Anggaran, '
                 'tanggal atau uraian mengembalikannya ke belum dicatat.',
                 style: TextStyle(fontSize: 14, color: c.tinta2),
               ),
