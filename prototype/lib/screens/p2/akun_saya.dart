@@ -265,6 +265,7 @@ class _AkunSayaScreenState extends State<AkunSayaScreen> {
     onChanged: (_) => setState(() {}),
     petunjuk: '••••••',
     keyboard: TextInputType.number,
+    autofillHints: const [AutofillHints.oneTimeCode],
     formatter: [_AngkaSaja(6)],
   );
 

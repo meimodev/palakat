@@ -191,7 +191,8 @@ class Hitungan extends StatelessWidget {
 
 /// An inline text link (browser default `<a>`): [warna] (`laut`), underlined
 /// in the same colour, [warnaAktif] (`lautTua`) on hover and press over
-/// `sentuh`. Put it inside a `Tautan` or [Tekan] for the 44 × 44 target.
+/// `sentuh`. Put it inside a `Tautan` or [Tekan] for the 44 × 44 target; in a
+/// `Tautan` the hover covers the whole target ([SorotTautan]).
 class TautanTeks extends StatefulWidget {
   const TautanTeks(
     this.teks, {
@@ -229,7 +230,7 @@ class _TautanTeksState extends State<TautanTeks> {
     final biasa = widget.warna ?? c.laut;
     final aktif =
         widget.warnaAktif ?? (widget.warna == null ? c.lautTua : biasa);
-    final warna = _layang || _tekan ? aktif : biasa;
+    final warna = _layang || _tekan || SorotTautan.of(context) ? aktif : biasa;
     return MouseRegion(
       onEnter: (_) => setState(() => _layang = true),
       onExit: (_) => setState(() => _layang = false),

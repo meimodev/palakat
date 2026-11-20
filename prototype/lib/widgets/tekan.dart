@@ -61,6 +61,20 @@ class _CincinPainter extends CustomPainter {
 
 enum PeranTekan { tombol, tautan, sakelar }
 
+/// Mouse over a link's whole [Tekan] target (CSS `a:hover`), so a
+/// [TautanTeks] inside takes the hover colour beyond its glyphs.
+class SorotTautan extends InheritedWidget {
+  const SorotTautan({super.key, required this.aktif, required super.child});
+
+  final bool aktif;
+
+  static bool of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<SorotTautan>()?.aktif ?? false;
+
+  @override
+  bool updateShouldNotify(SorotTautan old) => old.aktif != aktif;
+}
+
 /// The base of every pressable thing: keyboard (Enter, Space), click cursor,
 /// semantics, a 44 × 44 minimum and the keyboard focus ring. No ink.
 class Tekan extends StatefulWidget {
@@ -99,7 +113,7 @@ class Tekan extends StatefulWidget {
 }
 
 class _TekanState extends State<Tekan> {
-  bool _sorot = false;
+  bool _sorot = false, _layang = false;
 
   static const _pintasan = <ShortcutActivator, Intent>{
     SingleActivator(LogicalKeyboardKey.enter): ActivateIntent(),
@@ -112,6 +126,7 @@ class _TekanState extends State<Tekan> {
     final w = widget;
     final aktif = w.onTap != null;
     final sakelar = w.peran == PeranTekan.sakelar;
+    final tautan = w.peran == PeranTekan.tautan;
     return Semantics(
       // Its own node, so a neighbouring label never merges into the button.
       container: true,
@@ -132,21 +147,26 @@ class _TekanState extends State<Tekan> {
           ),
         },
         onShowFocusHighlight: (v) => setState(() => _sorot = v),
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: w.onTap,
-          child: CincinFokus(
-            tampil: _sorot && aktif,
-            radius: w.radius,
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minWidth: w.minLebar,
-                minHeight: w.minTinggi,
-              ),
-              // aria-label replaces the child's own text.
-              child: ExcludeSemantics(
-                excluding: w.label != null,
-                child: w.child,
+        child: MouseRegion(
+          // Not onShowHoverHighlight: that stays off in touch highlight mode.
+          onEnter: tautan ? (_) => setState(() => _layang = true) : null,
+          onExit: tautan ? (_) => setState(() => _layang = false) : null,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: w.onTap,
+            child: CincinFokus(
+              tampil: _sorot && aktif,
+              radius: w.radius,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minWidth: w.minLebar,
+                  minHeight: w.minTinggi,
+                ),
+                // aria-label replaces the child's own text.
+                child: ExcludeSemantics(
+                  excluding: w.label != null,
+                  child: SorotTautan(aktif: _layang, child: w.child),
+                ),
               ),
             ),
           ),
