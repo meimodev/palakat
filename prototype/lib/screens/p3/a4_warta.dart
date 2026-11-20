@@ -2,61 +2,86 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/format.dart';
-import '../../providers/clock.dart';
-
+import '../../domain/secretariat/secretariat.dart';
+import '../../providers/core_repositories.dart';
+import '../../providers/repositories_sekretariat.dart';
+import '../../providers/revision.dart';
 import '../../shell/halaman_a4.dart';
 import '../../theme/palakat_tema.dart';
+import 'warta_arsip_bagian.dart';
 
-/// The published Warta Jemaat of the coming Sunday (Q27): one fixed A4 page, no
-/// state, no links. Masthead and footer come from [HalamanA4.warta].
+/// One printed section of an edition: heading and lines (A4Warta,
+/// WebWartaEditor's preview).
+typedef BagianWarta = ({String judul, List<Widget> baris});
+
+/// The sections an edition prints, in A4Warta's order, from its preview:
+/// only data already recorded; an empty section is left out (spec 18).
+List<BagianWarta> bagianWarta(WartaPreview p) {
+  final e = p.edition;
+  return [
+    if (e.services case final s?)
+      (
+        judul: 'Ibadah minggu ini',
+        baris: [
+          for (final x in s.split(' · '))
+            if (x.split(' ') case [final nama, final jam])
+              _Baris('Ibadah $nama', jam),
+        ],
+      ),
+    if (p.announcements.isNotEmpty)
+      (
+        judul: 'Pengumuman',
+        baris: [
+          for (final a in p.announcements)
+            _Paragraf('${a.title}.', ' ${a.body}'),
+        ],
+      ),
+    if (p.events.isNotEmpty)
+      (
+        judul: 'Peristiwa jemaat',
+        baris: [
+          for (final x in p.events) Text('${x.event.label}: ${x.printed}'),
+        ],
+      ),
+    if (e.attendance case final h?)
+      (
+        judul: 'Jumlah kehadiran · Minggu, ${tglPanjang(h.sunday.awal)}',
+        baris: [
+          for (final x in h.parts.split(' · '))
+            if (x.split(' ') case [final nama, final n])
+              _Baris('Ibadah $nama', n),
+          _Baris('Jumlah', '${h.total}', jumlah: true),
+        ],
+      ),
+  ];
+}
+
+/// A4Warta (Q27, README 7.1 rule 5): the edition of the route's `:edisi`
+/// rendered from its data on the fixed A4 page. Masthead and footer come
+/// from [HalamanA4.warta].
 class A4WartaScreen extends ConsumerWidget {
   const A4WartaScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final n = ref.watch(clockProvider).now();
-    // The edition is the coming Sunday (today on a Sunday), published the day before.
-    final edisi = DateTime(n.year, n.month, n.day + (7 - n.weekday) % 7);
-    final terbit = DateTime(edisi.year, edisi.month, edisi.day - 1);
+    ref.watch(revisionProvider);
+    final p = ref
+        .watch(wartaRepositoryProvider)
+        .preview(edisiDariRute(context));
+    final gereja = ref.watch(workspaceRepositoryProvider).workspace().name;
+    if (p == null) {
+      return const Center(child: Text('Edisi ini tidak ditemukan.'));
+    }
+    final e = p.edition;
     return HalamanA4.warta(
-      subjudul: 'GMIM Jemaat Karunia · Minggu, ${tglPanjang(edisi)}',
-      kakiKanan: 'Edisi ${tgl(edisi)} · halaman 1 dari 1',
-      kakiKiri:
-          'Diterbitkan ${tgl(terbit)} oleh Sekretaris Jemaat · nama mengikuti Tampilan nama pilihan anggota',
-      isi: const [
-        _Bagian('Ibadah minggu ini', [
-          _Baris('Ibadah Subuh', '05.00'),
-          _Baris('Ibadah Pagi', '09.00'),
-          _Baris('Ibadah Malam', '18.00'),
-        ]),
-        _Bagian('Pengumuman', [
-          _Paragraf(
-            'Kerja bakti halaman gereja.',
-            ' Sabtu, 21 November 2026 pukul 07.00. Membawa alat kebersihan masing-masing.',
-          ),
-          _Paragraf(
-            'Pendaftaran katekisasi sidi 2027.',
-            ' Dibuka sampai 31 Desember 2026 di Sekretariat Jemaat.',
-          ),
-        ]),
-        _Bagian('Peristiwa jemaat', [
-          Text('Syukur HUT pernikahan: Keluarga Wenas-Lasut — Kolom 7'),
-          Text('Sampul syukur: Tanpa nama, Kolom 4'),
-        ]),
-        _Bagian('Jumlah kehadiran · Minggu, 15 November 2026', [
-          _Baris('Ibadah Subuh', '96'),
-          _Baris('Ibadah Pagi', '231'),
-          _Baris('Ibadah Malam', '85'),
-          _Baris('Jumlah', '412', jumlah: true),
-        ]),
-        _Bagian('Ringkasan keuangan · Oktober 2026', [
-          _Baris('Pendapatan', 'Rp14.820.000'),
-          _Baris('Belanja', 'Rp11.455.000'),
-          _Catatan(
-            'Dari laporan resmi Oktober 2026. Laporan lengkap ada pada Bendahara Jemaat.',
-          ),
-        ]),
-      ],
+      subjudul: 'GMIM $gereja · Minggu, ${tglPanjang(e.sunday.awal)}',
+      kakiKanan: 'Edisi ${tgl(e.sunday.awal)} · halaman 1 dari 1',
+      kakiKiri: e.publishedAt == null
+          ? 'Belum diterbitkan · pratinjau · nama mengikuti Tampilan nama '
+                'pilihan anggota'
+          : 'Diterbitkan ${tgl(e.publishedAt!)} oleh Sekretaris Jemaat · nama '
+                'mengikuti Tampilan nama pilihan anggota',
+      isi: [for (final b in bagianWarta(p)) _Bagian(b.judul, b.baris)],
     );
   }
 }
@@ -150,14 +175,4 @@ class _Paragraf extends StatelessWidget {
       ],
     ),
   );
-}
-
-class _Catatan extends StatelessWidget {
-  const _Catatan(this.teks);
-
-  final String teks;
-
-  @override
-  Widget build(BuildContext context) =>
-      Text(teks, style: TextStyle(color: context.warna.tinta2));
 }

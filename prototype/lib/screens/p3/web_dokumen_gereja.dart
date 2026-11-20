@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 
+import '../../app/layar.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
 import '../../shell/tautan.dart';
@@ -7,36 +8,16 @@ import '../../theme/palakat_tema.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import 'dokumen_gereja_isi.dart';
-import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
 
-/// Web · Dokumen gereja (spec 17-keadaanumum.md): the document archive at
-/// the Sekretaris Jemaat's desk. Same four views as DokumenGereja.
-class WebDokumenGerejaScreen extends StatefulWidget {
+/// Web · Dokumen gereja (spec 17) + WebAlurDokumen's list (README 7.1): the
+/// document archive at the Sekretaris Jemaat's desk.
+class WebDokumenGerejaScreen extends StatelessWidget {
   const WebDokumenGerejaScreen({super.key});
 
   @override
-  State<WebDokumenGerejaScreen> createState() => _WebDokumenGerejaScreenState();
-}
-
-class _WebDokumenGerejaScreenState extends State<WebDokumenGerejaScreen>
-    with KeadaanDokumenGereja {
-  @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final keadaan = belumDipindah<String>('Daftar dokumen');
-    final ki = indeks(keadaan);
-    final isi = isiDokumenGereja(
-      web: true,
-      ki: ki,
-      ke: Layar.dokumenGereja,
-      anak: 'terbit',
-      keBaris: Layar.dokumenGereja,
-      onBuka: () => pilih(1, keadaan),
-    );
     return HalamanWeb(
-      // A new view starts at the top of the page.
-      key: ValueKey(ki),
       nav: const NavSamping(item: navPlatform, aktif: 2),
       isi: [
         Column(
@@ -78,15 +59,7 @@ class _WebDokumenGerejaScreenState extends State<WebDokumenGerejaScreen>
           alignment: Alignment.topLeft,
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 880),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                for (var i = 0; i < isi.length; i++) ...[
-                  if (i > 0) const SizedBox(height: 16),
-                  isi[i],
-                ],
-              ],
-            ),
+            child: const IsiDokumenGereja(web: true),
           ),
         ),
       ],

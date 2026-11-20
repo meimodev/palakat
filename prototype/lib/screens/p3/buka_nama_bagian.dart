@@ -1,87 +1,109 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/layar.dart';
+import '../../core/format.dart';
+import '../../domain/core/core.dart';
+import '../../providers/repositories_sekretariat.dart';
+import '../../providers/revision.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
-import '../../widgets/garis.dart';
-import '../../widgets/alur_kit.dart' show KepalaKartu;
+import '../../widgets/alur_kit.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
-import '../../widgets/penolakan.dart';
-import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
-import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
-
-/// The `keadaan` options of BukaNama and WebBukaNama, in board order.
-const _opsi = [
-  'Mengisi alasan',
-  'Alasan belum diisi',
-  'Tercatat',
-  'Bukan Sekretaris Jemaat',
-];
-
-const _alasan =
-    'Persembahan khusus pembangunan diumumkan atas keputusan Sidang Majelis '
-    'Jemaat 08/11/2026.';
+import '../../widgets/tombol_bersyarat.dart';
+import 'sekretariat_bersama.dart';
+import 'warta_arsip_bagian.dart';
 
 /// The board body of BukaNama ([web] false: the phone scroll column) and
-/// WebBukaNama ([web] true: the max-1120 container). Holds the board state
-/// `{ k: null }`; a change of the `keadaan` tweak resets it.
-class BukaNamaPapan extends StatefulWidget {
-  const BukaNamaPapan({
-    super.key,
-    required this.stem,
-    required this.ke,
-    this.param = const {},
-    this.anak,
-    required this.web,
-  });
+/// WebBukaNama ([web] true: the max-1120 container), for the edition of the
+/// route's `:edisi` and its member who chose "Tanpa nama". The Sekretaris
+/// Jemaat records the exception with a reason (`warta.reveal_identity`);
+/// the guard keeps everyone else out ("Bukan Sekretaris Jemaat").
+class BukaNamaPapan extends ConsumerStatefulWidget {
+  const BukaNamaPapan({super.key, required this.web});
 
-  /// Board whose tweak is read.
-  final String stem;
-
-  /// Up link of "Batalkan" and "Kembali".
-  final Layar ke;
-  final Map<String, String> param;
-  final String? anak;
   final bool web;
 
   @override
-  State<BukaNamaPapan> createState() => _BukaNamaPapanState();
+  ConsumerState<BukaNamaPapan> createState() => _BukaNamaPapanState();
 }
 
-class _BukaNamaPapanState extends State<BukaNamaPapan> {
-  String? _k;
-  String? _tweak;
+class _BukaNamaPapanState extends ConsumerState<BukaNamaPapan> {
+  final _alasan = TextEditingController();
+  Refusal? _tolak;
 
-  Widget _kolom(double jarak, List<Widget> anak) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      for (var i = 0; i < anak.length; i++) ...[
-        if (i > 0) SizedBox(height: jarak),
-        anak[i],
-      ],
-    ],
-  );
+  @override
+  void dispose() {
+    _alasan.dispose();
+    super.dispose();
+  }
+
+  String _aN() => _alasan.text.trim().isEmpty ? 'alasan belum diisi.' : '';
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(revisionProvider);
     final c = context.warna;
-    final t = belumDipindah<String>('Mengisi alasan');
-    if (t != _tweak) {
-      _tweak = t;
-      _k = null;
+    final id = edisiDariRute(context);
+    final repo = ref.watch(wartaRepositoryProvider);
+    final e = repo.edition(id);
+    final v = e?.events
+        .where((x) => x.anonymousAs != null && x.personId != null)
+        .firstOrNull;
+    if (e == null || v == null) {
+      return kecilSek(context, 'Tidak ada nama yang perlu pengecualian.');
     }
-    final ki = _opsi.indexOf(_k ?? t).clamp(0, 3);
-    final form = ki < 2;
+    final x = e.exceptionFor(v.personId!);
+    final edisi = 'Warta Jemaat ${tgl(e.sunday.awal)}';
     final kecil = TextStyle(fontSize: 13, color: c.tinta3);
+    final param = {'edisi': e.id};
+
+    if (x != null) {
+      return _kolom(16, [
+        Kartu(
+          child: _kolom(6, [
+            const KepalaKartu(
+              judul: 'Pengecualian tampilan nama',
+              ujung: LencanaStatus('Tercatat', bentuk: BentukLencana.tinta),
+            ),
+            const _BarisInfo('Pilihan anggota', 'Tanpa nama'),
+            _BarisInfo('Diterbitkan sebagai', x.printedAs),
+            _BarisInfo('Edisi', edisi),
+            Text(
+              'Alasan: ${x.reason}',
+              style: TextStyle(fontSize: 14, color: c.tinta2),
+            ),
+            Text(
+              'Oleh ${namaSek(ref, x.by)}, Sekretaris Jemaat · '
+              '${tglJam(x.at)} · anggota sudah diberi tahu.',
+              style: kecil,
+            ),
+          ]),
+        ),
+        Text(
+          'Pilihan anggota di Data jemaat tidak berubah. Edisi berikutnya '
+          'kembali memakai “Tanpa nama”.',
+          style: kecil,
+        ),
+        Tombol(
+          'Kembali',
+          onPressed: null,
+          jenis: JenisTombol.kedua,
+          ukuran: UkuranTombol.sedang,
+          ke: Layar.wartaEdisi,
+          param: param,
+          cara: Cara.naik,
+        ),
+      ]);
+    }
 
     final ringkasan = Kartu(
       child: _kolom(6, [
-        const _BarisInfo('Edisi', 'Warta Jemaat 22/11/2026'),
+        _BarisInfo('Edisi', edisi),
         const _BarisInfo('Pilihan anggota', 'Tanpa nama'),
-        const _BarisInfo('Akan diterbitkan sebagai', 'Kel. Mamahit — Kolom 4'),
+        _BarisInfo('Akan diterbitkan sebagai', v.name),
         Text(
           'Tampilan nama pilihan anggota wajib diikuti. Pengecualian hanya '
           'untuk keperluan resmi, tata kelola, hukum atau '
@@ -90,178 +112,63 @@ class _BukaNamaPapanState extends State<BukaNamaPapan> {
         ),
       ]),
     );
-
-    final isian = IsianTeks(
-      key: ValueKey(ki),
-      nilaiAwal: ki == 0 ? _alasan : '',
-      label: 'Alasan · wajib',
-      jarakLabel: 6,
-      // letterSpacing 0: TextField otherwise keeps the M3 bodyLarge 0.5.
-      gaya: TextStyle(fontSize: 14, color: c.tinta2, letterSpacing: 0),
-      baris: 3,
-      hanyaBaca: true,
-    );
-
-    final batalkan = Tombol(
-      'Batalkan',
-      onPressed: null,
-      jenis: JenisTombol.teks,
-      ke: widget.ke,
-      param: widget.param,
-      anak: widget.anak,
-      cara: Cara.naik,
-    );
-
-    // The board's button row: `<button>` is border-box (basis 150, max 340),
-    // `<a>` content-box, so its 0 16 padding comes on top (182, max 372).
-    final tombol = BarisLentur(
-      jarak: 8,
-      rata: CrossAxisAlignment.center,
-      anak: [
-        if (ki == 0)
-          Lentur(
-            dasar: 150,
-            maks: 340,
-            child: Tombol(
-              'Catat pengecualian',
-              onPressed: () => setState(() => _k = 'Tercatat'),
-              jenis: JenisTombol.tinta,
-            ),
-          )
-        else
-          // The board's `disabled` button: `garis` field, `tinta2` text,
-          // neither pressable nor focusable.
-          Lentur(
-            dasar: 150,
-            maks: 340,
-            child: Semantics(
-              button: true,
-              enabled: false,
-              child: RupaTombol(
-                label: 'Catat pengecualian',
-                isi: c.garis,
-                warnaTeks: c.tinta2,
-                radius: 14,
-                tinggi: 52,
-                paddingH: 16,
-              ),
-            ),
-          ),
-        Lentur(dasar: 182, maks: 372, child: batalkan),
-      ],
-    );
-
     final isiForm = [
-      isian,
-      tombol,
-      if (ki == 1)
-        Text('Tidak dapat dilakukan: alasan belum diisi.', style: kecil),
-    ];
-
-    final tercatat = [
-      Kartu(
-        child: _kolom(6, [
-          const KepalaKartu(
-            judul: 'Pengecualian tampilan nama',
-            ujung: LencanaStatus('Tercatat', bentuk: BentukLencana.tinta),
-          ),
-          const _BarisInfo('Pilihan anggota', 'Tanpa nama'),
-          const _BarisInfo('Diterbitkan sebagai', 'Kel. Mamahit — Kolom 4'),
-          const _BarisInfo('Edisi', 'Warta Jemaat 22/11/2026'),
-          Text(
-            'Alasan: persembahan khusus pembangunan diumumkan atas keputusan '
-            'Sidang Majelis Jemaat 08/11/2026.',
-            style: TextStyle(fontSize: 14, color: c.tinta2),
-          ),
-          Text(
-            'Oleh Olvie Pangemanan, Sekretaris Jemaat · 20/11/2026 13.50 · '
-            'anggota sudah diberi tahu.',
-            style: kecil,
-          ),
-        ]),
+      IsianAlur(
+        label: 'Alasan · wajib',
+        controller: _alasan,
+        onChanged: (_) => setState(() => _tolak = null),
+        baris: 3,
       ),
-      Text(
-        'Pilihan anggota di Data jemaat tidak berubah. Edisi berikutnya '
-        'kembali memakai “Tanpa nama”.',
-        style: kecil,
-      ),
-    ];
-
-    final penolakan = Penolakan(
-      tindakan: 'Tampilkan nama',
-      sebab:
-          'hanya Sekretaris Jemaat yang dapat mencatat pengecualian tampilan '
-          'nama.',
-      jalan: const [],
-    );
-
-    // "Kembali" is an `<a>`: content-box, so 48 + the 1.5 line twice, and
-    // basis 182 / max 372 (it fills the 350 phone column).
-    final kembali = BarisLentur(
-      jarak: 8,
-      anak: [
-        Lentur(
-          dasar: 182,
-          maks: 372,
-          child: Tautan(
-            ke: widget.ke,
-            param: widget.param,
-            anak: widget.anak,
+      if (_tolak != null)
+        penolakanSek(_tolak!)
+      else if (_alasan.text.isNotEmpty && _aN().isNotEmpty)
+        penolakanSek(Refusal(action: 'Catat pengecualian', because: _aN())),
+      BarisTombol(
+        anak: [
+          TombolBersyarat(
+            label: 'Catat pengecualian',
+            tindakan: 'Catat pengecualian',
+            alasan: _aN(),
+            periksa: _aN,
+            sudahMulai: false,
+            onPressed: () async {
+              final r = await repo.revealIdentity(
+                aktorSek(ref),
+                e.id,
+                v.personId!,
+                reason: _alasan.text,
+                expectedRevision: e.revision,
+                idempotencyKey: kunciSek(ref),
+              );
+              if (!mounted) return;
+              if (r case Refused(:final refusal)) {
+                setState(() => _tolak = refusal);
+              }
+            },
+          ),
+          Tombol(
+            'Batalkan',
+            onPressed: null,
+            jenis: JenisTombol.teks,
+            ke: Layar.wartaEdisi,
+            param: param,
             cara: Cara.naik,
-            radius: 14,
-            child: RupaTombol(
-              label: 'Kembali',
-              isi: c.permukaan,
-              garis: GarisBorder.penuh(c.tinta, radius: 14),
-              warnaTeks: c.tinta,
-              radius: 14,
-              tinggi: 51,
-              paddingH: 16,
-            ),
           ),
-        ),
-      ],
-    );
-
-    final bawah = [
-      if (ki == 2) ...tercatat,
-      if (ki == 3) ...[penolakan, kembali],
+        ],
+      ),
     ];
-
-    if (!widget.web) {
-      return _kolom(16, [
-        if (form) ...[ringkasan, ...isiForm],
-        ...bawah,
-      ]);
-    }
-
-    // The two-column row stays in the container (zero high) in k2 and k3.
+    if (!widget.web) return _kolom(16, [ringkasan, ...isiForm]);
     return Align(
       alignment: Alignment.topLeft,
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 1120),
-        child: _kolom(16, [
-          BarisLentur(
-            jarak: 28,
-            jarakBaris: 20,
-            anak: [
-              Lentur(
-                dasar: 420,
-                tumbuh: 1.3,
-                child: form ? ringkasan : const SizedBox.shrink(),
-              ),
-              Lentur(
-                dasar: 340,
-                child: form ? _kolom(12, isiForm) : const SizedBox.shrink(),
-              ),
-            ],
-          ),
-          ...bawah,
-        ]),
+        child: duaKolomSek([ringkasan], isiForm),
       ),
     );
   }
 }
+
+Widget _kolom(double jarak, List<Widget> anak) => kolomSek(anak, jarak);
 
 /// Key–value row (BarisInfo's look) with the board's CSS flex-shrink: when
 /// label and value do not fit side by side, both wrap, each shrinking in

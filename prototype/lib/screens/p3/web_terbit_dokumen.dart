@@ -1,180 +1,78 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../app/layar.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/kecil.dart';
-import '../../widgets/lencana_status.dart';
 import '../../widgets/tata_letak.dart';
-import 'terbit_dokumen.dart';
-import '../../app/layar.dart';
+import 'dokumen_gereja_form.dart';
 
-class WebTerbitDokumenScreen extends StatefulWidget {
+/// WebTerbitDokumen + WebAlurDokumen's `form` and `ralat` views (README
+/// 7.1): `/dokumen-gereja/terbit`, a revision with `?dokumen=`.
+class WebTerbitDokumenScreen extends StatelessWidget {
   const WebTerbitDokumenScreen({super.key});
 
   @override
-  State<WebTerbitDokumenScreen> createState() => _WebTerbitDokumenScreenState();
-}
-
-class _WebTerbitDokumenScreenState extends State<WebTerbitDokumenScreen>
-    with KeadaanTerbitDokumen {
-  @override
-  String get stemTerbit => 'WebTerbitDokumen';
-
-  @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final ki = tampilan(context);
+    final id = GoRouterState.of(context).uri.queryParameters['dokumen'];
     return Material(
       type: MaterialType.transparency,
-      // HalamanWeb's page scroll takes this controller, so a view change can
-      // jump to the top.
-      child: PrimaryScrollController(
-        controller: gulir,
-        automaticallyInheritForPlatforms: TargetPlatform.values.toSet(),
-        child: HalamanWeb(
-          nav: NavSamping(item: navPlatform, aktif: 2),
-          isi: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Inline breadcrumb in the 15 px page text (a 22 px line box):
-                // the 44 px target overhangs it by 11 above and below.
-                const MarginNegatif(
-                  atas: 11,
-                  bawah: 11,
-                  child: Tautan(
-                    ke: Layar.dokumenGereja,
-                    cara: Cara.naik,
-                    child: SizedBox(
-                      height: 44,
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        widthFactor: 1,
-                        child: TautanTeks('Dokumen gereja', ukuran: 14),
-                      ),
+      child: HalamanWeb(
+        nav: const NavSamping(item: navPlatform, aktif: 2),
+        isi: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Inline breadcrumb in the 15 px page text (a 22 px line box):
+              // the 44 px target overhangs it by 11 above and below.
+              const MarginNegatif(
+                atas: 11,
+                bawah: 11,
+                child: Tautan(
+                  ke: Layar.dokumenGereja,
+                  cara: Cara.naik,
+                  child: SizedBox(
+                    height: 44,
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      widthFactor: 1,
+                      child: TautanTeks('Dokumen gereja', ukuran: 14),
                     ),
                   ),
                 ),
-                const SizedBox(height: 2),
-                Semantics(
-                  header: true,
-                  child: const Text(
-                    'Terbitkan dokumen',
-                    style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 2),
+              Semantics(
+                header: true,
+                child: Text(
+                  id == null ? 'Terbitkan dokumen' : 'Ralat sebagai revisi',
+                  style: const TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
-                Text(
-                  'Unggah salinan bertanda tangan, pilih untuk siapa',
-                  style: TextStyle(fontSize: 14, color: c.tinta2),
-                ),
-              ],
+              ),
+              Text(
+                id == null
+                    ? 'Unggah salinan bertanda tangan, pilih untuk siapa'
+                    : 'Revisi baru; revisi lama tetap dapat dibuka',
+                style: TextStyle(fontSize: 14, color: c.tinta2),
+              ),
+            ],
+          ),
+          Align(
+            alignment: AlignmentDirectional.topStart,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1120),
+              child: FormDokumen(web: true, dokumenId: id),
             ),
-            BarisLentur(
-              jarak: 24,
-              anak: [
-                Lentur(
-                  dasar: 520,
-                  maks: 880,
-                  child: IsiTerbitDokumen(
-                    ki: ki,
-                    ke: ke,
-                    induk: Layar.dokumenGereja,
-                  ),
-                ),
-                Lentur(dasar: 300, maks: 480, child: _Penerima(ki == 3)),
-              ],
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
-    );
-  }
-}
-
-/// Aside "Yang dilihat penerima", column gap 10, in every view.
-class _Penerima extends StatelessWidget {
-  const _Penerima(this.terbit);
-
-  final bool terbit;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.warna;
-    Widget pasangan(String kiri, String kanan) => Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(kiri, style: TextStyle(color: c.tinta2)),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Text(
-            kanan,
-            textAlign: TextAlign.right,
-            style: const TextStyle(fontWeight: FontWeight.w600),
-          ),
-        ),
-      ],
-    );
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Semantics(
-          header: true,
-          child: const Text(
-            'Yang dilihat penerima',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-          ),
-        ),
-        const SizedBox(height: 10),
-        Kartu(
-          child: DefaultTextStyle.merge(
-            style: const TextStyle(fontSize: 14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  children: [
-                    const Expanded(
-                      child: Text(
-                        'Surat edaran jadwal ibadah Natal 2026',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    terbit
-                        ? const LencanaStatus(
-                            'Diterbitkan',
-                            bentuk: BentukLencana.tinta,
-                          )
-                        : const LencanaStatus(
-                            'Belum diterbitkan',
-                            bentuk: BentukLencana.draf,
-                          ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'Keputusan dan surat edaran · 12/11/2026',
-                  style: TextStyle(color: c.tinta2),
-                ),
-                const SizedBox(height: 6),
-                pasangan('Ditujukan untuk', 'Semua anggota'),
-                const SizedBox(height: 6),
-                pasangan('Lampiran', 'Salinan bertanda tangan (PDF)'),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 10),
-        Text(
-          'Penerima melihat judul, tanggal dan salinan bertanda tangan. Mereka tidak melihat draf, unggahan yang gagal, atau dokumen yang ditujukan untuk orang lain.',
-          style: TextStyle(fontSize: 13, color: c.tinta3),
-        ),
-      ],
     );
   }
 }

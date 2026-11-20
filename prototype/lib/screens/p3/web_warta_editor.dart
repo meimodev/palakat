@@ -1,5 +1,12 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/layar.dart';
+import '../../core/format.dart';
+import '../../domain/secretariat/secretariat.dart';
+import '../../providers/core_repositories.dart';
+import '../../providers/repositories_sekretariat.dart';
+import '../../providers/revision.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
 import '../../shell/tautan.dart';
@@ -7,120 +14,92 @@ import '../../theme/palakat_tema.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tata_letak.dart';
-import '../../widgets/tombol.dart';
+import 'a4_warta.dart';
+import 'warta_arsip_bagian.dart';
 import 'warta_editor.dart';
-import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
 
-class WebWartaEditorScreen extends StatefulWidget {
+/// Web · WartaEditor + WebAlurWarta (README 7.1): the editor beside the
+/// "Pratinjau halaman 1" miniature, rendered from the same preview as the
+/// PDF.
+class WebWartaEditorScreen extends ConsumerWidget {
   const WebWartaEditorScreen({super.key});
 
   @override
-  State<WebWartaEditorScreen> createState() => _WebWartaEditorScreenState();
-}
-
-class _WebWartaEditorScreenState extends State<WebWartaEditorScreen>
-    with KeadaanWarta {
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(revisionProvider);
     final c = context.warna;
-    final i = ki('WebWartaEditor');
-    return HalamanWeb(
-      nav: const NavSamping(item: navPlatform, aktif: 4),
-      isi: [
-        Column(
-          key: kunciIsi,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Inline breadcrumb in the 15 px page text (a 22 px line box):
-            // the 44 px target overhangs it by 11 above and below.
-            const MarginNegatif(
-              atas: 11,
-              bawah: 11,
-              child: Tautan(
-                ke: Layar.warta,
-                cara: Cara.naik,
-                child: SizedBox(
-                  height: 44,
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    widthFactor: 1,
-                    child: TautanTeks('Warta Jemaat', ukuran: 14),
+    final id = edisiDariRute(context);
+    final p = ref.watch(wartaRepositoryProvider).preview(id);
+    return Material(
+      type: MaterialType.transparency,
+      child: HalamanWeb(
+        nav: const NavSamping(item: navPlatform, aktif: 4),
+        isi: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Inline breadcrumb in the 15 px page text (a 22 px line box):
+              // the 44 px target overhangs it by 11 above and below.
+              const MarginNegatif(
+                atas: 11,
+                bawah: 11,
+                child: Tautan(
+                  ke: Layar.warta,
+                  cara: Cara.naik,
+                  child: SizedBox(
+                    height: 44,
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      widthFactor: 1,
+                      child: TautanTeks('Warta Jemaat', ukuran: 14),
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(height: 2),
-            Semantics(
-              header: true,
-              child: Text(
-                'Warta Jemaat · edisi 22/11/2026',
-                style: PalakatText.judulHalaman.copyWith(color: c.tinta),
-              ),
-            ),
-            Text(
-              'Disusun dari data yang sudah ada; tidak diketik ulang',
-              style: TextStyle(fontSize: 14, color: c.tinta2),
-            ),
-          ],
-        ),
-        BarisLentur(
-          jarak: 24,
-          anak: [
-            Lentur(
-              dasar: 520,
-              maks: 880,
-              child: IsiWartaEditor(
-                ki: i,
-                pilih: pilih,
-                lihatPdf: const Tombol(
-                  'Lihat PDF',
-                  onPressed: null,
-                  ke: Layar.wartaPdf,
-                  param: {'edisi': belumDipindahId},
-                  jenis: JenisTombol.kedua,
-                  ukuran: UkuranTombol.sedang,
-                ),
-                buatRalat: const Tombol(
-                  'Buat ralat',
-                  onPressed: null,
-                  ke: Layar.warta,
-                  cara: Cara.naik,
-                  jenis: JenisTombol.kedua,
-                  ukuran: UkuranTombol.sedang,
-                ),
-                tampilkanNama: const Tautan(
-                  ke: Layar.bukaNama,
-                  param: {'edisi': belumDipindahId},
-                  child: TautanTampilkanNama(),
+              const SizedBox(height: 2),
+              Semantics(
+                header: true,
+                child: Text(
+                  p == null
+                      ? 'Warta Jemaat'
+                      : 'Warta Jemaat · edisi ${tgl(p.edition.sunday.awal)}',
+                  style: PalakatText.judulHalaman.copyWith(color: c.tinta),
                 ),
               ),
-            ),
-            Lentur(
-              dasar: 300,
-              maks: 480,
-              child: _Pratinjau(lengkap: i != 4, belum: i != 3),
-            ),
-          ],
-        ),
-      ],
+              Text(
+                'Disusun dari data yang sudah ada; tidak diketik ulang',
+                style: TextStyle(fontSize: 14, color: c.tinta2),
+              ),
+            ],
+          ),
+          BarisLentur(
+            jarak: 24,
+            anak: [
+              Lentur(dasar: 520, maks: 880, child: IsiWartaEditor(edisiId: id)),
+              if (p != null)
+                Lentur(dasar: 300, maks: 480, child: _Pratinjau(p)),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
 
 /// The aside: "Pratinjau halaman 1", the miniature A4 page, the caption.
-class _Pratinjau extends StatelessWidget {
-  const _Pratinjau({required this.lengkap, required this.belum});
+class _Pratinjau extends ConsumerWidget {
+  const _Pratinjau(this.p);
 
-  final bool lengkap, belum;
+  final WartaPreview p;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
-    // Board 12 px → 13 (CONVENTIONS).
-    final isi = TextStyle(fontSize: 13, color: c.tinta);
-
-    Widget bagian(String judul, Widget badan) => Column(
+    final e = p.edition;
+    final gereja = ref.watch(workspaceRepositoryProvider).workspace().name;
+    final terbit =
+        e.status == WartaStatus.published || e.status == WartaStatus.archived;
+    Widget bagian(BagianWarta b) => Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Container(
@@ -130,7 +109,7 @@ class _Pratinjau extends StatelessWidget {
             border: Border(bottom: BorderSide(color: c.tinta)),
           ),
           child: Text(
-            judul.toUpperCase(),
+            b.judul.toUpperCase(),
             style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w700,
@@ -138,61 +117,21 @@ class _Pratinjau extends StatelessWidget {
             ),
           ),
         ),
-        DefaultTextStyle.merge(style: isi, child: badan),
-      ],
-    );
-
-    Widget baris(String a, String b) => Row(
-      children: [
-        Expanded(child: Text(a)),
-        const SizedBox(width: 16),
-        Text(b, style: const TextStyle(fontFamily: PalakatText.mono)),
-      ],
-    );
-
-    final bagianBagian = [
-      bagian(
-        'Pengumuman',
-        const Text(
-          'Kerja bakti halaman gereja, Sabtu 21/11/2026.\n'
-          'Pendaftaran katekisasi sidi 2027 dibuka.',
-        ),
-      ),
-      if (lengkap) ...[
-        bagian(
-          'Ibadah minggu ini',
-          const Text('Subuh 05.00 · Pagi 09.00 · Malam 18.00'),
-        ),
-        bagian(
-          'Jumlah kehadiran 15/11/2026',
-          const Text('412 orang: Subuh 96 · Pagi 231 · Malam 85'),
-        ),
-        bagian(
-          'Peristiwa jemaat',
-          const Text(
-            'Syukur HUT pernikahan: Keluarga Wenas-Lasut — Kolom 7\n'
-            'Sampul syukur: Tanpa nama, Kolom 4',
-          ),
-        ),
-        bagian(
-          'Ringkasan keuangan Oktober 2026',
-          Column(
-            children: [
-              baris('Pendapatan', 'Rp14.820.000'),
-              baris('Belanja', 'Rp11.455.000'),
-            ],
+        DefaultTextStyle.merge(
+          style: TextStyle(fontSize: 13, color: c.tinta),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: b.baris,
           ),
         ),
       ],
-    ];
-
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Row(
           children: [
             Expanded(
-              // Board h2.
               child: Semantics(
                 header: true,
                 child: const Text(
@@ -202,14 +141,14 @@ class _Pratinjau extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 16),
-            belum
+            terbit
                 ? const LencanaStatus(
-                    'Belum diterbitkan',
-                    bentuk: BentukLencana.draf,
-                  )
-                : const LencanaStatus(
                     'Diterbitkan',
                     bentuk: BentukLencana.tinta,
+                  )
+                : const LencanaStatus(
+                    'Belum diterbitkan',
+                    bentuk: BentukLencana.draf,
                   ),
           ],
         ),
@@ -235,27 +174,23 @@ class _Pratinjau extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const Column(
-                        children: [
-                          Text(
-                            'WARTA JEMAAT',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: .5,
-                            ),
-                          ),
-                          Text(
-                            'GMIM Jemaat Karunia · Minggu, 22 November 2026',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 13),
-                          ),
-                        ],
+                      const Text(
+                        'WARTA JEMAAT',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: .5,
+                        ),
                       ),
-                      for (final b in bagianBagian) ...[
+                      Text(
+                        'GMIM $gereja · Minggu, ${tglPanjang(e.sunday.awal)}',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 13),
+                      ),
+                      for (final b in bagianWarta(p)) ...[
                         const SizedBox(height: 14),
-                        b,
+                        bagian(b),
                       ],
                     ],
                   ),

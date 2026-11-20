@@ -1,353 +1,486 @@
-import 'dart:math' as math;
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:flutter/widgets.dart';
-
-import '../../mock/mock.dart';
+import '../../app/layar.dart';
+import '../../core/format.dart';
+import '../../domain/core/core.dart';
+import '../../domain/secretariat/secretariat.dart';
+import '../../providers/actor.dart';
+import '../../providers/repositories_sekretariat.dart';
+import '../../providers/revision.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
+import '../../widgets/alur_kit.dart';
+import '../../widgets/chip_pilihan.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
+import '../../widgets/riwayat_alur.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
-import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
+import '../../widgets/tombol_bersyarat.dart';
+import 'pengumuman_bagian.dart';
+import 'sekretariat_bersama.dart';
+import 'warta_arsip_bagian.dart';
 
-/// The `keadaan` options of WartaEditor and WebWartaEditor (board `O`).
-const opsiWarta = [
-  'Draf',
-  'Sudah diperiksa',
-  'Disetujui',
-  'Diterbitkan',
-  'Hanya Pengumuman yang aktif',
-];
-
-/// Board state `{ k: null }` shared by the phone and web editor: the shown
-/// state is `k ?? tweak`, and a tweak change resets `k` (spec intro).
-mixin KeadaanWarta<T extends StatefulWidget> on State<T> {
-  String? _k;
-  Object? _tweakLalu;
-  final kunciIsi = GlobalKey();
-
-  /// Index of the shown state (unknown values fall back to the first).
-  int ki(String stem) {
-    final t = belumDipindah<String>('Draf');
-    if (t != _tweakLalu) {
-      _tweakLalu = t;
-      _k = null;
-    }
-    return math.max(0, opsiWarta.indexOf(_k ?? t));
-  }
-
-  /// `go0`…`go3`: set `k`; the view jumps to the top (CONVENTIONS).
-  void pilih(int i) {
-    setState(() => _k = opsiWarta[i]);
-    final ctx = kunciIsi.currentContext;
-    if (ctx != null) Scrollable.maybeOf(ctx)?.position.jumpTo(0);
-  }
-}
-
-class WartaEditorScreen extends StatefulWidget {
+/// 66 · WartaEditor + 71 · AlurWarta (README 7.1; specs 18, 19), phone.
+class WartaEditorScreen extends ConsumerWidget {
   const WartaEditorScreen({super.key});
 
   @override
-  State<WartaEditorScreen> createState() => _WartaEditorScreenState();
-}
-
-class _WartaEditorScreenState extends State<WartaEditorScreen>
-    with KeadaanWarta {
-  @override
-  Widget build(BuildContext context) {
-    final i = ki('WartaEditor');
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(revisionProvider);
+    final id = edisiDariRute(context);
+    final e = ref.watch(wartaRepositoryProvider).edition(id);
     return LayarPonsel(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const KepalaPonsel(
-            judul: 'Warta Jemaat · edisi 22/11/2026',
-            anakJudul: 'Disusun dari data yang sudah ada; tidak diketik ulang',
-            kembaliKe: Layar.warta,
-            labelKembali: 'Kembali ke Warta Jemaat',
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-              child: IsiWartaEditor(
-                key: kunciIsi,
-                ki: i,
-                pilih: pilih,
-                lihatPdf: const Tombol(
-                  'Lihat PDF',
-                  onPressed: null,
-                  ke: Layar.wartaPdf,
-                  param: {'edisi': belumDipindahId},
-                  jenis: JenisTombol.kedua,
-                  ukuran: UkuranTombol.sedang,
-                ),
-                buatRalat: const Tombol(
-                  'Buat ralat',
-                  onPressed: null,
-                  ke: Layar.warta,
-                  cara: Cara.naik,
-                  jenis: JenisTombol.kedua,
-                  ukuran: UkuranTombol.sedang,
-                ),
-                tampilkanNama: const Tautan(
-                  ke: Layar.bukaNama,
-                  param: {'edisi': belumDipindahId},
-                  child: TautanTampilkanNama(),
-                ),
+      child: Material(
+        type: MaterialType.transparency,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            KepalaPonsel(
+              judul: e == null
+                  ? 'Warta Jemaat'
+                  : 'Warta Jemaat · edisi ${tgl(e.sunday.awal)}',
+              anakJudul:
+                  'Disusun dari data yang sudah ada; tidak diketik ulang',
+              kembaliKe: Layar.warta,
+              labelKembali: 'Kembali ke Warta Jemaat',
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+                child: IsiWartaEditor(edisiId: id),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
 
-/// The text link "Tampilkan nama (pengecualian)": 14/700 `laut`, min height
-/// 44, stretched to the card width. The screen wraps it in its [Tautan].
-class TautanTampilkanNama extends StatelessWidget {
-  const TautanTampilkanNama({super.key});
+/// The edition of the coming Sunday from Draf to Diterbitkan (AlurWarta):
+/// the Sekretaris Jemaat picks published announcements (P17), may write a
+/// new one, opens BukaNama for a name exception, and performs every step
+/// herself, each recorded (rulebook 14.7). After review the content is
+/// locked (P18); after publishing a correction is a linked ralat. Sections
+/// of the Warta come from data already recorded (spec 18). The finance
+/// excerpt joins in M10 (J3).
+class IsiWartaEditor extends ConsumerStatefulWidget {
+  const IsiWartaEditor({super.key, required this.edisiId});
+
+  final String edisiId;
 
   @override
-  Widget build(BuildContext context) => Container(
-    constraints: const BoxConstraints(minHeight: 44),
-    alignment: Alignment.centerLeft,
-    child: const TautanTeks(
-      'Tampilkan nama (pengecualian)',
-      berat: FontWeight.w700,
-      ukuran: 14,
+  ConsumerState<IsiWartaEditor> createState() => _IsiWartaEditorState();
+}
+
+enum _V { warta, umum, ralat }
+
+class _IsiWartaEditorState extends ConsumerState<IsiWartaEditor> {
+  var _v = _V.warta;
+  var _pesan = '';
+  Refusal? _tolak;
+  final _ralat = TextEditingController();
+
+  @override
+  void dispose() {
+    _ralat.dispose();
+    super.dispose();
+  }
+
+  void _ke(_V v, [String pesan = '']) {
+    setState(() {
+      _v = v;
+      _pesan = pesan;
+      _tolak = null;
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) Scrollable.maybeOf(context)?.position.jumpTo(0);
+    });
+  }
+
+  Future<void> _jalankan(Future<Result<void>> perintah, [String? pesan]) async {
+    final r = await perintah;
+    if (!mounted) return;
+    switch (r) {
+      case Ok():
+        _ke(_V.warta, pesan ?? '');
+      case Refused(:final refusal):
+        setState(() => _tolak = refusal);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    ref.watch(revisionProvider);
+    final repo = ref.watch(wartaRepositoryProvider);
+    final e = repo.edition(widget.edisiId);
+    if (e == null) return kecilSek(context, 'Edisi ini tidak ditemukan.');
+    final isi = switch (_v) {
+      _V.umum => [
+        FormPengumuman(
+          edisi: e,
+          onSelesai: (p) => _ke(_V.warta, p),
+          onBatal: () => _ke(_V.warta),
+        ),
+      ],
+      _V.ralat => _viewRalat(e),
+      _V.warta => _viewWarta(e, repo.preview(e.id)!),
+    };
+    return kolomSek(isi, 16);
+  }
+
+  // ---- parts ----
+
+  TextStyle get _polos => TextStyle(fontSize: 14, color: context.warna.tinta2);
+
+  Widget _kartu(List<Widget> anak) => Kartu(child: kolomSek(anak, 6));
+
+  Widget _kepala(String judul, String ket) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(judul, style: const TextStyle(fontWeight: FontWeight.w700)),
+      kecilSek(context, ket),
+    ],
+  );
+
+  Widget _teksAwal(String label, VoidCallback onTap) => Align(
+    alignment: AlignmentDirectional.centerStart,
+    child: Tombol(
+      label,
+      onPressed: onTap,
+      jenis: JenisTombol.teks,
+      ukuran: UkuranTombol.kecil,
+      lebarPenuh: false,
     ),
   );
-}
 
-/// The five state views of the editor (WartaEditor scroll column, the left
-/// column of WebWartaEditor). Sizes not set here inherit the body size (16
-/// phone, 15 web). Each screen passes its own link controls.
-class IsiWartaEditor extends StatelessWidget {
-  const IsiWartaEditor({
-    super.key,
-    required this.ki,
-    required this.pilih,
-    required this.lihatPdf,
-    required this.buatRalat,
-    required this.tampilkanNama,
-  });
-
-  final int ki;
-  final ValueChanged<int> pilih;
-
-  final Widget lihatPdf;
-  final Widget buatRalat;
-  final Widget tampilkanNama;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.warna;
-    final kecil = TextStyle(fontSize: 13, color: c.tinta3);
-    final sedang = TextStyle(fontSize: 14, color: c.tinta2);
-
-    Widget edisi(String label, BentukLencana bentuk) => Row(
+  Widget _kuat(String awal, String kuat) => Text.rich(
+    TextSpan(
       children: [
-        const Expanded(
-          child: Text(
-            'Edisi 22/11/2026',
-            style: TextStyle(fontWeight: FontWeight.w700),
-          ),
-        ),
-        const SizedBox(width: 16),
-        LencanaStatus(label, bentuk: bentuk),
-      ],
-    );
-
-    Widget kartu(String judul, String sumber, List<Widget> isi) => Kartu(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(judul, style: const TextStyle(fontWeight: FontWeight.w700)),
-              Text(sumber, style: kecil),
-            ],
-          ),
-          for (final w in isi) ...[const SizedBox(height: 6), w],
-        ],
-      ),
-    );
-
-    Widget tebal(String awal, String kuat, [String akhir = '']) => Text.rich(
-      TextSpan(
-        style: sedang,
-        children: [
-          TextSpan(text: awal),
-          TextSpan(
-            text: kuat,
-            style: TextStyle(fontWeight: FontWeight.w700, color: c.tinta),
-          ),
-          TextSpan(text: akhir),
-        ],
-      ),
-    );
-
-    Widget nilai(String label, String jumlah) => Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(child: Text(label, style: sedang)),
-        const SizedBox(width: 16),
-        Text(
-          jumlah,
-          textAlign: TextAlign.right,
+        TextSpan(text: awal),
+        TextSpan(
+          text: kuat,
           style: TextStyle(
-            fontSize: 14,
-            fontFamily: PalakatText.mono,
-            fontWeight: FontWeight.w600,
-            color: c.tinta,
+            fontWeight: FontWeight.w700,
+            color: context.warna.tinta,
           ),
         ),
       ],
-    );
+    ),
+    style: _polos,
+  );
 
-    final pengumuman = kartu('Pengumuman', 'dari Pengumuman', [
-      Text(warta22November.pengumuman, style: sedang),
-    ]);
-    final semuaKartu = [
-      pengumuman,
-      kartu('Ibadah minggu ini', 'dari Ibadah dan kegiatan', [
-        Text('Minggu 22/11/2026: ${warta22November.ibadah}', style: sedang),
-      ]),
-      kartu('Jumlah kehadiran', 'hanya yang Ditetapkan', [
-        Text('Minggu 15/11/2026: ${warta22November.kehadiran}', style: sedang),
-        Text('Jumlah saja. Tidak ada nama.', style: kecil),
-      ]),
-      kartu('Peristiwa jemaat', 'nama mengikuti Tampilan nama', [
-        tebal('Syukur HUT pernikahan: ', 'Keluarga Wenas-Lasut — Kolom 7'),
-        tebal('Sampul syukur: ', 'Tanpa nama', ', Kolom 4'),
-        tampilkanNama,
-      ]),
-      kartu('Ringkasan keuangan', 'dari bulan yang Sudah ditutup', [
-        nilai('Pendapatan Oktober 2026', 'Rp14.820.000'),
-        nilai('Belanja Oktober 2026', 'Rp11.455.000'),
-        Text(
-          'Dari laporan resmi Oktober 2026, ditutup 16/11/2026. Bulan yang '
-          'belum ditutup tidak dapat dimasukkan.',
-          style: kecil,
-        ),
-      ]),
-    ];
-
-    // Board flex row (wrap, gap 8, align stretch). `<button>`s are
-    // border-box (basis 150, max 340); the `<a>` buttons are content-box, so
-    // their outer basis is 185, max 375 and min height 51.
-    Widget tombol(List<(Widget, bool)> anak) => LayoutBuilder(
-      builder: (context, k) {
-        final lentur = [
-          for (final (w, a) in anak)
-            a
-                ? Lentur(
-                    dasar: 185,
-                    maks: 375,
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(minHeight: 51),
-                      child: w,
-                    ),
-                  )
-                : Lentur(dasar: 150, maks: 340, child: w),
-        ];
-        final baris = <Widget>[];
-        var i = 0;
-        for (final b in BarisLentur.lebar(lentur, 8, k.maxWidth)) {
-          if (baris.isNotEmpty) baris.add(const SizedBox(height: 8));
-          final isi = <Widget>[];
-          for (final w in b) {
-            if (isi.isNotEmpty) isi.add(const SizedBox(width: 8));
-            isi.add(SizedBox(width: w, child: lentur[i++].child));
-          }
-          baris.add(
-            IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: isi,
+  Widget _barisUmum(WartaEdition e, Announcement u, bool draf) {
+    final c = context.warna;
+    final on = e.announcementIds.contains(u.id);
+    final semua = u.audience == Audience.all;
+    return Container(
+      padding: const EdgeInsets.only(top: 8),
+      decoration: BoxDecoration(
+        border: Border(top: BorderSide(color: c.garis)),
+      ),
+      child: BarisLentur(
+        jarak: 12,
+        jarakBaris: 6,
+        rata: CrossAxisAlignment.center,
+        anak: [
+          Lentur(
+            dasar: 180,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  u.title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
+                ),
+                kecilSek(
+                  context,
+                  'Ditujukan untuk: ${u.audience.label}'
+                  '${on && !semua ? ' · perhatikan: Warta dibaca semua anggota' : ''}',
+                ),
+              ],
+            ),
+          ),
+          Lentur(
+            dasar: 150,
+            tumbuh: 0,
+            child: Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: ChipSatu(
+                teks: on ? 'Masuk edisi ini' : 'Tidak masuk',
+                dipilih: on,
+                onTap: draf
+                    ? () => _jalankan(
+                        ref
+                            .read(wartaRepositoryProvider)
+                            .pickAnnouncement(
+                              aktorSek(ref),
+                              e.id,
+                              u.id,
+                              !on,
+                              expectedRevision: e.revision,
+                              idempotencyKey: kunciSek(ref),
+                            ),
+                      )
+                    : null,
               ),
             ),
-          );
-        }
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: baris,
-        );
-      },
-    );
-    Widget aksi(
-      String label,
-      int ke, {
-      JenisTombol jenis = JenisTombol.tinta,
-    }) => Tombol(label, onPressed: () => pilih(ke), jenis: jenis);
-    final keDraf = aksi('Kembali ke Draf', 0, jenis: JenisTombol.teks);
-
-    final anak = switch (ki) {
-      1 => [
-        edisi('Sudah diperiksa', BentukLencana.lautGaris),
-        ...semuaKartu,
-        Text('Diperiksa oleh ${warta22November.diperiksa}.', style: kecil),
-        tombol([
-          (aksi('Setujui untuk diterbitkan', 2), false),
-          (keDraf, false),
-        ]),
-      ],
-      2 => [
-        edisi('Disetujui', BentukLencana.laut),
-        Text(
-          'Disetujui oleh Olvie Pangemanan, ${warta22November.disetujui}.',
-          style: sedang,
-        ),
-        Text(
-          'Sekretaris Jemaat menjalankan setiap langkah sendiri; tiap langkah '
-          'tetap dicatat.',
-          style: kecil,
-        ),
-        tombol([
-          (aksi('Terbitkan', 3, jenis: JenisTombol.utama), false),
-          (keDraf, false),
-        ]),
-      ],
-      3 => [
-        edisi('Diterbitkan', BentukLencana.tinta),
-        Text(
-          'Diterbitkan ${warta22November.diterbitkan} untuk semua anggota. '
-          'Edisi ini tidak berubah lagi; ralat menjadi revisi yang tertaut.',
-          style: sedang,
-        ),
-        tombol([(lihatPdf, true), (buatRalat, true)]),
-      ],
-      4 => [
-        edisi('Draf', BentukLencana.draf),
-        pengumuman,
-        Text(
-          'Bagian dari modul yang tidak aktif tidak tampil dan tidak '
-          'meninggalkan tempat kosong.',
-          style: kecil,
-        ),
-        tombol([(aksi('Tandai sudah diperiksa', 1), false)]),
-      ],
-      _ => [
-        edisi('Draf', BentukLencana.draf),
-        ...semuaKartu,
-        tombol([(aksi('Tandai sudah diperiksa', 1), false), (lihatPdf, true)]),
-      ],
-    };
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        for (var j = 0; j < anak.length; j++) ...[
-          if (j > 0) const SizedBox(height: 16),
-          anak[j],
+          ),
         ],
-      ],
+      ),
     );
   }
+
+  // ---- views ----
+
+  List<Widget> _viewWarta(WartaEdition e, WartaPreview p) {
+    final repo = ref.read(wartaRepositoryProvider);
+    final st = e.status;
+    final draf = st == WartaStatus.draft;
+    final hari = ref.watch(hariIniProvider);
+    final edisi = tgl(e.sunday.awal);
+    final umum = [
+      for (final u in ref.watch(announcementRepositoryProvider).list())
+        if (u.status != AnnouncementStatus.draft &&
+            (e.announcementIds.contains(u.id) ||
+                draf && u.statusAt(hari) == AnnouncementStatus.published))
+          u,
+    ];
+    Future<void> langkah(
+      Future<Result<void>> Function(
+        Actor,
+        String, {
+        required int expectedRevision,
+        required String idempotencyKey,
+      })
+      f,
+    ) => _jalankan(
+      f(
+        aktorSek(ref),
+        e.id,
+        expectedRevision: e.revision,
+        idempotencyKey: kunciSek(ref),
+      ),
+    );
+    final keDraf = Tombol(
+      'Kembali ke Draf',
+      onPressed: () => langkah(repo.returnToDraft),
+      jenis: JenisTombol.teks,
+      ukuran: UkuranTombol.kecil,
+    );
+    final lihatPdf = Tombol(
+      'Lihat PDF',
+      onPressed: () => context.dorongKe(Layar.wartaPdf, param: {'edisi': e.id}),
+      jenis: JenisTombol.kedua,
+      ukuran: UkuranTombol.sedang,
+    );
+    final riwayat = riwayatSek(ref, AuditFilter(ref: RecordRef('warta', e.id)));
+    final anonim = p.events.any(
+      (x) =>
+          x.event.anonymousAs != null &&
+          x.event.personId != null &&
+          e.exceptionFor(x.event.personId!) == null,
+    );
+    return [
+      KepalaKartu(judul: 'Edisi $edisi', ujung: lencanaWarta(st)),
+      if (_pesan.isNotEmpty) Pesan(Text(_pesan)),
+      if (_tolak != null) penolakanSek(_tolak!),
+      _kartu([
+        _kepala(
+          'Pengumuman',
+          'Sekretaris Jemaat memilih dari pengumuman yang Diterbitkan',
+        ),
+        for (final u in umum) _barisUmum(e, u, draf),
+        if (draf) _teksAwal('Tulis pengumuman', () => _ke(_V.umum)),
+      ]),
+      if (e.services != null)
+        _kartu([
+          _kepala('Ibadah minggu ini', 'dari Ibadah dan kegiatan'),
+          Text('Minggu $edisi: ${e.services}', style: _polos),
+        ]),
+      if (e.attendance case final h?)
+        _kartu([
+          _kepala('Jumlah kehadiran', 'hanya yang Ditetapkan'),
+          Text(
+            'Minggu ${tgl(h.sunday.awal)}: ${h.total} orang (${h.parts})',
+            style: _polos,
+          ),
+          kecilSek(context, 'Jumlah saja. Tidak ada nama.'),
+        ]),
+      if (p.events.isNotEmpty)
+        _kartu([
+          _kepala(
+            'Peristiwa jemaat',
+            'hanya yang Diverifikasi; nama mengikuti Tampilan nama',
+          ),
+          for (final x in p.events)
+            _kuat(
+              '${x.event.label}: ',
+              x.printed == x.event.name && x.event.anonymousAs != null
+                  ? '${x.printed} (pengecualian tercatat)'
+                  : x.printed,
+            ),
+          if (draf && anonim)
+            _teksAwal(
+              'Tampilkan nama (pengecualian)',
+              () => context.dorongKe(Layar.bukaNama, param: {'edisi': e.id}),
+            ),
+        ]),
+      if (draf)
+        BarisTombol(
+          anak: [
+            Tombol(
+              'Tandai sudah diperiksa',
+              onPressed: () => langkah(repo.submit),
+              jenis: JenisTombol.tinta,
+            ),
+            lihatPdf,
+          ],
+        ),
+      if (st == WartaStatus.review) ...[
+        kecilSek(
+          context,
+          'Diperiksa oleh ${namaSek(ref, e.reviewedBy!)}, '
+          '${tglJam(e.reviewedAt!)}.',
+        ),
+        BarisTombol(
+          anak: [
+            Tombol(
+              'Setujui untuk diterbitkan',
+              onPressed: () => langkah(repo.approve),
+              jenis: JenisTombol.tinta,
+            ),
+            keDraf,
+          ],
+        ),
+      ],
+      if (st == WartaStatus.approved) ...[
+        Text(
+          'Disetujui oleh ${namaSek(ref, e.approvedBy!)}, '
+          '${tglJam(e.approvedAt!)}.',
+          style: _polos,
+        ),
+        kecilSek(
+          context,
+          'Sekretaris Jemaat menjalankan setiap langkah sendiri; tiap langkah '
+          'tetap dicatat.',
+        ),
+        BarisTombol(
+          anak: [
+            Tombol(
+              'Terbitkan',
+              jenis: JenisTombol.utama,
+              onPressed: () => langkah(repo.publish),
+            ),
+            keDraf,
+          ],
+        ),
+      ],
+      if (st == WartaStatus.published || st == WartaStatus.archived) ...[
+        Text(
+          'Diterbitkan ${tglJam(e.publishedAt!)} untuk semua anggota. Edisi '
+          'ini tidak berubah lagi; ralat menjadi revisi yang tertaut.',
+          style: _polos,
+        ),
+        BarisTombol(
+          anak: [
+            lihatPdf,
+            if (st == WartaStatus.published)
+              Tombol(
+                'Buat ralat',
+                onPressed: () => _ke(_V.ralat),
+                jenis: JenisTombol.kedua,
+                ukuran: UkuranTombol.sedang,
+              ),
+          ],
+        ),
+      ],
+      if (st == WartaStatus.review || st == WartaStatus.approved)
+        kecilSek(
+          context,
+          'Untuk mengubah isinya, kembalikan edisi ke Draf lebih dulu.',
+        ),
+      for (final r in e.ralats)
+        _kartu([
+          KepalaKartu(
+            judul: 'Ralat (revisi edisi $edisi)',
+            ujung: const LencanaStatus(
+              'Diterbitkan',
+              bentuk: BentukLencana.tinta,
+            ),
+          ),
+          Text(r.text, style: _polos),
+          kecilSek(
+            context,
+            'Tertaut ke edisi asli, yang tetap tampil apa adanya.',
+          ),
+        ]),
+      if (riwayat.isNotEmpty) RiwayatAlur(baris: riwayat),
+    ];
+  }
+
+  String _aR() => _ralat.text.trim().isEmpty ? 'yang diralat belum diisi.' : '';
+
+  List<Widget> _viewRalat(WartaEdition e) => [
+    _kartu([
+      KepalaKartu(
+        judul: 'Warta Jemaat · edisi ${tgl(e.sunday.awal)}',
+        ujung: lencanaWarta(e.status),
+      ),
+      kecilSek(
+        context,
+        'Edisi asli tidak diubah. Ralat diterbitkan sebagai revisi yang '
+        'tertaut.',
+      ),
+    ]),
+    IsianAlur(
+      label: 'Yang diralat · wajib',
+      controller: _ralat,
+      onChanged: (_) => setState(() => _tolak = null),
+      baris: 3,
+    ),
+    if (_tolak != null)
+      penolakanSek(_tolak!)
+    else if (_ralat.text.isNotEmpty && _aR().isNotEmpty)
+      penolakanSek(Refusal(action: 'Terbitkan ralat', because: _aR())),
+    BarisTombol(
+      anak: [
+        TombolBersyarat(
+          label: 'Terbitkan ralat',
+          tindakan: 'Terbitkan ralat',
+          alasan: _aR(),
+          periksa: _aR,
+          sudahMulai: false,
+          onPressed: () async {
+            final teks = _ralat.text.trim();
+            await _jalankan(
+              ref
+                  .read(wartaRepositoryProvider)
+                  .ralat(
+                    aktorSek(ref),
+                    e.id,
+                    reason: teks,
+                    expectedRevision: e.revision,
+                    idempotencyKey: kunciSek(ref),
+                  ),
+            );
+            if (mounted) _ralat.clear();
+          },
+        ),
+        Tombol(
+          'Batalkan',
+          onPressed: () => _ke(_V.warta),
+          jenis: JenisTombol.teks,
+          ukuran: UkuranTombol.kecil,
+        ),
+      ],
+    ),
+  ];
 }

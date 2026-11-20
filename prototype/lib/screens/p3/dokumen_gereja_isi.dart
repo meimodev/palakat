@@ -1,209 +1,268 @@
 import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
-import '../../mock/mock.dart';
+import '../../app/layar.dart';
+import '../../core/format.dart';
+import '../../domain/core/core.dart';
+import '../../domain/secretariat/secretariat.dart';
+import '../../providers/actor.dart';
+import '../../providers/repositories_sekretariat.dart';
+import '../../providers/revision.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/chip_pilihan.dart';
-import '../../widgets/garis.dart';
 import '../../widgets/garis_status.dart';
 import '../../widgets/ikon.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
+import '../../widgets/riwayat_alur.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
-import '../../app/layar.dart';
+import 'sekretariat_bersama.dart';
 
-/// The `keadaan` options of DokumenGereja and WebDokumenGereja, in order.
-const opsiDokumenGereja = [
-  'Daftar dokumen',
-  'Dokumen dengan revisi',
-  'Belum ada dokumen',
-  'Dilihat anggota jemaat',
-];
-
-/// The view state both boards share: `{ k: null }`, view = `k ?? keadaan`.
-/// A handler-set `k` lasts until the tweak changes (spec 17 intro).
-mixin KeadaanDokumenGereja<T extends StatefulWidget> on State<T> {
-  String? _k, _kDari;
-
-  /// Index of the view shown; an unknown value falls back to 0.
-  int indeks(String keadaan) {
-    final k = _kDari == keadaan ? _k : null;
-    return math.max(0, opsiDokumenGereja.indexOf(k ?? keadaan));
-  }
-
-  /// `go<i>`: `setState({ k: O[i] })`.
-  void pilih(int i, String keadaan) => setState(() {
-    _k = opsiDokumenGereja[i];
-    _kDari = keadaan;
-  });
+/// Opens the publish form (a new document, or a revision of [dokumenId]) and
+/// returns its message once published: phone `terbit`/`ralat` in the
+/// DokumenGereja shell, web `terbit` (README 7.2).
+Future<String?> bukaFormDokumen(
+  BuildContext context, {
+  required bool web,
+  String? dokumenId,
+}) {
+  final anak = dokumenId == null || web ? 'terbit' : 'ralat';
+  final q = dokumenId == null
+      ? ''
+      : '?dokumen=${Uri.encodeQueryComponent(dokumenId)}';
+  return GoRouter.of(context)
+      .push<String>('${Layar.dokumenGereja.lokasi(anak: anak)}$q');
 }
 
-/// Region 2 of both boards: the items of the gap-16 column for view [ki].
-/// [ke] is the publish board, [keBaris] the board's own stem (rows are
-/// self links); [onBuka] is "Buka salinan bertanda tangan" (`go1`).
-List<Widget> isiDokumenGereja({
-  required bool web,
-  required int ki,
-  required Layar ke,
-  String? anak,
-  required Layar keBaris,
-  required VoidCallback onBuka,
-}) {
-  final daftar = ki == 0 || ki == 3;
-  final dok = ki == 3
-      ? [for (final i in dokumenGerejaUntukAnggota) semuaDokumenGereja[i]]
-      : semuaDokumenGereja;
-  return [
-    if (daftar) ...[
-      const Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children: [
-          _Chip('Semua jenis', dipilih: true),
-          _Chip('Tahun 2026'),
-          _Chip('Ditujukan untuk: semua'),
-        ],
-      ),
-      if (web)
-        _TabelWeb(dok: dok, keBaris: keBaris)
-      else
-        for (final d in dok) _BarisPonsel(d: d, keBaris: keBaris),
-    ],
-    if (ki == 0)
-      _baris(_TombolLink('Terbitkan dokumen', ke: ke, anak: anak, tinta: true)),
-    if (ki == 1) ...[
-      Kartu(
-        child: Builder(
-          builder: (context) {
-            final c = context.warna;
-            return _Kolom([
-              const _Atas(
-                'Surat edaran jadwal ibadah Natal 2026',
-                'Revisi 2',
-                BentukLencana.tinta,
-              ),
-              Text(
-                'Keputusan dan surat edaran · 12/11/2026 · Ditujukan untuk: Semua anggota',
-                style: TextStyle(fontSize: 14, color: c.tinta2),
-              ),
-              Text(
-                'Revisi yang berlaku. $dokumenRevisi2Oleh.',
-                style: TextStyle(fontSize: 13, color: c.tinta3),
-              ),
-              _baris(
-                // A `<button>` (border-box): 48 high including its line.
-                Tombol(
-                  'Buka salinan bertanda tangan',
-                  onPressed: onBuka,
-                  jenis: JenisTombol.kedua,
-                  ukuran: UkuranTombol.sedang,
-                ),
-                tepi: 0,
-              ),
-            ]);
-          },
-        ),
-      ),
-      Kartu(
-        status: GarisStatus.draf,
-        child: Builder(
-          builder: (context) {
-            final c = context.warna;
-            return _Kolom([
-              const _Atas(
-                'Revisi 1',
-                'Digantikan oleh revisi 2',
-                BentukLencana.abu,
-              ),
-              Text(
-                'Diterbitkan 12/11/2026 16.40',
-                style: TextStyle(fontSize: 14, color: c.tinta2),
-              ),
-              Text(
-                'Tetap dapat dibuka. Dokumen yang sudah diterbitkan tidak pernah diubah diam-diam; ralat selalu menjadi revisi baru.',
-                style: TextStyle(fontSize: 13, color: c.tinta3),
-              ),
-            ]);
-          },
-        ),
-      ),
-      _baris(
-        _TombolLink('Terbitkan revisi baru', ke: ke, anak: anak, tinta: false),
-      ),
-    ],
-    if (ki == 2) ...[
-      Kartu(
-        status: GarisStatus.draf,
-        child: Builder(
-          builder: (context) => _Kolom([
+/// '{jenis} · {tanggal} · {untuk}', as the rows print it, with
+/// '· revisi {n} tetap dapat dibuka' once corrected (AlurDokumen).
+String ketDokumen(ChurchDocument d) => [
+  d.kind.label,
+  if (d.documentDate != null) tgl(d.documentDate!.awal),
+  d.audience.label,
+  if (d.revisions.length > 1)
+    'revisi ${d.current.number - 1} tetap dapat dibuka',
+].join(' · ');
+
+/// DokumenGereja and WebDokumenGereja (spec 17), merged with AlurDokumen
+/// (README 7.1): the archive the Sekretaris Jemaat keeps. A publisher sees
+/// every document; anyone else only those addressed to them. A row opens the
+/// document in place with its revisions; each revision stays openable.
+class IsiDokumenGereja extends ConsumerStatefulWidget {
+  const IsiDokumenGereja({super.key, required this.web});
+
+  final bool web;
+
+  @override
+  ConsumerState<IsiDokumenGereja> createState() => _IsiDokumenGerejaState();
+}
+
+class _IsiDokumenGerejaState extends ConsumerState<IsiDokumenGereja> {
+  String? _pilih;
+  String _pesan = '';
+
+  /// Revision numbers whose signed copy is open.
+  final _dibuka = <int>{};
+
+  void _ke(String? id) => setState(() {
+    _pilih = id;
+    _dibuka.clear();
+    _keAtas();
+  });
+
+  void _keAtas() => WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (mounted) Scrollable.maybeOf(context)?.position.jumpTo(0);
+  });
+
+  Future<void> _terbit({String? dokumenId}) async {
+    final p = await bukaFormDokumen(
+      context,
+      web: widget.web,
+      dokumenId: dokumenId,
+    );
+    if (!mounted || p == null) return;
+    setState(() => _pesan = p);
+    _keAtas();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    ref.watch(revisionProvider);
+    final repo = ref.watch(documentRepositoryProvider);
+    final penerbit = bolehSek(ref, Capability.documentsPublish);
+    final semua = penerbit || operatorSek(ref);
+    final saya = ref.watch(actorProvider)?.personId;
+    final dok = semua ? repo.list() : repo.list(audienceOf: saya);
+    final riwayat = penerbit
+        ? riwayatSek(
+            ref,
+            const AuditFilter(
+              module: Module.churchDocuments,
+              actionPrefix: 'document.',
+            ),
+          )
+        : const <String>[];
+    final d = _pilih == null
+        ? null
+        : dok.where((x) => x.id == _pilih).firstOrNull;
+    final hari = ref.watch(hariIniProvider);
+    final c = context.warna;
+    final isi = <Widget>[
+      if (_pesan.isNotEmpty) Pesan(Text(_pesan)),
+      if (d != null)
+        ..._rinci(context, d, penerbit)
+      else if (dok.isEmpty) ...[
+        Kartu(
+          status: GarisStatus.draf,
+          child: kolomSek([
             const Text(
               'Belum ada dokumen',
               style: TextStyle(fontWeight: FontWeight.w700),
             ),
             Text(
-              'Mulai dengan menerbitkan satu dokumen: surat keputusan, notulen rapat, tata ibadah, atau surat untuk anggota.',
-              style: TextStyle(fontSize: 14, color: context.warna.tinta2),
+              'Mulai dengan menerbitkan satu dokumen: surat keputusan, notulen '
+              'rapat, tata ibadah, atau surat untuk anggota.',
+              style: TextStyle(fontSize: 14, color: c.tinta2),
             ),
-          ]),
+          ], 6),
+        ),
+        if (penerbit) _tombol('Terbitkan dokumen', _terbit, tinta: true),
+      ] else ...[
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            const _Chip('Semua jenis', dipilih: true),
+            _Chip('Tahun ${hari.tahun}'),
+            const _Chip('Ditujukan untuk: semua'),
+          ],
+        ),
+        if (widget.web)
+          _TabelWeb(dok: dok, onBuka: _ke)
+        else
+          for (final x in dok) _BarisPonsel(d: x, onBuka: _ke),
+        if (penerbit) _tombol('Terbitkan dokumen', _terbit, tinta: true),
+        const Tautan(
+          ke: Layar.surat,
+          child: Align(
+            alignment: AlignmentDirectional.centerStart,
+            widthFactor: 1,
+            child: TautanTeks('Permohonan surat', ukuran: 14),
+          ),
+        ),
+        if (!semua)
+          kecilSek(
+            context,
+            'Anggota hanya melihat dokumen yang ditujukan untuknya. Dokumen '
+            'pendukung keuangan tidak disimpan di sini; itu ada pada '
+            'transaksinya.',
+          ),
+        if (riwayat.isNotEmpty) RiwayatAlur(baris: riwayat),
+      ],
+    ];
+    return kolomSek(isi, 16);
+  }
+
+  List<Widget> _rinci(BuildContext context, ChurchDocument d, bool penerbit) {
+    final c = context.warna;
+    final kini = d.current;
+    Widget buka(DocumentRevision r) => _dibuka.contains(r.number)
+        ? kecilSek(
+            context,
+            'Dibuka: ${r.signedCopy.name} · 1 halaman · revisi ${r.number}',
+          )
+        : _baris(
+            Tombol(
+              'Buka salinan bertanda tangan',
+              onPressed: () => setState(() => _dibuka.add(r.number)),
+              jenis: JenisTombol.kedua,
+              ukuran: UkuranTombol.sedang,
+            ),
+            tepi: 0,
+          );
+    return [
+      Kartu(
+        child: kolomSek([
+          _Atas(d.title, d.statusLabel, BentukLencana.tinta),
+          Text(
+            '${[d.kind.label, if (d.documentDate != null) tgl(d.documentDate!.awal)].join(' · ')} · '
+            'Ditujukan untuk: ${d.audience.label}',
+            style: TextStyle(fontSize: 14, color: c.tinta2),
+          ),
+          if (kini.ralat != null)
+            Text(
+              'Yang diralat: ${kini.ralat}',
+              style: TextStyle(fontSize: 14, color: c.tinta2),
+            ),
+          kecilSek(
+            context,
+            '${d.revisions.length > 1 ? 'Revisi yang berlaku. ' : ''}'
+            'Diterbitkan oleh ${namaSek(ref, kini.publishedBy)}, '
+            '${tglJam(kini.publishedAt)}.',
+          ),
+          buka(kini),
+        ], 6),
+      ),
+      for (final r in d.revisions.reversed.skip(1))
+        Kartu(
+          status: GarisStatus.draf,
+          child: kolomSek([
+            _Atas(
+              'Revisi ${r.number}',
+              'Digantikan oleh revisi ${r.number + 1}',
+              BentukLencana.abu,
+            ),
+            Text(
+              'Diterbitkan ${tglJam(r.publishedAt)}',
+              style: TextStyle(fontSize: 14, color: c.tinta2),
+            ),
+            kecilSek(
+              context,
+              'Tetap dapat dibuka. Dokumen yang sudah diterbitkan tidak pernah '
+              'diubah diam-diam; ralat selalu menjadi revisi baru.',
+            ),
+            buka(r),
+          ], 6),
+        ),
+      if (penerbit && d.kind != DocumentKind.memberLetter)
+        _tombol(
+          'Terbitkan revisi baru',
+          () => _terbit(dokumenId: d.id),
+          tinta: false,
+        ),
+      Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: Tombol(
+          'Semua dokumen',
+          onPressed: () => _ke(null),
+          jenis: JenisTombol.teks,
+          ukuran: UkuranTombol.kecil,
+          lebarPenuh: false,
         ),
       ),
-      _baris(_TombolLink('Terbitkan dokumen', ke: ke, anak: anak, tinta: true)),
-    ],
-    if (ki == 3)
-      Builder(
-        builder: (context) => Text(
-          'Anggota hanya melihat dokumen yang ditujukan untuknya. Dokumen pendukung keuangan tidak disimpan di sini; itu ada pada transaksinya.',
-          style: TextStyle(fontSize: 13, color: context.warna.tinta3),
+    ];
+  }
+
+  Widget _tombol(String label, VoidCallback onTap, {required bool tinta}) =>
+      _baris(
+        Tombol(
+          label,
+          onPressed: onTap,
+          jenis: tinta ? JenisTombol.tinta : JenisTombol.kedua,
         ),
-      ),
-  ];
+      );
 }
 
 /// Button row: wrap, gap 8; one button `flex: 1 1 150px; max-width: 340px`.
-/// The `<a>` buttons are content-box, so padding 0 16 (and a 1.5 line) sit
-/// outside the 340.
 Widget _baris(Widget tombol, {double tepi = 32}) => BarisLentur(
   jarak: 8,
   anak: [Lentur(dasar: 150 + tepi, maks: 340 + tepi, child: tombol)],
 );
-
-/// A link drawn as a button (`<a>`, content-box: min-height excludes the
-/// 1.5 line, so the outline one is 51 high).
-class _TombolLink extends StatelessWidget {
-  const _TombolLink(
-    this.label, {
-    required this.ke,
-    this.anak,
-    required this.tinta,
-  });
-
-  final String label;
-  final Layar ke;
-  final String? anak;
-  final bool tinta;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.warna;
-    return Tautan(
-      ke: ke,
-      anak: anak,
-      radius: 14,
-      child: RupaTombol(
-        label: label,
-        isi: tinta ? c.tinta : c.permukaan,
-        garis: tinta ? null : GarisBorder.penuh(c.tinta, radius: 14),
-        warnaTeks: tinta ? c.permukaan : c.tinta,
-        radius: 14,
-        tinggi: tinta ? 52 : 51,
-        paddingH: 16,
-      ),
-    );
-  }
-}
 
 /// A static filter label (`<span>`, content-box: 44 plus its 1.5 line).
 class _Chip extends StatelessWidget {
@@ -216,24 +275,6 @@ class _Chip extends StatelessWidget {
   Widget build(BuildContext context) => ConstrainedBox(
     constraints: const BoxConstraints(minHeight: 47),
     child: ChipSatu(teks: teks, dipilih: dipilih, onTap: null),
-  );
-}
-
-/// Column, gap 6.
-class _Kolom extends StatelessWidget {
-  const _Kolom(this.anak);
-
-  final List<Widget> anak;
-
-  @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      for (var i = 0; i < anak.length; i++) ...[
-        if (i > 0) const SizedBox(height: 6),
-        anak[i],
-      ],
-    ],
   );
 }
 
@@ -255,7 +296,6 @@ class _Atas extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 16),
-        // Never wider than the row leaves (the badge text does not wrap).
         ConstrainedBox(
           constraints: BoxConstraints(maxWidth: math.max(0, k.maxWidth - 60)),
           child: LencanaStatus(label, bentuk: bentuk),
@@ -265,18 +305,19 @@ class _Atas extends StatelessWidget {
   );
 }
 
-/// Phone list row: its own card, a self link.
+/// Phone list row: its own card; opens the document in place.
 class _BarisPonsel extends StatelessWidget {
-  const _BarisPonsel({required this.d, required this.keBaris});
+  const _BarisPonsel({required this.d, required this.onBuka});
 
-  final DokumenGereja d;
-  final Layar keBaris;
+  final ChurchDocument d;
+  final ValueChanged<String> onBuka;
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
     return Tautan(
-      ke: keBaris,
+      ke: Layar.dokumenGereja,
+      diSini: () => onBuka(d.id),
       radius: 14,
       child: Kartu(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -289,19 +330,19 @@ class _BarisPonsel extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      d.judul,
+                      d.title,
                       style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      d.jenisTanggalUntuk,
+                      ketDokumen(d),
                       style: TextStyle(fontSize: 13, color: c.tinta3),
                     ),
                   ],
                 ),
               ),
               const SizedBox(width: 12),
-              LencanaStatus(d.status, bentuk: d.gaya.bentuk),
+              LencanaStatus(d.statusLabel, bentuk: BentukLencana.tinta),
               const SizedBox(width: 12),
               PalakatIkon(Ikon.lanjut, ukuran: 18, warna: c.tinta3),
             ],
@@ -314,10 +355,10 @@ class _BarisPonsel extends StatelessWidget {
 
 /// Web table: one card, rows with a top rule (none on the first).
 class _TabelWeb extends StatelessWidget {
-  const _TabelWeb({required this.dok, required this.keBaris});
+  const _TabelWeb({required this.dok, required this.onBuka});
 
-  final List<DokumenGereja> dok;
-  final Layar keBaris;
+  final List<ChurchDocument> dok;
+  final ValueChanged<String> onBuka;
 
   @override
   Widget build(BuildContext context) {
@@ -329,9 +370,10 @@ class _TabelWeb extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            for (var i = 0; i < dok.length; i++)
+            for (final (i, d) in dok.indexed)
               Tautan(
-                ke: keBaris,
+                ke: Layar.dokumenGereja,
+                diSini: () => onBuka(d.id),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 18,
@@ -346,12 +388,11 @@ class _TabelWeb extends StatelessWidget {
                     constraints: const BoxConstraints(minHeight: 52),
                     child: Row(
                       children: [
-                        Expanded(child: _SelWeb(d: dok[i])),
+                        Expanded(child: _SelWeb(d: d)),
                         const SizedBox(width: 16),
-                        // Each row is its own grid: column 2 is this badge.
                         LencanaStatus(
-                          dok[i].status,
-                          bentuk: dok[i].gaya.bentuk,
+                          d.statusLabel,
+                          bentuk: BentukLencana.tinta,
                         ),
                         const SizedBox(width: 16),
                         SizedBox(
@@ -382,16 +423,16 @@ class _TabelWeb extends StatelessWidget {
 class _SelWeb extends StatelessWidget {
   const _SelWeb({required this.d});
 
-  final DokumenGereja d;
+  final ChurchDocument d;
 
   @override
   Widget build(BuildContext context) {
     final judul = Text(
-      d.judul,
+      d.title,
       style: const TextStyle(fontWeight: FontWeight.w600),
     );
     final meta = Text(
-      d.jenisTanggalUntuk,
+      ketDokumen(d),
       style: TextStyle(fontSize: 13, color: context.warna.tinta3),
     );
     const anak = [

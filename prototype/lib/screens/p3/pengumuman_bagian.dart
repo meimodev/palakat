@@ -1,9 +1,18 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../mock/mock.dart';
+import '../../app/layar.dart';
+import '../../core/format.dart';
+import '../../core/tanggal.dart';
+import '../../domain/core/core.dart';
+import '../../domain/secretariat/secretariat.dart';
+import '../../providers/actor.dart';
+import '../../providers/repositories_sekretariat.dart';
+import '../../providers/revision.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/alur_kit.dart';
+import '../../widgets/chip_pilihan.dart';
 import '../../widgets/garis.dart';
 import '../../widgets/garis_status.dart';
 import '../../widgets/ikon.dart';
@@ -11,86 +20,621 @@ import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
-import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
+import '../../widgets/tombol_bersyarat.dart';
+import 'sekretariat_bersama.dart';
 
-/// Shared by Pengumuman and WebPengumuman (17-keadaanumum.md): the five
-/// views of the `keadaan` tweak and the board state `{ k: null }`.
-const opsiPengumuman = [
-  'Daftar',
-  'Draf',
-  'Diterbitkan',
-  'Diarsipkan sendiri',
-  'Ralat sebagai revisi',
+const _penerima = [
+  Audience.all,
+  Audience.servants,
+  Audience.scope('kolom-7', 'Kolom 7'),
 ];
 
-const _isiRalat =
-    'Sabtu, 21 November 2026 pukul 06.30. Membawa alat kebersihan masing-masing.';
+LencanaStatus lencanaPengumuman(AnnouncementStatus s) => LencanaStatus(
+  s.label,
+  bentuk: switch (s) {
+    AnnouncementStatus.draft => BentukLencana.draf,
+    AnnouncementStatus.published => BentukLencana.tinta,
+    AnnouncementStatus.archived => BentukLencana.abu,
+  },
+);
 
-/// The board's `k`: view = `k ?? keadaan`; a tweak change resets `k`, and
-/// every view change jumps the scroll area to the top.
-mixin KeadaanPengumuman<W extends StatefulWidget> on State<W> {
-  String get stem;
+/// The list caption: '{untuk} · berakhir pada {d}' or 'tanpa tanggal
+/// berakhir'.
+String ketPengumuman(Announcement a) =>
+    '${a.audience.label} · '
+    '${a.endsOn == null ? 'tanpa tanggal berakhir' : 'berakhir pada ${tgl(a.endsOn!.awal)}'}';
 
-  /// On a widget inside the scroll view.
-  final kunciAtas = GlobalKey();
-  String? _k, _tweak;
+/// AlurWarta's "Tulis pengumuman" form (spec 19, view `umum`), shared by
+/// Pengumuman and WartaEditor: Judul, Isi, Ditujukan untuk, Berakhir pada.
+/// The Operator saves a draft; only the Sekretaris Jemaat publishes. On
+/// success [onSelesai] gets the board's message.
+class FormPengumuman extends ConsumerStatefulWidget {
+  const FormPengumuman({
+    super.key,
+    required this.onSelesai,
+    required this.onBatal,
+    this.edisi,
+  });
 
-  String keadaan(BuildContext context) {
-    final t = belumDipindah<String>('Daftar');
-    if (_tweak != null && t != _tweak) {
-      _k = null;
-      WidgetsBinding.instance.addPostFrameCallback((_) => _keAtas());
-    }
-    _tweak = t;
-    final k = _k ?? t;
-    return opsiPengumuman.contains(k) ? k : opsiPengumuman.first;
-  }
+  final ValueChanged<String> onSelesai;
+  final VoidCallback onBatal;
 
-  void pilih(String k) {
-    _keAtas();
-    setState(() => _k = k);
-  }
-
-  void _keAtas() {
-    final c = kunciAtas.currentContext;
-    if (!mounted || c == null) return;
-    Scrollable.maybeOf(c)?.position.jumpTo(0);
-  }
-}
-
-/// A flex column with a fixed gap.
-class KolomJarak extends StatelessWidget {
-  const KolomJarak({super.key, required this.jarak, required this.anak});
-  final double jarak;
-  final List<Widget> anak;
+  /// The Warta edition being prepared, named in the message.
+  final WartaEdition? edisi;
 
   @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      for (var i = 0; i < anak.length; i++) ...[
-        if (i > 0) SizedBox(height: jarak),
-        anak[i],
-      ],
-    ],
-  );
+  ConsumerState<FormPengumuman> createState() => _FormPengumumanState();
 }
 
-LencanaStatus lencanaPengumuman(Pengumuman p) =>
-    LencanaStatus(p.status, bentuk: p.gaya.bentuk);
+class _FormPengumumanState extends ConsumerState<FormPengumuman> {
+  final _judul = TextEditingController(), _isi = TextEditingController();
+  final _akhir = TextEditingController();
+  Audience? _untuk;
+  Refusal? _tolak;
 
-/// Phone row (DokumenGereja 2b): a self link to the board.
-class BarisPengumuman extends StatelessWidget {
-  const BarisPengumuman(this.p, {super.key});
-  final Pengumuman p;
+  @override
+  void dispose() {
+    _judul.dispose();
+    _isi.dispose();
+    _akhir.dispose();
+    super.dispose();
+  }
+
+  void _ubah([Object? _]) => setState(() => _tolak = null);
+
+  /// `aU`: the first unmet condition, '' when met.
+  String _alasan() {
+    final hari = ref.read(hariIniProvider);
+    final akhir = _akhir.text;
+    final t = bacaTanggal(akhir);
+    if (_judul.text.trim().isEmpty) return 'judul belum diisi.';
+    if (_isi.text.trim().isEmpty) return 'isi belum diisi.';
+    if (_untuk == null) return 'penerima belum dipilih.';
+    if (akhir.trim().isNotEmpty && t == null) {
+      return 'tanggal berakhir tidak dikenali. Contoh: '
+          '${tgl(hari.tambahHari(14).awal)}.';
+    }
+    if (akhir.trim().isNotEmpty && !(t! > hari)) {
+      return 'tanggal berakhir harus setelah hari ini (${tgl(hari.awal)}).';
+    }
+    return '';
+  }
+
+  Future<void> _simpan({required bool terbit}) async {
+    final repo = ref.read(announcementRepositoryProvider);
+    final j = _judul.text.trim(), p = _untuk!;
+    final d = await repo.draft(
+      aktorSek(ref),
+      AnnouncementDraft(
+        title: j,
+        body: _isi.text.trim(),
+        audience: p,
+        endsOn: bacaTanggal(_akhir.text),
+      ),
+      idempotencyKey: kunciSek(ref),
+    );
+    if (!mounted) return;
+    if (d case Refused(:final refusal)) {
+      setState(() => _tolak = refusal);
+      return;
+    }
+    final a = (d as Ok<Announcement>).value;
+    if (!terbit) {
+      widget.onSelesai(
+        'Pengumuman “$j” disimpan sebagai Draf; belum terlihat anggota.',
+      );
+      return;
+    }
+    final r = await repo.publish(
+      aktorSek(ref),
+      a.id,
+      expectedRevision: a.revision,
+      idempotencyKey: kunciSek(ref),
+    );
+    if (!mounted) return;
+    switch (r) {
+      case Ok():
+        final e = widget.edisi;
+        final masuk = p == Audience.all && e != null;
+        widget.onSelesai(
+          'Pengumuman “$j” diterbitkan untuk ${p.label}'
+          '${masuk ? ' dan dipilih masuk ke Warta edisi ${tgl(e.sunday.awal)}.' : '.'}',
+        );
+      case Refused(:final refusal):
+        setState(() => _tolak = refusal);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final boleh = bolehSek(ref, Capability.announcementsPublish);
+    final alasan = _alasan();
+    final mulai =
+        _judul.text.isNotEmpty ||
+        _isi.text.isNotEmpty ||
+        _untuk != null ||
+        _akhir.text.isNotEmpty;
+    return kolomSek([
+      IsianAlur(
+        label: 'Judul',
+        controller: _judul,
+        onChanged: _ubah,
+        petunjuk: 'Judul pengumuman',
+      ),
+      IsianAlur(label: 'Isi', controller: _isi, onChanged: _ubah, baris: 3),
+      ChipPilihan<Audience>(
+        label: 'Ditujukan untuk',
+        jarakLabel: 6,
+        jarakBawah: 0,
+        pilihan: [for (final p in _penerima) (nilai: p, teks: p.label)],
+        terpilih: _untuk,
+        onPilih: (p) => setState(() {
+          _untuk = p;
+          _tolak = null;
+        }),
+      ),
+      IsianAlur(
+        label: 'Berakhir pada',
+        controller: _akhir,
+        onChanged: _ubah,
+        petunjuk: 'hh/bb/tttt',
+        keterangan:
+            'Boleh kosong. Setelah tanggal ini pengumuman diarsipkan sendiri.',
+      ),
+      kecilSek(
+        context,
+        'Hanya Sekretaris Jemaat yang menerbitkan. Sekretaris Jemaat juga yang '
+        'memilih pengumuman mana yang masuk ke tiap edisi Warta.',
+      ),
+      if (_tolak != null)
+        penolakanSek(_tolak!)
+      else if (mulai && alasan.isNotEmpty)
+        penolakanSek(
+          Refusal(
+            action: boleh ? 'Terbitkan' : 'Simpan sebagai draf',
+            because: alasan,
+          ),
+        ),
+      BarisTombol(
+        anak: [
+          if (boleh)
+            TombolBersyarat(
+              label: 'Terbitkan',
+              tindakan: 'Terbitkan',
+              alasan: alasan,
+              periksa: _alasan,
+              sudahMulai: false,
+              onPressed: () => _simpan(terbit: true),
+            ),
+          TombolBersyarat(
+            label: 'Simpan sebagai draf',
+            tindakan: 'Simpan sebagai draf',
+            alasan: alasan,
+            periksa: _alasan,
+            sudahMulai: false,
+            warnaSiap: boleh ? JenisTombol.kedua : JenisTombol.tinta,
+            onPressed: () => _simpan(terbit: false),
+          ),
+          Tombol(
+            'Batalkan',
+            jenis: JenisTombol.teks,
+            ukuran: UkuranTombol.kecil,
+            onPressed: widget.onBatal,
+          ),
+        ],
+      ),
+    ], 16);
+  }
+}
+
+/// Pengumuman and WebPengumuman (spec 17): the list (a writer sees every
+/// announcement, anyone else those published to them), the form, and one
+/// announcement in place: a draft as the board's read-only form with
+/// "Terbitkan" for the Sekretaris Jemaat, a published one with its Warta
+/// edition, an archived one past its end date (DL14).
+class IsiPengumuman extends ConsumerStatefulWidget {
+  const IsiPengumuman({super.key, required this.web});
+
+  final bool web;
+
+  @override
+  ConsumerState<IsiPengumuman> createState() => _IsiPengumumanState();
+}
+
+class _IsiPengumumanState extends ConsumerState<IsiPengumuman> {
+  /// null: the list; '': the form; else the open announcement.
+  String? _v;
+  String _pesan = '';
+  Refusal? _tolak;
+
+  /// The open announcement's "Ralat" form, its text.
+  var _ralat = false;
+  final _isiRalat = TextEditingController();
+
+  @override
+  void dispose() {
+    _isiRalat.dispose();
+    super.dispose();
+  }
+
+  void _ke(String? v, [String pesan = '']) {
+    setState(() {
+      _v = v;
+      _pesan = pesan;
+      _tolak = null;
+      _ralat = false;
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) Scrollable.maybeOf(context)?.position.jumpTo(0);
+    });
+  }
+
+  Future<void> _terbitkan(Announcement a) async {
+    final r = await ref
+        .read(announcementRepositoryProvider)
+        .publish(
+          aktorSek(ref),
+          a.id,
+          expectedRevision: a.revision,
+          idempotencyKey: kunciSek(ref),
+        );
+    if (!mounted) return;
+    switch (r) {
+      case Ok():
+        _ke(
+          a.id,
+          'Pengumuman “${a.title}” diterbitkan untuk ${a.audience.label}.',
+        );
+      case Refused(:final refusal):
+        setState(() => _tolak = refusal);
+    }
+  }
+
+  Future<void> _terbitRalat(Announcement a) async {
+    final r = await ref
+        .read(announcementRepositoryProvider)
+        .revise(
+          aktorSek(ref),
+          a.id,
+          _isiRalat.text,
+          expectedRevision: a.revision,
+          idempotencyKey: kunciSek(ref),
+        );
+    if (!mounted) return;
+    switch (r) {
+      case Ok(:final value):
+        _ke(
+          a.id,
+          'Pengumuman “${a.title}”: revisi ${value.revisionNumber} '
+          'diterbitkan.',
+        );
+      case Refused(:final refusal):
+        setState(() => _tolak = refusal);
+    }
+  }
+
+  /// The board's ralat card: "Ralat menjadi Revisi {n}.", Isi, "Terbitkan
+  /// revisi {n}", "Batalkan".
+  List<Widget> _formRalat(Announcement a) {
+    final n = a.revisionNumber + 1;
+    String alasan() {
+      final t = _isiRalat.text.trim();
+      if (t.isEmpty) return 'isi belum diisi.';
+      return t == a.body ? 'isi belum diubah.' : '';
+    }
+
+    return [
+      Kartu(
+        status: GarisStatus.draf,
+        child: Text.rich(
+          TextSpan(
+            children: [
+              TextSpan(
+                text: 'Ralat menjadi Revisi $n. ',
+                style: const TextStyle(fontWeight: FontWeight.w700),
+              ),
+              TextSpan(
+                text:
+                    'Revisi ${n - 1} tetap tampil sebagai “Digantikan oleh '
+                    'revisi $n”.',
+                style: TextStyle(color: context.warna.tinta2),
+              ),
+            ],
+          ),
+          style: const TextStyle(fontSize: 14),
+        ),
+      ),
+      IsianAlur(
+        label: 'Isi',
+        controller: _isiRalat,
+        onChanged: (_) => setState(() => _tolak = null),
+        baris: 3,
+      ),
+      if (_tolak != null) penolakanSek(_tolak!),
+      BarisTombol(
+        anak: [
+          TombolBersyarat(
+            label: 'Terbitkan revisi $n',
+            tindakan: 'Terbitkan revisi $n',
+            alasan: alasan(),
+            periksa: alasan,
+            sudahMulai: false,
+            onPressed: () => _terbitRalat(a),
+          ),
+          Tombol(
+            'Batalkan',
+            jenis: JenisTombol.teks,
+            ukuran: UkuranTombol.kecil,
+            onPressed: () => setState(() {
+              _ralat = false;
+              _tolak = null;
+            }),
+          ),
+        ],
+      ),
+    ];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    ref.watch(revisionProvider);
+    final penulis = bolehSek(ref, Capability.announcementsDraft);
+    final repo = ref.watch(announcementRepositoryProvider);
+    final saya = ref.watch(actorProvider)?.personId;
+    final semua = penulis ? repo.list() : repo.list(audienceOf: saya);
+    final hari = ref.watch(hariIniProvider);
+    final a = semua.where((x) => x.id == _v).firstOrNull;
+    final isi = <Widget>[
+      if (_pesan.isNotEmpty) Pesan(Text(_pesan)),
+      if (_v == '')
+        FormPengumuman(
+          onSelesai: (p) => _ke(null, p),
+          onBatal: () => _ke(null),
+          edisi: _edisiDraf(),
+        )
+      else if (a != null)
+        ..._lihat(a, a.statusAt(hari))
+      else ...[
+        if (widget.web)
+          _Tabel(daftar: semua, hari: hari, onBuka: _ke)
+        else
+          for (final x in semua) _Baris(x, hari: hari, onBuka: _ke),
+        if (semua.isEmpty) kecilSek(context, 'Belum ada pengumuman.'),
+        if (penulis)
+          BarisTombol(
+            anak: [
+              Tombol(
+                'Tulis pengumuman',
+                jenis: JenisTombol.tinta,
+                onPressed: () => _ke(''),
+              ),
+            ],
+          ),
+      ],
+    ];
+    return kolomSek(isi, 16);
+  }
+
+  /// The edition of the coming Sunday while it is still Draf.
+  WartaEdition? _edisiDraf() {
+    final hari = ref.read(hariIniProvider);
+    return ref
+        .read(wartaRepositoryProvider)
+        .editions()
+        .where(
+          (e) => e.status == WartaStatus.draft && e.sunday == mingguDepan(hari),
+        )
+        .firstOrNull;
+  }
+
+  List<Widget> _lihat(Announcement a, AnnouncementStatus s) {
+    final c = context.warna;
+    final kembali = Tombol(
+      'Kembali',
+      jenis: JenisTombol.teks,
+      ukuran: UkuranTombol.kecil,
+      onPressed: () => _ke(null),
+    );
+    final akhir = a.endsOn == null ? null : tgl(a.endsOn!.awal);
+    switch (s) {
+      case AnnouncementStatus.draft:
+        final boleh = bolehSek(ref, Capability.announcementsPublish);
+        final form = [
+          Kartu(
+            child: kolomSek([
+              _isian(context, 'Judul', a.title),
+              _isian(context, 'Isi', a.body, baris: 3),
+              KisiOtomatis(
+                minLebar: 300,
+                jarak: 16,
+                anak: [
+                  _isian(context, 'Ditujukan untuk', a.audience.label),
+                  kolomSek([
+                    _isian(context, 'Berakhir pada', akhir ?? ''),
+                    kecilSek(
+                      context,
+                      'Boleh kosong. Setelah tanggal ini pengumuman '
+                      'diarsipkan sendiri.',
+                    ),
+                  ], 6),
+                ],
+              ),
+            ], 12),
+          ),
+          kecilSek(
+            context,
+            'Draf oleh ${namaSek(ref, a.draftedBy)}. Hanya Sekretaris Jemaat '
+            'yang menerbitkan.',
+          ),
+          if (_tolak != null) penolakanSek(_tolak!),
+          BarisTombol(
+            anak: [
+              if (boleh)
+                Tombol(
+                  'Terbitkan',
+                  jenis: JenisTombol.tinta,
+                  onPressed: () => _terbitkan(a),
+                ),
+              kembali,
+            ],
+          ),
+        ];
+        if (!widget.web) return form;
+        return [
+          duaKolomSek(form, [
+            const JudulBagian('Yang dilihat anggota'),
+            Kartu(
+              child: kolomSek([
+                KepalaKartu(
+                  judul: a.title,
+                  ujung: const LencanaStatus(
+                    'Belum diterbitkan',
+                    bentuk: BentukLencana.draf,
+                  ),
+                ),
+                Text(a.body, style: TextStyle(fontSize: 14, color: c.tinta2)),
+                kecilSek(
+                  context,
+                  'Ditujukan untuk: ${a.audience.label}'
+                  '${akhir == null ? '' : ' · tampil sampai $akhir'}',
+                ),
+              ], 6),
+            ),
+            kecilSek(
+              context,
+              'Sama seperti yang masuk ke Warta Jemaat. Draf tidak pernah '
+              'terlihat anggota.',
+            ),
+          ]),
+        ];
+      case AnnouncementStatus.published:
+        if (_ralat) return _formRalat(a);
+        final edisi = ref
+            .watch(wartaRepositoryProvider)
+            .editions()
+            .where((e) => e.announcementIds.contains(a.id))
+            .firstOrNull;
+        final n = a.revisionNumber;
+        return [
+          Kartu(
+            child: kolomSek([
+              KepalaKartu(
+                judul: a.title,
+                ujung: n > 1
+                    ? LencanaStatus('Revisi $n', bentuk: BentukLencana.tinta)
+                    : lencanaPengumuman(s),
+              ),
+              Text(a.body, style: TextStyle(fontSize: 14, color: c.tinta2)),
+              Text(
+                'Ditujukan untuk: ${a.audience.label}'
+                '${akhir == null ? '' : ' · Berakhir pada $akhir'}',
+                style: TextStyle(fontSize: 14, color: c.tinta2),
+              ),
+              kecilSek(
+                context,
+                'Diterbitkan oleh ${namaSek(ref, a.publishedBy ?? '')}, '
+                '${tglJam(a.publishedAt!)}.'
+                '${edisi == null ? '' : ' Masuk ke Warta edisi ${tgl(edisi.sunday.awal)}.'}',
+              ),
+            ], 6),
+          ),
+          for (final r in a.superseded.reversed)
+            Kartu(
+              status: GarisStatus.draf,
+              child: kolomSek([
+                Wrap(
+                  spacing: 16,
+                  runSpacing: 6,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    Text(
+                      'Revisi ${r.number}',
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                    LencanaStatus(
+                      'Digantikan oleh revisi ${r.number + 1}',
+                      bentuk: BentukLencana.abu,
+                    ),
+                  ],
+                ),
+                Text(r.body, style: TextStyle(fontSize: 14, color: c.tinta2)),
+                kecilSek(
+                  context,
+                  'Diterbitkan oleh ${namaSek(ref, r.publishedBy)}, '
+                  '${tglJam(r.publishedAt)}. Tetap dapat dibaca.',
+                ),
+              ], 6),
+            ),
+          BarisTombol(
+            anak: [
+              if (bolehSek(ref, Capability.announcementsPublish))
+                Tombol(
+                  'Ralat',
+                  jenis: JenisTombol.kedua,
+                  ukuran: UkuranTombol.sedang,
+                  onPressed: () => setState(() {
+                    _ralat = true;
+                    _tolak = null;
+                    _isiRalat.text = a.body;
+                  }),
+                ),
+              kembali,
+            ],
+          ),
+        ];
+      case AnnouncementStatus.archived:
+        return [
+          Kartu(
+            status: GarisStatus.draf,
+            child: kolomSek([
+              KepalaKartu(judul: a.title, ujung: lencanaPengumuman(s)),
+              Text(
+                akhir == null ? a.body : 'Berakhir pada $akhir',
+                style: TextStyle(fontSize: 14, color: c.tinta2),
+              ),
+              kecilSek(
+                context,
+                'Diarsipkan sendiri pada tanggal berakhirnya. Tetap dapat '
+                'dibaca di arsip.',
+              ),
+            ], 6),
+          ),
+          BarisTombol(anak: [kembali]),
+        ];
+    }
+  }
+}
+
+/// A read-only field: label 14 `tinta2` above (gap 6), value 14 `tinta2`.
+Widget _isian(
+  BuildContext context,
+  String label,
+  String nilai, {
+  int baris = 1,
+}) => IsianTeks(
+  key: ValueKey('$label·$nilai'),
+  label: label,
+  nilaiAwal: nilai,
+  hanyaBaca: true,
+  jarakLabel: 6,
+  baris: baris,
+  padding: baris > 1 ? const EdgeInsets.fromLTRB(14, 12, 11, 12) : null,
+  gaya: TextStyle(fontSize: 14, color: context.warna.tinta2, letterSpacing: 0),
+);
+
+/// Phone row: its own card; opens the announcement in place.
+class _Baris extends StatelessWidget {
+  const _Baris(this.a, {required this.hari, required this.onBuka});
+  final Announcement a;
+  final Tanggal hari;
+  final ValueChanged<String> onBuka;
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
     return Tautan(
       ke: Layar.pengumuman,
+      diSini: () => onBuka(a.id),
       radius: 14,
       child: Kartu(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -102,19 +646,19 @@ class BarisPengumuman extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    p.judul,
+                    a.title,
                     style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    p.untuk,
+                    ketPengumuman(a),
                     style: TextStyle(fontSize: 13, color: c.tinta3),
                   ),
                 ],
               ),
             ),
             const SizedBox(width: 12),
-            lencanaPengumuman(p),
+            lencanaPengumuman(a.statusAt(hari)),
             const SizedBox(width: 12),
             PalakatIkon(Ikon.lanjut, ukuran: 18, warna: c.tinta3),
           ],
@@ -124,9 +668,17 @@ class BarisPengumuman extends StatelessWidget {
   }
 }
 
-/// Web table (WebDokumenGereja 2b): rows with a 1 px rule between them.
-class TabelPengumuman extends StatelessWidget {
-  const TabelPengumuman({super.key});
+/// Web table: rows with a 1 px rule between them.
+class _Tabel extends StatelessWidget {
+  const _Tabel({
+    required this.daftar,
+    required this.hari,
+    required this.onBuka,
+  });
+
+  final List<Announcement> daftar;
+  final Tanggal hari;
+  final ValueChanged<String> onBuka;
 
   @override
   Widget build(BuildContext context) {
@@ -136,12 +688,12 @@ class TabelPengumuman extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          for (final (i, p) in semuaPengumuman.indexed) ...[
+          for (final (i, a) in daftar.indexed) ...[
             if (i > 0) GarisLurus(warna: c.garis),
             Tautan(
               ke: Layar.pengumuman,
+              diSini: () => onBuka(a.id),
               child: Container(
-                // min-height 52 on a content-box <a>, plus padding 8 + 8.
                 constraints: const BoxConstraints(minHeight: 68),
                 padding: const EdgeInsets.symmetric(
                   horizontal: 18,
@@ -149,9 +701,33 @@ class TabelPengumuman extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    Expanded(child: _SelJudul(p)),
+                    Expanded(
+                      child: BarisLentur(
+                        jarak: 20,
+                        jarakBaris: 2,
+                        anak: [
+                          Lentur(
+                            dasar: 260,
+                            child: Text(
+                              a.title,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          Lentur(
+                            dasar: 300,
+                            tumbuh: 1.4,
+                            child: Text(
+                              ketPengumuman(a),
+                              style: TextStyle(fontSize: 13, color: c.tinta3),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                     const SizedBox(width: 16),
-                    lencanaPengumuman(p),
+                    lencanaPengumuman(a.statusAt(hari)),
                     const SizedBox(width: 16),
                     SizedBox(
                       width: 20,
@@ -174,289 +750,3 @@ class TabelPengumuman extends StatelessWidget {
     );
   }
 }
-
-/// `flex-wrap: wrap; align-items: baseline; gap: 2px 20px`: title
-/// `flex: 1 1 260px`, caption `flex: 1.4 1 300px`.
-class _SelJudul extends StatelessWidget {
-  const _SelJudul(this.p);
-  final Pengumuman p;
-
-  @override
-  Widget build(BuildContext context) {
-    final judul = Text(
-      p.judul,
-      style: const TextStyle(fontWeight: FontWeight.w600),
-    );
-    final ket = Text(
-      p.untuk,
-      style: TextStyle(fontSize: 13, color: context.warna.tinta3),
-    );
-    return LayoutBuilder(
-      builder: (context, k) {
-        final l = BarisLentur.lebar(
-          [
-            Lentur(dasar: 260, child: judul),
-            Lentur(dasar: 300, tumbuh: 1.4, child: ket),
-          ],
-          20,
-          k.maxWidth,
-        );
-        if (l.length > 1) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [judul, const SizedBox(height: 2), ket],
-          );
-        }
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
-          children: [
-            SizedBox(width: l[0][0], child: judul),
-            const SizedBox(width: 20),
-            SizedBox(width: l[0][1], child: ket),
-          ],
-        );
-      },
-    );
-  }
-}
-
-/// A read-only field: label 14 `tinta2` above (gap 6), value inherits 14
-/// `tinta2` (`input{font:inherit}`).
-Widget _isian(
-  BuildContext context,
-  String label,
-  String nilai, {
-  int baris = 1,
-}) => IsianTeks(
-  label: label,
-  nilaiAwal: nilai,
-  hanyaBaca: true,
-  jarakLabel: 6,
-  baris: baris,
-  // TextField keeps 3 px (caret 2 + gap 1) at the right; give it back so the
-  // text area wraps where the board's readonly textarea does.
-  padding: baris > 1 ? const EdgeInsets.fromLTRB(14, 12, 11, 12) : null,
-  // TextField merges the theme's bodyLarge (M3 letter spacing 0.5) under it.
-  gaya: TextStyle(fontSize: 14, color: context.warna.tinta2, letterSpacing: 0),
-);
-
-/// The draft form card (Draf view).
-class FormDrafPengumuman extends StatelessWidget {
-  const FormDrafPengumuman({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.warna;
-    return Kartu(
-      child: KolomJarak(
-        jarak: 12,
-        anak: [
-          _isian(context, 'Judul', semuaPengumuman[0].judul),
-          _isian(context, 'Isi', pengumumanKerjaBaktiIsi, baris: 3),
-          KisiOtomatis(
-            minLebar: 300,
-            jarak: 16,
-            anak: [
-              _isian(context, 'Ditujukan untuk', 'Semua anggota'),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _isian(context, 'Berakhir pada', '20/11/2026'),
-                  const SizedBox(height: 6),
-                  Text(
-                    'Boleh kosong. Setelah tanggal ini pengumuman diarsipkan sendiri.',
-                    style: TextStyle(fontSize: 13, color: c.tinta3),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-Text _keterangan(BuildContext context, String s) =>
-    Text(s, style: TextStyle(fontSize: 13, color: context.warna.tinta3));
-
-/// The draft form, its caption and its buttons (Draf view, phone and the
-/// web's left column).
-List<Widget> drafPengumuman(
-  BuildContext context,
-  ValueChanged<String> pilih,
-) => [
-  const FormDrafPengumuman(),
-  _keterangan(
-    context,
-    'Draf oleh $pengumumanDrafOleh. Hanya Sekretaris Jemaat yang menerbitkan.',
-  ),
-  BarisTombol(
-    anak: [
-      Tombol(
-        'Terbitkan',
-        jenis: JenisTombol.tinta,
-        onPressed: () => pilih('Diterbitkan'),
-      ),
-      Tombol(
-        'Simpan sebagai draf',
-        jenis: JenisTombol.kedua,
-        ukuran: UkuranTombol.sedang,
-        onPressed: () => pilih('Daftar'),
-      ),
-    ],
-  ),
-];
-
-/// Member preview of the draft (web Draf view, right column).
-List<Widget> pratinjauPengumuman(BuildContext context) {
-  final c = context.warna;
-  return [
-    const JudulBagian('Yang dilihat anggota'),
-    Kartu(
-      child: KolomJarak(
-        jarak: 6,
-        anak: [
-          KepalaKartu(
-            judul: semuaPengumuman[0].judul,
-            ujung: const LencanaStatus(
-              'Belum diterbitkan',
-              bentuk: BentukLencana.draf,
-            ),
-          ),
-          Text(
-            pengumumanKerjaBaktiIsi,
-            style: TextStyle(fontSize: 14, color: c.tinta2),
-          ),
-          _keterangan(
-            context,
-            'Ditujukan untuk: Semua anggota · tampil sampai 20/11/2026',
-          ),
-        ],
-      ),
-    ),
-    _keterangan(
-      context,
-      'Sama seperti yang masuk ke Warta Jemaat. Draf tidak pernah terlihat anggota.',
-    ),
-  ];
-}
-
-/// The views other than Daftar and Draf, identical on phone and web.
-List<Widget> viewPengumuman(
-  BuildContext context,
-  String keadaan,
-  ValueChanged<String> pilih,
-) {
-  final c = context.warna;
-  switch (keadaan) {
-    case 'Diterbitkan':
-      return [
-        Kartu(
-          child: KolomJarak(
-            jarak: 6,
-            anak: [
-              KepalaKartu(
-                judul: semuaPengumuman[0].judul,
-                ujung: lencanaPengumuman(semuaPengumuman[0]),
-              ),
-              Text(
-                'Ditujukan untuk: Semua anggota · Berakhir pada 20/11/2026',
-                style: TextStyle(fontSize: 14, color: c.tinta2),
-              ),
-              _keterangan(
-                context,
-                '$pengumumanKerjaBaktiOleh. Masuk ke Warta edisi 22/11/2026.',
-              ),
-            ],
-          ),
-        ),
-        BarisTombol(
-          anak: [
-            Tombol(
-              'Ralat',
-              jenis: JenisTombol.kedua,
-              ukuran: UkuranTombol.sedang,
-              onPressed: () => pilih('Ralat sebagai revisi'),
-            ),
-          ],
-        ),
-      ];
-    case 'Diarsipkan sendiri':
-      return [
-        Kartu(
-          status: GarisStatus.draf,
-          child: KolomJarak(
-            jarak: 6,
-            anak: [
-              KepalaKartu(
-                judul: semuaPengumuman[3].judul,
-                ujung: lencanaPengumuman(semuaPengumuman[3]),
-              ),
-              Text(
-                'Berakhir pada 15/11/2026',
-                style: TextStyle(fontSize: 14, color: c.tinta2),
-              ),
-              _keterangan(
-                context,
-                'Diarsipkan sendiri pada tanggal berakhirnya. Tetap dapat dibaca di arsip.',
-              ),
-            ],
-          ),
-        ),
-      ];
-    case 'Ralat sebagai revisi':
-      return [
-        Kartu(
-          status: GarisStatus.draf,
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          child: Text.rich(
-            TextSpan(
-              children: [
-                const TextSpan(
-                  text: 'Ralat menjadi Revisi 2.',
-                  style: TextStyle(fontWeight: FontWeight.w700),
-                ),
-                const TextSpan(text: ' '),
-                TextSpan(
-                  text: 'Revisi 1 tetap tampil sebagai “Digantikan oleh revisi 2”.',
-                  style: TextStyle(color: c.tinta2),
-                ),
-              ],
-            ),
-            style: const TextStyle(fontSize: 14),
-          ),
-        ),
-        Kartu(child: _isian(context, 'Isi', _isiRalat, baris: 3)),
-        BarisTombol(
-          anak: [
-            Tombol(
-              'Terbitkan revisi 2',
-              jenis: JenisTombol.tinta,
-              onPressed: () => pilih('Diterbitkan'),
-            ),
-            Tombol(
-              'Batalkan',
-              jenis: JenisTombol.teks,
-              onPressed: () => pilih('Diterbitkan'),
-            ),
-          ],
-        ),
-      ];
-  }
-  return const [];
-}
-
-/// "Tulis pengumuman" under the list.
-Widget tulisPengumuman(ValueChanged<String> pilih) => BarisTombol(
-  anak: [
-    Tombol(
-      'Tulis pengumuman',
-      jenis: JenisTombol.tinta,
-      onPressed: () => pilih('Draf'),
-    ),
-  ],
-);

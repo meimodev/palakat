@@ -1,315 +1,510 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/format.dart';
+import '../../domain/core/core.dart';
+import '../../domain/secretariat/secretariat.dart';
+import '../../providers/actor.dart';
+import '../../providers/core_repositories.dart';
+import '../../providers/repositories_sekretariat.dart';
+import '../../providers/revision.dart';
+import '../../widgets/alur_kit.dart';
 import '../../theme/palakat_tema.dart';
+import '../../widgets/chip_pilihan.dart';
 import '../../widgets/garis_status.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
+import '../../widgets/riwayat_alur.dart';
 import '../../widgets/tombol.dart';
-import '../../app/belum_dipindah.dart';
+import '../../widgets/tombol_bersyarat.dart';
+import 'sekretariat_bersama.dart';
 
-/// Shared by PermohonanSurat and WebPermohonanSurat: the five views of the
-/// `keadaan` tweak and the cards they draw (17-keadaanumum.md).
-const pilihanPermohonan = [
-  'Diajukan',
-  'Menerbitkan surat',
-  'Data jemaat tidak aktif',
-  'Diterbitkan',
-  'Tidak diterbitkan',
-];
+enum _V { daftar, buka, tolak, ajukan }
 
-/// The board rows: title, caption.
-const barisPermohonan = [
-  (
-    'Surat keterangan · Novita Wenas',
-    'Diajukan anggota 14/11/2026 · untuk melamar pekerjaan',
-  ),
-  ('Atestasi · Keluarga Lasut', 'Dicatat Operator Yanti Sumual 15/11/2026'),
-  ('Atestasi · Ferry Wenas', 'Diajukan 13/11/2026'),
-];
+/// PermohonanSurat + AlurSurat (README 7.1; screens/19), shared by the phone
+/// and web screens. The Sekretaris Jemaat opens a request, reads the
+/// member's data, types the outgoing-letter number, attaches the signed copy
+/// and issues it, or records "Tidak diterbitkan" with a reason. The Operator
+/// records a request at the office; a member files their own.
+class IsiSurat extends ConsumerStatefulWidget {
+  const IsiSurat({super.key, required this.web});
 
-const keteranganDaftar =
-    'Permohonan datang dari anggota, atau dicatat Operator di kantor untuk anggota tanpa ponsel.';
-
-/// Board state `{ k: null }`; the view is `k ?? keadaan`. A tweak change
-/// resets `k`; every view change jumps the scroll area to the top.
-mixin KeadaanPermohonan<T extends StatefulWidget> on State<T> {
-  String get stem;
-  final kunciAtas = GlobalKey();
-  String? _k, _t;
-
-  String get tampil {
-    final v = _k ?? _t ?? pilihanPermohonan.first;
-    return pilihanPermohonan.contains(v) ? v : pilihanPermohonan.first;
-  }
+  final bool web;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final t = belumDipindah<String>('Diajukan');
-    if (t != _t) {
-      if (_t != null) _keAtas();
-      _t = t;
-      _k = null;
+  ConsumerState<IsiSurat> createState() => _IsiSuratState();
+}
+
+class _IsiSuratState extends ConsumerState<IsiSurat> {
+  final _no = TextEditingController();
+  final _alasan = TextEditingController();
+  final _perlu = TextEditingController();
+  final _cari = TextEditingController();
+
+  /// The member's details typed in while Data jemaat is off (PermohonanSurat
+  /// "Data jemaat tidak aktif"; PMP 6, "Member letters without Membership").
+  final _nama = TextEditingController(), _rumah = TextEditingController();
+  var _v = _V.daftar;
+  String? _sel, _untuk;
+  var _jenis = LetterType.certificate;
+  var _file = false;
+  var _pesan = '';
+  Refusal? _tolak;
+
+  @override
+  void dispose() {
+    for (final c in [_no, _alasan, _perlu, _cari, _nama, _rumah]) {
+      c.dispose();
+    }
+    super.dispose();
+  }
+
+  /// The board's `ke(v)`: change view, clear the message, jump to the top.
+  void _ke(_V v, [VoidCallback? o]) {
+    setState(() {
+      _v = v;
+      _pesan = '';
+      _tolak = null;
+      o?.call();
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) Scrollable.maybeOf(context)?.position.jumpTo(0);
+    });
+  }
+
+  void _kosongkan() {
+    _no.clear();
+    _alasan.clear();
+    _perlu.clear();
+    _cari.clear();
+    _nama.clear();
+    _rumah.clear();
+    _file = false;
+    _untuk = null;
+  }
+
+  void _selesai(String pesan) => _ke(_V.daftar, () {
+    _pesan = pesan;
+    _kosongkan();
+  });
+
+  void _gagal(Refusal r) => setState(() => _tolak = r);
+
+  /// Whether Data jemaat is active: the letter reads its record; otherwise
+  /// the Sekretaris types the details (PMP 6).
+  bool get _dataAktif => ref.read(canProvider).moduleActive(Module.membership);
+
+  String _alasanTerbit() => !_dataAktif && _nama.text.trim().isEmpty
+      ? 'nama anggota belum diisi.'
+      : _no.text.trim().isEmpty
+      ? 'nomor surat belum diisi.'
+      : (!_file ? 'salinan bertanda tangan belum terlampir.' : '');
+
+  String _alasanTolak() =>
+      _alasan.text.trim().isEmpty ? 'alasan belum diisi.' : '';
+
+  LetterRequest? get _p => ref
+      .read(letterRepositoryProvider)
+      .requests()
+      .where((r) => r.id == _sel)
+      .firstOrNull;
+
+  Future<void> _terbit() async {
+    final p = _p!, n = _no.text.trim();
+    final r = await ref
+        .read(letterRepositoryProvider)
+        .issue(
+          aktorSek(ref),
+          p.id,
+          n,
+          const SampleFile('salinan-bertanda-tangan.pdf'),
+          expectedRevision: p.revision,
+          idempotencyKey: kunciSek(ref),
+        );
+    if (!mounted) return;
+    switch (r) {
+      case Ok():
+        _selesai('${p.type.label} ${p.forName} diterbitkan dengan No. $n.');
+      case Refused(:final refusal):
+        _gagal(refusal);
     }
   }
 
-  void pilih(String v) {
-    if (v == tampil) return;
-    setState(() => _k = v);
-    _keAtas();
+  Future<void> _catatTolak() async {
+    final p = _p!, a = _alasan.text.trim();
+    final r = await ref
+        .read(letterRepositoryProvider)
+        .refuse(
+          aktorSek(ref),
+          p.id,
+          reason: a,
+          expectedRevision: p.revision,
+          idempotencyKey: kunciSek(ref),
+        );
+    if (!mounted) return;
+    switch (r) {
+      case Ok():
+        _selesai(
+          '${p.type.label} ${p.forName} tidak diterbitkan · alasan: $a.',
+        );
+      case Refused(:final refusal):
+        _gagal(refusal);
+    }
   }
 
-  void _keAtas() => WidgetsBinding.instance.addPostFrameCallback((_) {
-    final ctx = kunciAtas.currentContext;
-    if (ctx != null) Scrollable.maybeOf(ctx)?.position.jumpTo(0);
-  });
-}
+  Future<void> _ajukan({required bool diKantor}) async {
+    final repo = ref.read(letterRepositoryProvider);
+    final perlu = _perlu.text;
+    final r = diKantor
+        ? await repo.recordAtOffice(
+            aktorSek(ref),
+            _untuk!,
+            _jenis,
+            purpose: perlu,
+            idempotencyKey: kunciSek(ref),
+          )
+        : await repo.request(
+            aktorSek(ref),
+            _jenis,
+            purpose: perlu,
+            idempotencyKey: kunciSek(ref),
+          );
+    if (!mounted) return;
+    switch (r) {
+      case Ok(:final value):
+        _selesai(
+          diKantor
+              ? 'Permohonan ${value.title} dicatat di kantor.'
+              : 'Permohonan ${value.title} diajukan.',
+        );
+      case Refused(:final refusal):
+        _gagal(refusal);
+    }
+  }
 
-/// Column with a fixed gap.
-class KolomJarak extends StatelessWidget {
-  const KolomJarak({super.key, required this.jarak, required this.anak});
-  final double jarak;
-  final List<Widget> anak;
+  static BentukLencana _bentuk(LetterStatus s) => switch (s) {
+    LetterStatus.requested => BentukLencana.garis,
+    LetterStatus.issued => BentukLencana.tinta,
+    LetterStatus.refused => BentukLencana.bata,
+  };
+
+  String _ket(LetterRequest r) => switch (r.status) {
+    LetterStatus.requested => [
+      r.atOffice
+          ? 'Dicatat Operator di kantor, ${tgl(r.requestedAt)}'
+          : 'Diajukan ${tgl(r.requestedAt)}',
+      ?r.purpose,
+    ].join(' · '),
+    LetterStatus.issued =>
+      'No. ${r.number} · ${tgl(r.decidedAt!)} · hanya anggota, keluarganya '
+          'dan pelayan yang menaunginya yang melihat',
+    LetterStatus.refused => 'Alasan: ${r.refusalReason}',
+  };
 
   @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      for (var i = 0; i < anak.length; i++) ...[
-        if (i > 0) SizedBox(height: jarak),
-        anak[i],
-      ],
-    ],
-  );
-}
+  Widget build(BuildContext context) {
+    ref.watch(revisionProvider);
+    final penerbit = bolehSek(ref, Capability.documentsIssueLetter);
+    final kantor = bolehSek(ref, Capability.documentsRecordRequest);
+    final pemohon = bolehSek(ref, Capability.documentsRequestLetter);
+    final saya = ref.watch(actorProvider)?.personId;
+    final repo = ref.watch(letterRepositoryProvider);
+    final daftar = penerbit || kantor
+        ? repo.requests()
+        : repo.requests(personId: saya);
+    final isi = switch (_v) {
+      _V.buka when _p != null => _buka(),
+      _V.tolak when _p != null => _tolakV(),
+      _V.ajukan => _ajukanV(diKantor: kantor),
+      _ => _daftar(daftar, penerbit, kantor, pemohon),
+    };
+    return kolomSek(isi, 16);
+  }
 
-/// Card top row: 700 title, badge right, gap 16.
-class _Atas extends StatelessWidget {
-  const _Atas(this.judul, this.lencana, this.bentuk);
-  final String judul, lencana;
-  final BentukLencana bentuk;
-
-  @override
-  Widget build(BuildContext context) => Row(
-    children: [
-      Expanded(
-        child: Text(judul, style: const TextStyle(fontWeight: FontWeight.w700)),
+  List<Widget> _daftar(
+    List<LetterRequest> daftar,
+    bool penerbit,
+    bool kantor,
+    bool pemohon,
+  ) {
+    final riwayat = riwayatSek(
+      ref,
+      const AuditFilter(
+        module: Module.churchDocuments,
+        actionPrefix: 'letter.',
       ),
-      const SizedBox(width: 16),
-      LencanaStatus(lencana, bentuk: bentuk),
-    ],
-  );
-}
-
-class _Pasangan extends StatelessWidget {
-  const _Pasangan(this.label, this.nilai);
-  final String label, nilai;
-
-  @override
-  Widget build(BuildContext context) => DefaultTextStyle.merge(
-    style: const TextStyle(fontSize: 14),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: TextStyle(color: context.warna.tinta2)),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Text(
-            nilai,
-            textAlign: TextAlign.right,
-            style: const TextStyle(fontWeight: FontWeight.w600),
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
-Widget _teks(BuildContext context, String s, {double ukuran = 13}) => Text(
-  s,
-  style: TextStyle(
-    fontSize: ukuran,
-    color: ukuran == 13 ? context.warna.tinta3 : context.warna.tinta2,
-  ),
-);
-
-/// `flex: 1 1 150px; max-width: 340px` in a wrapping button row.
-class TombolBaris extends StatelessWidget {
-  const TombolBaris(this.label, {super.key, required this.onPressed})
-    : teks = false;
-  const TombolBaris.teks(this.label, {super.key, required this.onPressed})
-    : teks = true;
-  final String label;
-  final VoidCallback onPressed;
-  final bool teks;
-
-  @override
-  Widget build(BuildContext context) => Align(
-    alignment: Alignment.centerLeft,
-    child: ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 340),
-      child: Tombol(
-        label,
-        onPressed: onPressed,
-        jenis: teks ? JenisTombol.teks : JenisTombol.kedua,
-        ukuran: UkuranTombol.sedang,
-      ),
-    ),
-  );
-}
-
-/// Menerbitkan surat: the request card.
-class KartuPermohonan extends StatelessWidget {
-  const KartuPermohonan({super.key});
-
-  @override
-  Widget build(BuildContext context) => Kartu(
-    child: KolomJarak(
-      jarak: 6,
-      anak: [
-        const _Atas(
-          'Surat keterangan · Novita Wenas',
-          'Diajukan',
-          BentukLencana.garis,
-        ),
-        const _Pasangan('Nama', 'Novita Wenas'),
-        const _Pasangan('Keluarga · Kolom', 'Wenas-Lasut · Kolom 7'),
-        const _Pasangan('Status', 'Aktif · sidi 2014'),
-        _teks(
-          context,
-          'Diambil dari Data jemaat yang sudah diverifikasi Penatua Kolom 7. Sekretaris membaca, tidak mengubah.',
-        ),
-      ],
-    ),
-  );
-}
-
-/// Menerbitkan surat: the dashed signed-copy card.
-class KartuSalinan extends StatelessWidget {
-  const KartuSalinan({super.key, required this.onPilih});
-  final VoidCallback onPilih;
-
-  @override
-  Widget build(BuildContext context) => Kartu(
-    status: GarisStatus.draf,
-    child: KolomJarak(
-      jarak: 6,
-      anak: [
-        const _Atas(
-          'Salinan bertanda tangan',
-          'Wajib, belum ada',
-          BentukLencana.bata,
-        ),
-        TombolBaris('Pilih file', onPressed: onPilih),
-      ],
-    ),
-  );
-}
-
-/// Data jemaat tidak aktif: banner, read-only form, button.
-List<Widget> isiTidakAktif(BuildContext context, VoidCallback onPilih) {
-  final c = context.warna;
-  Widget isian(String label, String nilai) => IsianTeks(
-    label: label,
-    nilaiAwal: nilai,
-    hanyaBaca: true,
-    jarakLabel: 6,
-    gaya: TextStyle(fontSize: 14, color: c.tinta2),
-  );
-  return [
-    Kartu(
-      status: GarisStatus.draf,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      child: Text.rich(
-        TextSpan(
-          children: [
-            const TextSpan(
-              text: 'Modul Data jemaat belum aktif.',
-              style: TextStyle(fontWeight: FontWeight.w700),
+    );
+    return [
+      if (_pesan.isNotEmpty) Pesan(Text(_pesan)),
+      for (final r in daftar)
+        Kartu(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: kolomSek([
+            KepalaKartu(
+              judul: r.title,
+              ujung: LencanaStatus(r.status.label, bentuk: _bentuk(r.status)),
             ),
-            const TextSpan(text: ' '),
-            TextSpan(
-              text: 'Data anggota diketik di sini dan hanya dipakai untuk surat ini.',
-              style: TextStyle(color: c.tinta2),
+            kecilSek(context, _ket(r)),
+            if (penerbit && r.status == LetterStatus.requested)
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: Tombol(
+                  'Buka permohonan',
+                  jenis: JenisTombol.kedua,
+                  ukuran: UkuranTombol.sedang,
+                  lebarPenuh: false,
+                  onPressed: () => _ke(_V.buka, () {
+                    _sel = r.id;
+                    _kosongkan();
+                    _nama.text = r.forName;
+                    _rumah.text = r.household ?? '';
+                    _perlu.text = r.purpose ?? '';
+                  }),
+                ),
+              ),
+          ], 6),
+        ),
+      if (daftar.isEmpty) kecilSek(context, 'Belum ada permohonan surat.'),
+      kecilSek(
+        context,
+        'Permohonan datang dari anggota, atau dicatat Operator di kantor untuk '
+        'anggota tanpa ponsel.',
+      ),
+      if (kantor || (pemohon && !penerbit))
+        BarisTombol(
+          anak: [
+            Tombol(
+              kantor ? 'Catat permohonan di kantor' : 'Ajukan permohonan',
+              jenis: JenisTombol.tinta,
+              onPressed: () => _ke(_V.ajukan, _kosongkan),
             ),
           ],
         ),
-        style: const TextStyle(fontSize: 14),
+      if (penerbit && riwayat.isNotEmpty) RiwayatAlur(baris: riwayat),
+    ];
+  }
+
+  Widget _kepalaP(LetterRequest p) => KepalaKartu(
+    judul: p.title,
+    ujung: const LencanaStatus('Diajukan', bentuk: BentukLencana.garis),
+  );
+
+  List<Widget> _buka() {
+    final p = _p!;
+    final orang = ref.watch(peopleRepositoryProvider).person(p.forPersonId);
+    final status = switch (orang?.status) {
+      PersonStatus.unconfirmed => 'Belum dikonfirmasi',
+      PersonStatus.deceased => 'Meninggal',
+      _ => 'Aktif',
+    };
+    final hari = ref.watch(hariIniProvider);
+    final contoh = ref.watch(letterRepositoryProvider).nextNumber(at: hari);
+    final alasan = _alasanTerbit();
+    ref.watch(canProvider);
+    void ubah(String _) => setState(() => _tolak = null);
+    final kiri = [
+      if (_dataAktif)
+        Kartu(
+          child: kolomSek([
+            _kepalaP(p),
+            BarisInfo('Nama', p.forName),
+            if (p.household != null)
+              BarisInfo('Keluarga · Kolom', p.household!),
+            BarisInfo('Status', status),
+            kecilSek(
+              context,
+              'Diambil dari Data jemaat yang sudah Diverifikasi. Sekretaris '
+              'Jemaat membaca, tidak mengubah.',
+            ),
+          ], 6),
+        )
+      else ...[
+        Kartu(
+          status: GarisStatus.draf,
+          child: Text.rich(
+            TextSpan(
+              children: [
+                const TextSpan(
+                  text: 'Modul Data jemaat belum aktif. ',
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
+                TextSpan(
+                  text:
+                      'Data anggota diketik di sini dan hanya dipakai untuk '
+                      'surat ini.',
+                  style: TextStyle(color: context.warna.tinta2),
+                ),
+              ],
+            ),
+            style: const TextStyle(fontSize: 14),
+          ),
+        ),
+        Kartu(
+          child: kolomSek([
+            _kepalaP(p),
+            IsianAlur(label: 'Nama', controller: _nama, onChanged: ubah),
+            IsianAlur(
+              label: 'Keluarga · Kolom',
+              controller: _rumah,
+              onChanged: ubah,
+            ),
+            IsianAlur(label: 'Keperluan', controller: _perlu, onChanged: ubah),
+          ], 12),
+        ),
+      ],
+      IsianAlur(
+        label: 'Nomor surat',
+        controller: _no,
+        onChanged: (_) => setState(() => _tolak = null),
+        petunjuk: 'Contoh: $contoh',
+        keterangan: 'Sesuai buku agenda surat keluar.',
       ),
-    ),
-    Kartu(
-      child: KolomJarak(
-        jarak: 12,
+    ];
+    final kanan = [
+      SlotSalinan(
+        nama: 'salinan-bertanda-tangan.pdf',
+        ada: _file,
+        onPilih: () => setState(() => _file = true),
+      ),
+      if (_tolak != null)
+        penolakanSek(_tolak!)
+      else if ((_no.text.isNotEmpty || _file) && alasan.isNotEmpty)
+        penolakanSek(Refusal(action: 'Terbitkan surat', because: alasan)),
+      BarisTombol(
         anak: [
-          isian('Nama', 'Novita Wenas'),
-          isian('Keluarga · Kolom', 'Wenas-Lasut · Kolom 7'),
-          isian('Keperluan', 'Melamar pekerjaan'),
+          TombolBersyarat(
+            label: 'Terbitkan surat',
+            tindakan: 'Terbitkan surat',
+            alasan: alasan,
+            periksa: _alasanTerbit,
+            sudahMulai: false,
+            onPressed: _terbit,
+          ),
+          Tombol(
+            'Tidak diterbitkan',
+            jenis: JenisTombol.kedua,
+            ukuran: UkuranTombol.sedang,
+            onPressed: () => _ke(_V.tolak),
+          ),
+          Tombol(
+            'Kembali',
+            jenis: JenisTombol.teks,
+            ukuran: UkuranTombol.kecil,
+            onPressed: () => _ke(_V.daftar),
+          ),
         ],
       ),
+    ];
+    return widget.web ? [duaKolomSek(kiri, kanan)] : [...kiri, ...kanan];
+  }
+
+  List<Widget> _tolakV() => [
+    Kartu(
+      child: kolomSek([
+        _kepalaP(_p!),
+        kecilSek(context, 'Pemohon diberi tahu, dengan alasannya.'),
+      ], 6),
     ),
-    TombolBaris('Pilih file salinan bertanda tangan', onPressed: onPilih),
+    IsianAlur(
+      label: 'Alasan · wajib',
+      controller: _alasan,
+      onChanged: (_) => setState(() => _tolak = null),
+      baris: 3,
+    ),
+    if (_tolak != null)
+      penolakanSek(_tolak!)
+    else if (_alasan.text.isNotEmpty && _alasanTolak().isNotEmpty)
+      penolakanSek(
+        Refusal(action: 'Catat tidak diterbitkan', because: _alasanTolak()),
+      ),
+    BarisTombol(
+      anak: [
+        TombolBersyarat(
+          label: 'Catat tidak diterbitkan',
+          tindakan: 'Catat tidak diterbitkan',
+          alasan: _alasanTolak(),
+          periksa: _alasanTolak,
+          sudahMulai: false,
+          onPressed: _catatTolak,
+        ),
+        Tombol(
+          'Kembali',
+          jenis: JenisTombol.teks,
+          ukuran: UkuranTombol.kecil,
+          onPressed: () => _ke(_V.buka),
+        ),
+      ],
+    ),
   ];
-}
 
-/// Diterbitkan: the published letter.
-class KartuDiterbitkan extends StatelessWidget {
-  const KartuDiterbitkan({super.key, required this.onBuka});
-  final VoidCallback onBuka;
-
-  @override
-  Widget build(BuildContext context) => Kartu(
-    child: KolomJarak(
-      jarak: 6,
-      anak: [
-        const _Atas(
-          'Surat keterangan · Novita Wenas',
-          'Diterbitkan',
-          BentukLencana.tinta,
+  /// Not drawn: the member's own request, or the Operator's record at the
+  /// office, built from the flow boards' parts.
+  List<Widget> _ajukanV({required bool diKantor}) {
+    final orang = ref.watch(peopleRepositoryProvider);
+    final q = _cari.text.trim();
+    final hasil = q.length < 2
+        ? const <Person>[]
+        : orang.search(q).where((p) => !p.isSystem).take(5).toList();
+    final dipilih = _untuk == null ? null : orang.person(_untuk!);
+    String alasan() =>
+        diKantor && _untuk == null ? 'anggota belum dipilih.' : '';
+    return [
+      if (diKantor) ...[
+        IsianAlur(
+          label: 'Nama anggota',
+          controller: _cari,
+          onChanged: (_) => setState(() => _tolak = null),
+          petunjuk: 'Ketik nama',
         ),
-        _teks(context, 'No. 027/SKet/XI/2026 · 15/11/2026', ukuran: 14),
-        _teks(
-          context,
-          'Diterbitkan oleh Olvie Pangemanan. Hanya anggota, keluarganya dan pelayan yang menaunginya yang dapat melihat.',
-        ),
-        TombolBaris('Buka salinan bertanda tangan', onPressed: onBuka),
+        if (dipilih != null)
+          BarisInfo('Untuk', dipilih.name)
+        else
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final p in hasil)
+                ChipSatu(
+                  teks: p.name,
+                  dipilih: false,
+                  onTap: () => setState(() => _untuk = p.id),
+                ),
+            ],
+          ),
       ],
-    ),
-  );
-}
-
-/// Tidak diterbitkan: the refusal (the board's Ferry Wenas sample).
-class KartuDitolak extends StatelessWidget {
-  const KartuDitolak({super.key});
-
-  @override
-  Widget build(BuildContext context) => Kartu(
-    child: KolomJarak(
-      jarak: 6,
-      anak: [
-        const _Atas(
-          'Atestasi · Ferry Wenas',
-          'Tidak diterbitkan',
-          BentukLencana.bata,
-        ),
-        _teks(
-          context,
-          'Alasan: anggota belum dikonfirmasi; data masih dari buku anggota.',
-          ukuran: 14,
-        ),
-        _teks(
-          context,
-          'Dicatat oleh Olvie Pangemanan, 16/11/2026. Pemohon menerima pemberitahuan beserta alasannya.',
-        ),
-      ],
-    ),
-  );
-}
-
-/// The caption under the list.
-class KeteranganDaftar extends StatelessWidget {
-  const KeteranganDaftar({super.key});
-
-  @override
-  Widget build(BuildContext context) => _teks(context, keteranganDaftar);
+      ChipPilihan<LetterType>(
+        label: 'Jenis surat',
+        jarakLabel: 6,
+        jarakBawah: 0,
+        pilihan: [for (final t in LetterType.values) (nilai: t, teks: t.label)],
+        terpilih: _jenis,
+        onPilih: (t) => setState(() => _jenis = t),
+      ),
+      IsianAlur(
+        label: 'Keperluan',
+        controller: _perlu,
+        onChanged: (_) => setState(() {}),
+        petunjuk: 'untuk melamar pekerjaan',
+      ),
+      if (_tolak != null) penolakanSek(_tolak!),
+      BarisTombol(
+        anak: [
+          TombolBersyarat(
+            label: diKantor ? 'Catat permohonan' : 'Ajukan permohonan',
+            tindakan: diKantor ? 'Catat permohonan' : 'Ajukan permohonan',
+            alasan: alasan(),
+            periksa: alasan,
+            sudahMulai: false,
+            onPressed: () => _ajukan(diKantor: diKantor),
+          ),
+          Tombol(
+            'Kembali',
+            jenis: JenisTombol.teks,
+            ukuran: UkuranTombol.kecil,
+            onPressed: () => _ke(_V.daftar),
+          ),
+        ],
+      ),
+    ];
+  }
 }
