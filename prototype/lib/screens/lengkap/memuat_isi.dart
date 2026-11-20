@@ -340,8 +340,11 @@ List<Widget> isiPeriksa(BuildContext context, KeadaanMemuat st) {
                       decoration: ShapeDecoration(
                         shape: GarisBorder.penuh(c.laut, tebal: 2, radius: 8),
                       ),
+                      // Chrome may break after the hyphen before digits;
+                      // Flutter's ICU rules (LB25) do not: offer the break.
                       child: Text(
-                        'No. Bukti BKU-2026-0155',
+                        'No. Bukti BKU-2026-​0155',
+                        semanticsLabel: 'No. Bukti BKU-2026-0155',
                         style: TextStyle(
                           fontFamily: PalakatText.mono,
                           fontSize: 14,

@@ -61,13 +61,18 @@ class _WebAIMataAnggaranScreenState extends State<WebAIMataAnggaranScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // The 44 target holds the text at its top: trim the rest.
+              // The 44 target holds the text at its top: trim it to the
+              // board's line box (15 px strut, 21.75 tall; the 14 px text
+              // sits 1.1 px down on the strut's baseline).
               const MarginNegatif(
-                bawah: 24,
+                bawah: 22.25,
                 child: Tautan(
                   ke: 'WebCatat',
                   cara: Cara.naik,
-                  child: TautanTeks('Catat transaksi', ukuran: 14),
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 1.1),
+                    child: TautanTeks('Catat transaksi', ukuran: 14),
+                  ),
                 ),
               ),
               const SizedBox(height: 2),
