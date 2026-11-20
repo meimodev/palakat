@@ -3,7 +3,8 @@
 // See prototype/tool/SHOTS.md. Query parameters:
 //   <tweak>=<value>   override a data-props tweak (booleans: true/false)
 //   _w, _h            override this.props.$preview
-//   klik=a|b          after mount, click the first element whose text contains a, then b
+//   klik=a|b          after mount, click the element whose text contains a, then b;
+//                     a step `ketik:TEXT` types TEXT, `tunggu:MS` waits MS before the next
 // After rendering, <html data-dc="ok|error"> and data-dc-error="…" report the result.
 (function () {
   'use strict';
@@ -183,23 +184,38 @@
     return props;
   }
 
-  // Click by visible text: prefer the first clickable element (document order) containing it, else the deepest match.
+  // Click by visible text: the first clickable element (document order) whose text is exactly it,
+  // else the first clickable containing it, else the deepest match.
   function klik(text) {
-    var all = root.querySelectorAll('*'), best = null, deep = null;
-    function has(el) {
-      return (el.textContent || '').indexOf(text) >= 0 || (el.getAttribute('aria-label') || '').indexOf(text) >= 0 ||
-        (el.getAttribute('placeholder') || '').indexOf(text) >= 0;
+    var all = root.querySelectorAll('*'), exact = null, best = null, deep = null;
+    function texts(el) {
+      return [(el.textContent || '').replace(/\s+/g, ' ').trim(), el.getAttribute('aria-label') || '', el.getAttribute('placeholder') || ''];
     }
     for (var i = 0; i < all.length; i++) {
-      var el = all[i];
-      if (!has(el)) continue;
+      var el = all[i], t = texts(el);
+      if (!t.some(function (s) { return s.indexOf(text) >= 0; })) continue;
       deep = el;
-      if (el.hasAttribute('data-dc-click') || /^(a|button|label|input|select|summary)$/.test(el.localName) || /^(button|tab|checkbox|switch|radio|link)$/.test(el.getAttribute('role') || '')) { best = el; break; }
+      if (el.hasAttribute('data-dc-click') || /^(a|button|label|input|select|summary)$/.test(el.localName) || /^(button|tab|checkbox|switch|radio|link)$/.test(el.getAttribute('role') || '')) {
+        best = best || el;
+        if (t.indexOf(text) >= 0) { exact = el; break; }
+      }
     }
-    var t = best || deep;
+    var t = exact || best || deep;
     if (!t) { fail('klik: no element contains "' + text + '"'); return; }
     if (t.focus) t.focus();
     t.click();
+  }
+
+  // Type into the focused text field, else the first one, as a user would (fires `input`).
+  function ketik(text) {
+    var el = document.activeElement;
+    if (!el || !root.contains(el) || !/^(input|textarea)$/.test(el.localName)) {
+      el = root.querySelector('textarea, input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=hidden])');
+    }
+    if (!el) { fail('ketik: no text field for "' + text + '"'); return; }
+    el.focus();
+    el.value = text;
+    el.dispatchEvent(new Event('input', { bubbles: true }));
   }
 
   function fonts() {
@@ -211,6 +227,9 @@
         css += "@font-face{font-family:'" + f[0] + "';font-style:normal;font-weight:" + w[0] + ";src:url('" + new URL('fonts/' + f[1] + '-' + w[1] + '.ttf', BASE) + "') format('truetype')}\n";
       });
     });
+    // Under reduced motion the boards cut durations, not delays; an `animation: x .4s 1s both`
+    // would then stay at its first keyframe (invisible), since virtual time does not run CSS animations.
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) css += '*,*::before,*::after{animation-delay:0s!important}\n';
     var s = document.createElement('style');
     s.setAttribute('data-dc-fonts', '');
     s.textContent = css;
@@ -228,6 +247,12 @@
     });
     fonts();
     tpl = x;
+    // A taller (or shorter) frame: the board root's inline height is the $preview size, so follow _h.
+    var H = new URLSearchParams(location.search).get('_h'), pv;
+    try { pv = JSON.parse(script.getAttribute('data-props') || '{}').$preview; } catch (err) { pv = null; }
+    if (H && pv && pv.height) Array.prototype.forEach.call(x.children, function (n) {
+      if (n.style && n.style.height === pv.height + 'px') n.style.height = H + 'px';
+    });
     root = document.createElement('div');
     root.id = 'dc-root';
     root.style.display = 'contents';
@@ -245,7 +270,12 @@
         document.fonts.ready.then(function () { if (!errors.length) document.documentElement.setAttribute('data-dc', 'ok'); });
         return;
       }
-      setTimeout(function () { klik(steps.shift()); setTimeout(next, 0); }, 400);
+      var step = steps.shift(), w = /^tunggu:(\d+)$/.exec(step);
+      if (w) { setTimeout(next, Number(w[1])); return; }
+      setTimeout(function () {
+        if (step.indexOf('ketik:') === 0) ketik(step.slice(6)); else klik(step);
+        setTimeout(next, 0);
+      }, 400);
     })();
   }
 
