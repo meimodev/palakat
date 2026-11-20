@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../motion/kerangka.dart';
 import '../../shell/kepala_ponsel.dart';
@@ -11,139 +12,35 @@ import '../../widgets/kecil.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
+import '../../domain/core/core.dart';
+import '../../domain/finance/finance.dart';
+import '../../providers/actor.dart';
+import '../../providers/clock.dart';
+import '../../providers/keuangan/dokumen.dart';
+import '../../providers/repositories_keuangan.dart';
+import '../../widgets/penolakan.dart';
 
-/// One transaction of the board's `D` list.
-typedef _Baris = ({
-  String id,
-  String no,
-  String ur,
-  String rp,
-  String bulan,
-  bool tutup,
-});
-
-const List<_Baris> _daftar = [
-  (
-    id: 'a',
-    no: 'BKU-2026-0147',
-    ur: 'Fotokopi warta jemaat',
-    rp: '−Rp150.000',
-    bulan: 'November 2026 · Belum ditutup',
-    tutup: false,
-  ),
-  (
-    id: 'b',
-    no: 'BKU-2026-0143',
-    ur: 'Sewa sound system',
-    rp: '−Rp600.000',
-    bulan: 'November 2026 · Belum ditutup',
-    tutup: false,
-  ),
-  (
-    id: 'c',
-    no: 'BKU-2026-0116',
-    ur: 'Pemeliharaan atap gedung',
-    rp: '−Rp5.500.000',
-    bulan: 'Oktober 2026 · Sudah ditutup',
-    tutup: true,
-  ),
-  (
-    id: 'd',
-    no: 'BKU-2026-0145',
-    ur: 'Konsumsi rapat majelis',
-    rp: '−Rp750.000',
-    bulan: 'November 2026 · Belum ditutup',
-    tutup: false,
-  ),
-  (
-    id: 'e',
-    no: 'BKU-2026-0140',
-    ur: 'Bensin operasional',
-    rp: '−Rp200.000',
-    bulan: 'November 2026 · Belum ditutup',
-    tutup: false,
-  ),
-  (
-    id: 'f',
-    no: 'BKU-2026-0142',
-    ur: 'Pindah antar Kas/Bank: Kas ke Bank BNI',
-    rp: 'Rp1.000.000',
-    bulan: 'November 2026 · Belum ditutup',
-    tutup: false,
-  ),
-];
-
-/// The board's `N`: status → label.
-const _label = {
-  'kosong': 'Wajib, belum ada',
-  'unggah': 'Diunggah, belum diverifikasi',
-  'verif': 'Terverifikasi (oleh Meiske L.)',
-  'kecuali': 'Dikecualikan',
-  'gagal': 'Gagal diunggah',
-  'tahan': 'Ditahan (alasan keamanan)',
-  'tidak': 'Tidak diperlukan (aturan: Pindah antar Kas/Bank)',
-};
-
-typedef _Item = ({String st, List<String> hist});
-
-Map<String, _Item> _awal() => {
-  'a': (
-    st: 'unggah',
-    hist: ['16/11/2026 10.41 · nota-16-11.jpg diunggah oleh Meiske L.'],
-  ),
-  'b': (st: 'kosong', hist: []),
-  'c': (
-    st: 'kecuali',
-    hist: [
-      '22/10/2026 · Dikecualikan · alasan: kuitansi menyusul · oleh Ketua BPMJ',
-    ],
-  ),
-  'd': (
-    st: 'gagal',
-    hist: ['16/11/2026 11.05 · nota-sewa.jpg gagal diunggah · belum terlampir'],
-  ),
-  'e': (
-    st: 'tahan',
-    hist: ['15/11/2026 16.20 · scan-kuitansi.pdf ditahan (alasan keamanan)'],
-  ),
-  'f': (st: 'tidak', hist: []),
-};
-
-bool _beres(String st) => st == 'verif' || st == 'kecuali' || st == 'tidak';
-
-/// The board state shared by `/Dokumen` and `/Dokumen/rinci`.
+/// The board's UI state shared by `/dokumen` and `/dokumen/rinci`: the open
+/// reason form, its text and the last refusal. The rows and the chosen
+/// transaction are read from providers (pilihanDokumenProvider).
 class _Dokumen extends ChangeNotifier {
-  String pilih = 'a';
   String? form;
-  Map<String, _Item> it = _awal();
+  Refusal? pesan;
   final alasan = TextEditingController();
 
   /// The textarea's focus: tapping its label focuses it (board `label for`).
   final fokus = FocusNode();
 
-  void ulang() {
-    pilih = 'a';
-    form = null;
-    it = _awal();
-    alasan.clear();
-    notifyListeners();
-  }
-
-  void pick(String id) {
-    pilih = id;
-    form = null;
-    notifyListeners();
-  }
-
   void tutupRinci() {
-    if (form == null) return;
+    if (form == null && pesan == null) return;
     form = null;
+    pesan = null;
     notifyListeners();
   }
 
   void bukaForm(String f) {
     form = f;
+    pesan = null;
     alasan.clear();
     notifyListeners();
   }
@@ -153,14 +50,12 @@ class _Dokumen extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// The board's `set(st, h)` on the chosen row.
-  void set(String st, String h) {
-    it = {
-      ...it,
-      pilih: (st: st, hist: [h, ...it[pilih]!.hist]),
-    };
-    form = null;
-    alasan.clear();
+  void selesai(Refusal? r) {
+    pesan = r;
+    if (r == null) {
+      form = null;
+      alasan.clear();
+    }
     notifyListeners();
   }
 
@@ -172,6 +67,61 @@ class _Dokumen extends ChangeNotifier {
     fokus.dispose();
     super.dispose();
   }
+}
+
+/// Runs an EvidenceRepository decision on [b] ('verif', 'tolak', 'lepas',
+/// 'kecuali'); returns the refusal or null. Shared with WebDokumen.
+Future<Refusal?> putuskanDokumen(
+  WidgetRef ref,
+  BarisDokumen b,
+  String aksi, [
+  String alasan = '',
+]) async {
+  final a = ref.read(actorProvider);
+  if (a == null) return null;
+  final ev = ref.read(evidenceRepositoryProvider);
+  final kunci = kunciBaru(a.personId, ref.read(clockProvider));
+  final e =
+      b.menunggu ??
+      ev
+          .forTransaction(b.id)
+          .where(
+            (x) =>
+                x.state == EvidenceItemState.verified ||
+                x.state == EvidenceItemState.exception,
+          )
+          .lastOrNull;
+  final r = switch (aksi) {
+    'kecuali' => await ev.acceptException(
+      a,
+      b.id,
+      reason: alasan,
+      expectedRevision: b.transaksi.revision,
+      idempotencyKey: kunci,
+    ),
+    _ when e == null => null,
+    'verif' => await ev.verify(
+      a,
+      e.id,
+      expectedRevision: e.revision,
+      idempotencyKey: kunci,
+    ),
+    'tolak' => await ev.reject(
+      a,
+      e.id,
+      reason: alasan,
+      expectedRevision: e.revision,
+      idempotencyKey: kunci,
+    ),
+    _ => await ev.release(
+      a,
+      e.id,
+      reason: alasan.isEmpty ? 'File dilepas' : alasan,
+      expectedRevision: e.revision,
+      idempotencyKey: kunci,
+    ),
+  };
+  return r?.refusal;
 }
 
 class _Lingkup extends InheritedNotifier<_Dokumen> {
@@ -220,18 +170,13 @@ class DokumenScreen extends StatelessWidget {
   );
 }
 
-/// Board strings as drawn; the vacancy name comes from the audit actor (M1).
-String Function(String) _jk(BuildContext context) =>
-    (s) => s;
-
-class _Daftar extends StatelessWidget {
+class _Daftar extends ConsumerWidget {
   const _Daftar();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
-    final k = _Lingkup.of(context);
-    final t = _jk(context);
+    final daftar = ref.watch(daftarDokumenProvider);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -247,8 +192,8 @@ class _Daftar extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                for (final d in _daftar) ...[
-                  _baris(context, k, d, t),
+                for (final d in daftar) ...[
+                  _baris(context, ref, d),
                   const SizedBox(height: 10),
                 ],
                 Text(
@@ -263,19 +208,13 @@ class _Daftar extends StatelessWidget {
     );
   }
 
-  Widget _baris(
-    BuildContext context,
-    _Dokumen k,
-    _Baris d,
-    String Function(String) t,
-  ) {
+  Widget _baris(BuildContext context, WidgetRef ref, BarisDokumen d) {
     final c = context.warna;
-    final st = k.it[d.id]!.st;
-    final b = _beres(st);
+    final b = d.beres;
     return Tekan(
       radius: 14,
       onTap: () {
-        k.pick(d.id);
+        ref.read(pilihanDokumenProvider.notifier).pilih(d.id);
         context.dorongKe(Layar.dokumen, anak: 'rinci');
       },
       child: Kartu(
@@ -285,12 +224,12 @@ class _Daftar extends StatelessWidget {
             _kodeJumlah(c, d),
             const SizedBox(height: 3),
             Text(
-              d.ur,
+              d.transaksi.description,
               style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
             ),
             const SizedBox(height: 3),
             Text(
-              t(_label[st]!),
+              d.label,
               style: TextStyle(
                 fontSize: 14,
                 color: b ? c.tinta : c.bata,
@@ -307,7 +246,7 @@ class _Daftar extends StatelessWidget {
 }
 
 /// No. Bukti and amount: space-between, baseline, gap 16.
-Widget _kodeJumlah(PalakatWarna c, _Baris d) => Row(
+Widget _kodeJumlah(PalakatWarna c, BarisDokumen d) => Row(
   mainAxisAlignment: MainAxisAlignment.spaceBetween,
   crossAxisAlignment: CrossAxisAlignment.baseline,
   textBaseline: TextBaseline.alphabetic,
@@ -324,7 +263,7 @@ Widget _kodeJumlah(PalakatWarna c, _Baris d) => Row(
     ),
     const SizedBox(width: 16),
     Text(
-      d.rp,
+      d.jumlah,
       style: const TextStyle(
         fontFamily: PalakatText.mono,
         fontWeight: FontWeight.w500,
@@ -333,28 +272,31 @@ Widget _kodeJumlah(PalakatWarna c, _Baris d) => Row(
   ],
 );
 
-class _Rinci extends StatelessWidget {
+class _Rinci extends ConsumerWidget {
   const _Rinci();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
     final k = _Lingkup.of(context);
-    final t = _jk(context);
-    final cur = _daftar.firstWhere((d) => d.id == k.pilih);
-    final it = k.it[cur.id]!;
-    final beres = _beres(it.st);
+    final cur = ref.watch(dokumenTerpilihProvider);
+    if (cur == null) return const SizedBox.shrink();
+    final beres = cur.beres;
+    final bulan = cur.bulan.split(' · ').first;
     final catatan = cur.tutup
-        ? 'Dokumen susulan disimpan dan mengubah Status sekarang. Laporan resmi Oktober 2026 tidak berubah.'
-        : it.st == 'tidak'
+        ? 'Dokumen susulan disimpan dan mengubah Status sekarang. Laporan resmi $bulan tidak berubah.'
+        : cur.status == EvidenceStatus.notRequired
         ? 'Aturan Jemaat tidak mewajibkan dokumen untuk transaksi ini.'
-        : it.st == 'gagal'
-        ? 'File belum terlampir. Coba lagi tidak membuat salinan ganda.'
-        : it.st == 'tahan'
-        ? 'File ini tidak dapat dibuka dan tidak dihitung sebagai dokumen pendukung. Tetap menjadi hambatan tutup buku.'
         : beres
-        ? 'Memenuhi syarat tutup buku November 2026.'
-        : 'Menjadi hambatan tutup buku November 2026 sampai terverifikasi atau dikecualikan.';
+        ? 'Memenuhi syarat tutup buku $bulan.'
+        : 'Menjadi hambatan tutup buku $bulan sampai terverifikasi atau dikecualikan.';
+
+    Future<void> putuskan(String aksi) async =>
+        k.selesai(await putuskanDokumen(ref, cur, aksi));
+    void lampirkan() {
+      ref.read(pilihanDokumenProvider.notifier).pilih(cur.id);
+      context.dorongKe(Layar.fotoDokumen);
+    }
 
     // Action buttons: U (laut) and O (outline), min 48, padding 0 18, radius 12.
     Widget aksi(String n, VoidCallback on, {bool u = false}) => Tekan(
@@ -373,65 +315,24 @@ class _Rinci extends StatelessWidget {
     );
     final daftarAksi = <Widget>[
       if (k.form == null)
-        ...switch (it.st) {
-          'kosong' => [
-            aksi(
-              'Lampirkan dokumen pendukung',
-              () => k.set(
-                'unggah',
-                '16/11/2026 11.30 · nota baru diunggah oleh Meiske L.',
-              ),
-              u: true,
-            ),
+        ...switch (cur.status) {
+          EvidenceStatus.requiredMissing => [
+            aksi('Lampirkan dokumen pendukung', lampirkan, u: true),
             aksi('Catat pengecualian', () => k.bukaForm('kecuali')),
           ],
-          'unggah' => [
-            aksi(
-              'Verifikasi',
-              () => k.set(
-                'verif',
-                '16/11/2026 11.32 · Terverifikasi oleh Meiske L.',
-              ),
-              u: true,
-            ),
+          EvidenceStatus.uploaded => [
+            aksi('Verifikasi', () => putuskan('verif'), u: true),
             aksi('Tolak dengan alasan', () => k.bukaForm('tolak')),
-            aksi(
-              'Lepaskan file',
-              () => k.set(
-                'kosong',
-                '16/11/2026 11.33 · File dilepas oleh Meiske L. · tetap di Riwayat',
-              ),
-            ),
+            aksi('Lepaskan file', () => putuskan('lepas')),
+            if (!cur.tutup)
+              aksi('Catat pengecualian', () => k.bukaForm('kecuali')),
           ],
-          'gagal' => [
-            aksi(
-              'Coba lagi',
-              () => k.set(
-                'unggah',
-                '16/11/2026 11.31 · nota-sewa.jpg diunggah oleh Meiske L.',
-              ),
-              u: true,
-            ),
-          ],
-          'tahan' => [
-            aksi(
-              'Lampirkan file lain',
-              () => k.set(
-                'unggah',
-                '16/11/2026 11.31 · kuitansi-foto.jpg diunggah oleh Meiske L.',
-              ),
-              u: true,
-            ),
-          ],
-          'kecuali' => [
+          EvidenceStatus.exceptionAccepted => [
             aksi(
               cur.tutup
                   ? 'Lampirkan dokumen susulan'
                   : 'Lampirkan dokumen pendukung',
-              () => k.set(
-                'unggah',
-                '16/11/2026 11.30 · ${cur.tutup ? 'dokumen susulan' : 'nota'} diunggah oleh Meiske L.',
-              ),
+              lampirkan,
             ),
           ],
           _ => const <Widget>[],
@@ -454,7 +355,10 @@ class _Rinci extends StatelessWidget {
           children: [
             _kodeJumlah(c, cur),
             const SizedBox(height: 4),
-            Text(cur.ur, style: const TextStyle(fontWeight: FontWeight.w600)),
+            Text(
+              cur.transaksi.description,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
             const SizedBox(height: 4),
             Text(cur.bulan, style: TextStyle(fontSize: 13, color: c.tinta3)),
           ],
@@ -468,34 +372,30 @@ class _Rinci extends StatelessWidget {
               'Dokumen pendukung',
               style: TextStyle(fontSize: 14, color: c.tinta2),
             ),
-            if (cur.tutup) ...[
-              const Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(text: 'Status saat tutup buku: '),
-                    TextSpan(
-                      text: 'Dikecualikan (alasan: kuitansi menyusul, oleh Ketua BPMJ)',
-                      style: TextStyle(fontWeight: FontWeight.w700),
-                    ),
-                  ],
-                ),
-                style: TextStyle(fontSize: 14),
-              ),
-              const Text('Status sekarang:', style: TextStyle(fontSize: 14)),
-            ],
             Text(
-              t(_label[it.st]!),
+              cur.label,
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
                 color: beres ? c.tinta : c.bata,
               ),
             ),
-            Text(t(catatan), style: TextStyle(fontSize: 14, color: c.tinta2)),
+            Text(catatan, style: TextStyle(fontSize: 14, color: c.tinta2)),
           ].indexed) ...[if (i > 0) const SizedBox(height: 4), w],
         ],
       ),
-      if (k.form != null) _Form(key: ValueKey(k.form), k: k),
+      if (k.form != null) _Form(key: ValueKey(k.form), k: k, cur: cur),
+      if (k.pesan case final r?)
+        Penolakan(
+          tindakan: r.action,
+          sebab:
+              r.because +
+              (r.whoCanAct == null
+                  ? ''
+                  : ' Yang perlu bertindak: ${r.whoCanAct}.'),
+          jalan: const [],
+          ukuranTeks: 14,
+        ),
       // Always present: the empty row still takes its 16 px column gap.
       Wrap(spacing: 8, runSpacing: 8, children: daftarAksi),
       DefaultTextStyle.merge(
@@ -503,12 +403,13 @@ class _Rinci extends StatelessWidget {
         child: Wrap(
           spacing: 22,
           children: [
-            Tautan(
-              ke: Layar.lihatDokumen,
-              param: {'id': belumDipindahId},
-              child: link('Lihat file'),
-            ),
-            Tautan(ke: Layar.fotoDokumen, child: link('Foto dengan kamera')),
+            if (cur.menunggu != null || cur.status == EvidenceStatus.verified)
+              Tautan(
+                ke: Layar.lihatDokumen,
+                param: {'id': cur.id},
+                child: link('Lihat file'),
+              ),
+            Tekan(onTap: lampirkan, child: link('Foto dengan kamera')),
           ],
         ),
       ),
@@ -519,20 +420,17 @@ class _Rinci extends StatelessWidget {
             'Riwayat keputusan',
             style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
           ),
-          for (final (i, h) in it.hist.indexed) ...[
+          for (final (i, h) in cur.riwayat.indexed) ...[
             const SizedBox(height: 6),
             // Keyed from the oldest line, so only a new top line enters.
             Gerak(
               Kerangka.muncul,
-              key: ValueKey('${cur.id}-${it.hist.length - i}'),
+              key: ValueKey('${cur.id}-${cur.riwayat.length - i}'),
               lama: const Duration(milliseconds: 300),
-              child: Text(
-                t(h),
-                style: TextStyle(fontSize: 14, color: c.tinta2),
-              ),
+              child: Text(h, style: TextStyle(fontSize: 14, color: c.tinta2)),
             ),
           ],
-          if (it.hist.isEmpty) ...[
+          if (cur.riwayat.isEmpty) ...[
             const SizedBox(height: 6),
             Text(
               'Belum ada file dan belum ada keputusan.',
@@ -579,28 +477,21 @@ class _Rinci extends StatelessWidget {
 }
 
 /// The reason form (exception or rejection), entering with `muncul` 300 ms.
-class _Form extends StatelessWidget {
-  const _Form({super.key, required this.k});
+class _Form extends ConsumerWidget {
+  const _Form({super.key, required this.k, required this.cur});
   final _Dokumen k;
+  final BarisDokumen cur;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
     final kec = k.form == 'kecuali';
     final ok = k.alasan.text.trim().isNotEmpty;
-    void simpan() {
+    Future<void> simpan() async {
       // Re-read the latest text at press time.
       final a = k.alasan.text.trim();
       if (a.isEmpty) return;
-      kec
-          ? k.set(
-              'kecuali',
-              '16/11/2026 11.35 · Dikecualikan · alasan: $a · oleh Ketua BPMJ · dicatat Meiske L.',
-            )
-          : k.set(
-              'kosong',
-              '16/11/2026 11.35 · File ditolak · alasan: $a · oleh Meiske L.',
-            );
+      k.selesai(await putuskanDokumen(ref, cur, kec ? 'kecuali' : 'tolak', a));
     }
 
     final isi = <Widget>[
@@ -647,7 +538,7 @@ class _Form extends StatelessWidget {
             petunjuk: ok ? null : 'Alasan wajib diisi',
             radius: 12,
             child: RupaTombol(
-              label: kec ? 'Catat pengecualian' : 'Tolak file ini',
+              label: kec ? 'Simpan pengecualian' : 'Tolak file ini',
               isi: ok ? c.tinta : c.garis,
               warnaTeks: ok ? c.permukaan : c.tinta3,
               radius: 12,

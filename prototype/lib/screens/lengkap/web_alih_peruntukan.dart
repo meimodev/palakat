@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
@@ -8,15 +9,16 @@ import '../../widgets/tata_letak.dart';
 import 'alih_peruntukan.dart';
 import '../../app/layar.dart';
 
-class WebAlihPeruntukanScreen extends StatefulWidget {
+class WebAlihPeruntukanScreen extends ConsumerStatefulWidget {
   const WebAlihPeruntukanScreen({super.key});
 
   @override
-  State<WebAlihPeruntukanScreen> createState() =>
+  ConsumerState<WebAlihPeruntukanScreen> createState() =>
       _WebAlihPeruntukanScreenState();
 }
 
-class _WebAlihPeruntukanScreenState extends State<WebAlihPeruntukanScreen>
+class _WebAlihPeruntukanScreenState
+    extends ConsumerState<WebAlihPeruntukanScreen>
     with AlihPeruntukanIsi {
   @override
   Widget build(BuildContext context) => Material(

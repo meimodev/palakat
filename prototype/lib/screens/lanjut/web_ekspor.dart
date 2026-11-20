@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../motion/kerangka.dart';
 import '../../motion/urutan.dart';
@@ -15,42 +16,43 @@ import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import '../../app/layar.dart';
+import '../../domain/core/core.dart';
+import '../../providers/keuangan/ekspor.dart';
+import '../../widgets/penolakan.dart';
 
-/// The five contents of the export: name, description, bar duration (ms).
-const _isi = [
-  ('Buku', 'Semua transaksi, termasuk yang dibalik dan dibatalkan', 1100),
-  (
-    'Versi',
-    'Mata Anggaran 2026.1 dan 2026.2, pengaturan dan aturan per bulan',
-    1500,
-  ),
-  ('Dokumen pendukung', '214 file, masing-masing dengan checksum', 2400),
-  ('Laporan', 'Laporan resmi September dan Oktober 2026, PDF dan Excel', 1900),
-  ('Daftar isi', 'Apa saja yang ada di ekspor ini, dan apa yang tidak', 2600),
-];
+/// The bar duration (ms) of each of the five contents.
+const _lama = [1100, 1500, 2400, 1900, 2600];
 
 enum _St { belum, jalan, selesai }
 
 /// Web · Ekspor data Jemaat (spec 06-bukti.md).
-class WebEksporScreen extends StatefulWidget {
+class WebEksporScreen extends ConsumerStatefulWidget {
   const WebEksporScreen({super.key});
 
   @override
-  State<WebEksporScreen> createState() => _WebEksporScreenState();
+  ConsumerState<WebEksporScreen> createState() => _WebEksporScreenState();
 }
 
-class _WebEksporScreenState extends State<WebEksporScreen> {
+class _WebEksporScreenState extends ConsumerState<WebEksporScreen> {
   _St _st = _St.belum;
   bool _diunduh = false;
   Timer? _t;
+  ExportManifest? _manifest;
+  Refusal? _pesan;
 
-  void _buat() {
-    setState(() => _st = _St.jalan);
+  Future<void> _buat() async {
+    final r = await buatEkspor(ref);
+    if (!mounted) return;
+    setState(() {
+      _pesan = r.pesan;
+      _manifest = r.manifest;
+      _diunduh = false;
+      if (r.manifest != null) _st = _St.jalan;
+    });
+    if (r.manifest == null) return;
     _t?.cancel();
-    _t = Timer(
-      const Duration(milliseconds: 2800),
-      () => setState(() => _st = _St.selesai),
-    );
+    void selesai() => setState(() => _st = _St.selesai);
+    _t = Timer(const Duration(milliseconds: 2800), selesai); // tiruan: ekspor
   }
 
   @override
@@ -63,6 +65,8 @@ class _WebEksporScreenState extends State<WebEksporScreen> {
   Widget build(BuildContext context) {
     final c = context.warna;
     final s14 = TextStyle(fontSize: 14, color: c.tinta2);
+    final d = ref.watch(eksporProvider);
+    final kurang = d.tanpaDokumen;
 
     final kanan = <Widget>[
       if (_st == _St.belum) ...[
@@ -75,12 +79,14 @@ class _WebEksporScreenState extends State<WebEksporScreen> {
           paddingH: 6,
         ),
         Text(
-          'Mencakup 15 September 2026 sampai hari ini. Bulan yang belum '
+          'Mencakup ${d.mulai} sampai hari ini. Bulan yang belum '
           'ditutup diekspor sebagai keadaan saat ini dan ditandai Belum '
           'ditutup.',
           style: s14,
         ),
       ],
+      if (_pesan case final r?)
+        Penolakan(tindakan: r.action, sebab: r.because, jalan: const []),
       if (_st == _St.jalan) ...[
         Semantics(
           liveRegion: true,
@@ -96,54 +102,52 @@ class _WebEksporScreenState extends State<WebEksporScreen> {
         ),
       ],
       if (_st == _St.selesai) ...[
-        Gerak(
-          Kerangka.muncul,
-          lama: const Duration(milliseconds: 300),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-            decoration: BoxDecoration(
-              color: c.permukaan,
-              border: Border.all(color: c.bata, width: 1.5),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const Text(
-                  'Ekspor belum lengkap',
-                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
-                ),
-                const SizedBox(height: 6),
-                const Text(
-                  '3 dari 214 dokumen pendukung tidak ikut:',
-                  style: TextStyle(fontSize: 14),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  // Chrome breaks the code after 2026- (390 wide).
-                  '2 file Ditahan (alasan keamanan) · BKU-2026-\u200B0117, '
-                  'BKU-2026-\u200B0130',
-                  style: s14,
-                ),
-                const SizedBox(height: 6),
-                Text('1 file gagal dibaca · BKU-2026-0102', style: s14),
-                const SizedBox(height: 10),
-                Text(
-                  'Daftar isi mencatat ketiganya sebagai tidak disertakan, '
-                  'lengkap dengan alasannya.',
-                  style: TextStyle(fontSize: 13, color: c.tinta3),
-                ),
-              ],
+        if (kurang.isNotEmpty)
+          Gerak(
+            Kerangka.muncul,
+            lama: const Duration(milliseconds: 300),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+              decoration: BoxDecoration(
+                color: c.permukaan,
+                border: Border.all(color: c.bata, width: 1.5),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Text(
+                    'Ekspor belum lengkap',
+                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    '${kurang.length} transaksi tanpa dokumen pendukung wajib:',
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                  for (final t in kurang) ...[
+                    const SizedBox(height: 6),
+                    Text('${t.voucher} · ${t.description}', style: s14),
+                  ],
+                  const SizedBox(height: 10),
+                  Text(
+                    'Daftar isi mencatatnya sebagai tidak disertakan, lengkap '
+                    'dengan alasannya.',
+                    style: TextStyle(fontSize: 13, color: c.tinta3),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
         Wrap(
           spacing: 10,
           runSpacing: 10,
           children: [
             _TombolWeb(
               _diunduh
-                  ? 'Diunduh · ekspor-jemaat-karunia-2026-11-16.zip'
+                  ? 'Diunduh · ${_manifest?.fileName ?? ''}'
+                  : kurang.isEmpty
+                  ? 'Unduh ekspor'
                   : 'Unduh ekspor (belum lengkap)',
               onTap: () => setState(() => _diunduh = true),
               tinggi: 48,
@@ -222,7 +226,8 @@ class _WebEksporScreenState extends State<WebEksporScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    for (var i = 0; i < _isi.length; i++) _Butir(i: i, st: _st),
+                    for (var i = 0; i < d.isi.length; i++)
+                      _Butir(i: i, st: _st, d: d),
                   ],
                 ),
               ),
@@ -283,15 +288,17 @@ class _TombolWeb extends StatelessWidget {
 
 /// One contents row: name, description and bar on the left, badge right.
 class _Butir extends StatelessWidget {
-  const _Butir({required this.i, required this.st});
+  const _Butir({required this.i, required this.st, required this.d});
   final int i;
   final _St st;
+  final DataEkspor d;
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final (n, s, lama) = _isi[i];
-    final kurang = st == _St.selesai && i == 2;
+    final (n, s) = d.isi[i];
+    final lama = _lama[i];
+    final kurang = st == _St.selesai && i == 2 && d.tanpaDokumen.isNotEmpty;
     final lencana = switch (st) {
       _St.belum => const LencanaStatus(
         'Akan disertakan',
@@ -324,7 +331,9 @@ class _Butir extends StatelessWidget {
               children: [
                 Text(n, style: const TextStyle(fontWeight: FontWeight.w600)),
                 Text(
-                  kurang ? '211 dari 214 file disertakan' : s,
+                  kurang
+                      ? '$s · ${d.tanpaDokumen.length} transaksi tanpa dokumen wajib'
+                      : s,
                   style: TextStyle(fontSize: 13, color: c.tinta3),
                 ),
                 if (st == _St.jalan) ...[

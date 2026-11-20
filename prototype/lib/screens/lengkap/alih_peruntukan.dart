@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/format.dart';
-import '../../mock/mock.dart';
+import '../../domain/core/core.dart';
+import '../../providers/keuangan/alih_peruntukan.dart';
+import '../../providers/keuangan/kasus.dart';
+import '../../providers/repositories_keuangan.dart';
+import '../../widgets/penolakan.dart';
 import '../../motion/kerangka.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
@@ -15,48 +20,50 @@ import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
 import '../../app/layar.dart';
 
-/// Saldo buku of Bank BNI ··4821 on 16/11/2026: it never changes here.
-final int _saldoBni = saldoNovember['bni']!;
-
 /// State and derived values of the board's logic class, shared by
-/// AlihPeruntukan and WebAlihPeruntukan (each screen owns its own instance).
+/// AlihPeruntukan and WebAlihPeruntukan (each screen owns its own instance);
+/// the balances come from AccountRepository.
 class AlihPeruntukanLogika {
-  String? dari, ke;
+  String? akun, dari, ke;
 
   /// Amount digits, as the board's `jm`.
   String jm = '';
   String dasar = '';
-  bool posted = false;
 
+  /// The booked transfer's voucher, once Dibukukan.
+  String? no;
+
+  /// The saved draft (refused at Bukukan), and why.
+  String? drafId;
+  Refusal? pesan;
+
+  bool get posted => no != null;
+
+  /// A draft was saved: the form no longer changes (book it or leave).
+  bool get terkunci => posted || drafId != null;
   int get _j => int.tryParse(jm) ?? 0;
 
-  /// The first unmet reason, '' when the move can be posted.
-  String get alasan {
+  /// The first unmet reason, '' when the move can be posted; [saldo] is
+  /// the chosen Kas/Bank by peruntukan, [nama] a peruntukan's name.
+  String alasan(Map<String, int> saldo, String Function(String) nama) {
+    if (akun == null) return 'Kas/Bank belum dipilih.';
     if (dari == null || ke == null) return 'pilih peruntukan asal dan tujuan.';
     if (dari == ke) return 'peruntukan asal dan tujuan harus berbeda.';
     if (_j <= 0) return 'jumlah belum diisi.';
-    if (_j > bniPerPeruntukanNovember[dari]!) {
-      final nama = semuaPeruntukan.firstWhere((p) => p.id == dari).nama;
-      return 'melebihi saldo peruntukan $nama di Bank BNI ··4821.';
+    if (_j > (saldo[dari] ?? 0)) {
+      return 'melebihi saldo peruntukan ${nama(dari!)} di ${nama(akun!)}.';
     }
     if (dasar.trim().isEmpty) return 'dasar keputusan belum diisi.';
     return '';
   }
 
-  bool get ok => alasan.isEmpty;
-
-  /// Change of one peruntukan: shown while ready or after posting.
-  int ubah(String id) =>
-      ok || posted ? (id == dari ? -_j : (id == ke ? _j : 0)) : 0;
-
-  int nilai(String id) => bniPerPeruntukanNovember[id]! + ubah(id);
-
-  /// The board's `Math.round(v / 24615000 * 100) + '%'`.
-  int persen(String id) => (nilai(id) / _saldoBni * 100).round();
+  /// Change of one peruntukan: shown while ready, before Bukukan.
+  int ubah(String id, bool ok) =>
+      ok && !posted ? (id == dari ? -_j : (id == ke ? _j : 0)) : 0;
 }
 
 /// The parts both boards draw, in their own columns.
-mixin AlihPeruntukanIsi<T extends StatefulWidget> on State<T> {
+mixin AlihPeruntukanIsi<T extends ConsumerStatefulWidget> on ConsumerState<T> {
   final logika = AlihPeruntukanLogika();
   final _jumlah = TextEditingController();
   final _dasar = TextEditingController();
@@ -69,8 +76,44 @@ mixin AlihPeruntukanIsi<T extends StatefulWidget> on State<T> {
   }
 
   void _pilih(void Function() ubah) {
-    if (logika.posted) return;
-    setState(ubah);
+    if (logika.terkunci) return;
+    setState(() {
+      ubah();
+      logika.pesan = null;
+    });
+  }
+
+  PilihanKasusBaru get _p => ref.watch(pilihanKasusBaruProvider);
+  Map<String, int> get _saldo => logika.akun == null
+      ? const {}
+      : ref.watch(saldoPeruntukanProvider(logika.akun!));
+  String _nama(String id) =>
+      [
+        ..._p.kasBank.map((k) => (id: k.id, nama: k.nama)),
+        ..._p.peruntukan,
+      ].where((x) => x.id == id).firstOrNull?.nama ??
+      id;
+  String get _alasan => logika.alasan(_saldo, _nama);
+
+  Future<void> _bukukan() async {
+    final l = logika;
+    if (_alasan.isNotEmpty) return;
+    final r = await alihPeruntukan(
+      ref,
+      drafId: l.drafId,
+      akun: l.akun!,
+      dari: l.dari!,
+      ke: l.ke!,
+      jumlah: int.parse(l.jm),
+      dasar: l.dasar,
+    );
+    if (!mounted) return;
+    setState(() {
+      l
+        ..drafId = r.id ?? l.drafId
+        ..no = r.no
+        ..pesan = r.pesan;
+    });
   }
 
   /// Intro, Kas/Bank, Dari, Ke, amount and basis (phone 3a–3f).
@@ -78,7 +121,7 @@ mixin AlihPeruntukanIsi<T extends StatefulWidget> on State<T> {
     final c = context.warna;
     final l = logika;
     final pilihan = [
-      for (final p in semuaPeruntukan) (nilai: p.id, teks: p.nama),
+      for (final p in _p.peruntukan) (nilai: p.id, teks: p.nama),
     ];
     return [
       Kartu(
@@ -103,18 +146,11 @@ mixin AlihPeruntukanIsi<T extends StatefulWidget> on State<T> {
           style: const TextStyle(fontSize: 14),
         ),
       ),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text('Kas/Bank', style: TextStyle(fontSize: 14, color: c.tinta2)),
-          const SizedBox(width: 16),
-          const Flexible(
-            child: Text(
-              'Bank BNI ··4821',
-              style: TextStyle(fontWeight: FontWeight.w700),
-            ),
-          ),
-        ],
+      ChipPilihan<String>(
+        label: 'Kas/Bank',
+        pilihan: [for (final k in _p.kasBank) (nilai: k.id, teks: k.nama)],
+        terpilih: l.akun,
+        onPilih: (v) => _pilih(() => l.akun = v),
       ),
       ChipPilihan<String>(
         label: 'Dari peruntukan',
@@ -131,7 +167,7 @@ mixin AlihPeruntukanIsi<T extends StatefulWidget> on State<T> {
       IsianJumlah(
         label: 'Jumlah (Rp)',
         controller: _jumlah,
-        hanyaBaca: l.posted,
+        hanyaBaca: l.terkunci,
         onChanged: (v) => _pilih(() => l.jm = hanyaAngka(v)),
       ),
       Column(
@@ -158,10 +194,10 @@ mixin AlihPeruntukanIsi<T extends StatefulWidget> on State<T> {
           IsianTeks(
             controller: _dasar,
             labelSemantik: 'Dasar keputusan · wajib',
-            petunjuk: 'Contoh: keputusan BPMJ 09/11/2026',
+            petunjuk: 'Contoh: keputusan rapat BPMJ',
             // The theme's M3 bodyLarge would add 0.5 letter spacing to the hint.
             gaya: const TextStyle(letterSpacing: 0),
-            hanyaBaca: l.posted,
+            hanyaBaca: l.terkunci,
             onChanged: (v) => _pilih(() => l.dasar = v),
           ),
         ],
@@ -174,6 +210,13 @@ mixin AlihPeruntukanIsi<T extends StatefulWidget> on State<T> {
     final c = context.warna;
     final l = logika;
     final warna = BatangPembagian.warnaBagian(c);
+    final daftar = _p.peruntukan;
+    final saldo = _saldo;
+    final ok = _alasan.isEmpty;
+    final total = l.akun == null ? 0 : ref.watch(saldoAkunProvider(l.akun!));
+    int nilai(String id) => (saldo[id] ?? 0) + l.ubah(id, ok);
+    // The board's `Math.round(v / total * 100) + '%'`.
+    int persen(String id) => total <= 0 ? 0 : (nilai(id) / total * 100).round();
     return Kartu(
       status: GarisStatus.terpilih,
       radius: 16,
@@ -182,7 +225,11 @@ mixin AlihPeruntukanIsi<T extends StatefulWidget> on State<T> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: 10,
         children: [
-          _BarisSaldo(posted: l.posted),
+          _BarisSaldo(
+            akun: l.akun == null ? 'Kas/Bank' : _nama(l.akun!),
+            saldo: total,
+            no: l.no,
+          ),
           Text(
             'Tidak berubah. Yang berubah hanya pembagiannya per peruntukan:',
             style: TextStyle(fontSize: 13, color: c.tinta3),
@@ -193,11 +240,11 @@ mixin AlihPeruntukanIsi<T extends StatefulWidget> on State<T> {
             garisPutus: false,
             durasi: const Duration(milliseconds: 500),
             bagian: [
-              for (var i = 0; i < semuaPeruntukan.length; i++)
-                BagianBatang(l.persen(semuaPeruntukan[i].id), warna[i]),
+              for (var i = 0; i < daftar.length; i++)
+                BagianBatang(persen(daftar[i].id), warna[i % warna.length]),
             ],
           ),
-          for (var i = 0; i < semuaPeruntukan.length; i++)
+          for (var i = 0; i < daftar.length; i++)
             Container(
               padding: const EdgeInsets.only(top: 8),
               decoration: i == 0
@@ -206,13 +253,13 @@ mixin AlihPeruntukanIsi<T extends StatefulWidget> on State<T> {
                       border: Border(top: BorderSide(color: c.garis)),
                     ),
               child: _BarisLegenda(
-                warna: warna[i],
-                nama: semuaPeruntukan[i].nama,
-                ubah: switch (l.ubah(semuaPeruntukan[i].id)) {
+                warna: warna[i % warna.length],
+                nama: daftar[i].nama,
+                ubah: switch (l.ubah(daftar[i].id, ok)) {
                   0 => '',
                   final d => rpBeda(d),
                 },
-                nilai: rp(l.nilai(semuaPeruntukan[i].id)),
+                nilai: rp(nilai(daftar[i].id)),
               ),
             ),
         ],
@@ -225,48 +272,67 @@ mixin AlihPeruntukanIsi<T extends StatefulWidget> on State<T> {
     final c = context.warna;
     final l = logika;
     if (l.posted) {
+      final t = ref.watch(transactionRepositoryProvider).get(l.drafId ?? '');
       return [
         Gerak(
           Kerangka.muncul,
           lama: const Duration(milliseconds: 300),
           child: Text(
-            'Dibukukan pada 16/11/2026 11.55. Tidak muncul di Pendapatan, '
-            'Belanja, atau rekening koran.',
+            'Dibukukan pada ${t?.finalizedAt == null ? '' : tglJam(t!.finalizedAt!)}. '
+            'Tidak muncul di Pendapatan, Belanja, atau rekening koran.',
             style: TextStyle(fontSize: 14, color: c.tinta2),
           ),
         ),
       ];
     }
+    final alasan = _alasan;
     return [
-      if (!l.ok)
+      if (alasan.isNotEmpty)
         Text(
-          'Tidak dapat dibukukan: ${l.alasan}',
+          'Tidak dapat dibukukan: $alasan',
+          style: TextStyle(fontSize: 14, color: c.tinta2),
+        ),
+      if (l.pesan case final r?)
+        Penolakan(
+          tindakan: r.action,
+          sebab:
+              r.because +
+              (r.whoCanAct == null
+                  ? ''
+                  : ' Yang perlu bertindak: ${r.whoCanAct}.'),
+          jalan: const [],
+          ukuranTeks: 14,
+        ),
+      if (l.drafId != null && l.pesan != null)
+        Text(
+          'Dicatat sebagai draf, belum masuk saldo.',
           style: TextStyle(fontSize: 14, color: c.tinta2),
         ),
       // The board's own reason line is above; the component's is off.
       TombolBersyarat(
         label: 'Periksa dan bukukan',
         tindakan: 'Periksa dan bukukan',
-        alasan: l.alasan,
-        periksa: () => logika.alasan,
+        alasan: alasan,
+        periksa: () => _alasan,
         sudahMulai: false,
         warnaSiap: JenisTombol.utama,
         teksBelumRedup: true,
         paddingH: 20,
-        onPressed: () => setState(() => logika.posted = true),
+        onPressed: _bukukan,
       ),
     ];
   }
 }
 
-class AlihPeruntukanScreen extends StatefulWidget {
+class AlihPeruntukanScreen extends ConsumerStatefulWidget {
   const AlihPeruntukanScreen({super.key});
 
   @override
-  State<AlihPeruntukanScreen> createState() => _AlihPeruntukanScreenState();
+  ConsumerState<AlihPeruntukanScreen> createState() =>
+      _AlihPeruntukanScreenState();
 }
 
-class _AlihPeruntukanScreenState extends State<AlihPeruntukanScreen>
+class _AlihPeruntukanScreenState extends ConsumerState<AlihPeruntukanScreen>
     with AlihPeruntukanIsi {
   @override
   Widget build(BuildContext context) => Material(
@@ -362,11 +428,12 @@ List<double> _susut(List<double> dasar, List<double> min, double tersedia) {
 /// The card's top row: the saldo, and after posting the No. Bukti stamp,
 /// shrunk like the board's flex items (the stamp wraps, the figure never).
 class _BarisSaldo extends StatelessWidget {
-  const _BarisSaldo({required this.posted});
-  final bool posted;
+  const _BarisSaldo({required this.akun, required this.saldo, this.no});
+  final String akun;
+  final int saldo;
 
-  // Zero-width spaces: Chrome breaks after these hyphens, Flutter does not.
-  static const _stempel = 'No. Bukti BKU-​2026-​0152';
+  /// The voucher once Dibukukan.
+  final String? no;
 
   @override
   Widget build(BuildContext context) {
@@ -379,8 +446,10 @@ class _BarisSaldo extends StatelessWidget {
       fontWeight: FontWeight.w600,
       color: c.laut,
     );
-    const label = 'Saldo buku Bank BNI ··4821';
-    final saldo = rp(_saldoBni);
+    final label = 'Saldo buku $akun';
+    final saldo = rp(this.saldo);
+    // Zero-width spaces: Chrome breaks after these hyphens, Flutter does not.
+    final stempel = 'No. Bukti ${(no ?? '').replaceAll('-', '-\u200B')}';
     final kiri = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -388,7 +457,7 @@ class _BarisSaldo extends StatelessWidget {
         Text(saldo, style: gayaSaldo),
       ],
     );
-    if (!posted) return Align(alignment: Alignment.centerLeft, child: kiri);
+    if (no == null) return Align(alignment: Alignment.centerLeft, child: kiri);
     return LayoutBuilder(
       builder: (context, k) {
         final lebarSaldo = _lebarTeks(context, saldo, gayaSaldo);
@@ -398,9 +467,9 @@ class _BarisSaldo extends StatelessWidget {
               _lebarTeks(context, label, gayaLabel),
               lebarSaldo,
             ].reduce((a, b) => a > b ? a : b),
-            _lebarTeks(context, _stempel, gayaStempel) + 24,
+            _lebarTeks(context, stempel, gayaStempel) + 24,
           ],
-          [lebarSaldo, _lebarMin(context, _stempel, gayaStempel) + 24],
+          [lebarSaldo, _lebarMin(context, stempel, gayaStempel) + 24],
           k.maxWidth - 16,
         );
         return Row(
@@ -422,9 +491,9 @@ class _BarisSaldo extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Semantics(
-                    label: 'No. Bukti BKU-2026-0152',
+                    label: 'No. Bukti $no',
                     child: ExcludeSemantics(
-                      child: Text(_stempel, style: gayaStempel),
+                      child: Text(stempel, style: gayaStempel),
                     ),
                   ),
                 ),

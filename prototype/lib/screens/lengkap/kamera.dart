@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../motion/kerangka.dart';
@@ -15,10 +16,18 @@ import '../../widgets/ikon.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
+import '../../core/format.dart';
+import '../../domain/core/core.dart';
+import '../../providers/actor.dart';
+import '../../providers/clock.dart';
+import '../../providers/keuangan/dokumen.dart';
+import '../../providers/repositories_keuangan.dart';
+import '../../widgets/penolakan.dart';
 
 /// Board state shared by `/Kamera`, `/Kamera/tinjau` and `/Kamera/unggah`:
 /// initial `{ st: 'bidik', hal: 1, sudahCoba: false }`.
+const _lamaUnggah = Duration(milliseconds: 1500);
+
 class _PapanKamera extends ChangeNotifier {
   String st = 'bidik';
   int hal = 1;
@@ -33,22 +42,23 @@ class _PapanKamera extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// `unggah`: "Pakai foto ini" and "Coba lagi". The tweak and `sudahCoba`
-  /// are read at press time.
-  void unggah(bool gagalUnggah) {
-    final gagal = gagalUnggah && !sudahCoba;
+  /// The refusal of the upload command, if any.
+  Refusal? pesan;
+
+  /// "Pakai foto ini": the upload command is issued by the caller first;
+  /// this only shows its progress (README 3.7).
+  void unggah(Refusal? tolak) {
     _waktu?.cancel();
     _ubah(() {
       st = 'unggah';
+      pesan = tolak;
       percobaan++;
     });
-    // Fakes the upload.
-    _waktu = Timer(const Duration(milliseconds: 1500), () {
-      _ubah(() {
-        st = gagal ? 'gagal' : 'lampir';
-        sudahCoba = true;
-      });
+    void selesai() => _ubah(() {
+      st = tolak == null ? 'lampir' : 'bidik';
+      sudahCoba = true;
     });
+    _waktu = Timer(_lamaUnggah, selesai); // tiruan: unggah
   }
 
   /// Leaving `/Kamera/unggah` (system Back): the camera again, no late change.
@@ -144,18 +154,23 @@ void _keluarKe(BuildContext context, {required Layar ke}) {
 /// light in the Gelap theme too.
 final _kertas = PalakatWarna.terang;
 
-class _Nota extends StatelessWidget {
+class _Nota extends ConsumerWidget {
   const _Nota();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final b = ref.watch(dokumenTerpilihProvider);
+    final t = b?.transaksi;
+    final jumlah = titik('${t?.total ?? 0}');
     Widget baris(String a, String b, {bool tebal = false}) => Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       spacing: 8,
       children: [
-        Text(
-          a,
-          style: tebal ? const TextStyle(fontWeight: FontWeight.w600) : null,
+        Flexible(
+          child: Text(
+            a,
+            style: tebal ? const TextStyle(fontWeight: FontWeight.w600) : null,
+          ),
         ),
         Text(
           b,
@@ -187,19 +202,18 @@ class _Nota extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(
-                'CV NADA PRIMA',
+              Text(
+                (t?.payee ?? 'Nota').toUpperCase(),
                 textAlign: TextAlign.center,
-                style: TextStyle(fontWeight: FontWeight.w600),
+                style: const TextStyle(fontWeight: FontWeight.w600),
               ),
-              const Text('Jl. Sam Ratulangi 14', textAlign: TextAlign.center),
               putus,
-              baris('Sewa sound system', ''),
-              baris('1 hari', '600.000'),
+              baris(t?.description ?? '', ''),
+              baris('1', jumlah),
               putus,
-              baris('TOTAL', 'Rp600.000', tebal: true),
+              baris('TOTAL', 'Rp$jumlah', tebal: true),
               const SizedBox(height: 8),
-              const Text('11/11/2026'),
+              Text(t == null ? '' : tgl(t.effectiveDate.awal)),
               const Text('LUNAS'),
             ],
           ),
@@ -228,12 +242,13 @@ class _Gelap extends StatelessWidget {
 }
 
 /// *bidik*: the camera.
-class _Bidik extends StatelessWidget {
+class _Bidik extends ConsumerWidget {
   const _Bidik();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
+    final b = ref.watch(dokumenTerpilihProvider);
     final papan = _LingkupKamera.of(context);
     void ambil() => context.dorongKe(Layar.fotoDokumen, anak: 'tinjau');
     final sudut = BorderSide(color: c.permukaan, width: 3);
@@ -295,10 +310,16 @@ class _Bidik extends StatelessWidget {
                         TextSpan(
                           children: [
                             TextSpan(
-                              text: 'BKU-2026-0143',
-                              style: TextStyle(fontFamily: PalakatText.mono),
+                              text: b?.no ?? '',
+                              style: const TextStyle(
+                                fontFamily: PalakatText.mono,
+                              ),
                             ),
-                            TextSpan(text: ' · Sewa sound system · Rp600.000'),
+                            TextSpan(
+                              text:
+                                  ' · ${b?.transaksi.description ?? ''} · '
+                                  '${b == null ? '' : rp(b.transaksi.total)}',
+                            ),
                           ],
                         ),
                         style: TextStyle(fontSize: 13, color: c.diTinta2),
@@ -402,11 +423,11 @@ class _Bidik extends StatelessWidget {
 }
 
 /// *tinjau*: review the shot, under a white flash.
-class _Tinjau extends StatelessWidget {
+class _Tinjau extends ConsumerWidget {
   const _Tinjau();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
     final papan = _LingkupKamera.of(context);
     // The flash stays white: `tinta` is the lightest token in the dark theme.
@@ -458,8 +479,10 @@ class _Tinjau extends StatelessWidget {
                     spacing: 8,
                     children: [
                       Tekan(
-                        onTap: () {
-                          papan.unggah(belumDipindah<bool>(false));
+                        onTap: () async {
+                          final tolak = await unggahDokumen(ref, papan.hal);
+                          papan.unggah(tolak);
+                          if (!context.mounted) return;
                           GoRouter.of(context).pushReplacement(
                             Layar.fotoDokumen.lokasi(anak: 'unggah'),
                           );
@@ -510,13 +533,13 @@ class _Tinjau extends StatelessWidget {
 }
 
 /// *unggah / gagal / lampir*: the light "Dokumen pendukung" page.
-class _Unggah extends StatefulWidget {
+class _Unggah extends ConsumerStatefulWidget {
   const _Unggah();
   @override
-  State<_Unggah> createState() => _UnggahState();
+  ConsumerState<_Unggah> createState() => _UnggahState();
 }
 
-class _UnggahState extends State<_Unggah> {
+class _UnggahState extends ConsumerState<_Unggah> {
   _PapanKamera? _papan;
 
   @override
@@ -546,7 +569,7 @@ class _UnggahState extends State<_Unggah> {
     final papan = _papan!;
     final st = papan.st;
     final tinta2 = TextStyle(fontSize: 14, color: c.tinta2);
-    void lagi() => papan.unggah(belumDipindah<bool>(false));
+    final b = ref.watch(dokumenTerpilihProvider);
 
     Widget? status = switch (st) {
       'unggah' => Column(
@@ -564,24 +587,6 @@ class _UnggahState extends State<_Unggah> {
           ),
         ],
       ),
-      'gagal' => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 6,
-        children: [
-          Text(
-            'Gagal diunggah',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-              color: c.bata,
-            ),
-          ),
-          Text(
-            'File belum terlampir, dan dokumen pendukung masih “Wajib, belum ada”. Coba lagi tidak membuat salinan ganda.',
-            style: tinta2,
-          ),
-        ],
-      ),
       'lampir' => Gerak(
         Kerangka.muncul,
         lama: const Duration(milliseconds: 300),
@@ -594,7 +599,7 @@ class _UnggahState extends State<_Unggah> {
               style: tinta2,
             ),
             Text(
-              'Diunggah, belum diverifikasi',
+              b?.label ?? 'Diunggah, belum diverifikasi',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
@@ -626,7 +631,7 @@ class _UnggahState extends State<_Unggah> {
         children: [
           KepalaPonsel(
             judul: 'Dokumen pendukung',
-            anakJudul: 'BKU-2026-0143 · Sewa sound system',
+            anakJudul: '${b?.no ?? ''} · ${b?.transaksi.description ?? ''}',
             labelKembali: 'Kembali ke Dokumen pendukung',
             onKembali: () => _keluarKe(context, ke: Layar.dokumen),
           ),
@@ -639,6 +644,13 @@ class _UnggahState extends State<_Unggah> {
                 children: [
                   _KartuFile(hal: papan.hal),
                   ?status,
+                  if (papan.pesan case final r?)
+                    Penolakan(
+                      tindakan: r.action,
+                      sebab: r.because,
+                      jalan: const [],
+                      ukuranTeks: 14,
+                    ),
                 ],
               ),
             ),
@@ -653,18 +665,11 @@ class _UnggahState extends State<_Unggah> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               spacing: 8,
               children: [
-                if (st == 'gagal')
-                  Tombol(
-                    'Coba lagi',
-                    jenis: JenisTombol.tinta,
-                    paddingH: 6,
-                    onPressed: lagi,
-                  ),
                 if (st == 'lampir') ...[
-                  const Tombol(
+                  Tombol(
                     'Lihat file dan verifikasi',
                     ke: Layar.lihatDokumen,
-                    param: {'id': belumDipindahId},
+                    param: {'id': b?.id ?? ''},
                     paddingH: 6,
                     onPressed: null,
                   ),
@@ -689,12 +694,12 @@ class _UnggahState extends State<_Unggah> {
 }
 
 /// File row with the document thumbnail.
-class _KartuFile extends StatelessWidget {
+class _KartuFile extends ConsumerWidget {
   const _KartuFile({required this.hal});
   final int hal;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
     Widget garis(Color w, double lebar, Alignment rata) => Align(
       alignment: rata,
@@ -738,7 +743,7 @@ class _KartuFile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'nota-sewa-sound-$hal.jpg',
+                  namaNota(ref.watch(clockProvider).now(), hal),
                   style: const TextStyle(
                     fontFamily: PalakatText.mono,
                     fontSize: 14,
@@ -756,4 +761,26 @@ class _KartuFile extends StatelessWidget {
       ),
     );
   }
+}
+
+/// "Pakai foto ini" (Kamera, WebUnggah): uploads page [hal] of today's
+/// receipt to the chosen transaction through EvidenceRepository; returns the
+/// refusal, or null.
+Future<Refusal?> unggahDokumen(WidgetRef ref, int hal) async {
+  final a = ref.read(actorProvider);
+  final b = ref.read(dokumenTerpilihProvider);
+  if (a == null || b == null) return null;
+  final jam = ref.read(clockProvider);
+  final r = await ref
+      .read(evidenceRepositoryProvider)
+      .upload(
+        a,
+        b.id,
+        SampleFile(namaNota(jam.now(), hal)),
+        expectedRevision: b.transaksi.revision,
+        idempotencyKey: kunciBaru(a.personId, jam),
+      );
+  // Later captures stay on the same transaction.
+  ref.read(pilihanDokumenProvider.notifier).pilih(b.id);
+  return r.refusal;
 }

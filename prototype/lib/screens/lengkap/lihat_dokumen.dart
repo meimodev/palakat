@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
@@ -8,14 +9,14 @@ import 'lihat_dokumen_penampil.dart';
 import '../../app/layar.dart';
 
 /// 40 · Lihat file dokumen pendukung (spec 11-lihatdokumen.md).
-class LihatDokumenScreen extends StatefulWidget {
+class LihatDokumenScreen extends ConsumerStatefulWidget {
   const LihatDokumenScreen({super.key});
 
   @override
-  State<LihatDokumenScreen> createState() => _LihatDokumenScreenState();
+  ConsumerState<LihatDokumenScreen> createState() => _LihatDokumenScreenState();
 }
 
-class _LihatDokumenScreenState extends State<LihatDokumenScreen>
+class _LihatDokumenScreenState extends ConsumerState<LihatDokumenScreen>
     with KeadaanLihatDokumen {
   @override
   Widget build(BuildContext context) {

@@ -1,9 +1,8 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../core/format.dart';
-import '../../mock/mock.dart';
 import '../../motion/kerangka.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
@@ -15,59 +14,25 @@ import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
+import '../../domain/core/core.dart';
+import '../../domain/finance/finance.dart';
+import '../../providers/keuangan/dokumen.dart';
+import '../../widgets/penolakan.dart';
+import 'dokumen.dart' show putuskanDokumen;
 
 /// Web · Dokumen pendukung (docs/build/screens/06-bukti.md).
-class WebDokumenScreen extends StatefulWidget {
+class WebDokumenScreen extends ConsumerStatefulWidget {
   const WebDokumenScreen({super.key});
 
   @override
-  State<WebDokumenScreen> createState() => _WebDokumenScreenState();
+  ConsumerState<WebDokumenScreen> createState() => _WebDokumenScreenState();
 }
-
-enum _St { kosong, unggah, verif, kecuali, gagal, tahan, tidak }
 
 enum _Form { kecuali, tolak }
 
-const _label = {
-  _St.kosong: 'Wajib, belum ada',
-  _St.unggah: 'Diunggah, belum diverifikasi',
-  _St.verif: 'Terverifikasi (oleh Meiske L.)',
-  _St.kecuali: 'Dikecualikan',
-  _St.gagal: 'Gagal diunggah',
-  _St.tahan: 'Ditahan (alasan keamanan)',
-  _St.tidak: 'Tidak diperlukan (aturan: Pindah antar Kas/Bank)',
-};
-
-bool _beres(_St s) => s == _St.verif || s == _St.kecuali || s == _St.tidak;
-
-const _awal = <String, (_St, List<String>)>{
-  'a': (
-    _St.unggah,
-    ['16/11/2026 10.41 · nota-16-11.jpg diunggah oleh Meiske L.'],
-  ),
-  'b': (_St.kosong, []),
-  'c': (
-    _St.kecuali,
-    ['22/10/2026 · Dikecualikan · alasan: kuitansi menyusul · oleh Ketua BPMJ'],
-  ),
-  'd': (
-    _St.gagal,
-    ['16/11/2026 11.05 · nota-sewa.jpg gagal diunggah · belum terlampir'],
-  ),
-  'e': (
-    _St.tahan,
-    ['15/11/2026 16.20 · scan-kuitansi.pdf ditahan (alasan keamanan)'],
-  ),
-  'f': (_St.tidak, []),
-};
-
-class _WebDokumenScreenState extends State<WebDokumenScreen> {
-  var _pilih = 'a';
+class _WebDokumenScreenState extends ConsumerState<WebDokumenScreen> {
   _Form? _form;
-  final _it = {
-    for (final e in _awal.entries) e.key: (e.value.$1, [...e.value.$2]),
-  };
+  Refusal? _pesan;
   final _alasan = TextEditingController();
 
   @override
@@ -76,110 +41,87 @@ class _WebDokumenScreenState extends State<WebDokumenScreen> {
     super.dispose();
   }
 
-  void _set(_St st, String baris) => setState(() {
-    final h = _it[_pilih]!.$2..insert(0, baris);
-    _it[_pilih] = (st, h);
-    _form = null;
-    _alasan.clear();
-  });
+  Future<void> _putuskan(BarisDokumen b, String aksi, [String a = '']) async {
+    final r = await putuskanDokumen(ref, b, aksi, a);
+    if (!mounted) return;
+    setState(() {
+      _pesan = r;
+      if (r == null) {
+        _form = null;
+        _alasan.clear();
+      }
+    });
+  }
 
   void _bukaForm(_Form f) {
     _alasan.clear();
-    setState(() => _form = f);
+    setState(() {
+      _form = f;
+      _pesan = null;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    String t(String s) => s;
-    final cur = dokumenPendukung.firstWhere((d) => d.id == _pilih);
-    final (st, hist) = _it[_pilih]!;
-    final tutup = cur.id == 'c';
-    final beres = _beres(st);
+    final daftar = ref.watch(daftarDokumenProvider);
+    final cur = ref.watch(dokumenTerpilihProvider);
+    final tinta2 = TextStyle(fontSize: 14, color: c.tinta2);
+    if (cur == null) {
+      return HalamanWeb(
+        layarKeuangan: true,
+        nav: const NavSamping(item: navKeuangan, aktif: 1),
+        isi: [Text('Tidak ada dokumen yang perlu diputuskan.', style: tinta2)],
+      );
+    }
+    final tutup = cur.tutup;
+    final beres = cur.beres;
     final kec = _form == _Form.kecuali;
     final ok = _alasan.text.trim().isNotEmpty;
-    final tinta2 = TextStyle(fontSize: 14, color: c.tinta2);
+    final bulan = cur.bulan.split(' · ').first;
+    void unggah() {
+      ref.read(pilihanDokumenProvider.notifier).pilih(cur.id);
+      context.dorongKe(Layar.fotoDokumen, anak: 'unggah');
+    }
 
     final aksi = <Widget>[
       if (_form == null)
-        ...switch (st) {
-          _St.kosong => [
-            _aksi(
-              'Lampirkan dokumen pendukung',
-              true,
-              () => _set(
-                _St.unggah,
-                '16/11/2026 11.30 · nota baru diunggah oleh Meiske L.',
-              ),
-            ),
+        ...switch (cur.status) {
+          EvidenceStatus.requiredMissing => [
+            _aksi('Lampirkan dokumen pendukung', true, unggah),
             _aksi('Catat pengecualian', false, () => _bukaForm(_Form.kecuali)),
           ],
-          _St.unggah => [
-            _aksi(
-              'Verifikasi',
-              true,
-              () => _set(
-                _St.verif,
-                '16/11/2026 11.32 · Terverifikasi oleh Meiske L.',
-              ),
-            ),
+          EvidenceStatus.uploaded => [
+            _aksi('Verifikasi', true, () => _putuskan(cur, 'verif')),
             _aksi('Tolak dengan alasan', false, () => _bukaForm(_Form.tolak)),
-            _aksi(
-              'Lepaskan file',
-              false,
-              () => _set(
-                _St.kosong,
-                '16/11/2026 11.33 · File dilepas oleh Meiske L. · tetap di Riwayat',
+            _aksi('Lepaskan file', false, () => _putuskan(cur, 'lepas')),
+            if (!tutup)
+              _aksi(
+                'Catat pengecualian',
+                false,
+                () => _bukaForm(_Form.kecuali),
               ),
-            ),
           ],
-          _St.gagal => [
-            _aksi(
-              'Coba lagi',
-              true,
-              () => _set(
-                _St.unggah,
-                '16/11/2026 11.31 · nota-sewa.jpg diunggah oleh Meiske L.',
-              ),
-            ),
-          ],
-          _St.tahan => [
-            _aksi(
-              'Lampirkan file lain',
-              true,
-              () => _set(
-                _St.unggah,
-                '16/11/2026 11.31 · kuitansi-foto.jpg diunggah oleh Meiske L.',
-              ),
-            ),
-          ],
-          _St.kecuali => [
+          EvidenceStatus.exceptionAccepted => [
             _aksi(
               tutup
                   ? 'Lampirkan dokumen susulan'
                   : 'Lampirkan dokumen pendukung',
               false,
-              () => _set(
-                _St.unggah,
-                '16/11/2026 11.30 · ${tutup ? 'dokumen susulan' : 'nota'} '
-                'diunggah oleh Meiske L.',
-              ),
+              unggah,
             ),
           ],
-          _St.verif || _St.tidak => const <Widget>[],
+          _ => const <Widget>[],
         },
     ];
-
     final catatan = tutup
-        ? 'Dokumen susulan disimpan dan mengubah Status sekarang. Laporan resmi Oktober 2026 tidak berubah.'
-        : switch (st) {
-            _St.tidak =>
+        ? 'Dokumen susulan disimpan dan mengubah Status sekarang. Laporan resmi $bulan tidak berubah.'
+        : switch (cur.status) {
+            EvidenceStatus.notRequired =>
               'Aturan Jemaat tidak mewajibkan dokumen untuk transaksi ini.',
-            _St.gagal =>
-              'File belum terlampir. Coba lagi tidak membuat salinan ganda.',
-            _St.tahan => 'File ini tidak dapat dibuka dan tidak dihitung sebagai dokumen pendukung. Tetap menjadi hambatan tutup buku.',
-            _ when beres => 'Memenuhi syarat tutup buku November 2026.',
-            _ => 'Menjadi hambatan tutup buku November 2026 sampai terverifikasi atau dikecualikan.',
+            _ when beres => 'Memenuhi syarat tutup buku $bulan.',
+            _ =>
+              'Menjadi hambatan tutup buku $bulan sampai terverifikasi atau dikecualikan.',
           };
 
     final panel = <Widget>[
@@ -200,7 +142,7 @@ class _WebDokumenScreenState extends State<WebDokumenScreen> {
               children: [
                 Expanded(
                   child: Text(
-                    cur.noBukti,
+                    cur.no,
                     style: TextStyle(
                       fontFamily: PalakatText.mono,
                       fontSize: 13,
@@ -210,7 +152,7 @@ class _WebDokumenScreenState extends State<WebDokumenScreen> {
                 ),
                 const SizedBox(width: 16),
                 Text(
-                  rp(cur.jumlah),
+                  cur.jumlah,
                   style: const TextStyle(
                     fontFamily: PalakatText.mono,
                     fontWeight: FontWeight.w500,
@@ -220,7 +162,7 @@ class _WebDokumenScreenState extends State<WebDokumenScreen> {
             ),
             const SizedBox(height: 4),
             Text(
-              cur.uraian,
+              cur.transaksi.description,
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 4),
@@ -234,23 +176,8 @@ class _WebDokumenScreenState extends State<WebDokumenScreen> {
         children: [
           for (final (i, w) in [
             Text('Dokumen pendukung', style: tinta2),
-            if (tutup) ...[
-              const Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(text: 'Status saat tutup buku: '),
-                    TextSpan(
-                      text: 'Dikecualikan (alasan: kuitansi menyusul, oleh Ketua BPMJ)',
-                      style: TextStyle(fontWeight: FontWeight.w700),
-                    ),
-                  ],
-                ),
-                style: TextStyle(fontSize: 14),
-              ),
-              const Text('Status sekarang:', style: TextStyle(fontSize: 14)),
-            ],
             Text(
-              t(_label[st]!),
+              cur.label,
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
@@ -314,19 +241,11 @@ class _WebDokumenScreenState extends State<WebDokumenScreen> {
                     runSpacing: 8,
                     children: [
                       Tombol(
-                        kec ? 'Catat pengecualian' : 'Tolak file ini',
+                        kec ? 'Simpan pengecualian' : 'Tolak file ini',
                         onPressed: () {
                           final a = _alasan.text.trim();
                           if (a.isEmpty) return;
-                          kec
-                              ? _set(
-                                  _St.kecuali,
-                                  '16/11/2026 11.35 · Dikecualikan · alasan: $a · oleh Ketua BPMJ · dicatat Meiske L.',
-                                )
-                              : _set(
-                                  _St.kosong,
-                                  '16/11/2026 11.35 · File ditolak · alasan: $a · oleh Meiske L.',
-                                );
+                          _putuskan(cur, kec ? 'kecuali' : 'tolak', a);
                         },
                         jenis: JenisTombol.tinta,
                         ukuran: UkuranTombol.ringkas,
@@ -347,21 +266,29 @@ class _WebDokumenScreenState extends State<WebDokumenScreen> {
             ),
           ),
         ),
+      if (_pesan case final r?)
+        Penolakan(
+          tindakan: r.action,
+          sebab:
+              r.because +
+              (r.whoCanAct == null
+                  ? ''
+                  : ' Yang perlu bertindak: ${r.whoCanAct}.'),
+          jalan: const [],
+          ukuranTeks: 14,
+        ),
       // Always present, even empty: the board's flex gap stays.
       Wrap(spacing: 8, runSpacing: 8, children: aksi),
       Wrap(
         spacing: 22,
         children: [
-          Tautan(
-            ke: Layar.lihatDokumen,
-            param: {'id': belumDipindahId},
-            child: _tautanFile('Lihat file'),
-          ),
-          Tautan(
-            ke: Layar.fotoDokumen,
-            anak: 'unggah',
-            child: _tautanFile('Unggah file'),
-          ),
+          if (cur.menunggu != null || cur.status == EvidenceStatus.verified)
+            Tautan(
+              ke: Layar.lihatDokumen,
+              param: {'id': cur.id},
+              child: _tautanFile('Lihat file'),
+            ),
+          Tekan(onTap: unggah, child: _tautanFile('Unggah file')),
         ],
       ),
       Column(
@@ -374,18 +301,18 @@ class _WebDokumenScreenState extends State<WebDokumenScreen> {
               style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
             ),
           ),
-          for (final (i, h) in hist.indexed) ...[
+          for (final (i, h) in cur.riwayat.indexed) ...[
             const SizedBox(height: 6),
             // Keyed from the oldest line: a new top line animates alone; a
             // new row animates all of its lines.
             Gerak(
               Kerangka.muncul,
-              key: ValueKey('$_pilih-${hist.length - i}'),
+              key: ValueKey('${cur.id}-${cur.riwayat.length - i}'),
               lama: const Duration(milliseconds: 300),
-              child: Text(t(h), style: tinta2),
+              child: Text(h, style: tinta2),
             ),
           ],
-          if (hist.isEmpty) ...[
+          if (cur.riwayat.isEmpty) ...[
             const SizedBox(height: 6),
             Text('Belum ada file dan belum ada keputusan.', style: tinta2),
           ],
@@ -407,9 +334,7 @@ class _WebDokumenScreenState extends State<WebDokumenScreen> {
             child: SizedBox(
               width: math.max(600, k.maxWidth),
               child: Column(
-                children: [
-                  for (final d in dokumenPendukung) _baris(context, d, t),
-                ],
+                children: [for (final d in daftar) _baris(context, d, cur.id)],
               ),
             ),
           ),
@@ -477,20 +402,18 @@ class _WebDokumenScreenState extends State<WebDokumenScreen> {
     );
   }
 
-  Widget _baris(
-    BuildContext context,
-    DokumenPendukung d,
-    String Function(String) t,
-  ) {
+  Widget _baris(BuildContext context, BarisDokumen d, String pilih) {
     final c = context.warna;
-    final on = d.id == _pilih;
-    final st = _it[d.id]!.$1;
-    final b = _beres(st);
+    final on = d.id == pilih;
+    final b = d.beres;
     return Tekan(
-      onTap: () => setState(() {
-        _pilih = d.id;
-        _form = null;
-      }),
+      onTap: () {
+        ref.read(pilihanDokumenProvider.notifier).pilih(d.id);
+        setState(() {
+          _form = null;
+          _pesan = null;
+        });
+      },
       dipilih: on,
       child: Container(
         constraints: const BoxConstraints(minHeight: 64),
@@ -511,7 +434,7 @@ class _WebDokumenScreenState extends State<WebDokumenScreen> {
               SizedBox(
                 width: 130,
                 child: Text(
-                  d.noBukti,
+                  d.no,
                   style: const TextStyle(
                     fontFamily: PalakatText.mono,
                     fontSize: 13,
@@ -525,7 +448,10 @@ class _WebDokumenScreenState extends State<WebDokumenScreen> {
                   children: [
                     Text(
                       // Chrome keeps "Kas/Bank" whole (390 wide).
-                      d.uraian.replaceAll('Kas/Bank', 'Kas/\u2060Bank'),
+                      d.transaksi.description.replaceAll(
+                        'Kas/Bank',
+                        'Kas/\u2060Bank',
+                      ),
                       style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                     Text(
@@ -538,7 +464,7 @@ class _WebDokumenScreenState extends State<WebDokumenScreen> {
               const SizedBox(width: 14),
               Expanded(
                 child: Text(
-                  t(_label[st]!),
+                  d.label,
                   style: TextStyle(
                     color: b ? c.tinta : c.bata,
                     fontWeight: b ? FontWeight.w500 : FontWeight.w700,
@@ -549,7 +475,7 @@ class _WebDokumenScreenState extends State<WebDokumenScreen> {
               SizedBox(
                 width: 130,
                 child: Text(
-                  rp(d.jumlah),
+                  d.jumlah,
                   textAlign: TextAlign.right,
                   style: const TextStyle(fontFamily: PalakatText.mono),
                 ),

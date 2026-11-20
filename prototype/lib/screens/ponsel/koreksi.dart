@@ -1,30 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/format.dart';
-import '../../mock/orang.dart' show plk;
+import '../../domain/core/core.dart';
+import '../../domain/finance/finance.dart';
+import '../../providers/keuangan/dokumen.dart';
+import '../../providers/keuangan/koreksi.dart';
+import '../../widgets/kartu_persetujuan.dart';
+import '../../widgets/penolakan.dart';
+import '../../providers/keuangan/persetujuan.dart';
 import '../../motion/kerangka.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
-import '../../widgets/chip_pilihan.dart';
 import '../../widgets/garis.dart';
 import '../../widgets/garis_status.dart';
 import '../../widgets/isian_alasan.dart';
 import '../../widgets/kecil.dart';
-import '../../widgets/lembar_bawah.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
 import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
 
-const _ma = [
-  (k: '5.02.01.00', n: 'Alat tulis dan fotokopi', cat: 'asal'),
-  (k: '5.04.01.00', n: 'Konsumsi rapat', cat: ''),
-];
 const _mode = [
   (
     id: 'koreksi',
@@ -42,13 +42,16 @@ const _mono = TextStyle(
   fontFeatures: [FontFeature.tabularFigures()],
 );
 
-/// The board's state object (`state = {…}` of the logic class); the sheet
-/// flag stands for `screen: 'ap'`.
+/// The board's UI state (`state = {…}` of the logic class); the records
+/// come from [koreksiProvider].
 class _Papan extends ChangeNotifier {
-  bool lembar = false, ap = false, dibalik = false, kejadianAda = false;
-  String apNama = 'Pdt. Lidya Rondonuwu', apJabatan = 'Ketua BPMJ';
-  String apCara = 'notulen rapat', alasan = '', mode = 'koreksi', kejadian = '';
-  int ma = 1;
+  String alasan = '', mode = 'koreksi', kejadian = '';
+
+  /// The chosen Mata Anggaran code; null: the first other than the original's.
+  String? ma;
+
+  /// The last refusal of a command, shown on detail.
+  Refusal? pesan;
 
   bool get kor => mode == 'koreksi';
   void ubah(VoidCallback f) {
@@ -65,13 +68,25 @@ class _Lingkup extends InheritedNotifier<_Papan> {
 _Papan _papan(BuildContext c) =>
     c.dependOnInheritedWidgetOfExactType<_Lingkup>()!.notifier!;
 
-bool _tutup(BuildContext c) =>
-    belumDipindah<String>('Belum ditutup') == 'Sudah ditutup';
+/// The transaction of the route's `:id` (watched).
+DataKoreksi? _data(BuildContext c, WidgetRef ref) =>
+    ref.watch(koreksiProvider(GoRouterState.of(c).pathParameters['id'] ?? ''));
 
-String _bulan(BuildContext c) => _tutup(c) ? 'Oktober 2026' : 'November 2026';
+/// [p]'s Mata Anggaran code for the correction.
+String? _maDipilih(_Papan p, DataKoreksi d) =>
+    p.ma ??
+    (d.pilihanMa.length > 1 ? d.pilihanMa[1].$1 : d.pilihanMa.firstOrNull?.$1);
 
-/// Owns the board state, LayarPonsel (strip) and the approval sheet
-/// (navigation.md 2.1); the child routes are views only.
+Widget _penolakan(Refusal r) => Penolakan(
+  tindakan: r.action,
+  sebab:
+      r.because +
+      (r.whoCanAct == null ? '' : ' Yang perlu bertindak: ${r.whoCanAct}.'),
+  jalan: const [],
+);
+
+/// Owns the board state and LayarPonsel (strip) (navigation.md 2.1); the
+/// child routes are views only.
 class KoreksiKendali extends StatefulWidget {
   const KoreksiKendali({super.key, required this.child});
   final Widget child;
@@ -95,38 +110,36 @@ class _KoreksiKendaliState extends State<KoreksiKendali> {
       papan: _p,
       child: ListenableBuilder(
         listenable: _p,
-        builder: (context, _) => LayarPonsel(
-          layarKeuangan: true,
-          overlay: [
-            if (_p.lembar) Positioned.fill(child: const _LembarPersetujuan()),
-          ],
-          child: widget.child,
-        ),
+        builder: (context, _) =>
+            LayarPonsel(layarKeuangan: true, child: widget.child),
       ),
     ),
   );
 }
 
-class KoreksiScreen extends StatefulWidget {
+class KoreksiScreen extends ConsumerStatefulWidget {
   const KoreksiScreen({super.key, this.anak, this.param = const {}});
   final String? anak;
   final Map<String, String> param;
   @override
-  State<KoreksiScreen> createState() => _KoreksiScreenState();
+  ConsumerState<KoreksiScreen> createState() => _KoreksiScreenState();
 }
 
-class _KoreksiScreenState extends State<KoreksiScreen> {
+class _KoreksiScreenState extends ConsumerState<KoreksiScreen> {
   @override
   void initState() {
     super.initState();
     // Deep links to a view the board cannot reach now go back to detail.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      final p = _papan(context), tutup = _tutup(context);
+      final d = ref.read(
+        koreksiProvider(GoRouterState.of(context).pathParameters['id'] ?? ''),
+      );
       final sah = switch (widget.anak) {
-        'hasil' => p.dibalik,
-        'kejadian' => tutup,
-        'pembalikan' => !tutup && !p.dibalik,
+        _ when d == null => widget.anak == null,
+        'hasil' => d.dibalik,
+        'kejadian' => d.tutup,
+        'pembalikan' => !d.tutup && !d.dibalik && !d.menunggu,
         _ => true,
       };
       if (!sah) {
@@ -291,13 +304,13 @@ class _LencanaKepala extends StatelessWidget {
 
 // ── detail ────────────────────────────────────────────────────────────────
 
-class _Detail extends StatefulWidget {
+class _Detail extends ConsumerStatefulWidget {
   const _Detail();
   @override
-  State<_Detail> createState() => _DetailState();
+  ConsumerState<_Detail> createState() => _DetailState();
 }
 
-class _DetailState extends State<_Detail> {
+class _DetailState extends ConsumerState<_Detail> {
   final _guliran = ScrollController();
   var _diAtas = true;
 
@@ -326,17 +339,47 @@ class _DetailState extends State<_Detail> {
   Widget build(BuildContext context) {
     final c = context.warna;
     final p = _papan(context);
-    final tutup = _tutup(context), bulan = _bulan(context);
-    final buka = !tutup && !p.dibalik;
-    final jk = belumDipindah(false);
+    final d = _data(context, ref);
     final caption = TextStyle(fontSize: 13, color: c.tinta3);
+    if (d == null) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const KepalaPonsel(
+            judul: 'Koreksi',
+            kembaliKe: Layar.keuangan,
+            labelKembali: 'Kembali ke Beranda',
+          ),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Text('Transaksi tidak ditemukan.', style: caption),
+          ),
+        ],
+      );
+    }
+    final t = d.asal;
+    final tutup = d.tutup, bulan = d.bulan;
+    final buka = !tutup && !d.dibalik && !d.menunggu;
+    final setuju = t.approvalMode == ApprovalMode.external
+        ? ref.watch(persetujuanProvider(t.id))?.berlaku
+        : null;
+    final param = GoRouterState.of(context).pathParameters;
     final lampirkan = Tombol(
       'Lampirkan dokumen pendukung',
-      onPressed: null,
+      onPressed: () {
+        ref.read(pilihanDokumenProvider.notifier).pilih(t.id);
+        context.dorongKe(Layar.fotoDokumen);
+      },
       jenis: JenisTombol.kedua,
       ukuran: UkuranTombol.sedang,
-      ke: Layar.fotoDokumen,
     );
+    Future<void> bukukan() async {
+      final r = await bukukanRangkaian(ref, t.id);
+      p.ubah(() => p.pesan = r);
+      if (r == null && context.mounted) {
+        context.dorongKe(Layar.koreksi, param: param, anak: 'hasil');
+      }
+    }
 
     // `pudar .2s` on the view's root, inside the route's own `masuk`.
     return Gerak(
@@ -346,11 +389,11 @@ class _DetailState extends State<_Detail> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           KepalaPonsel(
-            judul: 'BKU-2026-0139',
+            judul: t.voucher ?? '',
             judulMono: true,
             kembaliKe: Layar.keuangan,
             labelKembali: 'Kembali ke Beranda',
-            ujung: _LencanaKepala(dibalik: p.dibalik),
+            ujung: _LencanaKepala(dibalik: d.dibalik),
           ),
           Expanded(
             child: _gulir(const EdgeInsets.fromLTRB(20, 8, 20, 24), 16, [
@@ -358,28 +401,29 @@ class _DetailState extends State<_Detail> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    rp(-750000),
+                    rp(d.rincian.baris.jumlah),
                     style: _mono.copyWith(
                       fontSize: 34,
                       fontWeight: FontWeight.w500,
                       letterSpacing: -1,
                     ),
                   ),
-                  const Text(
-                    'Konsumsi rapat majelis',
-                    style: TextStyle(fontWeight: FontWeight.w600),
+                  Text(
+                    t.description,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                   Text(
-                    'Belanja · ${tutup ? '9 Oktober 2026' : '9 November 2026'}',
+                    '${d.maAsal.split(' ').first} · '
+                    '${tglPanjang(t.effectiveDate.awal)}',
                     style: TextStyle(fontSize: 14, color: c.tinta2),
                   ),
                 ],
               ),
-              if (p.dibalik)
+              if (d.dibalik)
                 Tekan(
                   onTap: () => context.dorongKe(
                     Layar.koreksi,
-                    param: GoRouterState.of(context).pathParameters,
+                    param: param,
                     anak: 'hasil',
                   ),
                   radius: 12,
@@ -395,7 +439,10 @@ class _DetailState extends State<_Detail> {
                       TextSpan(
                         children: [
                           const TextSpan(text: 'Dibalik oleh No. Bukti '),
-                          TextSpan(text: 'BKU-2026-0144', style: _mono),
+                          TextSpan(
+                            text: d.pembalikan?.voucher ?? '',
+                            style: _mono,
+                          ),
                           const TextSpan(text: ' · lihat rangkaian'),
                         ],
                       ),
@@ -434,54 +481,69 @@ class _DetailState extends State<_Detail> {
                   ),
                 ),
               _Rincian([
-                ('Kas/Bank', 'Kas', false),
-                ('Diambil dari peruntukan', 'Umum Jemaat', false),
-                ('Lingkup', 'Jemaat', false),
-                (
-                  'Mata Anggaran',
-                  'Belanja 5.02.01.00 Alat tulis dan fotokopi',
-                  false,
-                ),
-                ('Versi Mata Anggaran', '2026.1', false),
-                (
-                  'Dibukukan pada',
-                  '${tutup ? '09/10/2026' : '09/11/2026'} 14.12',
-                  false,
-                ),
+                for (final (k, v, _) in d.rincian.fakta) (k, v, false),
               ]),
-              _KartuPersetujuan(
-                p: p,
-                bisa: !p.ap && !tutup && !p.dibalik,
-                plk: plk(jk),
-              ),
-              Kartu(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      'Dokumen pendukung',
-                      style: TextStyle(fontSize: 14, color: c.tinta2),
-                    ),
-                    const Text(
-                      'Terverifikasi (oleh Meiske L.)',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
+              if (t.approvalMode == ApprovalMode.external)
+                setuju == null
+                    ? KartuPersetujuan.belum(
+                        kepala: 'Persetujuan di luar aplikasi',
+                        onCatat: () => context.dorongKe(
+                          Layar.persetujuan,
+                          param: {'id': t.id},
+                        ),
+                      )
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          KartuPersetujuan.sudah(
+                            kepala: 'Persetujuan di luar aplikasi',
+                            pemberi: setuju.nama,
+                            jabatan: setuju.jabatan,
+                            tanggal: setuju.tanggal,
+                            cara: setuju.cara,
+                            dicatatOleh: setuju.oleh,
+                            dicatatPada: setuju.pada,
+                          ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Tautan(
+                              ke: Layar.persetujuan,
+                              param: {'id': t.id},
+                              child: const SizedBox(
+                                height: 44,
+                                child: Center(
+                                  widthFactor: 1,
+                                  child: TautanTeks(
+                                    'Ganti catatan persetujuan',
+                                    berat: FontWeight.w700,
+                                    ukuran: 14,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    if (tutup)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4),
-                        child: Text(
-                          'Status saat tutup buku: Terverifikasi · Status '
-                          'sekarang: Terverifikasi',
-                          style: caption,
+              if (d.dokumen case final dok?)
+                Kartu(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        'Dokumen pendukung',
+                        style: TextStyle(fontSize: 14, color: c.tinta2),
+                      ),
+                      Text(
+                        dok.label,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              if (p.kejadianAda && tutup)
+              for (final k in d.kejadian)
                 Gerak(
                   Kerangka.muncul,
                   lama: const Duration(milliseconds: 300),
@@ -494,7 +556,7 @@ class _DetailState extends State<_Detail> {
                         Padding(
                           padding: const EdgeInsets.only(top: 4),
                           child: Text(
-                            p.kejadian,
+                            k.explanation.facts,
                             style: TextStyle(fontSize: 14, color: c.tinta2),
                           ),
                         ),
@@ -509,17 +571,40 @@ class _DetailState extends State<_Detail> {
                     ),
                   ),
                 ),
+              if (p.pesan case final r?) _penolakan(r),
+              if (d.menunggu)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: _sela([
+                    Text(
+                      d.pengganti == null
+                          ? 'Pembalikan dicatat sebagai draf, belum masuk '
+                                'saldo.'
+                          : 'Pembalikan dan transaksi koreksi dicatat sebagai '
+                                'draf, belum masuk saldo.',
+                      style: TextStyle(fontSize: 14, color: c.tinta2),
+                    ),
+                    Tombol(
+                      'Periksa dan bukukan',
+                      onPressed: bukukan,
+                      jenis: JenisTombol.tinta,
+                    ),
+                  ], 8),
+                ),
               if (buka)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: _sela([
                     Tombol(
                       'Koreksi dengan pembalikan',
-                      onPressed: () => context.dorongKe(
-                        Layar.koreksi,
-                        param: GoRouterState.of(context).pathParameters,
-                        anak: 'pembalikan',
-                      ),
+                      onPressed: () {
+                        p.ubah(() => p.pesan = null);
+                        context.dorongKe(
+                          Layar.koreksi,
+                          param: param,
+                          anak: 'pembalikan',
+                        );
+                      },
                       jenis: JenisTombol.tinta,
                     ),
                     lampirkan,
@@ -559,7 +644,7 @@ class _DetailState extends State<_Detail> {
                       'Catat kejadian',
                       onPressed: () => context.dorongKe(
                         Layar.koreksi,
-                        param: GoRouterState.of(context).pathParameters,
+                        param: param,
                         anak: 'kejadian',
                       ),
                       jenis: JenisTombol.tinta,
@@ -618,205 +703,15 @@ class _JudulKejadian extends StatelessWidget {
   }
 }
 
-/// The board's own approval card (KartuPersetujuan drawn with the board's
-/// gaps, the recorded block's `muncul` and the "Ganti" link).
-class _KartuPersetujuan extends StatelessWidget {
-  const _KartuPersetujuan({
-    required this.p,
-    required this.bisa,
-    required this.plk,
-  });
-  final _Papan p;
-  final bool bisa;
-  final String plk;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.warna;
-    return Kartu(
-      status: p.ap ? GarisStatus.dibukukan : GarisStatus.draf,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: _sela([
-          Text(
-            'Persetujuan di luar aplikasi',
-            style: TextStyle(fontSize: 14, color: c.tinta2),
-          ),
-          Text(
-            p.ap ? 'Persetujuan sudah dicatat' : 'Persetujuan belum dicatat',
-            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
-          ),
-          if (p.ap)
-            Gerak(
-              Kerangka.muncul,
-              lama: const Duration(milliseconds: 300),
-              child: Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: _sela([
-                    Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: 'Pemberi persetujuan:',
-                            style: TextStyle(color: c.tinta2),
-                          ),
-                          const TextSpan(text: ' '),
-                          TextSpan(
-                            text: p.apNama,
-                            style: const TextStyle(fontWeight: FontWeight.w700),
-                          ),
-                          TextSpan(text: ', ${p.apJabatan}'),
-                        ],
-                      ),
-                      style: const TextStyle(fontSize: 14),
-                    ),
-                    Text(
-                      '08/11/2026 · cara: ${p.apCara}',
-                      style: TextStyle(fontSize: 14, color: c.tinta2),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          GarisLurus(
-                            warna: c.garisTegas,
-                            gaya: GayaGaris.putus,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Dicatat oleh $plk, 16/11/2026 11.20. Pernyataan '
-                            'Bendahara, bukan persetujuan di dalam aplikasi.',
-                            style: TextStyle(fontSize: 13, color: c.tinta3),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Tautan(
-                        ke: Layar.persetujuan,
-                        param: {'id': belumDipindahId},
-                        child: SizedBox(
-                          height: 44,
-                          child: Center(
-                            widthFactor: 1,
-                            child: TautanTeks(
-                              'Ganti catatan persetujuan',
-                              berat: FontWeight.w700,
-                              ukuran: 14,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ], 2),
-                ),
-              ),
-            ),
-          if (bisa)
-            Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Tombol(
-                'Catat persetujuan',
-                onPressed: () => p.ubah(() => p.lembar = true),
-                jenis: JenisTombol.kedua,
-                ukuran: UkuranTombol.kecil,
-              ),
-            ),
-        ], 4),
-      ),
-    );
-  }
-}
-
-/// The approval sheet (screen `ap`), an overlay of the Kendali.
-class _LembarPersetujuan extends StatelessWidget {
-  const _LembarPersetujuan();
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.warna;
-    final p = _papan(context);
-    void tutup() => p.ubah(() => p.lembar = false);
-    return LembarBawah(
-      judul: 'Catat persetujuan',
-      anakJudul: 'Anda mencatat persetujuan yang diberikan di luar aplikasi.',
-      labelTirai: 'Kembali ke transaksi',
-      onTutup: tutup,
-      isi: [
-        IsianTeks(
-          label: 'Pemberi persetujuan',
-          jarakLabel: 6,
-          nilaiAwal: p.apNama,
-          onChanged: (v) => p.ubah(() => p.apNama = v),
-        ),
-        IsianTeks(
-          label: 'Jabatan',
-          jarakLabel: 6,
-          nilaiAwal: p.apJabatan,
-          onChanged: (v) => p.ubah(() => p.apJabatan = v),
-        ),
-        ChipPilihan<String>(
-          label: 'Cara',
-          jarakLabel: 6,
-          jarakBaris: 0,
-          pilihan: const [
-            (nilai: 'surat', teks: 'surat'),
-            (nilai: 'notulen rapat', teks: 'notulen rapat'),
-            (nilai: 'pesan', teks: 'pesan'),
-          ],
-          terpilih: p.apCara,
-          onPilih: (v) => p.ubah(() => p.apCara = v),
-        ),
-        Container(
-          constraints: const BoxConstraints(minHeight: 44),
-          decoration: BoxDecoration(
-            border: Border(top: BorderSide(color: c.garis)),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(
-                child: Text(
-                  'Tanggal persetujuan',
-                  style: TextStyle(fontSize: 14, color: c.tinta2),
-                ),
-              ),
-              const Text(
-                '8 November 2026',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-              ),
-            ],
-          ),
-        ),
-        Tombol(
-          'Catat persetujuan',
-          onPressed: () => p.ubah(() {
-            p.lembar = false;
-            p.ap = true;
-          }),
-        ),
-        Text(
-          'Catatan yang keliru digantikan catatan baru, tidak diubah.',
-          style: TextStyle(fontSize: 13, color: c.tinta3),
-        ),
-      ],
-    );
-  }
-}
-
 // ── pembalikan (screen `koreksi`) ─────────────────────────────────────────
 
-class _Pembalikan extends StatefulWidget {
+class _Pembalikan extends ConsumerStatefulWidget {
   const _Pembalikan();
   @override
-  State<_Pembalikan> createState() => _PembalikanState();
+  ConsumerState<_Pembalikan> createState() => _PembalikanState();
 }
 
-class _PembalikanState extends State<_Pembalikan> {
+class _PembalikanState extends ConsumerState<_Pembalikan> {
   TextEditingController? _alasan;
 
   @override
@@ -829,6 +724,9 @@ class _PembalikanState extends State<_Pembalikan> {
   Widget build(BuildContext context) {
     final c = context.warna;
     final p = _papan(context);
+    final d = _data(context, ref);
+    if (d == null) return const SizedBox.shrink();
+    final maPilih = _maDipilih(p, d);
     final isi = _alasan ??= TextEditingController(text: p.alasan);
     final ok = IsianAlasan.terisi(p.alasan);
     final label = p.kor
@@ -851,7 +749,7 @@ class _PembalikanState extends State<_Pembalikan> {
                 children: [
                   const TextSpan(text: 'Transaksi '),
                   TextSpan(
-                    text: 'BKU-2026-0139',
+                    text: d.asal.voucher,
                     style: _mono.copyWith(color: c.tinta),
                   ),
                   const TextSpan(
@@ -910,10 +808,10 @@ class _PembalikanState extends State<_Pembalikan> {
                     style: judulKecil,
                   ),
                   const SizedBox(height: 8),
-                  for (final (i, m) in _ma.indexed)
+                  for (final (i, m) in d.pilihanMa.indexed)
                     _KartuPilih(
-                      dipilih: p.ma == i,
-                      onTap: () => p.ubah(() => p.ma = i),
+                      dipilih: maPilih == m.$1,
+                      onTap: () => p.ubah(() => p.ma = m.$1),
                       child: Row(
                         children: [
                           Expanded(
@@ -921,14 +819,14 @@ class _PembalikanState extends State<_Pembalikan> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Belanja ${m.k}',
+                                  '${d.maAsal.split(' ').first} ${m.$1}',
                                   style: _mono.copyWith(
                                     fontSize: 13,
                                     color: c.tinta2,
                                   ),
                                 ),
                                 Text(
-                                  m.n,
+                                  m.$2,
                                   style: const TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w600,
@@ -939,7 +837,7 @@ class _PembalikanState extends State<_Pembalikan> {
                           ),
                           const SizedBox(width: 12),
                           Text(
-                            m.cat,
+                            i == 0 ? 'asal' : '',
                             style: TextStyle(fontSize: 13, color: c.tinta3),
                           ),
                         ],
@@ -956,7 +854,7 @@ class _PembalikanState extends State<_Pembalikan> {
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
                   ),
                   Text(
-                    'Bulan terdampak: November 2026 · Belum ditutup',
+                    'Bulan terdampak: ${d.bulan} · Belum ditutup',
                     style: judulKecil,
                   ),
                   Text(
@@ -965,8 +863,11 @@ class _PembalikanState extends State<_Pembalikan> {
                     style: judulKecil,
                   ),
                   Text(
-                    'Tidak ada uang muka, titipan atau pencocokan rekening '
-                    'koran yang terkait.',
+                    d.asal.allocations.any((a) => a.caseId != null)
+                        ? 'Kasus uang muka, titipan atau penggantian biaya '
+                              'yang terkait ikut berubah.'
+                        : 'Tidak ada uang muka, titipan atau pencocokan '
+                              'rekening koran yang terkait.',
                     style: judulKecil,
                   ),
                 ], 6),
@@ -984,18 +885,26 @@ class _PembalikanState extends State<_Pembalikan> {
             sudahMulai: false,
             warnaSiap: JenisTombol.utama,
             teksBelumRedup: true,
-            onPressed: () {
-              p.ubah(() {
-                p.alasan = isi.text;
-                p.dibalik = true;
-              });
-              // The form leaves the stack: Back from hasil lands on detail.
-              context.pushReplacement(
-                Layar.koreksi.lokasi(
-                  param: GoRouterState.of(context).pathParameters,
-                  anak: 'hasil',
-                ),
+            onPressed: () async {
+              final param = GoRouterState.of(context).pathParameters;
+              p.ubah(() => p.alasan = isi.text);
+              final r = await bukukanKoreksi(
+                ref,
+                d,
+                alasan: isi.text,
+                ma: p.kor ? maPilih : null,
               );
+              p.ubah(() => p.pesan = r);
+              if (!context.mounted) return;
+              // The form leaves the stack: Back from hasil lands on detail;
+              // a refusal shows on detail with the drafts to book.
+              if (r == null) {
+                context.pushReplacement(
+                  Layar.koreksi.lokasi(param: param, anak: 'hasil'),
+                );
+              } else {
+                context.naikKe(Layar.koreksi, param: param);
+              }
             },
           ),
         ]),
@@ -1078,14 +987,20 @@ class _KartuPilih extends StatelessWidget {
 
 // ── hasil ─────────────────────────────────────────────────────────────────
 
-class _Hasil extends StatelessWidget {
+class _Hasil extends ConsumerWidget {
   const _Hasil();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
-    final p = _papan(context);
-    final ma = _ma[p.ma];
+    final d = _data(context, ref);
+    if (d == null) return const SizedBox.shrink();
+    final balik = d.pembalikan, ganti = d.pengganti;
+    final kor = ganti != null && ganti.isPosted;
+    final asal = d.asal.voucher ?? '';
+    final alasan = balik == null
+        ? ''
+        : ref.watch(alasanPembalikanProvider(d.asal.id));
     final caption = TextStyle(fontSize: 13, color: c.tinta3);
     Widget tali(int tunda) => Padding(
       padding: const EdgeInsets.only(left: 28),
@@ -1123,7 +1038,7 @@ class _Hasil extends StatelessWidget {
                 ),
               ),
               Text(
-                p.kor
+                kor
                     ? 'Dua No. Bukti baru dibukukan bersama sebagai satu '
                           'rangkaian.'
                     : 'Satu No. Bukti baru dibukukan.',
@@ -1139,7 +1054,7 @@ class _Hasil extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _KartuRantai(
-                  noBukti: 'BKU-2026-0139',
+                  noBukti: asal,
                   lencana: Gerak(
                     Kerangka.capTegak,
                     lama: const Duration(milliseconds: 500),
@@ -1150,10 +1065,9 @@ class _Hasil extends StatelessWidget {
                     ),
                   ),
                   judul: 'Transaksi asal',
-                  jumlah: rp(-750000),
+                  jumlah: rp(d.rincian.baris.jumlah),
                   keterangan:
-                      'Belanja 5.02.01.00 Alat tulis dan fotokopi · tetap '
-                      'tampil di daftar dan laporan',
+                      '${d.maAsal} · tetap tampil di daftar dan laporan',
                   dibalik: true,
                 ),
                 tali(500),
@@ -1162,26 +1076,26 @@ class _Hasil extends StatelessWidget {
                   lama: const Duration(milliseconds: 500),
                   tunda: const Duration(milliseconds: 700),
                   kurva: PalakatMotion.keluar,
-                  child: const _KartuRantai(
-                    noBukti: 'BKU-2026-0144',
+                  child: _KartuRantai(
+                    noBukti: balik?.voucher ?? '',
                     judul: 'Pembalikan',
-                    jumlah: 'Rp750.000',
+                    jumlah: balik == null ? '' : rp(signedAmount(balik)),
                     keterangan:
-                        'Pembalikan dari No. Bukti BKU-2026-0139 · tidak '
-                        'dapat diubah atau dibalik',
+                        'Pembalikan dari No. Bukti $asal · tidak dapat diubah '
+                        'atau dibalik',
                   ),
                 ),
-                if (p.kor) ...[
+                if (kor) ...[
                   tali(1200),
                   muncul(
                     1400,
                     _KartuRantai(
-                      noBukti: 'BKU-2026-0145',
+                      noBukti: ganti.voucher ?? '',
                       judul: 'Transaksi koreksi',
-                      jumlah: rp(-750000),
+                      jumlah: rp(signedAmount(ganti)),
                       keterangan:
-                          'Koreksi dari No. Bukti BKU-2026-0139 · Belanja '
-                          '${ma.k} ${ma.n}',
+                          'Koreksi dari No. Bukti $asal · '
+                          '${labelKoreksi(ref, ganti)}',
                     ),
                   ),
                 ],
@@ -1199,9 +1113,9 @@ class _Hasil extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.baseline,
                       textBaseline: TextBaseline.alphabetic,
                       children: [
-                        const Expanded(
+                        Expanded(
                           child: Text(
-                            'Pengaruh pada Saldo buku Kas',
+                            'Pengaruh pada Saldo buku ${d.kasBank}',
                             style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w700,
@@ -1209,7 +1123,7 @@ class _Hasil extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          p.kor ? 'Rp0' : '+Rp750.000',
+                          pengaruhTeks(d.pengaruh),
                           style: _mono.copyWith(
                             fontSize: 20,
                             fontWeight: FontWeight.w600,
@@ -1219,13 +1133,14 @@ class _Hasil extends StatelessWidget {
                     ),
                   ),
                 ),
-                muncul(
-                  1700,
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text('Alasan: ${p.alasan}', style: caption),
+                if (alasan.isNotEmpty)
+                  muncul(
+                    1700,
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text('Alasan: $alasan', style: caption),
+                    ),
                   ),
-                ),
               ],
             ),
           ),
@@ -1320,13 +1235,13 @@ class _KartuRantai extends StatelessWidget {
 
 // ── kejadian ──────────────────────────────────────────────────────────────
 
-class _Kejadian extends StatefulWidget {
+class _Kejadian extends ConsumerStatefulWidget {
   const _Kejadian();
   @override
-  State<_Kejadian> createState() => _KejadianState();
+  ConsumerState<_Kejadian> createState() => _KejadianState();
 }
 
-class _KejadianState extends State<_Kejadian> {
+class _KejadianState extends ConsumerState<_Kejadian> {
   TextEditingController? _kejadian;
 
   /// The two optional fields, only to know the form was typed into.
@@ -1342,6 +1257,8 @@ class _KejadianState extends State<_Kejadian> {
   Widget build(BuildContext context) {
     final c = context.warna;
     final p = _papan(context);
+    final d = _data(context, ref);
+    if (d == null) return const SizedBox.shrink();
     final isi = _kejadian ??= TextEditingController(text: p.kejadian);
     const sebab = 'Penjelasan belum diisi.';
 
@@ -1368,8 +1285,8 @@ class _KejadianState extends State<_Kejadian> {
               ),
             ),
             _Rincian([
-              ('Periode', '${_bulan(context)} · Sudah ditutup', false),
-              ('Transaksi', 'BKU-2026-0139', true),
+              ('Periode', '${d.bulan} · Sudah ditutup', false),
+              ('Transaksi', d.asal.voucher ?? '', true),
             ]),
             Padding(
               padding: const EdgeInsets.only(bottom: _celahArea),
@@ -1409,12 +1326,17 @@ class _KejadianState extends State<_Kejadian> {
             // Rule A02: the sentence the board lacks, once typed into.
             sudahMulai: [p.kejadian, _dampak, _pj].any((t) => t.isNotEmpty),
             teksBelumRedup: true,
-            onPressed: () {
-              p.ubah(() {
-                p.kejadian = isi.text;
-                p.kejadianAda = true;
-              });
-              _keDetail(context);
+            onPressed: () async {
+              p.ubah(() => p.kejadian = isi.text);
+              final r = await catatKejadian(
+                ref,
+                d,
+                penjelasan: isi.text,
+                dampak: _dampak,
+                penanggungJawab: _pj,
+              );
+              p.ubah(() => p.pesan = r);
+              if (context.mounted) _keDetail(context);
             },
           ),
         ]),

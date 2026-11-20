@@ -2,6 +2,8 @@ import '../../domain/core/core.dart';
 import '../repositories/export_repository.dart';
 import 'memory_context.dart';
 
+/// The church-owned export (README 4.1, F18): a manifest of the tables, no
+/// file is written.
 class MemoryExportRepository implements ExportRepository {
   MemoryExportRepository(this.ctx);
   final MemoryContext ctx;
@@ -16,11 +18,12 @@ class MemoryExportRepository implements ExportRepository {
     final t = ctx.today;
     String dua(int n) => n.toString().padLeft(2, '0');
     final i = ctx.inti;
+    final k = ctx.store.keuangan;
     final m = ExportManifest(
       fileName:
           'ekspor-jemaat-karunia-${t.tahun}-${dua(t.bulan)}-${dua(t.hari)}.zip',
       createdAt: ctx.now,
-      // ponytail: core tables only; later milestones add their own counts.
+      // ponytail: core and finance tables; later milestones add their own.
       counts: {
         'orang': i.people.where((p) => !p.isSystem).length,
         'pihak': i.parties.length,
@@ -30,6 +33,14 @@ class MemoryExportRepository implements ExportRepository {
         'pelimpahan': i.delegations.length,
         'riwayat': i.audit.length,
         'berkas': i.files.length,
+        'transaksi': k.transactions.length,
+        'kas_bank': k.accounts.length,
+        'peruntukan': k.funds.length,
+        'mata_anggaran': k.masterRows.length,
+        'kasus': k.cases.length,
+        'persetujuan': k.approvals.length,
+        'dokumen_pendukung': k.evidence.where((e) => e.file != null).length,
+        'periode': k.periods.length,
       },
     );
     ctx.audit(

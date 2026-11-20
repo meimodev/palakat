@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../providers/keuangan/pengembalian.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
 import '../../shell/tautan.dart';
@@ -8,16 +10,18 @@ import '../../widgets/tata_letak.dart';
 import 'pengembalian_isi.dart';
 import '../../app/layar.dart';
 
-/// Web · Pengembalian (spec 07-kejadian.md): Pengembalian on the laptop,
-/// original card left, form in the aside.
-class WebPengembalianScreen extends StatefulWidget {
+/// Web · Pengembalian (spec 07-kejadian.md, with WebAlurPengembalian merged
+/// in): the pick list, then the original card left and the form (or the
+/// saved refund) beside it.
+class WebPengembalianScreen extends ConsumerStatefulWidget {
   const WebPengembalianScreen({super.key});
 
   @override
-  State<WebPengembalianScreen> createState() => _WebPengembalianScreenState();
+  ConsumerState<WebPengembalianScreen> createState() =>
+      _WebPengembalianScreenState();
 }
 
-class _WebPengembalianScreenState extends State<WebPengembalianScreen> {
+class _WebPengembalianScreenState extends ConsumerState<WebPengembalianScreen> {
   final _k = KeadaanPengembalian();
 
   @override
@@ -26,13 +30,23 @@ class _WebPengembalianScreenState extends State<WebPengembalianScreen> {
     super.dispose();
   }
 
+  Widget _kolom(List<Widget> anak, double jarak) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      for (final (i, w) in anak.indexed) ...[
+        if (i > 0 && w is! SizedBox) SizedBox(height: jarak),
+        w,
+      ],
+    ],
+  );
+
   @override
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: _k,
     builder: (context, _) {
-      final c = _k.tab;
-      final d = _k.jadi[c];
-      final form = isianPengembalian(_k);
+      final a = _k.asalId == null
+          ? null
+          : ref.watch(asalPengembalianProvider(_k.asalId!));
       return HalamanWeb(
         layarKeuangan: true,
         nav: const NavSamping(item: navKeuangan, aktif: 1),
@@ -59,39 +73,37 @@ class _WebPengembalianScreenState extends State<WebPengembalianScreen> {
               ),
             ],
           ),
-          CatatanAturan(
-            c: c,
-            tautan: const Tautan(ke: Layar.pengembalian, child: SizedBox()),
-          ),
           chipJenis(_k, ponsel: false),
-          BarisLentur(
-            anak: [
-              Lentur(
-                dasar: 420,
-                tumbuh: 999,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    KartuAsal(c: c),
-                    if (d != null) ...blokDraf(context, c, d),
-                  ],
-                ),
+          if (a == null)
+            _kolom(
+              daftarAsal(
+                context,
+                _k,
+                ref.watch(daftarAsalPengembalianProvider),
               ),
-              Lentur(
-                dasar: 380,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    if (d == null)
-                      for (final (i, w) in form.indexed) ...[
-                        if (i > 0) const SizedBox(height: 14),
-                        w,
-                      ],
-                  ],
+              12,
+            )
+          else ...[
+            CatatanAturan(c: JenisPengembalian.dari(a)),
+            BarisLentur(
+              anak: [
+                Lentur(
+                  dasar: 420,
+                  tumbuh: 999,
+                  child: _kolom([
+                    KartuAsal(a: a),
+                    if (_k.hasilId != null) ...blokDraf(context, ref, _k, a),
+                  ], 0),
                 ),
-              ),
-            ],
-          ),
+                Lentur(
+                  dasar: 380,
+                  child: _kolom([
+                    if (_k.hasilId == null) ...isianPengembalian(ref, _k, a),
+                  ], 14),
+                ),
+              ],
+            ),
+          ],
         ],
       );
     },

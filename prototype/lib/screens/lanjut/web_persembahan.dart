@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/format.dart';
 import '../../motion/kerangka.dart';
@@ -16,6 +17,8 @@ import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
 import '../../app/layar.dart';
+import '../../domain/core/core.dart';
+import '../../providers/keuangan/persembahan.dart';
 
 /// One part of the offering: board `bagian[i]` (`v` lives in the controller).
 class _Bagian {
@@ -27,32 +30,34 @@ class _Bagian {
   int get nilai => angkaDari(ctrl.text) ?? 0;
 }
 
-const _milik = [
-  ('sendiri', 'Milik sendiri'),
-  ('titipan', 'Titipan untuk: Sinode'),
-];
-const _akun = [
-  ('kas', 'Kas'),
-  ('bni', 'Bank BNI ··4821'),
-  ('bsg', 'Bank SulutGo ··1107'),
-];
 const _contohSampul = [('Novita Wenas', 100000), ('Agustina Lasut', 250000)];
 
 /// Web · Persembahan (spec 04-lainnya.md): parts as cards, a summary aside
 /// that turns from draft to posted in place.
-class WebPersembahanScreen extends StatefulWidget {
+class WebPersembahanScreen extends ConsumerStatefulWidget {
   const WebPersembahanScreen({super.key});
 
   @override
-  State<WebPersembahanScreen> createState() => _WebPersembahanScreenState();
+  ConsumerState<WebPersembahanScreen> createState() =>
+      _WebPersembahanScreenState();
 }
 
-class _WebPersembahanScreenState extends State<WebPersembahanScreen> {
-  bool _posted = false;
-  final _bagian = [
-    _Bagian('Tunai', '2350000', 'sendiri', 'kas'),
+class _WebPersembahanScreenState extends ConsumerState<WebPersembahanScreen> {
+  late final PilihanPersembahan _p = ref.read(pilihanPersembahanProvider);
+
+  /// The voucher once Dibukukan; the saved draft and the last refusal.
+  String? _no, _drafId;
+  Refusal? _pesan;
+  bool get _posted => _no != null;
+  late final _bagian = [
+    _Bagian('Tunai', '2350000', 'sendiri', _p.kas ?? ''),
     _Bagian('QRIS', '800000', 'sendiri', ''),
-    _Bagian('Transfer bank', '450000', 'titipan', 'bni'),
+    _Bagian(
+      'Transfer bank',
+      '450000',
+      _p.titipan == null ? 'sendiri' : 'titipan',
+      _p.titipan?.akun ?? '',
+    ),
   ];
   final List<(String, int)> _sampul = [];
 
@@ -64,9 +69,27 @@ class _WebPersembahanScreenState extends State<WebPersembahanScreen> {
     super.dispose();
   }
 
-  // Board `set()`: locked once posted.
+  // Board `set()`: locked once a draft is saved.
   void _set(VoidCallback f) {
-    if (!_posted) setState(f);
+    if (_drafId == null) setState(f);
+  }
+
+  Future<void> _bukukan() async {
+    final r = await bukukanPersembahan(ref, _p, [
+      for (final b in _bagian)
+        (
+          nama: b.n,
+          jumlah: b.nilai,
+          titipan: b.milik == 'titipan',
+          akun: b.akun,
+        ),
+    ], drafId: _drafId);
+    if (!mounted) return;
+    setState(() {
+      _drafId = r.id ?? _drafId;
+      _no = r.no;
+      _pesan = r.pesan;
+    });
   }
 
   int _jumlah(String m) =>
@@ -90,7 +113,7 @@ class _WebPersembahanScreenState extends State<WebPersembahanScreen> {
     final sendiri = _jumlah('sendiri'), titipan = _jumlah('titipan');
     final total = sendiri + titipan;
     final tunaiKas = _bagian
-        .where((b) => b.akun == 'kas')
+        .where((b) => b.akun == _p.kas)
         .fold(0, (a, b) => a + b.nilai);
     final mono = TextStyle(fontFamily: PalakatText.mono);
 
@@ -119,7 +142,7 @@ class _WebPersembahanScreenState extends State<WebPersembahanScreen> {
               text: 'Persembahan ',
               children: [
                 TextSpan(
-                  text: '· Ibadah Minggu · 15 November 2026',
+                  text: '· Ibadah Minggu · ${tglPanjang(_p.minggu.awal)}',
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
@@ -194,7 +217,7 @@ class _WebPersembahanScreenState extends State<WebPersembahanScreen> {
                       ),
                       child: Text(
                         // U+200B: Chrome breaks after the hyphens; Flutter does not.
-                        'No. Bukti BKU-\u200B2026-\u200B0148',
+                        'No. Bukti ${(_no ?? '').replaceAll('-', '-\u200B')}',
                         style: mono.copyWith(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -349,7 +372,7 @@ class _WebPersembahanScreenState extends State<WebPersembahanScreen> {
               style: TextStyle(fontWeight: FontWeight.w600),
             ),
             Text(
-              'Petugas penghitung: Dkn. Olga Tamba, Pnt. Jefry Wowor',
+              'Petugas penghitung: ${_p.petugas.take(1).join(', ')}',
               style: TextStyle(color: c.tinta2),
             ),
           ],
@@ -388,6 +411,22 @@ class _WebPersembahanScreenState extends State<WebPersembahanScreen> {
       ringkasan,
       sampul,
       lembar,
+      if (_pesan case final r?)
+        Penolakan(
+          tindakan: r.action,
+          sebab:
+              r.because +
+              (r.whoCanAct == null
+                  ? ''
+                  : ' Yang perlu bertindak: ${r.whoCanAct}.'),
+          jalan: const [],
+          ukuranTeks: 14,
+        ),
+      if (_drafId != null && !_posted)
+        Text(
+          'Dicatat sebagai draf, belum masuk saldo.',
+          style: TextStyle(fontSize: 14, color: c.tinta2),
+        ),
       if (_posted)
         catatan
       else
@@ -396,7 +435,7 @@ class _WebPersembahanScreenState extends State<WebPersembahanScreen> {
           tindakan: 'Periksa dan bukukan',
           alasan: _alasan,
           periksa: () => _alasan,
-          onPressed: () => setState(() => _posted = true),
+          onPressed: _bukukan,
           warnaSiap: JenisTombol.utama,
           teksBelumRedup: true,
           gayaAlasan: GayaAlasan.kalimatBata,
@@ -423,7 +462,8 @@ class _WebPersembahanScreenState extends State<WebPersembahanScreen> {
                   for (final b in _bagian)
                     _KartuBagian(
                       bagian: b,
-                      terkunci: _posted,
+                      p: _p,
+                      terkunci: _drafId != null,
                       onUbah: () => _set(() {}),
                       onMilik: (m) => _set(() => b.milik = m),
                       onAkun: (a) => _set(() => b.akun = a),
@@ -454,6 +494,7 @@ class _WebPersembahanScreenState extends State<WebPersembahanScreen> {
 class _KartuBagian extends StatefulWidget {
   const _KartuBagian({
     required this.bagian,
+    required this.p,
     required this.terkunci,
     required this.onUbah,
     required this.onMilik,
@@ -461,6 +502,7 @@ class _KartuBagian extends StatefulWidget {
   });
 
   final _Bagian bagian;
+  final PilihanPersembahan p;
   final bool terkunci;
   final VoidCallback onUbah;
   final ValueChanged<String> onMilik, onAkun;
@@ -522,9 +564,9 @@ class _KartuBagianState extends State<_KartuBagian> {
       ],
     );
 
-    final (kode, nama) = b.milik == 'sendiri'
-        ? ('1.3.53.07.00', ' Persembahan Ibadah Minggu')
-        : ('2.1.01.02.00', ' DANA TRANSIT Sentralisasi Sinode');
+    final ma = b.milik == 'sendiri' ? widget.p.maSendiri : widget.p.maTitipan;
+    final kode = ma.split(' ').elementAtOrNull(1) ?? '';
+    final nama = ma.split(kode).last;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -606,9 +648,25 @@ class _KartuBagianState extends State<_KartuBagian> {
             ),
           ),
           const SizedBox(height: 12),
-          pilihan('Uang siapa', _milik, b.milik, 10, widget.onMilik),
+          pilihan(
+            'Uang siapa',
+            [
+              ('sendiri', 'Milik sendiri'),
+              if (widget.p.titipan case final t?)
+                ('titipan', 'Titipan untuk: ${t.pihak}'),
+            ],
+            b.milik,
+            10,
+            widget.onMilik,
+          ),
           const SizedBox(height: 12),
-          pilihan('Masuk ke Kas/Bank', _akun, b.akun, 999, widget.onAkun),
+          pilihan(
+            'Masuk ke Kas/Bank',
+            [for (final a in widget.p.kasBank) (a.id, a.nama)],
+            b.akun,
+            999,
+            widget.onAkun,
+          ),
           const SizedBox(height: 12),
           Text.rich(
             TextSpan(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/format.dart';
-import '../../mock/mock.dart';
 import '../../motion/kerangka.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
@@ -17,6 +17,11 @@ import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
 import '../../app/layar.dart';
+import '../../domain/core/core.dart';
+import '../../providers/keuangan/kasus.dart';
+import '../../widgets/penolakan.dart';
+import '../lanjut/kewajiban.dart' show sebabPenolakan;
+import 'kasus_baru.dart' show simpanKasusBaru;
 
 /// Per-kind copy of the board's `CFG`.
 typedef _Cfg = ({
@@ -31,7 +36,6 @@ typedef _Cfg = ({
   String tombol,
   String sisa,
   String st,
-  String no,
   String hasil,
   String hasilCat,
 });
@@ -49,7 +53,6 @@ const Map<String, _Cfg> _cfg = {
     tombol: 'Periksa dan bukukan',
     sisa: 'Sisa belum dipertanggungjawabkan',
     st: 'Belum dipertanggungjawabkan',
-    no: 'BKU-2026-0153',
     hasil: 'Uang muka dibukukan',
     hasilCat: 'Kasusnya terbuka sampai seluruh uang dipertanggungjawabkan atau dikembalikan.',
   ),
@@ -65,7 +68,6 @@ const Map<String, _Cfg> _cfg = {
     tombol: 'Periksa dan bukukan',
     sisa: 'Sisa belum disalurkan',
     st: 'Belum disalurkan',
-    no: 'BKU-2026-0154',
     hasil: 'Titipan dibukukan',
     hasilCat: 'Kasusnya terbuka sampai seluruh titipan disalurkan kepada yang berhak.',
   ),
@@ -81,37 +83,60 @@ const Map<String, _Cfg> _cfg = {
     tombol: 'Simpan klaim',
     sisa: 'Belum dibayar',
     st: 'Belum dibayar · klaim belum dicek',
-    no: '',
     hasil: 'Klaim disimpan · belum masuk saldo',
     hasilCat: 'Cek klaim lebih dulu, lalu bayar. Mata Anggaran dipilih saat pembayaran.',
   ),
 };
 
-const _peruntukan = ['Umum Jemaat', 'Diakonia', 'Pembangunan'];
-const _lingkup = ['Jemaat', 'Kolom 3', 'BIPRA Pemuda', 'Panitia Natal'];
-const _tempo = ['30/11/2026', '15/12/2026', '31/12/2026'];
-const _mataAnggaran = [
-  ('2.1.01.02.00', 'Sentralisasi Sinode'),
-  ('2.2.01.02.00', 'Persembahan khusus Wilayah'),
-];
-
 /// Web · Kasus baru: Uang Muka, Titipan, Penggantian biaya
 /// (docs/build/screens/10-aifoto.md, WebKasusBaru).
-class WebKasusBaruScreen extends StatefulWidget {
+class WebKasusBaruScreen extends ConsumerStatefulWidget {
   const WebKasusBaruScreen({super.key});
 
   @override
-  State<WebKasusBaruScreen> createState() => _WebKasusBaruScreenState();
+  ConsumerState<WebKasusBaruScreen> createState() => _WebKasusBaruScreenState();
 }
 
-class _WebKasusBaruScreenState extends State<WebKasusBaruScreen> {
+class _WebKasusBaruScreenState extends ConsumerState<WebKasusBaruScreen> {
   final _pihak = TextEditingController();
   final _jm = TextEditingController();
   final _ur = TextEditingController();
   String _tab = 'um';
-  int? _akun;
-  String? _per, _ling, _ma, _tempoPilih;
+  int? _akun, _tempoPilih;
+  String? _per, _ling, _ma;
   bool _selesai = false;
+  String? _no;
+  Refusal? _pesan;
+
+  PilihanKasusBaru get _p => ref.watch(pilihanKasusBaruProvider);
+  (String, int)? get _ak {
+    final i = _akun;
+    if (i == null || i >= _p.kasBank.length) return null;
+    return (_p.kasBank[i].nama, _p.kasBank[i].saldo);
+  }
+
+  Future<void> _simpan() async {
+    if (_alasan.isNotEmpty) return;
+    final p = _p;
+    final r = await simpanKasusBaru(
+      ref,
+      tab: _tab,
+      pihak: _pihak.text,
+      jumlah: _j,
+      uraian: _ur.text,
+      akunId: _akun == null ? null : p.kasBank[_akun!].id,
+      per: _per,
+      ling: _ling,
+      ma: _ma,
+      tempo: _tempoPilih == null ? null : p.tempo[_tempoPilih!],
+    );
+    if (!mounted) return;
+    setState(() {
+      _selesai = r.selesai;
+      _no = r.no;
+      _pesan = r.pesan;
+    });
+  }
 
   @override
   void dispose() {
@@ -127,9 +152,11 @@ class _WebKasusBaruScreenState extends State<WebKasusBaruScreen> {
     _pihak.clear();
     _jm.clear();
     _ur.clear();
-    _akun = null;
-    _per = _ling = _ma = _tempoPilih = null;
+    _akun = _tempoPilih = null;
+    _per = _ling = _ma = null;
     _selesai = false;
+    _no = null;
+    _pesan = null;
   });
 
   /// Chips and rows: nothing once posted.
@@ -143,7 +170,7 @@ class _WebKasusBaruScreenState extends State<WebKasusBaruScreen> {
   String get _alasan {
     final k = _k, j = _j;
     final um = _tab == 'um', tt = _tab == 'tt', pb = _tab == 'pb';
-    final ak = _akun == null ? null : kasusBaruKasBank[_akun!];
+    final ak = _ak;
     if (_pihak.text.trim().isEmpty) return '“${k.pihak}” belum diisi.';
     if (j <= 0) return 'jumlah belum diisi.';
     if (!pb && ak == null) return 'Kas/Bank belum dipilih.';
@@ -187,8 +214,7 @@ class _WebKasusBaruScreenState extends State<WebKasusBaruScreen> {
           ChipPilihan<int>(
             label: k.akun,
             pilihan: [
-              for (var i = 0; i < kasusBaruKasBank.length; i++)
-                (nilai: i, teks: kasusBaruKasBank[i].$1),
+              for (final (i, a) in _p.kasBank.indexed) (nilai: i, teks: a.nama),
             ],
             terpilih: _akun,
             onPilih: (v) => _pilih(() => _akun = v),
@@ -196,13 +222,15 @@ class _WebKasusBaruScreenState extends State<WebKasusBaruScreen> {
         if (um) ...[
           ChipPilihan<String>(
             label: 'Diambil dari peruntukan',
-            pilihan: [for (final p in _peruntukan) (nilai: p, teks: p)],
+            pilihan: [
+              for (final p in _p.peruntukan) (nilai: p.id, teks: p.nama),
+            ],
             terpilih: _per,
             onPilih: (v) => _pilih(() => _per = v),
           ),
           ChipPilihan<String>(
             label: 'Lingkup',
-            pilihan: [for (final p in _lingkup) (nilai: p, teks: p)],
+            pilihan: [for (final p in _p.lingkup) (nilai: p.id, teks: p.nama)],
             terpilih: _ling,
             onPilih: (v) => _pilih(() => _ling = v),
           ),
@@ -215,11 +243,11 @@ class _WebKasusBaruScreenState extends State<WebKasusBaruScreen> {
           onChanged: (_) => setState(() {}),
         ),
         if (um)
-          ChipPilihan<String>(
+          ChipPilihan<int>(
             label: 'Jatuh tempo',
             pilihan: [
-              for (var i = 0; i < _tempo.length; i++)
-                (nilai: _tempo[i], teks: kasusBaruJatuhTempo[i]),
+              for (final (i, t) in _p.tempo.indexed)
+                (nilai: i, teks: tglPanjang(t.awal)),
             ],
             terpilih: _tempoPilih,
             onPilih: (v) => _pilih(() => _tempoPilih = v),
@@ -232,13 +260,20 @@ class _WebKasusBaruScreenState extends State<WebKasusBaruScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: _sela(14, [
         _kartuEfek(context),
+        if (_pesan case final r?)
+          Penolakan(
+            tindakan: r.action,
+            sebab: sebabPenolakan(r),
+            jalan: const [],
+            ukuranTeks: 14,
+          ),
         if (!_selesai)
           TombolBersyarat(
             label: k.tombol,
             tindakan: k.tombol,
             alasan: _alasan,
             periksa: () => _alasan,
-            onPressed: () => setState(() => _selesai = true),
+            onPressed: _simpan,
             warnaSiap: JenisTombol.utama,
             teksBelumRedup: true,
             gayaAlasan: GayaAlasan.pendamping,
@@ -328,7 +363,7 @@ class _WebKasusBaruScreenState extends State<WebKasusBaruScreen> {
           'Mata Anggaran · hanya baris yang boleh untuk Titipan',
           style: TextStyle(fontSize: 14, color: c.tinta2),
         ),
-        for (final m in _mataAnggaran)
+        for (final m in _p.titipan)
           Tekan(
             onTap: () => _pilih(() => _ma = m.$1),
             dipilih: _ma == m.$1,
@@ -421,7 +456,7 @@ class _WebKasusBaruScreenState extends State<WebKasusBaruScreen> {
     final c = context.warna;
     final k = _k, j = _j;
     final um = _tab == 'um', tt = _tab == 'tt', pb = _tab == 'pb';
-    final ak = _akun == null ? null : kasusBaruKasBank[_akun!];
+    final ak = _ak;
     final nama = _pihak.text.trim().isEmpty ? '…' : _pihak.text.trim();
     final saldo = 'Saldo buku ${ak?.$1 ?? 'Kas/Bank'}';
     final efek = <(String, String, String)>[
@@ -465,7 +500,7 @@ class _WebKasusBaruScreenState extends State<WebKasusBaruScreen> {
         ),
       ],
     ];
-    final padat = _selesai && !pb;
+    final padat = _selesai && !pb && _no != null;
     final judul = _selesai
         ? (pb ? 'Tersimpan · belum masuk saldo' : 'Dibukukan')
         : 'Setelah ${pb ? 'disimpan' : 'dibukukan'}';
@@ -503,7 +538,7 @@ class _WebKasusBaruScreenState extends State<WebKasusBaruScreen> {
                         shape: GarisBorder.penuh(c.laut, tebal: 2, radius: 8),
                       ),
                       child: Text(
-                        'No. Bukti ${k.no}',
+                        'No. Bukti ${_no ?? ''}',
                         style: TextStyle(
                           fontFamily: PalakatText.mono,
                           fontSize: 14,
@@ -548,9 +583,9 @@ class _WebKasusBaruScreenState extends State<WebKasusBaruScreen> {
     final pb = _tab == 'pb';
     final nama = _pihak.text.trim().isEmpty ? '…' : _pihak.text.trim();
     final st =
-        k.st +
+        (_no == null && !pb ? 'Draf · belum masuk saldo' : k.st) +
         (_tab == 'um' && _tempoPilih != null
-            ? ' · jatuh tempo: $_tempoPilih'
+            ? ' · jatuh tempo: ${tgl(_p.tempo[_tempoPilih!].awal)}'
             : '');
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -562,7 +597,7 @@ class _WebKasusBaruScreenState extends State<WebKasusBaruScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                k.hasil,
+                pb || _no != null ? k.hasil : 'Dicatat sebagai draf',
                 style: const TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w700,

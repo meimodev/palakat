@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../motion/kerangka.dart';
 import '../../motion/urutan.dart';
@@ -14,16 +15,19 @@ import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
 import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
+import '../../core/format.dart';
+import '../../domain/core/core.dart';
+import '../../providers/clock.dart';
+import '../../providers/keuangan/dokumen.dart';
+import '../../widgets/penolakan.dart';
+import 'kamera.dart' show unggahDokumen;
 
-/// Sample files, in the board's order (`N`).
-const _contoh = [
-  ('nota-sewa-sound.jpg', '1,2 MB'),
-  ('kuitansi-cv-nada-prima.pdf', '340 KB'),
-  ('tanda-terima.jpg', '880 KB'),
-];
+/// Sample file sizes, in the board's order (`N`); names come from today.
+const _ukuran = ['1,2 MB', '340 KB', '880 KB'];
 
-enum _St { unggah, gagal, lampir }
+const _lamaUnggah = Duration(milliseconds: 1500);
+
+enum _St { unggah, lampir }
 
 class _Berkas {
   _Berkas(this.n, this.u);
@@ -34,17 +38,17 @@ class _Berkas {
   int coba = 0;
 }
 
-class WebUnggahScreen extends StatefulWidget {
+class WebUnggahScreen extends ConsumerStatefulWidget {
   const WebUnggahScreen({super.key});
 
   @override
-  State<WebUnggahScreen> createState() => _WebUnggahState();
+  ConsumerState<WebUnggahScreen> createState() => _WebUnggahState();
 }
 
-class _WebUnggahState extends State<WebUnggahScreen> {
+class _WebUnggahState extends ConsumerState<WebUnggahScreen> {
   final _files = <_Berkas>[];
-  bool _sudahGagal = false;
   final _timer = <Timer>{};
+  Refusal? _pesan;
 
   @override
   void dispose() {
@@ -54,43 +58,43 @@ class _WebUnggahState extends State<WebUnggahScreen> {
     super.dispose();
   }
 
-  /// Fakes the upload: 1500 ms, then attached or (once, with the tweak on)
-  /// failed. The tweak is read when the upload starts, as on the board.
-  void _kirim(_Berkas f, bool bolehGagal) {
-    final gagal = bolehGagal && belumDipindah<bool>(false);
-    late final Timer t;
-    t = Timer(const Duration(milliseconds: 1500), () {
-      _timer.remove(t);
+  /// The upload command is issued at once; the timer only shows progress
+  /// (README 3.7). A refusal leaves the file out.
+  Future<void> _kirim(_Berkas f, int halaman) async {
+    final r = await unggahDokumen(ref, halaman);
+    if (!mounted) return;
+    if (r != null) {
       setState(() {
-        final g = gagal && !_sudahGagal;
-        if (g) _sudahGagal = true;
-        f.st = g ? _St.gagal : _St.lampir;
+        _files.remove(f);
+        _pesan = r;
       });
-    });
+      return;
+    }
+    late final Timer t;
+    void selesai() {
+      _timer.remove(t);
+      if (mounted) setState(() => f.st = _St.lampir);
+    }
+
+    t = Timer(_lamaUnggah, selesai); // tiruan: unggah
     _timer.add(t);
   }
 
   void _tambah() {
     final i = _files.length;
-    if (i >= _contoh.length) return;
-    final f = _Berkas(_contoh[i].$1, _contoh[i].$2);
+    if (i >= _ukuran.length) return;
+    final jam = ref.read(clockProvider).now();
+    final f = _Berkas(namaNota(jam, i + 1), _ukuran[i]);
     setState(() => _files.add(f));
-    _kirim(f, true);
-  }
-
-  void _cobaLagi(_Berkas f) {
-    setState(() {
-      f.st = _St.unggah;
-      f.coba++;
-    });
-    _kirim(f, false);
+    _kirim(f, i + 1);
   }
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
     final lampir = _files.where((f) => f.st == _St.lampir).length;
-    final penuh = _files.length >= _contoh.length;
+    final penuh = _files.length >= _ukuran.length;
+    final b = ref.watch(dokumenTerpilihProvider);
     final kecil = TextStyle(fontSize: 14, color: c.tinta2);
 
     return HalamanWeb(
@@ -122,7 +126,11 @@ class _WebUnggahState extends State<WebUnggahScreen> {
                 style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700),
               ),
             ),
-            Text('BKU-2026-0143 · Sewa sound system · Rp600.000', style: kecil),
+            Text(
+              '${b?.no ?? ''} · ${b?.transaksi.description ?? ''} · '
+              '${b == null ? '' : rp(b.transaksi.total)}',
+              style: kecil,
+            ),
           ],
         ),
         BarisLentur(
@@ -170,6 +178,15 @@ class _WebUnggahState extends State<WebUnggahScreen> {
                       ],
                     ),
                   ),
+                  if (_pesan case final r?) ...[
+                    const SizedBox(height: 16),
+                    Penolakan(
+                      tindakan: r.action,
+                      sebab: r.because,
+                      jalan: const [],
+                      ukuranTeks: 14,
+                    ),
+                  ],
                   if (_files.isEmpty) ...[
                     const SizedBox(height: 16),
                     Text(
@@ -199,7 +216,7 @@ class _WebUnggahState extends State<WebUnggahScreen> {
                             child: _BarisBerkas(
                               f: _files[i],
                               garisAtas: i > 0,
-                              onCoba: () => _cobaLagi(_files[i]),
+                              id: b?.id ?? '',
                             ),
                           ),
                       ],
@@ -233,7 +250,7 @@ class _WebUnggahState extends State<WebUnggahScreen> {
                           ),
                           Text(
                             lampir > 0
-                                ? 'Diunggah, belum diverifikasi'
+                                ? (b?.label ?? 'Diunggah, belum diverifikasi')
                                 : 'Wajib, belum ada',
                             style: TextStyle(
                               fontSize: 20,
@@ -285,22 +302,19 @@ class _BarisBerkas extends StatelessWidget {
   const _BarisBerkas({
     required this.f,
     required this.garisAtas,
-    required this.onCoba,
+    required this.id,
   });
   final _Berkas f;
   final bool garisAtas;
-  final VoidCallback onCoba;
+
+  /// The transaction, for "Lihat file".
+  final String id;
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
     final (teks, warna, berat) = switch (f.st) {
       _St.unggah => ('Sedang diunggah…', c.tinta2, FontWeight.w500),
-      _St.gagal => (
-        'Gagal diunggah · belum terlampir',
-        c.bata,
-        FontWeight.w700,
-      ),
       _St.lampir => ('Terlampir', c.tinta, FontWeight.w600),
     };
     Widget bar(Color w, {double lebar = 1, bool kanan = false}) => Align(
@@ -388,22 +402,11 @@ class _BarisBerkas extends StatelessWidget {
               ],
             ),
           ),
-          if (f.st == _St.gagal) ...[
-            const SizedBox(width: 14),
-            Tombol(
-              'Coba lagi',
-              onPressed: onCoba,
-              jenis: JenisTombol.garisBata,
-              ukuran: UkuranTombol.kecil,
-              paddingH: 14,
-              lebarPenuh: false,
-            ),
-          ],
           if (f.st == _St.lampir) ...[
             const SizedBox(width: 14),
             Tautan(
               ke: Layar.lihatDokumen,
-              param: {'id': belumDipindahId},
+              param: {'id': id},
               child: const Align(
                 widthFactor: 1,
                 heightFactor: 1,

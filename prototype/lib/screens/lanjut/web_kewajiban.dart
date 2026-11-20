@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show OverflowBoxFit;
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../core/format.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
@@ -10,7 +12,7 @@ import '../../widgets/chip_pilihan.dart';
 import '../../widgets/garis.dart';
 import '../../widgets/tata_letak.dart';
 import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
+import '../../providers/keuangan/kasus.dart';
 
 typedef _Label = ({
   String tab,
@@ -74,115 +76,42 @@ const Map<String, _Label> _lbl = {
   ),
 };
 
-// Board data (WebKewajiban.dc.html `D`): kind, case, note, party, opening,
-// recorded, due text, past due. Its own figures, not the phone board's.
-const _d = <(String, String, String, String, int, int, String, bool)>[
-  (
-    'um',
-    'Panitia Natal',
-    'BKU-2026-0129 · 01/11/2026',
-    'Sdr. Rivo Mandagi',
-    1500000,
-    850000,
-    'Jatuh tempo 30/11/2026',
-    false,
-  ),
-  (
-    'um',
-    'Retret Pemuda',
-    'BKU-2026-0112 · 20/10/2026',
-    'Sdri. Natalia Rumengan',
-    800000,
-    300000,
-    'Lewat jatuh tempo (jatuh tempo: 10/11/2026)',
-    true,
-  ),
-  (
-    'um',
-    'Konsumsi syukur HUT',
-    'BKU-2026-0119 · 25/10/2026',
-    'Ibu Selvie Kalalo',
-    300000,
-    375000,
-    '',
-    false,
-  ),
-  (
-    'um',
-    'Perjalanan dinas Wilayah',
-    'BKU-2026-0103 · 07/10/2026',
-    'Pnt. Jefry Wowor',
-    400000,
-    400000,
-    '',
-    false,
-  ),
-  (
-    'tt',
-    'Sentralisasi November',
-    'Disimpan di Bank BNI ··4821',
-    'Sinode',
-    2400000,
-    1000000,
-    '',
-    false,
-  ),
-  (
-    'tt',
-    'Persembahan khusus',
-    'Disimpan di Kas',
-    'Wilayah',
-    450000,
-    0,
-    '',
-    false,
-  ),
-  (
-    'pb',
-    'Alat kebersihan gereja',
-    'Nota 12/11/2026 · klaim sudah dicek',
-    'Ibu Selvie Kalalo',
-    185000,
-    0,
-    '',
-    false,
-  ),
-  (
-    'pb',
-    'Kelebihan konsumsi syukur HUT',
-    'Dari uang muka BKU-2026-0119',
-    'Ibu Selvie Kalalo',
-    75000,
-    0,
-    '',
-    false,
-  ),
-  (
-    'pb',
-    'Bensin antar jemput',
-    'BKU-2026-0134 · 05/11/2026',
-    'Sdr. Rivo Mandagi',
-    120000,
-    120000,
-    '',
-    false,
-  ),
-];
+/// The board's row (kind, case, note, party, opening, recorded, due text,
+/// past due), from [daftarKasusProvider] (D11).
+(String, String, String, String, int, int, String, bool) _baris(BarisKasus k) =>
+    (
+      k.jenis,
+      k.judul,
+      k.awalCat,
+      k.pihak,
+      k.awal,
+      k.terpakai,
+      k.tempo.isEmpty || (k.sisa <= 0 && !k.awalDraf)
+          ? ''
+          : k.lewat
+          ? 'Lewat jatuh tempo (jatuh tempo: ${k.tempo})'
+          : 'Jatuh tempo ${k.tempo}',
+      k.lewat,
+    );
 
-class WebKewajibanScreen extends StatefulWidget {
+class WebKewajibanScreen extends ConsumerStatefulWidget {
   const WebKewajibanScreen({super.key});
   @override
-  State<WebKewajibanScreen> createState() => _WebKewajibanScreenState();
+  ConsumerState<WebKewajibanScreen> createState() => _WebKewajibanScreenState();
 }
 
-class _WebKewajibanScreenState extends State<WebKewajibanScreen> {
+class _WebKewajibanScreenState extends ConsumerState<WebKewajibanScreen> {
   String _tab = 'um';
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
     final lb = _lbl[_tab]!;
-    final d = _d.where((x) => x.$1 == _tab).toList();
+    final semua = ref
+        .watch(daftarKasusProvider)
+        .where((k) => k.jenis == _tab)
+        .toList();
+    final d = [for (final k in semua) _baris(k)];
     final buka = d.where((x) => x.$5 - x.$6 > 0).toList();
     final lebih = d.where((x) => x.$5 - x.$6 < 0).toList();
     final tinta2 = TextStyle(fontSize: 14, color: c.tinta2);
@@ -248,7 +177,8 @@ class _WebKewajibanScreenState extends State<WebKewajibanScreen> {
                     Tautan(ke: Layar.kasusBaru, child: tautan('+ Kasus baru')),
                     Tautan(
                       ke: Layar.kewajiban,
-                      anak: 'kasus/$belumDipindahId',
+                      anak:
+                          'kasus/${(semua.where((k) => k.sisa > 0).firstOrNull ?? semua.firstOrNull)?.id ?? ''}',
                       child: tautan('Catat pada kasus'),
                     ),
                   ],

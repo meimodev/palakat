@@ -3,16 +3,25 @@ import 'dart:math' as math;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
-import '../../mock/orang.dart' show plk;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../core/format.dart';
+import '../../domain/core/core.dart';
+import '../../domain/finance/finance.dart';
+import '../../providers/keuangan/dokumen.dart';
+import '../../providers/keuangan/transaksi.dart';
+import '../../providers/repositories_keuangan.dart';
+import '../../widgets/penolakan.dart';
+import 'dokumen.dart' show putuskanDokumen;
 import '../../motion/kerangka.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
-import '../../app/belum_dipindah.dart';
 
-/// The two files of the supporting document of BKU-2026-0147 (the boards' `H`).
+/// One page as the receipt picture draws it.
 typedef _Nota = ({
   String toko,
   String alamat,
@@ -22,57 +31,74 @@ typedef _Nota = ({
   String kaki,
 });
 
-const List<_Nota> _halaman = [
-  (
-    toko: 'TOKO SINAR',
-    alamat: 'Jl. Pierre Tendean 7',
-    baris: [('Fotokopi warta', ''), ('300 lbr x 500', '150.000')],
-    total: 'Rp150.000',
-    tgl: '16/11/2026',
-    kaki: 'Terima kasih',
-  ),
-  (
-    toko: 'TANDA TERIMA',
-    alamat: 'Jemaat Karunia',
-    baris: [('Diterima dari', ''), ('Bendahara', '150.000')],
-    total: 'Rp150.000',
-    tgl: '16/11/2026',
-    kaki: 'Penerima: Toko Sinar',
-  ),
-];
-
-/// State and handlers shared by LihatDokumen and WebLihatDokumen:
-/// `{ hal: 0, zoom: 1, st: 'unggah' }`.
-mixin KeadaanLihatDokumen<T extends StatefulWidget> on State<T> {
+/// State and handlers shared by LihatDokumen and WebLihatDokumen: the page
+/// and zoom (UI only). The transaction is the route's `:id`; its files and
+/// state come from [dokumenDenganIdProvider].
+mixin KeadaanLihatDokumen<T extends ConsumerStatefulWidget>
+    on ConsumerState<T> {
   int hal = 0;
   double zoom = 1;
-  bool terverifikasi = false;
+  Refusal? pesan;
 
-  String get fileNama => hal == 0 ? 'nota-16-11.jpg' : 'tanda-terima-16-11.jpg';
+  BarisDokumen? get dok => ref.watch(
+    dokumenDenganIdProvider(
+      GoRouterState.of(context).pathParameters['id'] ?? '',
+    ),
+  );
+
+  List<EvidenceItem> get _file => [
+    for (final e
+        in ref.watch(evidenceRepositoryProvider).forTransaction(dok?.id ?? ''))
+      if (e.file != null && e.state != EvidenceItemState.released) e,
+  ];
+
+  int get _jumlahHal => _file.isEmpty ? 1 : _file.length;
+
+  String get fileNama => _file.isEmpty
+      ? 'Belum ada file'
+      : _file[hal.clamp(0, _jumlahHal - 1)].file!.name;
+
+  _Nota get _nota {
+    final t = dok?.transaksi;
+    final jumlah = titik('${t?.total ?? 0}');
+    return (
+      toko: (t?.payee ?? 'Nota').toUpperCase(),
+      alamat: '',
+      baris: [(t?.description ?? '', ''), ('1', jumlah)],
+      total: 'Rp$jumlah',
+      tgl: t == null ? '' : tgl(t.effectiveDate.awal),
+      kaki: hal == 0 ? 'Terima kasih' : 'Halaman ${hal + 1}',
+    );
+  }
 
   void prev() => setState(() {
-    hal = 0;
+    hal = hal > 0 ? hal - 1 : 0;
     zoom = 1;
   });
   void next() => setState(() {
-    hal = 1;
+    hal = hal < _jumlahHal - 1 ? hal + 1 : hal;
     zoom = 1;
   });
   void besar() => setState(() => zoom = zoom + 0.25 > 2 ? 2 : zoom + 0.25);
   void kecil() =>
       setState(() => zoom = zoom - 0.25 < 0.75 ? 0.75 : zoom - 0.25);
-  void verif() => setState(() => terverifikasi = true);
+  Future<void> verif() async {
+    final d = dok;
+    if (d == null) return;
+    final r = await putuskanDokumen(ref, d, 'verif');
+    if (mounted) setState(() => pesan = r);
+  }
 
   /// Viewer area (paper) and the paging/zoom controls, for a dark `tinta` field.
   List<Widget> penampil() => [
     Expanded(
-      child: _Kertas(nota: _halaman[hal], zoom: zoom),
+      child: _Kertas(nota: _nota, zoom: zoom),
     ),
     _Kendali(
       hal: hal,
       zoom: zoom,
       prev: hal == 0 ? null : prev,
-      next: hal == 1 ? null : next,
+      next: hal >= _jumlahHal - 1 ? null : next,
       kecil: zoom <= 0.75 ? null : kecil,
       besar: zoom >= 2 ? null : besar,
     ),
@@ -81,7 +107,13 @@ mixin KeadaanLihatDokumen<T extends StatefulWidget> on State<T> {
   /// Panel rows a–f; [tautan] is the screen's own "Tolak, …" link.
   List<Widget> panel(BuildContext context, {required Widget tautan}) {
     final c = context.warna;
-    final jk = belumDipindah(false);
+    final d = dok;
+    if (d == null) return [tautan];
+    final terverifikasi = d.status == EvidenceStatus.verified;
+    final unggah =
+        d.menunggu ??
+        _file.where((e) => e.state == EvidenceItemState.verified).lastOrNull;
+    final bulan = d.bulan.split(' · ').first;
     return [
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -90,7 +122,7 @@ mixin KeadaanLihatDokumen<T extends StatefulWidget> on State<T> {
         children: [
           Flexible(
             child: Text(
-              'BKU-2026-0147',
+              d.no,
               style: TextStyle(
                 fontFamily: PalakatText.mono,
                 fontSize: 13,
@@ -99,10 +131,10 @@ mixin KeadaanLihatDokumen<T extends StatefulWidget> on State<T> {
             ),
           ),
           const SizedBox(width: 16),
-          const Flexible(
+          Flexible(
             child: Text(
-              '−Rp150.000',
-              style: TextStyle(
+              d.jumlah,
+              style: const TextStyle(
                 fontFamily: PalakatText.mono,
                 fontWeight: FontWeight.w500,
               ),
@@ -110,43 +142,54 @@ mixin KeadaanLihatDokumen<T extends StatefulWidget> on State<T> {
           ),
         ],
       ),
-      const Text(
-        'Fotokopi warta jemaat',
-        style: TextStyle(fontWeight: FontWeight.w600),
+      Text(
+        d.transaksi.description,
+        style: const TextStyle(fontWeight: FontWeight.w600),
       ),
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Dokumen pendukung · 2 file',
+            'Dokumen pendukung · ${_file.length} file',
             style: TextStyle(fontSize: 14, color: c.tinta2),
           ),
           Text(
-            terverifikasi
-                ? 'Terverifikasi (oleh ${plk(jk)})'
-                : 'Diunggah, belum diverifikasi',
+            d.label,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w700,
-              color: terverifikasi ? c.tinta : c.bata,
+              color: d.beres ? c.tinta : c.bata,
             ),
           ),
-          Text(
-            'Diunggah oleh ${plk(jk)}, 16/11/2026 10.41',
-            style: TextStyle(fontSize: 13, color: c.tinta3),
-          ),
+          if (unggah != null)
+            Text(
+              'Diunggah oleh ${ref.watch(namaPendekProvider(unggah.by))}, '
+              '${tglJam(unggah.at)}',
+              style: TextStyle(fontSize: 13, color: c.tinta3),
+            ),
         ],
       ),
-      if (!terverifikasi)
+      if (pesan case final r?)
+        Penolakan(
+          tindakan: r.action,
+          sebab:
+              r.because +
+              (r.whoCanAct == null
+                  ? ''
+                  : ' Yang perlu bertindak: ${r.whoCanAct}.'),
+          jalan: const [],
+          ukuranTeks: 14,
+        ),
+      if (d.status == EvidenceStatus.uploaded)
         Tombol('Verifikasi', onPressed: verif, paddingH: 20)
-      else
+      else if (terverifikasi)
         Gerak(
           Kerangka.muncul,
           lama: const Duration(milliseconds: 300),
           child: Semantics(
             liveRegion: true,
             child: Text(
-              'Memenuhi syarat tutup buku November 2026.',
+              'Memenuhi syarat tutup buku $bulan.',
               style: TextStyle(fontSize: 14, color: c.tinta2),
             ),
           ),

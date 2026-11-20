@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
@@ -12,93 +13,56 @@ import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
 import '../../app/layar.dart';
-
-const _nama = [
-  'Ditampung',
-  'Lolos pengecekan',
-  'Sudah diperiksa',
-  'Sudah diimpor',
-];
-
-enum _Jenis { ok, ganda, tolak }
-
-/// kas-november.xlsx as the web board reads it (06-bukti.md, WebImpor).
-const _baris = <({String asli, String ur, String baca, String ma, _Jenis j})>[
-  (
-    asli: '02/11/26\nPersembahan Mgg\n3.100.000',
-    ur: 'Persembahan Ibadah Minggu',
-    baca: '02/11/2026 · Kas · Rp3.100.000 masuk',
-    ma: 'Pendapatan 1.3.53.07.00 Persembahan Ibadah Minggu',
-    j: _Jenis.ok,
-  ),
-  (
-    asli: '04/11/26\nBayar PLN\n-1250000',
-    ur: 'Bayar PLN',
-    baca: '04/11/2026 · Bank BNI ··4821 · Rp1.250.000 keluar',
-    ma: 'Belanja 5.01.02.00 Listrik, air dan telepon',
-    j: _Jenis.ok,
-  ),
-  (
-    asli: '4 Nop\nPLN nov\n1.250.000,-',
-    ur: 'PLN nov',
-    baca: '04/11/2026 · Bank BNI ··4821 · Rp1.250.000 keluar',
-    ma: 'Belanja 5.01.02.00 Listrik, air dan telepon',
-    j: _Jenis.ganda,
-  ),
-  (
-    asli: '08/11/26\nHonor pemusik\n650rb',
-    ur: 'Honor pemusik',
-    baca: '08/11/2026 · Kas · Rp650.000 keluar',
-    ma: '',
-    j: _Jenis.ok,
-  ),
-  (
-    asli: '31/11/26\nATK\n85.000',
-    ur: 'ATK',
-    baca: 'Tanggal tidak terbaca · Kas · Rp85.000 keluar',
-    ma: 'Belanja 5.02.01.00 Alat tulis dan fotokopi',
-    j: _Jenis.tolak,
-  ),
-];
+import '../../domain/core/core.dart';
+import '../../providers/keuangan/impor.dart';
+import '../../widgets/penolakan.dart';
+import 'impor.dart' show tungguImpor;
 
 const _kolom = [12, 13, 11, 12];
 
-class WebImporScreen extends StatefulWidget {
+class WebImporScreen extends ConsumerStatefulWidget {
   const WebImporScreen({super.key});
 
   @override
-  State<WebImporScreen> createState() => _WebImporScreenState();
+  ConsumerState<WebImporScreen> createState() => _WebImporScreenState();
 }
 
-class _WebImporScreenState extends State<WebImporScreen> {
-  int _st = 0;
+class _WebImporScreenState extends ConsumerState<WebImporScreen> {
+  /// The choice on each possible duplicate: true "Tetap impor".
+  final _tetap = <String, bool>{};
+  Refusal? _pesan;
+  late DataImpor? _d;
 
-  /// '' | 'tetap' | 'tidak'.
-  String _ganda = '';
+  int get _st => _d?.langkah ?? 0;
+  bool get _tunggu => _d != null && tungguImpor(_d!, _tetap);
 
-  bool get _tunggu => _st == 1 && _ganda.isEmpty;
-
-  String get _ket => switch (_st) {
-    0 =>
-      'Nilai asli dan hasil bacaannya ditampilkan berdampingan. '
-          'Belum ada yang masuk saldo.',
-    1 =>
-      _tunggu
-          ? 'Putuskan dulu baris yang mungkin ganda.'
-          : 'Pengecekan selesai. Baca sekali lagi sebelum menandai sudah '
-                'diperiksa.',
-    2 =>
-      'Sudah diperiksa. Impor mencatat baris yang lolos; baris tanpa Mata '
-          'Anggaran masuk sebagai transaksi dengan Mata Anggaran belum '
-          'dipilih.',
-    _ =>
-      '${_ganda == 'tetap' ? 4 : 3} baris sudah diimpor · '
-          '${_ganda == 'tetap' ? 1 : 2} tidak diimpor. No. bukti asal dari '
-          'file ditampilkan terpisah dari No. Bukti.',
+  String get _ket => switch (_d) {
+    null => 'Belum ada file yang ditampung.',
+    final d => switch (_st) {
+      0 =>
+        'Nilai asli dan hasil bacaannya ditampilkan berdampingan. '
+            'Belum ada yang masuk saldo.',
+      1 =>
+        _tunggu
+            ? 'Putuskan dulu baris yang mungkin ganda.'
+            : 'Pengecekan selesai. Baca sekali lagi sebelum menandai sudah '
+                  'diperiksa.',
+      2 =>
+        'Sudah diperiksa. Impor mencatat baris yang lolos; baris tanpa Mata '
+            'Anggaran masuk sebagai transaksi dengan Mata Anggaran belum '
+            'dipilih.',
+      _ =>
+        '${d.diimpor} baris sudah diimpor · '
+            '${d.baris.length - d.diimpor} tidak diimpor. No. bukti asal dari '
+            'file ditampilkan terpisah dari No. Bukti.',
+    },
   };
 
-  void _maju() {
-    if (!_tunggu) setState(() => _st = (_st + 1).clamp(0, 3));
+  Future<void> _maju() async {
+    final d = _d;
+    if (d == null || _tunggu) return;
+    final r = await majuImpor(ref, d, _tetap);
+    if (mounted) setState(() => _pesan = r);
   }
 
   /// Max-content width of [teks] in body 15 + [gaya] (the flex basis of an
@@ -117,6 +81,7 @@ class _WebImporScreenState extends State<WebImporScreen> {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
+    _d = ref.watch(imporProvider);
     return Material(
       type: MaterialType.transparency,
       child: HalamanWeb(
@@ -148,7 +113,10 @@ class _WebImporScreenState extends State<WebImporScreen> {
                     text: 'Impor ',
                     children: [
                       TextSpan(
-                        text: '· kas-november.xlsx · 5 baris',
+                        text: _d == null
+                            ? ''
+                            : '· ${_d!.batch.fileName} · '
+                                  '${_d!.baris.length} baris',
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w500,
@@ -166,6 +134,8 @@ class _WebImporScreenState extends State<WebImporScreen> {
             ],
           ),
           _panel(context),
+          if (_pesan case final r?)
+            Penolakan(tindakan: r.action, sebab: r.because, jalan: const []),
           _tabel(context),
           Text(
             'Baris yang masih ditampung belum masuk saldo dan menjadi hambatan '
@@ -181,7 +151,7 @@ class _WebImporScreenState extends State<WebImporScreen> {
   Widget _panel(BuildContext context) {
     final c = context.warna;
     const gayaChip = TextStyle(fontSize: 13, fontWeight: FontWeight.w700);
-    final label = [for (var i = 0; i < 4; i++) '${i + 1} · ${_nama[i]}'];
+    final label = [for (var i = 0; i < 4; i++) '${i + 1} · ${langkahImpor[i]}'];
     // Chips: padding 0 12 inside a 1.5 line; group gap 6.
     final lebarChip = label.fold<double>(
       18,
@@ -250,7 +220,7 @@ class _WebImporScreenState extends State<WebImporScreen> {
           dasar: 280,
           child: Text(_ket, style: TextStyle(fontSize: 14, color: c.tinta2)),
         ),
-        if (_st < 3)
+        if (_d != null && _st < 3)
           Lentur(
             dasar: lebarTombol + 1,
             tumbuh: 0,
@@ -354,7 +324,9 @@ class _WebImporScreenState extends State<WebImporScreen> {
                     ]),
                   ),
                 ),
-                for (var i = 0; i < _baris.length; i++) _barisTabel(context, i),
+                for (final (i, b)
+                    in (_d?.baris ?? const <BarisImpor>[]).indexed)
+                  _barisTabel(context, i, b),
               ],
             ),
           ),
@@ -363,43 +335,15 @@ class _WebImporScreenState extends State<WebImporScreen> {
     );
   }
 
-  Widget _barisTabel(BuildContext context, int i) {
+  Widget _barisTabel(BuildContext context, int i, BarisImpor d) {
     final c = context.warna;
-    final d = _baris[i];
     final st = _st;
     final kecil = TextStyle(fontSize: 13, color: c.tinta2);
-    var hasil = _nama[st];
-    var bentuk = st == 3
-        ? BentukLencana.tinta
-        : st == 0
-        ? BentukLencana.draf
-        : BentukLencana.garis;
-    var cat = '';
-    var pilih = false;
-    if (st >= 1 && d.j == _Jenis.tolak) {
-      (hasil, bentuk, cat) = (
-        'Tidak diimpor',
-        BentukLencana.bata,
-        'Alasan: tanggal 31/11 tidak ada. Perbaiki di file lalu impor lagi, '
-            'atau catat sendiri.',
-      );
+    var (:hasil, :nada, :cat, :pilih) = hasilBaris(d, st, _tetap[d.id]);
+    if (nada == NadaImpor.bata) {
+      cat = '$cat Perbaiki di file lalu impor lagi, atau catat sendiri.';
     }
-    if (st >= 1 && d.j == _Jenis.ganda) {
-      if (_ganda == 'tidak') {
-        (hasil, bentuk, cat) = (
-          'Tidak diimpor',
-          BentukLencana.garis,
-          'Alasan: sama dengan baris 2.',
-        );
-      } else if (_ganda.isEmpty) {
-        (hasil, bentuk, cat, pilih) = (
-          'Mungkin ganda',
-          BentukLencana.peran,
-          'Tanggal, Kas/Bank dan jumlah sama dengan baris 2.',
-          st < 3,
-        );
-      }
-    }
+    final bentuk = BentukLencana.values.byName(nada.name);
     Widget lencana = LencanaStatus(hasil, bentuk: bentuk);
     if (bentuk == BentukLencana.draf) {
       // Web keeps the white field under the dashed line.
@@ -411,8 +355,8 @@ class _WebImporScreenState extends State<WebImporScreen> {
         child: lencana,
       );
     }
-    Widget keputusan(String label, String nilai) => Tekan(
-      onTap: () => setState(() => _ganda = nilai),
+    Widget keputusan(String label, bool nilai) => Tekan(
+      onTap: () => setState(() => _tetap[d.id] = nilai),
       radius: 10,
       child: RupaTombol(
         label: label,
@@ -439,7 +383,10 @@ class _WebImporScreenState extends State<WebImporScreen> {
             '${i + 1}',
             style: TextStyle(fontFamily: PalakatText.mono, color: c.tinta2),
           ),
-          Text(d.asli, style: kecil.copyWith(fontFamily: PalakatText.mono)),
+          Text(
+            d.baris.raw.replaceAll(' · ', '\n'),
+            style: kecil.copyWith(fontFamily: PalakatText.mono),
+          ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -468,8 +415,8 @@ class _WebImporScreenState extends State<WebImporScreen> {
                   spacing: 6,
                   runSpacing: 6,
                   children: [
-                    keputusan('Tetap impor', 'tetap'),
-                    keputusan('Tidak diimpor', 'tidak'),
+                    keputusan('Tetap impor', true),
+                    keputusan('Tidak diimpor', false),
                   ],
                 ),
               ],

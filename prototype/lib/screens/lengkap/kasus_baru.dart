@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/format.dart';
-import '../../mock/mock.dart';
 import '../../motion/kerangka.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
@@ -16,14 +16,25 @@ import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
 import '../../app/layar.dart';
+import '../../core/tanggal.dart';
+import '../../domain/core/core.dart';
+import '../../domain/finance/finance.dart';
+import '../../providers/actor.dart';
+import '../../providers/clock.dart';
+import '../../providers/core_repositories.dart';
+import '../../providers/keuangan/catat.dart';
+import '../../providers/keuangan/kasus.dart';
+import '../../providers/repositories_keuangan.dart';
+import '../../widgets/penolakan.dart';
+import '../lanjut/kewajiban.dart' show bukukanDrafKasus, sebabPenolakan;
 
 /// 37 · Kasus baru: Uang Muka, Titipan, Penggantian biaya (spec
 /// 10-aifoto.md, KasusBaru).
-class KasusBaruScreen extends StatefulWidget {
+class KasusBaruScreen extends ConsumerStatefulWidget {
   const KasusBaruScreen({super.key});
 
   @override
-  State<KasusBaruScreen> createState() => _KasusBaruScreenState();
+  ConsumerState<KasusBaruScreen> createState() => _KasusBaruScreenState();
 }
 
 /// The board's `CFG`, one per kind.
@@ -39,7 +50,6 @@ typedef _Jenis = ({
   String tombol,
   String sisa,
   String st,
-  String no,
   String hasil,
   String hasilCat,
 });
@@ -59,7 +69,6 @@ const Map<String, _Jenis> _cfg = {
     tombol: 'Periksa dan bukukan',
     sisa: 'Sisa belum dipertanggungjawabkan',
     st: 'Belum dipertanggungjawabkan',
-    no: 'BKU-2026-0153',
     hasil: 'Uang muka dibukukan',
     hasilCat:
         'Kasusnya terbuka sampai seluruh uang dipertanggungjawabkan atau '
@@ -79,7 +88,6 @@ const Map<String, _Jenis> _cfg = {
     tombol: 'Periksa dan bukukan',
     sisa: 'Sisa belum disalurkan',
     st: 'Belum disalurkan',
-    no: 'BKU-2026-0154',
     hasil: 'Titipan dibukukan',
     hasilCat:
         'Kasusnya terbuka sampai seluruh titipan disalurkan kepada yang '
@@ -99,7 +107,6 @@ const Map<String, _Jenis> _cfg = {
     tombol: 'Simpan klaim',
     sisa: 'Belum dibayar',
     st: 'Belum dibayar · klaim belum dicek',
-    no: '',
     hasil: 'Klaim disimpan · belum masuk saldo',
     hasilCat:
         'Cek klaim lebih dulu, lalu bayar. Mata Anggaran dipilih saat '
@@ -107,24 +114,20 @@ const Map<String, _Jenis> _cfg = {
   ),
 };
 
-const _tempoId = ['30/11/2026', '15/12/2026', '31/12/2026'];
-const _peruntukan = ['Umum Jemaat', 'Diakonia', 'Pembangunan'];
-const _lingkup = ['Jemaat', 'Kolom 3', 'BIPRA Pemuda', 'Panitia Natal'];
-const _mataAnggaran = [
-  ('2.1.01.02.00', 'Sentralisasi Sinode'),
-  ('2.2.01.02.00', 'Persembahan khusus Wilayah'),
-];
-
-class _KasusBaruScreenState extends State<KasusBaruScreen> {
+class _KasusBaruScreenState extends ConsumerState<KasusBaruScreen> {
   String _tab = 'um';
   final _pihak = TextEditingController();
   final _jm = TextEditingController();
   final _ur = TextEditingController();
   final _fokusPihak = FocusNode();
   final _fokusUr = FocusNode();
-  int? _akun;
-  String? _per, _ling, _ma, _tempo;
+  int? _akun, _tempo;
+  String? _per, _ling, _ma;
   bool _selesai = false;
+
+  /// The voucher once booked; the refusal of Bukukan (the second checker).
+  String? _no;
+  Refusal? _pesan;
   final _gulir = ScrollController();
 
   _Jenis get _k => _cfg[_tab]!;
@@ -132,7 +135,41 @@ class _KasusBaruScreenState extends State<KasusBaruScreen> {
   bool get _tt => _tab == 'tt';
   bool get _pb => _tab == 'pb';
   int get _j => angkaDari(_jm.text) ?? 0;
-  (String, int)? get _ak => _akun == null ? null : kasusBaruKasBank[_akun!];
+  PilihanKasusBaru get _p => ref.watch(pilihanKasusBaruProvider);
+  (String, int)? get _ak {
+    final i = _akun;
+    if (i == null || i >= _p.kasBank.length) return null;
+    final a = _p.kasBank[i];
+    return (a.nama, a.saldo);
+  }
+
+  String? _tempoTeks() => _tempo == null ? null : tgl(_p.tempo[_tempo!].awal);
+
+  Future<void> _simpan() async {
+    if (_alasan().isNotEmpty) return;
+    final p = _p;
+    final r = await simpanKasusBaru(
+      ref,
+      tab: _tab,
+      pihak: _pihak.text,
+      jumlah: _j,
+      uraian: _ur.text,
+      akunId: _akun == null ? null : p.kasBank[_akun!].id,
+      per: _per,
+      ling: _ling,
+      ma: _ma,
+      tempo: _tempo == null ? null : p.tempo[_tempo!],
+    );
+    if (!mounted) return;
+    setState(() {
+      if (r.selesai) {
+        _keAtas();
+        _selesai = true;
+      }
+      _no = r.no;
+      _pesan = r.pesan;
+    });
+  }
 
   /// The board's `alasan`: the first unmet reason, '' when met.
   String _alasan() {
@@ -161,9 +198,11 @@ class _KasusBaruScreenState extends State<KasusBaruScreen> {
     _pihak.clear();
     _jm.clear();
     _ur.clear();
-    _akun = null;
-    _per = _ling = _ma = _tempo = null;
+    _akun = _tempo = null;
+    _per = _ling = _ma = null;
     _selesai = false;
+    _no = null;
+    _pesan = null;
   }
 
   void _pilih(VoidCallback f) {
@@ -188,7 +227,7 @@ class _KasusBaruScreenState extends State<KasusBaruScreen> {
     final k = _k, j = _j, ak = _ak;
     final alasan = _alasan();
     final nama = _pihak.text.trim().isEmpty ? '…' : _pihak.text.trim();
-    final padat = _selesai && !_pb;
+    final padat = _selesai && !_pb && _no != null;
 
     final saldo = 'Saldo buku ${ak?.$1 ?? 'Kas/Bank'}';
     final efek = _um
@@ -300,23 +339,20 @@ class _KasusBaruScreenState extends State<KasusBaruScreen> {
       if (!_pb)
         chips<int>(
           k.akun,
-          [
-            for (final (i, a) in kasusBaruKasBank.indexed)
-              (nilai: i, teks: a.$1),
-          ],
+          [for (final (i, a) in _p.kasBank.indexed) (nilai: i, teks: a.nama)],
           _akun,
           (v) => _akun = v,
         ),
       if (_um) ...[
         chips<String>(
           'Diambil dari peruntukan',
-          [for (final p in _peruntukan) (nilai: p, teks: p)],
+          [for (final p in _p.peruntukan) (nilai: p.id, teks: p.nama)],
           _per,
           (v) => _per = v,
         ),
         chips<String>(
           'Lingkup',
-          [for (final p in _lingkup) (nilai: p, teks: p)],
+          [for (final p in _p.lingkup) (nilai: p.id, teks: p.nama)],
           _ling,
           (v) => _ling = v,
         ),
@@ -329,7 +365,7 @@ class _KasusBaruScreenState extends State<KasusBaruScreen> {
               'Mata Anggaran · hanya baris yang boleh untuk Titipan',
               style: TextStyle(fontSize: 14, color: c.tinta2),
             ),
-            for (final m in _mataAnggaran) ...[
+            for (final m in _p.titipan) ...[
               const SizedBox(height: 8),
               Tekan(
                 onTap: () => _pilih(() => _ma = m.$1),
@@ -373,11 +409,11 @@ class _KasusBaruScreenState extends State<KasusBaruScreen> {
         ),
       isian(k.ur, _ur, _fokusUr),
       if (_um)
-        chips<String>(
+        chips<int>(
           'Jatuh tempo',
           [
-            for (final (i, t) in kasusBaruJatuhTempo.indexed)
-              (nilai: _tempoId[i], teks: t),
+            for (final (i, t) in _p.tempo.indexed)
+              (nilai: i, teks: tglPanjang(t.awal)),
           ],
           _tempo,
           (v) => _tempo = v,
@@ -486,7 +522,7 @@ class _KasusBaruScreenState extends State<KasusBaruScreen> {
                       child: Text(
                         // Zero-width spaces: Chrome breaks after these
                         // hyphens, Flutter does not.
-                        'No. Bukti ${k.no.replaceAll('-', '-​')}',
+                        'No. Bukti ${(_no ?? '').replaceAll('-', '-​')}',
                         style: TextStyle(
                           fontFamily: PalakatText.mono,
                           fontSize: 14,
@@ -567,7 +603,7 @@ class _KasusBaruScreenState extends State<KasusBaruScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  k.hasil,
+                  _pb || _no != null ? k.hasil : 'Dicatat sebagai draf',
                   style: const TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 17,
@@ -625,7 +661,7 @@ class _KasusBaruScreenState extends State<KasusBaruScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  '${k.st}${_um && _tempo != null ? ' · jatuh tempo: $_tempo' : ''}',
+                  '${_no == null && !_pb ? 'Draf · belum masuk saldo' : k.st}${_um && _tempo != null ? ' · jatuh tempo: ${_tempoTeks()}' : ''}',
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -670,6 +706,13 @@ class _KasusBaruScreenState extends State<KasusBaruScreen> {
             if (!_selesai) ...form,
             kartuEfek,
             if (_selesai) hasil,
+            if (_pesan case final r?)
+              Penolakan(
+                tindakan: r.action,
+                sebab: sebabPenolakan(r),
+                jalan: const [],
+                ukuranTeks: 14,
+              ),
           ].indexed) ...[if (i > 0) const SizedBox(height: 16), w],
         ],
       ),
@@ -712,10 +755,7 @@ class _KasusBaruScreenState extends State<KasusBaruScreen> {
                 tindakan: k.tombol,
                 alasan: alasan,
                 periksa: _alasan,
-                onPressed: () => setState(() {
-                  _keAtas();
-                  _selesai = true;
-                }),
+                onPressed: _simpan,
                 warnaSiap: JenisTombol.utama,
                 teksBelumRedup: true,
                 gayaAlasan: GayaAlasan.pendamping,
@@ -726,4 +766,79 @@ class _KasusBaruScreenState extends State<KasusBaruScreen> {
       ),
     );
   }
+}
+
+/// Saves a new case of kind [tab] ('um', 'tt', 'pb') through
+/// CaseRepository and, for an advance or Titipan, tries Bukukan at once:
+/// [selesai] when the case was made, [no] its voucher once booked, [pesan]
+/// the refusal to show (the second checker leaves the draft waiting).
+Future<({bool selesai, String? no, Refusal? pesan})> simpanKasusBaru(
+  WidgetRef ref, {
+  required String tab,
+  required String pihak,
+  required int jumlah,
+  required String uraian,
+  String? akunId,
+  String? per,
+  String? ling,
+  String? ma,
+  Tanggal? tempo,
+}) async {
+  final a = ref.read(actorProvider);
+  if (a == null) return (selesai: false, no: null, pesan: null);
+  final repo = ref.read(caseRepositoryProvider);
+  final kunci = kunciBaru(a.personId, ref.read(clockProvider));
+  final nama = pihak.trim();
+  final party = ref
+      .read(peopleRepositoryProvider)
+      .parties()
+      .where((x) => x.displayName.toLowerCase() == nama.toLowerCase())
+      .firstOrNull;
+  // ponytail: a name with no Party is kept as the case's party label; a
+  // "create Party" command is a request to the core owner.
+  final pihakId = party?.id ?? nama;
+  final umum =
+      ref.read(pilihanCatatProvider(ref.read(hariIniProvider))).umum ?? 'umum';
+  final Result<String> r;
+  if (tab == 'pb') {
+    r = await repo.recordClaim(
+      a,
+      ClaimDraft(
+        title: uraian.trim(),
+        partyId: pihakId,
+        fundId: umum,
+        amount: jumlah,
+      ),
+      idempotencyKey: kunci,
+    );
+  } else {
+    final um = tab == 'um';
+    r = await repo.issueAdvance(
+      a,
+      CaseDraft(
+        kind: um ? CaseKind.advance : CaseKind.transit,
+        title: uraian.trim(),
+        fundId: um ? (per ?? umum) : umum,
+        amount: jumlah,
+        partyId: pihakId,
+        scopeId: um ? ling : null,
+        accountId: akunId,
+        dueDate: um ? tempo : null,
+        masterCode: um ? null : ma,
+      ),
+      idempotencyKey: kunci,
+    );
+  }
+  if (r case Refused(:final refusal)) {
+    return (selesai: false, no: null, pesan: refusal);
+  }
+  if (tab == 'pb') return (selesai: true, no: null, pesan: null);
+  final pesan = await bukukanDrafKasus(ref, r.value);
+  return (
+    selesai: true,
+    no: pesan == null
+        ? ref.read(transactionRepositoryProvider).get(r.value)?.voucher
+        : null,
+    pesan: pesan,
+  );
 }

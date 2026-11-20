@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/format.dart';
 import '../../motion/kerangka.dart';
@@ -14,42 +16,27 @@ import '../../widgets/lencana_status.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
 import '../../app/layar.dart';
-
-/// One approval record of the board's `rec` list; [id] keys its history card.
-class _Rec {
-  _Rec(this.id, this.nama, this.jab, this.tgl, this.oleh);
-  final int id;
-  final String nama, jab, tgl, oleh;
-  final String cara = 'notulen rapat';
-  bool berlaku = true;
-  String cat = '';
-}
+import '../../domain/core/core.dart';
+import '../../providers/keuangan/persetujuan.dart';
+import '../../widgets/penolakan.dart';
 
 /// Web · Persetujuan: ganti catatan dan perubahan (spec 08, WebPersetujuan).
-class WebPersetujuanScreen extends StatefulWidget {
+/// Transaction `:id`, records from ApprovalRepository.
+class WebPersetujuanScreen extends ConsumerStatefulWidget {
   const WebPersetujuanScreen({super.key});
 
   @override
-  State<WebPersetujuanScreen> createState() => _WebPersetujuanScreenState();
+  ConsumerState<WebPersetujuanScreen> createState() =>
+      _WebPersetujuanScreenState();
 }
 
-class _WebPersetujuanScreenState extends State<WebPersetujuanScreen> {
-  int _jm = 2500000;
+class _WebPersetujuanScreenState extends ConsumerState<WebPersetujuanScreen> {
   String? _form; // null, 'ganti' or 'catat'
   bool _peringatan = false;
-  int _id = 1;
+  Refusal? _tolak;
   final _nama = TextEditingController();
   final _jab = TextEditingController(text: 'Ketua BPMJ');
   final _alasan = TextEditingController();
-  final _rec = [
-    _Rec(
-      0,
-      'Pdt. Lidya Rondonuwu',
-      'Ketua BPMJ',
-      '08/11/2026',
-      '16/11/2026 11.20',
-    ),
-  ];
 
   @override
   void dispose() {
@@ -59,7 +46,6 @@ class _WebPersetujuanScreenState extends State<WebPersetujuanScreen> {
     super.dispose();
   }
 
-  _Rec? get _cur => _rec.where((r) => r.berlaku).firstOrNull;
   bool get _ganti => _form == 'ganti';
 
   /// The first unmet condition, '' when the submit may run.
@@ -71,6 +57,7 @@ class _WebPersetujuanScreenState extends State<WebPersetujuanScreen> {
 
   void _buka(String form) => setState(() {
     _form = form;
+    _tolak = null;
     _nama.clear();
     _alasan.clear();
   });
@@ -80,46 +67,40 @@ class _WebPersetujuanScreenState extends State<WebPersetujuanScreen> {
     _peringatan = false;
   });
 
-  void _simpan() {
+  Future<void> _simpan(DataPersetujuan d) async {
     if (_alasanTolak.isNotEmpty) return;
+    final r = await simpanPersetujuan(
+      ref,
+      d,
+      nama: _nama.text,
+      jabatan: _jab.text,
+      alasan: _ganti ? _alasan.text.trim() : null,
+    );
+    if (!mounted) return;
     setState(() {
-      for (final r in _rec.where((r) => r.berlaku)) {
-        r
-          ..berlaku = false
-          ..cat =
-              'Digantikan 16/11/2026 11.45 · alasan: ${_alasan.text.trim()}';
-      }
-      _rec.insert(
-        0,
-        _Rec(
-          _id++,
-          _nama.text.trim(),
-          _jab.text,
-          '16/11/2026',
-          '16/11/2026 11.45',
-        ),
-      );
-      _form = null;
+      _tolak = r;
+      if (r == null) _form = null;
     });
   }
 
-  void _ubah() => setState(() {
-    for (final r in _rec.where((r) => r.berlaku)) {
-      r
-        ..berlaku = false
-        ..cat =
-            'Tidak berlaku lagi sejak 16/11/2026 11.50 · jumlah diubah dari '
-            'Rp2.500.000 menjadi Rp2.750.000';
-    }
-    _jm = 2750000;
-    _peringatan = false;
-  });
+  Future<void> _ubah(DataPersetujuan d) async {
+    final r = await ubahJumlahDraf(ref, d.transaksi, jumlahUbahan(d.jumlah));
+    if (!mounted) return;
+    setState(() {
+      _tolak = r;
+      _peringatan = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final cur = _cur;
-    final lama = _rec.where((r) => !r.berlaku).toList();
+    final id = GoRouterState.of(context).pathParameters['id'] ?? '';
+    final d = ref.watch(persetujuanProvider(id));
+    final cur = d?.berlaku;
+    final lama = d?.lama ?? const <CatatanPersetujuan>[];
+    final t = d?.transaksi;
+    final bisaUbah = t != null && t.isDraft && t.allocations.isNotEmpty;
 
     Widget muncul(Key key, Widget child) => Gerak(
       Kerangka.muncul,
@@ -167,55 +148,65 @@ class _WebPersetujuanScreenState extends State<WebPersetujuanScreen> {
         ? 'Ganti catatan persetujuan'
         : 'Catat persetujuan';
 
-    final draf = Kartu(
-      status: GarisStatus.draf,
-      radius: 16,
-      padding: const EdgeInsets.all(18),
-      child: kolom(6, [
-        const Align(
-          alignment: Alignment.centerLeft,
-          child: LencanaStatus(
-            'Draf · belum masuk saldo',
-            bentuk: BentukLencana.draf,
-          ),
-        ),
-        Text(
-          rp(-_jm),
-          style: TextStyle(
-            fontFamily: PalakatText.mono,
-            fontSize: 30,
-            fontWeight: FontWeight.w500,
-            color: c.tinta2,
-          ),
-        ),
-        const Text(
-          'Perbaikan sound system',
-          style: TextStyle(fontWeight: FontWeight.w600),
-        ),
-        Text(
-          'Bank BNI ··4821 · Belanja 5.08.02.00 Pemeliharaan gedung · '
-          '16 November 2026',
-          style: TextStyle(fontSize: 13, color: c.tinta3),
-        ),
-        Text(
-          'Aturan: persetujuan wajib untuk Belanja Rp2.000.000 ke atas',
-          style: TextStyle(fontSize: 13, color: c.tinta3),
-        ),
-      ]),
-    );
+    final draf = d == null || t == null
+        ? Text(
+            'Transaksi tidak ditemukan.',
+            style: TextStyle(fontSize: 14, color: c.tinta2),
+          )
+        : Kartu(
+            status: GarisStatus.draf,
+            radius: 16,
+            padding: const EdgeInsets.all(18),
+            child: kolom(6, [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: t.isDraft
+                    ? const LencanaStatus(
+                        'Draf · belum masuk saldo',
+                        bentuk: BentukLencana.draf,
+                      )
+                    : LencanaStatus(
+                        '${d.rincian.baris.status} · ${d.rincian.baris.nomor}',
+                        bentuk: BentukLencana.garis,
+                      ),
+              ),
+              Text(
+                rp(d.rincian.baris.jumlah),
+                style: TextStyle(
+                  fontFamily: PalakatText.mono,
+                  fontSize: 30,
+                  fontWeight: FontWeight.w500,
+                  color: c.tinta2,
+                ),
+              ),
+              Text(
+                t.description,
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+              Text(
+                d.keterangan,
+                style: TextStyle(fontSize: 13, color: c.tinta3),
+              ),
+              if (t.approvalRule != null)
+                Text(
+                  'Aturan: persetujuan wajib untuk ${t.approvalRule}',
+                  style: TextStyle(fontSize: 13, color: c.tinta3),
+                ),
+            ]),
+          );
 
     final kanan = kolom(14, [
       if (cur != null)
         KartuPersetujuan.sudah(
           kepala: 'Persetujuan di luar aplikasi',
           pemberi: cur.nama,
-          jabatan: cur.jab,
-          tanggal: cur.tgl,
+          jabatan: cur.jabatan,
+          tanggal: cur.tanggal,
           cara: cur.cara,
-          dicatatOleh: 'Meiske L.',
-          dicatatPada: cur.oleh,
+          dicatatOleh: cur.oleh,
+          dicatatPada: cur.pada,
         )
-      else
+      else if (d != null)
         muncul(
           const ValueKey('belum'),
           Kartu(
@@ -237,7 +228,17 @@ class _WebPersetujuanScreenState extends State<WebPersetujuanScreen> {
             ]),
           ),
         ),
-      if (_peringatan)
+      if (_tolak case final r?)
+        Penolakan(
+          tindakan: r.action,
+          sebab:
+              r.because +
+              (r.whoCanAct == null
+                  ? ''
+                  : ' Yang perlu bertindak: ${r.whoCanAct}.'),
+          jalan: const [],
+        ),
+      if (_peringatan && d != null)
         muncul(
           const ValueKey('peringatan'),
           Kartu(
@@ -249,7 +250,8 @@ class _WebPersetujuanScreenState extends State<WebPersetujuanScreen> {
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
               ),
               Text(
-                'Persetujuan dicatat untuk Rp2.500.000. Perubahan pada jumlah, '
+                'Persetujuan dicatat untuk ${rp(d.jumlah)}. Perubahan pada '
+                'jumlah, '
                 // Word joiner: Chrome does not break after this slash.
                 'pihak yang dibayar, Kas/⁠Bank, peruntukan, Mata Anggaran, '
                 'tanggal atau uraian mengembalikannya ke belum dicatat.',
@@ -259,14 +261,18 @@ class _WebPersetujuanScreenState extends State<WebPersetujuanScreen> {
                 spacing: 8,
                 runSpacing: 8,
                 children: [
-                  tombol('Ubah menjadi Rp2.750.000', _ubah, JenisTombol.tinta),
+                  tombol(
+                    'Ubah menjadi ${rp(jumlahUbahan(d.jumlah))}',
+                    () => _ubah(d),
+                    JenisTombol.tinta,
+                  ),
                   tombol('Kembali', _batal, JenisTombol.kedua),
                 ],
               ),
             ]),
           ),
         ),
-      if (_form != null)
+      if (_form != null && d != null)
         muncul(
           ValueKey('form-$_form'),
           // TextField would otherwise add Material's 0.5 letter spacing to
@@ -328,7 +334,7 @@ class _WebPersetujuanScreenState extends State<WebPersetujuanScreen> {
                     // Board: no refusal sentence, the "· wajib" labels are the
                     // cue; the reason is the Semantics hint (spec Notes).
                     TekanAria(
-                      onTap: _simpan,
+                      onTap: () => _simpan(d),
                       aktif: ok,
                       petunjuk: ok ? null : tolak,
                       radius: 12,
@@ -349,7 +355,7 @@ class _WebPersetujuanScreenState extends State<WebPersetujuanScreen> {
             ),
           ),
         ),
-      if (_form == null && !_peringatan)
+      if (_form == null && !_peringatan && d != null)
         Wrap(
           spacing: 8,
           runSpacing: 8,
@@ -366,7 +372,7 @@ class _WebPersetujuanScreenState extends State<WebPersetujuanScreen> {
                 () => _buka('catat'),
                 JenisTombol.utama,
               ),
-            if (_jm == 2500000)
+            if (bisaUbah && cur != null)
               tombol(
                 'Ubah jumlah',
                 () => setState(() {
@@ -385,7 +391,7 @@ class _WebPersetujuanScreenState extends State<WebPersetujuanScreen> {
           ),
           for (final r in lama)
             muncul(
-              ValueKey('lama-${r.id}'),
+              ValueKey('lama-${r.rekam.id}'),
               Kartu(
                 status: GarisStatus.draf,
                 padding: const EdgeInsets.symmetric(
@@ -394,7 +400,8 @@ class _WebPersetujuanScreenState extends State<WebPersetujuanScreen> {
                 ),
                 child: kolom(0, [
                   Text(
-                    '${r.nama}, ${r.jab} · ${r.tgl} · dicatat ${r.oleh}',
+                    '${r.nama}, ${r.jabatan} · ${r.tanggal} · dicatat '
+                    '${r.pada}',
                     style: TextStyle(fontSize: 14, color: c.tinta2),
                   ),
                   Text(

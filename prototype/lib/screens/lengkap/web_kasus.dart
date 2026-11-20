@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/format.dart';
 import '../../motion/hitung.dart';
@@ -18,145 +20,11 @@ import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import '../../app/layar.dart';
-
-/// One entry on a case (board `entri`).
-typedef _Entri = ({String n, String no, String t, String cat, int jm});
-
-/// One running case (board `state.kasus`). [entri] grows when booking.
-class _Kasus {
-  _Kasus(
-    this.id,
-    this.j,
-    this.judul,
-    this.pihak,
-    this.awal,
-    this.awalCat,
-    this.tempo,
-    this.entri, {
-    this.lewat = false,
-  });
-
-  final String id, j, judul, pihak, awalCat, tempo;
-  final int awal;
-  final bool lewat;
-  final List<_Entri> entri;
-
-  int get sisa => awal - entri.fold(0, (a, e) => a + e.jm);
-}
-
-List<_Kasus> _kasusAwal() => [
-  _Kasus(
-    'um1',
-    'um',
-    'Panitia Natal',
-    'Sdr. Rivo Mandagi',
-    1500000,
-    'BKU-2026-0129 · 01/11/2026 · dari peruntukan Umum Jemaat',
-    '30/11/2026',
-    [
-      (
-        n: 'Pertanggungjawaban uang muka',
-        no: 'BKU-2026-0138',
-        t: '08/11/2026',
-        cat: 'menjadi Belanja',
-        jm: 850000,
-      ),
-    ],
-  ),
-  _Kasus(
-    'um2',
-    'um',
-    'Retret Pemuda',
-    'Sdri. Natalia Rumengan',
-    800000,
-    'BKU-2026-0112 · 20/10/2026 · dari peruntukan Umum Jemaat',
-    '10/11/2026',
-    [
-      (
-        n: 'Pertanggungjawaban uang muka',
-        no: 'BKU-2026-0150',
-        t: '05/11/2026',
-        cat: 'menjadi Belanja',
-        jm: 300000,
-      ),
-    ],
-    lewat: true,
-  ),
-  _Kasus(
-    'um3',
-    'um',
-    'Perjalanan dinas Wilayah',
-    'Pnt. Jefry Wowor',
-    400000,
-    'BKU-2026-0103 · 07/10/2026',
-    '',
-    [
-      (
-        n: 'Pertanggungjawaban uang muka',
-        no: 'BKU-2026-0149',
-        t: '03/11/2026',
-        cat: 'menjadi Belanja',
-        jm: 400000,
-      ),
-    ],
-  ),
-  _Kasus(
-    'tt1',
-    'tt',
-    'Sentralisasi November',
-    'Sinode',
-    2400000,
-    'Dari 4 persembahan · disimpan di Bank BNI ··4821',
-    '',
-    [
-      (
-        n: 'Penyaluran',
-        no: 'BKU-2026-0136',
-        t: '07/11/2026',
-        cat: 'bukan Belanja',
-        jm: 1000000,
-      ),
-    ],
-  ),
-  _Kasus(
-    'tt2',
-    'tt',
-    'Persembahan khusus',
-    'Wilayah',
-    450000,
-    'Dari persembahan khusus 9 November · disimpan di Kas',
-    '',
-    [],
-  ),
-  _Kasus(
-    'pb1',
-    'pb',
-    'Alat kebersihan gereja',
-    'Ibu Selvie Kalalo',
-    185000,
-    'Nota 12/11/2026 terlampir · belum masuk saldo',
-    '',
-    [],
-  ),
-  _Kasus(
-    'pb2',
-    'pb',
-    'Bensin antar jemput',
-    'Sdr. Rivo Mandagi',
-    120000,
-    'Nota 02/11/2026 terlampir',
-    '',
-    [
-      (
-        n: 'Penggantian biaya dibayar',
-        no: 'BKU-2026-0134',
-        t: '05/11/2026',
-        cat: 'Belanja, dicatat satu kali',
-        jm: 120000,
-      ),
-    ],
-  ),
-];
+import '../../domain/core/core.dart';
+import '../../providers/keuangan/kasus.dart';
+import '../../widgets/penolakan.dart';
+import '../lanjut/kewajiban.dart'
+    show bukukanDrafKasus, catatPadaKasus, sebabPenolakan, statusKasus;
 
 /// Board `LBL` (its `cat` is never shown).
 typedef _Label = ({
@@ -310,22 +178,21 @@ const _mono = TextStyle(
   return r;
 }
 
-class WebKasusScreen extends StatefulWidget {
+class WebKasusScreen extends ConsumerStatefulWidget {
   const WebKasusScreen({super.key});
 
   @override
-  State<WebKasusScreen> createState() => _WebKasusScreenState();
+  ConsumerState<WebKasusScreen> createState() => _WebKasusScreenState();
 }
 
-class _WebKasusScreenState extends State<WebKasusScreen> {
-  // Board state: { tab, buka, sheet, isi, nomor, cek, kasus }. `tampil` is
-  // the [Hitung] below, keyed on the open case.
+class _WebKasusScreenState extends ConsumerState<WebKasusScreen> {
+  // Board state: { tab, buka, sheet, isi, cek }. The cases are read from
+  // daftarKasusProvider; `cek` is the board's claim check (no command).
   String _tab = 'um';
   String? _buka, _sheet;
   String _isi = '';
-  int _nomor = 150;
   final Set<String> _cek = {};
-  final List<_Kasus> _kasus = _kasusAwal();
+  Refusal? _pesan;
   final _isian = TextEditingController();
   final _fokus = FocusNode();
 
@@ -335,6 +202,27 @@ class _WebKasusScreenState extends State<WebKasusScreen> {
     _fokus.addListener(() => setState(() {}));
   }
 
+  String? _rute;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // The route's case (`kasus/:id`) opens selected, on its kind's tab.
+    final id = GoRouterState.of(context).pathParameters['id'];
+    if (id == _rute) return;
+    _rute = id;
+    final k = ref
+        .read(daftarKasusProvider)
+        .where((x) => x.id == id)
+        .firstOrNull;
+    if (k != null) {
+      _buka = k.id;
+      _tab = k.jenis;
+      _sheet = null;
+      _pesan = null;
+    }
+  }
+
   @override
   void dispose() {
     _isian.dispose();
@@ -342,12 +230,9 @@ class _WebKasusScreenState extends State<WebKasusScreen> {
     super.dispose();
   }
 
-  String _st(_Kasus k) {
-    final l = _lbl[k.j]!.st;
-    return k.sisa == 0 ? l[2] : (k.entri.isNotEmpty ? l[1] : l[0]);
-  }
+  List<BarisKasus> get _kasus => ref.watch(daftarKasusProvider);
 
-  _Kasus? get _cur {
+  BarisKasus? get _cur {
     for (final k in _kasus) {
       if (k.id == _buka) return k;
     }
@@ -357,7 +242,7 @@ class _WebKasusScreenState extends State<WebKasusScreen> {
   _Aksi? get _akt {
     final cur = _cur;
     if (cur == null) return null;
-    for (final a in _aksi[cur.j]!) {
+    for (final a in _aksi[cur.jenis]!) {
       if (a.id == _sheet) return a;
     }
     return null;
@@ -375,20 +260,18 @@ class _WebKasusScreenState extends State<WebKasusScreen> {
     _isian.text = titik(digit);
   }
 
-  void _simpan() {
+  Future<void> _simpan() async {
     final cur = _cur, akt = _akt;
     if (_salah || cur == null || akt == null) return;
-    setState(() {
-      cur.entri.add((
-        n: akt.entri,
-        no: 'BKU-2026-0$_nomor',
-        t: '16/11/2026',
-        cat: akt.ecat,
-        jm: _jumlah,
-      ));
-      _sheet = null;
-      _nomor++;
-    });
+    final n = _jumlah;
+    setState(() => _sheet = null);
+    final r = await catatPadaKasus(ref, cur, akt.id, n);
+    if (mounted) setState(() => _pesan = r);
+  }
+
+  Future<void> _bukukan(String id) async {
+    final r = await bukukanDrafKasus(ref, id);
+    if (mounted) setState(() => _pesan = r);
   }
 
   @override
@@ -397,7 +280,7 @@ class _WebKasusScreenState extends State<WebKasusScreen> {
     final L = _lbl[_tab]!;
     final list = [
       for (final k in _kasus)
-        if (k.j == _tab) k,
+        if (k.jenis == _tab) k,
     ];
     final terbuka = [
       for (final k in list)
@@ -427,16 +310,20 @@ class _WebKasusScreenState extends State<WebKasusScreen> {
             labelPihak: L.pihak,
             pihak: k.pihak,
             awal: k.awal,
-            dipertanggungjawabkan: k.awal - k.sisa,
+            dipertanggungjawabkan: k.terpakai,
             lewatTempo: k.lewat,
             status:
-                _st(k) +
+                statusKasus(k) +
                 (k.tempo.isNotEmpty && k.sisa > 0
                     ? (k.lewat
                           ? ' · Lewat jatuh tempo (jatuh tempo: ${k.tempo})'
                           : ' · jatuh tempo ${k.tempo}')
                     : ''),
-            onTap: () => setState(() => _buka = k.id),
+            onTap: () => setState(() {
+              _buka = k.id;
+              _sheet = null;
+              _pesan = null;
+            }),
           ),
       ]),
     );
@@ -510,15 +397,15 @@ class _WebKasusScreenState extends State<WebKasusScreen> {
     );
   }
 
-  Widget _rinci(_Kasus cur, _Label L) {
+  Widget _rinci(BarisKasus cur, _Label L) {
     final c = context.warna;
     final csisa = cur.sisa;
     final akt = _akt;
-    final sudahCek = _cek.contains(cur.id);
-    final status = _st(cur);
-    final aksi = csisa > 0
+    final sudahCek = cur.dicek || _cek.contains(cur.id);
+    final status = statusKasus(cur);
+    final aksi = csisa > 0 && !cur.awalDraf
         ? [
-            for (final a in _aksi[cur.j]!)
+            for (final a in _aksi[cur.jenis]!)
               if (!(a.cek && sudahCek) && !(a.id == 'by' && !sudahCek)) a,
           ]
         : const <_Aksi>[];
@@ -528,7 +415,7 @@ class _WebKasusScreenState extends State<WebKasusScreen> {
               : 'Jatuh tempo ${cur.tempo}')
         : '';
 
-    final selesai = csisa == 0;
+    final selesai = csisa <= 0 && !cur.awalDraf;
 
     final barisTabel = [
       Padding(
@@ -546,7 +433,7 @@ class _WebKasusScreenState extends State<WebKasusScreen> {
                   ),
                   Text(
                     cur.awalCat +
-                        (cur.j == 'pb' && sudahCek && csisa > 0
+                        (cur.jenis == 'pb' && sudahCek && csisa > 0
                             ? ' · klaim sudah dicek'
                             : ''),
                     style: TextStyle(fontSize: 13, color: c.tinta3),
@@ -579,17 +466,24 @@ class _WebKasusScreenState extends State<WebKasusScreen> {
                 final rinci = TextSpan(
                   style: sub,
                   children: [
-                    TextSpan(
-                      text: e.no,
-                      style: const TextStyle(fontFamily: PalakatText.mono),
-                    ),
-                    TextSpan(text: ' · ${e.t} · ${e.cat}'),
+                    if (e.draf)
+                      TextSpan(
+                        text: e.diperiksa
+                            ? 'Sudah diperiksa · belum masuk saldo'
+                            : 'Draf · belum masuk saldo',
+                      )
+                    else
+                      TextSpan(
+                        text: e.no,
+                        style: const TextStyle(fontFamily: PalakatText.mono),
+                      ),
+                    TextSpan(text: ' · ${e.tgl} · ${e.cat}'),
                   ],
                 );
-                final jumlah = '− ${rp(e.jm)}';
+                final jumlah = '− ${rp(e.jumlah)}';
                 final (n, nMin) = _lebar(
                   context,
-                  TextSpan(text: e.n, style: nama),
+                  TextSpan(text: e.nama, style: nama),
                 );
                 final (r, rMin) = _lebar(context, rinci);
                 final (b, bMin) = _lebar(
@@ -619,7 +513,7 @@ class _WebKasusScreenState extends State<WebKasusScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(e.n, style: nama),
+                          Text(e.nama, style: nama),
                           Text.rich(rinci),
                         ],
                       ),
@@ -755,10 +649,10 @@ class _WebKasusScreenState extends State<WebKasusScreen> {
         // Not keyed: like the board's CSS transition, the width also
         // animates when another case opens.
         BatangPembagian(
-          total: cur.awal,
+          total: cur.awal == 0 ? 1 : cur.awal,
           tinggi: 14,
           durasi: const Duration(milliseconds: 500),
-          bagian: [BagianBatang(cur.awal - csisa, c.tinta)],
+          bagian: [BagianBatang(cur.terpakai, c.tinta)],
         ),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -772,6 +666,21 @@ class _WebKasusScreenState extends State<WebKasusScreen> {
             children: barisTabel,
           ),
         ),
+        for (final e in cur.draf)
+          Tombol(
+            'Periksa dan bukukan · ${e.nama}',
+            jenis: JenisTombol.kedua,
+            ukuran: UkuranTombol.ringkas,
+            lebarPenuh: false,
+            onPressed: () => _bukukan(e.transaksiId),
+          ),
+        if (_pesan case final r?)
+          Penolakan(
+            tindakan: r.action,
+            sebab: sebabPenolakan(r),
+            jalan: const [],
+            ukuranTeks: 14,
+          ),
         if (akt != null) _panel(akt, csisa),
         Wrap(
           spacing: 8,
@@ -781,7 +690,7 @@ class _WebKasusScreenState extends State<WebKasusScreen> {
               Tombol(
                 a.cek ? 'Cek klaim · tidak mengubah saldo' : a.n,
                 jenis:
-                    (a.utama && !(cur.j == 'pb' && !sudahCek)) ||
+                    (a.utama && !(cur.jenis == 'pb' && !sudahCek)) ||
                         (a.cek && !sudahCek)
                     ? JenisTombol.utama
                     : JenisTombol.kedua,
@@ -794,6 +703,7 @@ class _WebKasusScreenState extends State<WebKasusScreen> {
                     return;
                   }
                   _sheet = a.id;
+                  _pesan = null;
                   _isiKe('$csisa');
                 }),
               ),

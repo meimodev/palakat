@@ -1,9 +1,10 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/format.dart';
+import '../../domain/core/core.dart';
+import '../../domain/finance/finance.dart';
 import '../../motion/kerangka.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
@@ -19,147 +20,11 @@ import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
 import '../../app/layar.dart';
-
-// Board data (Kewajiban.dc.html): its own figures, not the web board's.
-
-class _Entri {
-  const _Entri(this.n, this.no, this.t, this.cat, this.jm);
-  final String n, no, t, cat;
-  final int jm;
-}
-
-class _Kasus {
-  _Kasus(
-    this.id,
-    this.j,
-    this.judul,
-    this.pihak,
-    this.awal,
-    this.awalCat,
-    this.tempo,
-    List<_Entri> entri, {
-    this.lewat = false,
-  }) : entri = [...entri];
-  final String id, j, judul, pihak, awalCat, tempo;
-  final int awal;
-  final bool lewat;
-  final List<_Entri> entri;
-  int get sisa => awal - entri.fold(0, (a, e) => a + e.jm);
-}
-
-List<_Kasus> _kasusAwal() => [
-  _Kasus(
-    'um1',
-    'um',
-    'Panitia Natal',
-    'Sdr. Rivo Mandagi',
-    1500000,
-    'BKU-2026-0129 · 01/11/2026 · dari peruntukan Umum Jemaat',
-    '30/11/2026',
-    const [
-      _Entri(
-        'Pertanggungjawaban uang muka',
-        'BKU-2026-0138',
-        '08/11/2026',
-        'menjadi Belanja',
-        850000,
-      ),
-    ],
-  ),
-  _Kasus(
-    'um2',
-    'um',
-    'Retret Pemuda',
-    'Sdri. Natalia Rumengan',
-    800000,
-    'BKU-2026-0112 · 20/10/2026 · dari peruntukan Umum Jemaat',
-    '10/11/2026',
-    lewat: true,
-    const [
-      _Entri(
-        'Pertanggungjawaban uang muka',
-        'BKU-2026-0150',
-        '05/11/2026',
-        'menjadi Belanja',
-        300000,
-      ),
-    ],
-  ),
-  _Kasus(
-    'um3',
-    'um',
-    'Perjalanan dinas Wilayah',
-    'Pnt. Jefry Wowor',
-    400000,
-    'BKU-2026-0103 · 07/10/2026',
-    '',
-    const [
-      _Entri(
-        'Pertanggungjawaban uang muka',
-        'BKU-2026-0149',
-        '03/11/2026',
-        'menjadi Belanja',
-        400000,
-      ),
-    ],
-  ),
-  _Kasus(
-    'tt1',
-    'tt',
-    'Sentralisasi November',
-    'Sinode',
-    2400000,
-    'Dari 4 persembahan · disimpan di Bank BNI ··4821',
-    '',
-    const [
-      _Entri(
-        'Penyaluran',
-        'BKU-2026-0136',
-        '07/11/2026',
-        'bukan Belanja',
-        1000000,
-      ),
-    ],
-  ),
-  _Kasus(
-    'tt2',
-    'tt',
-    'Persembahan khusus',
-    'Wilayah',
-    450000,
-    'Dari persembahan khusus 9 November · disimpan di Kas',
-    '',
-    const [],
-  ),
-  _Kasus(
-    'pb1',
-    'pb',
-    'Alat kebersihan gereja',
-    'Ibu Selvie Kalalo',
-    185000,
-    'Nota 12/11/2026 terlampir · belum masuk saldo',
-    '',
-    const [],
-  ),
-  _Kasus(
-    'pb2',
-    'pb',
-    'Bensin antar jemput',
-    'Sdr. Rivo Mandagi',
-    120000,
-    'Nota 02/11/2026 terlampir',
-    '',
-    const [
-      _Entri(
-        'Penggantian biaya dibayar',
-        'BKU-2026-0134',
-        '05/11/2026',
-        'Belanja, dicatat satu kali',
-        120000,
-      ),
-    ],
-  ),
-];
+import '../../providers/actor.dart';
+import '../../providers/clock.dart';
+import '../../providers/keuangan/kasus.dart';
+import '../../providers/repositories_keuangan.dart';
+import '../../widgets/penolakan.dart';
 
 typedef _Label = ({
   String tab,
@@ -293,34 +158,32 @@ const Map<String, List<_Aksi>> _aksi = {
   ],
 };
 
-/// The board's state (`state` of the logic class), shared by the list and
-/// the case view for as long as the board is on the stack.
+/// The board's UI state, shared by the list and the case view for as long
+/// as the board is on the stack. The cases themselves are read from
+/// [daftarKasusProvider] (domain data lives in repositories).
 class _Papan extends ChangeNotifier {
   String tab = 'um';
   String? buka, sheet;
-  int tampil = 0, nomor = 150;
+
+  /// Claims checked on this board ("Cek klaim"): the check changes no
+  /// balance and CaseRepository has no command for it.
   Set<String> cek = {};
-  List<_Kasus> kasus = _kasusAwal();
+
+  /// The last refusal of a command, shown under the history.
+  Refusal? pesan;
   final isi = TextEditingController();
-  Timer? _t;
 
   _Label get lbl => _lbl[tab]!;
-  _Kasus? kasusDengan(String? id) => kasus.where((k) => k.id == id).firstOrNull;
-  _Kasus? get cur => kasusDengan(buka);
-  _Aksi? get akt => cur == null
-      ? null
-      : _aksi[cur!.j]!.where((a) => a.id == sheet).firstOrNull;
 
-  String st(_Kasus k) {
-    final l = _lbl[k.j]!.st;
-    return k.sisa == 0 ? l[2] : (k.entri.isNotEmpty ? l[1] : l[0]);
-  }
+  _Aksi? aksiDari(BarisKasus? k) => k == null
+      ? null
+      : _aksi[k.jenis]!.where((a) => a.id == sheet).firstOrNull;
 
   int get angka => angkaDari(isi.text) ?? 0;
 
   /// First unmet reason of the book button, from the latest text.
-  String alasan() {
-    final c = cur, a = akt;
+  String alasan(BarisKasus? c) {
+    final a = aksiDari(c);
     if (c == null || a == null) return 'tidak ada kasus';
     final n = angka;
     if (n > c.sisa) return 'melebihi sisa ${rp(c.sisa)}. ${a.lebih}'.trim();
@@ -336,28 +199,26 @@ class _Papan extends ChangeNotifier {
   }
 
   /// Card press, or a deep link (also sets [tab] so Back lands right).
-  void bukaKasus(String id, {bool beritahu = true}) {
-    _t?.cancel();
-    final k = kasusDengan(id)!;
-    buka = id;
-    tab = k.j;
-    tampil = k.sisa;
+  void bukaKasus(BarisKasus k, {bool beritahu = true}) {
+    buka = k.id;
+    tab = k.jenis;
+    pesan = null;
     if (beritahu) notifyListeners();
   }
 
   void keDaftar() {
-    _t?.cancel();
     buka = null;
     sheet = null;
+    pesan = null;
     notifyListeners();
   }
 
-  void tekanAksi(_Aksi a) {
-    final c = cur!;
+  void tekanAksi(BarisKasus c, _Aksi a) {
     if (a.cek) {
       cek = {...cek, c.id};
     } else {
       sheet = a.id;
+      pesan = null;
       isi.text = titik('${c.sisa}');
     }
     notifyListeners();
@@ -368,47 +229,97 @@ class _Papan extends ChangeNotifier {
     notifyListeners();
   }
 
-  void simpan({required bool instan}) {
-    final c = cur, a = akt;
-    if (c == null || a == null || alasan().isNotEmpty) return;
-    final n = angka, dari = c.sisa, ke = c.sisa - n;
-    c.entri.add(_Entri(a.entri, 'BKU-2026-0$nomor', '16/11/2026', a.ecat, n));
-    sheet = null;
-    nomor++;
-    _t?.cancel();
-    if (instan) {
-      tampil = ke;
-    } else {
-      var i = 0;
-      _t = Timer.periodic(const Duration(milliseconds: 30), (t) {
-        i++;
-        tampil = hitungNaik(dari, ke, i, 22);
-        notifyListeners();
-        if (i >= 22) t.cancel();
-      });
-    }
-    notifyListeners();
-  }
-
-  void ulang() {
-    _t?.cancel();
-    tab = 'um';
-    buka = null;
-    sheet = null;
-    tampil = 0;
-    nomor = 150;
-    cek = {};
-    kasus = _kasusAwal();
-    isi.clear();
-    notifyListeners();
-  }
-
   @override
   void dispose() {
-    _t?.cancel();
     isi.dispose();
     super.dispose();
   }
+}
+
+/// The church's own cash account: where a returned remainder goes and a
+/// claim is paid from ("kembali ke Kas").
+String? kasGereja(WidgetRef ref) => ref
+    .read(accountRepositoryProvider)
+    .accounts()
+    .where((a) => a.type == AccountType.cash && a.operatedByScopeId == null)
+    .firstOrNull
+    ?.id;
+
+/// Runs the board action [aksiId] ('tj', 'kb', 'sl', 'by') on [k] for
+/// [jumlah]: the case command drafts the linked transaction, then Bukukan is
+/// tried at once. Returns the refusal to show, or null when it was booked.
+/// With the second checker in force (D24) the draft waits for the check.
+Future<Refusal?> catatPadaKasus(
+  WidgetRef ref,
+  BarisKasus k,
+  String aksiId,
+  int jumlah,
+) async {
+  final a = ref.read(actorProvider);
+  if (a == null) return null;
+  final repo = ref.read(caseRepositoryProvider);
+  final kunci = kunciBaru(a.personId, ref.read(clockProvider));
+  final kas = kasGereja(ref);
+  final r = await switch (aksiId) {
+    'tj' => repo.settle(
+      a,
+      k.id,
+      CaseEntryDraft(amount: jumlah),
+      expectedRevision: k.revisi,
+      idempotencyKey: kunci,
+    ),
+    'kb' => repo.returnUnused(
+      a,
+      k.id,
+      CaseEntryDraft(amount: jumlah, accountId: k.view.kase.accountId ?? kas),
+      expectedRevision: k.revisi,
+      idempotencyKey: kunci,
+    ),
+    'sl' => repo.remit(
+      a,
+      k.id,
+      CaseEntryDraft(amount: jumlah),
+      expectedRevision: k.revisi,
+      idempotencyKey: kunci,
+    ),
+    _ => repo.payClaim(
+      a,
+      k.id,
+      CaseEntryDraft(amount: jumlah, accountId: kas),
+      expectedRevision: k.revisi,
+      idempotencyKey: kunci,
+    ),
+  };
+  if (r case Refused(:final refusal)) return refusal;
+  return bukukanDrafKasus(ref, r.value);
+}
+
+/// "Periksa dan bukukan" of a case's draft: the refusal, or null.
+Future<Refusal?> bukukanDrafKasus(WidgetRef ref, String transaksiId) async {
+  final a = ref.read(actorProvider);
+  final tx = ref.read(transactionRepositoryProvider);
+  final t = tx.get(transaksiId);
+  if (a == null || t == null) return null;
+  final r = await tx.finalize(
+    a,
+    t.id,
+    expectedRevision: t.revision,
+    idempotencyKey: kunciBaru(a.personId, ref.read(clockProvider)),
+  );
+  return r.refusal;
+}
+
+/// The refusal sentence as the boards print it after "Tidak dapat
+/// dilakukan: {action}.".
+String sebabPenolakan(Refusal r) =>
+    r.because +
+    (r.whoCanAct == null ? '' : ' Yang perlu bertindak: ${r.whoCanAct}.');
+
+/// The status word of [k] on its kind's labels.
+String statusKasus(BarisKasus k) {
+  final l = _lbl[k.jenis]!.st;
+  if (k.awalDraf) return 'Draf · belum masuk saldo';
+  return k.sisa <= 0 && k.awal > 0 ? l[2] : (k.terpakai > 0 ? l[1] : l[0]);
 }
 
 class _Lingkup extends InheritedNotifier<_Papan> {
@@ -451,7 +362,7 @@ class _KewajibanKendaliState extends State<KewajibanKendali> {
           listenable: _papan,
           builder: (context, navigator) => LayarPonsel(
             layarKeuangan: true,
-            overlay: [if (_papan.akt != null) _Lembar(papan: _papan)],
+            overlay: [if (_papan.sheet != null) _Lembar(papan: _papan)],
             child: navigator!,
           ),
           child: widget.child,
@@ -476,15 +387,18 @@ class KewajibanScreen extends StatelessWidget {
 
 // List view.
 
-class _Daftar extends StatelessWidget {
+class _Daftar extends ConsumerWidget {
   const _Daftar();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
     final p = _Lingkup.of(context);
     final lb = p.lbl;
-    final list = p.kasus.where((k) => k.j == p.tab).toList();
+    final list = ref
+        .watch(daftarKasusProvider)
+        .where((k) => k.jenis == p.tab)
+        .toList();
     final buka = list.where((k) => k.sisa > 0).toList();
     final total = buka.fold(0, (a, k) => a + k.sisa);
     return Gerak(
@@ -569,11 +483,11 @@ class _Daftar extends StatelessWidget {
                         labelPihak: lb.pihak,
                         pihak: k.pihak,
                         awal: k.awal,
-                        dipertanggungjawabkan: k.awal - k.sisa,
-                        status: _statusBaris(p, k),
+                        dipertanggungjawabkan: k.terpakai,
+                        status: _statusBaris(k),
                         lewatTempo: k.lewat,
                         onTap: () {
-                          p.bukaKasus(k.id);
+                          p.bukaKasus(k);
                           context.dorongKe(
                             Layar.kewajiban,
                             anak: 'kasus/${k.id}',
@@ -591,14 +505,14 @@ class _Daftar extends StatelessWidget {
     );
   }
 
-  static String _statusBaris(_Papan p, _Kasus k) {
-    final beres = k.sisa == 0;
+  static String _statusBaris(BarisKasus k) {
+    final beres = k.sisa <= 0 && !k.awalDraf;
     final akhir = k.tempo.isNotEmpty && !beres
         ? (k.lewat
               ? ' · Lewat jatuh tempo (jatuh tempo: ${k.tempo})'
               : ' · jatuh tempo ${k.tempo}')
         : '';
-    return p.st(k) + akhir;
+    return statusKasus(k) + akhir;
   }
 }
 
@@ -646,14 +560,14 @@ class _Chip extends StatelessWidget {
 
 // Case view (child route /Kewajiban/kasus/:id).
 
-class _Rinci extends StatefulWidget {
+class _Rinci extends ConsumerStatefulWidget {
   const _Rinci({required this.id});
   final String id;
   @override
-  State<_Rinci> createState() => _RinciState();
+  ConsumerState<_Rinci> createState() => _RinciState();
 }
 
-class _RinciState extends State<_Rinci> {
+class _RinciState extends ConsumerState<_Rinci> {
   @override
   void initState() {
     super.initState();
@@ -666,33 +580,45 @@ class _RinciState extends State<_Rinci> {
     if (old.id != widget.id) _pastikan();
   }
 
+  BarisKasus? _kasus() =>
+      ref.read(daftarKasusProvider).where((k) => k.id == widget.id).firstOrNull;
+
   void _pastikan() {
     final p = _Lingkup.baca(context);
-    if (p.kasusDengan(widget.id) == null) {
+    final k = _kasus();
+    if (k == null) {
       // Unknown id: back to the board's root route (navigation.md 5.4).
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) context.gantiKe(Layar.kewajiban);
       });
     } else if (p.buka != widget.id) {
       // Deep link: open the case without a card press.
-      p.bukaKasus(widget.id, beritahu: false);
+      p.bukaKasus(k, beritahu: false);
       WidgetsBinding.instance.addPostFrameCallback((_) => p.ubah());
     }
+  }
+
+  Future<void> _bukukanDraf(_Papan p, String id) async {
+    p.pesan = await bukukanDrafKasus(ref, id);
+    p.ubah();
   }
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
     final p = _Lingkup.of(context);
-    final cur = p.kasusDengan(widget.id);
+    final cur = ref
+        .watch(daftarKasusProvider)
+        .where((k) => k.id == widget.id)
+        .firstOrNull;
     if (cur == null) return const SizedBox.shrink();
     final lb = p.lbl;
     final csisa = cur.sisa;
-    final beres = csisa == 0;
-    final sudahCek = p.cek.contains(cur.id);
-    final aksi = beres
+    final beres = csisa <= 0 && !cur.awalDraf;
+    final sudahCek = cur.dicek || p.cek.contains(cur.id);
+    final aksi = beres || cur.awalDraf
         ? const <_Aksi>[]
-        : _aksi[cur.j]!
+        : _aksi[cur.jenis]!
               .where(
                 (a) => !(a.cek && sudahCek) && !(a.id == 'by' && !sudahCek),
               )
@@ -752,7 +678,7 @@ class _RinciState extends State<_Rinci> {
                           style: TextStyle(fontSize: 14, color: c.tinta2),
                         ),
                         Text(
-                          rp(p.tampil),
+                          rp(csisa),
                           style: mono.copyWith(
                             fontSize: 36,
                             letterSpacing: -1,
@@ -774,7 +700,9 @@ class _RinciState extends State<_Rinci> {
                       durasi: const Duration(milliseconds: 500),
                       bagian: [
                         BagianBatang(
-                          ((cur.awal - csisa) / cur.awal * 100).round(),
+                          cur.awal == 0
+                              ? 0
+                              : (cur.terpakai / cur.awal * 100).round(),
                           c.tinta,
                         ),
                       ],
@@ -798,7 +726,7 @@ class _RinciState extends State<_Rinci> {
                             ),
                           ),
                           child: Text(
-                            p.st(cur),
+                            statusKasus(cur),
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
@@ -838,7 +766,7 @@ class _RinciState extends State<_Rinci> {
                             TextSpan(
                               text:
                                   cur.awalCat +
-                                  (cur.j == 'pb' && sudahCek && !beres
+                                  (cur.jenis == 'pb' && sudahCek && !beres
                                       ? ' · klaim sudah dicek'
                                       : ''),
                             ),
@@ -850,26 +778,63 @@ class _RinciState extends State<_Rinci> {
                               Kerangka.muncul,
                               key: ValueKey(i),
                               lama: const Duration(milliseconds: 300),
-                              child: baris(
-                                e.n,
-                                TextSpan(
-                                  children: [
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  baris(
+                                    e.nama,
                                     TextSpan(
-                                      text: e.no,
-                                      style: const TextStyle(
-                                        fontFamily: PalakatText.mono,
+                                      children: [
+                                        if (e.draf)
+                                          TextSpan(
+                                            text: e.diperiksa
+                                                ? 'Sudah diperiksa · '
+                                                      'belum masuk saldo'
+                                                : 'Draf · belum masuk saldo',
+                                          )
+                                        else
+                                          TextSpan(
+                                            text: e.no,
+                                            style: const TextStyle(
+                                              fontFamily: PalakatText.mono,
+                                            ),
+                                          ),
+                                        TextSpan(
+                                          text: ' · ${e.tgl} · ${e.cat}',
+                                        ),
+                                      ],
+                                    ),
+                                    '− ${rp(e.jumlah)}',
+                                    true,
+                                  ),
+                                  if (e.draf)
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                        bottom: 12,
+                                      ),
+                                      child: Tombol(
+                                        'Periksa dan bukukan',
+                                        jenis: JenisTombol.kedua,
+                                        ukuran: UkuranTombol.ringkas,
+                                        onPressed: () =>
+                                            _bukukanDraf(p, e.transaksiId),
                                       ),
                                     ),
-                                    TextSpan(text: ' · ${e.t} · ${e.cat}'),
-                                  ],
-                                ),
-                                '− ${rp(e.jm)}',
-                                true,
+                                ],
                               ),
                             ),
                         ],
                       ),
                     ),
+                    if (p.pesan case final r?) ...[
+                      const SizedBox(height: 16),
+                      Penolakan(
+                        tindakan: r.action,
+                        sebab: sebabPenolakan(r),
+                        jalan: const [],
+                        ukuranTeks: 14,
+                      ),
+                    ],
                     const SizedBox(height: 16),
                     Text(lb.kaki, style: kecil),
                   ],
@@ -890,9 +855,9 @@ class _RinciState extends State<_Rinci> {
                     _TombolAksi(
                       label: a.cek ? 'Cek klaim · tidak mengubah saldo' : a.n,
                       utama:
-                          a.utama && !(cur.j == 'pb' && !sudahCek) ||
+                          a.utama && !(cur.jenis == 'pb' && !sudahCek) ||
                           (a.cek && !sudahCek),
-                      onTap: () => p.tekanAksi(a),
+                      onTap: () => p.tekanAksi(cur, a),
                     ),
                   ],
                   if (beres)
@@ -906,7 +871,7 @@ class _RinciState extends State<_Rinci> {
                           constraints: const BoxConstraints(minHeight: 50),
                           child: Center(
                             child: Text(
-                              '${p.st(cur)} · tidak ada sisa',
+                              '${statusKasus(cur)} · tidak ada sisa',
                               style: TextStyle(
                                 fontWeight: FontWeight.w700,
                                 color: c.laut,
@@ -958,16 +923,21 @@ class _TombolAksi extends StatelessWidget {
 
 // Amount sheet (an overlay of the Kendali, over the case view).
 
-class _Lembar extends StatelessWidget {
+class _Lembar extends ConsumerWidget {
   const _Lembar({required this.papan});
   final _Papan papan;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
     final p = papan;
-    final a = p.akt!;
-    final alasan = p.alasan();
+    final cur = ref
+        .watch(daftarKasusProvider)
+        .where((k) => k.id == p.buka)
+        .firstOrNull;
+    final a = p.aksiDari(cur);
+    if (cur == null || a == null) return const SizedBox.shrink();
+    final alasan = p.alasan(cur);
     return LembarBawah(
       judul: a.n,
       anakJudul: a.cat,
@@ -987,15 +957,20 @@ class _Lembar extends StatelessWidget {
           label: a.tombol,
           tindakan: a.tombol,
           alasan: alasan,
-          periksa: p.alasan,
+          periksa: () => p.alasan(cur),
           // Only the over-remainder case is worded on the board.
-          sudahMulai: p.angka > p.cur!.sisa,
+          sudahMulai: p.angka > cur.sisa,
           gayaAlasan: GayaAlasan.kalimatBata,
           warnaSiap: JenisTombol.utama,
           teksBelumRedup: true,
           jarak: 14,
           paddingH: 6,
-          onPressed: () => p.simpan(instan: gerakMati(context)),
+          onPressed: () async {
+            final n = p.angka;
+            p.tutupSheet();
+            p.pesan = await catatPadaKasus(ref, cur, a.id, n);
+            p.ubah();
+          },
         ),
         Tombol(
           'Kembali',

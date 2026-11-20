@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
-import '../../mock/mock.dart';
 import '../../core/format.dart';
+import '../../domain/core/core.dart';
+import '../../domain/finance/finance.dart';
+import '../../providers/keuangan/koreksi.dart';
+import '../../providers/keuangan/persetujuan.dart';
+import '../../widgets/kartu_persetujuan.dart';
 import '../../motion/kerangka.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
@@ -17,29 +23,35 @@ import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
 
-const _ma = ['5.02.01.00 Alat tulis dan fotokopi', '5.04.01.00 Konsumsi rapat'];
 const _mono = TextStyle(fontFamily: PalakatText.mono);
 
 /// Web · Koreksi dengan pembalikan (docs/build/screens/02-awal.md): the
-/// original BKU-2026-0139 on the left, the reversal form, its result or the
+/// original (route `:id`) on the left, the reversal form, its result or the
 /// closed-month refusal on the right.
-class WebKoreksiScreen extends StatefulWidget {
+class WebKoreksiScreen extends ConsumerStatefulWidget {
   const WebKoreksiScreen({super.key});
 
   @override
-  State<WebKoreksiScreen> createState() => _WebKoreksiScreenState();
+  ConsumerState<WebKoreksiScreen> createState() => _WebKoreksiScreenState();
 }
 
-class _WebKoreksiScreenState extends State<WebKoreksiScreen> {
-  // Board state { ap, alasan, mode, ma, jadi }.
-  bool _ap = false, _jadi = false;
+class _WebKoreksiScreenState extends ConsumerState<WebKoreksiScreen> {
+  // Board state { alasan, mode, ma }; the records come from koreksiProvider.
   final _alasan = TextEditingController();
   bool _koreksi = true; // mode 'koreksi' | 'balik'
-  int _maPilih = 1;
+  String? _ma;
+  Refusal? _pesan;
+  late DataKoreksi _d;
 
-  bool get _ok => IsianAlasan.terisi(_alasan.text);
+  bool get _jadi => _d.dibalik;
+  String? get _maPilih =>
+      _ma ??
+      (_d.pilihanMa.length > 1
+          ? _d.pilihanMa[1].$1
+          : _d.pilihanMa.firstOrNull?.$1);
+
+  bool get _ok => _d.menunggu || IsianAlasan.terisi(_alasan.text);
 
   @override
   void dispose() {
@@ -47,16 +59,43 @@ class _WebKoreksiScreenState extends State<WebKoreksiScreen> {
     super.dispose();
   }
 
-  void _bukukan() {
-    if (_ok) setState(() => _jadi = true);
+  Future<void> _bukukan() async {
+    if (!_ok) return;
+    final r = _d.menunggu
+        ? await bukukanRangkaian(ref, _d.asal.id)
+        : await bukukanKoreksi(
+            ref,
+            _d,
+            alasan: _alasan.text,
+            ma: _koreksi ? _maPilih : null,
+          );
+    if (mounted) setState(() => _pesan = r);
   }
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final tutup = belumDipindah<String>('Belum ditutup') == 'Sudah ditutup';
-    final jk = belumDipindah(false);
-    final bulan = tutup ? 'Oktober 2026' : 'November 2026';
+    final d = ref.watch(
+      koreksiProvider(GoRouterState.of(context).pathParameters['id'] ?? ''),
+    );
+    if (d == null) {
+      return Material(
+        type: MaterialType.transparency,
+        child: HalamanWeb(
+          layarKeuangan: true,
+          nav: const NavSamping(item: navKeuangan, aktif: 1),
+          isi: [
+            Text(
+              'Transaksi tidak ditemukan.',
+              style: TextStyle(fontSize: 14, color: c.tinta2),
+            ),
+          ],
+        ),
+      );
+    }
+    _d = d;
+    final tutup = d.tutup;
+    final bulan = d.bulan;
 
     final judul = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -72,7 +111,7 @@ class _WebKoreksiScreenState extends State<WebKoreksiScreen> {
         Semantics(
           header: true,
           child: Text(
-            'BKU-2026-0139',
+            d.asal.voucher ?? '',
             style: _mono.copyWith(fontSize: 26, fontWeight: FontWeight.w700),
           ),
         ),
@@ -110,24 +149,27 @@ class _WebKoreksiScreenState extends State<WebKoreksiScreen> {
           ),
         ],
         const SizedBox(height: 14),
-        _kartuPersetujuan(c, tutup, jk),
-        const SizedBox(height: 14),
-        Kartu(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Dokumen pendukung',
-                style: TextStyle(fontSize: 14, color: c.tinta2),
-              ),
-              const Text(
-                'Terverifikasi (oleh Meiske L.)',
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ),
-            ],
+        if (d.asal.approvalMode == ApprovalMode.external) ...[
+          _kartuPersetujuan(d.asal),
+          const SizedBox(height: 14),
+        ],
+        if (d.dokumen case final dok?)
+          Kartu(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Dokumen pendukung',
+                  style: TextStyle(fontSize: 14, color: c.tinta2),
+                ),
+                Text(
+                  dok.label,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
           ),
-        ),
       ],
     );
 
@@ -186,7 +228,8 @@ class _WebKoreksiScreenState extends State<WebKoreksiScreen> {
                 child: Text(
                   // U+200B: the browser may break after a hyphen; Flutter does not.
                   _jadi
-                      ? 'Dibalik oleh No. Bukti BKU-\u200B2026-\u200B0144'
+                      ? 'Dibalik oleh No. Bukti '
+                            '${_putus(_d.pembalikan?.voucher ?? '')}'
                       : 'Dibukukan',
                   style: TextStyle(
                     fontSize: 13,
@@ -200,8 +243,8 @@ class _WebKoreksiScreenState extends State<WebKoreksiScreen> {
             Flexible(
               flex: 101,
               child: Text(
-                'BKU-\u200B2026-\u200B0139',
-                semanticsLabel: 'BKU-2026-0139',
+                _putus(_d.asal.voucher ?? ''),
+                semanticsLabel: _d.asal.voucher,
                 style: _mono.copyWith(fontSize: 13, color: c.tinta2),
               ),
             ),
@@ -209,7 +252,7 @@ class _WebKoreksiScreenState extends State<WebKoreksiScreen> {
         ),
         const SizedBox(height: 8), // gap 4 + margin-top 4
         Text(
-          rp(-750000),
+          rp(_d.rincian.baris.jumlah),
           style: _mono.copyWith(
             fontSize: 32,
             fontWeight: FontWeight.w500,
@@ -217,95 +260,36 @@ class _WebKoreksiScreenState extends State<WebKoreksiScreen> {
           ),
         ),
         const SizedBox(height: 4),
-        const Text(
-          'Konsumsi rapat majelis',
-          style: TextStyle(fontWeight: FontWeight.w600),
-        ),
-        const SizedBox(height: 4),
         Text(
-          'Kas · diambil dari peruntukan Umum Jemaat · Lingkup Jemaat · '
-          '${tutup ? '9 Oktober 2026' : '9 November 2026'}',
-          style: TextStyle(fontSize: 13, color: c.tinta3),
+          _d.asal.description,
+          style: const TextStyle(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 4),
-        Text(koreksi.maAsal, style: TextStyle(fontSize: 13, color: c.tinta3)),
+        Text(_d.keterangan, style: TextStyle(fontSize: 13, color: c.tinta3)),
+        const SizedBox(height: 4),
+        Text(_d.maAsal, style: TextStyle(fontSize: 13, color: c.tinta3)),
       ],
     ),
   );
 
-  Widget _kartuPersetujuan(PalakatWarna c, bool tutup, bool jk) {
-    final bisa = !_ap && !tutup && !_jadi;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: ShapeDecoration(
-        color: _ap ? c.permukaan : null,
-        shape: _ap
-            ? GarisBorder.penuh(c.garis, tebal: 1, radius: 14)
-            : GarisBorder.putus(c.putus, radius: 14),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            'Persetujuan di luar aplikasi',
-            style: TextStyle(fontSize: 14, color: c.tinta2),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            _ap ? 'Persetujuan sudah dicatat' : 'Persetujuan belum dicatat',
-            style: const TextStyle(fontWeight: FontWeight.w700),
-          ),
-          if (_ap) ...[
-            const SizedBox(height: 4),
-            Gerak(
-              Kerangka.muncul,
-              lama: const Duration(milliseconds: 300),
-              child: Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(
-                      text: 'Pemberi persetujuan:',
-                      style: TextStyle(color: c.tinta2),
-                    ),
-                    const TextSpan(text: ' '),
-                    const TextSpan(
-                      text: 'Pdt. Lidya Rondonuwu',
-                      style: TextStyle(fontWeight: FontWeight.w700),
-                    ),
-                    const TextSpan(
-                      text: ', Ketua BPMJ · 08/11/2026 · cara: notulen rapat',
-                    ),
-                  ],
-                ),
-                style: const TextStyle(fontSize: 14),
-              ),
-            ),
-            const SizedBox(height: 10), // gap 4 + margin-top 6
-            GarisLurus(warna: c.garisTegas, gaya: GayaGaris.putus),
-            const SizedBox(height: 6),
-            Text(
-              'Dicatat oleh ${plk(jk)}, ${koreksi.dicatatPada}. '
-              'Pernyataan Bendahara, bukan persetujuan di dalam aplikasi.',
-              style: TextStyle(fontSize: 13, color: c.tinta3),
-            ),
-          ],
-          if (bisa) ...[
-            const SizedBox(height: 10), // gap 4 + margin-top 6
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Tombol(
-                'Catat persetujuan',
-                onPressed: () => setState(() => _ap = true),
-                jenis: JenisTombol.kedua,
-                ukuran: UkuranTombol.ringkas,
-                lebarPenuh: false,
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
+  /// The external approval of [t], recorded on Persetujuan.
+  Widget _kartuPersetujuan(Transaction t) {
+    final r = ref.watch(persetujuanProvider(t.id))?.berlaku;
+    void buka() => context.dorongKe(Layar.persetujuan, param: {'id': t.id});
+    return r == null
+        ? KartuPersetujuan.belum(
+            kepala: 'Persetujuan di luar aplikasi',
+            onCatat: buka,
+          )
+        : KartuPersetujuan.sudah(
+            kepala: 'Persetujuan di luar aplikasi',
+            pemberi: r.nama,
+            jabatan: r.jabatan,
+            tanggal: r.tanggal,
+            cara: r.cara,
+            dicatatOleh: r.oleh,
+            dicatatPada: r.pada,
+          );
   }
 
   Widget _ditutup(PalakatWarna c, String bulan) => Column(
@@ -350,7 +334,9 @@ class _WebKoreksiScreenState extends State<WebKoreksiScreen> {
 
   Widget _form(PalakatWarna c) {
     final ok = _ok;
-    final label = _koreksi
+    final label = _d.menunggu
+        ? 'Periksa dan bukukan'
+        : _koreksi
         ? 'Bukukan pembalikan dan koreksi'
         : 'Bukukan pembalikan';
     final teks2 = TextStyle(fontSize: 14, color: c.tinta2);
@@ -398,11 +384,13 @@ class _WebKoreksiScreenState extends State<WebKoreksiScreen> {
               spacing: 8,
               runSpacing: 8,
               children: [
-                for (final (i, m) in _ma.indexed)
+                for (final (i, m) in _d.pilihanMa.indexed)
                   _ChipMA(
-                    teks: 'Belanja $m${i == 0 ? ' · asal' : ''}',
-                    dipilih: _maPilih == i,
-                    onTap: () => setState(() => _maPilih = i),
+                    teks:
+                        '${_d.maAsal.split(' ').first} ${m.$1} ${m.$2}'
+                        '${i == 0 ? ' · asal' : ''}',
+                    dipilih: _maPilih == m.$1,
+                    onTap: () => setState(() => _ma = m.$1),
                   ),
               ],
             ),
@@ -418,12 +406,15 @@ class _WebKoreksiScreenState extends State<WebKoreksiScreen> {
                 'Yang ikut terdampak',
                 style: TextStyle(fontWeight: FontWeight.w700),
               ),
-              for (final t in const [
-                'Bulan terdampak: November 2026 · Belum ditutup',
+              for (final t in [
+                'Bulan terdampak: ${_d.bulan} · Belum ditutup',
                 'Persetujuan pada transaksi asal tidak ikut pindah ke '
                     'transaksi koreksi.',
-                'Tidak ada uang muka, titipan atau pencocokan rekening koran '
-                    'yang terkait.',
+                _d.asal.allocations.any((a) => a.caseId != null)
+                    ? 'Kasus uang muka, titipan atau penggantian biaya yang '
+                          'terkait ikut berubah.'
+                    : 'Tidak ada uang muka, titipan atau pencocokan rekening '
+                          'koran yang terkait.',
               ]) ...[const SizedBox(height: 4), Text(t, style: teks2)],
             ],
           ),
@@ -454,96 +445,115 @@ class _WebKoreksiScreenState extends State<WebKoreksiScreen> {
             if (!ok) Text('Isi alasan untuk melanjutkan.', style: teks2),
           ],
         ),
+        if (_pesan case final r?) ...[
+          const SizedBox(height: 16),
+          Penolakan(
+            tindakan: r.action,
+            sebab:
+                r.because +
+                (r.whoCanAct == null
+                    ? ''
+                    : ' Yang perlu bertindak: ${r.whoCanAct}.'),
+            jalan: const [],
+          ),
+        ],
       ],
     );
   }
 
-  Widget _hasil(PalakatWarna c) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      Semantics(
-        header: true,
-        child: const Text(
-          'Koreksi dibukukan',
-          style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700),
-        ),
-      ),
-      Text(
-        _koreksi
-            ? 'Dua No. Bukti baru dibukukan bersama sebagai satu rangkaian. '
-                  'Transaksi asal tetap tampil di daftar dan laporan.'
-            : 'Satu No. Bukti baru dibukukan. Transaksi asal tetap tampil di '
-                  'daftar dan laporan.',
-        style: TextStyle(fontSize: 14, color: c.tinta2),
-      ),
-      const SizedBox(height: 16),
-      RangkaianKoreksi(
-        web: true,
-        kartu: [
-          const KartuRangkaian(
-            noBukti: 'BKU-2026-0144',
-            lencana: 'Dibukukan',
-            judul: 'Pembalikan',
-            jumlah: 'Rp750.000',
-            keterangan:
-                'Pembalikan dari No. Bukti BKU-2026-0139 · tidak dapat '
-                'diubah atau dibalik',
-            tundaMuncul: Duration(milliseconds: 200),
+  Widget _hasil(PalakatWarna c) {
+    final asal = _d.asal.voucher ?? '';
+    final balik = _d.pembalikan, ganti = _d.pengganti;
+    final kor = ganti != null && ganti.isPosted;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Semantics(
+          header: true,
+          child: const Text(
+            'Koreksi dibukukan',
+            style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700),
           ),
-          if (_koreksi)
+        ),
+        Text(
+          kor
+              ? 'Dua No. Bukti baru dibukukan bersama sebagai satu rangkaian. '
+                    'Transaksi asal tetap tampil di daftar dan laporan.'
+              : 'Satu No. Bukti baru dibukukan. Transaksi asal tetap tampil di '
+                    'daftar dan laporan.',
+          style: TextStyle(fontSize: 14, color: c.tinta2),
+        ),
+        const SizedBox(height: 16),
+        RangkaianKoreksi(
+          web: true,
+          kartu: [
             KartuRangkaian(
-              noBukti: 'BKU-2026-0145',
+              noBukti: balik?.voucher ?? '',
               lencana: 'Dibukukan',
-              judul: 'Transaksi koreksi',
-              jumlah: rp(-750000),
+              judul: 'Pembalikan',
+              jumlah: balik == null ? '' : rp(signedAmount(balik)),
               keterangan:
-                  'Koreksi dari No. Bukti BKU-2026-0139 · Belanja '
-                  '${_ma[_maPilih]}',
-              tundaMuncul: const Duration(milliseconds: 600),
+                  'Pembalikan dari No. Bukti $asal · tidak dapat diubah atau '
+                  'dibalik',
+              tundaMuncul: const Duration(milliseconds: 200),
             ),
-        ],
-      ),
-      const SizedBox(height: 16),
-      Gerak(
-        Kerangka.muncul,
-        lama: const Duration(milliseconds: 400),
-        tunda: const Duration(milliseconds: 1000),
-        child: Container(
-          padding: const EdgeInsets.only(top: 12),
-          decoration: BoxDecoration(
-            border: Border(top: BorderSide(color: c.tinta, width: 1.5)),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              const Expanded(
-                child: Text(
-                  'Pengaruh pada Saldo buku Kas',
-                  style: TextStyle(fontWeight: FontWeight.w700),
-                ),
+            if (kor)
+              KartuRangkaian(
+                noBukti: ganti.voucher ?? '',
+                lencana: 'Dibukukan',
+                judul: 'Transaksi koreksi',
+                jumlah: rp(signedAmount(ganti)),
+                keterangan:
+                    'Koreksi dari No. Bukti $asal · ${labelKoreksi(ref, ganti)}',
+                tundaMuncul: const Duration(milliseconds: 600),
               ),
-              const SizedBox(width: 16),
-              Text(
-                _koreksi ? 'Rp0' : '+Rp750.000',
-                style: _mono.copyWith(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w600,
+          ],
+        ),
+        const SizedBox(height: 16),
+        Gerak(
+          Kerangka.muncul,
+          lama: const Duration(milliseconds: 400),
+          tunda: const Duration(milliseconds: 1000),
+          child: Container(
+            padding: const EdgeInsets.only(top: 12),
+            decoration: BoxDecoration(
+              border: Border(top: BorderSide(color: c.tinta, width: 1.5)),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              children: [
+                Expanded(
+                  child: Text(
+                    'Pengaruh pada Saldo buku ${_d.kasBank}',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(width: 16),
+                Text(
+                  pengaruhTeks(_d.pengaruh),
+                  style: _mono.copyWith(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-      const SizedBox(height: 16),
-      Text(
-        'Alasan: ${_alasan.text}',
-        style: TextStyle(fontSize: 13, color: c.tinta3),
-      ),
-    ],
-  );
+        if (ref.watch(alasanPembalikanProvider(_d.asal.id)) case final a
+            when a.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          Text('Alasan: $a', style: TextStyle(fontSize: 13, color: c.tinta3)),
+        ],
+      ],
+    );
+  }
 }
+
+/// U+200B after each hyphen: the browser may break there; Flutter does not.
+String _putus(String no) => no.replaceAll('-', '-\u200B');
 
 /// A Mata Anggaran chip: [ChipSatu] with the board's later `border-radius:
 /// 12px`.

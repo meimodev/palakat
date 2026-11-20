@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
@@ -10,14 +11,15 @@ import 'lihat_dokumen_penampil.dart';
 import '../../app/layar.dart';
 
 /// Web · Lihat file dokumen pendukung (spec 11-lihatdokumen.md).
-class WebLihatDokumenScreen extends StatefulWidget {
+class WebLihatDokumenScreen extends ConsumerStatefulWidget {
   const WebLihatDokumenScreen({super.key});
 
   @override
-  State<WebLihatDokumenScreen> createState() => _WebLihatDokumenScreenState();
+  ConsumerState<WebLihatDokumenScreen> createState() =>
+      _WebLihatDokumenScreenState();
 }
 
-class _WebLihatDokumenScreenState extends State<WebLihatDokumenScreen>
+class _WebLihatDokumenScreenState extends ConsumerState<WebLihatDokumenScreen>
     with KeadaanLihatDokumen {
   @override
   Widget build(BuildContext context) {

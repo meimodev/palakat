@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../motion/kerangka.dart';
 import '../../motion/urutan.dart';
@@ -10,38 +11,43 @@ import '../../theme/palakat_tema.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tombol.dart';
 import '../../app/layar.dart';
+import '../../domain/core/core.dart';
+import '../../providers/keuangan/ekspor.dart';
+import '../../widgets/penolakan.dart';
 
-/// The five contents of the export: name, description, bar duration (ms).
-const _isi = [
-  ('Buku', 'Semua transaksi, termasuk yang dibalik dan dibatalkan', 1100),
-  ('Versi', 'Mata Anggaran, pengaturan dan aturan per bulan', 1500),
-  ('Dokumen pendukung', '214 file, masing-masing dengan checksum', 2400),
-  ('Laporan', 'Laporan resmi September dan Oktober 2026', 1900),
-  ('Daftar isi', 'Apa yang ada di ekspor ini, dan apa yang tidak', 2600),
-];
+/// The bar duration (ms) of each of the five contents.
+const _lama = [1100, 1500, 2400, 1900, 2600];
 
 enum _St { belum, jalan, selesai }
 
 /// 18 · Ekspor data Jemaat (spec 06-bukti.md).
-class EksporScreen extends StatefulWidget {
+class EksporScreen extends ConsumerStatefulWidget {
   const EksporScreen({super.key});
 
   @override
-  State<EksporScreen> createState() => _EksporScreenState();
+  ConsumerState<EksporScreen> createState() => _EksporScreenState();
 }
 
-class _EksporScreenState extends State<EksporScreen> {
+class _EksporScreenState extends ConsumerState<EksporScreen> {
   _St _st = _St.belum;
   bool _diunduh = false;
   Timer? _t;
+  ExportManifest? _manifest;
+  Refusal? _pesan;
 
-  void _buat() {
-    setState(() => _st = _St.jalan);
+  Future<void> _buat() async {
+    final r = await buatEkspor(ref);
+    if (!mounted) return;
+    setState(() {
+      _pesan = r.pesan;
+      _manifest = r.manifest;
+      _diunduh = false;
+      if (r.manifest != null) _st = _St.jalan;
+    });
+    if (r.manifest == null) return;
     _t?.cancel();
-    _t = Timer(
-      const Duration(milliseconds: 2800),
-      () => setState(() => _st = _St.selesai),
-    );
+    void selesai() => setState(() => _st = _St.selesai);
+    _t = Timer(const Duration(milliseconds: 2800), selesai); // tiruan: ekspor
   }
 
   @override
@@ -53,6 +59,8 @@ class _EksporScreenState extends State<EksporScreen> {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
+    final d = ref.watch(eksporProvider);
+    final kurang = d.tanpaDokumen;
     final jalan = _st == _St.jalan, selesai = _st == _St.selesai;
     return Material(
       type: MaterialType.transparency,
@@ -83,21 +91,29 @@ class _EksporScreenState extends State<EksporScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          for (var i = 0; i < _isi.length; i++)
-                            _Butir(i: i, st: _st),
+                          for (var i = 0; i < d.isi.length; i++)
+                            _Butir(i: i, st: _st, d: d),
                         ],
                       ),
                     ),
                     if (_st == _St.belum) ...[
                       const SizedBox(height: 14),
                       Text(
-                        'Mencakup 15 September 2026 sampai hari ini. Bulan '
+                        'Mencakup ${d.mulai} sampai hari ini. Bulan '
                         'yang belum ditutup diekspor sebagai keadaan saat ini '
                         'dan ditandai Belum ditutup.',
                         style: TextStyle(fontSize: 14, color: c.tinta2),
                       ),
                     ],
-                    if (selesai) ...[
+                    if (_pesan case final r?) ...[
+                      const SizedBox(height: 14),
+                      Penolakan(
+                        tindakan: r.action,
+                        sebab: r.because,
+                        jalan: const [],
+                      ),
+                    ],
+                    if (selesai && kurang.isNotEmpty) ...[
                       const SizedBox(height: 14),
                       Gerak(
                         Kerangka.muncul,
@@ -123,24 +139,25 @@ class _EksporScreenState extends State<EksporScreen> {
                                 ),
                               ),
                               const SizedBox(height: 4),
-                              const Text(
-                                '3 dari 214 dokumen pendukung tidak ikut:',
-                                style: TextStyle(fontSize: 14),
-                              ),
-                              const SizedBox(height: 4),
                               Text(
-                                '2 file Ditahan (alasan keamanan)',
-                                style: TextStyle(fontSize: 14, color: c.tinta2),
+                                '${kurang.length} transaksi tanpa dokumen '
+                                'pendukung wajib:',
+                                style: const TextStyle(fontSize: 14),
                               ),
-                              const SizedBox(height: 4),
-                              Text(
-                                '1 file gagal dibaca',
-                                style: TextStyle(fontSize: 14, color: c.tinta2),
-                              ),
+                              for (final t in kurang) ...[
+                                const SizedBox(height: 4),
+                                Text(
+                                  '${t.voucher} · ${t.description}',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: c.tinta2,
+                                  ),
+                                ),
+                              ],
                               const SizedBox(height: 8),
                               Text(
-                                'Daftar isi mencatat ketiganya beserta No. '
-                                'Bukti dan alasannya.',
+                                'Daftar isi mencatatnya beserta No. Bukti '
+                                'dan alasannya.',
                                 style: TextStyle(fontSize: 13, color: c.tinta3),
                               ),
                             ],
@@ -179,7 +196,9 @@ class _EksporScreenState extends State<EksporScreen> {
                   if (selesai) ...[
                     Tombol(
                       _diunduh
-                          ? 'Diunduh · ekspor-jemaat-karunia-2026-11-16.zip'
+                          ? 'Diunduh · ${_manifest?.fileName ?? ''}'
+                          : kurang.isEmpty
+                          ? 'Unduh ekspor'
                           : 'Unduh ekspor (belum lengkap)',
                       onPressed: () => setState(() => _diunduh = true),
                       paddingH: 6,
@@ -203,15 +222,17 @@ class _EksporScreenState extends State<EksporScreen> {
 
 /// One contents row: name and badge, description, bar while preparing.
 class _Butir extends StatelessWidget {
-  const _Butir({required this.i, required this.st});
+  const _Butir({required this.i, required this.st, required this.d});
   final int i;
   final _St st;
+  final DataEkspor d;
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final (n, s, lama) = _isi[i];
-    final kurang = st == _St.selesai && i == 2;
+    final (n, s) = d.isi[i];
+    final lama = _lama[i];
+    final kurang = st == _St.selesai && i == 2 && d.tanpaDokumen.isNotEmpty;
     final lencana = switch (st) {
       _St.belum => const LencanaStatus(
         'Akan disertakan',
@@ -252,7 +273,9 @@ class _Butir extends StatelessWidget {
             ],
           ),
           Text(
-            kurang ? '211 dari 214 file disertakan' : s,
+            kurang
+                ? '$s · ${d.tanpaDokumen.length} transaksi tanpa dokumen wajib'
+                : s,
             style: TextStyle(fontSize: 13, color: c.tinta3),
           ),
           if (st == _St.jalan) ...[

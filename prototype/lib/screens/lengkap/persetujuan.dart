@@ -1,4 +1,6 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/format.dart';
 import '../../motion/kerangka.dart';
@@ -12,47 +14,25 @@ import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 import '../../widgets/tombol.dart';
 import '../../app/layar.dart';
-
-/// One approval record of the board's `rec` list; [id] keeps each history
-/// card's entrance to its own appearance.
-typedef _Rek = ({
-  int id,
-  String nama,
-  String jab,
-  String tgl,
-  String cara,
-  String oleh,
-  bool berlaku,
-  String cat,
-});
+import '../../domain/core/core.dart';
+import '../../providers/keuangan/persetujuan.dart';
+import '../../widgets/penolakan.dart';
 
 /// 29 · Persetujuan: ganti catatan, gugur karena perubahan (spec 08-cari.md,
 /// Persetujuan). A wrong record is replaced, never edited; changing the
-/// amount voids the approval.
-class PersetujuanScreen extends StatefulWidget {
+/// amount voids the approval. Transaction `:id`, records from
+/// ApprovalRepository.
+class PersetujuanScreen extends ConsumerStatefulWidget {
   const PersetujuanScreen({super.key});
 
   @override
-  State<PersetujuanScreen> createState() => _PersetujuanScreenState();
+  ConsumerState<PersetujuanScreen> createState() => _PersetujuanScreenState();
 }
 
-class _PersetujuanScreenState extends State<PersetujuanScreen> {
-  int _jm = 2500000;
+class _PersetujuanScreenState extends ConsumerState<PersetujuanScreen> {
   String? _form; // null, 'ganti', 'catat'
   bool _peringatan = false;
-  int _idBaru = 1;
-  List<_Rek> _rec = [
-    (
-      id: 0,
-      nama: 'Pdt. Lidya Rondonuwu',
-      jab: 'Ketua BPMJ',
-      tgl: '08/11/2026',
-      cara: 'notulen rapat',
-      oleh: '16/11/2026 11.20',
-      berlaku: true,
-      cat: '',
-    ),
-  ];
+  Refusal? _tolak;
   final _nama = TextEditingController();
   final _jab = TextEditingController(text: 'Ketua BPMJ');
   final _alasan = TextEditingController();
@@ -69,25 +49,9 @@ class _PersetujuanScreenState extends State<PersetujuanScreen> {
   bool get _okNama => _nama.text.trim().isNotEmpty;
   bool get _ok => _okNama && (!_ganti || _alasan.text.trim().isNotEmpty);
 
-  /// Every valid record becomes old with the note [cat].
-  List<_Rek> _gugurkan(String cat) => [
-    for (final r in _rec)
-      r.berlaku
-          ? (
-              id: r.id,
-              nama: r.nama,
-              jab: r.jab,
-              tgl: r.tgl,
-              cara: r.cara,
-              oleh: r.oleh,
-              berlaku: false,
-              cat: cat,
-            )
-          : r,
-  ];
-
   void _buka(String form) => setState(() {
     _form = form;
+    _tolak = null;
     _nama.clear();
     _alasan.clear();
   });
@@ -97,42 +61,40 @@ class _PersetujuanScreenState extends State<PersetujuanScreen> {
     _peringatan = false;
   });
 
-  void _simpan() {
+  Future<void> _simpan(DataPersetujuan d) async {
     if (!_ok) return;
+    final r = await simpanPersetujuan(
+      ref,
+      d,
+      nama: _nama.text,
+      jabatan: _jab.text,
+      alasan: _ganti ? _alasan.text.trim() : null,
+    );
+    if (!mounted) return;
     setState(() {
-      _rec = [
-        (
-          id: _idBaru++,
-          nama: _nama.text.trim(),
-          jab: _jab.text,
-          tgl: '16/11/2026',
-          cara: 'notulen rapat',
-          oleh: '16/11/2026 11.45',
-          berlaku: true,
-          cat: '',
-        ),
-        ..._gugurkan(
-          'Digantikan 16/11/2026 11.45 · alasan: ${_alasan.text.trim()}',
-        ),
-      ];
-      _form = null;
+      _tolak = r;
+      if (r == null) _form = null;
     });
   }
 
-  void _ubah() => setState(() {
-    _rec = _gugurkan(
-      'Tidak berlaku lagi sejak 16/11/2026 11.50 · jumlah diubah dari '
-      'Rp2.500.000 menjadi Rp2.750.000',
-    );
-    _jm = 2750000;
-    _peringatan = false;
-  });
+  Future<void> _ubah(DataPersetujuan d) async {
+    final r = await ubahJumlahDraf(ref, d.transaksi, jumlahUbahan(d.jumlah));
+    if (!mounted) return;
+    setState(() {
+      _tolak = r;
+      _peringatan = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final cur = _rec.where((r) => r.berlaku).firstOrNull;
-    final lama = _rec.where((r) => !r.berlaku).toList();
+    final id = GoRouterState.of(context).pathParameters['id'] ?? '';
+    final d = ref.watch(persetujuanProvider(id));
+    final cur = d?.berlaku;
+    final lama = d?.lama ?? const <CatatanPersetujuan>[];
+    final t = d?.transaksi;
+    final bisaUbah = t != null && t.isDraft && t.allocations.isNotEmpty;
     final tanpaForm = _form == null && !_peringatan;
     final s14 = TextStyle(fontSize: 14, color: c.tinta2);
 
@@ -176,59 +138,68 @@ class _PersetujuanScreenState extends State<PersetujuanScreen> {
     );
 
     final isi = <Widget>[
-      Kartu(
-        key: const ValueKey('draf'),
-        status: GarisStatus.draf,
-        radius: 16,
-        padding: const EdgeInsets.all(18),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const LencanaStatus(
-              'Draf · belum masuk saldo',
-              bentuk: BentukLencana.draf,
-            ),
-            const SizedBox(height: 6),
-            Text(
-              rp(-_jm),
-              style: TextStyle(
-                fontFamily: PalakatText.mono,
-                fontSize: 30,
-                fontWeight: FontWeight.w500,
-                color: c.tinta2,
+      if (d == null)
+        Text('Transaksi tidak ditemukan.', style: s14)
+      else
+        Kartu(
+          key: const ValueKey('draf'),
+          status: GarisStatus.draf,
+          radius: 16,
+          padding: const EdgeInsets.all(18),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              t!.isDraft
+                  ? const LencanaStatus(
+                      'Draf · belum masuk saldo',
+                      bentuk: BentukLencana.draf,
+                    )
+                  : LencanaStatus(
+                      '${d.rincian.baris.status} · ${d.rincian.baris.nomor}',
+                      bentuk: BentukLencana.garis,
+                    ),
+              const SizedBox(height: 6),
+              Text(
+                rp(d.rincian.baris.jumlah),
+                style: TextStyle(
+                  fontFamily: PalakatText.mono,
+                  fontSize: 30,
+                  fontWeight: FontWeight.w500,
+                  color: c.tinta2,
+                ),
               ),
-            ),
-            const SizedBox(height: 6),
-            const Text(
-              'Perbaikan sound system',
-              style: TextStyle(fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              'Bank BNI ··4821 · Belanja 5.08.02.00 Pemeliharaan gedung · '
-              '16 November 2026',
-              style: TextStyle(fontSize: 13, color: c.tinta3),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              'Aturan: persetujuan wajib untuk Belanja Rp2.000.000 ke atas',
-              style: TextStyle(fontSize: 13, color: c.tinta3),
-            ),
-          ],
+              const SizedBox(height: 6),
+              Text(
+                t.description,
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                d.keterangan,
+                style: TextStyle(fontSize: 13, color: c.tinta3),
+              ),
+              if (t.approvalRule != null) ...[
+                const SizedBox(height: 6),
+                Text(
+                  'Aturan: persetujuan wajib untuk ${t.approvalRule}',
+                  style: TextStyle(fontSize: 13, color: c.tinta3),
+                ),
+              ],
+            ],
+          ),
         ),
-      ),
       if (cur != null)
         KartuPersetujuan.sudah(
           key: const ValueKey('ada'),
           kepala: 'Persetujuan di luar aplikasi',
           pemberi: cur.nama,
-          jabatan: cur.jab,
-          tanggal: cur.tgl,
+          jabatan: cur.jabatan,
+          tanggal: cur.tanggal,
           cara: cur.cara,
-          dicatatOleh: 'Meiske L.',
-          dicatatPada: cur.oleh,
+          dicatatOleh: cur.oleh,
+          dicatatPada: cur.pada,
         )
-      else
+      else if (d != null)
         muncul(
           const ValueKey('belum'),
           Kartu(
@@ -250,7 +221,17 @@ class _PersetujuanScreenState extends State<PersetujuanScreen> {
             ),
           ),
         ),
-      if (_peringatan)
+      if (_tolak case final r?)
+        Penolakan(
+          tindakan: r.action,
+          sebab:
+              r.because +
+              (r.whoCanAct == null
+                  ? ''
+                  : ' Yang perlu bertindak: ${r.whoCanAct}.'),
+          jalan: const [],
+        ),
+      if (_peringatan && d != null)
         muncul(
           const ValueKey('peringatan'),
           Kartu(
@@ -265,7 +246,7 @@ class _PersetujuanScreenState extends State<PersetujuanScreen> {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  'Persetujuan dicatat untuk Rp2.500.000. Perubahan pada '
+                  'Persetujuan dicatat untuk ${rp(d.jumlah)}. Perubahan pada '
                   'jumlah, pihak yang dibayar, Kas/Bank, peruntukan, Mata '
                   'Anggaran, tanggal atau uraian mengembalikannya ke belum '
                   'dicatat.',
@@ -274,8 +255,8 @@ class _PersetujuanScreenState extends State<PersetujuanScreen> {
                 const SizedBox(height: 10),
                 deret([
                   tombol(
-                    'Ubah menjadi Rp2.750.000',
-                    _ubah,
+                    'Ubah menjadi ${rp(jumlahUbahan(d.jumlah))}',
+                    () => _ubah(d),
                     jenis: JenisTombol.tinta,
                   ),
                   tombol('Kembali', _batal),
@@ -284,7 +265,7 @@ class _PersetujuanScreenState extends State<PersetujuanScreen> {
             ),
           ),
         ),
-      if (_form != null)
+      if (_form != null && d != null)
         muncul(
           ValueKey('form-$_form'),
           Kartu(
@@ -351,7 +332,7 @@ class _PersetujuanScreenState extends State<PersetujuanScreen> {
                       _ganti
                           ? 'Ganti catatan persetujuan'
                           : 'Catat persetujuan',
-                      onPressed: _simpan,
+                      onPressed: () => _simpan(d),
                       nonaktif: !_ok,
                       ukuran: UkuranTombol.ringkas,
                       lebarPenuh: false,
@@ -363,7 +344,7 @@ class _PersetujuanScreenState extends State<PersetujuanScreen> {
             ),
           ),
         ),
-      if (tanpaForm)
+      if (tanpaForm && d != null)
         deret(key: const ValueKey('aksi'), [
           if (cur != null)
             tombol('Ganti catatan persetujuan', () => _buka('ganti'))
@@ -373,7 +354,7 @@ class _PersetujuanScreenState extends State<PersetujuanScreen> {
               () => _buka('catat'),
               jenis: JenisTombol.utama,
             ),
-          if (_jm == 2500000)
+          if (bisaUbah && cur != null)
             tombol(
               'Ubah jumlah',
               () => setState(() {
@@ -397,7 +378,7 @@ class _PersetujuanScreenState extends State<PersetujuanScreen> {
             for (final r in lama) ...[
               const SizedBox(height: 8),
               muncul(
-                ValueKey(r.id),
+                ValueKey(r.rekam.id),
                 Kartu(
                   status: GarisStatus.draf,
                   padding: const EdgeInsets.symmetric(
@@ -408,7 +389,8 @@ class _PersetujuanScreenState extends State<PersetujuanScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Text(
-                        '${r.nama}, ${r.jab} · ${r.tgl} · dicatat ${r.oleh}',
+                        '${r.nama}, ${r.jabatan} · ${r.tanggal} · dicatat '
+                        '${r.pada}',
                         style: s14,
                       ),
                       Text(

@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/format.dart';
@@ -21,6 +22,8 @@ import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
 import '../../app/layar.dart';
+import '../../domain/core/core.dart';
+import '../../providers/keuangan/persembahan.dart';
 
 /// One part of the offering: name, digits typed, owner, Kas/Bank ('' = none).
 class _Bagian {
@@ -29,36 +32,41 @@ class _Bagian {
   String v, milik, akun;
 }
 
-const _petugasSemua = ['Dkn. Olga Tamba', 'Pnt. Jefry Wowor', 'Meiske L.'];
 const _contohSampul = [('Novita Wenas', 100000), ('Agustina Lasut', 250000)];
-const _milikPilihan = [
-  (nilai: 'sendiri', teks: 'Milik sendiri'),
-  (nilai: 'titipan', teks: 'Titipan untuk: Sinode'),
-];
-const _akunPilihan = [
-  (nilai: 'kas', teks: 'Kas'),
-  (nilai: 'bni', teks: 'Bank BNI ··4821'),
-  (nilai: 'bsg', teks: 'Bank SulutGo ··1107'),
-];
 
-/// The board's state object, held above both routes (navigation.md 2.1).
+/// The board's state object, held above both routes (navigation.md 2.1);
+/// [p] gives the Kas/Bank, the Titipan case and the defaults.
 class _Keadaan extends ChangeNotifier {
-  _Keadaan() {
+  _Keadaan(this.p) {
     _awal();
   }
 
-  late bool posted;
+  final PilihanPersembahan p;
+
+  /// The voucher once Dibukukan; the saved draft and the last refusal.
+  String? no, drafId;
+  Refusal? pesan;
   late List<String> petugas;
   late List<_Bagian> bagian;
   late List<(String, int)> sampul;
 
+  bool get posted => no != null;
+
   void _awal() {
-    posted = false;
-    petugas = ['Dkn. Olga Tamba'];
+    no = null;
+    drafId = null;
+    pesan = null;
+    petugas = p.petugas.take(1).toList();
     bagian = [
-      _Bagian('tunai', 'Tunai', '2350000', 'sendiri', 'kas'),
+      _Bagian('tunai', 'Tunai', '2350000', 'sendiri', p.kas ?? ''),
       _Bagian('qris', 'QRIS', '800000', 'sendiri', ''),
-      _Bagian('tf', 'Transfer bank', '450000', 'titipan', 'bni'),
+      _Bagian(
+        'tf',
+        'Transfer bank',
+        '450000',
+        p.titipan == null ? 'sendiri' : 'titipan',
+        p.titipan?.akun ?? '',
+      ),
     ];
     sampul = [];
   }
@@ -68,10 +76,25 @@ class _Keadaan extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// A saved draft locks the parts: book it, or leave.
   void ubah(VoidCallback f) {
+    if (drafId != null && no == null) return;
     f();
     notifyListeners();
   }
+
+  void simpan(String? id, String? voucher, Refusal? r) {
+    drafId = id ?? drafId;
+    no = voucher;
+    pesan = r;
+    notifyListeners();
+  }
+
+  List<({String nilai, String teks})> get milikPilihan => [
+    (nilai: 'sendiri', teks: 'Milik sendiri'),
+    if (p.titipan case final t?)
+      (nilai: 'titipan', teks: 'Titipan untuk: ${t.pihak}'),
+  ];
 
   static int _num(String d) => d.isEmpty ? 0 : int.parse(d);
   int _jumlah(String m) =>
@@ -81,7 +104,7 @@ class _Keadaan extends ChangeNotifier {
   int get total => sendiri + titipan;
   int get bagianN => bagian.where((b) => _num(b.v) > 0).length;
   int get tunaiKas =>
-      bagian.where((b) => b.akun == 'kas').fold(0, (a, b) => a + _num(b.v));
+      bagian.where((b) => b.akun == p.kas).fold(0, (a, b) => a + _num(b.v));
   bool get sampulLebih => sampul.fold(0, (a, x) => a + x.$2) > total;
 
   /// First unmet reason, '' when "Periksa dan bukukan" may run.
@@ -95,6 +118,16 @@ class _Keadaan extends ChangeNotifier {
     if (petugas.isEmpty) return 'petugas penghitung belum dipilih.';
     return '';
   }
+
+  List<BagianPersembahan> get untukBuku => [
+    for (final b in bagian)
+      (
+        nama: b.n,
+        jumlah: _num(b.v),
+        titipan: b.milik == 'titipan',
+        akun: b.akun,
+      ),
+  ];
 }
 
 class _Lingkup extends InheritedNotifier<_Keadaan> {
@@ -104,15 +137,15 @@ class _Lingkup extends InheritedNotifier<_Keadaan> {
       context.dependOnInheritedWidgetOfExactType<_Lingkup>()!.notifier!;
 }
 
-class PersembahanKendali extends StatefulWidget {
+class PersembahanKendali extends ConsumerStatefulWidget {
   const PersembahanKendali({super.key, required this.child});
   final Widget child;
   @override
-  State<PersembahanKendali> createState() => _PersembahanKendaliState();
+  ConsumerState<PersembahanKendali> createState() => _PersembahanKendaliState();
 }
 
-class _PersembahanKendaliState extends State<PersembahanKendali> {
-  final _keadaan = _Keadaan();
+class _PersembahanKendaliState extends ConsumerState<PersembahanKendali> {
+  late final _keadaan = _Keadaan(ref.read(pilihanPersembahanProvider));
 
   @override
   void dispose() {
@@ -156,14 +189,14 @@ class PersembahanScreen extends StatelessWidget {
   }
 }
 
-class _Isi extends StatefulWidget {
+class _Isi extends ConsumerStatefulWidget {
   const _Isi(this.k);
   final _Keadaan k;
   @override
-  State<_Isi> createState() => _IsiState();
+  ConsumerState<_Isi> createState() => _IsiState();
 }
 
-class _IsiState extends State<_Isi> {
+class _IsiState extends ConsumerState<_Isi> {
   late final _isian = [
     for (final b in widget.k.bagian) TextEditingController(text: titik(b.v)),
   ];
@@ -180,10 +213,14 @@ class _IsiState extends State<_Isi> {
     super.dispose();
   }
 
-  void _bukukan() {
-    widget.k.ubah(() => widget.k.posted = true);
+  Future<void> _bukukan() async {
+    final k = widget.k;
+    final r = await bukukanPersembahan(ref, k.p, k.untukBuku, drafId: k.drafId);
+    k.simpan(r.id, r.no, r.pesan);
     // Back from Hasil leaves the board, not to an editable form.
-    GoRouter.of(context).replace(Layar.persembahan.lokasi(anak: 'hasil'));
+    if (r.no != null && mounted) {
+      GoRouter.of(context).replace(Layar.persembahan.lokasi(anak: 'hasil'));
+    }
   }
 
   @override
@@ -291,7 +328,7 @@ class _IsiState extends State<_Isi> {
               const SizedBox(height: 10),
               pilihan(
                 'Uang siapa',
-                _milikPilihan,
+                k.milikPilihan,
                 k.bagian[i].milik,
                 10,
                 (v) => k.ubah(() => k.bagian[i].milik = v),
@@ -299,16 +336,14 @@ class _IsiState extends State<_Isi> {
               const SizedBox(height: 10),
               pilihan(
                 'Masuk ke Kas/Bank',
-                _akunPilihan,
+                [for (final a in k.p.kasBank) (nilai: a.id, teks: a.nama)],
                 k.bagian[i].akun,
                 PalakatRadius.chip,
                 (v) => k.ubah(() => k.bagian[i].akun = v),
               ),
               const SizedBox(height: 10),
               Text(
-                k.bagian[i].milik == 'sendiri'
-                    ? 'Pendapatan 1.3.53.07.00 Persembahan Ibadah Minggu'
-                    : 'Pendapatan 2.1.01.02.00 DANA TRANSIT Sentralisasi Sinode',
+                k.bagian[i].milik == 'sendiri' ? k.p.maSendiri : k.p.maTitipan,
                 style: TextStyle(fontSize: 13, color: c.tinta3),
               ),
             ],
@@ -327,7 +362,7 @@ class _IsiState extends State<_Isi> {
           ),
           Wrap(
             children: [
-              for (final o in _petugasSemua)
+              for (final o in k.p.petugas)
                 Padding(
                   padding: const EdgeInsets.only(right: 8, bottom: 8),
                   child: ChipSatu(
@@ -352,12 +387,16 @@ class _IsiState extends State<_Isi> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'lembar-penghitungan-15-11.jpg · Terlampir',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                Text(
+                  '${k.p.lembar} · Terlampir',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 Text(
-                  'Lembar penghitungan persembahan · Diunggah, belum diverifikasi',
+                  'Lembar penghitungan persembahan · Diunggah, belum '
+                  'diverifikasi',
                   style: ket13,
                 ),
               ],
@@ -365,14 +404,30 @@ class _IsiState extends State<_Isi> {
           ),
         ],
       ),
+      if (k.pesan case final r?)
+        Penolakan(
+          tindakan: r.action,
+          sebab:
+              r.because +
+              (r.whoCanAct == null
+                  ? ''
+                  : ' Yang perlu bertindak: ${r.whoCanAct}.'),
+          jalan: const [],
+          ukuranTeks: 14,
+        ),
+      if (k.drafId != null)
+        Text(
+          'Dicatat sebagai draf, belum masuk saldo.',
+          style: TextStyle(fontSize: 14, color: c.tinta2),
+        ),
     ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const KepalaPonsel(
+        KepalaPonsel(
           judul: 'Persembahan',
-          anakJudul: 'Ibadah Minggu · 15 November 2026',
+          anakJudul: 'Ibadah Minggu · ${tglPanjang(k.p.minggu.awal)}',
           kembaliKe: Layar.keuangan,
           labelKembali: 'Kembali ke Beranda',
         ),
@@ -642,7 +697,7 @@ class _Hasil extends StatelessWidget {
                             border: Border.all(color: c.laut, width: 2),
                           ),
                           child: Text(
-                            'No. Bukti BKU-2026-0148',
+                            'No. Bukti ${k.no}',
                             softWrap: false,
                             overflow: TextOverflow.fade,
                             style: TextStyle(
@@ -698,7 +753,7 @@ class _Hasil extends StatelessWidget {
                   border: Border(top: BorderSide(color: c.garis)),
                 ),
                 child: baris(
-                  'Titipan untuk: Sinode',
+                  'Titipan untuk: ${k.p.titipan?.pihak ?? ''}',
                   'Uang titipan untuk pihak lain, bukan Pendapatan',
                   '+ ${rp(k.titipan)}',
                 ),
