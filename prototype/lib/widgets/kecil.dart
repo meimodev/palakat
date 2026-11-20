@@ -427,11 +427,20 @@ class _IsianTeksState extends State<IsianTeks> {
             style: teks,
             cursorColor: c.laut,
             decoration: InputDecoration.collapsed(
-              hintText: widget.petunjuk,
+              hintText: area ? widget.petunjuk : null,
               hintStyle: teks.copyWith(
                 color: c.tinta3,
                 overflow: TextOverflow.clip,
               ),
+              // An input's placeholder stays on one line, clipped mid-glyph.
+              hint: area || widget.petunjuk == null
+                  ? null
+                  : Text(
+                      widget.petunjuk!,
+                      softWrap: false,
+                      overflow: TextOverflow.clip,
+                      style: teks.copyWith(color: c.tinta3),
+                    ),
             ),
           ),
         ),

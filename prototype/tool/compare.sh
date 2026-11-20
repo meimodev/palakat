@@ -31,7 +31,7 @@ gap=16 label=28
 cat > "$dir/pair.html" <<EOF
 <!doctype html><meta charset="utf-8">
 <style>body{margin:0;background:#9aa39f;display:flex;gap:${gap}px;font:600 14px/${label}px system-ui,sans-serif;color:#13201C}
-div{display:flex;flex-direction:column;width:${WIDTH}px}span{padding-left:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}img{display:block;width:${WIDTH}px;height:${HEIGHT}px}</style>
+div{display:flex;flex-direction:column;width:${WIDTH}px}span{padding-left:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}img{display:block;width:${WIDTH}px;height:${HEIGHT}px;object-fit:none;object-position:0 0}</style>
 <div><span>board · $name</span><img src="file://$board"></div><div><span>app</span><img src="file://$app"></div>
 EOF
 chrome --window-size="$((WIDTH * 2 + gap)),$((HEIGHT + label))" --virtual-time-budget=1000 --screenshot="$pair" "file://$dir/pair.html" || true

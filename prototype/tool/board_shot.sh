@@ -14,7 +14,36 @@ dir="$(board_dir)"
 trap 'rm -rf "$dir"' EXIT
 dom="$dir/dom.html"
 rm -f "$OUT"
-chrome --window-size="$WIDTH,$HEIGHT" --virtual-time-budget="$MS" --screenshot="$OUT" --dump-dom "$(board_url "$dir")" > "$dom" || true
+url="$(board_url "$dir")"
+win="$WIDTH"
+if (( WIDTH < 500 )); then
+  # Headless Chrome will not make a window narrower than 500: lay the board out
+  # in an iframe of exactly WIDTH x HEIGHT in a 500-wide window (the shot is
+  # 500 wide, the board in its left WIDTH px) and mirror the board's ready
+  # marker onto this page for --dump-dom.
+  win=500
+  cat > "$dir/bingkai.html" <<EOF
+<!doctype html><meta charset="utf-8">
+<style>html,body{margin:0;background:#fff}iframe{display:block;border:0;width:${WIDTH}px;height:${HEIGHT}px}</style>
+<iframe src="${url//&/&amp;}"></iframe>
+<script>
+var f = document.querySelector('iframe'), h = document.documentElement;
+setInterval(function () {
+  try {
+    var b = f.contentDocument.documentElement;
+    ['data-dc', 'data-dc-error'].forEach(function (a) {
+      if (b.hasAttribute(a)) h.setAttribute(a, b.getAttribute(a));
+    });
+  } catch (e) {
+    h.setAttribute('data-dc', 'error');
+    h.setAttribute('data-dc-error', 'bingkai: ' + e.message);
+  }
+}, 50);
+</script>
+EOF
+  url="file://$dir/bingkai.html"
+fi
+chrome --window-size="$win,$HEIGHT" --virtual-time-budget="$MS" --screenshot="$OUT" --dump-dom "$url" > "$dom" || true
 
 [[ -s "$OUT" ]] || { echo "board_shot: Chrome wrote no screenshot for $STEM" >&2; exit 1; }
 state="$(grep -o '<html[^>]*' "$dom" | grep -o 'data-dc="[^"]*"' || true)"

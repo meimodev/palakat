@@ -101,6 +101,7 @@ class _WebSambunganScreenState extends State<WebSambunganScreen> {
         ),
       ],
       child: HalamanWeb(
+        tengah: sesi != null,
         nav: const NavSamping(
           item: navKeuangan,
           aktif: 1,
@@ -441,111 +442,102 @@ class _SesiBerakhir extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    // `flex: 1` of a 100vh main: window height less main's 28 + 40 padding.
-    // Below 860 nav and main are separate wrapped lines that share the spare
-    // height; the shared narrow page gives the nav its half and keeps main at
-    // its content height, so the box does not grow there.
-    final tinggi = navSempit(context)
-        ? 0.0
-        : MediaQuery.sizeOf(context).height - 68;
     final tebal = TextStyle(fontWeight: FontWeight.w700, color: c.tinta);
-    return ConstrainedBox(
-      constraints: BoxConstraints(minHeight: tinggi < 0 ? 0 : tinggi),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 40),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 460),
-            child: Container(
-              width: double.infinity,
-              padding: EdgeInsets.all(context.jepit(24, 4, 40)),
-              decoration: BoxDecoration(
-                color: c.permukaan,
-                border: Border.all(color: c.garis),
-                borderRadius: BorderRadius.circular(18),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 20,
-                children: [
-                  const PalakatIkon(Ikon.sesiBerakhir, ukuran: 56),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Semantics(
-                        header: true,
-                        child: Text(
-                          judul,
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w700,
-                            height: 1.2,
-                          ),
+    // The board's `flex: 1` box; HalamanWeb.tengah centres it in `main`.
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 40),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 460),
+          child: Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(context.jepit(24, 4, 40)),
+            decoration: BoxDecoration(
+              color: c.permukaan,
+              border: Border.all(color: c.garis),
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 20,
+              children: [
+                const PalakatIkon(Ikon.sesiBerakhir, ukuran: 56),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Semantics(
+                      header: true,
+                      child: Text(
+                        judul,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w700,
+                          height: 1.2,
                         ),
                       ),
-                      const SizedBox(height: 6),
-                      Text(
-                        catatan,
-                        style: TextStyle(fontSize: 15, color: c.tinta2),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      catatan,
+                      style: TextStyle(fontSize: 15, color: c.tinta2),
+                    ),
+                  ],
+                ),
+                DefaultTextStyle.merge(
+                  style: TextStyle(fontSize: 14, color: c.tinta2),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 6,
+                    children: [
+                      Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(text: 'Tetap aman:', style: tebal),
+                            const TextSpan(
+                              text: ' semua yang sudah dibukukan dan draf yang sudah tersimpan.',
+                            ),
+                          ],
+                        ),
+                      ),
+                      Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              text: 'Tidak ikut tersimpan:',
+                              style: tebal,
+                            ),
+                            const TextSpan(
+                              text: ' isian yang belum tersimpan di perangkat ini.',
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
-                  DefaultTextStyle.merge(
-                    style: TextStyle(fontSize: 14, color: c.tinta2),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      spacing: 6,
-                      children: [
-                        Text.rich(
-                          TextSpan(
-                            children: [
-                              TextSpan(text: 'Tetap aman:', style: tebal),
-                              const TextSpan(
-                                text: ' semua yang sudah dibukukan dan draf yang sudah tersimpan.',
-                              ),
-                            ],
-                          ),
-                        ),
-                        Text.rich(
-                          TextSpan(
-                            children: [
-                              TextSpan(
-                                text: 'Tidak ikut tersimpan:',
-                                style: tebal,
-                              ),
-                              const TextSpan(
-                                text: ' isian yang belum tersimpan di perangkat ini.',
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                ),
+                if (bisaMasuk)
+                  const Tombol(
+                    'Masuk lagi',
+                    ke: 'WebMasuk',
+                    cara: Cara.ganti,
+                    paddingH: 20,
+                    onPressed: null,
+                  )
+                else
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
+                    decoration: ShapeDecoration(
+                      shape: GarisBorder.putus(c.putus, radius: 14),
+                    ),
+                    child: const Text(
+                      'Anda tidak lagi memegang wewenang Bendahara Jemaat Karunia. Riwayat tetap mencatat tindakan Anda. Bila ini keliru, yang dapat membantu adalah BPMJ Jemaat Karunia.',
+                      style: TextStyle(fontSize: 14),
                     ),
                   ),
-                  if (bisaMasuk)
-                    const Tombol(
-                      'Masuk lagi',
-                      ke: 'WebMasuk',
-                      cara: Cara.ganti,
-                      paddingH: 20,
-                      onPressed: null,
-                    )
-                  else
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 14,
-                      ),
-                      decoration: ShapeDecoration(
-                        shape: GarisBorder.putus(c.putus, radius: 14),
-                      ),
-                      child: const Text(
-                        'Anda tidak lagi memegang wewenang Bendahara Jemaat Karunia. Riwayat tetap mencatat tindakan Anda. Bila ini keliru, yang dapat membantu adalah BPMJ Jemaat Karunia.',
-                        style: TextStyle(fontSize: 14),
-                      ),
-                    ),
-                ],
-              ),
+              ],
             ),
           ),
         ),

@@ -105,18 +105,13 @@ void main() {
           t.getSemantics(find.byType(TextField)).label,
           contains('Jumlah (Rp)'),
         );
+        // The 44 px target is the field itself (tap and semantics node).
         expect(
-          // The 44 px target is the box around the field (it centres the line).
-          t
-              .getSize(
-                find
-                    .ancestor(
-                      of: find.byType(TextField),
-                      matching: find.byType(ConstrainedBox),
-                    )
-                    .first,
-              )
-              .height,
+          t.getSize(find.byType(TextField)).height,
+          greaterThanOrEqualTo(44),
+        );
+        expect(
+          t.getSemantics(find.byType(TextField)).rect.height,
           greaterThanOrEqualTo(44),
         );
         if (u == UkuranJumlah.baris) {
@@ -167,6 +162,18 @@ void main() {
       expect(t.getSize(kotak.first).height, closeTo(70.8, 1));
       expect(IsianAlasan.terisi('   '), isFalse);
       expect(IsianAlasan.terisi(' nota hilang '), isTrue);
+    });
+
+    testWidgets('tapping the label focuses the field', (t) async {
+      final k = TextEditingController();
+      addTearDown(k.dispose);
+      await t.pumpWidget(_app(IsianAlasan(controller: k, onChanged: (_) {})));
+      await t.tap(find.text('Alasan · wajib', findRichText: true));
+      await t.pump();
+      expect(
+        t.widget<EditableText>(find.byType(EditableText)).focusNode.hasFocus,
+        isTrue,
+      );
     });
   });
 

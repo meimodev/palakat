@@ -167,7 +167,7 @@ class _Panel extends StatelessWidget {
                 children: [
                   Text(
                     kecerahan == Brightness.light ? 'Terang' : 'Gelap',
-                    style: TextStyle(fontSize: 12, color: c.tinta3),
+                    style: TextStyle(fontSize: 13, color: c.tinta3),
                   ),
                   const SizedBox(height: 8),
                   ConstrainedBox(

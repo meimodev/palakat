@@ -20,6 +20,7 @@ class HalamanWeb extends StatelessWidget {
     required this.isi,
     this.jarak = 20,
     this.jabatanKosong = false,
+    this.tengah = false,
   });
 
   /// null on pages without nav (sign-in, launcher).
@@ -34,6 +35,11 @@ class HalamanWeb extends StatelessWidget {
 
   /// The board carries the `jabatanKosong` tweak.
   final bool jabatanKosong;
+
+  /// Centre `main`'s children in its height (at least the window, or its
+  /// wrapped line below 860): the boards' single `flex: 1` box that centres a
+  /// card (WebMasuk, WebPemulihan, WebSambungan's session cards).
+  final bool tengah;
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +56,9 @@ class HalamanWeb extends StatelessWidget {
         40,
       ),
       child: Column(
+        mainAxisAlignment: tengah
+            ? MainAxisAlignment.center
+            : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           for (var i = 0; i < anak.length; i++) ...[
@@ -86,11 +95,18 @@ class HalamanWeb extends StatelessWidget {
                     ? _HalamanSempit(children: [nav!, utama])
                     : Stack(
                         children: [
-                          Padding(
-                            padding: EdgeInsets.only(
-                              left: lebarNav(k.maxWidth),
+                          // Stack loosens its constraints; `main` is a
+                          // stretched flex item, at least the window high.
+                          ConstrainedBox(
+                            constraints: BoxConstraints(
+                              minHeight: k.maxHeight.isFinite ? k.maxHeight : 0,
                             ),
-                            child: utama,
+                            child: Padding(
+                              padding: EdgeInsets.only(
+                                left: lebarNav(k.maxWidth),
+                              ),
+                              child: utama,
+                            ),
                           ),
                           Positioned(
                             left: 0,
@@ -113,8 +129,9 @@ class HalamanWeb extends StatelessWidget {
 /// The narrow page (860 px and below): the boards' root is `min-height:100vh;
 /// display:flex; flex-wrap:wrap` with nav and `main` on separate lines, so
 /// align-content stretch shares the spare height equally between them. The
-/// nav (first child) gets its half (NavSamping centres its row in it); `main`
-/// keeps its content at the top and the page ends at the minimum height.
+/// nav (first child) gets its half (NavSamping centres its row in it) and
+/// `main` the other half (its content stays at the top unless
+/// [HalamanWeb.tengah]); the page ends at the minimum height.
 class _HalamanSempit extends MultiChildRenderObjectWidget {
   const _HalamanSempit({required super.children});
 
@@ -143,16 +160,18 @@ class _RenderHalamanSempit extends RenderBox
     utama.layout(BoxConstraints.tightFor(width: lebar), parentUsesSize: true);
     final sisa = constraints.minHeight - nav.size.height - utama.size.height;
     if (sisa > 0) {
-      // A minimum, not a tight height: tight constraints would make the nav a
+      // Minimums, not tight heights: tight constraints would make the nav a
       // relayout boundary, and an opened Menu would then overflow that height.
-      nav.layout(
-        BoxConstraints(
-          minWidth: lebar,
-          maxWidth: lebar,
-          minHeight: nav.size.height + sisa / 2,
-        ),
-        parentUsesSize: true,
-      );
+      for (final anak in [nav, utama]) {
+        anak.layout(
+          BoxConstraints(
+            minWidth: lebar,
+            maxWidth: lebar,
+            minHeight: anak.size.height + sisa / 2,
+          ),
+          parentUsesSize: true,
+        );
+      }
     }
     (utama.parentData! as MultiChildLayoutParentData).offset = Offset(
       0,

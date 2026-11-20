@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../theme/palakat_tema.dart';
@@ -112,8 +114,16 @@ class _IsianJumlahState extends State<IsianJumlah> {
       letterSpacing: jarakHuruf,
       color: w.warnaAngka,
     );
-    // The board's input is 44 high with its line centred; a collapsed
-    // InputDecorator ignores minHeight, so the box and centring are outside.
+    // The board's input is 44 high with its line centred. The TextField
+    // itself is the 44 (its tap and semantics node); a collapsed decorator
+    // keeps its line at the top of a taller box, so padding centres it.
+    final garis = TextPainter(
+      text: TextSpan(text: '0', style: gayaAngka),
+      textDirection: TextDirection.ltr,
+      textScaler: MediaQuery.textScalerOf(context),
+    );
+    final sela = math.max(0.0, (44 - garis.preferredLineHeight) / 2);
+    garis.dispose();
     final field = CincinFokus(
       tampil: _fokus.hasFocus,
       child: GestureDetector(
@@ -121,30 +131,27 @@ class _IsianJumlahState extends State<IsianJumlah> {
         onTap: _fokus.requestFocus,
         child: ConstrainedBox(
           constraints: const BoxConstraints(minHeight: 44),
-          child: Align(
-            alignment: baris ? Alignment.centerRight : Alignment.centerLeft,
-            heightFactor: 1,
-            child: Material(
-              type: MaterialType.transparency,
-              child: TextField(
-                controller: w.controller,
-                focusNode: _fokus,
-                onChanged: w.onChanged,
-                readOnly: w.hanyaBaca,
-                keyboardType: TextInputType.number,
-                inputFormatters: [
-                  RupiahInputFormatter(sisakanNol: w.sisakanNol, maks: w.maks),
-                ],
-                textAlign: baris ? TextAlign.right : TextAlign.start,
-                textAlignVertical: TextAlignVertical.center,
-                style: gayaAngka,
-                cursorColor: c.laut,
-                decoration: InputDecoration(
-                  isCollapsed: true,
-                  border: InputBorder.none,
-                  hintText: w.petunjuk,
-                  hintStyle: gayaAngka.copyWith(color: c.tinta3),
-                ),
+          child: Material(
+            type: MaterialType.transparency,
+            child: TextField(
+              controller: w.controller,
+              focusNode: _fokus,
+              onChanged: w.onChanged,
+              readOnly: w.hanyaBaca,
+              keyboardType: TextInputType.number,
+              inputFormatters: [
+                RupiahInputFormatter(sisakanNol: w.sisakanNol, maks: w.maks),
+              ],
+              textAlign: baris ? TextAlign.right : TextAlign.start,
+              textAlignVertical: TextAlignVertical.center,
+              style: gayaAngka,
+              cursorColor: c.laut,
+              decoration: InputDecoration(
+                isCollapsed: true,
+                contentPadding: EdgeInsets.symmetric(vertical: sela),
+                border: InputBorder.none,
+                hintText: w.petunjuk,
+                hintStyle: gayaAngka.copyWith(color: c.tinta3),
               ),
             ),
           ),
