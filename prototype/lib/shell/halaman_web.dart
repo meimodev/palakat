@@ -1,5 +1,5 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 
 import '../theme/palakat_tema.dart';
 import '../widgets/pita_jabatan_kosong.dart';
@@ -61,35 +61,47 @@ class HalamanWeb extends StatelessWidget {
     );
     final sempit = navSempit(context);
 
-    return ColoredBox(
-      color: c.kertas,
-      child: DefaultTextStyle(
-        style: PalakatText.isiWeb.copyWith(color: c.tinta, height: 1.45),
-        child: LayoutBuilder(
-          builder: (context, k) => SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: k.maxHeight.isFinite ? k.maxHeight : 0,
+    // The Material ancestor TextFields need, outside the page text style so it
+    // does not reset it to the theme's bodyMedium.
+    return Material(
+      type: MaterialType.transparency,
+      child: ColoredBox(
+        color: c.kertas,
+        child: DefaultTextStyle(
+          style: PalakatText.isiWeb.copyWith(
+            color: c.tinta,
+            height: 1.45,
+            // CSS splits line-height leading evenly above and below the glyphs.
+            leadingDistribution: TextLeadingDistribution.even,
+          ),
+          child: LayoutBuilder(
+            builder: (context, k) => SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: k.maxHeight.isFinite ? k.maxHeight : 0,
+                ),
+                child: nav == null
+                    ? utama
+                    : sempit
+                    ? _HalamanSempit(children: [nav!, utama])
+                    : Stack(
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(
+                              left: lebarNav(k.maxWidth),
+                            ),
+                            child: utama,
+                          ),
+                          Positioned(
+                            left: 0,
+                            top: 0,
+                            bottom: 0,
+                            width: lebarNav(k.maxWidth),
+                            child: nav!,
+                          ),
+                        ],
+                      ),
               ),
-              child: nav == null
-                  ? utama
-                  : sempit
-                  ? _HalamanSempit(children: [nav!, utama])
-                  : Stack(
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.only(left: lebarNav(k.maxWidth)),
-                          child: utama,
-                        ),
-                        Positioned(
-                          left: 0,
-                          top: 0,
-                          bottom: 0,
-                          width: lebarNav(k.maxWidth),
-                          child: nav!,
-                        ),
-                      ],
-                    ),
             ),
           ),
         ),

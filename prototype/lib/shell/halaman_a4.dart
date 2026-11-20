@@ -177,65 +177,78 @@ class HalamanA4 extends StatelessWidget {
     final anak = [kepala, ...isi];
     return SizedBox.fromSize(
       size: ukuran,
-      child: ColoredBox(
-        color: c.permukaan,
-        child: DefaultTextStyle(
-          style: TextStyle(
-            fontFamily: PalakatText.sans,
-            fontSize: _warta ? 14 : 13,
-            height: _warta ? 1.45 : 1.4,
-            color: c.tinta,
-          ),
-          child: Stack(
-            children: [
-              Positioned.fill(
-                // overflow: hidden, without overflow errors
-                child: SingleChildScrollView(
-                  primary: false,
-                  physics: const NeverScrollableScrollPhysics(),
-                  padding: EdgeInsets.fromLTRB(tepi, _warta ? 56 : 48, tepi, 0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      for (var i = 0; i < anak.length; i++) ...[
-                        if (i > 0) SizedBox(height: jarak),
-                        anak[i],
-                      ],
-                    ],
-                  ),
-                ),
-              ),
-              Positioned(
-                left: tepi,
-                right: tepi,
-                bottom: _warta ? 36 : 34,
-                child: Container(
-                  padding: const EdgeInsets.only(top: 8),
-                  decoration: BoxDecoration(
-                    border: Border(top: BorderSide(color: c.tinta)),
-                  ),
-                  child: DefaultTextStyle.merge(
-                    style: TextStyle(
-                      color: c.tinta2,
-                      fontSize: _warta ? 13 : null,
+      // The Material ancestor TextFields need, outside the page text style.
+      child: Material(
+        type: MaterialType.transparency,
+        child: ColoredBox(
+          color: c.permukaan,
+          child: DefaultTextStyle(
+            style: TextStyle(
+              fontFamily: PalakatText.sans,
+              fontSize: _warta ? 14 : 13,
+              height: _warta ? 1.45 : 1.4,
+              // CSS splits line-height leading evenly above and below the glyphs.
+              leadingDistribution: TextLeadingDistribution.even,
+              color: c.tinta,
+            ),
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  // overflow: hidden, without overflow errors
+                  child: SingleChildScrollView(
+                    primary: false,
+                    physics: const NeverScrollableScrollPhysics(),
+                    padding: EdgeInsets.fromLTRB(
+                      tepi,
+                      _warta ? 56 : 48,
+                      tepi,
+                      0,
                     ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Expanded(
-                          child: Text(_warta ? _kakiKiriWarta : _kakiKiri),
-                        ),
-                        const SizedBox(width: 24),
-                        Text(
-                          kakiKanan,
-                          style: const TextStyle(fontFamily: PalakatText.mono),
-                        ),
+                        for (var i = 0; i < anak.length; i++) ...[
+                          if (i > 0) SizedBox(height: jarak),
+                          anak[i],
+                        ],
                       ],
                     ),
                   ),
                 ),
-              ),
-            ],
+                Positioned(
+                  left: tepi,
+                  right: tepi,
+                  bottom: _warta ? 36 : 34,
+                  child: Container(
+                    padding: const EdgeInsets.only(top: 8),
+                    decoration: BoxDecoration(
+                      border: Border(top: BorderSide(color: c.tinta)),
+                    ),
+                    child: DefaultTextStyle.merge(
+                      style: TextStyle(
+                        color: c.tinta2,
+                        fontSize: _warta ? 13 : null,
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Text(_warta ? _kakiKiriWarta : _kakiKiri),
+                          ),
+                          const SizedBox(width: 24),
+                          Text(
+                            kakiKanan,
+                            style: const TextStyle(
+                              fontFamily: PalakatText.mono,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
