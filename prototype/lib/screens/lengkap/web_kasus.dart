@@ -804,24 +804,33 @@ class _WebKasusScreenState extends State<WebKasusScreen> {
               label: 'Jumlah (Rp)',
               child: CincinFokus(
                 tampil: _fokus.hasFocus,
-                child: Material(
-                  type: MaterialType.transparency,
-                  child: TextField(
-                    controller: _isian,
-                    focusNode: _fokus,
-                    // Board `onIsi`: typing is ignored on a locked amount.
-                    readOnly: akt.kunci,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: const [RupiahInputFormatter()],
-                    onChanged: (v) =>
-                        setState(() => _isi = v.replaceAll(RegExp(r'\D'), '')),
-                    textAlignVertical: TextAlignVertical.center,
-                    style: angka,
-                    cursorColor: c.laut,
-                    decoration: const InputDecoration(
-                      isCollapsed: true,
-                      border: InputBorder.none,
-                      constraints: BoxConstraints(minHeight: 44),
+                // The input is 44 high with its line centred; a collapsed
+                // InputDecorator ignores minHeight, so the box is outside.
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(minHeight: 44),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    heightFactor: 1,
+                    child: Material(
+                      type: MaterialType.transparency,
+                      child: TextField(
+                        controller: _isian,
+                        focusNode: _fokus,
+                        // Board `onIsi`: typing is ignored on a locked amount.
+                        readOnly: akt.kunci,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: const [RupiahInputFormatter()],
+                        onChanged: (v) => setState(
+                          () => _isi = v.replaceAll(RegExp(r'\D'), ''),
+                        ),
+                        textAlignVertical: TextAlignVertical.center,
+                        style: angka,
+                        cursorColor: c.laut,
+                        decoration: const InputDecoration(
+                          isCollapsed: true,
+                          border: InputBorder.none,
+                        ),
+                      ),
                     ),
                   ),
                 ),

@@ -119,6 +119,8 @@ class _KasusBaruScreenState extends State<KasusBaruScreen> {
   final _pihak = TextEditingController();
   final _jm = TextEditingController();
   final _ur = TextEditingController();
+  final _fokusPihak = FocusNode();
+  final _fokusUr = FocusNode();
   int? _akun;
   String? _per, _ling, _ma, _tempo;
   bool _selesai = false;
@@ -173,6 +175,8 @@ class _KasusBaruScreenState extends State<KasusBaruScreen> {
     _pihak.dispose();
     _jm.dispose();
     _ur.dispose();
+    _fokusPihak.dispose();
+    _fokusUr.dispose();
     _gulir.dispose();
     super.dispose();
   }
@@ -246,20 +250,31 @@ class _KasusBaruScreenState extends State<KasusBaruScreen> {
       style: TextStyle(fontSize: 14, color: c.tinta2),
     );
 
-    Widget isian(String l, TextEditingController ctl, {String? petunjuk}) =>
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ExcludeSemantics(child: label(l, wajib: true)),
-            const SizedBox(height: 6),
-            IsianTeks(
-              controller: ctl,
-              labelSemantik: '$l · wajib',
-              petunjuk: petunjuk,
-              onChanged: (_) => _pilih(() {}),
-            ),
-          ],
-        );
+    Widget isian(
+      String l,
+      TextEditingController ctl,
+      FocusNode fokus, {
+      String? petunjuk,
+    }) => Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // `<label for>`: tapping the label focuses its field.
+        ExcludeSemantics(
+          child: GestureDetector(
+            onTap: fokus.requestFocus,
+            child: label(l, wajib: true),
+          ),
+        ),
+        const SizedBox(height: 6),
+        IsianTeks(
+          controller: ctl,
+          focusNode: fokus,
+          labelSemantik: '$l · wajib',
+          petunjuk: petunjuk,
+          onChanged: (_) => _pilih(() {}),
+        ),
+      ],
+    );
 
     Widget chips<T>(
       String l,
@@ -275,7 +290,7 @@ class _KasusBaruScreenState extends State<KasusBaruScreen> {
 
     final form = <Widget>[
       Text(k.cat, style: TextStyle(fontSize: 14, color: c.tinta2)),
-      isian(k.pihak, _pihak, petunjuk: k.ph),
+      isian(k.pihak, _pihak, _fokusPihak, petunjuk: k.ph),
       IsianJumlah(
         label: k.jm,
         controller: _jm,
@@ -355,7 +370,7 @@ class _KasusBaruScreenState extends State<KasusBaruScreen> {
             ],
           ],
         ),
-      isian(k.ur, _ur),
+      isian(k.ur, _ur, _fokusUr),
       if (_um)
         chips<String>(
           'Jatuh tempo',
@@ -468,7 +483,9 @@ class _KasusBaruScreenState extends State<KasusBaruScreen> {
                         shape: GarisBorder.penuh(c.laut, tebal: 2, radius: 8),
                       ),
                       child: Text(
-                        'No. Bukti ${k.no}',
+                        // Zero-width spaces: Chrome breaks after these
+                        // hyphens, Flutter does not.
+                        'No. Bukti ${k.no.replaceAll('-', '-​')}',
                         style: TextStyle(
                           fontFamily: PalakatText.mono,
                           fontSize: 14,
