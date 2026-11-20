@@ -1,6 +1,8 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../mock/mock.dart';
+import '../../app/layar.dart';
+import '../../providers/home_rows.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import '../../shell/tautan.dart';
@@ -9,24 +11,34 @@ import '../../widgets/bertindak_sebagai.dart';
 import '../../widgets/ikon.dart';
 import '../../widgets/kecil.dart';
 import 'beranda_jabatan_isi.dart';
-import '../../app/layar.dart';
 
-/// 46 · Beranda: one combined Beranda for every post a person holds.
-class BerandaJabatanScreen extends StatefulWidget {
+/// 46 · Beranda + 56 · Alur · Beranda gabungan: the role home, one combined
+/// Beranda for every post a person holds (README 7.1, D20).
+class BerandaJabatanScreen extends ConsumerStatefulWidget {
   const BerandaJabatanScreen({super.key});
 
   @override
-  State<BerandaJabatanScreen> createState() => _BerandaJabatanScreenState();
+  ConsumerState<BerandaJabatanScreen> createState() =>
+      _BerandaJabatanScreenState();
 }
 
-class _BerandaJabatanScreenState extends State<BerandaJabatanScreen>
-    with KeadaanBeranda {
+class _BerandaJabatanScreenState extends ConsumerState<BerandaJabatanScreen> {
+  final _scroll = ScrollController();
+
+  /// The back arrow links to this same screen: it scrolls to the top.
+  void _keAtas() {
+    if (_scroll.hasClients) _scroll.jumpTo(0);
+  }
+
   @override
-  String get stem => 'BerandaJabatan';
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final ki = indeks(context);
+    final b = bacaBeranda(ref);
     return LayarPonsel(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -36,19 +48,33 @@ class _BerandaJabatanScreenState extends State<BerandaJabatanScreen>
             anakJudul: 'Satu Beranda untuk semua jabatan Anda',
             kembaliKe: Layar.beranda,
             labelKembali: 'Kembali ke Beranda',
-            diSini: ulang,
+            diSini: _keAtas,
           ),
           Expanded(
             child: SingleChildScrollView(
-              controller: scroll,
+              controller: _scroll,
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: bersela(switch (ki) {
-                  5 => isiOtomatis(context, go0),
-                  6 => isiDuaJabatan(context, go0),
-                  _ => _daftar(ki),
-                }, 16),
+                children: bersela([
+                  DaftarJabatan(nama: b.nama, jabatan: b.jabatan),
+                  if (b.perluMemilih)
+                    ...isiPilihJabatan(ref, b.pilihan)
+                  else ...[
+                    if (b.tindak.isEmpty)
+                      const KartuKosong()
+                    else ...[
+                      const JudulBagian('Perlu tindakan'),
+                      for (final r in b.tindak) _KartuBaris(r),
+                    ],
+                    if (b.tahu.isNotEmpty) ...[
+                      const JudulBagian('Untuk diketahui'),
+                      for (final r in b.tahu) _KartuBaris(r),
+                    ],
+                    const Keterangan(kalimatBeranda),
+                    const TautanAkunSaya(),
+                  ],
+                ], 16),
               ),
             ),
           ),
@@ -56,40 +82,12 @@ class _BerandaJabatanScreenState extends State<BerandaJabatanScreen>
       ),
     );
   }
-
-  List<Widget> _daftar(int ki) {
-    final d = berandaJabatan[ki];
-    final semua = [...d.tindak, ...d.tahu];
-    Widget baris(int i) => _KartuBaris(semua[i]);
-    return [
-      DaftarJabatan(nama: d.orang, jabatan: d.jabatan),
-      if (d.tindak.isNotEmpty) ...[
-        const JudulBagian('Perlu tindakan'),
-        for (var i = 0; i < d.tindak.length; i++) baris(i),
-      ],
-      if (d.tahu.isNotEmpty) ...[
-        const JudulBagian('Untuk diketahui'),
-        for (var i = d.tindak.length; i < semua.length; i++) baris(i),
-      ],
-      const Keterangan(kalimatBeranda),
-      const Tautan(
-        ke: Layar.akun,
-        child: SizedBox(
-          height: 44,
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: TautanTeks('Akun saya', berat: FontWeight.w700, ukuran: 14),
-          ),
-        ),
-      ),
-    ];
-  }
 }
 
 /// The row card (shared look with KotakMasuk): a full-width link.
 class _KartuBaris extends StatelessWidget {
   const _KartuBaris(this.r);
-  final ItemKotak r;
+  final HomeRow r;
 
   @override
   Widget build(BuildContext context) {

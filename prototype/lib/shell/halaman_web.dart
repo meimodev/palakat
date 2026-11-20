@@ -5,7 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../theme/palakat_tema.dart';
 import '../widgets/pita_jabatan_kosong.dart';
 import 'nav_samping.dart';
-import '../providers/session.dart';
+import '../core/format.dart';
+import '../providers/actor.dart';
 
 /// Laptop page scaffold (components.md 4.4): `kertas`, body 15 / 1.45, at
 /// least the window height, scrolls as one page. [nav] beside `main` when
@@ -34,8 +35,8 @@ class HalamanWeb extends ConsumerWidget {
   /// WebTutupBuku), 18 (WebLaporan).
   final double jarak;
 
-  /// A finance screen: the band shows on it while [vacancyCoverProvider] is
-  /// true (D18).
+  /// A finance screen: the band shows on it while the actor covers the
+  /// vacant Bendahara post ([jabatanDijalankanProvider], D18).
   final bool layarKeuangan;
 
   /// Centre `main`'s children in its height (at least the window, or its
@@ -46,8 +47,16 @@ class HalamanWeb extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
-    final pita = layarKeuangan && ref.watch(vacancyCoverProvider);
-    final anak = [if (pita) const PitaJabatanKosong.web(), ...isi];
+    final pita = layarKeuangan ? ref.watch(jabatanDijalankanProvider) : null;
+    final anak = [
+      if (pita != null)
+        PitaJabatanKosong.web(
+          jabatan: pita.jabatan,
+          sejak: tglJam(pita.sejak),
+          operator: pita.operator,
+        ),
+      ...isi,
+    ];
     final utama = Padding(
       padding: EdgeInsets.fromLTRB(
         context.jepit(16, 3, 40),

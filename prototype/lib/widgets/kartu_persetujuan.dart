@@ -65,10 +65,10 @@ class KartuPersetujuan extends StatelessWidget {
   /// Kicker "Persetujuan di luar aplikasi" (14 `tinta2`, Persetujuan board).
   final String? kepala;
 
-  /// 'Pnt. Jefry Wowor', 'Ketua BPMJ', '08/11/2026', 'notulen rapat'.
+  /// 'Pnt. Jefry Wowor', 'Ketua BPMJ', 'dd/mm/yyyy', 'notulen rapat'.
   final String? pemberi, jabatan, tanggal, cara;
 
-  /// 'Meiske L.', '16/11/2026 11.20'.
+  /// 'Meiske L.', 'dd/mm/yyyy hh.mm'.
   final String? dicatatOleh, dicatatPada;
 
   /// 'transaksi rutin'.

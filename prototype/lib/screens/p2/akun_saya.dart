@@ -1,8 +1,13 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/format.dart';
-import '../../mock/mock.dart';
+import '../../domain/core/core.dart';
+import '../../providers/actor.dart';
+import '../../providers/clock.dart';
+import '../../providers/core_repositories.dart';
+import '../../providers/revision.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import '../../theme/palakat_tema.dart';
@@ -19,22 +24,103 @@ import '../../widgets/tombol_bersyarat.dart';
 import '../../app/layar.dart';
 import '../../providers/session.dart';
 
-const _nama = 'Pnt. Hendrik Rumagit';
-const _jabatan = 'Penatua Kolom 7 · Ketua Komisi Diakonia';
 const _modul = ['Data jemaat', 'Ibadah dan kegiatan', 'Keuangan unit'];
+
+/// tiruan: the code "sent" to the new number or email (AlurMasuk's 123456).
+const kodeAkunTiruan = '123456';
+
+/// The signed-in person's account, shared with WebAkunSaya: the person
+/// (PeopleRepository), the posts line and the other signed-in devices
+/// (SessionRepository). Null once signed out.
+({Person orang, String jabatan, List<Device> perangkat})? akunDari(
+  WidgetRef ref,
+) {
+  ref.watch(revisionProvider);
+  final a = ref.watch(actorProvider);
+  final o = a == null
+      ? null
+      : ref.watch(peopleRepositoryProvider).person(a.personId);
+  if (a == null || o == null) return null;
+  final jabatan = {
+    for (final g
+        in ref
+            .watch(canProvider)
+            .grantsOf(a.personId, at: ref.watch(hariIniProvider)))
+      if (g.kind == GrantKind.assignment)
+        g.title
+      else if (g.kind == GrantKind.cover)
+        g.viaLabel ?? g.title,
+  };
+  return (
+    orang: o,
+    jabatan: jabatan.isEmpty ? 'Anggota jemaat' : jabatan.join(' · '),
+    perangkat: ref.watch(sessionRepositoryProvider).devices(a.personId),
+  );
+}
+
+String _kunci(WidgetRef ref, Actor a) =>
+    kunciBaru(a.personId, ref.read(clockProvider));
+
+/// `PeopleRepository.setContact` for the signed-in person; a changed number
+/// also ends the other devices (the board's "Perangkat lain dikeluarkan").
+/// Returns the refusal, or null.
+Future<Refusal?> simpanKontak(
+  WidgetRef ref, {
+  String? phone,
+  String? backupEmail,
+}) async {
+  final a = ref.read(actorProvider);
+  final o = a == null
+      ? null
+      : ref.read(peopleRepositoryProvider).person(a.personId);
+  if (a == null || o == null) return null;
+  final r = await ref
+      .read(peopleRepositoryProvider)
+      .setContact(
+        a,
+        phone: phone,
+        backupEmail: backupEmail,
+        expectedRevision: o.revision,
+        idempotencyKey: _kunci(ref, a),
+      );
+  return r.refusal;
+}
+
+/// "Keluarkan": `SessionRepository.endDevice`. Returns the refusal, or null.
+Future<Refusal?> keluarkanPerangkat(WidgetRef ref, Device d) async {
+  final a = ref.read(actorProvider);
+  if (a == null) return null;
+  final r = await ref
+      .read(sessionRepositoryProvider)
+      .endDevice(
+        a,
+        d.id,
+        expectedRevision: d.revision,
+        idempotencyKey: _kunci(ref, a),
+      );
+  return r.refusal;
+}
+
+/// A device line: 'Ponsel lain · Samsung A15 · terakhir dd/mm/yyyy'.
+String barisPerangkat(Device d) =>
+    d.lastUsed == null ? d.name : '${d.name} · terakhir ${tgl(d.lastUsed!)}';
+
+/// A Riwayat line dated today from the clock.
+String barisRiwayat(WidgetRef ref, String teks) =>
+    '${tgl(ref.read(clockProvider).now())} · $teks';
 
 enum _V { akun, ganti, kodeBaru, email, kodeEmail, keluar }
 
 /// 59 · Alur · Akun saya (spec 16-alurmasuk.md): six views in place under
 /// one header; the board's state object lives here.
-class AkunSayaScreen extends StatefulWidget {
+class AkunSayaScreen extends ConsumerStatefulWidget {
   const AkunSayaScreen({super.key});
 
   @override
-  State<AkunSayaScreen> createState() => _AkunSayaScreenState();
+  ConsumerState<AkunSayaScreen> createState() => _AkunSayaScreenState();
 }
 
-class _AkunSayaScreenState extends State<AkunSayaScreen> {
+class _AkunSayaScreenState extends ConsumerState<AkunSayaScreen> {
   final _gulir = ScrollController();
   final _hpBaru = TextEditingController();
   final _kode = TextEditingController();
@@ -45,13 +131,14 @@ class _AkunSayaScreenState extends State<AkunSayaScreen> {
   var _riw = <String>[];
   var _izin = ''; // '' | 'minta' | 'tolak' | 'ya'
   var _mati = <String>[];
-  var _dev = [akunSaya.perangkatLain];
-  var _hp = '';
   var _salah = 0;
-  String? _em;
+  Refusal? _tolak;
 
-  String get _hpKini => _hp.isEmpty ? akunSaya.ponsel : _hp;
-  String get _emKini => _em ?? akunSaya.emailCadangan;
+  // The account, read in build.
+  ({Person orang, String jabatan, List<Device> perangkat})? _a;
+  String get _nama => _a?.orang.name ?? '';
+  String get _hpKini => _a?.orang.phone ?? '';
+  String get _emKini => _a?.orang.backupEmail ?? '';
 
   String _alasanHp() {
     final b = _hpBaru.text;
@@ -86,6 +173,7 @@ class _AkunSayaScreenState extends State<AkunSayaScreen> {
     setState(() {
       _v = v;
       _pesan = '';
+      _tolak = null;
     });
     if (_gulir.hasClients) _gulir.jumpTo(0);
   }
@@ -115,28 +203,47 @@ class _AkunSayaScreenState extends State<AkunSayaScreen> {
     _kode.clear();
   });
 
-  void _gantiNomor() {
-    if (_kode.text != alurMasuk.kode) return _salahKode();
-    _hp = _hpBaru.text;
-    _dev = [];
-    _riw = catat(
-      _riw,
-      'Nomor ponsel diganti menjadi ${samarHp(_hp)} · oleh $_nama',
-    );
+  /// After a command: back to the account with [pesan] and a Riwayat line,
+  /// or the refusal in place of the message.
+  void _selesai(Refusal? t, String pesan, String riwayat) {
+    if (!mounted) return;
+    if (t == null) _riw = [barisRiwayat(ref, riwayat), ..._riw];
     _ke(_V.akun);
-    _pesan = 'Nomor ponsel diganti. Perangkat lain dikeluarkan dan harus masuk lagi dengan nomor baru.';
+    setState(() {
+      _tolak = t;
+      if (t == null) _pesan = pesan;
+    });
   }
 
-  void _simpanEm() {
-    if (_kode.text != alurMasuk.kode) return _salahKode();
+  Future<void> _gantiNomor() async {
+    if (_kode.text != kodeAkunTiruan) return _salahKode();
+    final hp = _hpBaru.text;
+    _selesai(
+      await simpanKontak(ref, phone: hp),
+      'Nomor ponsel diganti. Perangkat lain dikeluarkan dan harus masuk lagi dengan nomor baru.',
+      'Nomor ponsel diganti menjadi ${samarHp(hp)} · oleh $_nama',
+    );
+  }
+
+  Future<void> _simpanEm() async {
+    if (_kode.text != kodeAkunTiruan) return _salahKode();
     final ada = _emKini.isNotEmpty;
-    _em = _emBaru.text.trim();
-    _riw = catat(
-      _riw,
+    _selesai(
+      await simpanKontak(ref, backupEmail: _emBaru.text.trim()),
+      'Email cadangan disimpan.',
       'Email cadangan ${ada ? 'diganti' : 'ditambahkan'} · oleh $_nama',
     );
-    _ke(_V.akun);
-    _pesan = 'Email cadangan disimpan.';
+  }
+
+  Future<void> _keluarkan(Device d) async {
+    final t = await keluarkanPerangkat(ref, d);
+    if (!mounted) return;
+    setState(() {
+      _tolak = t;
+      _pesan = t != null
+          ? ''
+          : 'Perangkat itu dikeluarkan. Ia harus masuk lagi dengan kode baru.';
+    });
   }
 
   void _izinkan(String v) => setState(() => _izin = v);
@@ -152,6 +259,7 @@ class _AkunSayaScreenState extends State<AkunSayaScreen> {
 
   @override
   Widget build(BuildContext context) {
+    _a = akunDari(ref);
     return LayarPonsel(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -261,10 +369,11 @@ class _AkunSayaScreenState extends State<AkunSayaScreen> {
     final em = _emKini;
     return [
       if (_pesan.isNotEmpty) Pesan(Text(_pesan)),
+      if (_tolak case final t?) _penolakan(t.action, t.because),
       _kartu(judul: _nama, [
         _infoHp('Nomor ponsel'),
         BarisInfo('Email cadangan', samarEmail(em)),
-        const BarisInfo('Jabatan', _jabatan),
+        BarisInfo('Jabatan', _a?.jabatan ?? ''),
         _kecil(
           context,
           'Nomor ponsel dipakai untuk masuk. Email cadangan tidak wajib; '
@@ -289,20 +398,17 @@ class _AkunSayaScreenState extends State<AkunSayaScreen> {
       ]),
       _kartu(judul: 'Perangkat yang masuk', [
         const BarisInfo('Perangkat ini', 'sedang dipakai'),
-        for (final (i, d) in _dev.indexed)
+        for (final d in _a?.perangkat ?? const <Device>[])
           Row(
             spacing: 12,
             children: [
               Expanded(
-                child: Text(d, style: TextStyle(fontSize: 14, color: c.tinta2)),
+                child: Text(
+                  barisPerangkat(d),
+                  style: TextStyle(fontSize: 14, color: c.tinta2),
+                ),
               ),
-              _tombolTeks(
-                'Keluarkan',
-                () => setState(() {
-                  _dev = [..._dev]..removeAt(i);
-                  _pesan = 'Perangkat itu dikeluarkan. Ia harus masuk lagi dengan kode baru.';
-                }),
-              ),
+              _tombolTeks('Keluarkan', () => _keluarkan(d)),
             ],
           ),
       ]),

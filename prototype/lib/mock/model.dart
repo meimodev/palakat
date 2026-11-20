@@ -1,4 +1,6 @@
-import '../app/layar.dart';
+import '../widgets/lencana_status.dart' show GayaLabel;
+
+export '../widgets/lencana_status.dart' show GayaLabel;
 
 // The Dart model of docs/build/mock-data.md section 1: plain immutable
 // classes with const constructors, only what the boards show.
@@ -6,33 +8,6 @@ import '../app/layar.dart';
 // Dates are kept as the strings the boards print ('16/11/2026'), not
 // DateTime: DateTime has no const constructor and every seed value here is
 // const. Parse with bacaTgl() of format.dart when a screen needs to compare.
-
-/// Status label styles shared by the platform boards (round 2–5 `LS` map)
-/// and the finance status badges. Colours are tokens.
-/// Same names as the LencanaStatus widget's `BentukLencana` (components.md
-/// 3.2), except `lautg` there is `lautGaris`.
-enum GayaLabel {
-  /// text tinta2, 1.5 dashed putus, no fill
-  draf,
-
-  /// text tinta2, 1.5 solid tinta3, fill permukaan
-  garis,
-
-  /// text permukaan, fill tinta, 1.5 solid tinta
-  tinta,
-
-  /// text diLaut, fill laut, 1.5 solid laut
-  laut,
-
-  /// text laut, fill permukaan, 1.5 solid laut
-  lautg,
-
-  /// text bata, fill permukaan, 1.5 solid bata
-  bata,
-
-  /// text tinta2, fill garis, 1.5 solid garis
-  abu,
-}
 
 // ---------- Common ----------
 
@@ -544,15 +519,11 @@ class ItemKotak {
   final String judul, sub;
   final String? label; // 'Diajukan', 'Draf', 'Hambatan', …
   final GayaLabel? gaya;
-  final Layar ke; // target screen, for Tautan(ke: …)
-  final Map<String, String> param;
   const ItemKotak({
     required this.judul,
     required this.sub,
     this.label,
     this.gaya,
-    required this.ke,
-    this.param = const {},
   });
 }
 

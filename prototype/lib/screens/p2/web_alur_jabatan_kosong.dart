@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../providers/actor.dart';
 
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
@@ -19,11 +22,11 @@ import '../../app/layar.dart';
 /// Web · Alur · Menjalankan jabatan kosong (screens/15-cariorang.md): the
 /// Operator Yanti Sumual runs the vacant post Penatua Kolom 2 on her laptop.
 /// Views `daftar` and `mulai` change in place.
-class WebAlurJabatanKosongScreen extends StatefulWidget {
+class WebAlurJabatanKosongScreen extends ConsumerStatefulWidget {
   const WebAlurJabatanKosongScreen({super.key});
 
   @override
-  State<WebAlurJabatanKosongScreen> createState() =>
+  ConsumerState<WebAlurJabatanKosongScreen> createState() =>
       _WebAlurJabatanKosongScreenState();
 }
 
@@ -46,7 +49,7 @@ const _antre = [
 ];
 
 class _WebAlurJabatanKosongScreenState
-    extends State<WebAlurJabatanKosongScreen> {
+    extends ConsumerState<WebAlurJabatanKosongScreen> {
   String _pesan = '', _v = 'daftar';
   List<String> _riw = [];
   bool _paham = false, _jalan = false;
@@ -191,9 +194,10 @@ class _WebAlurJabatanKosongScreenState
       ],
       // The board's running banner has no role="status" (spec 15).
       if (_jalan)
-        const PitaJabatanKosong.web(
+        PitaJabatanKosong.web(
           jabatan: 'Penatua Kolom 2',
           sejak: null,
+          operator: ref.watch(jalanJabatanProvider('penatua-kolom-2')).operator,
           siaran: false,
           padding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         ),

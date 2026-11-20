@@ -1,4 +1,8 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../core/format.dart';
+import '../../providers/actor.dart';
 
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
@@ -25,13 +29,14 @@ const _o = [
 
 /// Web · Menjalankan jabatan kosong (spec 14). State `{k: null}`; the view
 /// is `k ?? keadaan`. A panel change resets `k`; every view change scrolls up.
-class WebJabatanKosongScreen extends StatefulWidget {
+class WebJabatanKosongScreen extends ConsumerStatefulWidget {
   const WebJabatanKosongScreen({super.key});
   @override
-  State<WebJabatanKosongScreen> createState() => _WebJabatanKosongState();
+  ConsumerState<WebJabatanKosongScreen> createState() =>
+      _WebJabatanKosongState();
 }
 
-class _WebJabatanKosongState extends State<WebJabatanKosongScreen> {
+class _WebJabatanKosongState extends ConsumerState<WebJabatanKosongScreen> {
   String? _k, _keadaan, _tampil;
   bool _centang = false;
   final _atas = GlobalKey();
@@ -113,10 +118,15 @@ class _WebJabatanKosongState extends State<WebJabatanKosongScreen> {
     );
   }
 
-  static const _banner = PitaJabatanKosong.web(
-    siaran: false,
-    padding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-  );
+  PitaJabatanKosong get _banner {
+    final jalan = ref.watch(jalanJabatanProvider('bendahara-jemaat'));
+    return PitaJabatanKosong.web(
+      sejak: jalan.sejak == null ? null : tglJam(jalan.sejak!),
+      operator: jalan.operator,
+      siaran: false,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+    );
+  }
 
   List<Widget> _pita(PalakatWarna c) => [
     _banner,

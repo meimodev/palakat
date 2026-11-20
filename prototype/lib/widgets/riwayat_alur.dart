@@ -15,7 +15,7 @@ class RiwayatAlur extends StatelessWidget {
     this.jarak = 16,
   });
 
-  /// Newest first, each already '16/11/2026 · {what} · {who}, {post}'.
+  /// Newest first, each already 'dd/mm/yyyy · {what} · {who}, {post}'.
   final List<String> baris;
   final String judul;
 

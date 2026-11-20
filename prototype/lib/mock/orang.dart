@@ -5,7 +5,7 @@ import 'model.dart';
 /// Bendahara Jemaat, aktif sejak 15/09/2026 · SK-BPMJ-04-2026. Verified by
 /// Petugas verifikasi 15/09/2026 10.15. Penunjukan sent 13/09/2026 09.05 and
 /// 14/09/2026 15.20. Authority revoked 16/11/2026 08.10 in the vacancy
-/// scenario (jabatan_kosong.dart).
+/// scenario ([plk]).
 const orangMeiske = Orang(
   id: 'meiske',
   nama: 'Meiske Lumentut',
@@ -367,3 +367,13 @@ const pelimpahan = [
     status: 'Berakhir',
   ),
 ];
+
+/// The boards' `plk`: who recorded it, in the vacancy scenario (mock-data.md
+/// 4.2) or not.
+String plk(bool jabatanKosong) =>
+    jabatanKosong ? 'Yanti Sumual, Operator' : 'Meiske L.';
+
+/// The boards' `plk2`.
+String plk2(bool jabatanKosong) => jabatanKosong
+    ? 'Yanti Sumual, Operator (menjalankan jabatan kosong Bendahara Jemaat)'
+    : 'Meiske L.';

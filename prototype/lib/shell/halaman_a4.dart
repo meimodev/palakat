@@ -21,18 +21,26 @@ class HalamanA4 extends StatelessWidget {
     required this.kanan,
     required this.kakiKanan,
     required this.isi,
-  }) : _warta = false;
+  }) : _warta = false,
+       kakiKiri = _kakiKiri;
 
   /// A4Warta's own form: padding 56 60 0, gap 20, 14 / 1.45, centred header
   /// "WARTA JEMAAT", footer 60 / 36 at 13 px (the board's 12 raised).
-  const HalamanA4.warta({super.key, required this.isi})
-    : ukuran = const Size(794, 1123),
-      kode = '',
-      judul = 'WARTA JEMAAT',
-      subjudul = 'GMIM Jemaat Karunia · Minggu, 22 November 2026',
-      kanan = const [],
-      kakiKanan = 'Edisi 22/11/2026 · halaman 1 dari 1',
-      _warta = true;
+  /// [subjudul] 'GMIM Jemaat Karunia · Minggu, {d} {bulan} {tahun}',
+  /// [kakiKanan] 'Edisi dd/mm/yyyy · halaman 1 dari 1', [kakiKiri]
+  /// 'Diterbitkan dd/mm/yyyy oleh Sekretaris Jemaat · nama mengikuti Tampilan
+  /// nama pilihan anggota'.
+  const HalamanA4.warta({
+    super.key,
+    required this.subjudul,
+    required this.kakiKanan,
+    required this.kakiKiri,
+    required this.isi,
+  }) : ukuran = const Size(794, 1123),
+       kode = '',
+       judul = 'WARTA JEMAAT',
+       kanan = const [],
+       _warta = true;
 
   /// `Size(794, 1123)` portrait, `Size(1123, 794)` landscape (A4F02a–c).
   final Size ukuran;
@@ -43,7 +51,7 @@ class HalamanA4 extends StatelessWidget {
   /// 'LAPORAN PERBENDAHARAAN BULANAN'.
   final String judul;
 
-  /// 'Jemaat Karunia · Periode laporan 1–31 Oktober 2026 · …'.
+  /// 'Jemaat Karunia · Periode laporan 1–31 {bulan} {tahun} · …'.
   final String subjudul;
 
   /// Mono lines at the right of the header.
@@ -54,10 +62,11 @@ class HalamanA4 extends StatelessWidget {
   final List<Widget> isi;
   final bool _warta;
 
+  /// The footer's left text.
+  final String kakiKiri;
+
   static const _kakiKiri =
       'Palakat · format bawaan aplikasi, bukan formulir resmi GMIM · Jemaat Karunia';
-  static const _kakiKiriWarta =
-      'Diterbitkan 21/11/2026 oleh Sekretaris Jemaat · nama mengikuti Tampilan nama pilihan anggota';
 
   @override
   Widget build(BuildContext context) {
@@ -232,9 +241,7 @@ class HalamanA4 extends StatelessWidget {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            child: Text(_warta ? _kakiKiriWarta : _kakiKiri),
-                          ),
+                          Expanded(child: Text(kakiKiri)),
                           const SizedBox(width: 24),
                           Text(
                             kakiKanan,

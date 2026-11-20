@@ -1,7 +1,5 @@
 // mock-data.md 2.18: member data.
 import 'model.dart';
-import '../app/layar.dart';
-import '../app/belum_dipindah.dart';
 
 /// LaporanLintas counts, Seluruh Jemaat.
 const lintasSeluruhJemaat = (
@@ -106,36 +104,30 @@ const antreanKolom7 = [
     sub: 'Diajukan 16/11/2026 · izin data pribadi diberikan',
     label: 'Diajukan',
     gaya: GayaLabel.garis,
-    ke: Layar.permohonanAnggota,
-    param: {'id': belumDipindahId},
   ),
   ItemKotak(
     judul: 'Konfirmasi keluarga · Wenas-Lasut',
     sub: '4 orang dari buku anggota',
     label: 'Diajukan',
     gaya: GayaLabel.garis,
-    ke: Layar.konfirmasiKeluarga,
   ),
   ItemKotak(
     judul: 'Peristiwa: Baptisan · Gabriel Wenas',
     sub: 'Diajukan 15/11/2026',
     label: 'Diajukan',
     gaya: GayaLabel.garis,
-    ke: Layar.peristiwa,
   ),
   ItemKotak(
     judul: 'Peristiwa: Pindah Kolom · Keluarga Lasut',
     sub: 'Dari Kolom 4 ke Kolom 7 · berlaku 01/12/2026',
     label: 'Diajukan',
     gaya: GayaLabel.garis,
-    ke: Layar.peristiwa,
   ),
   ItemKotak(
     judul: 'Perubahan data · Keluarga Rumagit',
     sub: 'Milik keluarga Anda sendiri · diteruskan ke Syamas Kolom 7',
     label: 'Ke Syamas',
     gaya: GayaLabel.abu,
-    ke: Layar.verifikasi,
   ),
 ];
 
@@ -146,15 +138,12 @@ const antreanKolom2 = [
     sub: 'Kolom 2 · diajukan 15/11/2026',
     label: 'Diajukan',
     gaya: GayaLabel.garis,
-    ke: Layar.permohonanAnggota,
-    param: {'id': belumDipindahId},
   ),
   ItemKotak(
     judul: 'Peristiwa: Kematian · Yohanis Rompas',
     sub: 'Kolom 2 · diajukan keluarga 16/11/2026',
     label: 'Diajukan',
     gaya: GayaLabel.garis,
-    ke: Layar.peristiwa,
   ),
 ];
 
@@ -203,33 +192,28 @@ const cariOrangHasil = [
     sub: 'Data jemaat · Keluarga Wenas-Lasut · Kolom 7',
     label: 'Aktif',
     gaya: GayaLabel.laut,
-    ke: Layar.dataAnggota,
   ),
   ItemKotak(
     judul: 'Keluarga Wenas-Lasut',
     sub: 'Data jemaat · 4 orang · Kolom 7',
-    ke: Layar.dataAnggota,
   ),
   ItemKotak(
     judul: 'Ferry Wenas',
     sub: 'Data jemaat · Kolom 2',
     label: 'Belum dikonfirmasi',
     gaya: GayaLabel.draf,
-    ke: Layar.konfirmasiKeluarga,
   ),
   ItemKotak(
     judul: 'Novita Wenas',
     sub: 'Dokumen gereja · Surat keterangan 15/11/2026',
     label: 'Diterbitkan',
     gaya: GayaLabel.tinta,
-    ke: Layar.surat,
   ),
   ItemKotak(
     judul: 'Kel. Wenas-Lasut',
     sub: 'Keuangan · Sampul syukur 08/11/2026',
     label: 'Dibukukan',
     gaya: GayaLabel.tinta,
-    ke: Layar.keuangan,
   ),
 ];
 

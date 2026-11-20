@@ -1,50 +1,64 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../core/format.dart';
+import '../../providers/clock.dart';
 
 import '../../shell/halaman_a4.dart';
 import '../../theme/palakat_tema.dart';
 
-/// The published Warta Jemaat of 22/11/2026 (Q27): one fixed A4 page, no
+/// The published Warta Jemaat of the coming Sunday (Q27): one fixed A4 page, no
 /// state, no links. Masthead and footer come from [HalamanA4.warta].
-class A4WartaScreen extends StatelessWidget {
+class A4WartaScreen extends ConsumerWidget {
   const A4WartaScreen({super.key});
 
   @override
-  Widget build(BuildContext context) => const HalamanA4.warta(
-    isi: [
-      _Bagian('Ibadah minggu ini', [
-        _Baris('Ibadah Subuh', '05.00'),
-        _Baris('Ibadah Pagi', '09.00'),
-        _Baris('Ibadah Malam', '18.00'),
-      ]),
-      _Bagian('Pengumuman', [
-        _Paragraf(
-          'Kerja bakti halaman gereja.',
-          ' Sabtu, 21 November 2026 pukul 07.00. Membawa alat kebersihan masing-masing.',
-        ),
-        _Paragraf(
-          'Pendaftaran katekisasi sidi 2027.',
-          ' Dibuka sampai 31 Desember 2026 di Sekretariat Jemaat.',
-        ),
-      ]),
-      _Bagian('Peristiwa jemaat', [
-        Text('Syukur HUT pernikahan: Keluarga Wenas-Lasut — Kolom 7'),
-        Text('Sampul syukur: Tanpa nama, Kolom 4'),
-      ]),
-      _Bagian('Jumlah kehadiran · Minggu, 15 November 2026', [
-        _Baris('Ibadah Subuh', '96'),
-        _Baris('Ibadah Pagi', '231'),
-        _Baris('Ibadah Malam', '85'),
-        _Baris('Jumlah', '412', jumlah: true),
-      ]),
-      _Bagian('Ringkasan keuangan · Oktober 2026', [
-        _Baris('Pendapatan', 'Rp14.820.000'),
-        _Baris('Belanja', 'Rp11.455.000'),
-        _Catatan(
-          'Dari laporan resmi Oktober 2026. Laporan lengkap ada pada Bendahara Jemaat.',
-        ),
-      ]),
-    ],
-  );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final n = ref.watch(clockProvider).now();
+    // The edition is the coming Sunday (today on a Sunday), published the day before.
+    final edisi = DateTime(n.year, n.month, n.day + (7 - n.weekday) % 7);
+    final terbit = DateTime(edisi.year, edisi.month, edisi.day - 1);
+    return HalamanA4.warta(
+      subjudul: 'GMIM Jemaat Karunia · Minggu, ${tglPanjang(edisi)}',
+      kakiKanan: 'Edisi ${tgl(edisi)} · halaman 1 dari 1',
+      kakiKiri:
+          'Diterbitkan ${tgl(terbit)} oleh Sekretaris Jemaat · nama mengikuti Tampilan nama pilihan anggota',
+      isi: const [
+        _Bagian('Ibadah minggu ini', [
+          _Baris('Ibadah Subuh', '05.00'),
+          _Baris('Ibadah Pagi', '09.00'),
+          _Baris('Ibadah Malam', '18.00'),
+        ]),
+        _Bagian('Pengumuman', [
+          _Paragraf(
+            'Kerja bakti halaman gereja.',
+            ' Sabtu, 21 November 2026 pukul 07.00. Membawa alat kebersihan masing-masing.',
+          ),
+          _Paragraf(
+            'Pendaftaran katekisasi sidi 2027.',
+            ' Dibuka sampai 31 Desember 2026 di Sekretariat Jemaat.',
+          ),
+        ]),
+        _Bagian('Peristiwa jemaat', [
+          Text('Syukur HUT pernikahan: Keluarga Wenas-Lasut — Kolom 7'),
+          Text('Sampul syukur: Tanpa nama, Kolom 4'),
+        ]),
+        _Bagian('Jumlah kehadiran · Minggu, 15 November 2026', [
+          _Baris('Ibadah Subuh', '96'),
+          _Baris('Ibadah Pagi', '231'),
+          _Baris('Ibadah Malam', '85'),
+          _Baris('Jumlah', '412', jumlah: true),
+        ]),
+        _Bagian('Ringkasan keuangan · Oktober 2026', [
+          _Baris('Pendapatan', 'Rp14.820.000'),
+          _Baris('Belanja', 'Rp11.455.000'),
+          _Catatan(
+            'Dari laporan resmi Oktober 2026. Laporan lengkap ada pada Bendahara Jemaat.',
+          ),
+        ]),
+      ],
+    );
+  }
 }
 
 /// Section: 13/700 upper-case heading, letter-spacing .5, a 1.5 `tinta` rule

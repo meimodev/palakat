@@ -1,3 +1,5 @@
+import '../domain/core/capabilities.dart';
+import '../domain/core/modules.dart';
 import 'tata.dart';
 
 /// The modules of PMP §6 that switch screens on and off (D21). [inti] is the
@@ -14,7 +16,34 @@ enum ModulLayar {
   ibadah,
   kehadiran,
   panitia,
-  laporan,
+  laporan;
+
+  /// The switchable module behind it; null for core and reports, which are
+  /// always on.
+  Module? get modul => switch (this) {
+    inti || laporan => null,
+    keuangan => Module.finance,
+    keuanganUnit => Module.unitFinance,
+    persetujuan => Module.inAppApprovals,
+    dokumenGereja => Module.churchDocuments,
+    pengumuman => Module.announcements,
+    warta => Module.warta,
+    dataJemaat => Module.membership,
+    ibadah => Module.services,
+    kehadiran => Module.attendance,
+    panitia => Module.panitia,
+  };
+}
+
+/// Why the router shows the guard view in place of a screen (README 3.6):
+/// [keadaan] is the KeadaanUmum / WebKeadaanUmum view it opens on.
+enum Penjaga {
+  modulTidakAktif('Modul tidak aktif'),
+  tidakBerwenang('Tidak berwenang');
+
+  const Penjaga(this.keadaan);
+
+  final String keadaan;
 }
 
 /// One value per app screen, not per board (README 3.6, 7.2). The comment
@@ -56,202 +85,385 @@ enum Layar {
   /// Main (phone, a ShellRoute with child routes transaksi, catat,
   /// mata-anggaran, periksa, detail/:id); WebBeranda on web, TabBeranda on the
   /// tablet.
-  keuangan('/keuangan', ModulLayar.keuangan),
+  keuangan('/keuangan', ModulLayar.keuangan, kemampuan: Capability.financeView),
 
   /// Main `transaksi`; WebTransaksi (tablet: TabTransaksi).
-  transaksi('/keuangan/transaksi', ModulLayar.keuangan),
+  transaksi(
+    '/keuangan/transaksi',
+    ModulLayar.keuangan,
+    kemampuan: Capability.financeView,
+  ),
 
   /// Main `detail`; WebTransaksi with the row selected.
-  transaksiRinci('/keuangan/detail/:id', ModulLayar.keuangan),
+  transaksiRinci(
+    '/keuangan/detail/:id',
+    ModulLayar.keuangan,
+    kemampuan: Capability.financeView,
+  ),
 
   /// Main `catat` (with `mata-anggaran` and `periksa`); WebCatat (tablet:
   /// TabCatat).
-  catat('/keuangan/catat', ModulLayar.keuangan),
+  catat(
+    '/keuangan/catat',
+    ModulLayar.keuangan,
+    kemampuan: Capability.financeRecord,
+  ),
 
   /// Tanggal, WebTanggal.
-  tanggal('/tanggal', ModulLayar.keuangan),
+  tanggal('/tanggal', ModulLayar.keuangan, kemampuan: Capability.financeRecord),
 
   /// Bagi, WebBagi.
-  bagi('/bagi', ModulLayar.keuangan),
+  bagi('/bagi', ModulLayar.keuangan, kemampuan: Capability.financeRecord),
 
   /// BantuanAI, WebBantuanAI.
-  bantuanAi('/bantuan-ai', ModulLayar.keuangan),
+  bantuanAi(
+    '/bantuan-ai',
+    ModulLayar.keuangan,
+    kemampuan: Capability.financeRecord,
+  ),
 
   /// AIFoto, WebAIFoto.
-  aiFoto('/ai-foto', ModulLayar.keuangan),
+  aiFoto('/ai-foto', ModulLayar.keuangan, kemampuan: Capability.financeRecord),
 
   /// AIMataAnggaran, WebAIMataAnggaran.
-  aiMataAnggaran('/ai-mata-anggaran', ModulLayar.keuangan),
+  aiMataAnggaran(
+    '/ai-mata-anggaran',
+    ModulLayar.keuangan,
+    kemampuan: Capability.financeRecord,
+  ),
 
   /// PilihBulan, WebPilihBulan.
-  pilihBulan('/pilih-bulan', ModulLayar.keuangan),
+  pilihBulan(
+    '/pilih-bulan',
+    ModulLayar.keuangan,
+    kemampuan: Capability.financeView,
+  ),
 
   /// Draf, WebDraf.
-  draf('/draf/:id', ModulLayar.keuangan),
+  draf('/draf/:id', ModulLayar.keuangan, kemampuan: Capability.financeRecord),
 
   /// Pemeriksa, WebPemeriksa.
-  pemeriksa('/pemeriksa', ModulLayar.keuangan),
+  pemeriksa(
+    '/pemeriksa',
+    ModulLayar.keuangan,
+    kemampuan: Capability.financeReview,
+  ),
 
   /// Cari, WebCari.
-  cari('/cari', ModulLayar.keuangan),
+  cari('/cari', ModulLayar.keuangan, kemampuan: Capability.financeView),
 
   /// Persembahan (child route `hasil`), WebPersembahan.
-  persembahan('/persembahan', ModulLayar.keuangan),
+  persembahan(
+    '/persembahan',
+    ModulLayar.keuangan,
+    kemampuan: Capability.financeRecord,
+  ),
 
   /// Kewajiban (child route `kasus/:id`), WebKewajiban; `kasus/:id` is
   /// WebKasus on web.
-  kewajiban('/kewajiban', ModulLayar.keuangan),
+  kewajiban(
+    '/kewajiban',
+    ModulLayar.keuangan,
+    kemampuan: Capability.financeView,
+  ),
 
   /// KasusBaru, WebKasusBaru.
-  kasusBaru('/kasus-baru', ModulLayar.keuangan),
+  kasusBaru(
+    '/kasus-baru',
+    ModulLayar.keuangan,
+    kemampuan: Capability.financeRecord,
+  ),
 
   /// Persetujuan, WebPersetujuan.
-  persetujuan('/persetujuan/:id', ModulLayar.keuangan),
+  persetujuan(
+    '/persetujuan/:id',
+    ModulLayar.keuangan,
+    kemampuan: Capability.financeRecord,
+  ),
 
   /// Koreksi (child routes pembalikan, hasil, kejadian), WebKoreksi.
-  koreksi('/koreksi/:id', ModulLayar.keuangan),
+  koreksi(
+    '/koreksi/:id',
+    ModulLayar.keuangan,
+    kemampuan: Capability.financeRecord,
+  ),
 
   /// Pengembalian + AlurPengembalian, WebPengembalian + WebAlurPengembalian
   /// (pending RD04, D25).
-  pengembalian('/pengembalian', ModulLayar.keuangan),
+  pengembalian(
+    '/pengembalian',
+    ModulLayar.keuangan,
+    kemampuan: Capability.financeRecord,
+  ),
 
   /// AlihPeruntukan, WebAlihPeruntukan.
-  alihPeruntukan('/alih-peruntukan', ModulLayar.keuangan),
+  alihPeruntukan(
+    '/alih-peruntukan',
+    ModulLayar.keuangan,
+    kemampuan: Capability.financeRecord,
+  ),
 
   /// Dokumen (child route `rinci`), WebDokumen.
-  dokumen('/dokumen', ModulLayar.keuangan),
+  dokumen('/dokumen', ModulLayar.keuangan, kemampuan: Capability.financeView),
 
   /// Kamera (child routes tinjau, unggah); on web only `unggah`, WebUnggah.
-  fotoDokumen('/foto-dokumen', ModulLayar.keuangan),
+  fotoDokumen(
+    '/foto-dokumen',
+    ModulLayar.keuangan,
+    kemampuan: Capability.financeRecord,
+  ),
 
   /// LihatDokumen, WebLihatDokumen.
-  lihatDokumen('/lihat-dokumen/:id', ModulLayar.keuangan),
+  lihatDokumen(
+    '/lihat-dokumen/:id',
+    ModulLayar.keuangan,
+    kemampuan: Capability.financeView,
+  ),
 
   /// Impor, WebImpor.
-  impor('/impor', ModulLayar.keuangan),
+  impor('/impor', ModulLayar.keuangan, kemampuan: Capability.financeRecord),
 
   /// Ekspor, WebEkspor.
-  ekspor('/ekspor', ModulLayar.keuangan),
+  ekspor('/ekspor', ModulLayar.keuangan, kemampuan: Capability.export),
 
   /// TutupBuku (child routes cek, rekonsiliasi, konfirmasi, ditutup),
   /// WebTutupBuku; `rekonsiliasi` is WebRekonsiliasi on web.
-  tutupBuku('/tutup-buku', ModulLayar.keuangan),
+  tutupBuku(
+    '/tutup-buku',
+    ModulLayar.keuangan,
+    kemampuan: Capability.financeClose,
+  ),
 
   /// RekonIsi, WebRekonIsi.
-  rekeningKoran('/rekening-koran', ModulLayar.keuangan),
+  rekeningKoran(
+    '/rekening-koran',
+    ModulLayar.keuangan,
+    kemampuan: Capability.financeReconcile,
+  ),
 
   /// HitungKas (child route `banding`), WebHitungKas.
-  hitungKas('/hitung-kas', ModulLayar.keuangan),
+  hitungKas(
+    '/hitung-kas',
+    ModulLayar.keuangan,
+    kemampuan: Capability.financeReconcile,
+  ),
 
   /// Kesiapan, WebKesiapan.
-  kesiapan('/kesiapan', ModulLayar.keuanganUnit),
+  kesiapan(
+    '/kesiapan',
+    ModulLayar.keuanganUnit,
+    kemampuan: Capability.unitFinanceAttest,
+  ),
 
   /// SelesaikanUnit, WebSelesaikanUnit.
-  hambatanUnit('/hambatan-unit', ModulLayar.keuanganUnit),
+  hambatanUnit(
+    '/hambatan-unit',
+    ModulLayar.keuanganUnit,
+    kemampuan: Capability.financeClearUnitBlocker,
+  ),
 
   /// AIBulan, WebAI.
-  aiBulan('/ai-bulan', ModulLayar.keuangan),
+  aiBulan('/ai-bulan', ModulLayar.keuangan, kemampuan: Capability.financeClose),
 
   /// Kejadian (child route `rinci`), WebKejadian.
-  kejadian('/kejadian', ModulLayar.keuangan),
+  kejadian(
+    '/kejadian',
+    ModulLayar.keuangan,
+    kemampuan: Capability.financeClose,
+  ),
 
   /// Laporan (child route `rinci/:f`), WebLaporan.
-  laporan('/laporan', ModulLayar.keuangan),
+  laporan('/laporan', ModulLayar.keuangan, kemampuan: Capability.financeView),
 
   /// WebPaketLaporan (web only).
-  paketLaporan('/paket-laporan', ModulLayar.keuangan, ponsel: false),
+  paketLaporan(
+    '/paket-laporan',
+    ModulLayar.keuangan,
+    ponsel: false,
+    kemampuan: Capability.financeView,
+  ),
 
   /// LihatTransaksi, WebLihatTransaksi.
-  lihatTransaksi('/lihat-transaksi', ModulLayar.keuangan),
+  lihatTransaksi(
+    '/lihat-transaksi',
+    ModulLayar.keuangan,
+    kemampuan: Capability.financeView,
+  ),
 
   /// Bukti, WebBukti.
-  bukti('/bukti', ModulLayar.keuangan),
+  bukti('/bukti', ModulLayar.keuangan, kemampuan: Capability.financeView),
 
   /// FormatLaporan, WebFormatLaporan.
-  formatLaporan('/format-laporan', ModulLayar.keuangan),
+  formatLaporan(
+    '/format-laporan',
+    ModulLayar.keuangan,
+    kemampuan: Capability.financeView,
+  ),
 
   /// The official and provisional report pages by `bentuk`: A4F01 (`f01`),
   /// A4F02a, A4F02b and A4F02c as one paginated F02 (`f02`), A4F14 (`f14`),
   /// A4Sementara (`sementara`), and WebExcel (`excel`).
-  laporanResmi('/laporan-resmi/:periode/:bentuk', ModulLayar.keuangan),
+  laporanResmi(
+    '/laporan-resmi/:periode/:bentuk',
+    ModulLayar.keuangan,
+    kemampuan: Capability.financeView,
+  ),
 
   /// Terbatas (child route `transaksi/:no`), WebTerbatas.
-  terbatas('/terbatas', ModulLayar.keuangan),
+  terbatas(
+    '/terbatas',
+    ModulLayar.keuangan,
+    kemampuan: Capability.financeViewFund,
+  ),
 
   /// A4Terbatas (`pdf`), WebExcelTerbatas (`excel`).
-  laporanTerbatas('/laporan-terbatas/:periode/:bentuk', ModulLayar.keuangan),
+  laporanTerbatas(
+    '/laporan-terbatas/:periode/:bentuk',
+    ModulLayar.keuangan,
+    kemampuan: Capability.financeViewFund,
+  ),
 
   /// Awal (child routes tunjuk, saldo), WebAwal: read-only (D19).
-  awal('/awal', ModulLayar.keuangan),
+  awal('/awal', ModulLayar.keuangan, kemampuan: Capability.financeView),
 
   /// AwalIsian, WebAwalIsian: read-only.
-  awalIsian('/awal-isian', ModulLayar.keuangan),
+  awalIsian(
+    '/awal-isian',
+    ModulLayar.keuangan,
+    kemampuan: Capability.financeView,
+  ),
 
   /// Lainnya (child routes kas, aturan, riwayat), WebPengaturan.
-  pengaturan('/pengaturan', ModulLayar.keuangan),
+  pengaturan(
+    '/pengaturan',
+    ModulLayar.keuangan,
+    kemampuan: Capability.financeSettings,
+  ),
 
   /// UbahPengaturan, WebUbahPengaturan.
-  ubahPengaturan('/ubah-pengaturan', ModulLayar.keuangan),
+  ubahPengaturan(
+    '/ubah-pengaturan',
+    ModulLayar.keuangan,
+    kemampuan: Capability.financeSettings,
+  ),
 
   /// MataAnggaran (child route `rinci`), WebMataAnggaran.
-  mataAnggaran('/mata-anggaran', ModulLayar.keuangan),
+  mataAnggaran(
+    '/mata-anggaran',
+    ModulLayar.keuangan,
+    kemampuan: Capability.financeSettings,
+  ),
 
   /// KasUnit, WebKasUnit.
-  kasUnit('/kas-unit', ModulLayar.keuanganUnit),
+  kasUnit(
+    '/kas-unit',
+    ModulLayar.keuanganUnit,
+    kemampuan: Capability.financeSettings,
+  ),
 
   /// Bendahara (child route `serah`); on web only `serah`, WebSerahTerima.
-  bendahara('/bendahara', ModulLayar.keuangan),
+  bendahara(
+    '/bendahara',
+    ModulLayar.keuangan,
+    kemampuan: Capability.financeHandover,
+  ),
 
   /// Pemberitahuan, WebPemberitahuan.
-  pemberitahuan('/pemberitahuan', ModulLayar.keuangan),
+  pemberitahuan(
+    '/pemberitahuan',
+    ModulLayar.keuangan,
+    kemampuan: Capability.financeView,
+  ),
 
   // ── C1 Operator and delegation (M6) ──
 
   /// Penugasan + AlurPenugasan, WebPenugasan.
-  penugasan('/penugasan', ModulLayar.inti),
+  penugasan('/penugasan', ModulLayar.inti, kemampuan: Capability.assignPost),
 
   /// JabatanKosong + AlurJabatanKosong, WebJabatanKosong +
   /// WebAlurJabatanKosong.
-  jabatanKosong('/jabatan-kosong', ModulLayar.inti),
+  jabatanKosong(
+    '/jabatan-kosong',
+    ModulLayar.inti,
+    kemampuan: Capability.coverVacancy,
+  ),
 
   /// Pelimpahan + AlurPelimpahan (phone only).
-  pelimpahan('/pelimpahan', ModulLayar.inti, web: false),
+  pelimpahan(
+    '/pelimpahan',
+    ModulLayar.inti,
+    web: false,
+    kemampuan: Capability.delegate,
+  ),
 
   /// Modul + AlurModul (phone only).
-  modul('/modul', ModulLayar.inti, web: false),
+  modul(
+    '/modul',
+    ModulLayar.inti,
+    web: false,
+    kemampuan: Capability.switchModule,
+  ),
 
   /// CariOrang + AlurPulihkan, WebCariOrang + WebAlurPulihkan.
-  cariOrang('/cari-orang', ModulLayar.inti),
+  cariOrang('/cari-orang', ModulLayar.inti, kemampuan: Capability.viewPeople),
 
   // ── Secretariat (M7) ──
 
   /// DokumenGereja + TerbitDokumen + AlurDokumen (phone: AlurDokumen's
   /// ShellRoute, child routes terbit and ralat), WebDokumenGereja +
   /// WebTerbitDokumen + WebAlurDokumen.
-  dokumenGereja('/dokumen-gereja', ModulLayar.dokumenGereja),
+  dokumenGereja(
+    '/dokumen-gereja',
+    ModulLayar.dokumenGereja,
+    kemampuan: Capability.documentsView,
+  ),
 
   /// PermohonanSurat + AlurSurat, WebPermohonanSurat + WebAlurSurat.
-  surat('/surat', ModulLayar.dokumenGereja),
+  surat(
+    '/surat',
+    ModulLayar.dokumenGereja,
+    kemampuan: Capability.documentsRequestLetter,
+  ),
 
   /// Pengumuman, WebPengumuman.
-  pengumuman('/pengumuman', ModulLayar.pengumuman),
+  pengumuman(
+    '/pengumuman',
+    ModulLayar.pengumuman,
+    kemampuan: Capability.announcementsView,
+  ),
 
   /// WartaArsip, WebWartaArsip.
-  warta('/warta', ModulLayar.warta),
+  warta('/warta', ModulLayar.warta, kemampuan: Capability.wartaView),
 
   /// WartaEditor + AlurWarta, WebWartaEditor + WebAlurWarta.
-  wartaEdisi('/warta/:edisi', ModulLayar.warta),
+  wartaEdisi(
+    '/warta/:edisi',
+    ModulLayar.warta,
+    kemampuan: Capability.wartaEdit,
+  ),
 
   /// BukaNama, WebBukaNama.
-  bukaNama('/warta/:edisi/buka-nama', ModulLayar.warta),
+  bukaNama(
+    '/warta/:edisi/buka-nama',
+    ModulLayar.warta,
+    kemampuan: Capability.wartaRevealIdentity,
+  ),
 
   /// A4Warta.
-  wartaPdf('/warta/:edisi/pdf', ModulLayar.warta),
+  wartaPdf(
+    '/warta/:edisi/pdf',
+    ModulLayar.warta,
+    kemampuan: Capability.wartaView,
+  ),
 
   // ── Membership (M8) ──
 
   /// DataAnggota, WebDataAnggota.
-  dataAnggota('/data-anggota', ModulLayar.dataJemaat),
+  dataAnggota(
+    '/data-anggota',
+    ModulLayar.dataJemaat,
+    kemampuan: Capability.membershipView,
+  ),
 
   /// PermohonanAnggota + AlurAnggota (phone only): a submitted application
   /// with the verifier side reachable (DP36); the applicant side stays in the
@@ -260,34 +472,72 @@ enum Layar {
     '/permohonan-anggota/:id',
     ModulLayar.dataJemaat,
     web: false,
+    kemampuan: Capability.membershipVerify,
   ),
 
   /// ImporBuku + AlurKeluarga, WebImporBuku + WebAlurKeluarga.
-  imporBuku('/impor-buku', ModulLayar.dataJemaat),
+  imporBuku(
+    '/impor-buku',
+    ModulLayar.dataJemaat,
+    kemampuan: Capability.membershipImport,
+  ),
 
   /// KonfirmasiKeluarga (phone only).
-  konfirmasiKeluarga('/konfirmasi-keluarga', ModulLayar.dataJemaat, web: false),
+  konfirmasiKeluarga(
+    '/konfirmasi-keluarga',
+    ModulLayar.dataJemaat,
+    web: false,
+    kemampuan: Capability.membershipConfirmHousehold,
+  ),
 
   /// AntreanVerifikasi (phone only).
-  verifikasi('/verifikasi', ModulLayar.dataJemaat, web: false),
+  verifikasi(
+    '/verifikasi',
+    ModulLayar.dataJemaat,
+    web: false,
+    kemampuan: Capability.membershipVerify,
+  ),
 
   /// Peristiwa + AlurPeristiwa (phone only).
-  peristiwa('/peristiwa', ModulLayar.dataJemaat, web: false),
+  peristiwa(
+    '/peristiwa',
+    ModulLayar.dataJemaat,
+    web: false,
+    kemampuan: Capability.membershipSubmit,
+  ),
 
   /// DataGanda, WebDataGanda.
-  dataGanda('/data-ganda', ModulLayar.dataJemaat),
+  dataGanda(
+    '/data-ganda',
+    ModulLayar.dataJemaat,
+    kemampuan: Capability.membershipImport,
+  ),
 
   /// TampilanNama + the name-form steps of AlurNama (phone only).
-  tampilanNama('/tampilan-nama', ModulLayar.dataJemaat, web: false),
+  tampilanNama(
+    '/tampilan-nama',
+    ModulLayar.dataJemaat,
+    web: false,
+    kemampuan: Capability.membershipSubmit,
+  ),
 
   /// CabutIzin + the consent-withdrawal steps of AlurNama ("Cabut izin dan
   /// hapus data saya") (phone only).
-  cabutIzin('/cabut-izin', ModulLayar.dataJemaat, web: false),
+  cabutIzin(
+    '/cabut-izin',
+    ModulLayar.dataJemaat,
+    web: false,
+    kemampuan: Capability.membershipSubmit,
+  ),
 
   // ── Collaboration (M9) and Joins (M10) ──
 
   /// KeuanganUnit + AlurUnit, WebAlurUnit.
-  keuanganUnit('/keuangan-unit', ModulLayar.keuanganUnit),
+  keuanganUnit(
+    '/keuangan-unit',
+    ModulLayar.keuanganUnit,
+    kemampuan: Capability.unitFinanceRecord,
+  ),
 
   /// PermintaanDana + AlurDana (phone only).
   permintaanDana('/permintaan-dana', ModulLayar.persetujuan, web: false),
@@ -297,22 +547,36 @@ enum Layar {
     '/pemberi-persetujuan',
     ModulLayar.persetujuan,
     web: false,
+    kemampuan: Capability.requestsSetTable,
   ),
 
   /// Panitia + AlurPanitia + AlurPanitiaBaru (phone only).
   panitia('/panitia', ModulLayar.panitia, web: false),
 
   /// Ibadah + AlurIbadah (phone only).
-  ibadah('/ibadah', ModulLayar.ibadah, web: false),
+  ibadah(
+    '/ibadah',
+    ModulLayar.ibadah,
+    web: false,
+    kemampuan: Capability.servicesView,
+  ),
 
   /// Kehadiran (phone only).
   kehadiran('/kehadiran/:ibadah', ModulLayar.kehadiran, web: false),
 
   /// LaporanLintas, WebLaporanLintas.
-  laporanLintas('/laporan-lintas', ModulLayar.laporan),
+  laporanLintas(
+    '/laporan-lintas',
+    ModulLayar.laporan,
+    kemampuan: Capability.reportsCross,
+  ),
 
   /// PersembahanBernama, WebPersembahanBernama.
-  persembahanBernama('/persembahan-bernama', ModulLayar.keuangan),
+  persembahanBernama(
+    '/persembahan-bernama',
+    ModulLayar.keuangan,
+    kemampuan: Capability.financeRecord,
+  ),
 
   /// PersembahanSaya (phone only).
   persembahanSaya('/persembahan-saya', ModulLayar.keuangan, web: false);
@@ -322,6 +586,7 @@ enum Layar {
     this.modulLayar, {
     this.ponsel = true,
     this.web = true,
+    this.kemampuan,
   });
 
   final String jalur;
@@ -330,6 +595,10 @@ enum Layar {
   final ModulLayar modulLayar;
   final bool ponsel;
   final bool web;
+
+  /// The capability needed to open the screen, asked in any scope (README
+  /// 3.6); null when every signed-in person may open it.
+  final Capability? kemampuan;
 
   /// Whether the route tree of [tata] has a screen for this value.
   bool adaUntuk(Tata tata) => tata == Tata.ponsel ? ponsel : web;

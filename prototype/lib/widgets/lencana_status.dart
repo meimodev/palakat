@@ -1,8 +1,34 @@
 import 'package:flutter/widgets.dart';
 
-import '../mock/model.dart' show GayaLabel;
 import '../theme/palakat_tema.dart';
 import 'garis.dart';
+
+/// Status label styles shared by the platform boards (round 2–5 `LS` map)
+/// and the finance status badges. Colours are tokens.
+/// Same names as the LencanaStatus widget's `BentukLencana` (components.md
+/// 3.2), except `lautg` there is `lautGaris`.
+enum GayaLabel {
+  /// text tinta2, 1.5 dashed putus, no fill
+  draf,
+
+  /// text tinta2, 1.5 solid tinta3, fill permukaan
+  garis,
+
+  /// text permukaan, fill tinta, 1.5 solid tinta
+  tinta,
+
+  /// text diLaut, fill laut, 1.5 solid laut
+  laut,
+
+  /// text laut, fill permukaan, 1.5 solid laut
+  lautg,
+
+  /// text bata, fill permukaan, 1.5 solid bata
+  bata,
+
+  /// text tinta2, fill garis, 1.5 solid garis
+  abu,
+}
 
 /// The badge shapes; the first seven are the boards' `LS` map.
 enum BentukLencana {

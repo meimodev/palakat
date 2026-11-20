@@ -45,19 +45,19 @@ String hanyaAngka(String raw, {int max = 11, bool simpanNol = false}) {
 
 String _dua(int n) => n.toString().padLeft(2, '0');
 
-/// 06/10/2026
+/// dd/mm/yyyy
 String tgl(DateTime d) => '${_dua(d.day)}/${_dua(d.month)}/${d.year}';
 
-/// 6 Oktober 2026
+/// d {bulan} {tahun}
 String tglPanjang(DateTime d) => '${d.day} ${_bulan[d.month - 1]} ${d.year}';
 
 /// 11.05 (dot, 24 h)
 String jam(DateTime d) => '${_dua(d.hour)}.${_dua(d.minute)}';
 
-/// 16/11/2026 11.05
+/// dd/mm/yyyy hh.mm
 String tglJam(DateTime d) => '${tgl(d)} ${jam(d)}';
 
-/// Oktober 2026
+/// {bulan} {tahun}
 String bulanTahun(int tahun, int bulan) => '${_bulan[bulan - 1]} $tahun';
 
 /// Flow boards' `tgl(t)`: 'dd/mm/yyyy' → yyyymmdd, null when not that shape
@@ -70,7 +70,7 @@ int? bacaTgl(String t) {
   return int.parse(m[3]!) * 10000 + b * 100 + d;
 }
 
-/// Riwayat line of the flow boards: `'16/11/2026 · <teks>'`, newest first.
+/// Riwayat line of the flow boards: `'dd/mm/yyyy · <teks>'`, newest first.
 List<String> catat(List<String> riwayat, String teks) => [
   '$hariTeks · $teks',
   ...riwayat,

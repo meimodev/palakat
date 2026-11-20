@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../app/layar.dart';
 import '../app/tata.dart';
+import '../providers/actor.dart';
 import '../providers/layout.dart';
 import '../widgets/tekan.dart';
 
@@ -88,6 +89,7 @@ extension TautanKonteks on BuildContext {
 ///   key).
 /// - A link to a screen the current layout does not have fails an assert in
 ///   debug (D13).
+/// - A link to a screen whose module is not active renders nothing (D21).
 class Tautan extends ConsumerWidget {
   const Tautan({
     super.key,
@@ -130,6 +132,10 @@ class Tautan extends ConsumerWidget {
       ke.adaUntuk(tata),
       'Tautan ke Layar.${ke.name}: tidak ada layar untuk Tata.${tata.name}',
     );
+    // A module that is not active leaves no trace (D21, KeadaanUmum).
+    if (!ref.watch(canProvider).moduleActive(ke.modulLayar.modul)) {
+      return const SizedBox.shrink();
+    }
     return Tekan(
       onTap: () => buka(context),
       label: label,

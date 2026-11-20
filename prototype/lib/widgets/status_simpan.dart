@@ -116,7 +116,7 @@ class PitaDiubahOrangLain extends StatelessWidget {
   /// The board's `plk`: 'Meiske L.' or 'Yanti Sumual, Operator'.
   final String oleh;
 
-  /// '16/11/2026 10.58'.
+  /// 'dd/mm/yyyy hh.mm'.
   final String jam;
   final VoidCallback onMuat;
 

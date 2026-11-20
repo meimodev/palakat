@@ -3,7 +3,6 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import '../../mock/jabatan_kosong.dart';
 import '../../motion/kerangka.dart';
 import '../../motion/ulang.dart';
 import '../../shell/kepala_ponsel.dart';
@@ -249,7 +248,7 @@ class _Kosong extends StatelessWidget {
           PitaPeran(
             jenis: JenisPita.kunci,
             judul: 'Belum ada Bendahara aktif',
-            kalimat: jkPencabutan,
+            kalimat: 'Wewenang Meiske Lumentut dicabut pada 16/11/2026 08.10 oleh Petugas verifikasi, atas permintaan BPMJ. Semua sesinya sudah diakhiri.',
             radius: 16,
             padding: const EdgeInsets.all(18),
             ukuranJudul: 19,

@@ -1,6 +1,8 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../mock/mock.dart';
+import '../../app/layar.dart';
+import '../../providers/home_rows.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
 import '../../shell/tautan.dart';
@@ -11,33 +13,43 @@ import '../../widgets/ikon.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/tata_letak.dart';
 import 'beranda_jabatan_isi.dart';
-import '../../app/layar.dart';
 
-/// Web · Beranda: the combined Beranda on the laptop, home of every platform
-/// web board.
-class WebBerandaJabatanScreen extends StatefulWidget {
+/// Web · Beranda: the combined Beranda on the laptop and the tablet, home of
+/// every platform web screen (merged with AlurBeranda, README 7.1).
+class WebBerandaJabatanScreen extends ConsumerStatefulWidget {
   const WebBerandaJabatanScreen({super.key});
 
   @override
-  State<WebBerandaJabatanScreen> createState() =>
+  ConsumerState<WebBerandaJabatanScreen> createState() =>
       _WebBerandaJabatanScreenState();
 }
 
-class _WebBerandaJabatanScreenState extends State<WebBerandaJabatanScreen>
-    with KeadaanBeranda {
+class _WebBerandaJabatanScreenState
+    extends ConsumerState<WebBerandaJabatanScreen> {
+  final _scroll = ScrollController();
+
+  /// The breadcrumb and the active nav item link to this same screen: they
+  /// scroll the page to the top.
+  void _keAtas() {
+    if (_scroll.hasClients) _scroll.jumpTo(0);
+  }
+
   @override
-  String get stem => 'WebBerandaJabatan';
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final ki = indeks(context);
+    final b = bacaBeranda(ref);
     // HalamanWeb's page scroll view inherits this controller (scroll to top).
     return PrimaryScrollController(
-      controller: scroll,
+      controller: _scroll,
       automaticallyInheritForPlatforms: TargetPlatform.values.toSet(),
       child: HalamanWeb(
-        nav: NavSamping(item: navPlatform, aktif: 0, diSini: ulang),
+        nav: NavSamping(item: navPlatform, aktif: 0, diSini: _keAtas),
         isi: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -49,7 +61,7 @@ class _WebBerandaJabatanScreenState extends State<WebBerandaJabatanScreen>
                 child: Tautan(
                   ke: Layar.beranda,
                   cara: Cara.naik,
-                  diSini: ulang,
+                  diSini: _keAtas,
                   child: const SizedBox(
                     height: 44,
                     child: Align(
@@ -64,9 +76,7 @@ class _WebBerandaJabatanScreenState extends State<WebBerandaJabatanScreen>
                 header: true,
                 child: Text(
                   'Beranda',
-                  style: PalakatText.judulHalaman.copyWith(
-                    color: context.warna.tinta,
-                  ),
+                  style: PalakatText.judulHalaman.copyWith(color: c.tinta),
                 ),
               ),
               Text(
@@ -81,11 +91,13 @@ class _WebBerandaJabatanScreenState extends State<WebBerandaJabatanScreen>
               constraints: const BoxConstraints(maxWidth: 1120),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: bersela(switch (ki) {
-                  5 => isiOtomatis(context, go0),
-                  6 => isiDuaJabatan(context, go0),
-                  _ => _daftar(ki),
-                }, 16),
+                children: bersela([
+                  DaftarJabatan(nama: b.nama, jabatan: b.jabatan),
+                  if (b.perluMemilih)
+                    ...isiPilihJabatan(ref, b.pilihan)
+                  else
+                    ..._daftar(b),
+                ], 16),
               ),
             ),
           ),
@@ -94,30 +106,18 @@ class _WebBerandaJabatanScreenState extends State<WebBerandaJabatanScreen>
     );
   }
 
-  List<Widget> _daftar(int ki) {
-    final d = berandaJabatan[ki];
-    // Rows to phone-only screens are left out on the web (README 7.1 rule 4).
-    final tindak = [
-      for (final r in d.tindak)
-        if (r.ke.web) r,
-    ];
-    final semua = [
-      ...tindak,
-      for (final r in d.tahu)
-        if (r.ke.web) r,
-    ];
-    Widget kolom(String judul, int dari, int sampai) => Column(
+  /// The two columns, caption and "Akun saya". homeRowsProvider already
+  /// leaves out rows to phone-only screens (README 7.1 rule 4).
+  List<Widget> _daftar(IsiBeranda b) {
+    Widget kolom(String judul, List<HomeRow> baris) => Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (sampai > dari) ...[
-          JudulBagian(judul),
-          const SizedBox(height: 12),
-          _KotakDaftar([for (var i = dari; i < sampai; i++) semua[i]]),
-        ],
+        JudulBagian(judul),
+        const SizedBox(height: 12),
+        _KotakDaftar(baris),
       ],
     );
     return [
-      DaftarJabatan(nama: d.orang, jabatan: d.jabatan),
       BarisLentur(
         jarak: 28,
         jarakBaris: 20,
@@ -125,25 +125,16 @@ class _WebBerandaJabatanScreenState extends State<WebBerandaJabatanScreen>
           Lentur(
             dasar: 420,
             tumbuh: 1.3,
-            child: kolom('Perlu tindakan', 0, tindak.length),
+            child: b.tindak.isEmpty
+                ? const KartuKosong()
+                : kolom('Perlu tindakan', b.tindak),
           ),
-          Lentur(
-            dasar: 340,
-            child: kolom('Untuk diketahui', tindak.length, semua.length),
-          ),
+          if (b.tahu.isNotEmpty)
+            Lentur(dasar: 340, child: kolom('Untuk diketahui', b.tahu)),
         ],
       ),
       const Keterangan(kalimatBeranda),
-      const Tautan(
-        ke: Layar.akun,
-        child: SizedBox(
-          height: 44,
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: TautanTeks('Akun saya', berat: FontWeight.w700, ukuran: 14),
-          ),
-        ),
-      ),
+      const TautanAkunSaya(),
     ];
   }
 }
@@ -152,7 +143,7 @@ class _WebBerandaJabatanScreenState extends State<WebBerandaJabatanScreen>
 /// none above the first.
 class _KotakDaftar extends StatelessWidget {
   const _KotakDaftar(this.baris);
-  final List<ItemKotak> baris;
+  final List<HomeRow> baris;
 
   @override
   Widget build(BuildContext context) {
@@ -175,7 +166,7 @@ class _KotakDaftar extends StatelessWidget {
 
 class _Baris extends StatelessWidget {
   const _Baris(this.r, {required this.pertama});
-  final ItemKotak r;
+  final HomeRow r;
   final bool pertama;
 
   @override

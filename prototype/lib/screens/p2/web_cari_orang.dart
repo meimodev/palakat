@@ -14,7 +14,7 @@ import '../../app/belum_dipindah.dart';
 
 /// The rows' web targets (`hal()` with `web = true`), by index. A row to a
 /// phone-only screen is left out on the web (README 7.1 rule 4).
-const _keWeb = [
+const _tujuanWeb = [
   (ke: Layar.dataAnggota),
   (ke: Layar.dataAnggota),
   (ke: Layar.konfirmasiKeluarga),
@@ -128,9 +128,9 @@ class _Tabel extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           for (var i = 0; i < hasil.length; i++)
-            if (_keWeb[i].ke.web)
+            if (_tujuanWeb[i].ke.web)
               Tautan(
-                ke: _keWeb[i].ke,
+                ke: _tujuanWeb[i].ke,
                 child: Container(
                   // content min 52 + padding 16 (+ the rule)
                   constraints: BoxConstraints(minHeight: i == 0 ? 68 : 69),

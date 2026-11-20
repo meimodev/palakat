@@ -1,41 +1,28 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../mock/mock.dart';
+import '../../domain/core/core.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/ikon.dart';
 import '../../widgets/kecil.dart';
-import '../../widgets/lencana_status.dart';
+import '../../widgets/tekan.dart';
 import '../../widgets/tata_letak.dart';
 import 'kotak_masuk.dart';
 import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
 
 /// Web · Pemberitahuan (spec 14-berandajabatan.md, WebKotakMasuk): the
-/// notification box of the platform web nav, same sets as KotakMasuk.
-class WebKotakMasukScreen extends StatelessWidget {
+/// notification box of the platform web nav, the same inbox as KotakMasuk.
+class WebKotakMasukScreen extends ConsumerWidget {
   const WebKotakMasukScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
-    final keadaan = belumDipindah<String>('Ada pemberitahuan');
-    const a = kotakMasukAda, k1 = kotakMasukKeuangan;
-    // Row targets are the logic class's hal(n) with web = true.
-    final (tindak, tahu) = switch (keadaan) {
-      'Semua sudah selesai' => (const <_Baris>[], const <_Baris>[]),
-      'Hanya modul Keuangan' => (
-        [_Baris(k1.tindak[0]), _Baris(k1.tindak[1])],
-        [_Baris(k1.tahu[0])],
-      ),
-      _ => (
-        [_Baris(a.tindak[0]), _Baris(a.tindak[1])],
-        [_Baris(a.tahu[0]), _Baris(a.tahu[1])],
-      ),
-    };
-    final ada = keadaan != 'Semua sudah selesai';
+    final (tindak, tahu) = kotakMasukDari(ref);
+    final ada = tindak.isNotEmpty || tahu.isNotEmpty;
 
     return HalamanWeb(
       nav: const NavSamping(item: navPlatform, aktif: 6),
@@ -84,16 +71,19 @@ class WebKotakMasukScreen extends StatelessWidget {
                   BarisLentur(
                     jarak: 28,
                     jarakBaris: 20,
+                    // An empty list leaves its column out.
                     anak: [
-                      Lentur(
-                        dasar: 420,
-                        tumbuh: 1.3,
-                        child: _Kolom('Perlu tindakan', tindak),
-                      ),
-                      Lentur(
-                        dasar: 340,
-                        child: _Kolom('Untuk diketahui', tahu),
-                      ),
+                      if (tindak.isNotEmpty)
+                        Lentur(
+                          dasar: 420,
+                          tumbuh: 1.3,
+                          child: _Kolom('Perlu tindakan', tindak),
+                        ),
+                      if (tahu.isNotEmpty)
+                        Lentur(
+                          dasar: 340,
+                          child: _Kolom('Untuk diketahui', tahu),
+                        ),
                     ],
                   )
                 else
@@ -114,7 +104,7 @@ class _Kolom extends StatelessWidget {
   const _Kolom(this.judul, this.baris);
 
   final String judul;
-  final List<_Baris> baris;
+  final List<AppNotification> baris;
 
   @override
   Widget build(BuildContext context) {
@@ -136,14 +126,14 @@ class _Kolom extends StatelessWidget {
             children: [
               for (var i = 0; i < baris.length; i++)
                 if (i == 0)
-                  baris[i]
+                  _Baris(baris[i])
                 else
                   // Container, not DecoratedBox: the rule takes its own pixel.
                   Container(
                     decoration: BoxDecoration(
                       border: Border(top: BorderSide(color: c.garis)),
                     ),
-                    child: baris[i],
+                    child: _Baris(baris[i]),
                   ),
             ],
           ),
@@ -156,17 +146,17 @@ class _Kolom extends StatelessWidget {
 /// List-box row: grid `1fr auto 20px`, gap 16, centred, min height 52
 /// (content box), padding 8 18; title 600 and subtitle 13 `tinta3` wrap
 /// (`flex 1 1 260` / `1.4 1 300`, gap 2 20).
-class _Baris extends StatelessWidget {
-  const _Baris(this.r);
+class _Baris extends ConsumerWidget {
+  const _Baris(this.n);
 
-  final ItemKotak r;
+  final AppNotification n;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
-    return Tautan(
-      ke: r.ke,
-      param: r.param,
+    return Tekan(
+      onTap: () => bukaKabar(context, ref, n),
+      peran: PeranTekan.tautan,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
         child: ConstrainedBox(
@@ -182,7 +172,7 @@ class _Baris extends StatelessWidget {
                     Lentur(
                       dasar: 260,
                       child: Text(
-                        r.judul,
+                        n.title,
                         style: const TextStyle(fontWeight: FontWeight.w600),
                       ),
                     ),
@@ -190,20 +180,14 @@ class _Baris extends StatelessWidget {
                       dasar: 300,
                       tumbuh: 1.4,
                       child: Text(
-                        r.sub,
+                        subKabar(n),
                         style: TextStyle(fontSize: 13, color: c.tinta3),
                       ),
                     ),
                   ],
                 ),
               ),
-              if (r.label != null)
-                LencanaStatus(
-                  r.label!,
-                  bentuk: (r.gaya ?? GayaLabel.garis).bentuk,
-                )
-              else
-                const SizedBox.shrink(),
+              lencanaKabar(n),
               SizedBox(
                 width: 20,
                 child: Align(

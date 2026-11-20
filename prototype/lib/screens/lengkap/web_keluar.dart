@@ -10,9 +10,10 @@ import '../../widgets/tata_letak.dart';
 import '../../widgets/tombol.dart';
 import 'keluar_akun.dart';
 import '../../app/layar.dart';
+import '../../providers/session.dart';
 
-/// `st`: 'akun' (button shown), 'tanya' (confirmation panel), 'keluar'
-/// (signed-out card in place of the main column; the side nav stays).
+/// `st`: 'akun' (button shown) or 'tanya' (confirmation panel). "Keluar"
+/// signs out: the router shows the picker, every other state kept (D7, D19).
 class WebKeluarScreen extends StatefulWidget {
   const WebKeluarScreen({super.key});
   @override
@@ -28,9 +29,8 @@ class _WebKeluarScreenState extends State<WebKeluarScreen> {
   Widget build(BuildContext context) {
     final c = context.warna;
     return HalamanWeb(
-      tengah: _st == 'keluar',
       nav: const NavSamping(item: navKeuangan, aktif: 6),
-      isi: _st == 'keluar' ? [_sudahKeluar(context)] : _akun(c),
+      isi: _akun(c),
     );
   }
 
@@ -126,7 +126,7 @@ class _WebKeluarScreenState extends State<WebKeluarScreen> {
               ),
               ...tombolTanya(
                 context,
-                onKeluar: () => _ke('keluar'),
+                onKeluar: () => keluarSesi(context),
                 onKembali: () => _ke('akun'),
               ),
             ],
@@ -134,26 +134,4 @@ class _WebKeluarScreenState extends State<WebKeluarScreen> {
       ],
     ),
   ];
-
-  // The board's `flex: 1` centring box; HalamanWeb.tengah centres it in
-  // `main`.
-  Widget _sudahKeluar(BuildContext context) {
-    final c = context.warna;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 40),
-      child: Center(
-        child: Container(
-          width: double.infinity,
-          constraints: const BoxConstraints(maxWidth: 440),
-          padding: EdgeInsets.all(context.jepit(24, 4, 40)),
-          decoration: BoxDecoration(
-            color: c.permukaan,
-            border: Border.all(color: c.garis),
-            borderRadius: BorderRadius.circular(18),
-          ),
-          child: const IsiSudahKeluar(),
-        ),
-      ),
-    );
-  }
 }

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../theme/palakat_tema.dart';
 import '../widgets/pita_jabatan_kosong.dart';
-import '../providers/session.dart';
+import '../providers/actor.dart';
 
 /// Root of every phone board (components.md 4.1): fills the frame (or the
 /// screen), `kertas`, body text 16 / 1.4, clipped.
@@ -25,15 +25,15 @@ class LayarPonsel extends ConsumerWidget {
 
   final Widget child;
 
-  /// A finance screen: the strip shows on it while [vacancyCoverProvider] is
-  /// true (D18).
+  /// A finance screen: the strip shows on it while the actor covers the
+  /// vacant Bendahara post ([jabatanDijalankanProvider], D18).
   final bool layarKeuangan;
   final List<Widget> overlay;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
-    final pita = layarKeuangan && ref.watch(vacancyCoverProvider);
+    final pita = layarKeuangan ? ref.watch(jabatanDijalankanProvider) : null;
     return SizedBox.expand(
       // The Material ancestor TextFields need, outside the board text style
       // so it does not reset it to the theme's bodyMedium.
@@ -52,7 +52,8 @@ class LayarPonsel extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  if (pita) const PitaJabatanKosong.ponsel(),
+                  if (pita != null)
+                    PitaJabatanKosong.ponsel(jabatan: pita.jabatan),
                   Expanded(
                     child: Stack(
                       children: [

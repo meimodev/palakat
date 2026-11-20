@@ -19,7 +19,7 @@ class KartuRangkaian {
     this.tundaMuncul,
   });
 
-  /// 'BKU-2026-0144' or, in the preview form, 'BKU-2026-0144 · Pembalikan'.
+  /// 'BKU-{tahun}-NNNN' or, in the preview form, 'BKU-{tahun}-NNNN · Pembalikan'.
   final String noBukti;
 
   /// 'Dibalik', 'Dibukukan'.

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../mock/jabatan_kosong.dart';
+import '../../mock/orang.dart' show plk;
 import '../../motion/kerangka.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis.dart';

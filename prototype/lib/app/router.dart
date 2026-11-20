@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../motion/halaman.dart';
 import '../motion/kerangka.dart';
+import '../domain/core/modules.dart';
+import '../providers/actor.dart';
 import '../providers/layout.dart';
 import '../providers/session.dart';
 import '../screens/a4/a4_f01.dart';
@@ -86,6 +88,7 @@ import '../screens/p2/akun_saya.dart';
 import '../screens/p2/beranda_jabatan.dart';
 import '../screens/p2/cari_orang.dart';
 import '../screens/p2/jabatan_kosong.dart';
+import '../screens/p2/keadaan_umum.dart';
 import '../screens/p2/kotak_masuk.dart';
 import '../screens/p2/modul.dart';
 import '../screens/p2/pelimpahan.dart';
@@ -94,6 +97,7 @@ import '../screens/p2/web_akun_saya.dart';
 import '../screens/p2/web_beranda_jabatan.dart';
 import '../screens/p2/web_cari_orang.dart';
 import '../screens/p2/web_jabatan_kosong.dart';
+import '../screens/p2/web_keadaan_umum.dart';
 import '../screens/p2/web_kotak_masuk.dart';
 import '../screens/p2/web_penugasan.dart';
 import '../screens/p3/a4_warta.dart';
@@ -173,16 +177,26 @@ import 'tata.dart';
 /// location shows the picker; with one, the picker redirects home.
 final routerProvider = Provider<GoRouter>((ref) {
   final tata = ref.watch(layoutProvider);
-  final sesi = ValueNotifier(0);
-  ref.listen(sessionProvider, (_, _) => sesi.value++);
+  // Follows the session (sign-in, sign-out, the session ending) and module
+  // status (README 3.6).
+  final segar = ValueNotifier(0);
+  ref.listen(sessionProvider, (_, _) => segar.value++);
+  ref.listen(
+    canProvider.select(
+      (c) => [for (final m in Module.values) c.moduleActive(m)].join(),
+    ),
+    (_, _) => segar.value++,
+  );
   final router = GoRouter(
     initialLocation: Layar.beranda.jalur,
-    refreshListenable: sesi,
+    refreshListenable: segar,
     redirect: (context, state) {
-      final masuk = ref.read(sessionProvider) != null;
-      final diPemilih = state.matchedLocation == Layar.pemilih.jalur;
-      if (!masuk) return diPemilih ? null : Layar.pemilih.jalur;
-      return diPemilih ? Layar.beranda.jalur : null;
+      final sesi = ref.read(sessionProvider);
+      final di = state.matchedLocation;
+      final pilih = Layar.pemilih.jalur, akhir = Layar.sesiBerakhir.jalur;
+      if (sesi == null) return di == pilih ? null : pilih;
+      if (sesi.berakhir) return di == akhir ? null : akhir;
+      return di == pilih || di == akhir ? Layar.beranda.jalur : null;
     },
     errorBuilder: (context, state) =>
         TidakDitemukanScreen(lokasi: state.uri.toString()),
@@ -207,10 +221,29 @@ final routerProvider = Provider<GoRouter>((ref) {
   );
   ref.onDispose(() {
     router.dispose();
-    sesi.dispose();
+    segar.dispose();
   });
   return router;
 });
+
+/// Shows [child], or the guard view (KeadaanUmum on the phone, WebKeadaanUmum
+/// on web and tablet) when [layar]'s module is not active or the actor lacks
+/// its capability (README 3.6).
+class _Dijaga extends ConsumerWidget {
+  const _Dijaga(this.layar, this.child);
+
+  final Layar layar;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final p = ref.watch(penjagaProvider(layar));
+    if (p == null) return child;
+    return ref.watch(layoutProvider) == Tata.ponsel
+        ? KeadaanUmumScreen(key: ValueKey(p), penjaga: p)
+        : WebKeadaanUmumScreen(key: ValueKey(p), penjaga: p);
+  }
+}
 
 // ---------- Helpers ----------
 
@@ -228,7 +261,8 @@ GoRoute _r(
   List<RouteBase> routes = const [],
 }) => GoRoute(
   path: _relatif(l.jalur, induk.jalur),
-  pageBuilder: (c, s) => ponsel ? _p(c, s, w(s)) : halaman(c, s, w(s)),
+  pageBuilder: (c, s) =>
+      ponsel ? _p(c, s, _Dijaga(l, w(s))) : halaman(c, s, _Dijaga(l, w(s))),
   routes: routes,
 );
 
@@ -265,7 +299,7 @@ ShellRoute _kendali(
   List<(String, ({Bingkai? kerangka, int ms, Curve kurva, bool tanpaGerak}))>
   anak,
 ) => ShellRoute(
-  builder: (_, _, child) => kendali(child),
+  builder: (_, _, child) => _Dijaga(l, kendali(child)),
   routes: [
     GoRoute(
       path: _relatif(l.jalur, '/'),
@@ -605,7 +639,10 @@ List<RouteBase> _web({required bool tablet}) => [
     Layar.kewajiban,
     (_) => const WebKewajibanScreen(),
     routes: [
-      GoRoute(path: 'kasus/:id', pageBuilder: _halaman(const WebKasusScreen())),
+      GoRoute(
+        path: 'kasus/:id',
+        pageBuilder: _halaman(Layar.kewajiban, const WebKasusScreen()),
+      ),
     ],
   ),
   _r(Layar.kasusBaru, (_) => const WebKasusBaruScreen()),
@@ -616,7 +653,7 @@ List<RouteBase> _web({required bool tablet}) => [
   _r(Layar.dokumen, (_) => const WebDokumenScreen()),
   GoRoute(
     path: _relatif(Layar.fotoDokumen.lokasi(anak: 'unggah'), '/'),
-    pageBuilder: _halaman(const WebUnggahScreen()),
+    pageBuilder: _halaman(Layar.fotoDokumen, const WebUnggahScreen()),
   ),
   _r(Layar.lihatDokumen, (_) => const WebLihatDokumenScreen()),
   _r(Layar.impor, (_) => const WebImporScreen()),
@@ -627,7 +664,7 @@ List<RouteBase> _web({required bool tablet}) => [
     routes: [
       GoRoute(
         path: 'rekonsiliasi',
-        pageBuilder: _halaman(const WebRekonsiliasiScreen()),
+        pageBuilder: _halaman(Layar.tutupBuku, const WebRekonsiliasiScreen()),
       ),
     ],
   ),
@@ -653,7 +690,7 @@ List<RouteBase> _web({required bool tablet}) => [
   _r(Layar.kasUnit, (_) => const WebKasUnitScreen()),
   GoRoute(
     path: _relatif(Layar.bendahara.lokasi(anak: 'serah'), '/'),
-    pageBuilder: _halaman(const WebSerahTerimaScreen()),
+    pageBuilder: _halaman(Layar.bendahara, const WebSerahTerimaScreen()),
   ),
   _r(Layar.pemberitahuan, (_) => const WebPemberitahuanScreen()),
   // C1
@@ -667,7 +704,10 @@ List<RouteBase> _web({required bool tablet}) => [
     routes: [
       GoRoute(
         path: 'terbit',
-        pageBuilder: _halaman(const WebTerbitDokumenScreen()),
+        pageBuilder: _halaman(
+          Layar.dokumenGereja,
+          const WebTerbitDokumenScreen(),
+        ),
       ),
     ],
   ),
@@ -706,5 +746,6 @@ List<RouteBase> _web({required bool tablet}) => [
   _r(Layar.persembahanBernama, (_) => const WebPersembahanBernamaScreen()),
 ];
 
-Page<void> Function(BuildContext, GoRouterState) _halaman(Widget w) =>
-    (c, s) => halaman(c, s, w);
+/// A web child page of [l], behind [l]'s guard.
+Page<void> Function(BuildContext, GoRouterState) _halaman(Layar l, Widget w) =>
+    (c, s) => halaman(c, s, _Dijaga(l, w));

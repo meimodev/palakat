@@ -1,6 +1,13 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../mock/mock.dart';
+import '../../app/layar.dart';
+import '../../domain/core/core.dart';
+import '../../providers/actor.dart';
+import '../../providers/clock.dart';
+import '../../providers/core_repositories.dart';
+import '../../providers/layout.dart';
+import '../../providers/revision.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import '../../shell/tautan.dart';
@@ -9,32 +16,79 @@ import '../../widgets/garis_status.dart';
 import '../../widgets/ikon.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
-import '../../app/layar.dart';
-import '../../app/belum_dipindah.dart';
+import '../../widgets/tekan.dart';
+
+/// The signed-in person's inbox (NotificationRepository), split as the board
+/// does: "Perlu tindakan" (types tindak and tempo) and "Untuk diketahui" (the
+/// rest). A module that is off leaves no notifications. Shared with
+/// WebKotakMasuk.
+(List<AppNotification>, List<AppNotification>) kotakMasukDari(WidgetRef ref) {
+  ref.watch(revisionProvider);
+  final a = ref.watch(actorProvider);
+  if (a == null) return (const [], const []);
+  final can = ref.watch(canProvider);
+  final semua = [
+    for (final n in ref.watch(notificationRepositoryProvider).inbox(a.personId))
+      if (n.module == null || can.moduleActive(n.module)) n,
+  ];
+  bool tindak(AppNotification n) =>
+      n.type == NotificationType.action || n.type == NotificationType.due;
+  return ([...semua.where(tindak)], [...semua.where((n) => !tindak(n))]);
+}
+
+/// The row's second line: the module, then the body.
+String subKabar(AppNotification n) =>
+    n.module == null ? n.body : '${n.module!.label} · ${n.body}';
+
+/// The read-state badge: "Belum dibaca" (`tinta`) or "Dibaca" (`garis`).
+LencanaStatus lencanaKabar(AppNotification n) => LencanaStatus(
+  n.read ? 'Dibaca' : 'Belum dibaca',
+  bentuk: (n.read ? GayaLabel.garis : GayaLabel.tinta).bentuk,
+);
+
+/// The screen a notification's record opens, by record kind.
+const _tujuan = {
+  'post': Layar.jabatanKosong,
+  'assignment': Layar.penugasan,
+  'delegation': Layar.pelimpahan,
+};
+
+/// Opening a row marks it read (`markRead`), then pushes its record's screen
+/// when there is one the actor may open here. A refused mark (stale) is
+/// left: the next read shows the stored state.
+Future<void> bukaKabar(
+  BuildContext context,
+  WidgetRef ref,
+  AppNotification n,
+) async {
+  final a = ref.read(actorProvider);
+  if (a == null) return;
+  if (!n.read) {
+    await ref
+        .read(notificationRepositoryProvider)
+        .markRead(
+          a,
+          n.id,
+          expectedRevision: n.revision,
+          idempotencyKey: kunciBaru(a.personId, ref.read(clockProvider)),
+        );
+  }
+  final ke = _tujuan[n.ref?.kind];
+  if (ke == null || !context.mounted) return;
+  if (!ke.adaUntuk(ref.read(layoutProvider))) return;
+  if (ref.read(penjagaProvider(ke)) != null) return;
+  context.dorongKe(ke);
+}
 
 /// 51 · Pemberitahuan (spec 14-berandajabatan.md, KotakMasuk): the one
-/// notification box for all active modules. The view is the `keadaan` tweak;
-/// the board has no control that changes it.
-class KotakMasukScreen extends StatelessWidget {
+/// notification box for all active modules, read from the person's inbox.
+class KotakMasukScreen extends ConsumerWidget {
   const KotakMasukScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final keadaan = belumDipindah<String>('Ada pemberitahuan');
-    const a = kotakMasukAda, k1 = kotakMasukKeuangan;
-    // Row targets are the logic class's hal(n), written out per row.
-    final (tindak, tahu) = switch (keadaan) {
-      'Semua sudah selesai' => (const <_Kartu>[], const <_Kartu>[]),
-      'Hanya modul Keuangan' => (
-        [_Kartu(k1.tindak[0]), _Kartu(k1.tindak[1])],
-        [_Kartu(k1.tahu[0])],
-      ),
-      _ => (
-        [_Kartu(a.tindak[0]), _Kartu(a.tindak[1])],
-        [_Kartu(a.tahu[0]), _Kartu(a.tahu[1])],
-      ),
-    };
-    final ada = keadaan != 'Semua sudah selesai';
+  Widget build(BuildContext context, WidgetRef ref) {
+    final (tindak, tahu) = kotakMasukDari(ref);
+    final ada = tindak.isNotEmpty || tahu.isNotEmpty;
 
     return LayarPonsel(
       child: Column(
@@ -48,20 +102,21 @@ class KotakMasukScreen extends StatelessWidget {
           ),
           Expanded(
             child: SingleChildScrollView(
-              // A new view starts at the top.
-              key: ValueKey(keadaan),
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 spacing: 16,
                 children: [
-                  if (ada) ...[
+                  // An empty list leaves its heading out.
+                  if (tindak.isNotEmpty) ...[
                     const JudulKotak('Perlu tindakan'),
-                    ...tindak,
+                    for (final n in tindak) _Kartu(n),
+                  ],
+                  if (tahu.isNotEmpty) ...[
                     const JudulKotak('Untuk diketahui'),
-                    ...tahu,
-                  ] else
-                    const KotakKosong(),
+                    for (final n in tahu) _Kartu(n),
+                  ],
+                  if (!ada) const KotakKosong(),
                   const CatatanKotakMasuk(),
                 ],
               ),
@@ -75,17 +130,17 @@ class KotakMasukScreen extends StatelessWidget {
 
 /// Row card: `permukaan`, 1 px `garis`, radius 14, padding 12 16, min height
 /// 44 (content box), gap 12; title 600, subtitle 13 `tinta3`, badge, chevron.
-class _Kartu extends StatelessWidget {
-  const _Kartu(this.r);
+class _Kartu extends ConsumerWidget {
+  const _Kartu(this.n);
 
-  final ItemKotak r;
+  final AppNotification n;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.warna;
-    return Tautan(
-      ke: r.ke,
-      param: r.param,
+    return Tekan(
+      onTap: () => bukaKabar(context, ref, n),
+      peran: PeranTekan.tautan,
       radius: 14,
       child: Kartu(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -101,21 +156,17 @@ class _Kartu extends StatelessWidget {
                   spacing: 2,
                   children: [
                     Text(
-                      r.judul,
+                      n.title,
                       style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                     Text(
-                      r.sub,
+                      subKabar(n),
                       style: TextStyle(fontSize: 13, color: c.tinta3),
                     ),
                   ],
                 ),
               ),
-              if (r.label != null)
-                LencanaStatus(
-                  r.label!,
-                  bentuk: (r.gaya ?? GayaLabel.garis).bentuk,
-                ),
+              lencanaKabar(n),
               PalakatIkon(Ikon.lanjut, ukuran: 18, warna: c.tinta3),
             ],
           ),

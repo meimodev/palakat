@@ -35,7 +35,7 @@ class PemilihMataAnggaran extends StatefulWidget {
     required this.onPilih,
     required this.onTanpa,
     required this.keBagi,
-    this.versi = '2026.1',
+    required this.versi,
     this.onKembali,
   });
 
@@ -51,6 +51,8 @@ class PemilihMataAnggaran extends StatefulWidget {
 
   /// Board stem of "Bagi ke beberapa Mata Anggaran" (Main: 'Bagi'); null hides it.
   final Layar? keBagi;
+
+  /// The published version, '{tahun}.N'.
   final String versi;
 
   /// The header back button (board `keForm`); default pops the route.

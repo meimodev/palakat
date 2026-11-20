@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
-import '../../mock/jabatan_kosong.dart';
+import '../../mock/orang.dart' show plk;
 import '../../motion/kerangka.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis.dart';

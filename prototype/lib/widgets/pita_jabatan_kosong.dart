@@ -3,8 +3,8 @@ import 'package:flutter/widgets.dart';
 import '../theme/palakat_tema.dart';
 
 /// Shown while an Operator runs a vacant post (`role="status"`). The screen
-/// or scaffold decides when (the global `jabatanKosong` switch, only on
-/// boards with the tweak); this widget only draws it.
+/// or shell decides when (`vacancyCoverProvider`, D18); this widget only
+/// draws it.
 class PitaJabatanKosong extends StatelessWidget {
   /// Full width above the header and scroll area: `tinta` field, padding
   /// 10 24 8, 13 px, line height 1.3, centred, no radius.
@@ -16,13 +16,15 @@ class PitaJabatanKosong extends StatelessWidget {
       padding = const EdgeInsets.fromLTRB(24, 10, 24, 8);
 
   /// First child of `main`: `tinta` field, radius 14, padding 12 16 (12 14
-  /// on six boards), 14 px. Pass `sejak: null` for the Penatua Kolom 2 form
-  /// ("Anda menjalankan jabatan kosong Penatua Kolom 2.").
+  /// on six boards), 14 px. [sejak] is when the cover started,
+  /// 'dd/mm/yyyy hh.mm' (`tglJam`); pass `sejak: null` for the Penatua Kolom 2
+  /// form ("Anda menjalankan jabatan kosong Penatua Kolom 2."). [operator] is
+  /// the covering Operator's name.
   const PitaJabatanKosong.web({
     super.key,
     this.jabatan = 'Bendahara Jemaat',
-    this.sejak = '16/11/2026 08.15',
-    this.operator = 'Yanti Sumual',
+    required this.sejak,
+    required this.operator,
     this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
     this.siaran = true,
   }) : _web = true;

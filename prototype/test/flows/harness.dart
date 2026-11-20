@@ -11,6 +11,7 @@ import 'package:palakat_prototype/app/tata.dart';
 import 'package:palakat_prototype/core/clock.dart';
 import 'package:palakat_prototype/providers/clock.dart';
 import 'package:palakat_prototype/providers/layout.dart';
+import 'package:palakat_prototype/providers/revision.dart';
 import 'package:palakat_prototype/providers/session.dart';
 import 'package:palakat_prototype/widgets/kecil.dart';
 
@@ -129,3 +130,13 @@ String lokasiSekarang(WidgetTester tester) =>
         .currentConfiguration
         .uri
         .toString();
+
+/// Moves the test's [FixedClock] forward by [d], bumps the store revision so
+/// read models re-read the date, and pumps (README 8.1). The seed anchor
+/// stays at launch.
+Future<void> majukanJam(WidgetTester tester, Duration d) async {
+  final wadah = _wadah(tester);
+  (wadah.read(clockProvider) as FixedClock).majukan(d);
+  wadah.read(revisionProvider.notifier).bump();
+  await tester.pumpAndSettle();
+}

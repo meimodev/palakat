@@ -5,6 +5,7 @@ import '../theme/palakat_tema.dart';
 import '../widgets/logo.dart';
 import '../widgets/tekan.dart';
 import 'nav_item.dart';
+import '../providers/actor.dart';
 import '../providers/session.dart';
 import 'tautan.dart';
 import '../providers/layout.dart';
@@ -273,11 +274,12 @@ class PenggunaSesi extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (ref.watch(vacancyCoverProvider)) {
-      return const PenggunaNav(
-        tebal: 'Yanti Sumual',
+    final j = ref.watch(jabatanDijalankanProvider);
+    if (j != null) {
+      return PenggunaNav(
+        tebal: j.operator,
         biasa: ' · Operator',
-        baris2: 'Menjalankan jabatan kosong Bendahara Jemaat',
+        baris2: 'Menjalankan jabatan kosong ${j.jabatan}',
       );
     }
     final p = ref.watch(sessionProvider)?.persona;

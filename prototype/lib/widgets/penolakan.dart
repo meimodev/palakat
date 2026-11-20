@@ -19,7 +19,7 @@ class Penolakan extends StatelessWidget {
   /// 'Bukukan'.
   final String tindakan;
 
-  /// 'September 2026 sudah ditutup.'
+  /// '{bulan} {tahun} sudah ditutup.'
   final String sebab;
 
   /// `Tombol(jenis: kedua, ukuran: sedang)` 'Pindah tanggal', 'Batalkan'.

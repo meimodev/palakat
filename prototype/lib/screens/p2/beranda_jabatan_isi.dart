@@ -1,84 +1,94 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../mock/mock.dart';
+import '../../app/layar.dart';
+import '../../domain/core/core.dart';
+import '../../providers/actor.dart';
+import '../../providers/core_repositories.dart';
+import '../../providers/home_rows.dart';
+import '../../providers/session.dart';
+import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
-import '../../widgets/alur_kit.dart';
 import '../../widgets/bertindak_sebagai.dart';
+import '../../widgets/garis_status.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
-import '../../widgets/tombol.dart';
-import '../../app/belum_dipindah.dart';
 
-/// Shared by BerandaJabatan and WebBerandaJabatan (spec 14): the `keadaan`
-/// state, the two post-choice views and the small parts both boards draw.
-
-/// The board's `O`: the `keadaan` options, in order.
-const opsiKeadaan = [
-  'Beberapa jabatan',
-  'Bendahara Jemaat',
-  'Sekretaris Jemaat',
-  'Operator',
-  'Anggota jemaat',
-  'Jabatan dipilih otomatis',
-  'Dua jabatan dapat bertindak',
-];
+/// Shared by BerandaJabatan and WebBerandaJabatan (spec 14, merged with
+/// AlurBeranda, README 7.1): who is signed in, their posts, their home rows,
+/// and the "Sebagai …" choice while two posts can act (Q31).
 
 const kalimatBeranda =
     'Semua pekerjaan dari semua jabatan Anda ada di sini. Hanya modul yang '
     'aktif yang tampil. Setiap tindakan mencatat jabatan yang dipakai.';
 
-/// The board state `{ k: null }`; view = `k ?? keadaan`. A panel change of
-/// `keadaan` resets `k`; every view change jumps the scroll to the top.
-mixin KeadaanBeranda<T extends StatefulWidget> on State<T> {
-  String get stem;
-  final scroll = ScrollController();
-  String? _k, _tweakLama;
-  bool _tertutup = false;
-
-  /// Option index of the view shown (the board's `ki`).
-  int indeks(BuildContext context) {
-    final t = belumDipindah<String>('Beberapa jabatan');
-    // Leaving the route (a pushed board on top) resets `k`, as the canvas
-    // reloads the board on return; applied when the route is current again.
-    final kini = ModalRoute.isCurrentOf(context) ?? true;
-    if (!kini) _tertutup = true;
-    if (kini && _tertutup) {
-      _tertutup = false;
-      if (_k != null) {
-        _k = null;
-        _keAtas();
-      }
-    }
-    if (_tweakLama != null && t != _tweakLama) {
-      _k = null;
-      _keAtas();
-    }
-    _tweakLama = t;
-    return opsiKeadaan.indexOf(_k ?? t).clamp(0, opsiKeadaan.length - 1);
-  }
-
-  /// `go0`.
-  void go0() {
-    setState(() => _k = opsiKeadaan[0]);
-    _keAtas();
-  }
-
-  /// Self link (back arrow, breadcrumb, active nav item): what reloading
-  /// the board does on the canvas.
-  void ulang() {
-    setState(() => _k = null);
-    _keAtas();
-  }
-
-  void _keAtas() => WidgetsBinding.instance.addPostFrameCallback((_) {
-    if (scroll.hasClients) scroll.jumpTo(0);
+/// What both homes draw, read once per build.
+class IsiBeranda {
+  const IsiBeranda({
+    required this.nama,
+    required this.jabatan,
+    required this.tindak,
+    required this.tahu,
+    required this.pilihan,
   });
 
-  @override
-  void dispose() {
-    scroll.dispose();
-    super.dispose();
-  }
+  /// The person card: name and post chips.
+  final String nama;
+  final List<String> jabatan;
+
+  /// "Perlu tindakan" and "Untuk diketahui" rows (homeRowsProvider).
+  final List<HomeRow> tindak;
+  final List<HomeRow> tahu;
+
+  /// The posts to choose from ("Sebagai …"); empty once one acts.
+  final List<Grant> pilihan;
+
+  bool get perluMemilih => pilihan.length > 1;
+}
+
+/// Reads the signed-in person's home from the session, the gate and the
+/// home rows. Call from `build`.
+IsiBeranda bacaBeranda(WidgetRef ref) {
+  final s = ref.watch(sessionProvider);
+  final can = ref.watch(canProvider);
+  final hari = ref.watch(hariIniProvider);
+  final baris = ref.watch(homeRowsProvider);
+  final id = s?.personId;
+  return IsiBeranda(
+    nama: id == null
+        ? ''
+        : ref.watch(peopleRepositoryProvider).person(id)?.name ?? '',
+    jabatan: id == null ? const [] : jabatanAnda(can.grantsOf(id, at: hari)),
+    tindak: [
+      for (final r in baris)
+        if (r.kelompok == KelompokBaris.tindak) r,
+    ],
+    tahu: [
+      for (final r in baris)
+        if (r.kelompok == KelompokBaris.tahu) r,
+    ],
+    pilihan: s != null && s.perluMemilih ? s.pilihan : const [],
+  );
+}
+
+/// The person's post chips: every post, cover and delegation in force;
+/// "Anggota jemaat" only when there is none (Q25, the base view).
+List<String> jabatanAnda(List<Grant> grants) {
+  final pos = [
+    for (final g in grants)
+      ?switch (g.kind) {
+        GrantKind.assignment => g.title,
+        GrantKind.cover => 'Menjalankan jabatan kosong: ${g.title}',
+        // ponytail: not drawn; worded like the cover chip.
+        GrantKind.delegation => 'Pelimpahan: ${g.title}',
+        GrantKind.member => null,
+      },
+  ];
+  if (pos.isNotEmpty) return pos;
+  return [
+    for (final g in grants)
+      if (g.kind == GrantKind.member) g.title,
+  ];
 }
 
 /// Children with a gap between each.
@@ -90,7 +100,7 @@ List<Widget> bersela(List<Widget> anak, double jarak) => [
 ];
 
 /// A row's badge (`LS[r[3] || 'garis']`), or null.
-Widget? lencanaBaris(ItemKotak r) => r.label == null
+Widget? lencanaBaris(HomeRow r) => r.label == null
     ? null
     : LencanaStatus(r.label!, bentuk: (r.gaya ?? GayaLabel.garis).bentuk);
 
@@ -104,73 +114,64 @@ class Keterangan extends StatelessWidget {
       Text(teks, style: TextStyle(fontSize: 13, color: context.warna.tinta3));
 }
 
-/// "Jabatan dipilih otomatis" (`k5`): case card, post-used box, caption,
-/// buttons. Siblings of the page column.
-List<Widget> isiOtomatis(BuildContext context, VoidCallback go0) {
-  final c = context.warna;
-  return [
-    Kartu(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const KepalaKartu(
-            judul: 'Verifikasi data · Peristiwa: Baptisan',
-            ujung: LencanaStatus('Diajukan', bentuk: BentukLencana.garis),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Gabriel Wenas · Keluarga Wenas-Lasut · Kolom 7',
-            style: TextStyle(fontSize: 14, color: c.tinta2),
-          ),
-          const SizedBox(height: 6),
-          const BarisInfo('Diajukan oleh', 'Novita Wenas, 15/11/2026'),
-        ],
-      ),
-    ),
-    const BertindakSebagai.satu(
-      jabatan: 'Penatua Kolom 7',
-      kalimat:
-          'Hanya jabatan ini yang berwenang memverifikasi data Kolom 7. '
-          'Jabatan dipilih sendiri oleh aplikasi dan tampil sebelum Anda '
-          'menyetujui.',
-    ),
-    const Keterangan(
-      'Tercatat di Riwayat: Pnt. Hendrik Rumagit, Penatua Kolom 7.',
-    ),
-    BarisTombol(
-      anak: [
-        Tombol('Verifikasi data', onPressed: go0, jenis: JenisTombol.tinta),
-        Tombol('Kembali', onPressed: go0, jenis: JenisTombol.teks),
-      ],
-    ),
-  ];
-}
+/// AlurBeranda's empty "Perlu tindakan": a dashed card.
+class KartuKosong extends StatelessWidget {
+  const KartuKosong({super.key});
 
-/// "Dua jabatan dapat bertindak" (`k6`): case card, choice box with the two
-/// outlined buttons, caption.
-List<Widget> isiDuaJabatan(BuildContext context, VoidCallback go0) => [
-  Kartu(
+  @override
+  Widget build(BuildContext context) => Kartu(
+    status: GarisStatus.draf,
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const KepalaKartu(
-          judul: 'Setujui jadwal · Ibadah Kolom 7 bersama Komisi Diakonia',
-          ujung: LencanaStatus('Draf', bentuk: BentukLencana.draf),
+        const Text(
+          'Tidak ada yang perlu tindakan',
+          style: TextStyle(fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 6),
         Text(
-          'Kamis, 19/11/2026 19.00 · rumah Kel. Wenas-Lasut',
+          'Pekerjaan dari semua jabatan Anda akan muncul di sini.',
           style: TextStyle(fontSize: 14, color: context.warna.tinta2),
         ),
       ],
     ),
-  ),
+  );
+}
+
+/// "Akun saya": underlined 14/700 link, a 44-high target the column's width.
+class TautanAkunSaya extends StatelessWidget {
+  const TautanAkunSaya({super.key});
+
+  @override
+  Widget build(BuildContext context) => const Tautan(
+    ke: Layar.akun,
+    child: SizedBox(
+      height: 44,
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: TautanTeks('Akun saya', berat: FontWeight.w700, ukuran: 14),
+      ),
+    ),
+  );
+}
+
+/// "Dua jabatan dapat bertindak" (AlurBeranda, Q31): the choice box with one
+/// outlined "Sebagai {jabatan}" button per post, then the caption. The choice
+/// is recorded on the session ([SessionNotifier.pilihSebagai]).
+List<Widget> isiPilihJabatan(
+  WidgetRef ref,
+  List<Grant> pilihan, {
+  double jarak = 16,
+}) => [
   BertindakSebagai.pilih(
-    jabatan: const ['Penatua Kolom 7', 'Ketua Komisi Diakonia'],
+    jabatan: [for (final g in pilihan) g.title],
     kalimat:
         'Pilih salah satu. Jabatan yang Anda pilih tercatat di Riwayat dan '
         'tidak dapat diubah setelahnya.',
-    onPilih: (_) => go0(),
+    jarak: jarak,
+    onPilih: (j) => ref
+        .read(sessionProvider.notifier)
+        .pilihSebagai(pilihan.firstWhere((g) => g.title == j)),
   ),
   const Keterangan(
     'Aplikasi hanya memilih sendiri bila tepat satu jabatan yang berwenang. '

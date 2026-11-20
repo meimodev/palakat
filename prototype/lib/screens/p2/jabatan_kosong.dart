@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../core/format.dart';
+import '../../providers/actor.dart';
 
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
@@ -25,14 +29,15 @@ const _o = [
 
 /// 49 · Menjalankan jabatan kosong (screens/14, JabatanKosong). State
 /// `{ k: null }`; the view is `k ?? keadaan`.
-class JabatanKosongScreen extends StatefulWidget {
+class JabatanKosongScreen extends ConsumerStatefulWidget {
   const JabatanKosongScreen({super.key});
 
   @override
-  State<JabatanKosongScreen> createState() => _JabatanKosongScreenState();
+  ConsumerState<JabatanKosongScreen> createState() =>
+      _JabatanKosongScreenState();
 }
 
-class _JabatanKosongScreenState extends State<JabatanKosongScreen> {
+class _JabatanKosongScreenState extends ConsumerState<JabatanKosongScreen> {
   final _gulir = ScrollController();
   String? _k;
   String? _tweak;
@@ -71,7 +76,10 @@ class _JabatanKosongScreenState extends State<JabatanKosongScreen> {
     final ki = (_o.indexOf(_k ?? tweak)).clamp(0, _o.length - 1);
 
     // The board gives this banner no role (spec: plain text).
-    const pita = PitaJabatanKosong.web(
+    final jalan = ref.watch(jalanJabatanProvider('bendahara-jemaat'));
+    final pita = PitaJabatanKosong.web(
+      sejak: jalan.sejak == null ? null : tglJam(jalan.sejak!),
+      operator: jalan.operator,
       siaran: false,
       padding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
     );

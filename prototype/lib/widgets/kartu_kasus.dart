@@ -42,7 +42,7 @@ class KartuKasus extends StatelessWidget {
   /// sisa = awal − dipertanggungjawabkan, never typed.
   final int awal, dipertanggungjawabkan;
 
-  /// 'Sebagian dipertanggungjawabkan · jatuh tempo 30/11/2026'.
+  /// 'Sebagian dipertanggungjawabkan · jatuh tempo dd/mm/yyyy'.
   final String status;
   final bool lewatTempo;
 

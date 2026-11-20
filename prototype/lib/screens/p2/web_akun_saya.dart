@@ -1,7 +1,9 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/format.dart';
+import '../../domain/core/core.dart';
 import '../../shell/halaman_web.dart';
 import '../../shell/nav_samping.dart';
 import '../../shell/tautan.dart';
@@ -15,32 +17,33 @@ import '../../widgets/tombol.dart';
 import '../../widgets/tombol_bersyarat.dart';
 import '../../app/layar.dart';
 import '../../providers/session.dart';
+import 'akun_saya.dart';
 
-/// Web · Alur · Akun saya (screens/16-alurmasuk.md): Olvie Pangemanan's own
-/// account. Six views change in place; no timers, no motion.
-class WebAkunSayaScreen extends StatefulWidget {
+/// Web · Alur · Akun saya (screens/16-alurmasuk.md): the signed-in person's
+/// own account (the board draws Olvie's). Six views change in place; no
+/// timers, no motion.
+class WebAkunSayaScreen extends ConsumerStatefulWidget {
   const WebAkunSayaScreen({super.key});
 
   @override
-  State<WebAkunSayaScreen> createState() => _WebAkunSayaState();
+  ConsumerState<WebAkunSayaScreen> createState() => _WebAkunSayaState();
 }
-
-const _nama = 'Olvie Pangemanan', _jabatan = 'Sekretaris Jemaat';
-const _hpAwal = '081355512204', _emAwal = 'olvie@contoh.id';
-const _kodeBenar = '123456';
 
 enum _V { akun, ganti, kodeBaru, email, kodeEmail, keluar }
 
-class _WebAkunSayaState extends State<WebAkunSayaScreen> {
+class _WebAkunSayaState extends ConsumerState<WebAkunSayaScreen> {
   final _hpBaru = TextEditingController(),
       _kode = TextEditingController(),
       _emBaru = TextEditingController();
   _V _v = _V.akun;
-  String _pesan = '', _hp = '';
-  String? _em;
+  String _pesan = '';
   int _salah = 0;
   List<String> _riw = const [];
-  List<String> _dev = const ['Ponsel lain · Samsung A15 · terakhir 12/11/2026'];
+  Refusal? _tolakan;
+
+  // The account, read in build.
+  ({Person orang, String jabatan, List<Device> perangkat})? _a;
+  String get _nama => _a?.orang.name ?? '';
 
   // Scroll on view change: jump to top (CONVENTIONS). HalamanWeb owns the
   // scroll view, so it is reached from a context inside it.
@@ -55,14 +58,13 @@ class _WebAkunSayaState extends State<WebAkunSayaScreen> {
     super.dispose();
   }
 
-  String get _hpKini => _hp.isEmpty ? _hpAwal : _hp;
-  String get _emKini => _em ?? _emAwal;
-
-  void _catat(String t) => _riw = ['$hariTeks · $t', ..._riw];
+  String get _hpKini => _a?.orang.phone ?? '';
+  String get _emKini => _a?.orang.backupEmail ?? '';
 
   void _ke(_V v) => setState(() {
     _v = v;
     _pesan = '';
+    _tolakan = null;
   });
 
   void _mulaiKode() {
@@ -131,36 +133,54 @@ class _WebAkunSayaState extends State<WebAkunSayaScreen> {
     _kode.clear();
   }
 
-  void _gantiNomor() => setState(() {
-    if (_kode.text != _kodeBenar) return _salahKode();
-    _v = _V.akun;
-    _hp = _hpBaru.text;
-    _dev = const [];
-    _pesan =
-        'Nomor ponsel diganti. Perangkat lain dikeluarkan dan harus masuk '
-        'lagi dengan nomor baru.';
-    _catat(
-      'Nomor ponsel diganti menjadi ${samarHp(_hpBaru.text)} · oleh $_nama',
+  /// After a command: back to the account with [pesan] and a Riwayat line,
+  /// or the refusal in place of the message.
+  void _selesai(Refusal? t, String pesan, String riwayat) {
+    if (!mounted) return;
+    setState(() {
+      _v = _V.akun;
+      _tolakan = t;
+      _pesan = t == null ? pesan : '';
+      if (t == null) _riw = [barisRiwayat(ref, riwayat), ..._riw];
+    });
+  }
+
+  Future<void> _gantiNomor() async {
+    if (_kode.text != kodeAkunTiruan) return setState(_salahKode);
+    final hp = _hpBaru.text;
+    _selesai(
+      await simpanKontak(ref, phone: hp),
+      'Nomor ponsel diganti. Perangkat lain dikeluarkan dan harus masuk '
+          'lagi dengan nomor baru.',
+      'Nomor ponsel diganti menjadi ${samarHp(hp)} · oleh $_nama',
     );
-  });
+  }
 
-  void _simpanEm() => setState(() {
-    if (_kode.text != _kodeBenar) return _salahKode();
+  Future<void> _simpanEm() async {
+    if (_kode.text != kodeAkunTiruan) return setState(_salahKode);
     final ada = _emKini.isNotEmpty;
-    _v = _V.akun;
-    _em = _emBaru.text.trim();
-    _pesan = 'Email cadangan disimpan.';
-    _catat('Email cadangan ${ada ? 'diganti' : 'ditambahkan'} · oleh $_nama');
-  });
+    _selesai(
+      await simpanKontak(ref, backupEmail: _emBaru.text.trim()),
+      'Email cadangan disimpan.',
+      'Email cadangan ${ada ? 'diganti' : 'ditambahkan'} · oleh $_nama',
+    );
+  }
 
-  void _keluarkan(int i) => setState(() {
-    _dev = [..._dev]..removeAt(i);
-    _pesan = 'Perangkat itu dikeluarkan. Ia harus masuk lagi dengan kode baru.';
-  });
+  Future<void> _keluarkan(Device d) async {
+    final t = await keluarkanPerangkat(ref, d);
+    if (!mounted) return;
+    setState(() {
+      _tolakan = t;
+      _pesan = t != null
+          ? ''
+          : 'Perangkat itu dikeluarkan. Ia harus masuk lagi dengan kode baru.';
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
+    _a = akunDari(ref);
     if (_v != _vLalu) {
       _vLalu = _v;
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -280,7 +300,7 @@ class _WebAkunSayaState extends State<WebAkunSayaScreen> {
     final c = context.warna;
     final identitas = Kartu(
       child: _Kolom([
-        const Text(_nama, style: TextStyle(fontWeight: FontWeight.w700)),
+        Text(_nama, style: const TextStyle(fontWeight: FontWeight.w700)),
         BarisInfo(
           'Nomor ponsel',
           samarHp(_hpKini),
@@ -288,7 +308,7 @@ class _WebAkunSayaState extends State<WebAkunSayaScreen> {
           berat: FontWeight.w500,
         ),
         BarisInfo('Email cadangan', samarEmail(_emKini)),
-        const BarisInfo('Jabatan', _jabatan),
+        BarisInfo('Jabatan', _a?.jabatan ?? ''),
         _keterangan(
           'Nomor ponsel dipakai untuk masuk. Email cadangan tidak wajib; '
           'dipakai hanya untuk pemulihan akun bila nomor hilang. Tanpa email, '
@@ -322,7 +342,7 @@ class _WebAkunSayaState extends State<WebAkunSayaScreen> {
           style: TextStyle(fontWeight: FontWeight.w700),
         ),
         const BarisInfo('Perangkat ini', 'sedang dipakai'),
-        for (final (i, d) in _dev.indexed)
+        for (final d in _a?.perangkat ?? const <Device>[])
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -332,7 +352,7 @@ class _WebAkunSayaState extends State<WebAkunSayaScreen> {
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      d,
+                      barisPerangkat(d),
                       style: TextStyle(fontSize: 14, color: c.tinta2),
                     ),
                   ),
@@ -341,7 +361,7 @@ class _WebAkunSayaState extends State<WebAkunSayaScreen> {
               const SizedBox(width: 12),
               Tombol(
                 'Keluarkan',
-                onPressed: () => _keluarkan(i),
+                onPressed: () => _keluarkan(d),
                 jenis: JenisTombol.teks,
                 ukuran: UkuranTombol.kecil,
                 lebarPenuh: false,
@@ -367,6 +387,7 @@ class _WebAkunSayaState extends State<WebAkunSayaScreen> {
     ];
     return [
       if (_pesan.isNotEmpty) Pesan(Text(_pesan)),
+      if (_tolakan case final t?) _tolak(t.action, t.because),
       BarisLentur(
         jarak: 28,
         jarakBaris: 20,

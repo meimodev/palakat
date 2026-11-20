@@ -1,8 +1,6 @@
 // mock-data.md 2.16 (notifications, KotakMasuk, BerandaJabatan), 2.17
 // (modules) and 2.21 (settings, sessions, history).
 import 'model.dart';
-import '../app/layar.dart';
-import '../app/belum_dipindah.dart';
 
 // ---------- 2.16 Round-1 Pemberitahuan (phone and web) ----------
 
@@ -65,29 +63,24 @@ const kotakMasukAda = (
       sub: 'Dokumen gereja · belum dibaca',
       label: 'Belum dibaca',
       gaya: GayaLabel.tinta,
-      ke: Layar.surat,
     ),
     ItemKotak(
       judul: 'Warta edisi 22/11/2026 belum diterbitkan',
       sub: 'Warta Jemaat · dibaca 16/11/2026',
       label: 'Dibaca',
       gaya: GayaLabel.garis,
-      ke: Layar.wartaEdisi,
-      param: {'edisi': belumDipindahId},
     ),
   ],
   tahu: [
     ItemKotak(
       judul: 'Pengumuman “Kerja bakti” berakhir 20/11/2026',
       sub: 'Pengumuman',
-      ke: Layar.pengumuman,
     ),
     ItemKotak(
       judul: 'Surat keterangan Novita Wenas diterbitkan',
       sub: 'Sudah ditindaklanjuti 15/11/2026',
       label: 'Selesai',
       gaya: GayaLabel.abu,
-      ke: Layar.surat,
     ),
   ],
 );
@@ -101,23 +94,15 @@ const kotakMasukKeuangan = (
       sub: 'Keuangan · Oktober 2026',
       label: 'Belum dibaca',
       gaya: GayaLabel.tinta,
-      ke: Layar.keuangan,
     ),
     ItemKotak(
       judul: 'Rekonsiliasi Bank BNI ··4821 belum dipastikan',
       sub: 'Keuangan',
       label: 'Dibaca',
       gaya: GayaLabel.garis,
-      ke: Layar.keuangan,
     ),
   ],
-  tahu: [
-    ItemKotak(
-      judul: '2 uang muka lewat jatuh tempo',
-      sub: 'Keuangan',
-      ke: Layar.keuangan,
-    ),
-  ],
+  tahu: [ItemKotak(judul: '2 uang muka lewat jatuh tempo', sub: 'Keuangan')],
 );
 
 // ---------- BerandaJabatan / WebBerandaJabatan (`keadaan`) ----------
@@ -143,28 +128,24 @@ const berandaJabatan = <BerandaOrang>[
         sub: 'Sebagai Penatua Kolom 7 · 2 permohonan · 2 peristiwa · 1 perubahan data',
         label: 'Diajukan',
         gaya: GayaLabel.garis,
-        ke: Layar.verifikasi,
       ),
       ItemKotak(
         judul: 'Ibadah Kolom 7, 19/11/2026',
         sub: 'Sebagai Penatua Kolom 7 · menunggu persetujuan Anda',
         label: 'Draf',
         gaya: GayaLabel.draf,
-        ke: Layar.ibadah,
       ),
       ItemKotak(
         judul: 'Permintaan dana Komisi Diakonia',
         sub: 'Sebagai Ketua Komisi Diakonia · menunggu persetujuan',
         label: 'Diajukan',
         gaya: GayaLabel.garis,
-        ke: Layar.permintaanDana,
       ),
     ],
     tahu: [
       ItemKotak(
         judul: '12 anggota Kolom 7 belum dikonfirmasi',
         sub: 'Sebagai Penatua Kolom 7 · belum tampil di publikasi apa pun',
-        ke: Layar.konfirmasiKeluarga,
       ),
     ],
   ),
@@ -177,21 +158,18 @@ const berandaJabatan = <BerandaOrang>[
       ItemKotak(
         judul: 'Keuangan: 4 hal perlu tindakan',
         sub: 'Saldo buku Rp38.415.000 · Oktober 2026 belum ditutup',
-        ke: Layar.keuangan,
       ),
       ItemKotak(
         judul: '1 hambatan dari unit',
         sub: 'Kolom 7 · menghalangi tutup buku Oktober 2026',
         label: 'Hambatan',
         gaya: GayaLabel.bata,
-        ke: Layar.hambatanUnit,
       ),
     ],
     tahu: [
       ItemKotak(
         judul: '2 uang muka dengan sisa belum dipertanggungjawabkan',
         sub: 'Tidak menghalangi tutup buku',
-        ke: Layar.keuangan,
       ),
     ],
   ),
@@ -204,29 +182,24 @@ const berandaJabatan = <BerandaOrang>[
         sub: 'Belum diterbitkan',
         label: 'Draf',
         gaya: GayaLabel.draf,
-        ke: Layar.pengumuman,
       ),
       ItemKotak(
         judul: '3 permohonan surat',
         sub: 'Diajukan anggota dan dicatat Operator',
         label: 'Diajukan',
         gaya: GayaLabel.garis,
-        ke: Layar.surat,
       ),
       ItemKotak(
         judul: 'Warta Jemaat edisi 22/11/2026',
         sub: 'Belum diterbitkan',
         label: 'Draf',
         gaya: GayaLabel.draf,
-        ke: Layar.wartaEdisi,
-        param: {'edisi': belumDipindahId},
       ),
     ],
     tahu: [
       ItemKotak(
         judul: '1 pengumuman berakhir pada 20/11/2026',
         sub: 'Setelah itu diarsipkan sendiri',
-        ke: Layar.pengumuman,
       ),
     ],
   ),
@@ -237,28 +210,24 @@ const berandaJabatan = <BerandaOrang>[
       ItemKotak(
         judul: '4 formulir kertas belum dimasukkan',
         sub: 'Sebagai Operator · dari anggota tanpa ponsel',
-        ke: Layar.konfirmasiKeluarga,
       ),
       ItemKotak(
         judul: '2 permohonan surat dicatat di kantor',
         sub: 'Sebagai Operator · menunggu Sekretaris Jemaat',
         label: 'Diajukan',
         gaya: GayaLabel.garis,
-        ke: Layar.surat,
       ),
       ItemKotak(
         judul: '3 data Kolom 2 menunggu verifikasi',
         sub: 'Menjalankan jabatan kosong Penatua Kolom 2 sejak 01/11/2026',
         label: 'Jabatan kosong',
         gaya: GayaLabel.bata,
-        ke: Layar.jabatanKosong,
       ),
     ],
     tahu: [
       ItemKotak(
         judul: 'Buku anggota: 318 baris sudah diimpor',
         sub: '241 belum dikonfirmasi',
-        ke: Layar.imporBuku,
       ),
     ],
   ),
@@ -271,7 +240,6 @@ const berandaJabatan = <BerandaOrang>[
         sub: 'Diajukan 14/11/2026',
         label: 'Diajukan',
         gaya: GayaLabel.garis,
-        ke: Layar.surat,
       ),
     ],
     tahu: [
@@ -280,17 +248,14 @@ const berandaJabatan = <BerandaOrang>[
         sub: 'Diterbitkan untuk semua anggota',
         label: 'Diterbitkan',
         gaya: GayaLabel.tinta,
-        ke: Layar.warta,
       ),
       ItemKotak(
         judul: '2 pengumuman untuk Kolom 7',
         sub: 'Ditujukan untuk: Kolom 7',
-        ke: Layar.pengumuman,
       ),
       ItemKotak(
         judul: 'Persembahan saya',
         sub: 'Hanya yang dicatat atas nama Anda',
-        ke: Layar.persembahanSaya,
       ),
     ],
   ),
@@ -407,8 +372,8 @@ const riwayatLainnya = [
 ];
 
 /// WebPengaturan riwayat (board `R`): (waktu, oleh, teks), newest first.
-/// The vacancy state prepends [jkRiwayat] (by Petugas verifikasi) and drops
-/// the 16/11/2026 rows (jabatan_kosong.dart).
+/// The vacancy state prepends the revocation line (by Petugas verifikasi) and drops
+/// the 16/11/2026 rows.
 const riwayatPengaturan = [
   ('16/11/2026 10.42', 'Meiske L.', 'Membukukan BKU-2026-0147'),
   (

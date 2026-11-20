@@ -303,7 +303,7 @@ class TombolTahan extends StatefulWidget {
     this.petunjuk,
   });
 
-  /// 'Tutup buku Oktober 2026'.
+  /// 'Tutup buku {bulan} {tahun}'.
   final String label;
 
   /// Statement ticked.
