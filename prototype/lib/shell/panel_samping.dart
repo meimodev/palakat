@@ -33,10 +33,11 @@ class PanelSamping extends StatelessWidget {
   final List<Widget> anak;
   final bool berbingkai;
 
-  /// `flex-basis` (280–400 on the boards).
+  /// `flex-basis` of the outer box (280–400 on the boards). On a content-box
+  /// aside add 2 × padding + 2 × line (WebDraf 360 → 402, WebKeluar 320 → 363).
   final double dasar;
 
-  /// `max-width` (WebKeluar 420).
+  /// `max-width` of the outer box, likewise (WebKeluar 420 → 463).
   final double? maks;
   final double jarak;
 
