@@ -64,17 +64,7 @@ class _WebPengembalianScreenState extends State<WebPengembalianScreen> {
           ),
           CatatanAturan(
             c: c,
-            tautan: const Tautan(
-              ke: 'WebAlurPengembalian',
-              child: Center(
-                widthFactor: 1,
-                child: TautanTeks(
-                  'Coba alurnya sampai dibukukan',
-                  berat: FontWeight.w700,
-                  ukuran: 14,
-                ),
-              ),
-            ),
+            tautan: const Tautan(ke: 'WebAlurPengembalian', child: SizedBox()),
           ),
           chipJenis(_k, ponsel: false),
           BarisLentur(

@@ -331,9 +331,14 @@ class _Lembar extends StatelessWidget {
       ({int no, List<String> sel, bool tebal, bool lebar, bool data}) r,
     ) {
       final uang = _uang.hasMatch(v);
+      final mono = uang || _kode.hasMatch(v);
       final teks = uang
           ? v.replaceFirst('−Rp', '-').replaceFirst(RegExp('^Rp'), '')
-          : v;
+          // Chrome breaks a sentence after "BKU-" before the digits; ICU
+          // keeps "-2026" together, so a zero-width space allows the break.
+          : mono
+          ? v
+          : v.replaceAll('-', '-\u200B');
       final kanan = uang || (l.kanan.contains(i) && r.data);
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
@@ -345,9 +350,7 @@ class _Lembar extends StatelessWidget {
           overflow: r.lebar ? TextOverflow.visible : TextOverflow.clip,
           style: TextStyle(
             color: c.tinta,
-            fontFamily: uang || _kode.hasMatch(v)
-                ? PalakatText.mono
-                : PalakatText.sans,
+            fontFamily: mono ? PalakatText.mono : PalakatText.sans,
           ),
         ),
       );

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import '../../shell/tautan.dart';
-import '../../widgets/kecil.dart';
 import 'pengembalian_isi.dart';
 
 /// 25 · Pengembalian (spec 07-kejadian.md): a refund saved as a Draf linked
@@ -55,14 +54,7 @@ class _PengembalianScreenState extends State<PengembalianScreen> {
                       c: c,
                       tautan: const Tautan(
                         ke: 'AlurPengembalian',
-                        child: Center(
-                          widthFactor: 1,
-                          child: TautanTeks(
-                            'Coba alurnya sampai dibukukan',
-                            berat: FontWeight.w700,
-                            ukuran: 14,
-                          ),
-                        ),
+                        child: SizedBox(),
                       ),
                     ),
                     const SizedBox(height: 16),
