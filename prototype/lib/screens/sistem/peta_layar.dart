@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../shell/halaman_lembar.dart';
 import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/garis.dart';
-import '../../widgets/tekan.dart';
 
 /// Peta layar (spec 08-cari.md): a fixed 1760 × 1860 sheet mapping every
 /// finance screen, phone and web, with its tier. Every row opens its board.
@@ -207,12 +205,10 @@ class _Baris extends StatelessWidget {
   final _Layar l;
 
   @override
-  Widget build(BuildContext context) => Tekan(
-    onTap: () =>
-        Tautan(ke: l.ke, child: const SizedBox()).buka(GoRouter.of(context)),
+  Widget build(BuildContext context) => Tautan(
+    ke: l.ke,
     minLebar: 0,
     minTinggi: 30,
-    peran: PeranTekan.tautan,
     child: Row(
       children: [
         Expanded(

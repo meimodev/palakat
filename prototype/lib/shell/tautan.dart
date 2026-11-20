@@ -70,6 +70,8 @@ class Tautan extends StatelessWidget {
     this.label,
     this.radius = 0,
     this.diSini,
+    this.minLebar = 44,
+    this.minTinggi = 44,
   });
 
   final String ke;
@@ -85,12 +87,19 @@ class Tautan extends StatelessWidget {
   /// In-board effect of a self link.
   final VoidCallback? diSini;
 
+  /// Target minimum, passed to [Tekan]; below 44 only where the board draws
+  /// a smaller fixed size (PetaLayar rows, Cakupan inline links).
+  final double minLebar;
+  final double minTinggi;
+
   @override
   Widget build(BuildContext context) => Tekan(
     onTap: () => buka(GoRouter.of(context)),
     label: label,
     radius: radius,
     peran: PeranTekan.tautan,
+    minLebar: minLebar,
+    minTinggi: minTinggi,
     child: child,
   );
 

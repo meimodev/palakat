@@ -11,6 +11,11 @@ import 'tekan.dart';
 /// Not a route: put it last in the screen's Stack (`LayarPonsel.overlay`)
 /// while it is open, or use [tampilkanLembarBawah].
 ///
+/// In a `<Stem>Kendali` overlay (above a nested ShellRoute navigator) the
+/// sheet's own PopScope sits on the shell's page, which system Back does not
+/// reach first: the child page adds `PopScope(canPop: !open)` that closes it
+/// (Lainnya, MataAnggaran).
+///
 /// Layout follows the two board forms: [jarak] 14 (Lainnya, Kewajiban …):
 /// column gap 14, handle margin 4, title margin 0; [jarak] 0 (Main, Bagi):
 /// handle margin 14, title margin 0 0 6 (PilihBulan with [anakJudul]:

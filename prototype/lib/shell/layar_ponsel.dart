@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 
 import '../theme/palakat_tema.dart';
 import '../widgets/pita_jabatan_kosong.dart';
@@ -36,24 +36,34 @@ class LayarPonsel extends StatelessWidget {
         jabatanKosong &&
         (PrototypeState.maybeOf(context)?.jabatanKosong ?? false);
     return SizedBox.expand(
-      child: ColoredBox(
-        color: c.kertas,
-        child: DefaultTextStyle(
-          style: PalakatText.isi.copyWith(color: c.tinta, height: 1.4),
-          child: ClipRect(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (pita) const PitaJabatanKosong.ponsel(),
-                Expanded(
-                  child: Stack(
-                    children: [
-                      Positioned.fill(child: child),
-                      ...overlay,
-                    ],
+      // The Material ancestor TextFields need, outside the board text style
+      // so it does not reset it to the theme's bodyMedium.
+      child: Material(
+        type: MaterialType.transparency,
+        child: ColoredBox(
+          color: c.kertas,
+          child: DefaultTextStyle(
+            style: PalakatText.isi.copyWith(
+              color: c.tinta,
+              height: 1.4,
+              // CSS splits line-height leading evenly above and below the glyphs.
+              leadingDistribution: TextLeadingDistribution.even,
+            ),
+            child: ClipRect(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (pita) const PitaJabatanKosong.ponsel(),
+                  Expanded(
+                    child: Stack(
+                      children: [
+                        Positioned.fill(child: child),
+                        ...overlay,
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

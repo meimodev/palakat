@@ -6,8 +6,8 @@ import 'tekan.dart';
 
 enum KeadaanSimpan { belum, tersimpan, mencoba, gagal }
 
-/// The honest save state, trailing in the phone header (Main):
-/// 13/600 with `padding-right: 8px`.
+/// The honest save state, trailing in the phone header (Main): 13/600.
+/// Pass it as `KepalaPonsel.ujung`, which gives the board's 8 px right.
 class StatusSimpan extends StatelessWidget {
   const StatusSimpan(this.keadaan, {super.key});
 
@@ -22,16 +22,9 @@ class StatusSimpan extends StatelessWidget {
       KeadaanSimpan.mencoba => ('Mencoba menyimpan lagi…', c.tinta3),
       KeadaanSimpan.gagal => ('Gagal disimpan', c.bata),
     };
-    return Padding(
-      padding: const EdgeInsets.only(right: 8),
-      child: Text(
-        teks,
-        style: TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-          color: warna,
-        ),
-      ),
+    return Text(
+      teks,
+      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: warna),
     );
   }
 }

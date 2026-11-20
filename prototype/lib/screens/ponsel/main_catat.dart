@@ -65,12 +65,6 @@ class _CatatState extends State<_Catat> {
     final m = _MainLingkup.of(context);
     final c = context.warna;
     final cfg = m.cfg;
-    final (simpanTeks, simpanWarna) = switch (m.simpan) {
-      KeadaanSimpan.belum => ('Belum tersimpan', c.tinta3),
-      KeadaanSimpan.tersimpan => ('Tersimpan', c.laut),
-      KeadaanSimpan.gagal => ('Gagal disimpan', c.bata),
-      KeadaanSimpan.mencoba => ('Mencoba menyimpan lagi…', c.tinta3),
-    };
     List<({String nilai, String teks})> daftar(List<String> l) => [
       for (final x in l) (nilai: x, teks: x),
     ];
@@ -82,15 +76,7 @@ class _CatatState extends State<_Catat> {
         KepalaPonsel(
           judul: cfg.judul,
           onKembali: () => _keBeranda(context),
-          // StatusSimpan pads 8 itself; KepalaPonsel already gives 8.
-          ujung: Text(
-            simpanTeks,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: simpanWarna,
-            ),
-          ),
+          ujung: StatusSimpan(m.simpan),
         ),
         if (m.simpan == KeadaanSimpan.gagal)
           PitaGagalSimpan(onCobaLagi: m.cobaLagi),
