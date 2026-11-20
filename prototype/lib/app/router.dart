@@ -187,7 +187,8 @@ final routerProvider = Provider<GoRouter>((ref) {
     ),
     (_, _) => segar.value++,
   );
-  final router = GoRouter(
+  late final GoRouter router;
+  router = GoRouter(
     initialLocation: Layar.beranda.jalur,
     refreshListenable: segar,
     redirect: (context, state) {
@@ -196,6 +197,17 @@ final routerProvider = Provider<GoRouter>((ref) {
       final pilih = Layar.pemilih.jalur, akhir = Layar.sesiBerakhir.jalur;
       if (sesi == null) return di == pilih ? null : pilih;
       if (sesi.berakhir) return di == akhir ? null : akhir;
+      if (di == pilih) {
+        // The browser's Back from the role home reaches the picker: sign out
+        // there, keeping the state (owner request; Android uses PopScope on
+        // the home). A sign-in on the picker stays on it and goes home.
+        final kini = router.routerDelegate.currentConfiguration;
+        if (kini.isNotEmpty && kini.uri.path != pilih) {
+          // After this redirect, never during a build (commit 19a71f9d).
+          Future.microtask(ref.read(sessionProvider.notifier).keluar);
+          return null;
+        }
+      }
       return di == pilih || di == akhir ? Layar.beranda.jalur : null;
     },
     errorBuilder: (context, state) =>

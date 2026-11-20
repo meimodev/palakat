@@ -45,63 +45,65 @@ class _WebBerandaJabatanScreenState
     final c = context.warna;
     final b = bacaBeranda(ref);
     // HalamanWeb's page scroll view inherits this controller (scroll to top).
-    return PrimaryScrollController(
-      controller: _scroll,
-      automaticallyInheritForPlatforms: TargetPlatform.values.toSet(),
-      child: HalamanWeb(
-        nav: NavSamping(item: navPlatform, aktif: 0, diSini: _keAtas),
-        isi: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Inline link, 21.75 high on the board; the 44 target overhangs.
-              MarginNegatif(
-                atas: 11.125,
-                bawah: 11.125,
-                child: Tautan(
-                  ke: Layar.beranda,
-                  cara: Cara.naik,
-                  diSini: _keAtas,
-                  child: const SizedBox(
-                    height: 44,
-                    child: Align(
-                      widthFactor: 1,
-                      child: TautanTeks('Beranda', ukuran: 14),
+    return KeluarSaatKembali(
+      child: PrimaryScrollController(
+        controller: _scroll,
+        automaticallyInheritForPlatforms: TargetPlatform.values.toSet(),
+        child: HalamanWeb(
+          nav: NavSamping(item: navPlatform, aktif: 0, diSini: _keAtas),
+          isi: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Inline link, 21.75 high on the board; the 44 target overhangs.
+                MarginNegatif(
+                  atas: 11.125,
+                  bawah: 11.125,
+                  child: Tautan(
+                    ke: Layar.beranda,
+                    cara: Cara.naik,
+                    diSini: _keAtas,
+                    child: const SizedBox(
+                      height: 44,
+                      child: Align(
+                        widthFactor: 1,
+                        child: TautanTeks('Beranda', ukuran: 14),
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 2),
-              Semantics(
-                header: true,
-                child: Text(
-                  'Beranda',
-                  style: PalakatText.judulHalaman.copyWith(color: c.tinta),
+                const SizedBox(height: 2),
+                Semantics(
+                  header: true,
+                  child: Text(
+                    'Beranda',
+                    style: PalakatText.judulHalaman.copyWith(color: c.tinta),
+                  ),
+                ),
+                Text(
+                  'Satu Beranda untuk semua jabatan Anda',
+                  style: TextStyle(fontSize: 14, color: c.tinta2),
+                ),
+              ],
+            ),
+            Align(
+              alignment: Alignment.topLeft,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1120),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: bersela([
+                    DaftarJabatan(nama: b.nama, jabatan: b.jabatan),
+                    if (b.perluMemilih)
+                      ...isiPilihJabatan(ref, b.pilihan)
+                    else
+                      ..._daftar(b),
+                  ], 16),
                 ),
               ),
-              Text(
-                'Satu Beranda untuk semua jabatan Anda',
-                style: TextStyle(fontSize: 14, color: c.tinta2),
-              ),
-            ],
-          ),
-          Align(
-            alignment: Alignment.topLeft,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1120),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: bersela([
-                  DaftarJabatan(nama: b.nama, jabatan: b.jabatan),
-                  if (b.perluMemilih)
-                    ...isiPilihJabatan(ref, b.pilihan)
-                  else
-                    ..._daftar(b),
-                ], 16),
-              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

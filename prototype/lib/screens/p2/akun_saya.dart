@@ -1,6 +1,10 @@
+import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../providers/tema.dart';
+import '../../widgets/sakelar.dart';
 
 import '../../core/format.dart';
 import '../../domain/core/core.dart';
@@ -392,6 +396,7 @@ class _AkunSayaScreenState extends ConsumerState<AkunSayaScreen> {
             ],
           ),
       ]),
+      const KartuTema(),
       BarisTombol(
         anak: [_kedua('Keluar', () => _ke(_V.keluar), lebarPenuh: true)],
       ),
@@ -591,6 +596,45 @@ class _AkunSayaScreenState extends ConsumerState<AkunSayaScreen> {
 /// The board's `value.replace(/\D/g, '').slice(0, maks)`: digits only, then
 /// the end is cut, so typing into a full field keeps the new digit (Flutter's
 /// LengthLimitingTextInputFormatter would refuse it).
+/// "Tampilan": the dark-theme switch, shared by AkunSaya and WebAkunSaya.
+/// Not drawn on the boards; light is the default (owner request).
+class KartuTema extends ConsumerWidget {
+  const KartuTema({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final gelap = ref.watch(temaProvider) == ThemeMode.dark;
+    return Kartu(
+      child: Row(
+        spacing: 12,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 2,
+              children: [
+                const Text(
+                  'Tema gelap',
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
+                Text(
+                  'Berlaku di perangkat ini sampai aplikasi dibuka ulang.',
+                  style: TextStyle(fontSize: 13, color: context.warna.tinta3),
+                ),
+              ],
+            ),
+          ),
+          Sakelar(
+            nilai: gelap,
+            label: 'Tema gelap',
+            onUbah: ref.read(temaProvider.notifier).gelap,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _AngkaSaja extends TextInputFormatter {
   _AngkaSaja(this.maks);
 

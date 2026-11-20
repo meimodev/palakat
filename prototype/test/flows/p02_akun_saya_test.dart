@@ -1,11 +1,14 @@
 // P2 My account, README 8.3: "Email cadangan disimpan."; a removed device is
 // gone; sign-out returns to the picker, and the change is kept.
 
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:palakat_prototype/app/layar.dart';
 import 'package:palakat_prototype/app/router.dart';
 import 'package:palakat_prototype/providers/actor.dart';
 import 'package:palakat_prototype/providers/core_repositories.dart';
+import 'package:palakat_prototype/providers/tema.dart';
+import 'package:palakat_prototype/widgets/sakelar.dart';
 
 import 'harness.dart';
 
@@ -69,6 +72,34 @@ void main() {
         );
         expect(r.isOk, isTrue);
         expect(sesi.devices('meiske'), isEmpty);
+      });
+    }
+
+    // Owner request: light by default, also when the system is dark; the
+    // "Tema gelap" switch in AkunSaya turns dark on for the rest of the run.
+    for (final tata in [Tata.ponsel, Tata.web]) {
+      testWidgets('tema terang bawaan, gelap dari Akun ${tata.name}', (
+        tester,
+      ) async {
+        tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
+        addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+        final wadah = await bukaAplikasi(tester, tata: tata);
+        Brightness terang() =>
+            Theme.of(tester.element(find.text('Masuk sebagai'))).brightness;
+        expect(terang(), Brightness.light);
+
+        await masukSebagai(tester, Persona.meiske);
+        wadah.read(routerProvider).go(Layar.akun.lokasi());
+        await tester.pumpAndSettle();
+        final sakelar = find.byType(Sakelar);
+        await tester.ensureVisible(sakelar);
+        await tester.tap(sakelar);
+        await tester.pumpAndSettle();
+        expect(wadah.read(temaProvider), ThemeMode.dark);
+
+        // Kept across sign-out, like the rest of the in-memory state.
+        await keluar(tester);
+        expect(terang(), Brightness.dark);
       });
     }
   });

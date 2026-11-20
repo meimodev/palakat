@@ -39,46 +39,48 @@ class _BerandaJabatanScreenState extends ConsumerState<BerandaJabatanScreen> {
   @override
   Widget build(BuildContext context) {
     final b = bacaBeranda(ref);
-    return LayarPonsel(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          KepalaPonsel(
-            judul: 'Beranda',
-            anakJudul: 'Satu Beranda untuk semua jabatan Anda',
-            kembaliKe: Layar.beranda,
-            labelKembali: 'Kembali ke Beranda',
-            diSini: _keAtas,
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              controller: _scroll,
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: bersela([
-                  DaftarJabatan(nama: b.nama, jabatan: b.jabatan),
-                  if (b.perluMemilih)
-                    ...isiPilihJabatan(ref, b.pilihan)
-                  else ...[
-                    if (b.tindak.isEmpty)
-                      const KartuKosong()
+    return KeluarSaatKembali(
+      child: LayarPonsel(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            KepalaPonsel(
+              judul: 'Beranda',
+              anakJudul: 'Satu Beranda untuk semua jabatan Anda',
+              kembaliKe: Layar.beranda,
+              labelKembali: 'Kembali ke Beranda',
+              diSini: _keAtas,
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                controller: _scroll,
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: bersela([
+                    DaftarJabatan(nama: b.nama, jabatan: b.jabatan),
+                    if (b.perluMemilih)
+                      ...isiPilihJabatan(ref, b.pilihan)
                     else ...[
-                      const JudulBagian('Perlu tindakan'),
-                      for (final r in b.tindak) _KartuBaris(r),
+                      if (b.tindak.isEmpty)
+                        const KartuKosong()
+                      else ...[
+                        const JudulBagian('Perlu tindakan'),
+                        for (final r in b.tindak) _KartuBaris(r),
+                      ],
+                      if (b.tahu.isNotEmpty) ...[
+                        const JudulBagian('Untuk diketahui'),
+                        for (final r in b.tahu) _KartuBaris(r),
+                      ],
+                      const Keterangan(kalimatBeranda),
+                      const TautanAkunSaya(),
                     ],
-                    if (b.tahu.isNotEmpty) ...[
-                      const JudulBagian('Untuk diketahui'),
-                      for (final r in b.tahu) _KartuBaris(r),
-                    ],
-                    const Keterangan(kalimatBeranda),
-                    const TautanAkunSaya(),
-                  ],
-                ], 16),
+                  ], 16),
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

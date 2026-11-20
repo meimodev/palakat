@@ -3,10 +3,12 @@
 // a change made by one persona shows for the next. Also the layout chooser,
 // a launch with no overrides, and the seed over 366 launch days.
 
-import 'package:flutter/widgets.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:palakat_prototype/app/app.dart';
+import 'package:palakat_prototype/app/layar.dart';
+import 'package:palakat_prototype/app/router.dart';
 import 'package:palakat_prototype/app/tata.dart' show pilihTata;
 import 'package:palakat_prototype/core/tanggal.dart';
 import 'package:palakat_prototype/data/seed/build_seed.dart';
@@ -119,6 +121,77 @@ void main() {
         expect(_diKartu(_koverYanti), findsNothing);
       });
     }
+
+    // Owner request: Back on the role home signs out to the picker, keeping
+    // the state. Android's back gesture on the phone and the tablet.
+    for (final tata in [Tata.ponsel, Tata.tablet]) {
+      testWidgets('kembali dari Beranda ke pemilih ${tata.name}', (
+        tester,
+      ) async {
+        final wadah = await bukaAplikasi(tester, tata: tata);
+        await masukSebagai(tester, Persona.meiske);
+        wadah.read(routerProvider).push(Layar.akun.lokasi());
+        await tester.pumpAndSettle();
+        expect(find.text('Perangkat yang masuk'), findsOneWidget);
+
+        // Back from a page above the home only pops it.
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+        expect(find.text('Perangkat yang masuk'), findsNothing);
+        expect(find.text('Masuk sebagai'), findsNothing);
+        expect(wadah.read(sessionProvider), isNotNull);
+
+        // Back on the home signs out and shows the picker.
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+        expect(wadah.read(sessionProvider), isNull);
+        expect(find.text('Masuk sebagai'), findsOneWidget);
+
+        await masukSebagai(tester, Persona.olvie);
+        expect(lokasiSekarang(tester), Layar.beranda.jalur);
+      });
+    }
+
+    // The browser's Back from the home reaches /pilih: the same sign-out.
+    testWidgets('kembali peramban dari Beranda ke pemilih web', (tester) async {
+      final wadah = await bukaAplikasi(tester, tata: Tata.web);
+      await masukSebagai(tester, Persona.meiske);
+      expect(lokasiSekarang(tester), Layar.beranda.jalur);
+
+      await tester.binding.defaultBinaryMessenger.handlePlatformMessage(
+        'flutter/navigation',
+        const JSONMethodCodec().encodeMethodCall(
+          MethodCall('pushRouteInformation', {
+            'location': Layar.pemilih.jalur,
+            'state': null,
+          }),
+        ),
+        (_) {},
+      );
+      await tester.pumpAndSettle();
+      expect(wadah.read(sessionProvider), isNull);
+      expect(find.text('Masuk sebagai'), findsOneWidget);
+
+      // Signing in from there still goes home.
+      await masukSebagai(tester, Persona.olvie);
+      expect(lokasiSekarang(tester), Layar.beranda.jalur);
+      expect(wadah.read(sessionProvider), isNotNull);
+    });
+
+    // Owner request: nothing is drawn under the status bar or the gesture bar.
+    testWidgets('ponsel di bawah bilah status', (tester) async {
+      await bukaAplikasi(tester);
+      tester.view.padding = const FakeViewPadding(top: 40, bottom: 24);
+      await tester.pumpAndSettle();
+      expect(tester.getTopLeft(find.text('Masuk sebagai')).dy, greaterThan(40));
+
+      await masukSebagai(tester, Persona.meiske);
+      expect(tester.getTopLeft(find.text('Beranda').first).dy, greaterThan(40));
+      expect(
+        tester.getBottomLeft(find.byType(BerandaJabatanScreen)).dy,
+        lessThanOrEqualTo(ukuranTata[Tata.ponsel]!.height - 24),
+      );
+    });
 
     test('pilihTata', () {
       for (final MapEntry(key: tata, value: ukuran) in ukuranTata.entries) {

@@ -179,3 +179,21 @@ List<Widget> isiPilihJabatan(
     'pengajuan Anda sendiri.',
   ),
 ];
+
+/// Back on the role home (the Android back gesture) signs the persona out and
+/// shows the picker, keeping the in-memory state (owner request). The web
+/// browser's Back is handled by the router's redirect.
+class KeluarSaatKembali extends StatelessWidget {
+  const KeluarSaatKembali({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => PopScope(
+    canPop: false,
+    onPopInvokedWithResult: (didPop, _) {
+      if (!didPop) keluarSesi(context);
+    },
+    child: child,
+  );
+}
