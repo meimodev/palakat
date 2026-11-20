@@ -281,6 +281,7 @@ class _AlurAnggotaState extends State<AlurAnggotaScreen> {
         KotakCentang(
           nilai: _izin,
           onUbah: (v) => setState(() => _izin = v),
+          jarakAtas: 2,
           label: const Text('Saya memberi izin penggunaan data pribadi saya.'),
         ),
       ]),

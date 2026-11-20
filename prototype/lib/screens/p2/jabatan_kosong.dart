@@ -189,6 +189,7 @@ class _JabatanKosongScreenState extends State<JabatanKosongScreen> {
           KotakCentang(
             nilai: _centang,
             onUbah: (v) => setState(() => _centang = v),
+            jarakAtas: 2,
             label: const Text(
               'Saya sudah membaca ringkasan dan laporan sementara. Saya '
               'mengerti bahwa tutup buku ini bersifat permanen dan transaksi '

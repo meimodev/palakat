@@ -282,8 +282,9 @@ class DeretTautan extends StatelessWidget {
 /// The one-line input (and with [baris] > 1 the textarea): min height 48,
 /// padding 0 14, radius 12, 1 px `garisTegas`, `permukaan` ([latar] `kertas`
 /// for search fields), label 14 `tinta2` above with gap [jarakLabel]
-/// (8; 6 in flow boards), placeholder `tinta3`, typed text inherited
-/// (CSS `input{font:inherit}`). Focus: the 2 px `laut` ring.
+/// (8; 6 in flow boards), placeholder `tinta3` (clipped, no ellipsis), typed
+/// text inherited (CSS `input{font:inherit}`; letter spacing 0 unless
+/// inherited or set in [gaya]). Focus: the 2 px `laut` ring.
 class IsianTeks extends StatefulWidget {
   const IsianTeks({
     super.key,
@@ -305,6 +306,7 @@ class IsianTeks extends StatefulWidget {
     this.focusNode,
     this.textInputAction,
     this.onSubmitted,
+    this.autofillHints,
   });
 
   final TextEditingController? controller;
@@ -339,6 +341,9 @@ class IsianTeks extends StatefulWidget {
   final FocusNode? focusNode;
   final TextInputAction? textInputAction;
   final ValueChanged<String>? onSubmitted;
+
+  /// Board `autocomplete` (e.g. `AutofillHints.oneTimeCode`).
+  final Iterable<String>? autofillHints;
 
   @override
   State<IsianTeks> createState() => _IsianTeksState();
@@ -380,7 +385,11 @@ class _IsianTeksState extends State<IsianTeks> {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final teks = DefaultTextStyle.of(context).style.merge(widget.gaya);
+    final asal = DefaultTextStyle.of(context).style;
+    // TextField merges the M3 bodyLarge (letterSpacing 0.5) under this.
+    final teks = asal
+        .copyWith(letterSpacing: asal.letterSpacing ?? 0)
+        .merge(widget.gaya);
     final area = widget.baris > 1;
     Widget kotak = CincinFokus(
       tampil: _fokus.hasFocus,
@@ -410,6 +419,7 @@ class _IsianTeksState extends State<IsianTeks> {
             onSubmitted: widget.onSubmitted,
             inputFormatters: widget.formatters,
             keyboardType: widget.keyboardType,
+            autofillHints: widget.autofillHints,
             textInputAction: widget.textInputAction,
             minLines: area ? widget.baris : null,
             maxLines: widget.baris,
@@ -417,7 +427,10 @@ class _IsianTeksState extends State<IsianTeks> {
             cursorColor: c.laut,
             decoration: InputDecoration.collapsed(
               hintText: widget.petunjuk,
-              hintStyle: teks.copyWith(color: c.tinta3),
+              hintStyle: teks.copyWith(
+                color: c.tinta3,
+                overflow: TextOverflow.clip,
+              ),
             ),
           ),
         ),
@@ -450,6 +463,7 @@ class _IsianTeksState extends State<IsianTeks> {
 /// Checkbox row: 24 × 24 box (radius 4; unticked 1.5 `garisTegas` on
 /// `permukaan`; ticked `laut` with `Ikon.centang` 16 `diLaut` stroke 3), gap
 /// 12, top-aligned [label] 14, min height 44. The whole row is the target.
+/// [jarakAtas] pads the box only (the flow boards' `margin: 2px 0 0`).
 class KotakCentang extends StatelessWidget {
   const KotakCentang({
     super.key,
@@ -458,6 +472,7 @@ class KotakCentang extends StatelessWidget {
     this.label,
     this.ukuran = 24,
     this.labelSemantik,
+    this.jarakAtas = 0,
   });
 
   final bool nilai;
@@ -465,6 +480,7 @@ class KotakCentang extends StatelessWidget {
   final Widget? label;
   final double ukuran;
   final String? labelSemantik;
+  final double jarakAtas;
 
   @override
   Widget build(BuildContext context) {
@@ -494,7 +510,15 @@ class KotakCentang extends StatelessWidget {
       onTap: onUbah == null ? null : () => onUbah!(!nilai),
       tercentang: nilai,
       label: labelSemantik,
-      child: _barisPilihan(kotak, label),
+      child: _barisPilihan(
+        label == null || jarakAtas == 0
+            ? kotak
+            : Padding(
+                padding: EdgeInsets.only(top: jarakAtas),
+                child: kotak,
+              ),
+        label,
+      ),
     );
   }
 }

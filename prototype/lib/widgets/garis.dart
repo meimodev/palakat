@@ -204,6 +204,16 @@ class _LurusPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    final m = canvas.getTransform();
+    // Chrome snaps borders to device pixels; at a fractional offset the dots
+    // or dashes would blur into a pale solid line. Not when rotated (Kamera).
+    // ponytail: snaps within the current layer only.
+    if (gaya != GayaGaris.penuh && m[1] == 0 && m[4] == 0) {
+      canvas.translate(
+        (m[12].roundToDouble() - m[12]) / m[0],
+        (m[13].roundToDouble() - m[13]) / m[5],
+      );
+    }
     final y = size.height / 2;
     final garis = Path()
       ..moveTo(0, y)

@@ -301,20 +301,13 @@ class _AlurJabatanKosongScreenState extends State<AlurJabatanKosongScreen> {
         onChanged: (_) => setState(() {}),
         baris: 3,
       ),
-      // The board's checkbox sits 2 px down (margin-top) inside a 44 min row:
-      // shifted in paint so the row keeps its height.
-      Transform.translate(
-        offset: const Offset(0, 2),
-        child: KotakCentang(
-          nilai: _paham,
-          onUbah: (v) => setState(() => _paham = v),
-          label: Transform.translate(
-            offset: const Offset(0, -2),
-            child: Text(
-              'Saya mengerti setiap tindakan saya tercatat sebagai dijalankan oleh Operator, dan jabatan ini kembali kepada pemegangnya begitu ditugaskan.',
-              style: TextStyle(color: c.tinta),
-            ),
-          ),
+      KotakCentang(
+        nilai: _paham,
+        onUbah: (v) => setState(() => _paham = v),
+        jarakAtas: 2,
+        label: Text(
+          'Saya mengerti setiap tindakan saya tercatat sebagai dijalankan oleh Operator, dan jabatan ini kembali kepada pemegangnya begitu ditugaskan.',
+          style: TextStyle(color: c.tinta),
         ),
       ),
       if (mulai && alasan.isNotEmpty)

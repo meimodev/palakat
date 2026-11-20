@@ -270,19 +270,12 @@ mixin AlurKeluargaLogika<T extends StatefulWidget> on State<T> {
             ),
           if (ada) _kecil('1 file terlampir'),
         ]),
-        // The board's box has `margin: 2px 0 0`; KotakCentang has no such
-        // option, so the row moves down 2 and the label back up 2.
-        Padding(
-          padding: const EdgeInsets.only(top: 2),
-          child: KotakCentang(
-            nilai: izinF,
-            onUbah: (_) => setState(() => izinF = !izinF),
-            label: Transform.translate(
-              offset: const Offset(0, -2),
-              child: const Text(
-                'Formulir memuat izin penggunaan data pribadi, naskah versi 1.',
-              ),
-            ),
+        KotakCentang(
+          nilai: izinF,
+          onUbah: (_) => setState(() => izinF = !izinF),
+          jarakAtas: 2,
+          label: const Text(
+            'Formulir memuat izin penggunaan data pribadi, naskah versi 1.',
           ),
         ),
         if (sebab.isNotEmpty)
