@@ -5,6 +5,8 @@
 // phone (owner change 21/11, README 7.3) each lands on the one home `/` with
 // its bottom bar: the exact items, each item's screen, the Lainnya hub.
 
+import 'dart:ui' show AppLifecycleState;
+
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -242,8 +244,31 @@ void main() {
       testWidgets('kembali dari Beranda ke pemilih ${tata.name}', (
         tester,
       ) async {
+        // Android hands Back to the app only while the framework says it
+        // handles it; a home in a nested navigator once lost that.
+        Object? menanganiKembali;
+        tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.platform,
+          (panggilan) async {
+            if (panggilan.method == 'SystemNavigator.setFrameworkHandlesBack') {
+              menanganiKembali = panggilan.arguments;
+            }
+            return null;
+          },
+        );
+        addTearDown(
+          () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+            SystemChannels.platform,
+            null,
+          ),
+        );
+        // The framework reports the flag only for a visible app.
+        tester.binding.handleAppLifecycleStateChanged(
+          AppLifecycleState.resumed,
+        );
         final wadah = await bukaAplikasi(tester, tata: tata);
         await masukSebagai(tester, Persona.meiske);
+        expect(menanganiKembali, isTrue, reason: 'Back reaches the app');
         wadah.read(routerProvider).push(Layar.akun.lokasi());
         await tester.pumpAndSettle();
         expect(find.text('Perangkat yang masuk'), findsOneWidget);

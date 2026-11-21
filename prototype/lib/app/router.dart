@@ -226,7 +226,9 @@ final routerProvider = Provider<GoRouter>((ref) {
         // hosts `/` and Main's child routes; every other phone page sits on
         // the root navigator above it, so the home stays the bottom page.
         ShellRoute(
-          pageBuilder: (c, s, child) => _p(c, s, MainKendali(child: child)),
+          // [_AkarPonsel] keeps Android's Back coming to the app on the home.
+          pageBuilder: (c, s, child) =>
+              _p(c, s, _AkarPonsel(child: MainKendali(child: child))),
           routes: [
             GoRoute(
               path: Layar.beranda.jalur,
@@ -267,6 +269,23 @@ class _Dijaga extends ConsumerWidget {
         ? KeadaanUmumScreen(key: ValueKey(p), penjaga: p)
         : WebKeadaanUmumScreen(key: ValueKey(p), penjaga: p);
   }
+}
+
+/// The phone shell's page on the root navigator. The home's own PopScope
+/// lives in the shell's nested navigator, but Android hands Back to the app
+/// only while the ROOT route reports that it handles pops. So the bottom
+/// page says so; the router still sends each Back to the innermost navigator
+/// first. A copy of the shell pushed above another page pops as usual.
+class _AkarPonsel extends StatelessWidget {
+  const _AkarPonsel({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => PopScope(
+    canPop: !(ModalRoute.of(context)?.isFirst ?? false),
+    child: child,
+  );
 }
 
 // ---------- Helpers ----------
