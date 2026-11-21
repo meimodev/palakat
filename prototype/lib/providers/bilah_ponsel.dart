@@ -55,55 +55,55 @@ final List<
 tabelBilahPonsel = [
   (
     cocok: (p) => p.peran == Role.sekretarisJemaat,
-    tab: _i('Dokumen', Layar.dokumenGereja, Ikon.transaksi),
-    aksi: _i('Terbitkan', Layar.dokumenGereja, Ikon.tambah, anak: 'terbit'),
+    tab: _i('Dokumen', Layar.dokumenGereja, Ikon.dokumen),
+    aksi: _i('Terbitkan', Layar.dokumenGereja, Ikon.terbitkan, anak: 'terbit'),
   ),
   (
     cocok: (p) => p.peran == Role.ketuaJemaat || p.peran == Role.pimpinanJemaat,
-    tab: _i('Penugasan', Layar.penugasan, Ikon.centang),
-    aksi: _i('Setujui', Layar.permintaanDana, Ikon.tambah),
+    tab: _i('Penugasan', Layar.penugasan, Ikon.penugasan),
+    aksi: _i('Setujui', Layar.permintaanDana, Ikon.centang),
   ),
   (
     cocok: (p) => p.peran == Role.pemeriksaKedua,
-    tab: _i('Periksa', Layar.pemeriksa, Ikon.centang),
-    aksi: _i('Cari', Layar.cari, Ikon.tambah),
+    tab: _i('Periksa', Layar.pemeriksa, Ikon.periksa),
+    aksi: _i('Cari', Layar.cari, Ikon.cari),
   ),
   (
     cocok: (p) => p.peran == Role.penatuaKolom,
-    tab: _i('Verifikasi', Layar.verifikasi, Ikon.centang),
-    aksi: _i('Ibadah', Layar.ibadah, Ikon.tambah),
+    tab: _i('Verifikasi', Layar.verifikasi, Ikon.verifikasi),
+    aksi: _i('Ibadah', Layar.ibadah, Ikon.ibadah),
   ),
   (
     cocok: (p) => p.peran == Role.operator,
-    tab: _i('Data jemaat', Layar.dataAnggota, Ikon.transaksi),
-    aksi: _i('Impor', Layar.imporBuku, Ikon.tambah),
+    tab: _i('Data jemaat', Layar.dataAnggota, Ikon.dataJemaat),
+    aksi: _i('Impor', Layar.imporBuku, Ikon.impor),
   ),
   (
     cocok: (p) => p.peran == Role.syamasKolom || p.pelimpahan,
-    tab: _i('Verifikasi', Layar.verifikasi, Ikon.centang),
-    aksi: _i('Ibadah', Layar.ibadah, Ikon.tambah),
+    tab: _i('Verifikasi', Layar.verifikasi, Ikon.verifikasi),
+    aksi: _i('Ibadah', Layar.ibadah, Ikon.ibadah),
   ),
   (
     cocok: (p) => p.peran == Role.bendaharaUnit && p.jenis == ScopeType.kolom,
-    tab: _i('Keuangan unit', Layar.keuanganUnit, Ikon.transaksi),
-    aksi: _i('Kesiapan', Layar.kesiapan, Ikon.tambah),
+    tab: _i('Keuangan unit', Layar.keuanganUnit, Ikon.keuanganUnit),
+    aksi: _i('Kesiapan', Layar.kesiapan, Ikon.periksa),
   ),
   (
     cocok: (p) =>
         p.peran == Role.aksesTerbatas ||
         (p.peran == Role.bendaharaUnit && p.jenis == ScopeType.komisi),
-    tab: _i('Terbatas', Layar.terbatas, Ikon.transaksi),
-    aksi: _i('Kesiapan', Layar.kesiapan, Ikon.tambah),
+    tab: _i('Terbatas', Layar.terbatas, Ikon.terbatas),
+    aksi: _i('Kesiapan', Layar.kesiapan, Ikon.periksa),
   ),
   (
     cocok: (p) => p.peran == Role.bendaharaUnit && p.jenis == ScopeType.panitia,
-    tab: _i('Panitia', Layar.panitia, Ikon.transaksi),
-    aksi: _i('Dana', Layar.permintaanDana, Ikon.tambah),
+    tab: _i('Panitia', Layar.panitia, Ikon.panitia),
+    aksi: _i('Dana', Layar.permintaanDana, Ikon.dana),
   ),
   (
     cocok: (_) => false,
-    tab: _i('Persembahan', Layar.persembahanSaya, Ikon.transaksi),
-    aksi: _i('Surat', Layar.surat, Ikon.tambah),
+    tab: _i('Persembahan', Layar.persembahanSaya, Ikon.persembahan),
+    aksi: _i('Surat', Layar.surat, Ikon.surat),
   ),
 ];
 

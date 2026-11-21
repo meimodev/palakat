@@ -71,7 +71,7 @@ class BilahPonsel extends StatelessWidget {
             border: Border.all(color: c.kertas, width: 4),
           ),
           alignment: Alignment.center,
-          child: PalakatIkon(i.ikon, ukuran: 24, tebal: 2.4, warna: c.diLaut),
+          child: PalakatIkon(i.ikon, ukuran: 24, warna: c.diLaut),
         );
         return Expanded(
           child: Column(
@@ -110,7 +110,7 @@ class BilahPonsel extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              PalakatIkon(i.ikon, ukuran: 22, tebal: 2, warna: warna),
+              PalakatIkon(i.ikon, ukuran: 22, warna: warna),
               const SizedBox(height: 3),
               Text(
                 i.teks,

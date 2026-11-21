@@ -506,12 +506,7 @@ class KotakCentang extends StatelessWidget {
         ),
         child: nilai
             ? Center(
-                child: PalakatIkon(
-                  Ikon.centang,
-                  ukuran: 16,
-                  warna: c.diLaut,
-                  tebal: 3,
-                ),
+                child: PalakatIkon(Ikon.centang, ukuran: 16, warna: c.diLaut),
               )
             : null,
       ),

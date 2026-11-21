@@ -231,7 +231,6 @@ class _Pernyataan extends StatelessWidget {
                           Ikon.centang,
                           ukuran: 16,
                           warna: c.diLaut,
-                          tebal: 3,
                         ),
                       )
                     : null,

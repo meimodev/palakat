@@ -335,12 +335,7 @@ class _Butir extends StatelessWidget {
                 width: 44,
                 height: 44,
                 child: Center(
-                  child: PalakatIkon(
-                    Ikon.silang,
-                    ukuran: 16,
-                    tebal: 2.4,
-                    warna: c.tinta3,
-                  ),
+                  child: PalakatIkon(Ikon.silang, ukuran: 16, warna: c.tinta3),
                 ),
               ),
             ),

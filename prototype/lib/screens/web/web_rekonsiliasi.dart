@@ -869,7 +869,6 @@ class _BarisPilih extends StatelessWidget {
                       child: PalakatIkon(
                         Ikon.centang,
                         ukuran: 14,
-                        tebal: 3.4,
                         warna: c.permukaan,
                       ),
                     ),
