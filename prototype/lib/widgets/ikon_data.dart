@@ -111,6 +111,15 @@ abstract final class Ikon {
     tebal: 2,
     isi: '<rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/>',
   );
+
+  /// The inbox tray of the phone bar's "Kotak masuk" tab (not drawn on the
+  /// boards; in their stroke style).
+  static const kotakMasuk = IkonData(
+    viewBox: '0 0 24 24',
+    akar: _garisSudut,
+    tebal: 2,
+    isi: '<path d="M4 13l2.5-8h11L20 13v6H4z"/><path d="M4 13h5a3 3 0 0 0 6 0h5"/>',
+  );
   static const lainnya = IkonData(
     viewBox: '0 0 24 24',
     akar: 'fill="{warna}"',
@@ -213,6 +222,7 @@ abstract final class Ikon {
     'tambah': (tambah, 24),
     'bulan': (bulan, 22),
     'lainnya': (lainnya, 22),
+    'kotakMasuk': (kotakMasuk, 22),
     'kamera': (kamera, 20),
     'silang': (silang, 18),
     'centang': (centang, 20),

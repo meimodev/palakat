@@ -12,7 +12,9 @@ enum TabPonsel { beranda, transaksi, bulan, lainnya }
 /// One column of a phone bottom bar: icon and label, drawn `laut` and
 /// `Semantics(selected: true)` while [aktif]. [bungkus] makes it a link or
 /// a button (null: a plain label). A [lingkaran] item is the raised circle:
-/// icon only, its [teks] goes to the wrapper's Semantics label.
+/// its [teks] goes to the wrapper's Semantics label, and [label] is the
+/// short word drawn under it (owner request; the boards draw the circle
+/// bare).
 class ItemBilah {
   const ItemBilah({
     required this.ikon,
@@ -20,7 +22,11 @@ class ItemBilah {
     this.aktif = false,
     this.bungkus,
     this.lingkaran = false,
+    this.label,
   });
+
+  /// The visible word under the raised circle.
+  final String? label;
 
   final IkonData ikon;
   final String teks;
@@ -68,7 +74,29 @@ class BilahPonsel extends StatelessWidget {
           child: PalakatIkon(i.ikon, ukuran: 24, tebal: 2.4, warna: c.diLaut),
         );
         return Expanded(
-          child: Center(child: i.bungkus?.call(lingkaran) ?? lingkaran),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              i.bungkus?.call(lingkaran) ?? lingkaran,
+              if (i.label case final l?)
+                // The circle already carries the Semantics label.
+                ExcludeSemantics(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: Text(
+                      l,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: c.tinta3,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
         );
       }
       final warna = i.aktif ? c.laut : c.tinta3;
@@ -183,6 +211,7 @@ class PonselTabBar extends StatelessWidget {
       ItemBilah(
         ikon: Ikon.tambah,
         teks: 'Catat transaksi',
+        label: 'Catat',
         lingkaran: true,
         bungkus: catat,
       ),
@@ -248,11 +277,12 @@ class BilahBeranda extends ConsumerWidget {
           ItemBilah(
             ikon: a.ikon,
             teks: a.teks,
+            label: a.teks,
             lingkaran: true,
             bungkus: ke(a.ke, anak: a.anak, label: a.teks),
           ),
         ItemBilah(
-          ikon: Ikon.unggah,
+          ikon: Ikon.kotakMasuk,
           teks: 'Kotak masuk',
           bungkus: ke(Layar.kotakMasuk),
         ),

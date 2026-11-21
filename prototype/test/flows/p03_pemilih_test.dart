@@ -25,6 +25,7 @@ import 'package:palakat_prototype/screens/p2/beranda_ponsel.dart';
 import 'package:palakat_prototype/screens/p2/lainnya_ponsel.dart';
 import 'package:palakat_prototype/screens/p2/web_beranda_jabatan.dart';
 import 'package:palakat_prototype/shell/ponsel_tab_bar.dart';
+import 'package:palakat_prototype/widgets/ikon.dart';
 import 'package:palakat_prototype/widgets/bertindak_sebagai.dart';
 import 'package:palakat_prototype/widgets/kecil.dart';
 
@@ -588,6 +589,33 @@ void main() {
         'Kotak masuk',
         'Lainnya',
       ]);
+    });
+
+    // Owner request: the raised button names its action, and Kotak masuk has
+    // its own icon.
+    testWidgets('bilah ponsel: label tombol tengah', (tester) async {
+      await bukaAplikasi(tester);
+      Finder diBilah(String teks) => find.descendant(
+        of: find.byType(BilahPonsel),
+        matching: find.text(teks),
+      );
+      await masukSebagai(tester, Persona.meiske);
+      expect(diBilah('Catat'), findsOneWidget);
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+
+      await masukSebagai(tester, Persona.olvie);
+      expect(diBilah('Terbitkan'), findsOneWidget);
+      final ikon = tester
+          .widgetList<PalakatIkon>(
+            find.descendant(
+              of: find.byType(BilahPonsel),
+              matching: find.byType(PalakatIkon),
+            ),
+          )
+          .map((i) => i.ikon);
+      expect(ikon, contains(Ikon.kotakMasuk));
+      expect(ikon, isNot(contains(Ikon.unggah)));
     });
 
     test('pilihTata', () {
