@@ -79,11 +79,16 @@ void main() {
         expect(berisi(nama('hut')), findsNothing);
         tidakAdaIsian();
 
-        // "Mulai mencatat" opens the finance home.
+        // "Mulai mencatat" opens the finance home: on the phone, the home
+        // `/` itself (owner change 21/11).
         c.read(routerProvider).go(Layar.awal.lokasi());
         await tester.pumpAndSettle();
         await tekan(tester, 'Mulai mencatat');
-        expect(lokasiSekarang(tester), Layar.keuangan.lokasi());
+        expect(
+          lokasiSekarang(tester),
+          tata == Tata.ponsel ? Layar.beranda.jalur : Layar.keuangan.lokasi(),
+        );
+        expect(find.text('Saldo buku semua Kas/Bank'), findsWidgets);
       });
     }
   });

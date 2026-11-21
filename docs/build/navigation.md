@@ -230,6 +230,8 @@ TabBeranda, TabTransaksi and TabCatat are drawn 834 wide, which is below 860, so
 
 ### 1.5 Platform navigation (rounds 2 to 5)
 
+Amended 21/11 by the owner (README 7.3): in the app the phone home is one home at `/` with a bottom bar for every persona (Main's Beranda for a Bendahara, else BerandaJabatan's content); what follows describes the boards.
+
 PetaPlatform states the frame: 56 screens, all for the phone, 30 of them also for the laptop (Bendahara, Sekretaris Jemaat, Operator only, decision 26). Every screen exists only while its module is active; the boards do not hide nav items by module, so the prototype does not either.
 
 **Phone.** No tab bar. The home is **BerandaJabatan** ("46 · Beranda"): one combined home for every post a person holds. Everything else hangs below it through the header back arrow (1.2). The hierarchy, read from the back arrows:

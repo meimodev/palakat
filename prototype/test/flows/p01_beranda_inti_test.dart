@@ -4,13 +4,20 @@
 // verifikasi wewenang" until the Petugas verifikasi activates it. Yanti:
 // "Jabatan Sekretaris Jemaat kosong" until she runs it. Hendrik: "Pemulihan
 // akun · …" until he confirms. No web home row links a phone-only screen.
+// On the phone (owner change 21/11) Meiske's home is Main's Beranda followed
+// by the other modules' rows, with no finance row shown twice.
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:palakat_prototype/app/layar.dart';
 import 'package:palakat_prototype/app/router.dart';
 import 'package:palakat_prototype/data/repositories/role_repository.dart';
+import 'package:palakat_prototype/domain/collaboration/collaboration.dart';
+import 'package:palakat_prototype/providers/actor.dart';
+import 'package:palakat_prototype/providers/bilah_ponsel.dart';
 import 'package:palakat_prototype/providers/home_rows.dart';
+import 'package:palakat_prototype/providers/keuangan/beranda.dart';
+import 'package:palakat_prototype/providers/repositories_kolaborasi.dart';
 import 'package:palakat_prototype/widgets/kecil.dart';
 
 import 'harness.dart';
@@ -134,5 +141,71 @@ void main() {
         }
       });
     }
+
+    testWidgets('beranda keuangan ponsel Meiske', (tester) async {
+      final c = await bukaAplikasi(tester);
+      // A request below Rp250.000 is payable at once: Meiske's row of the
+      // Persetujuan module ("N permintaan dana siap dibayar").
+      await masukSebagai(tester, Persona.hendrik);
+      await tekan(tester, 'Sebagai Ketua Komisi Diakonia');
+      final r0 = await c
+          .read(fundRequestRepositoryProvider)
+          .submit(
+            c.read(actorProvider)!,
+            const FundRequestDraft(
+              purpose: 'Konsumsi rapat komisi',
+              amount: 200000,
+              fundId: 'diak',
+            ),
+            idempotencyKey: 'p1-inti-dana-kecil',
+          );
+      expect(r0.isOk, isTrue, reason: r0.refusal?.because);
+      await keluar(tester);
+
+      await masukSebagai(tester, Persona.meiske);
+      expect(lokasiSekarang(tester), Layar.beranda.jalur);
+      expect(c.read(berandaKeuanganPonselProvider), isTrue);
+
+      // Main's summary as drawn.
+      final b = c.read(berandaKeuanganProvider);
+      expect(find.text('Saldo buku semua Kas/Bank'), findsOneWidget);
+      for (final x in [...b.perluTindakan, ...b.untukDiketahui]) {
+        expect(find.text(x.judul), findsOneWidget, reason: x.judul);
+      }
+
+      // Then the role-home rows of the other modules.
+      final lain = c.read(barisBerandaKeuanganProvider);
+      final modulLain = lain.where(
+        (r) =>
+            r.ke.modulLayar != ModulLayar.keuangan &&
+            r.ke.modulLayar != ModulLayar.keuanganUnit,
+      );
+      expect(
+        modulLain.map((r) => r.judul),
+        contains('1 permintaan dana siap dibayar'),
+      );
+      for (final r in lain) {
+        expect(find.text(r.judul), findsOneWidget, reason: r.judul);
+      }
+
+      // No finance row twice: the "Keuangan: N hal" row is the summary
+      // itself, and every other home row shows exactly once.
+      expect(find.textContaining('hal perlu tindakan'), findsNothing);
+      for (final r in c.read(homeRowsProvider)) {
+        if (r.ke == Layar.keuangan) continue;
+        expect(find.text(r.judul), findsOneWidget, reason: r.judul);
+      }
+
+      // A row of another module opens its screen; Back returns home.
+      final r = modulLain.first;
+      await tekan(tester, r.judul);
+      expect(
+        c.read(routerProvider).state.uri.toString(),
+        r.ke.lokasi(param: r.param),
+      );
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(find.text('Saldo buku semua Kas/Bank'), findsOneWidget);
+    });
   });
 }

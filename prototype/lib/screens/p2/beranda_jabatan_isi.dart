@@ -11,12 +11,14 @@ import '../../shell/tautan.dart';
 import '../../theme/palakat_tema.dart';
 import '../../widgets/bertindak_sebagai.dart';
 import '../../widgets/garis_status.dart';
+import '../../widgets/ikon.dart';
 import '../../widgets/kecil.dart';
 import '../../widgets/lencana_status.dart';
 
-/// Shared by BerandaJabatan and WebBerandaJabatan (spec 14, merged with
-/// AlurBeranda, README 7.1): who is signed in, their posts, their home rows,
-/// and the "Sebagai …" choice while two posts can act (Q31).
+/// Shared by the phone home (BerandaJabatan's content, owner change 21/11)
+/// and WebBerandaJabatan (spec 14, merged with AlurBeranda, README 7.1): who
+/// is signed in, their posts, their home rows, and the "Sebagai …" choice
+/// while two posts can act (Q31).
 
 const kalimatBeranda =
     'Semua pekerjaan dari semua jabatan Anda ada di sini. Hanya modul yang '
@@ -196,4 +198,51 @@ class KeluarSaatKembali extends StatelessWidget {
     },
     child: child,
   );
+}
+
+/// BerandaJabatan's row card (shared look with KotakMasuk): a full-width
+/// link. The phone home and the finance home's other rows draw it.
+class KartuBaris extends StatelessWidget {
+  const KartuBaris(this.r, {super.key});
+  final HomeRow r;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.warna;
+    final lencana = lencanaBaris(r);
+    return Tautan(
+      ke: r.ke,
+      param: r.param,
+      radius: 14,
+      child: Kartu(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 44),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      r.judul,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      r.sub,
+                      style: TextStyle(fontSize: 13, color: c.tinta3),
+                    ),
+                  ],
+                ),
+              ),
+              if (lencana != null) ...[const SizedBox(width: 12), lencana],
+              const SizedBox(width: 12),
+              PalakatIkon(Ikon.lanjut, ukuran: 18, warna: c.tinta3),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

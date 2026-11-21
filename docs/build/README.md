@@ -60,7 +60,7 @@ The product owner decided these on 20 November 2026. They are binding. Do not re
 | D17 | The picker offers the core 11 personas (5.2). Stevi, Agustina, Kevin and the Petugas verifikasi are seed people only. |
 | D18 | The seed starts with Meiske as Bendahara. Pdt. Lidya can end her term in the app. The post then shows as vacant with Operator cover: the vacancy footer on web finance screens and the `PitaJabatanKosong` strip on phone finance screens. A successor, Yohanis Tumbelaka, can then be assigned live through the handover flow. Deitje Kawengian is not the successor. |
 | D19 | The sign-in boards are dropped: Masuk, AlurMasuk, Pemulihan and their Web twins. "Masuk lagi" (Sambungan) and "Keluar" open the picker. Awal and WebAwal show the completed opening read-only, not a first-run wizard. WebVerifikasi is dropped. |
-| D20 | Every persona lands on its role home: BerandaJabatan on phone, WebBerandaJabatan on web. For Meiske, finance (Main or WebBeranda) opens from there, as for other roles. |
+| D20 | Every persona lands on its role home: BerandaJabatan on phone, WebBerandaJabatan on web. For Meiske, finance (Main or WebBeranda) opens from there, as for other roles. Amended 21/11 by the owner: on the phone, the role home is merged into the finance home with a bottom bar for every persona; see §7.2. |
 | D21 | All modules start ACTIVE. Modul can still switch modules off, and menus and routes react. |
 | D22 | The membership applicant is Kevin, a seed person. His application waits in the verification queue. Novita stays an active member since 2021. |
 | D23 | Where boards conflict, take the version most boards and the specs agree on (specs win over boards on rules), and list every pick in the Data picks table (5.8). |
@@ -383,7 +383,7 @@ One church, Jemaat Karunia (GMIM, time zone WITA, fiscal year from 1 January), o
 
 The 23 named people of seed.md §1 are seeded except Deitje Kawengian (DP20), plus the Petugas verifikasi (a system actor from Tim Palakat, used only by the board timers that stand for verification). Posts, delegations and families follow mock-data §2.2–2.3 and roles.md §1, as amended by the Data picks.
 
-The picker (D17) offers exactly these 11 personas. Each one lands on BerandaJabatan or WebBerandaJabatan (D20).
+The picker (D17) offers exactly these 11 personas. Each one lands on its home `/`: on the web WebBerandaJabatan, on the phone the one home with a bottom bar (D20 as amended 21/11, 7.3).
 
 | Persona | Post line on the picker | Posts in the seed | Web footer (navigation.md §1.3) |
 | --- | --- | --- | --- |
@@ -674,7 +674,7 @@ Paths are relative to the role home `/`. "ch:" lists the child routes of a phone
 | Layar | Path | Phone | Web (tablet: same) |
 | --- | --- | --- | --- |
 | `pemilih` | `/pilih` | PemilihPersona (new) | PemilihPersona |
-| `beranda` | `/` | BerandaJabatan + AlurBeranda | WebBerandaJabatan |
+| `beranda` | `/` | One home with a bottom bar (D20 amended, 7.3): Main's Beranda followed by the other modules' rows for a persona who can act as the church Bendahara; else BerandaJabatan + AlurBeranda's content titled "Beranda", without the back arrow | WebBerandaJabatan |
 | `kotakMasuk` | `/kotak-masuk` | KotakMasuk | WebKotakMasuk |
 | `akun` | `/akun` | AkunSaya | WebAkunSaya |
 | `keluar` | `/keluar` ch: `keluar` | Keluar | WebKeluar |
@@ -685,7 +685,7 @@ Paths are relative to the role home `/`. "ch:" lists the child routes of a phone
 
 | Layar | Path | Phone | Web | M |
 | --- | --- | --- | --- | --- |
-| `keuangan` | `/keuangan` | Main | WebBeranda (tablet: TabBeranda) | M2 |
+| `keuangan` | `/keuangan` | Main; its ShellRoute hosts the home `/`. `/keuangan` redirects to `/` for a persona whose home is the finance home, else it is Main's Beranda as a page above their home (7.3) | WebBeranda (tablet: TabBeranda) | M2 |
 | `transaksi` | `/keuangan/transaksi` | Main `transaksi` | WebTransaksi (tablet: TabTransaksi) | M2 |
 | `transaksiRinci` | `/keuangan/detail/:id` | Main `detail` | WebTransaksi with the row selected | M2 |
 | `catat` | `/keuangan/catat` | Main `catat`, `mata-anggaran`, `periksa` | WebCatat (tablet: TabCatat) | M2 |
@@ -784,7 +784,37 @@ Paths are relative to the role home `/`. "ch:" lists the child routes of a phone
 | `persembahanBernama` | `/persembahan-bernama` | PersembahanBernama | WebPersembahanBernama | M10 |
 | `persembahanSaya` | `/persembahan-saya` | PersembahanSaya | — | M10 |
 
+**Phone home (owner change 21/11)**
+
+| Layar | Path | Phone | Web |
+| --- | --- | --- | --- |
+| `lainnya` | `/lainnya` | The Lainnya hub of a persona whose home is not the finance home (new, 7.3) | — |
+
 `lib/app/layar.dart` carries, above each enum value, a comment naming the boards it replaces, and how a board split over two values divides (AlurNama) or which side of a board is reachable (PermohonanAnggota, DP36). At its end it carries a comment block `Papan yang dibuang:` that lists the dropped boards. The board accounting check (11, item 7) reads that file.
+
+### 7.3 Phone home and bar (owner change 21/11)
+
+D20 as amended, on the phone only (web and tablet are unchanged):
+
+- **One home.** Every persona lands on `/`. Main's `ShellRoute` + `MainKendali` hosts it, with Main's child routes (`/keuangan/transaksi`, `catat`, `mata-anggaran`, `periksa`, `detail/:id`) beside it; every other phone page sits on the root navigator above it, so the home stays the bottom page. For a persona whose home is the finance home, `/keuangan` redirects to `/` and a link to `Layar.keuangan` opens the home; anyone else who may see finance gets Main's Beranda at `/keuangan` as a page above their home, with Main's drawn bar, and reaches it from the hub ("Beranda keuangan"). Back on the home signs out to the picker.
+- **Finance home.** A persona who can act as the church Bendahara (holds the Bendahara Jemaat post, or an Operator covering it while vacant) gets Main's Beranda as drawn, then BerandaJabatan's "Perlu tindakan" and "Untuk diketahui" rows from the other modules, leaving out the rows whose content Main's summary already shows. The drawn bar stays: Beranda · Transaksi · Catat · Bulan · Lainnya (the finance Lainnya, which gains a last group "Jabatan dan modul lain").
+- **Other homes.** BerandaJabatan's content titled "Beranda" without the back arrow, over a bar of the same shape: Beranda · {module tab} · {raised action} · Kotak masuk · Lainnya (`/lainnya`, every screen the persona may open, grouped by module, then Akun saya and Keluar; steps that open only inside another screen's flow, such as Main's Transaksi and Catat, the pickers and the AI helps, are left out). The bar shows on the home and on the hub only.
+- **Module tab and raised action** follow the first row of this table that matches a post the persona holds (or a delegation they act in); the raised circle keeps the drawn plus icon, with the action as its label. A tab or action whose screen does not open (module off, guard, no phone screen) falls to the next matching row; with none, the slot is left out. The table lives in `lib/providers/bilah_ponsel.dart` (`tabelBilahPonsel`), derived from the actor's grants, not the persona.
+
+| Post (priority, first match wins) | Module tab → Layar | Raised action → Layar |
+| --- | --- | --- |
+| Sekretaris Jemaat (Olvie) | Dokumen → `dokumenGereja` | Terbitkan → `dokumenGereja` child `terbit` |
+| Ketua Jemaat / Pimpinan Jemaat yang berwenang (Lidya) | Penugasan → `penugasan` | Setujui → `permintaanDana` |
+| Pemeriksa kedua (Jefry) | Periksa → `pemeriksa` | Cari → `cari` |
+| Penatua Kolom (Hendrik) | Verifikasi → `verifikasi` | Ibadah → `ibadah` |
+| Operator, not covering the Bendahara post (Yanti) | Data jemaat → `dataAnggota` | Impor → `imporBuku` |
+| Syamas Kolom / delegate (Greis) | Verifikasi → `verifikasi` | Ibadah → `ibadah` |
+| Bendahara unit of a Kolom (Deasy) | Keuangan unit → `keuanganUnit` | Kesiapan → `kesiapan` |
+| Bendahara Komisi with Fund-only access (Olga) | Terbatas → `terbatas` | Kesiapan → `kesiapan` |
+| Bendahara Panitia (Rivo) | Panitia → `panitia` | Dana → `permintaanDana` |
+| Anggota jemaat (Novita, and anyone with no post above) | Persembahan → `persembahanSaya` | Surat → `surat` |
+
+A vacancy cover counts only for the Bendahara post (it gives the finance home), so Yanti, who covers Penatua Kolom 2, is the Operator row.
 
 ## 8. Flow tests
 
@@ -1181,7 +1211,7 @@ Set `JAVA_HOME` on each Android command, as above; do not rely on the shell's de
 
 How to try it by hand:
 
-1. Pick Meiske and open Keuangan from her home.
+1. Pick Meiske. On a phone her home is the finance home; on the web, open Keuangan from her home.
 2. Record and save a draft.
 3. Sign out and pick Pnt. Jefry Wowor. Mark the draft checked.
 4. Sign out and pick Meiske again. Book it.
@@ -1211,3 +1241,4 @@ None of these blocks the run. Each is built as stated, and the owner may change 
 | O14 | Voucher numbers are computed by the app's counter, so the screens do not show the drawn numbers (October starts right after September's last row, not at 0098) (DP38) | As in the Data picks |
 | O15 | Who records the new Bendahara: the boards draw Meiske's handover alone; DL21 has the authorized church officer record it (DP39) | Meiske prepares, Pdt. Lidya records, the Petugas verifikasi activates |
 | O16 | 4.3 names the announcement command `archive` and the state ARCHIVED; the G10 grep is case-sensitive and finds "hive" inside "archive" | Renamed in code: `AnnouncementRepository.retire`, audit action `announcement.retire`, and the `retired` value of the announcement, Warta and Panitia states; the UI copy stays "Diarsipkan" |
+| O17 | Phone bar tabs for non-finance posts are not drawn on the boards; built from the owner's table (7.3) | The finance bar stays as drawn; the other bars reuse its look and geometry and the boards' icons |

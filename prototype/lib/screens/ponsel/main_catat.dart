@@ -258,7 +258,8 @@ class _CatatState extends ConsumerState<_Catat> {
                 ? null
                 : () async {
                     final router = GoRouter.of(context);
-                    if (await m.simpanDraf()) _keMain(router);
+                    final akar = _akarDari(context);
+                    if (await m.simpanDraf()) _keMain(router, akar);
                   },
           ),
         ]),

@@ -21,10 +21,12 @@ import '../../core/tanggal.dart';
 import '../../domain/core/core.dart';
 import '../../domain/finance/finance.dart';
 import '../../providers/actor.dart';
+import '../../providers/bilah_ponsel.dart';
 import '../../providers/core_repositories.dart';
 import '../../providers/keuangan/pengaturan.dart';
 import '../../providers/repositories_keuangan.dart';
 import '../../widgets/penolakan.dart';
+import '../p2/lainnya_ponsel.dart';
 
 /// Group card C: every row is a push link.
 const _tautanC = [
@@ -413,6 +415,19 @@ class _Hub extends ConsumerWidget {
             ),
           ),
       ]),
+      // The other posts' and modules' screens (owner change 21/11): the
+      // shared hub's links that are not finance-board screens.
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: 10,
+        children: [
+          const Align(
+            alignment: Alignment.centerLeft,
+            child: JudulBagian('Jabatan dan modul lain'),
+          ),
+          KartuTautanHub(ref.watch(hubJabatanLainProvider), akunSaya: true),
+        ],
+      ),
     ];
 
     return Stack(

@@ -61,7 +61,9 @@ enum Layar {
   pemilih('/pilih', ModulLayar.inti),
 
   /// BerandaJabatan + AlurBeranda (phone), WebBerandaJabatan (web): the role
-  /// home, the bottom page of every stack.
+  /// home, the bottom page of every stack. On the phone (owner change 21/11,
+  /// README 7.3) it is one home with a bottom bar for every persona: Main's
+  /// Beranda for a Bendahara, else BerandaJabatan's content and rows.
   beranda('/', ModulLayar.inti),
 
   /// KotakMasuk, WebKotakMasuk.
@@ -84,7 +86,9 @@ enum Layar {
 
   /// Main (phone, a ShellRoute with child routes transaksi, catat,
   /// mata-anggaran, periksa, detail/:id); WebBeranda on web, TabBeranda on the
-  /// tablet.
+  /// tablet. On the phone Main's ShellRoute hosts the home `/`; `/keuangan`
+  /// redirects there for a finance persona, else it is Main's Beranda above
+  /// the persona's own home (owner change 21/11, README 7.3).
   keuangan('/keuangan', ModulLayar.keuangan, kemampuan: Capability.financeView),
 
   /// Main `transaksi`; WebTransaksi (tablet: TabTransaksi).
@@ -580,7 +584,13 @@ enum Layar {
   ),
 
   /// PersembahanSaya (phone only).
-  persembahanSaya('/persembahan-saya', ModulLayar.keuangan, web: false);
+  persembahanSaya('/persembahan-saya', ModulLayar.keuangan, web: false),
+
+  // ── Phone home (owner change 21/11, README 7.3) ──
+
+  /// The phone Lainnya hub of a persona whose home is not the finance home
+  /// (new, no board): every screen they may open, Akun saya and Keluar.
+  lainnya('/lainnya', ModulLayar.inti, web: false);
 
   const Layar(
     this.jalur,

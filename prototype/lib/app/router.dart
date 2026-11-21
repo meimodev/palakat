@@ -6,6 +6,7 @@ import '../motion/halaman.dart';
 import '../motion/kerangka.dart';
 import '../domain/core/modules.dart';
 import '../providers/actor.dart';
+import '../providers/bilah_ponsel.dart';
 import '../providers/layout.dart';
 import '../providers/session.dart';
 import '../screens/a4/a4_f01.dart';
@@ -85,11 +86,12 @@ import '../screens/lengkap/web_tanggal.dart';
 import '../screens/lengkap/web_ubah_pengaturan.dart';
 import '../screens/lengkap/web_unggah.dart';
 import '../screens/p2/akun_saya.dart';
-import '../screens/p2/beranda_jabatan.dart';
+import '../screens/p2/beranda_ponsel.dart';
 import '../screens/p2/cari_orang.dart';
 import '../screens/p2/jabatan_kosong.dart';
 import '../screens/p2/keadaan_umum.dart';
 import '../screens/p2/kotak_masuk.dart';
+import '../screens/p2/lainnya_ponsel.dart';
 import '../screens/p2/modul.dart';
 import '../screens/p2/pelimpahan.dart';
 import '../screens/p2/penugasan.dart';
@@ -188,7 +190,9 @@ final routerProvider = Provider<GoRouter>((ref) {
     (_, _) => segar.value++,
   );
   late final GoRouter router;
+  final akar = GlobalKey<NavigatorState>(debugLabel: 'akar');
   router = GoRouter(
+    navigatorKey: akar,
     initialLocation: Layar.beranda.jalur,
     refreshListenable: segar,
     redirect: (context, state) {
@@ -218,10 +222,18 @@ final routerProvider = Provider<GoRouter>((ref) {
         pageBuilder: (c, s) => halaman(c, s, const PemilihPersonaScreen()),
       ),
       if (tata == Tata.ponsel)
-        GoRoute(
-          path: Layar.beranda.jalur,
-          pageBuilder: (c, s) => _p(c, s, const BerandaJabatanScreen()),
-          routes: _ponsel(),
+        // One phone home (owner change 21/11, README 7.3): Main's ShellRoute
+        // hosts `/` and Main's child routes; every other phone page sits on
+        // the root navigator above it, so the home stays the bottom page.
+        ShellRoute(
+          pageBuilder: (c, s, child) => _p(c, s, MainKendali(child: child)),
+          routes: [
+            GoRoute(
+              path: Layar.beranda.jalur,
+              pageBuilder: (c, s) => halaman(c, s, const BerandaPonselScreen()),
+              routes: [..._main(), ..._ponsel(akar)],
+            ),
+          ],
         )
       else
         GoRoute(
@@ -271,8 +283,10 @@ GoRoute _r(
   bool ponsel = false,
   Layar induk = Layar.beranda,
   List<RouteBase> routes = const [],
+  GlobalKey<NavigatorState>? akar,
 }) => GoRoute(
   path: _relatif(l.jalur, induk.jalur),
+  parentNavigatorKey: akar,
   pageBuilder: (c, s) =>
       ponsel ? _p(c, s, _Dijaga(l, w(s))) : halaman(c, s, _Dijaga(l, w(s))),
   routes: routes,
@@ -309,8 +323,10 @@ ShellRoute _kendali(
   Widget Function(Widget child) kendali,
   Widget Function(String? anak, Map<String, String> param) layar,
   List<(String, ({Bingkai? kerangka, int ms, Curve kurva, bool tanpaGerak}))>
-  anak,
-) => ShellRoute(
+  anak, {
+  GlobalKey<NavigatorState>? akar,
+}) => ShellRoute(
+  parentNavigatorKey: akar,
   builder: (_, _, child) => _Dijaga(l, kendali(child)),
   routes: [
     GoRoute(
@@ -366,250 +382,321 @@ Widget _laporanTerbatas(GoRouterState s) =>
 
 // ---------- Phone tree (Tata.ponsel) ----------
 
-List<RouteBase> _ponsel() => [
-  _r(Layar.kotakMasuk, (_) => const KotakMasukScreen(), ponsel: true),
-  _r(Layar.akun, (_) => const AkunSayaScreen(), ponsel: true),
-  _kendali(
-    Layar.keluar,
-    (c) => KeluarKendali(child: c),
-    (a, p) => KeluarScreen(anak: a, param: p),
-    [
+/// Main's child routes in its ShellRoute, under the home. `/keuangan` itself
+/// redirects home, where Main's Beranda is, for a persona whose home is the
+/// finance home (owner change 21/11); for anyone else it is Main's Beranda
+/// as a page above their own home.
+List<RouteBase> _main() => [
+  GoRoute(
+    path: _relatif(Layar.keuangan.jalur, '/'),
+    redirect: (c, _) =>
+        ProviderScope.containerOf(
+          c,
+          listen: false,
+        ).read(berandaKeuanganPonselProvider)
+        ? Layar.beranda.jalur
+        : null,
+    pageBuilder: (c, s) =>
+        _p(c, s, const _Dijaga(Layar.keuangan, MainScreen())),
+  ),
+  for (final (jalur, g) in [
+    ('transaksi', _pudar200),
+    ('catat', _biasa),
+    (
+      'mata-anggaran',
       (
-        'keluar',
-        (
-          kerangka: Kerangka.pudar,
-          ms: 250,
-          kurva: Curves.ease,
-          tanpaGerak: false,
-        ),
+        kerangka: Kerangka.naik,
+        ms: 280,
+        kurva: PalakatMotion.keluar,
+        tanpaGerak: false,
       ),
-    ],
-  ),
-  _r(Layar.sesiBerakhir, (_) => const SambunganScreen(), ponsel: true),
-  // Finance
-  _kendali(
-    Layar.keuangan,
-    (c) => MainKendali(child: c),
-    (a, p) => MainScreen(anak: a, param: p),
-    [
-      ('transaksi', _pudar200),
-      ('catat', _biasa),
-      (
-        'mata-anggaran',
-        (
-          kerangka: Kerangka.naik,
-          ms: 280,
-          kurva: PalakatMotion.keluar,
-          tanpaGerak: false,
-        ),
+    ),
+    ('periksa', _biasa),
+    ('detail/:id', _biasa),
+  ])
+    _anak(
+      _relatif(Layar.keuangan.lokasi(anak: jalur), '/'),
+      (s) => _Dijaga(
+        Layar.keuangan,
+        MainScreen(anak: jalur, param: s.pathParameters),
       ),
-      ('periksa', _biasa),
-      ('detail/:id', _biasa),
-    ],
-  ),
-  _r(Layar.tanggal, (_) => const TanggalScreen(), ponsel: true),
-  _r(Layar.bagi, (_) => const BagiScreen(), ponsel: true),
-  _r(Layar.bantuanAi, (_) => const BantuanAIScreen(), ponsel: true),
-  _r(Layar.aiFoto, (_) => const AIFotoScreen(), ponsel: true),
-  _r(Layar.aiMataAnggaran, (_) => const AIMataAnggaranScreen(), ponsel: true),
-  _r(Layar.pilihBulan, (_) => const PilihBulanScreen(), ponsel: true),
-  _r(Layar.draf, (_) => const DrafScreen(), ponsel: true),
-  _r(Layar.pemeriksa, (_) => const PemeriksaScreen(), ponsel: true),
-  _r(Layar.cari, (_) => const CariScreen(), ponsel: true),
-  _kendali(
-    Layar.persembahan,
-    (c) => PersembahanKendali(child: c),
-    (a, p) => PersembahanScreen(anak: a, param: p),
-    [('hasil', _biasa)],
-  ),
-  _kendali(
-    Layar.kewajiban,
-    (c) => KewajibanKendali(child: c),
-    (a, p) => KewajibanScreen(anak: a, param: p),
-    [('kasus/:id', _biasa)],
-  ),
-  _r(Layar.kasusBaru, (_) => const KasusBaruScreen(), ponsel: true),
-  _r(Layar.persetujuan, (_) => const PersetujuanScreen(), ponsel: true),
-  _kendali(
-    Layar.koreksi,
-    (c) => KoreksiKendali(child: c),
-    (a, p) => KoreksiScreen(anak: a, param: p),
-    [('pembalikan', _biasa), ('hasil', _pudar200), ('kejadian', _biasa)],
-  ),
-  _r(Layar.pengembalian, (_) => const PengembalianScreen(), ponsel: true),
-  _r(Layar.alihPeruntukan, (_) => const AlihPeruntukanScreen(), ponsel: true),
-  _kendali(
-    Layar.dokumen,
-    (c) => DokumenKendali(child: c),
-    (a, p) => DokumenScreen(anak: a, param: p),
-    [('rinci', _biasa)],
-  ),
-  _kendali(
-    Layar.fotoDokumen,
-    (c) => KameraKendali(child: c),
-    (a, p) => KameraScreen(anak: a, param: p),
-    [('tinjau', _diam), ('unggah', _diam)],
-  ),
-  _r(Layar.lihatDokumen, (_) => const LihatDokumenScreen(), ponsel: true),
-  _r(Layar.impor, (_) => const ImporScreen(), ponsel: true),
-  _r(Layar.ekspor, (_) => const EksporScreen(), ponsel: true),
-  _kendali(
-    Layar.tutupBuku,
-    (c) => TutupBukuKendali(child: c),
-    (a, p) => TutupBukuScreen(anak: a, param: p),
-    [
-      ('cek', _biasa),
-      ('rekonsiliasi', _biasa),
-      ('konfirmasi', _biasa),
-      ('ditutup', _diam),
-    ],
-  ),
-  _r(Layar.rekeningKoran, (_) => const RekonIsiScreen(), ponsel: true),
-  _kendali(
-    Layar.hitungKas,
-    (c) => HitungKasKendali(child: c),
-    (a, p) => HitungKasScreen(anak: a, param: p),
-    [('banding', _biasa)],
-  ),
-  _r(Layar.kesiapan, (_) => const KesiapanScreen(), ponsel: true),
-  _r(Layar.hambatanUnit, (_) => const SelesaikanUnitScreen(), ponsel: true),
-  _r(Layar.aiBulan, (_) => const AIBulanScreen(), ponsel: true),
-  _kendali(
-    Layar.kejadian,
-    (c) => KejadianKendali(child: c),
-    (a, p) => KejadianScreen(anak: a, param: p),
-    [('rinci', _biasa)],
-  ),
-  _kendali(
-    Layar.laporan,
-    (c) => LaporanKendali(child: c),
-    (a, p) => LaporanScreen(anak: a, param: p),
-    [('rinci/:f', _biasa)],
-  ),
-  _r(Layar.lihatTransaksi, (_) => const LihatTransaksiScreen(), ponsel: true),
-  _r(Layar.bukti, (_) => const BuktiScreen(), ponsel: true),
-  _r(Layar.formatLaporan, (_) => const FormatLaporanScreen(), ponsel: true),
-  _r(Layar.laporanResmi, _laporanResmi),
-  _kendali(
-    Layar.terbatas,
-    (c) => TerbatasKendali(child: c),
-    (a, p) => TerbatasScreen(anak: a, param: p),
-    [('transaksi/:no', _biasa)],
-  ),
-  _r(Layar.laporanTerbatas, _laporanTerbatas),
-  _kendali(
-    Layar.awal,
-    (c) => AwalKendali(child: c),
-    (a, p) => AwalScreen(anak: a, param: p),
-    [('tunjuk', _biasa), ('saldo', _biasa)],
-  ),
-  _r(Layar.awalIsian, (_) => const AwalIsianScreen(), ponsel: true),
-  _kendali(
-    Layar.pengaturan,
-    (c) => LainnyaKendali(child: c),
-    (a, p) => LainnyaScreen(anak: a, param: p),
-    [('kas', _biasa), ('aturan', _biasa), ('riwayat', _biasa)],
-  ),
-  _r(Layar.ubahPengaturan, (_) => const UbahPengaturanScreen(), ponsel: true),
-  _kendali(
-    Layar.mataAnggaran,
-    (c) => MataAnggaranKendali(child: c),
-    (a, p) => MataAnggaranScreen(anak: a, param: p),
-    [('rinci', _biasa)],
-  ),
-  _r(Layar.kasUnit, (_) => const KasUnitScreen(), ponsel: true),
-  _kendali(
-    Layar.bendahara,
-    (c) => BendaharaKendali(child: c),
-    (a, p) => BendaharaScreen(anak: a, param: p),
-    [('serah', _biasa)],
-  ),
-  _r(Layar.pemberitahuan, (_) => const PemberitahuanScreen(), ponsel: true),
-  // C1
-  _r(Layar.penugasan, (_) => const PenugasanScreen(), ponsel: true),
-  _r(Layar.jabatanKosong, (_) => const JabatanKosongScreen(), ponsel: true),
-  _r(Layar.pelimpahan, (_) => const PelimpahanScreen(), ponsel: true),
-  _r(Layar.modul, (_) => const ModulScreen(), ponsel: true),
-  _r(Layar.cariOrang, (_) => const CariOrangScreen(), ponsel: true),
-  // Secretariat: DokumenGereja is the root page inside AlurDokumen's shell,
-  // whose `terbit` and `ralat` views are the child routes (merged in M7).
-  _kendali(
-    Layar.dokumenGereja,
-    (c) => AlurDokumenKendali(child: c),
-    (a, p) => a == null
-        ? const DokumenGerejaScreen()
-        : AlurDokumenScreen(anak: a, param: p),
-    [('terbit', _diam), ('ralat', _diam)],
-  ),
-  _r(Layar.surat, (_) => const PermohonanSuratScreen(), ponsel: true),
-  _r(Layar.pengumuman, (_) => const PengumumanScreen(), ponsel: true),
-  _r(
-    Layar.warta,
-    (_) => const WartaArsipScreen(),
-    ponsel: true,
-    routes: [
-      _r(
-        Layar.wartaEdisi,
-        (_) => const WartaEditorScreen(),
-        ponsel: true,
-        induk: Layar.warta,
-        routes: [
-          _r(
-            Layar.bukaNama,
-            (_) => const BukaNamaScreen(),
-            ponsel: true,
-            induk: Layar.wartaEdisi,
-          ),
-          _r(
-            Layar.wartaPdf,
-            (_) => const A4WartaScreen(),
-            induk: Layar.wartaEdisi,
-          ),
-        ],
-      ),
-    ],
-  ),
-  // Membership
-  _r(Layar.dataAnggota, (_) => const DataAnggotaScreen(), ponsel: true),
-  _r(
-    Layar.permohonanAnggota,
-    (_) => const PermohonanAnggotaScreen(),
-    ponsel: true,
-  ),
-  _r(Layar.imporBuku, (_) => const ImporBukuScreen(), ponsel: true),
-  _r(
-    Layar.konfirmasiKeluarga,
-    (_) => const KonfirmasiKeluargaScreen(),
-    ponsel: true,
-  ),
-  _r(Layar.verifikasi, (_) => const AntreanVerifikasiScreen(), ponsel: true),
-  _r(Layar.peristiwa, (_) => const PeristiwaScreen(), ponsel: true),
-  _r(Layar.dataGanda, (_) => const DataGandaScreen(), ponsel: true),
-  _r(Layar.tampilanNama, (_) => const TampilanNamaScreen(), ponsel: true),
-  _r(Layar.cabutIzin, (_) => const CabutIzinScreen(), ponsel: true),
-  // Collaboration and joins
-  _r(Layar.keuanganUnit, (_) => const KeuanganUnitScreen(), ponsel: true),
-  _r(Layar.permintaanDana, (_) => const PermintaanDanaScreen(), ponsel: true),
-  _r(
-    Layar.pemberiPersetujuan,
-    (_) => const PemberiPersetujuanScreen(),
-    ponsel: true,
-  ),
-  _r(Layar.panitia, (_) => const PanitiaScreen(), ponsel: true),
-  _r(Layar.ibadah, (_) => const IbadahScreen(), ponsel: true),
-  _r(
-    Layar.kehadiran,
-    (s) => KehadiranScreen(ibadahId: s.pathParameters['ibadah'] ?? ''),
-    ponsel: true,
-  ),
-  _r(Layar.laporanLintas, (_) => const LaporanLintasScreen(), ponsel: true),
-  _r(
-    Layar.persembahanBernama,
-    (_) => const PersembahanBernamaScreen(),
-    ponsel: true,
-  ),
-  _r(Layar.persembahanSaya, (_) => const PersembahanSayaScreen(), ponsel: true),
+      kerangka: g.kerangka,
+      ms: g.ms,
+      kurva: g.kurva,
+      tanpaGerak: g.tanpaGerak,
+    ),
 ];
+
+/// The other phone pages, on the root navigator [akar] above the home.
+List<RouteBase> _ponsel(GlobalKey<NavigatorState> akar) {
+  GoRoute rute(
+    Layar l,
+    Widget Function(GoRouterState s) w, {
+    bool ponsel = false,
+    Layar induk = Layar.beranda,
+    List<RouteBase> routes = const [],
+  }) => _r(l, w, ponsel: ponsel, induk: induk, routes: routes, akar: akar);
+  ShellRoute kendali(
+    Layar l,
+    Widget Function(Widget child) k,
+    Widget Function(String? anak, Map<String, String> param) layar,
+    List<(String, ({Bingkai? kerangka, int ms, Curve kurva, bool tanpaGerak}))>
+    anak,
+  ) => _kendali(l, k, layar, anak, akar: akar);
+  return [
+    rute(Layar.kotakMasuk, (_) => const KotakMasukScreen(), ponsel: true),
+    rute(Layar.akun, (_) => const AkunSayaScreen(), ponsel: true),
+    kendali(
+      Layar.keluar,
+      (c) => KeluarKendali(child: c),
+      (a, p) => KeluarScreen(anak: a, param: p),
+      [
+        (
+          'keluar',
+          (
+            kerangka: Kerangka.pudar,
+            ms: 250,
+            kurva: Curves.ease,
+            tanpaGerak: false,
+          ),
+        ),
+      ],
+    ),
+    rute(Layar.sesiBerakhir, (_) => const SambunganScreen(), ponsel: true),
+    // Finance (Main's child routes are in _main)
+    rute(Layar.tanggal, (_) => const TanggalScreen(), ponsel: true),
+    rute(Layar.bagi, (_) => const BagiScreen(), ponsel: true),
+    rute(Layar.bantuanAi, (_) => const BantuanAIScreen(), ponsel: true),
+    rute(Layar.aiFoto, (_) => const AIFotoScreen(), ponsel: true),
+    rute(
+      Layar.aiMataAnggaran,
+      (_) => const AIMataAnggaranScreen(),
+      ponsel: true,
+    ),
+    rute(Layar.pilihBulan, (_) => const PilihBulanScreen(), ponsel: true),
+    rute(Layar.draf, (_) => const DrafScreen(), ponsel: true),
+    rute(Layar.pemeriksa, (_) => const PemeriksaScreen(), ponsel: true),
+    rute(Layar.cari, (_) => const CariScreen(), ponsel: true),
+    kendali(
+      Layar.persembahan,
+      (c) => PersembahanKendali(child: c),
+      (a, p) => PersembahanScreen(anak: a, param: p),
+      [('hasil', _biasa)],
+    ),
+    kendali(
+      Layar.kewajiban,
+      (c) => KewajibanKendali(child: c),
+      (a, p) => KewajibanScreen(anak: a, param: p),
+      [('kasus/:id', _biasa)],
+    ),
+    rute(Layar.kasusBaru, (_) => const KasusBaruScreen(), ponsel: true),
+    rute(Layar.persetujuan, (_) => const PersetujuanScreen(), ponsel: true),
+    kendali(
+      Layar.koreksi,
+      (c) => KoreksiKendali(child: c),
+      (a, p) => KoreksiScreen(anak: a, param: p),
+      [('pembalikan', _biasa), ('hasil', _pudar200), ('kejadian', _biasa)],
+    ),
+    rute(Layar.pengembalian, (_) => const PengembalianScreen(), ponsel: true),
+    rute(
+      Layar.alihPeruntukan,
+      (_) => const AlihPeruntukanScreen(),
+      ponsel: true,
+    ),
+    kendali(
+      Layar.dokumen,
+      (c) => DokumenKendali(child: c),
+      (a, p) => DokumenScreen(anak: a, param: p),
+      [('rinci', _biasa)],
+    ),
+    kendali(
+      Layar.fotoDokumen,
+      (c) => KameraKendali(child: c),
+      (a, p) => KameraScreen(anak: a, param: p),
+      [('tinjau', _diam), ('unggah', _diam)],
+    ),
+    rute(Layar.lihatDokumen, (_) => const LihatDokumenScreen(), ponsel: true),
+    rute(Layar.impor, (_) => const ImporScreen(), ponsel: true),
+    rute(Layar.ekspor, (_) => const EksporScreen(), ponsel: true),
+    kendali(
+      Layar.tutupBuku,
+      (c) => TutupBukuKendali(child: c),
+      (a, p) => TutupBukuScreen(anak: a, param: p),
+      [
+        ('cek', _biasa),
+        ('rekonsiliasi', _biasa),
+        ('konfirmasi', _biasa),
+        ('ditutup', _diam),
+      ],
+    ),
+    rute(Layar.rekeningKoran, (_) => const RekonIsiScreen(), ponsel: true),
+    kendali(
+      Layar.hitungKas,
+      (c) => HitungKasKendali(child: c),
+      (a, p) => HitungKasScreen(anak: a, param: p),
+      [('banding', _biasa)],
+    ),
+    rute(Layar.kesiapan, (_) => const KesiapanScreen(), ponsel: true),
+    rute(Layar.hambatanUnit, (_) => const SelesaikanUnitScreen(), ponsel: true),
+    rute(Layar.aiBulan, (_) => const AIBulanScreen(), ponsel: true),
+    kendali(
+      Layar.kejadian,
+      (c) => KejadianKendali(child: c),
+      (a, p) => KejadianScreen(anak: a, param: p),
+      [('rinci', _biasa)],
+    ),
+    kendali(
+      Layar.laporan,
+      (c) => LaporanKendali(child: c),
+      (a, p) => LaporanScreen(anak: a, param: p),
+      [('rinci/:f', _biasa)],
+    ),
+    rute(
+      Layar.lihatTransaksi,
+      (_) => const LihatTransaksiScreen(),
+      ponsel: true,
+    ),
+    rute(Layar.bukti, (_) => const BuktiScreen(), ponsel: true),
+    rute(Layar.formatLaporan, (_) => const FormatLaporanScreen(), ponsel: true),
+    rute(Layar.laporanResmi, _laporanResmi),
+    kendali(
+      Layar.terbatas,
+      (c) => TerbatasKendali(child: c),
+      (a, p) => TerbatasScreen(anak: a, param: p),
+      [('transaksi/:no', _biasa)],
+    ),
+    rute(Layar.laporanTerbatas, _laporanTerbatas),
+    kendali(
+      Layar.awal,
+      (c) => AwalKendali(child: c),
+      (a, p) => AwalScreen(anak: a, param: p),
+      [('tunjuk', _biasa), ('saldo', _biasa)],
+    ),
+    rute(Layar.awalIsian, (_) => const AwalIsianScreen(), ponsel: true),
+    kendali(
+      Layar.pengaturan,
+      (c) => LainnyaKendali(child: c),
+      (a, p) => LainnyaScreen(anak: a, param: p),
+      [('kas', _biasa), ('aturan', _biasa), ('riwayat', _biasa)],
+    ),
+    rute(
+      Layar.ubahPengaturan,
+      (_) => const UbahPengaturanScreen(),
+      ponsel: true,
+    ),
+    kendali(
+      Layar.mataAnggaran,
+      (c) => MataAnggaranKendali(child: c),
+      (a, p) => MataAnggaranScreen(anak: a, param: p),
+      [('rinci', _biasa)],
+    ),
+    rute(Layar.kasUnit, (_) => const KasUnitScreen(), ponsel: true),
+    kendali(
+      Layar.bendahara,
+      (c) => BendaharaKendali(child: c),
+      (a, p) => BendaharaScreen(anak: a, param: p),
+      [('serah', _biasa)],
+    ),
+    rute(Layar.pemberitahuan, (_) => const PemberitahuanScreen(), ponsel: true),
+    // C1
+    rute(Layar.penugasan, (_) => const PenugasanScreen(), ponsel: true),
+    rute(Layar.jabatanKosong, (_) => const JabatanKosongScreen(), ponsel: true),
+    rute(Layar.pelimpahan, (_) => const PelimpahanScreen(), ponsel: true),
+    rute(Layar.modul, (_) => const ModulScreen(), ponsel: true),
+    rute(Layar.cariOrang, (_) => const CariOrangScreen(), ponsel: true),
+    // Secretariat: DokumenGereja is the root page inside AlurDokumen's shell,
+    // whose `terbit` and `ralat` views are the child routes (merged in M7).
+    kendali(
+      Layar.dokumenGereja,
+      (c) => AlurDokumenKendali(child: c),
+      (a, p) => a == null
+          ? const DokumenGerejaScreen()
+          : AlurDokumenScreen(anak: a, param: p),
+      [('terbit', _diam), ('ralat', _diam)],
+    ),
+    rute(Layar.surat, (_) => const PermohonanSuratScreen(), ponsel: true),
+    rute(Layar.pengumuman, (_) => const PengumumanScreen(), ponsel: true),
+    rute(
+      Layar.warta,
+      (_) => const WartaArsipScreen(),
+      ponsel: true,
+      routes: [
+        rute(
+          Layar.wartaEdisi,
+          (_) => const WartaEditorScreen(),
+          ponsel: true,
+          induk: Layar.warta,
+          routes: [
+            rute(
+              Layar.bukaNama,
+              (_) => const BukaNamaScreen(),
+              ponsel: true,
+              induk: Layar.wartaEdisi,
+            ),
+            rute(
+              Layar.wartaPdf,
+              (_) => const A4WartaScreen(),
+              induk: Layar.wartaEdisi,
+            ),
+          ],
+        ),
+      ],
+    ),
+    // Membership
+    rute(Layar.dataAnggota, (_) => const DataAnggotaScreen(), ponsel: true),
+    rute(
+      Layar.permohonanAnggota,
+      (_) => const PermohonanAnggotaScreen(),
+      ponsel: true,
+    ),
+    rute(Layar.imporBuku, (_) => const ImporBukuScreen(), ponsel: true),
+    rute(
+      Layar.konfirmasiKeluarga,
+      (_) => const KonfirmasiKeluargaScreen(),
+      ponsel: true,
+    ),
+    rute(
+      Layar.verifikasi,
+      (_) => const AntreanVerifikasiScreen(),
+      ponsel: true,
+    ),
+    rute(Layar.peristiwa, (_) => const PeristiwaScreen(), ponsel: true),
+    rute(Layar.dataGanda, (_) => const DataGandaScreen(), ponsel: true),
+    rute(Layar.tampilanNama, (_) => const TampilanNamaScreen(), ponsel: true),
+    rute(Layar.cabutIzin, (_) => const CabutIzinScreen(), ponsel: true),
+    // Collaboration and joins
+    rute(Layar.keuanganUnit, (_) => const KeuanganUnitScreen(), ponsel: true),
+    rute(
+      Layar.permintaanDana,
+      (_) => const PermintaanDanaScreen(),
+      ponsel: true,
+    ),
+    rute(
+      Layar.pemberiPersetujuan,
+      (_) => const PemberiPersetujuanScreen(),
+      ponsel: true,
+    ),
+    rute(Layar.panitia, (_) => const PanitiaScreen(), ponsel: true),
+    rute(Layar.ibadah, (_) => const IbadahScreen(), ponsel: true),
+    rute(
+      Layar.kehadiran,
+      (s) => KehadiranScreen(ibadahId: s.pathParameters['ibadah'] ?? ''),
+      ponsel: true,
+    ),
+    rute(Layar.laporanLintas, (_) => const LaporanLintasScreen(), ponsel: true),
+    rute(
+      Layar.persembahanBernama,
+      (_) => const PersembahanBernamaScreen(),
+      ponsel: true,
+    ),
+    rute(
+      Layar.persembahanSaya,
+      (_) => const PersembahanSayaScreen(),
+      ponsel: true,
+    ),
+    rute(Layar.lainnya, (_) => const LainnyaPonselScreen(), ponsel: true),
+  ];
+}
 
 // ---------- Web tree (Tata.web and Tata.tablet) ----------
 

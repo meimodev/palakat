@@ -1,13 +1,16 @@
 // P1 Home and inbox, finance part (README 8.3): each finance persona's
 // "Perlu tindakan" rows come from real open items; finishing the item
 // removes the row (booking the 2 church drafts removes "2 draf belum
-// dibukukan"); no web home row links a phone-only screen.
+// dibukukan"); no web home row links a phone-only screen. On the phone
+// Meiske's home is the finance home (owner change 21/11): Main's summary,
+// then the role-home rows it does not already show.
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:palakat_prototype/app/layar.dart';
 import 'package:palakat_prototype/app/router.dart';
 import 'package:palakat_prototype/domain/finance/finance.dart';
 import 'package:palakat_prototype/providers/actor.dart';
+import 'package:palakat_prototype/providers/bilah_ponsel.dart';
 import 'package:palakat_prototype/providers/home_rows.dart';
 import 'package:palakat_prototype/providers/keuangan/beranda.dart';
 import 'package:palakat_prototype/providers/repositories_keuangan.dart';
@@ -27,6 +30,14 @@ void main() {
       testWidgets(tata.name, (tester) async {
         final c = await bukaAplikasi(tester, tata: tata);
         final tx = c.read(transactionRepositoryProvider);
+        final ponsel = tata == Tata.ponsel;
+
+        /// The rows the home draws as row cards: on the phone's finance
+        /// home, those Main's summary does not show.
+        List<HomeRow> tampil() =>
+            ponsel && c.read(berandaKeuanganPonselProvider)
+            ? c.read(barisBerandaKeuanganProvider)
+            : c.read(homeRowsProvider);
 
         Future<void> keBeranda() async {
           c.read(routerProvider).go(Layar.beranda.lokasi());
@@ -44,7 +55,7 @@ void main() {
           for (final r in baris) {
             expect(r.ke.adaUntuk(tata), isTrue, reason: '${p.name} ${r.judul}');
           }
-          for (final r in baris.where(_keuangan)) {
+          for (final r in tampil().where(_keuangan)) {
             expect(find.text(r.judul), findsOneWidget, reason: r.judul);
           }
           const keuangan = {
@@ -88,16 +99,24 @@ void main() {
         expect(find.text('4 draf menunggu pemeriksaan'), findsOneWidget);
         await keluar(tester);
 
-        // Meiske: the Bendahara's rows.
+        // Meiske: the Bendahara's rows; on the phone Main's summary holds
+        // them and the dashed draft pill the sum.
         await masukSebagai(tester, Persona.meiske);
         final b = c.read(berandaKeuanganProvider);
         expect(b.drafJumlah, 2);
         expect(
           find.text('Keuangan: ${b.perluTindakan.length} hal perlu tindakan'),
-          findsOneWidget,
+          ponsel ? findsNothing : findsOneWidget,
         );
         expect(find.text('2 draf belum dibukukan'), findsOneWidget);
-        expect(find.text('Belum masuk saldo · Rp800.000'), findsOneWidget);
+        expect(
+          find.text(
+            ponsel
+                ? 'Rp800.000 · 2 draf · belum masuk saldo'
+                : 'Belum masuk saldo · Rp800.000',
+          ),
+          findsOneWidget,
+        );
         expect(
           find.text(
             '${b.hambatan.where((h) => h.unitScopeId != null).length} '
@@ -107,7 +126,7 @@ void main() {
         );
 
         // Each Meiske row opens its screen in this layout.
-        for (final r in c.read(homeRowsProvider)) {
+        for (final r in tampil()) {
           await tekan(tester, r.judul);
           expect(tester.takeException(), isNull, reason: r.judul);
           expect(find.text('Tidak berwenang'), findsNothing, reason: r.judul);
@@ -152,7 +171,14 @@ void main() {
 
         await bukukan(_honor);
         expect(find.text('1 draf belum dibukukan'), findsOneWidget);
-        expect(find.text('Belum masuk saldo · Rp150.000'), findsOneWidget);
+        expect(
+          find.text(
+            ponsel
+                ? 'Rp150.000 · 1 draf · belum masuk saldo'
+                : 'Belum masuk saldo · Rp150.000',
+          ),
+          findsOneWidget,
+        );
         await bukukan(_fotokopi);
         expect(find.textContaining('draf belum dibukukan'), findsNothing);
         expect(c.read(berandaKeuanganProvider).drafJumlah, 0);
@@ -161,7 +187,7 @@ void main() {
             'Keuangan: ${c.read(berandaKeuanganProvider).perluTindakan.length}'
             ' hal perlu tindakan',
           ),
-          findsOneWidget,
+          ponsel ? findsNothing : findsOneWidget,
         );
         expect(tx.get(_honor)!.finalizedBy, 'meiske');
         // The audit actors (AuditRepository).

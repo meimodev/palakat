@@ -239,8 +239,7 @@ class _Periksa extends StatelessWidget {
             child: _kaki(context, [
               Tombol(
                 'Lihat transaksi',
-                onPressed: () =>
-                    _keAnak(GoRouter.of(context), 'detail/${m.drafId}'),
+                onPressed: () => _keAnak(context, 'detail/${m.drafId}'),
               ),
               Tombol(
                 'Kembali ke Beranda',

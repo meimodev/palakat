@@ -14,14 +14,17 @@ import '../../motion/hitung.dart';
 import '../../motion/kerangka.dart';
 import '../../motion/urutan.dart';
 import '../../providers/actor.dart';
+import '../../providers/bilah_ponsel.dart';
 import '../../providers/clock.dart';
 import '../../providers/core_repositories.dart';
+import '../../providers/home_rows.dart';
 import '../../providers/keuangan/beranda.dart';
 import '../../providers/keuangan/catat.dart';
 import '../../providers/keuangan/isian.dart';
 import '../../providers/keuangan/transaksi.dart';
 import '../../providers/repositories_keuangan.dart';
 import '../../providers/revision.dart';
+import '../../providers/session.dart';
 import '../../shell/kepala_ponsel.dart';
 import '../../shell/layar_ponsel.dart';
 import '../../shell/ponsel_tab_bar.dart';
@@ -42,6 +45,7 @@ import '../../widgets/status_simpan.dart';
 import '../../widgets/tata_letak.dart';
 import '../../widgets/tekan.dart';
 import '../../widgets/tombol.dart';
+import '../p2/beranda_jabatan_isi.dart';
 
 part 'main_catat.dart';
 part 'main_periksa.dart';
@@ -478,25 +482,42 @@ class _MainLingkup extends InheritedNotifier<_MainKeadaan> {
 
 // ---------- Navigation inside the board ----------
 
-final _akar = Layar.keuangan.jalur;
+/// Main's Beranda (owner change 21/11): the phone home `/` for a persona
+/// whose home is the finance home, else the page `/keuangan` above their own
+/// home. Main's child routes keep their paths under `/keuangan`.
+String _akar(bool keuangan) =>
+    keuangan ? Layar.beranda.jalur : Layar.keuangan.jalur;
+final _anakMain = '${Layar.keuangan.jalur}/';
+
+String _akarDari(BuildContext context) => _akar(
+  ProviderScope.containerOf(
+    context,
+    listen: false,
+  ).read(berandaKeuanganPonselProvider),
+);
 
 /// The Main page on top of Main's own pages.
 String _atasMain(GoRouter r) {
   for (final l in tumpukanHalaman(r).reversed) {
-    if (l == _akar || l.startsWith('$_akar/')) return l;
+    if (l == Layar.beranda.jalur ||
+        l == Layar.keuangan.jalur ||
+        l.startsWith(_anakMain)) {
+      return l;
+    }
   }
-  return _akar;
+  return Layar.beranda.jalur;
 }
 
-/// "Pop to /Main": pop every `/Main/…` page above `/Main`, or go `/Main`
-/// when it is not in the stack.
-void _keMain(GoRouter r) {
+/// "Pop to /Main": pop every Main child page above Main's Beranda [akar],
+/// or go there when another page sits between them.
+void _keMain(GoRouter r, String akar) {
   var t = tumpukanHalaman(r);
-  if (!t.contains(_akar)) {
-    r.go(_akar);
+  final i = t.lastIndexWhere((l) => !l.startsWith(_anakMain));
+  if (i < 0 || t[i] != akar) {
+    r.go(akar);
     return;
   }
-  while (t.length > 1 && t.last.startsWith('$_akar/')) {
+  while (t.length > 1 && t.last.startsWith(_anakMain)) {
     r.pop();
     final b = tumpukanHalaman(r);
     if (b.length >= t.length) break;
@@ -505,32 +526,35 @@ void _keMain(GoRouter r) {
 }
 
 /// Pop to /Main, then push a child view.
-void _keAnak(GoRouter r, String anak) {
-  _keMain(r);
-  r.push('$_akar/$anak');
+void _keAnak(BuildContext context, String anak) {
+  final r = GoRouter.of(context);
+  _keMain(r, _akarDari(context));
+  r.push('$_anakMain$anak');
 }
 
 void _keBeranda(BuildContext context) {
   _MainLingkup.baca(context).tutupSheet();
-  _keMain(GoRouter.of(context));
+  _keMain(GoRouter.of(context), _akarDari(context));
 }
 
 void _bukaDaftar(BuildContext context) {
-  final r = GoRouter.of(context);
-  if (_atasMain(r) == '$_akar/transaksi') return;
-  _keAnak(r, 'transaksi');
+  if (_atasMain(GoRouter.of(context)) == '${_anakMain}transaksi') return;
+  _keAnak(context, 'transaksi');
 }
 
 // ---------- Kendali: state, LayarPonsel, overlays ----------
 
-class MainKendali extends StatefulWidget {
+/// Main's Kendali, the phone home's shell (owner change 21/11): it hosts `/`
+/// for every persona and draws the finance tab bar, toast and Catat sheet
+/// only for a persona whose home is the finance home.
+class MainKendali extends ConsumerStatefulWidget {
   const MainKendali({super.key, required this.child});
   final Widget child;
   @override
-  State<MainKendali> createState() => _MainKendaliState();
+  ConsumerState<MainKendali> createState() => _MainKendaliState();
 }
 
-class _MainKendaliState extends State<MainKendali> {
+class _MainKendaliState extends ConsumerState<MainKendali> {
   late final _m = _MainKeadaan(
     ProviderScope.containerOf(context, listen: false),
   );
@@ -544,7 +568,10 @@ class _MainKendaliState extends State<MainKendali> {
   @override
   Widget build(BuildContext context) {
     final atas = _atasMain(GoRouter.of(context));
-    final tab = atas == _akar || atas == '$_akar/transaksi';
+    // On a non-finance home `/` the home draws its own bar.
+    final tab =
+        atas == _akar(ref.watch(berandaKeuanganPonselProvider)) ||
+        atas == '${_anakMain}transaksi';
     return _MainLingkup(
       keadaan: _m,
       child: ListenableBuilder(
@@ -554,7 +581,7 @@ class _MainKendaliState extends State<MainKendali> {
           overlay: [
             if (tab)
               PonselTabBar(
-                aktif: atas == '$_akar/transaksi'
+                aktif: atas == '${_anakMain}transaksi'
                     ? TabPonsel.transaksi
                     : TabPonsel.beranda,
                 beranda: (isi) =>
@@ -625,13 +652,21 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       _ => const _Beranda(),
     };
     final tutupLembar = anak == null || anak == 'transaksi';
+    // Main's Beranda is the phone home of a finance persona (owner 21/11).
+    final rumah = anak == null && ref.watch(berandaKeuanganPonselProvider);
     return PopScope(
-      // An open sheet closes first; a posted Periksa returns to Beranda.
-      canPop: !(tutupLembar && m.sheet) && !(anak == 'periksa' && m.posted),
+      // An open sheet closes first; a posted Periksa returns to Beranda;
+      // Back on the phone home signs out (KeluarSaatKembali).
+      canPop:
+          !rumah &&
+          !(tutupLembar && m.sheet) &&
+          !(anak == 'periksa' && m.posted),
       onPopInvokedWithResult: (sudah, _) {
         if (sudah) return;
         if (tutupLembar && m.sheet) {
           m.tutupSheet();
+        } else if (rumah) {
+          keluarSesi(context);
         } else {
           _keBeranda(context);
         }
@@ -725,6 +760,10 @@ class _Beranda extends ConsumerWidget {
         if (x.ke != Layar.tutupBuku) x,
     ];
     final garis = GarisLurus(warna: c.garis);
+    // The other modules' rows only on the finance home `/` (owner 21/11).
+    final lain = ref.watch(berandaKeuanganPonselProvider)
+        ? ref.watch(barisBerandaKeuanganProvider)
+        : const <HomeRow>[];
 
     return _GulirTab(
       jarak: 22,
@@ -1071,6 +1110,27 @@ class _Beranda extends ConsumerWidget {
             ),
           ],
         ),
+        // The phone home (owner change 21/11): the role-home rows of the
+        // other modules after Main's summary, without those it shows.
+        ...[
+          for (final (judul, k) in [
+            ('Perlu tindakan', KelompokBaris.tindak),
+            ('Untuk diketahui', KelompokBaris.tahu),
+          ])
+            if (lain.where((r) => r.kelompok == k).toList() case final baris
+                when baris.isNotEmpty)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: 16,
+                children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: JudulBagian(judul),
+                  ),
+                  for (final r in baris) KartuBaris(r),
+                ],
+              ),
+        ],
       ],
     );
   }
@@ -1190,13 +1250,13 @@ class _KartuTransaksi extends StatelessWidget {
   VoidCallback? _buka(BuildContext context) {
     final t = r.transaksi;
     if (t.isPosted) {
-      return () => _keAnak(GoRouter.of(context), 'detail/${t.id}');
+      return () => _keAnak(context, 'detail/${t.id}');
     }
     if (!t.isDraft) return null;
     if (_MainKeadaan.bisaDimuat(t)) {
       return () {
         _MainLingkup.baca(context).muat(t);
-        _keAnak(GoRouter.of(context), 'catat');
+        _keAnak(context, 'catat');
       };
     }
     return () => context.dorongKe(Layar.draf, param: {'id': t.id});
@@ -1286,7 +1346,6 @@ class _LembarCatat extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.warna;
-    final router = GoRouter.of(context);
     final garis = GarisLurus(warna: c.garis);
     return LembarBawah(
       judul: 'Catat apa?',
@@ -1304,7 +1363,7 @@ class _LembarCatat extends StatelessWidget {
               Tekan(
                 onTap: () {
                   m.mulai(id, ur);
-                  _keAnak(router, 'catat');
+                  _keAnak(context, 'catat');
                 },
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(minHeight: 63),

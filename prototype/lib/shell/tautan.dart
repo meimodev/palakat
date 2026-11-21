@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../app/layar.dart';
 import '../app/tata.dart';
 import '../providers/actor.dart';
+import '../providers/bilah_ponsel.dart';
 import '../providers/layout.dart';
 import '../widgets/tekan.dart';
 
@@ -53,6 +54,36 @@ void kembaliKeDengan(GoRouter router, String lokasi) {
   router.go(lokasi);
 }
 
+/// Where [ke] opens: its location, except that on the phone the finance
+/// home of a persona who can act as the church's Bendahara is their home
+/// (owner change 21/11), so `Layar.keuangan` itself opens `/` (its child
+/// routes keep their paths). Kind "up" keeps `/keuangan`: it pops onto a
+/// Main child below, else goes there and the router redirects home.
+String lokasiUntuk(
+  Layar ke,
+  ProviderContainer p, {
+  Map<String, String> param = const {},
+  String? anak,
+}) =>
+    ke == Layar.keuangan &&
+        anak == null &&
+        p.read(layoutProvider) == Tata.ponsel &&
+        p.read(berandaKeuanganPonselProvider)
+    ? Layar.beranda.jalur
+    : ke.lokasi(param: param, anak: anak);
+
+String _lokasi(
+  BuildContext context,
+  Layar ke,
+  Map<String, String> param,
+  String? anak,
+) => lokasiUntuk(
+  ke,
+  ProviderScope.containerOf(context, listen: false),
+  param: param,
+  anak: anak,
+);
+
 /// Whether the current layout has a screen for [ke]: a screen drawn for both
 /// layouts leaves out a link the other layout lacks (D13).
 bool adaLayar(BuildContext context, Layar ke) => ke.adaUntuk(
@@ -64,19 +95,24 @@ extension TautanKonteks on BuildContext {
   void naikKe(Layar ke, {Map<String, String> param = const {}, String? anak}) =>
       kembaliKeDengan(GoRouter.of(this), ke.lokasi(param: param, anak: anak));
 
-  /// `push` to a screen or one of its child routes.
+  /// `push` to a screen or one of its child routes; the home, the bottom
+  /// page, is never pushed again: it is gone to.
   void dorongKe(
     Layar ke, {
     Map<String, String> param = const {},
     String? anak,
-  }) => GoRouter.of(this).push(ke.lokasi(param: param, anak: anak));
+  }) {
+    final tujuan = _lokasi(this, ke, param, anak);
+    final r = GoRouter.of(this);
+    tujuan == Layar.beranda.jalur ? r.go(tujuan) : r.push(tujuan);
+  }
 
   /// `go` to a screen or one of its child routes.
   void gantiKe(
     Layar ke, {
     Map<String, String> param = const {},
     String? anak,
-  }) => GoRouter.of(this).go(ke.lokasi(param: param, anak: anak));
+  }) => GoRouter.of(this).go(_lokasi(this, ke, param, anak));
 }
 
 /// Every control that opens another screen (README 3.6): [ke] with its path
@@ -150,11 +186,11 @@ class Tautan extends ConsumerWidget {
   /// What a press does; public so a text span or chip can reuse it.
   void buka(BuildContext context) {
     final router = GoRouter.of(context);
-    final tata = ProviderScope.containerOf(
-      context,
-      listen: false,
-    ).read(layoutProvider);
-    final tujuan = ke.lokasi(param: param, anak: anak);
+    final p = ProviderScope.containerOf(context, listen: false);
+    final tata = p.read(layoutProvider);
+    final tujuan = cara == Cara.naik
+        ? ke.lokasi(param: param, anak: anak)
+        : lokasiUntuk(ke, p, param: param, anak: anak);
     final t = tumpukanHalaman(router);
     if (t.isNotEmpty && t.last == tujuan) {
       diSini?.call();
@@ -165,6 +201,9 @@ class Tautan extends ConsumerWidget {
         router.go(tujuan);
       case Cara.naik:
         kembaliKeDengan(router, tujuan);
+      case Cara.dorong when tujuan == Layar.beranda.jalur:
+        // The home is the bottom page: never pushed again.
+        router.go(tujuan);
       case Cara.dorong:
         if (tata != Tata.ponsel ||
             !layarBerKendali.contains(ke) ||
